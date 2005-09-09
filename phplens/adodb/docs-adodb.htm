@@ -17,7 +17,7 @@ pre {
 <h2>ADOdb Library for PHP</h2>
 <p>V4.65 22 July 2005 (c) 2000-2005 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
-  means you can use it in compiled proprietary and commercial products.</font></p>
+  means you can use it in compiled proprfietary and commercial products.</font></p>
   
 
 	<p>Useful ADOdb links:  <a href="http://adodb.sourceforge.net/#download">Download</a> &nbsp; <a href="http://adodb.sourceforge.net/#docs">Other Docs</a>
@@ -520,7 +520,6 @@ If PHP5 is detected, the following features become available:
 catch exceptions on errors as they occur.
 <pre>	<b>include("../adodb-exceptions.inc.php");</b> <br>	include("../adodb.inc.php");	 <br>	try { <br>		$db = NewADOConnection("oci8"); <br>		$db-&gt;Connect('','scott','bad-password'); <br>	} catch (exception $e) { <br>		var_dump($e); <br>		adodb_backtrace($e-&gt;gettrace());<br>	} <br></pre>
 <p>Note that reaching EOF is <b>not</b> considered an error nor an exception.
-If you want to use the default ADOdb drivers return false.
 </p></li></ul> 
 <h3><a name="drivers"></a>Databases Supported</h3>
 The <i>name</i> below is the value you pass to NewADOConnection($name) to create a  connection object for that database.
@@ -2814,6 +2813,8 @@ of MySQL.</font></p>
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 
 <p><a name="4.66"></a><b>4.66 ?? July  2005</b>
+<p>ExecuteCursor() in oci8 did not clean up properly on failure. Fixed.
+<p>Updated xmlschema.dtd, by "Alec Smecher" asmecher#smecher.bc.ca
 <p>Hardened SelectLimit, typecasting nrows and offset to integer.
 <p>Fixed misc bugs in AutoExecute() and GetInsertSQL().
 <p>Added $conn->database as the property holding the database name. The older $conn->databaseName is retained for backward

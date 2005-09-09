@@ -757,6 +757,11 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 		return $rez;
 	}
 	
+	function _errconnect()
+	{
+		if (defined('DB_ERROR_CONNECT_FAILED')) return DB_ERROR_CONNECT_FAILED;
+		else return 'Database connection failed';
+	}
 
 	/*	Returns: the last error message from previous database operation	*/	
 	function ErrorMsg() 
@@ -770,9 +775,9 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 			
 			if (!empty($this->_connectionID)) {
 				$this->_errorMsg = @pg_last_error($this->_connectionID);
-			} else $this->_errorMsg = @pg_last_error();
+			} else $this->_errorMsg = $this->_errconnect();
 		} else {
-			if (empty($this->_connectionID)) $this->_errorMsg = @pg_errormessage();
+			if (empty($this->_connectionID)) $this->_errconnect();
 			else $this->_errorMsg = @pg_errormessage($this->_connectionID);
 		}
 		return $this->_errorMsg;

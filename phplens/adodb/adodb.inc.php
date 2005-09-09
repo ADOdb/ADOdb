@@ -28,8 +28,7 @@
 	ADO, SAP DB, SQLite and ODBC. We have had successful reports of connecting to Progress and
 	other databases via ODBC.
 
-	Latest Download at http://php.weblogs.com/adodb<br>
-	Manual is at http://php.weblogs.com/adodb_manual
+	Latest Download at http://adodb.sourceforge.net/
 	  
  */
  

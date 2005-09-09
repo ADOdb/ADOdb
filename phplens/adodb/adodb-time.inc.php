@@ -1,7 +1,7 @@
 <?php
 /**
 ADOdb Date Library, part of the ADOdb abstraction library
-Download: http://php.weblogs.com/adodb_date_time_library
+Download: http://phplens.com/phpeverywhere/
 
 PHP native date functions use integer timestamps for computations.
 Because of this, dates are restricted to the years 1901-2038 on Unix 
@@ -241,10 +241,12 @@ b. Implement daylight savings, which looks awfully complicated, see
 
 
 CHANGELOG
+- 08 Sept 2005 0.22
+In adodb_date2(), $is_gmt not supported properly. Fixed.
 
-- 18 July  2005  0.21
-- In PHP 4.3.11, the 'r' format has changed. Leading 0 in day is added. Changed for compat.
-- Added support for negative months in adodb_mktime().
+- 18 July  2005 0.21
+In PHP 4.3.11, the 'r' format has changed. Leading 0 in day is added. Changed for compat.
+Added support for negative months in adodb_mktime().
 
 - 24 Feb 2005 0.20
 Added limited strftime/gmstrftime support. x10 improvement in performance of adodb_date().
@@ -359,7 +361,7 @@ First implementation.
 /*
 	Version Number
 */
-define('ADODB_DATE_VERSION',0.21);
+define('ADODB_DATE_VERSION',0.22);
 
 /*
 	This code was originally for windows. But apparently this problem happens 
@@ -912,8 +914,8 @@ function adodb_date2($fmt, $d=false, $is_gmt=false)
 		if ($rr[1] <= 100 && $rr[2]<= 1) return adodb_date($fmt,false,$is_gmt);
 	
 		// h-m-s-MM-DD-YY
-		if (!isset($rr[5])) $d = adodb_mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
-		else $d = @adodb_mktime($rr[5],$rr[6],$rr[7],$rr[2],$rr[3],$rr[1]);
+		if (!isset($rr[5])) $d = adodb_mktime(0,0,0,$rr[2],$rr[3],$rr[1],false,$is_gmt);
+		else $d = @adodb_mktime($rr[5],$rr[6],$rr[7],$rr[2],$rr[3],$rr[1],false,$is_gmt);
 	}
 	
 	return adodb_date($fmt,$d,$is_gmt);
@@ -1262,11 +1264,11 @@ global $ADODB_DATE_LOCALE;
 			case 'S': $fmtdate .= 's'; break;
 			case 't': $fmtdate .= "\t"; break;
 			case 'T': $fmtdate .= 'H:i:s'; break;
-			case 'u': $fmtdate .= '?u'; $parseu = true; break; // wrong strftime=1-based, date=0-basde
+			case 'u': $fmtdate .= '?u'; $parseu = true; break; // wrong strftime=1-based, date=0-based
 			case 'U': $fmtdate .= '?U'; $parseU = true; break;// wrong strftime=1-based, date=0-based
 			case 'x': $fmtdate .= $ADODB_DATE_LOCALE[0]; break;
 			case 'X': $fmtdate .= $ADODB_DATE_LOCALE[1]; break;
-			case 'w': $fmtdate .= '?w'; $parseu = true; break; // wrong strftime=1-based, date=0-basde
+			case 'w': $fmtdate .= '?w'; $parseu = true; break; // wrong strftime=1-based, date=0-based
 			case 'W': $fmtdate .= '?W'; $parseU = true; break;// wrong strftime=1-based, date=0-based
 			case 'y': $fmtdate .= 'y'; break;
 			case 'Y': $fmtdate .= 'Y'; break;
