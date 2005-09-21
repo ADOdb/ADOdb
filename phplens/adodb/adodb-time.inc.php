@@ -697,6 +697,28 @@ echo "<hr>$i ";
 
 */
 
+
+$_month_table_normal = array("",31,28,31,30,31,30,31,31,30,31,30,31);
+$_month_table_leaf = array("",31,29,31,30,31,30,31,31,30,31,30,31);
+	
+function adodb_validdate($y,$m,$d)
+{
+global $_month_table_normal,$_month_table_leaf;
+
+	if (_adodb_is_leap_year($y)) $marr =& $_month_table_leaf;
+	else $marr =& $_month_table_normal;
+	
+	if ($m > 12 || $m < 1) return false;
+	
+	if ($d > 31 || $d < 1) return false;
+	
+	if ($marr[$m] < $d) return false;
+	
+	if ($y < 1000 && $y > 3000) return false;
+	
+	return true;
+}
+
 /**
 	Low-level function that returns the getdate() array. We have a special
 	$fast flag, which if set to true, will return fewer array values,
@@ -705,6 +727,7 @@ echo "<hr>$i ";
 function _adodb_getdate($origd=false,$fast=false,$is_gmt=false)
 {
 static $YRS;
+global $_month_table_normal,$_month_table_leaf;
 
 	$d =  $origd - ($is_gmt ? 0 : adodb_get_gmt_diff());
 	

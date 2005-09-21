@@ -3788,6 +3788,7 @@
 		}
 		
 		switch($drivername) {
+		case 'mysqli': $drivername='mysql'; break;
 		case 'firebird15': $drivername = 'firebird'; break;
 		case 'oracle': $drivername = 'oci8'; break;
 		case 'access': if ($perf) $drivername = ''; break;

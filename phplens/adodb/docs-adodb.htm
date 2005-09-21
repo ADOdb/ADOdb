@@ -1050,7 +1050,7 @@ and an UPDATE with:
 <pre>
     $record["firstname"] = "Caroline"; 
     $record["lastname"] = "Smith"; # Update Caroline's lastname from Miranda to Smith 
-    $insertSQL = $conn->AutoExecute($rs, $record, 'UPDATE', 'WHERE id = 1'); 
+    $insertSQL = $conn->AutoExecute($rs, $record, 'UPDATE', 'id = 1'); 
 </pre>
 <p>
 The rest of this section is out-of-date:
