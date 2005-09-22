@@ -67,7 +67,7 @@ function undomq(&$m)
 
 $remote = $_SERVER["REMOTE_ADDR"]; 
  
-if (empty($_GET['sql'])) err('No SQL');
+if (empty($_REQUEST['sql'])) err('No SQL');
 
 if (!empty($ACCEPTIP))
  if ($remote != '127.0.0.1' && $remote != $ACCEPTIP) 
@@ -77,14 +77,14 @@ if (!empty($ACCEPTIP))
 $conn = &ADONewConnection($driver);
 
 if (!$conn->Connect($host,$uid,$pwd,$database)) err($conn->ErrorNo(). $sep . $conn->ErrorMsg());
-$sql = undomq($_GET['sql']);
+$sql = undomq($_REQUEST['sql']);
 
-if (isset($_GET['fetch']))
-	$ADODB_FETCH_MODE = $_GET['fetch'];
+if (isset($_REQUEST['fetch']))
+	$ADODB_FETCH_MODE = $_REQUEST['fetch'];
 	
-if (isset($_GET['nrows'])) {
-	$nrows = $_GET['nrows'];
-	$offset = isset($_GET['offset']) ? $_GET['offset'] : -1;
+if (isset($_REQUEST['nrows'])) {
+	$nrows = $_REQUEST['nrows'];
+	$offset = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : -1;
 	$rs = $conn->SelectLimit($sql,$nrows,$offset);
 } else 
 	$rs = $conn->Execute($sql);
