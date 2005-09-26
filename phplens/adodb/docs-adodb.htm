@@ -2824,8 +2824,10 @@ compat.
 <p>Improved OffsetDate for MySQL, reducing rounding error.
 <p>Metacolumns added to sqlite. Thx Mark Newnham.
 <p>PHP 4.4 compat fixes for GetAssoc().
+<p>Added postgresql bind support for php 5.1. Thx Cristiano da Cunha Duarte
 <p>OffsetDate() fixes for postgresql, typecasting strings to date or timestamp.
 <p>DBTimeStamp formats for mssql, odbc_mssql and postgresql made to conform with other db's.
+<p>Changed PDO constants from PDO_ to PDO:: to support latest spec.
 <p><a name="4.65"></a><b>4.65 22 July  2005</b>
 <p>Reverted 'X' in mssql datadict to 'TEXT' to be compat with mssql driver. However now you can 
 set $datadict->typeX = 'varchar(4000)' or 'TEXT' or 'CLOB' for mssql and oci8 drivers. 

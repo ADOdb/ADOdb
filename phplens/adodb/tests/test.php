@@ -343,7 +343,7 @@ ef")."</p>";//'
 		print "<p>Testing Foreign Keys</p>";
 		$arr = $db->MetaForeignKeys('adoxyz',false,true);
 		print_r($arr);
-		if (!$arr) Err("Bad MetaForeignKeys");
+		if (!$arr) Err("No MetaForeignKeys");
 		break;
 	
 	case 'odbc_mssql':
