@@ -525,9 +525,8 @@ select viewname,'V' from pg_views where viewname like $mask";
 			}
 
 			//Freek
-			if ($rs->fields[4] == 't') {
-				$fld->not_null = true;
-			}
+			$fld->not_null = $rs->fields[4] == 't';
+			
 			
 			// Freek
 			if (is_array($keys)) {

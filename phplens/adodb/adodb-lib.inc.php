@@ -57,8 +57,10 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 		 
 		$where = false;
 		foreach ($keyCol as $v) {
-			if ($where) $where .= " and $v=$fieldArray[$v]";
-			else $where = "$v=$fieldArray[$v]";
+			if (isset($fieldArray[$v])) {
+				if ($where) $where .= ' and '.$v.'='.$fieldArray[$v];
+				else $where = $v.'='.$fieldArray[$v];
+			}
 		}
 		
 		if ($uSet && $where) {

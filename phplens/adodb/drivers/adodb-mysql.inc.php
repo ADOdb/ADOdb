@@ -572,6 +572,44 @@ class ADODB_mysql extends ADOConnection {
      }
 	 
 	
+	// this is a set of functions for managing client encoding - very important if the encodings
+	// of your database and your output target (i.e. HTML) don't match
+	// for instance, you may have UTF8 database and server it on-site as latin1 etc.
+	// GetCharSet - get the name of the character set the client is using now
+	// Under Windows, the functions should work with MySQL 4.1.11 and above, the set of charsets supported
+	// depends on compile flags of mysql distribution 
+
+  function GetCharSet()
+  {
+    //we will use ADO's builtin property charSet
+    if (!is_callable($this->_connectionID,'character_set_name'))
+    	return false;
+    	
+    $this->charSet = @$this->_connectionID->character_set_name();
+    if (!$this->charSet) {
+      return false;
+    } else {
+      return $this->charSet;
+    }
+  }
+
+  // SetCharSet - switch the client encoding
+  function SetCharSet($charset_name)
+  {
+    if (!is_callable($this->_connectionID,'set_charset'))
+    	return false;
+
+    if ($this->charSet !== $charset_name) {
+      $if = @$this->_connectionID->set_charset($charset_name);
+      if ($if == "0" & $this->GetCharSet() == $charset_name) {
+        return true;
+      } else return false;
+    } else return true;
+  }
+
+
+
+
 }
 	
 /*--------------------------------------------------------------------------------------
@@ -615,16 +653,20 @@ class ADORecordSet_mysql extends ADORecordSet{
 	{	
 		if ($fieldOffset != -1) {
 			$o = @mysql_fetch_field($this->_queryID, $fieldOffset);
-			$f = @mysql_field_flags($this->_queryID,$fieldOffset);
-			$o->max_length = @mysql_field_len($this->_queryID,$fieldOffset); // suggested by: Jim Nicholson (jnich@att.com)
-			//$o->max_length = -1; // mysql returns the max length less spaces -- so it is unrealiable
-			$o->binary = (strpos($f,'binary')!== false);
 		}
 		else if ($fieldOffset == -1) {	/*	The $fieldOffset argument is not provided thus its -1 	*/
 			$o = @mysql_fetch_field($this->_queryID);
-			$o->max_length = @mysql_field_len($this->_queryID); // suggested by: Jim Nicholson (jnich@att.com)
-			//$o->max_length = -1; // mysql returns the max length less spaces -- so it is unrealiable
 		}
+		$o->max_length = @mysql_field_len($this->_queryID,$fieldOffset); // suggested by: Jim Nicholson (jnich@att.com)
+		//$o->max_length = -1; // mysql returns the max length less spaces -- so it is unrealiable
+		$o->max_length = @mysql_field_len($this->_queryID); // suggested by: Jim Nicholson (jnich@att.com)
+		//$o->max_length = -1; // mysql returns the max length less spaces -- so it is unrealiable
+		$o->primary_key = $o->flags & MYSQLI_PRI_KEY_FLAG;
+    	$o->not_null = $o->flags & MYSQLI_NOT_NULL_FLAG;
+		$o->auto_increment = $o->flags & MYSQLI_AUTO_INCREMENT_FLAG;
+		$o->binary = $o->flags & MYSQLI_BINARY_FLAG;
+		// $o->blob = $o->flags & MYSQLI_BLOB_FLAG; /* not returned by MetaColumns */
+		$o->unsigned = $o->flags & MYSQLI_UNSIGNED_FLAG;
 			
 		return $o;
 	}
