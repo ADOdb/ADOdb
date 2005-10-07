@@ -657,6 +657,81 @@ class ADODB_mysqli extends ADOConnection {
 	{
 	  return 4294967295; 
 	}
+	// "Innox - Juan Carlos Gonzalez" <jgonzalez#innox.com.mx>
+	function MetaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $asociative = FALSE )
+     {
+         if ( !empty($owner) ) {
+            $table = "$owner.$table";
+         }
+         $a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
+		 if ($associative) $create_sql = $a_create_table["Create Table"];
+         else $create_sql  = $a_create_table[1];
+
+         $matches = array();
+
+         if (!preg_match_all("/FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) return false;
+	     $foreign_keys = array();	 	 
+         $num_keys = count($matches[0]);
+         for ( $i = 0;  $i < $num_keys;  $i ++ ) {
+             $my_field  = explode('`, `', $matches[1][$i]);
+             $ref_table = $matches[2][$i];
+             $ref_field = explode('`, `', $matches[3][$i]);
+
+             if ( $upper ) {
+                 $ref_table = strtoupper($ref_table);
+             }
+
+             $foreign_keys[$ref_table] = array();
+             $num_fields = count($my_field);
+             for ( $j = 0;  $j < $num_fields;  $j ++ ) {
+                 if ( $asociative ) {
+                     $foreign_keys[$ref_table][$ref_field[$j]] = $my_field[$j];
+                 } else {
+                     $foreign_keys[$ref_table][] = "{$my_field[$j]}={$ref_field[$j]}";
+                 }
+             }
+         }
+         
+         return  $foreign_keys;
+     }
+
+
+	// this is a set of functions for managing client encoding - very important if the encodings
+	// of your database and your output target (i.e. HTML) don't match
+	// for instance, you may have UTF8 database and server it on-site as latin1 etc.
+	// GetCharSet - get the name of the character set the client is using now
+	// Under Windows, the functions should work with MySQL 4.1.11 and above, the set of charsets supported
+	// depends on compile flags of mysql distribution 
+
+  function GetCharSet()
+  {
+    //we will use ADO's builtin property charSet
+    if (!is_callable($this->_connectionID,'character_set_name'))
+    	return false;
+    	
+    $this->charSet = @$this->_connectionID->character_set_name();
+    if (!$this->charSet) {
+      return false;
+    } else {
+      return $this->charSet;
+    }
+  }
+
+  // SetCharSet - switch the client encoding
+  function SetCharSet($charset_name)
+  {
+    if (!is_callable($this->_connectionID,'set_charset'))
+    	return false;
+
+    if ($this->charSet !== $charset_name) {
+      $if = @$this->_connectionID->set_charset($charset_name);
+      if ($if == "0" & $this->GetCharSet() == $charset_name) {
+        return true;
+      } else return false;
+    } else return true;
+  }
+
+
 
 
 }
@@ -704,6 +779,26 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		$this->_numOfFields = @mysqli_num_fields($this->_queryID);
 	}
 	
+/*
+1      = MYSQLI_NOT_NULL_FLAG
+2      = MYSQLI_PRI_KEY_FLAG
+4      = MYSQLI_UNIQUE_KEY_FLAG
+8      = MYSQLI_MULTIPLE_KEY_FLAG
+16     = MYSQLI_BLOB_FLAG
+32     = MYSQLI_UNSIGNED_FLAG
+64     = MYSQLI_ZEROFILL_FLAG
+128    = MYSQLI_BINARY_FLAG
+256    = MYSQLI_ENUM_FLAG
+512    = MYSQLI_AUTO_INCREMENT_FLAG
+1024   = MYSQLI_TIMESTAMP_FLAG
+2048   = MYSQLI_SET_FLAG
+32768  = MYSQLI_NUM_FLAG
+16384  = MYSQLI_PART_KEY_FLAG
+32768  = MYSQLI_GROUP_FLAG
+65536  = MYSQLI_UNIQUE_FLAG
+131072 = MYSQLI_BINCMP_FLAG
+*/
+
 	function &FetchField($fieldOffset = -1) 
 	{	
 	  $fieldnr = $fieldOffset;
@@ -711,6 +806,14 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	    $fieldOffset = mysqli_field_seek($this->_queryID, $fieldnr);
 	  }
 	  $o = mysqli_fetch_field($this->_queryID);
+	  /* Properties of an ADOFieldObject as set by MetaColumns */
+	  $o->primary_key = $o->flags & MYSQLI_PRI_KEY_FLAG;
+    $o->not_null = $o->flags & MYSQLI_NOT_NULL_FLAG;
+		$o->auto_increment = $o->flags & MYSQLI_AUTO_INCREMENT_FLAG;
+		$o->binary = $o->flags & MYSQLI_BINARY_FLAG;
+		// $o->blob = $o->flags & MYSQLI_BLOB_FLAG; /* not returned by MetaColumns */
+		$o->unsigned = $o->flags & MYSQLI_UNSIGNED_FLAG;
+
 	  return $o;
 	}
 
