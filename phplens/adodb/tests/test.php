@@ -182,7 +182,7 @@ FROM `nuke_stories` `t1`, `nuke_authors` `t2`, `nuke_stories_cat` `t3`, `nuke_to
 			error_reporting($e);
 		}
 	}
-	
+	error_reporting(E_ALL);
 	echo "<p>Testing Metatypes</p>";
 	$t = $db->MetaType('varchar');
 	if ($t != 'C') Err("Bad Metatype for varchar");
@@ -775,12 +775,14 @@ END Adodb;
 	 if ($val == 50) print "<p>GetOne returns ok</p>";
 	 else print "<p><b>Fail: GetOne returns $val</b></p>";
 
+	 echo "<b>GetRow Test</b>";
 	$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-	$val = $db->GetRow("select count(*) from ADOXYZ");
-	 if ($val[0] == 50 and sizeof($val) == 1) print "<p>GetRow returns ok</p>";
+	$val1 = $db->GetRow("select count(*) from ADOXYZ");
+	$val2 =& $db->GetRow("select count(*) from ADOXYZ");
+	 if ($val1[0] == 50 and sizeof($val1) == 1 and $val2[0] == 50 and sizeof($val2) == 1) print "<p>GetRow returns ok</p>";
 	 else {
 	 	print_r($val);
-	 	print "<p><b>Fail: GetRow returns {$val[0]}</b></p>";
+	 	print "<p><b>Fail: GetRow returns {$val2[0]}</b></p>";
 	}
 
 	print "<p>FetchObject/FetchNextObject Test</p>";
