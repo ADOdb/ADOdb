@@ -195,7 +195,7 @@ NATSOFT.DOMAIN =
 				   	$argHostname=$argHostinfo[0];
 					$argHostport=$argHostinfo[1];
 			 	} else {
-					$argHostport="1521";
+					$argHostport = empty($this->port)?  "1521" : $this->port;
 	   			}
 				
 				if ($this->connectSID) {
@@ -502,6 +502,10 @@ NATSOFT.DOMAIN =
 				
 			case 'l':
 				$s .= 'DAY';
+				break;
+				
+			 case 'W':
+				$s .= 'WW';
 				break;
 				
 			default:

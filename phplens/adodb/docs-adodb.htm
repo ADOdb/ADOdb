@@ -1952,7 +1952,7 @@ improvement because it monitors all SQL errors for you. This is particularly
 useful if you are calling black-box functions in which SQL queries might be executed.
  Also all BeginTrans, CommitTrans and RollbackTrans calls inside a StartTrans block 
   will be disabled, so even if the black box function does a commit, it will be ignored.
-</font></p><pre><font>$DB-&gt;StartTrans();<br>CallBlackBox();<br>$DB-&gt;Execute("update table1 set val=$val1 where id=$id");<br>$DB-&gt;Execute("update table2 set val=$val2 where id=$id");<br>$DB-&gt;CompleteTrans($ok);<br></font></pre>
+</font></p><pre><font>$DB-&gt;StartTrans();<br>CallBlackBox();<br>$DB-&gt;Execute("update table1 set val=$val1 where id=$id");<br>$DB-&gt;Execute("update table2 set val=$val2 where id=$id");<br>$DB-&gt;CompleteTrans();<br></font></pre>
 <p><font>Note that a StartTrans blocks are nestable, the inner blocks are ignored.
  </font></p><p><font><b>CompleteTrans<a name="completetrans"></a>($autoComplete=true)</b></font></p>
 <font>  </font><p><font>Complete a transaction called with StartTrans(). This function monitors
@@ -2537,6 +2537,7 @@ $dateFormat, which supports: </font>
   A: AM/PM indicator
   w: day of week (0-6 or 1-7 depending on DB)
   l: day of week (as string - lowercase L)
+  W: week in year (0..53 for MySQL, 1..53 for PostgreSQL and Oracle)
   </font></pre>
 <p><font>All other characters are treated as strings. You can
     also use \ to escape characters. Available on selected databases, including
@@ -2813,8 +2814,10 @@ of MySQL.</font></p>
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 
 <p><a name="4.67"></a><b>4.67 ?? Sept  2005</b>
-Postgresql not_null flag not set to false correctly. Thx Cristian MARIN.
-We now check in Replace() if key is in fieldArray. Thx Sébastien Vanvelthem.
+<p>Postgresql not_null flag not set to false correctly. Thx Cristian MARIN.
+<p>We now check in Replace() if key is in fieldArray. Thx Sébastien Vanvelthem.
+<p>_file_get_contents() function was missing in xmlschema. fixed.
+<p>Added week in year support to SQLDate(), using 'W' flag. Thx Spider.
 <p><a name="4.66"></a><b>4.66 28 Sept  2005</b>
 <p>ExecuteCursor() in oci8 did not clean up properly on failure. Fixed.
 <p>Updated xmlschema.dtd, by "Alec Smecher" asmecher#smecher.bc.ca

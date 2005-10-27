@@ -312,7 +312,11 @@ select viewname,'V' from pg_views where viewname like $mask";
 			case 'l':
 				$s .= 'DAY';
 				break;
-				
+			
+			 case 'W':
+				$s .= 'WW';
+				break;
+
 			default:
 			// handle escape characters...
 				if ($ch == '\\') {

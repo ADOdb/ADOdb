@@ -59,10 +59,11 @@ class ADODB_mysqlt extends ADODB_mysql {
 		return true;
 	}
 	
-	function RowLock($tables,$where,$flds='1 as adodb_ignore') 
+	function RowLock($tables,$where='',$flds='1 as adodb_ignore') 
 	{
 		if ($this->transCnt==0) $this->BeginTrans();
-		$rs =& $this->Execute("select $flds from $tables where $where for update");
+		if ($where) $where = ' where '.$where;
+		$rs =& $this->Execute("select $flds from $tables $where for update");
 		return !empty($rs); 
 	}
 	

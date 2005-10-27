@@ -56,6 +56,7 @@ class ADODB_mysql extends ADOConnection {
 		return " IFNULL($field, $ifNull) "; // if MySQL
 	}
 	
+	
 	function &MetaTables($ttype=false,$showSchema=false,$mask=false) 
 	{	
 		$save = $this->metaTablesSQL;
@@ -306,6 +307,10 @@ class ADODB_mysql extends ADOConnection {
 				
 			case 'w':
 				$s .= '%w';
+				break;
+				
+			 case 'W':
+				$s .= '%U';
 				break;
 				
 			case 'l':

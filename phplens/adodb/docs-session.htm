@@ -176,7 +176,7 @@ records in the database and temporary files: </p>
 <p> NOTE 1: If you have register_globals disabled in php.ini, then you
 will have to manually set the EXPIREREF. E.g. </p>
 <pre> <font color="#004040">
-    $GLOBALS['USERID'] =&amp; $_SESSION['USERID'];
+    $GLOBALS['USERID'] = GetUserID();
     $ADODB_SESSION_EXPIRE_NOTIFY = array('USERID','NotifyFn');</font>
 </pre>
 <p> NOTE 2: If you want to change the EXPIREREF after the session

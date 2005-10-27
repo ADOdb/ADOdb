@@ -17,6 +17,20 @@
  * @package axmls
  * @tutorial getting_started.pkg
  */
+ 
+function _file_get_contents($file) 
+{
+ 	if (function_exists('file_get_contents')) return file_get_contents($file);
+	
+	$f = fopen($file,'r');
+	if (!$f) return '';
+	$t = '';
+	
+	while ($s = fread($f,100000)) $t .= $s;
+	fclose($f);
+	return $t;
+}
+
 
 /**
 * Debug on or off

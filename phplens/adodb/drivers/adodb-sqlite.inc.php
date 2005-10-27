@@ -147,24 +147,6 @@ class ADODB_sqlite extends ADOConnection {
 		return ($col) ? "adodb_date2($fmt,$col)" : "adodb_date($fmt)";
 	}
 	
-	function &MetaColumns($tab)
-	{
-	global $ADODB_FETCH_MODE;
-	
-		$rs = $this->Execute("select * from $tab limit 1");
-		if (!$rs) {
-			$false = false;
-			return $false;
-		}
-		$arr = array();
-		for ($i=0,$max=$rs->_numOfFields; $i < $max; $i++) {
-			$fld =& $rs->FetchField($i);
-			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] =& $fld;	
-			else $arr[strtoupper($fld->name)] =& $fld;
-		}
-		$rs->Close();
-		return $arr;
-	}
 	
 	function _createFunctions()
 	{
