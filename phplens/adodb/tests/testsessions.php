@@ -1,7 +1,7 @@
 <?php
 
 /* 
-V4.66 28 Sept 2005  (c) 2000-2005 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.67 16 Nov 2005  (c) 2000-2005 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -59,7 +59,7 @@ if (0) {
 	print "<h3>PHP ".PHP_VERSION."</h3>";
 	print "<p><b>\$_SESSION['AVAR']={$_SESSION['AVAR']}</b></p>";
 	
-	print "<hr> <b>Cookies</b>: ";
+	print "<hr /> <b>Cookies</b>: ";
 	print_r($_COOKIE);
 	
 ### RANDOMLY PERFORM Garbage Collection
@@ -70,7 +70,7 @@ if (0) {
 
 	if (rand() % 5 == 0) {
 	
-		print "<hr><p><b>Garbage Collection</b></p>";
+		print "<hr /><p><b>Garbage Collection</b></p>";
 		adodb_sess_gc(10);
 		
 		if (rand() % 2 == 0) {

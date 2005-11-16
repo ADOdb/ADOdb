@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V4.66 28 Sept 2005 (c) 2000-2005 John Lim (jlim#natsoft.com)</p>
+<p>V4.67 16 Nov 2005 (c) 2000-2005 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprfietary and commercial products.</font></p>
   
@@ -917,7 +917,7 @@ The <i>name</i> below is the value you pass to NewADOConnection($name) to create
   except for PostgreSQL and MySQL. This variable is checked every time a query 
   is executed, so you can selectively choose which recordsets to count.</p>
 <p> 
-</p><hr>
+</p><hr />
 <h1>Tutorials<a name="quickstart"></a></h1>
 <h3>Example 1: Select Statement<a name="ex1"></a></h3>
 <p>Task: Connect to the Access Northwind DSN, display the first 2 columns of each 
@@ -1444,7 +1444,7 @@ tutorial</a>. We assume that your database supports the SQL case-when expression
 	and s.SupplierID= p.SupplierID <br>
 	GROUP BY CompanyName</font></code><font size="2"><br>
 	</font> </p>
-<font><hr>
+<font><hr />
 <h1>Class Reference<a name="ref"></a></h1>
 <p>Function parameters with [ ] around them are optional.</p>
 </font> 
@@ -1524,7 +1524,7 @@ connection, then use <a href="#setfetchmode">SetFetchMode</a>.
 	include('adodb.inc.php'); </font></p>
 <h3><font><a name="force_type"></a>$ADODB_FORCE_TYPE</font></h3>
 <p><font>See the <a href="#ADODB_FORCE_TYPE">GetUpdateSQL tutorial</a>.
-</font></p><hr>
+</font></p><hr />
 <h2><font>ADOConnection<a name="adoconnection"></a></font></h2>
 <p><font>Object that performs the connection to the database, executes SQL statements 
 	and has a set of utility functions for standardising the format of SQL statements 
@@ -1583,7 +1583,7 @@ connection, then use <a href="#setfetchmode">SetFetchMode</a>.
 	Oracle 8.0.5 and earlier.</font></p>
 <p><font><b>autoRollback</b>: Persistent connections are auto-rollbacked in PConnect( 
 	) if this is set to true. Default is false.</font></p>
-<hr>
+<hr />
 <h3><font>ADOConnection Main Functions</font></h3>
 <p><font><b>ADOConnection( )</b></font></p>
 <p><font>Constructor function. Do not call this directly. Use ADONewConnection( ) instead.</font></p>
@@ -2308,7 +2308,7 @@ function CountCachedExecs($db, $secs2cache, $sql, $inputarray)
   processing. This is used internally by ADOdb to implement LogSQL() functionality. 
 </p>
 <p>
-</p><hr>
+</p><hr />
 <h3><font>ADOConnection Utility Functions</font></h3>
 <p><font><b>BlankRecordSet<a name="blankrecordset"></a>([$queryid])</b></font></p>
 <p><font>No longer available - removed since 1.99.</font></p>
@@ -2369,13 +2369,13 @@ function CountCachedExecs($db, $secs2cache, $sql, $inputarray)
 <p><font>You can define a mask for matching. For example, setting $mask = 'TMP%' will 
   match all tables that begin with 'TMP'. Currently only mssql, oci8, odbc_mssql 
   and postgres* support $mask. 
-</font></p><p><font><b>MetaColumns<a name="metacolumns"></a>($table,$toupper=true)</b></font></p>
+</font></p><p><font><b>MetaColumns<a name="metacolumns"></a>($table,$notcasesensitive=true)</b></font></p>
 <p><font>Returns an array of ADOFieldObject's, one field object for every column of 
   $table. A field object is a class instance with (name, type, max_length) defined.
   Currently Sybase does not recognise date types, and ADO cannot identify 
   the correct data type (so we default to varchar).   
- </font></p><p><font> The $toupper parameter determines whether we uppercase the table name 
- (required for some databases).
+ </font></p><p><font> The $notcasesensitive parameter determines whether we uppercase or lowercase the table name to normalize it
+ (required for some databases). Does not work with MySQL ISAM tables.
  </font></p><p><font>For schema support, pass in the $table parameter, "$schema.$tablename". This is only
  supported for selected databases.
 </font></p><p><font><b>MetaColumnNames<a name="metacolumnames"></a>($table,$numericIndex=false)</b></font></p>
@@ -2409,7 +2409,7 @@ a string).</font></p>
 </font></p><pre><font>	array(<br>		'dept_table' =&gt; array('deptkey=deptid'),<br>		'posn_table' =&gt; array('posn=positionid','poscategory=category')<br>	)<br></font></pre>
 <p><font>The optional schema or owner can be defined in $owner. If $upper is true, then 
   the table names (array keys) are upper-cased. 
-</font></p><hr>
+</font></p><hr />
 <h2><font>ADORecordSet<a name="adorecordset"></a></font></h2>
 <p><font>When an SQL statement successfully is executed by <font face="Courier New, Courier, mono">ADOConnection-&gt;Execute($sql),</font>an 
   ADORecordSet object is returned. This object contains a virtual cursor so we 
@@ -2702,7 +2702,7 @@ associated with the recordset. </font></p>
 call this function as recordsets are closed for you by PHP at the end of the
 script. SQL statements such as INSERT/UPDATE/DELETE do not really return a recordset,
 so you do not have to call Close() for such SQL statements.</font></p>
-<hr>
+<hr />
 <h3><font>function rs2html<a name="rs2html"></a>($adorecordset,[$tableheader_attributes],
   [$col_titles])</font></h3>
 <p><font>This is a standalone function (rs2html = recordset to
@@ -2715,7 +2715,7 @@ so you do not have to call Close() for such SQL statements.</font></p>
 <p><font>You will need to include the file <i>tohtml.inc.php</i>.</font></p>
 <p><font>Example of rs2html:<b><font color="#336600"><a name="exrs2html"></a></font></b></font></p>
 <pre><font><b><font color="#336600">&lt;?<br>include('tohtml.inc.php')</font></b>; # load code common to ADOdb <br><b>include</b>('adodb.inc.php'); # load code common to ADOdb <br>$<font color="#663300">conn</font> = &amp;ADONewConnection('mysql');   # create a connection <br>$<font color="#663300">conn</font>-&gt;PConnect('localhost','userid','','agora');# connect to MySQL, agora db<br>$<font color="#663300">sql</font> = 'select CustomerName, CustomerID from customers'; <br>$<font color="#663300">rs</font>   = $<font color="#663300">conn</font>-&gt;Execute($sql); <br><font color="#336600"><b>rs2html</b></font><b>($<font color="#663300">rs</font>,'<i>border=2 cellpadding=3</i>',array('<i>Customer Name','Customer ID</i>'));<br>?&gt;</b></font></pre>
-<hr>
+<hr />
 <h3><font>Differences between this ADOdb library and Microsoft
 ADO<a name="adodiff"></a></font></h3>
 <ol>
@@ -2734,7 +2734,7 @@ ADO<a name="adodiff"></a></font></h3>
 <li>Recordset properties for paging records are available, but implemented as
   in <a href="#ex8">Example 8</a>.</li>
 </font></ol>
-<hr>
+<hr />
 <h1><font>Database Driver Guide<a name="driverguide"></a></font></h1>
 <p><font>This describes how to create a class to connect to a
     new database. To ensure there is no duplication of work, kindly email me
@@ -2813,11 +2813,13 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 
-<p><a name="4.67"></a><b>4.67 ?? Sept  2005</b>
+<p><a name="4.67"></a><b>4.67 16 Nov  2005</b>
 <p>Postgresql not_null flag not set to false correctly. Thx Cristian MARIN.
 <p>We now check in Replace() if key is in fieldArray. Thx Sébastien Vanvelthem.
 <p>_file_get_contents() function was missing in xmlschema. fixed.
 <p>Added week in year support to SQLDate(), using 'W' flag. Thx Spider.
+<p>In sqlite metacolumns was repeated twice, causing PHP 5 problems. Fixed.
+<p>Made debug output XHTML compliant. 
 <p><a name="4.66"></a><b>4.66 28 Sept  2005</b>
 <p>ExecuteCursor() in oci8 did not clean up properly on failure. Fixed.
 <p>Updated xmlschema.dtd, by "Alec Smecher" asmecher#smecher.bc.ca
@@ -3282,7 +3284,7 @@ which call sql, etc.
 </p><p>Oci8 stored procedure support, eg. "begin func(); end;" was incorrect in _query. Fixed.
 </p><p>Tiraboschi Massimiliano contributed italian language file.
 </p><p>Fernando Ortiz, fortiz#lacorona.com.mx, contributed informix performance monitor.
-</p><p>Added _varchar (varchar arrays) support for postgresql. Reported by PREVOT St&eacute;phane.<hr>
+</p><p>Added _varchar (varchar arrays) support for postgresql. Reported by PREVOT St&eacute;phane.<hr />
 <p><strong>0.10 Sept 9 2000</strong> First release 
 </p><h3><strong>Old change log history moved to <a href="old-changelog.htm">old-changelog.htm</a>. 
   </strong></h3>

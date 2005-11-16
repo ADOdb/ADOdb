@@ -1,6 +1,6 @@
 <?php
 /*
-  V4.66 28 Sept 2005  (c) 2000-2005 John Lim (jlim@natsoft.com.my). All rights reserved.
+  V4.67 16 Nov 2005  (c) 2000-2005 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence.
@@ -51,7 +51,7 @@ $stmt = $db->Prepare("select * from adoxyz where ?<id and id<?");
 if (!$stmt) echo $db->ErrorMsg(),"\n";
 $rs = $db->Execute($stmt,array(10,20));
 
-echo  "<hr> Foreach Iterator Test (rand=".rand().")<hr>";
+echo  "<hr /> Foreach Iterator Test (rand=".rand().")<hr />";
 $i = 0;
 foreach($rs as $v) {
 	$i += 1;

@@ -44,32 +44,32 @@ if ($testhttp) {
 	print "<h3>Test Error</h3>";
 	$rs = send2server($serverURL,$sql1);
 	print_pre($rs);
-	print "<hr>";
+	print "<hr />";
 	
 	print "<h3>Test Insert</h3>";
 	
 	$rs = send2server($serverURL,$sql2);
 	print_pre($rs);
-	print "<hr>";
+	print "<hr />";
 	
 	print "<h3>Test Insert2</h3>";
 	
 	$rs = send2server($serverURL,$sql3);
 	print_pre($rs);
-	print "<hr>";
+	print "<hr />";
 	
 	print "<h3>Test Delete</h3>";
 	
 	$rs = send2server($serverURL,$sql4);
 	print_pre($rs);
-	print "<hr>";
+	print "<hr />";
 	
 	
 	print "<h3>Test Select</h3>";
 	$rs = send2server($serverURL,$sql5);
 	if ($rs) rs2html($rs);
 	
-	print "<hr>";
+	print "<hr />";
 }
 
 

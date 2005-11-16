@@ -1,6 +1,6 @@
 <?php
 /* 
-V4.66 28 Sept 2005  (c) 2000-2005 John Lim (jlim@natsoft.com.my). All rights reserved.
+V4.67 16 Nov 2005  (c) 2000-2005 John Lim (jlim@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -1032,7 +1032,7 @@ END Adodb;
 		Err( "Failed Concat:".$sql);
 	}
 	$ADODB_FETCH_MODE = $save;
-	print "<hr>Testing GetArray() ";
+	print "<hr />Testing GetArray() ";
 	//$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 	
 	$rs = &$db->Execute("select * from ADOXYZ order by id");
@@ -1069,7 +1069,7 @@ END Adodb;
 	$ADODB_COUNTRECS = false;
 	//$arr = $db->GetArray("select  lastname,firstname from ADOXYZ");
 	//print_r($arr);
-	print "<hr>";
+	print "<hr />";
 	$rs =& $db->Execute("select distinct lastname,firstname,created from ADOXYZ");
 	
 	if ($rs) {
@@ -1110,20 +1110,20 @@ END Adodb;
 	$rs = &$db->CacheExecute(4,"select distinct firstname,lastname from ADOXYZ");
 	if ($rs) print ' Multiple, Alan selected: '. $rs->GetMenu('menu','Alan',false,true).'<BR>';
 	else print " Fail<BR>";
-	print '</p><hr>';
+	print '</p><hr />';
 	
 	$rs = &$db->CacheExecute(4,"select distinct firstname,lastname from ADOXYZ");
 	if ($rs) {
 		print ' Multiple, Alan and George selected: '. $rs->GetMenu('menu',array('Alan','George'),false,true);
 		if (empty($rs->connection)) print "<b>Connection object missing from recordset</b></br>";
 	} else print " Fail<BR>";
-	print '</p><hr>';
+	print '</p><hr />';
 	
 	print "Testing GetMenu3()<br>";
 	$rs = $db->Execute("select ".$db->Concat('firstname',"'-'",'id').",id, lastname from ADOXYZ order by lastname,id");
 	if ($rs) print "Grouped Menu: ".$rs->GetMenu3('name');
 	else Err('Grouped Menu GetMenu3()');
-	print "<hr>";
+	print "<hr />";
 
 	print "Testing GetMenu2() <BR>";
 	$rs = &$db->CacheExecute(4,"select distinct firstname,lastname from ADOXYZ");
