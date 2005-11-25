@@ -88,6 +88,7 @@ GLOBAL $ADODB_vers,$ADODB_CACHE_DIR,$ADODB_FETCH_MODE,$ADODB_COUNTRECS;
 	echo "<pre>";print_r($arr);
 	die();*/
 	
+	if (!$db) die("testdb: database not inited");
 	GLOBAL $EXECS, $CACHED;
 	
 	$EXECS = 0;
@@ -390,11 +391,13 @@ GO
 		print "<h4>Testing Stored Procedures for mssql</h4>";
 		$saved = $db->debug;
 		$db->debug=true;
-		
+		$assoc = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 		$cmd = $db->PrepareSP('ADODBTestSP');
 		$ss = "You should see me in the output.";
 		$db->InParameter($cmd,$ss,'a');
 		$rs = $db->Execute($cmd);
+		#var_dump($rs->fields);
 		echo $rs->fields['T']." --- ".$rs->fields['A']."---<br>";
 
 		$cat = 'Dairy Products';
@@ -414,6 +417,8 @@ GO
 		$db->InParameter($stmt,$yr,'OrdYear');
 		$rs = $db->Execute($stmt);
 		rs2html($rs);
+		
+		$ADODB_FETCH_MODE = $assoc;
 		
 		/*
 		Test out params - works in PHP 4.2.3 and 4.3.3 and 4.3.8 but not 4.3.0:
@@ -733,9 +738,11 @@ END Adodb;
 	else print "<p>Affected_Rows() passed</p>";
 	}
 	
-	/*if ($db->dataProvider == 'oci8') */ $array = array('zid'=>1,'zdate'=>date('Y-m-d',time()));
-	/*else $array=array(1,date('Y-m-d',time()));*/
+	if ($db->dataProvider == 'oci8')  $array = array('zid'=>1,'zdate'=>date('Y-m-d',time()));
+	else $array=array(1,date('Y-m-d',time()));
 	
+	
+	#$array = array(1,date('Y-m-d',time()));
 	$id = $db->GetOne("select id from ADOXYZ 
 		where id=".$db->Param('zid')." and created>=".$db->Param('ZDATE')."",
 		$array);
@@ -819,9 +826,9 @@ END Adodb;
 	$savefetch = $ADODB_FETCH_MODE;
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 	
-	print "<p>CacheSelectLimit  Test</p>";
+	print "<p>CacheSelectLimit  Test...</p>";
 	$db->debug=1;
-	$rs = $db->CacheSelectLimit('  select  id, firstname from  ADOXYZ order by id',2);
+	$rs = $db->CacheSelectLimit('select  id, firstname from  ADOXYZ order by id',2);
 	
 	if ($rs && !$rs->EOF) {
 		if (isset($rs->fields[0])) {

@@ -29,6 +29,7 @@ V4.67 16 Nov 2005  (c) 2000-2005 John Lim (jlim@natsoft.com.my). All rights rese
 <input type=checkbox name="testpdomysql" value=1 <?php echo !empty($testpdomysql) ? 'checked' : '' ?>> <b>MySQL PDO</b><br>
 <input type=checkbox name="testpdosqlite" value=1 <?php echo !empty($testpdosqlite) ? 'checked' : '' ?>> <b>SQLite PDO</b><br>
 <input type=checkbox name="testpdoaccess" value=1 <?php echo !empty($testpdoaccess) ? 'checked' : '' ?>> <b>Access PDO</b><br>
+<input type=checkbox name="testpdomssql" value=1 <?php echo !empty($testpdomssql) ? 'checked' : '' ?>> <b>MSSQL PDO</b><br>
 
 <input type=checkbox name="testpdoora" value=1 <?php echo !empty($testpdoora) ? 'checked' : '' ?>> <b>OCI PDO</b><br>
 
@@ -103,15 +104,16 @@ if (!empty($testsqlite)) {
 	$path =urlencode('d:\inetpub\adodb\sqlite.db');
 	$dsn = "sqlite://$path/";
 	$db = ADONewConnection($dsn);
-	echo $dsn;
+	//echo $dsn;
 	
-//	$db = &ADONewConnection('sqlite');
-	print "<h1>Connecting $db->databaseType...</h1>";
+	//$db = &ADONewConnection('sqlite');
 	
-	if (1)
-	//if ($db->PConnect("d:\\inetpub\\adodb\\sqlite.db", "", "", ""))
+
+	if ($db && $db->PConnect("d:\\inetpub\\adodb\\sqlite.db", "", "", "")) {
+		print "<h1>Connecting $db->databaseType...</h1>";
 		testdb($db,"create table ADOXYZ (id int, firstname char(24), lastname char(24),created datetime)");
-	else print "ERROR: SQLite";
+	} else 
+		print "ERROR: SQLite";
 	
 }
 
@@ -128,6 +130,17 @@ if (!empty($testpdopgsql)) {
 if (!empty($testpdomysql)) {
 	$connstr = "mysql:dbname=northwind";
 	$u = 'root';$p='';
+	$db = &ADONewConnection('pdo');
+	print "<h1>Connecting $db->databaseType...</h1>";
+	$db->Connect($connstr,$u,$p) || die("CONNECT FAILED");
+	
+	testdb($db,
+		"create table ADOXYZ (id int, firstname char(24), lastname char(24), created date)");
+}
+
+if (!empty($testpdomssql)) {
+	$connstr = "mssql:dbname=northwind";
+	$u = 'sa';$p='natsoft';
 	$db = &ADONewConnection('pdo');
 	print "<h1>Connecting $db->databaseType...</h1>";
 	$db->Connect($connstr,$u,$p) || die("CONNECT FAILED");
@@ -331,6 +344,25 @@ flush();
 
 $server = 'sherkhan';
 
+
+
+ADOLoadCode("mssqlpo");
+if (!empty($testmssql)) { // MS SQL Server -- the extension is buggy -- probably better to use ODBC
+	$db = ADONewConnection("mssqlpo");
+	//$db->debug=1;
+	print "<h1>Connecting $db->databaseType...</h1>";
+	
+	$ok = $db->Connect('','adodb','natsoft','northwind');
+
+	if ($ok or $db->PConnect("mangrove", "sa", "natsoft", "ai")) {
+		AutoDetect_MSSQL_Date_Order($db);
+	//	$db->Execute('drop table adoxyz');
+		testdb($db,"create table ADOXYZ (id int, firstname char(24) null, lastname char(24) null,created datetime null)");
+	} else print "ERROR: MSSQL test 2 requires a MS SQL 7 on a server='192.168.0.1', userid='adodb', password='natsoft', database='ai'".'<BR>'.$db->ErrorMsg();
+	
+}
+
+
 ADOLoadCode('odbc_mssql');
 if (!empty($testmssql)) { // MS SQL Server via ODBC
 	$db = ADONewConnection();
@@ -360,23 +392,6 @@ if (!empty($testmssql) && !empty($testado) ) { // ADO ACCESS MSSQL -- thru ODBC 
 	if ($db->PConnect($myDSN, "", "", ""))
 		testdb($db,"create table ADOXYZ (id int, firstname char(24) null, lastname char(24) null,created datetime null)");
 	else print "ERROR: MSSQL test 2 requires MS SQL 7";
-	
-}
-
-
-ADOLoadCode("mssqlpo");
-if (!empty($testmssql)) { // MS SQL Server -- the extension is buggy -- probably better to use ODBC
-	$db = ADONewConnection("mssqlpo");
-	//$db->debug=1;
-	print "<h1>Connecting $db->databaseType...</h1>";
-	
-	$ok = $db->Connect('','adodb','natsoft','northwind');
-
-	if ($ok or $db->PConnect("mangrove", "sa", "natsoft", "ai")) {
-		AutoDetect_MSSQL_Date_Order($db);
-	//	$db->Execute('drop table adoxyz');
-		testdb($db,"create table ADOXYZ (id int, firstname char(24) null, lastname char(24) null,created datetime null)");
-	} else print "ERROR: MSSQL test 2 requires a MS SQL 7 on a server='192.168.0.1', userid='adodb', password='natsoft', database='ai'".'<BR>'.$db->ErrorMsg();
 	
 }
 

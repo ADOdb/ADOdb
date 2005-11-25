@@ -128,6 +128,20 @@ including adodb-cryptsession.inc.php instead of adodb-session.inc.php. </li>
 <p><pre> <a
  name="sessiontab"></a> <font color="#004040"><br>  create table sessions (<br>       SESSKEY char(32) not null,<br>       EXPIRY int(11) unsigned not null,<br>       EXPIREREF varchar(64),<br>       DATA text not null,<br>      primary key (sesskey)<br>  );</font><br> 
  </pre>
+ <p>You may want to rename the 'data' field to 'session_data' as
+	'data' appears to be a reserved word for one or more of the following:
+	<ul>
+	<li>	ANSI SQL
+	<li>	IBM DB2
+	<li>	MS SQL Server
+	<li>	Postgres
+	<li>	SAP
+		</ul>
+<p>
+	If you do, then execute:
+<pre>
+		ADODB_Session::dataFieldName('session_data');
+</pre>
  <p> For the adodb-session-clob.php version, create this:
 <p>  <pre>
     <font

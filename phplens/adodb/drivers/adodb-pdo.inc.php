@@ -68,7 +68,7 @@ class ADODB_pdo_base extends ADODB_pdo {
 
 	function _init($parentDriver)
 	{
-		$parentDriver->_bindInputArray = false;
+		$parentDriver->_bindInputArray = true;
 		#$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,true);
 	}
 	
@@ -77,7 +77,7 @@ class ADODB_pdo_base extends ADODB_pdo {
 		return ADOConnection::ServerInfo();
 	}
 	
-	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$ret = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 		return $ret;
@@ -171,6 +171,7 @@ class ADODB_pdo extends ADOConnection {
 			case 'oci':
 			case 'mysql':
 			case 'pgsql':
+			case 'mssql':
 				include_once(ADODB_DIR.'/drivers/adodb-pdo_'.$this->dsnType.'.inc.php');
 				break;
 			}
@@ -196,10 +197,11 @@ class ADODB_pdo extends ADOConnection {
 	/*------------------------------------------------------------------------------*/
 	
 	
-	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0) 
+	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0) 
 	{	
 		$save = $this->_driver->fetchMode;
 		$this->_driver->fetchMode = $this->fetchMode;
+	 	$this->_driver->debug = $this->debug;
 		$ret = $this->_driver->SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 		$this->_driver->fetchMode = $save;
 		return $ret;
@@ -321,6 +323,7 @@ class ADODB_pdo extends ADOConnection {
 		}
 		
 		if ($stmt) {
+			$this->_driver->debug = $this->debug;
 			if ($inputarr) $ok = $stmt->execute($inputarr);
 			else $ok = $stmt->execute();
 		} 

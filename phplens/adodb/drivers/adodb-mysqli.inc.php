@@ -19,6 +19,8 @@ Based on adodb 3.40
 if (! defined("_ADODB_MYSQLI_LAYER")) {
  define("_ADODB_MYSQLI_LAYER", 1 );
  
+ // PHP5 compat...
+ if (! defined("MYSQLI_BINARY_FLAG"))  define("MYSQLI_BINARY_FLAG", 128); 
  if (!defined('MYSQLI_READ_DEFAULT_GROUP')) define('MYSQLI_READ_DEFAULT_GROUP',1);
 
  // disable adodb extension - currently incompatible.
@@ -657,43 +659,7 @@ class ADODB_mysqli extends ADOConnection {
 	{
 	  return 4294967295; 
 	}
-	// "Innox - Juan Carlos Gonzalez" <jgonzalez#innox.com.mx>
-	function MetaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $asociative = FALSE )
-     {
-         if ( !empty($owner) ) {
-            $table = "$owner.$table";
-         }
-         $a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
-		 if ($associative) $create_sql = $a_create_table["Create Table"];
-         else $create_sql  = $a_create_table[1];
 
-         $matches = array();
-
-         if (!preg_match_all("/FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) return false;
-	     $foreign_keys = array();	 	 
-         $num_keys = count($matches[0]);
-         for ( $i = 0;  $i < $num_keys;  $i ++ ) {
-             $my_field  = explode('`, `', $matches[1][$i]);
-             $ref_table = $matches[2][$i];
-             $ref_field = explode('`, `', $matches[3][$i]);
-
-             if ( $upper ) {
-                 $ref_table = strtoupper($ref_table);
-             }
-
-             $foreign_keys[$ref_table] = array();
-             $num_fields = count($my_field);
-             for ( $j = 0;  $j < $num_fields;  $j ++ ) {
-                 if ( $asociative ) {
-                     $foreign_keys[$ref_table][$ref_field[$j]] = $my_field[$j];
-                 } else {
-                     $foreign_keys[$ref_table][] = "{$my_field[$j]}={$ref_field[$j]}";
-                 }
-             }
-         }
-         
-         return  $foreign_keys;
-     }
 
 
 	// this is a set of functions for managing client encoding - very important if the encodings
@@ -801,28 +767,28 @@ class ADORecordSet_mysqli extends ADORecordSet{
 
 	function &FetchField($fieldOffset = -1) 
 	{	
-	  $fieldnr = $fieldOffset;
-	  if ($fieldOffset != -1) {
-	    $fieldOffset = mysqli_field_seek($this->_queryID, $fieldnr);
-	  }
-	  $o = mysqli_fetch_field($this->_queryID);
-	  /* Properties of an ADOFieldObject as set by MetaColumns */
-	  $o->primary_key = $o->flags & MYSQLI_PRI_KEY_FLAG;
-    $o->not_null = $o->flags & MYSQLI_NOT_NULL_FLAG;
+		$fieldnr = $fieldOffset;
+		if ($fieldOffset != -1) {
+		  $fieldOffset = mysqli_field_seek($this->_queryID, $fieldnr);
+		}
+		$o = mysqli_fetch_field($this->_queryID);
+		/* Properties of an ADOFieldObject as set by MetaColumns */
+		$o->primary_key = $o->flags & MYSQLI_PRI_KEY_FLAG;
+		$o->not_null = $o->flags & MYSQLI_NOT_NULL_FLAG;
 		$o->auto_increment = $o->flags & MYSQLI_AUTO_INCREMENT_FLAG;
 		$o->binary = $o->flags & MYSQLI_BINARY_FLAG;
 		// $o->blob = $o->flags & MYSQLI_BLOB_FLAG; /* not returned by MetaColumns */
 		$o->unsigned = $o->flags & MYSQLI_UNSIGNED_FLAG;
 
-	  return $o;
+		return $o;
 	}
 
 	function &GetRowAssoc($upper = true)
 	{
-	  if ($this->fetchMode == MYSQLI_ASSOC && !$upper) 
-	    return $this->fields;
-	  $row =& ADORecordSet::GetRowAssoc($upper);
-	  return $row;
+		if ($this->fetchMode == MYSQLI_ASSOC && !$upper) 
+		  return $this->fields;
+		$row =& ADORecordSet::GetRowAssoc($upper);
+		return $row;
 	}
 	
 	/* Use associative array to get fields array */
