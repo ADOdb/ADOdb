@@ -286,6 +286,12 @@ function _adodb_getmenu_gp(&$zthis, $name,$defstr='',$blank1stItem=true,$multipl
 	query rewriting techniques...
 	
 	Does not work with UNIONs, except with postgresql and oracle.
+	
+	Usage:
+	
+	$conn->Connect(...);
+	$cnt = _adodb_getcount($conn, $sql);
+	
 */
 function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0) 
 {
