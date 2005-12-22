@@ -165,6 +165,14 @@ class ADODB_mysqli extends ADOConnection {
 		return true;
 	}
 	
+	function RowLock($tables,$where='',$flds='1 as adodb_ignore') 
+	{
+		if ($this->transCnt==0) $this->BeginTrans();
+		if ($where) $where = ' where '.$where;
+		$rs =& $this->Execute("select $flds from $tables $where for update");
+		return !empty($rs); 
+	}
+	
 	// if magic quotes disabled, use mysql_real_escape_string()
 	// From readme.htm:
 	// Quotes a string to be sent to the database. The $magic_quotes_enabled

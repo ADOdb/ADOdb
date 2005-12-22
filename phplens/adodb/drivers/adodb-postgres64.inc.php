@@ -49,7 +49,7 @@ function adodb_addslashes($s)
 {
 	$len = strlen($s);
 	if ($len == 0) return "''";
-	if (strncmp($s,"'",1) === 0 && substr(s,$len-1) == "'") return $s; // already quoted
+	if (strncmp($s,"'",1) === 0 && substr($s,$len-1) == "'") return $s; // already quoted
 	
 	return "'".addslashes($s)."'";
 }

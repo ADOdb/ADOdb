@@ -518,6 +518,8 @@ class ADODB_odbtp extends ADOConnection{
 
 	function _query($sql,$inputarr=false)
 	{
+	global $php_errormsg;
+	
  		if ($inputarr) {
 			if (is_array($sql)) {
 				$stmtid = $sql[1];

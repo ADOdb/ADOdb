@@ -579,7 +579,7 @@ class ADODB_Session {
 		$qkey = $conn->quote($key);
 		$binary = $conn->dataProvider === 'mysql' ? '/*! BINARY */' : '';
 	
-		$sql = "SELECT $data FROM $table WHERE $binary sesskey = $qkey AND expiry >= " . time();
+		$sql = "SELECT $data FROM $table WHERE sesskey = $binary $qkey AND expiry >= " . time();
 		/* Lock code does not work as it needs to hold transaction within whole page, and we don't know if 
 		  developer has commited elsewhere... :(
 		 */

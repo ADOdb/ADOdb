@@ -357,5 +357,15 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 		
 		return $sql;
 	}
+	
+	function _GetSize($ftype, $ty, $fsize, $fprec)
+	{
+		if (strlen($fsize) && $ty != 'X' && $ty != 'B' && $ty  != 'I' && strpos($ftype,'(') === false) {
+			$ftype .= "(".$fsize;
+			if (strlen($fprec)) $ftype .= ",".$fprec;
+			$ftype .= ')';
+		}
+		return $ftype;
+	}
 }
 ?>

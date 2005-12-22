@@ -588,7 +588,7 @@ Committed_AS:   348732 kB
 			
 			$rs = $this->conn->Execute($sql1);
 			
-			if (isset($savem)) $this->SetFetchMode($savem);
+			if (isset($savem)) $this->conn->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
 			if ($rs) {
 				while (!$rs->EOF) {
@@ -949,7 +949,7 @@ Committed_AS:   348732 kB
 		return $arr;
 	}
 	
-	function undomq(&$m) 
+	function undomq($m) 
 	{
 	if (get_magic_quotes_gpc()) {
 		// undo the damage

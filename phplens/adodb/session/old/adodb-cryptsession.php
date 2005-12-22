@@ -264,6 +264,8 @@ function adodb_sess_gc($maxlifetime) {
 	// suggested by Cameron, "GaM3R" <gamr@outworld.cx>
 	if (defined('ADODB_SESSION_OPTIMIZE'))
 	{
+	global $ADODB_SESSION_DRIVER;
+	
 		switch( $ADODB_SESSION_DRIVER ) {
 			case 'mysql':
 			case 'mysqlt':

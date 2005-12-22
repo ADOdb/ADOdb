@@ -215,7 +215,7 @@ class ADODB_ibase extends ADOConnection {
             return $false;
         }
         
-        $indexes = array ();
+        $indexes = array();
 		while ($row = $rs->FetchRow()) {
 			$index = $row[0];
              if (!isset($indexes[$index])) {
@@ -225,7 +225,7 @@ class ADODB_ibase extends ADOConnection {
                              'columns' => array()
                      );
              }
-			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '".$name."' ORDER BY RDB\$FIELD_POSITION ASC";
+			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '".$index."' ORDER BY RDB\$FIELD_POSITION ASC";
 			$rs1 = $this->Execute($sql);
             while ($row1 = $rs1->FetchRow()) {
              	$indexes[$index]['columns'][$row1[2]] = $row1[1];

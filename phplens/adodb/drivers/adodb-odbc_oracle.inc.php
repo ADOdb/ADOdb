@@ -52,7 +52,8 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 	
 	function &MetaColumns($table) 
 	{
-		
+	global $ADODB_FETCH_MODE;
+	
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
 		if ($rs === false) {	
 			$false = false;
