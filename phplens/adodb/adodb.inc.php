@@ -314,7 +314,6 @@
 	var $_evalAll = false;
 	var $_affected = false;
 	var $_logsql = false;
-	
 
 	
 	/**
