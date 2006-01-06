@@ -265,10 +265,11 @@ class ADODB_Pager {
 		
 		$grid = $this->RenderGrid();
 		$footer = $this->RenderPageCount();
-		$rs->Close();
-		$this->rs = false;
 		
 		$this->RenderLayout($header,$grid,$footer);
+		
+		$rs->Close();
+		$this->rs = false;
 	}
 	
 	//------------------------------------------------------
