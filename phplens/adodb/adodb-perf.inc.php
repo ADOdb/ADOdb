@@ -16,7 +16,7 @@ V4.70 06 Jan 2006  (c) 2000-2006 John Lim (jlim@natsoft.com.my). All rights rese
   
 */
 
-if (!defined(ADODB_DIR)) include_once(dirname(__FILE__).'/adodb.inc.php');
+if (!defined('ADODB_DIR')) include_once(dirname(__FILE__).'/adodb.inc.php');
 include_once(ADODB_DIR.'/tohtml.inc.php');
 
 define( 'ADODB_OPT_HIGH', 2);

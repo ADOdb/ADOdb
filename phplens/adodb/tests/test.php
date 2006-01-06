@@ -130,7 +130,7 @@ FROM `nuke_stories` `t1`, `nuke_authors` `t2`, `nuke_stories_cat` `t3`, `nuke_to
 	echo "<br>";
 	$e = error_reporting(E_ALL-E_WARNING);
 	flush();
-	$db->debug=1;
+	#$db->debug=1;
 	$tt  = $db->Time(); 
 	if ($tt == 0) echo '<br><b>$db->Time failed</b>';
 	else echo "<br>db->Time: ".date('d-m-Y H:i:s',$tt);

@@ -45,7 +45,7 @@ if ($driver == 'oci8') {
 	$db->Connect('','scott','natsoft');
 	
 $sql = "select * from (select  ID, firstname as \"First Name\", lastname as \"Last Name\" from adoxyz 
-	 order  by  (1))";
+	 order  by  1)";
 }
 
 if ($driver == 'access') {
