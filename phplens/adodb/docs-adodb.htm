@@ -2395,7 +2395,7 @@ database. You can define a function  ADODB_View_PrimaryKeys($databaseType, $data
 should return an array containing the fields that make up the primary key. If that function exists,
 it will be called when MetaPrimaryKeys() cannot find a primary key for a table or view.
 </font></p><pre><font>// In this example: dbtype = 'oci8', $db = 'mydb', $view = 'dataView', $owner = false <br>function ADODB_View_PrimaryKeys($dbtype,$db,$view,$owner)<br>{<br>	switch(strtoupper($view)) {<br>	case 'DATAVIEW': return array('DATAID');<br>	default: return false;<br>	}<br>}<br><br>$db = NewADOConnection('oci8');<br>$db-&gt;Connect('localhost','root','','mydb'); <br>$db-&gt;MetaPrimaryKeys('dataView');<br></font></pre>
-<p><font><b>ServerInfo<a name="serverinfo" id="serverinfo"></a>($table)</b></font> 
+<p><font><b>ServerInfo<a name="serverinfo" id="serverinfo"></a>()</b></font> 
 </p>
 <p><font>Returns an array of containing two elements 'description' 
   and 'version'. The 'description' element contains the string description of 

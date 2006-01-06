@@ -3671,6 +3671,7 @@
 		$false = false;
 		if (strpos($db,'://')) {
 			$origdsn = $db;
+			$db = str_replace('_','%95',$db);
 			$dsna = @parse_url($db);
 			
 			if (!$dsna) {

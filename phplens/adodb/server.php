@@ -26,7 +26,7 @@
  * Define the IP address you want to accept requests from 
  * as a security measure. If blank we accept anyone promisciously!
  */
-$ACCEPTIP = '';
+$ACCEPTIP = '127.0.0.1';
 
 /*
  * Connection parameters
@@ -34,7 +34,7 @@ $ACCEPTIP = '';
 $driver = 'mysql';
 $host = 'localhost'; // DSN for odbc
 $uid = 'root';
-$pwd = '';
+$pwd = 'garbase-it-is';
 $database = 'test';
 
 /*============================ DO NOT MODIFY BELOW HERE =================================*/
