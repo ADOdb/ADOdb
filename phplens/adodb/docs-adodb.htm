@@ -15,9 +15,9 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V4.68 25 Nov 2005 (c) 2000-2005 John Lim (jlim#natsoft.com)</p>
+<p>V4.70 06 Jan 2006 (c) 2000-2006 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
-  means you can use it in compiled proprfietary and commercial products.</font></p>
+  means you can use it in compiled proprietary and commercial products.</font></p>
   
 
 	<p>Useful ADOdb links:  <a href="http://adodb.sourceforge.net/#download">Download</a> &nbsp; <a href="http://adodb.sourceforge.net/#docs">Other Docs</a>
@@ -2812,12 +2812,14 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
-<p><a name="4.69"></a><b>4.69 25 ??  2005</b>
+<p><a name="4.70"></a><b>4.70 6 Jan 2006</b>
 <p>Many fixes from Danila Ulyanov  to ibase, oci8, postgres, mssql, odbc_oracle, odbtp, etc drivers.
 <p>Changed usage of binary hint in adodb-session.inc.php for mysql. See 
 http://phplens.com/lens/lensforum/msgs.php?id=14160
 <p>Fixed invalid variable reference problem in undomq(), adodb-perf.inc.php.
 <p>Fixed http://phplens.com/lens/lensforum/msgs.php?id=14254 in adodb-perf.inc.php, _DBParameter() settings of fetchmode was wrong.
+<p>Fixed security issues in server.php and tmssql.php discussed by Andreas Sandblad in a Secunia security advisory. Added $ACCEPTIP = 127.0.0.1
+and changed suggested root password to something more secure.
 <p><a name="4.68"></a><b>4.68 25 Nov  2005</b>
 <p>PHP 5 compat for mysqli. MetaForeignKeys repeated twice and MYSQLI_BINARY_FLAG missing.
 <p>PHP 5.1 support for postgresql bind parameters using ? did not work if >= 10 parameters. Fixed. Thx to Stanislav Shramko.

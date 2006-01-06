@@ -1,6 +1,6 @@
 <?php
 /*
-V4.68 25 Nov 2005  (c) 2000-2005 John Lim (jlim#natsoft.com.my). All rights reserved.
+V4.70 06 Jan 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved.
    Set tabs to 4.
 */ 
 
