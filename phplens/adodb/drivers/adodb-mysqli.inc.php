@@ -443,7 +443,7 @@ class ADODB_mysqli extends ADOConnection {
 	}
 	
 	// "Innox - Juan Carlos Gonzalez" <jgonzalez#innox.com.mx>
-	function MetaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $asociative = FALSE )
+	function MetaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
 	{
 	    if ( !empty($owner) ) {
 	       $table = "$owner.$table";
@@ -469,7 +469,7 @@ class ADODB_mysqli extends ADOConnection {
 	        $foreign_keys[$ref_table] = array();
 	        $num_fields               = count($my_field);
 	        for ( $j = 0;  $j < $num_fields;  $j ++ ) {
-	            if ( $asociative ) {
+	            if ( $associative ) {
 	                $foreign_keys[$ref_table][$ref_field[$j]] = $my_field[$j];
 	            } else {
 	                $foreign_keys[$ref_table][] = "{$my_field[$j]}={$ref_field[$j]}";

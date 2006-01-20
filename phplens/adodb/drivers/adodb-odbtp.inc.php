@@ -312,6 +312,7 @@ class ADODB_odbtp extends ADOConnection{
 			$false = false;
 			return $false;
 		}
+		$retarr = array();
 		while (!$rs->EOF) {
 			//print_r($rs->fields);
 			if (strtoupper($rs->fields[2]) == $table) {
@@ -326,7 +327,7 @@ class ADODB_odbtp extends ADOConnection{
  					$fld->default_value = $rs->fields[12];
 				}
 				$retarr[strtoupper($fld->name)] = $fld;
-			} else if (sizeof($retarr)>0)
+			} else if (!empty($retarr))
 				break;
 			$rs->MoveNext();
 		}

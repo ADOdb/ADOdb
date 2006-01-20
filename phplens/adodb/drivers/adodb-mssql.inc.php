@@ -74,7 +74,7 @@ class ADODB_mssql extends ADOConnection {
 	var $databaseType = "mssql";	
 	var $dataProvider = "mssql";
 	var $replaceQuote = "''"; // string to use to replace quotes
-	var $fmtDate = "Y-m-d";
+	var $fmtDate = "'Y-m-d'";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $hasInsertID = true;
 	var $substr = "substring";

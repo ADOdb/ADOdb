@@ -901,7 +901,7 @@ class ADODB_Session {
 }
 
 ADODB_Session::_init();
-
+register_shutdown_function('session_write_close');
 
 // for backwards compatability only
 function adodb_sess_open($save_path, $session_name, $persist = true) {

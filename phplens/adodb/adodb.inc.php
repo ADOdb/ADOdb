@@ -1496,11 +1496,67 @@
 		return $rs;
 	}
 	
+	
 	/**
 	* Flush cached recordsets that match a particular $sql statement. 
 	* If $sql == false, then we purge all files in the cache.
  	*/
-	function CacheFlush($sql=false,$inputarr=false)
+	
+	/**
+   * Flush cached recordsets that match a particular $sql statement. 
+   * If $sql == false, then we purge all files in the cache.
+    */
+   function CacheFlush($sql=false,$inputarr=false)
+   {
+   global $ADODB_CACHE_DIR;
+   
+      if (strlen($ADODB_CACHE_DIR) > 1 && !$sql) {
+         /*if (strncmp(PHP_OS,'WIN',3) === 0)
+            $dir = str_replace('/', '\\', $ADODB_CACHE_DIR);
+         else */
+            $dir = $ADODB_CACHE_DIR;
+            
+         if ($this->debug) {
+            ADOConnection::outp( "CacheFlush: $dir<br><pre>\n", $this->_dirFlush($dir),"</pre>");
+         } else {
+            $this->_dirFlush($dir);
+         }
+         return;
+      } 
+      
+      global $ADODB_INCLUDED_CSV;
+      if (empty($ADODB_INCLUDED_CSV)) include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
+      
+      $f = $this->_gencachename($sql.serialize($inputarr),false);
+      adodb_write_file($f,''); // is adodb_write_file needed?
+      if (!@unlink($f)) {
+         if ($this->debug) ADOConnection::outp( "CacheFlush: failed for $f");
+      }
+   }
+   
+   /**
+   * Private function to erase all of the files and subdirectories in a directory.
+   *
+   * Just specify the directory, and tell it if you want to delete the directory or just clear it out.
+   * Note: $kill_top_level is used internally in the function to flush subdirectories.
+   */
+   function _dirFlush($dir, $kill_top_level = false) {
+      if(!$dh = @opendir($dir)) return;
+      
+      while (($obj = readdir($dh))) {
+         if($obj=='.' || $obj=='..')
+            continue;
+			
+         if (!@unlink($dir.'/'.$obj))
+			  $this->_dirFlush($dir.'/'.$obj, true);
+      }
+      if ($kill_top_level === true)
+         @rmdir($dir);
+      return true;
+   }
+   
+   
+	function xCacheFlush($sql=false,$inputarr=false)
 	{
 	global $ADODB_CACHE_DIR;
 	
@@ -3366,7 +3422,7 @@
 			return 'B';
 		
 		case 'D':
-			if (!empty($this->datetime)) return 'T';
+			if (!empty($this->connection) && !empty($this->connection->datetime)) return 'T';
 			return 'D';
 			
 		default: 
@@ -3670,8 +3726,9 @@
 		$false = false;
 		if (strpos($db,'://')) {
 			$origdsn = $db;
-			$db = str_replace('_','%95',$db);
+			$db = str_replace('_','%5F',$db);
 			$dsna = @parse_url($db);
+			$dsna['scheme'] = rawurldecode($dsna['scheme']);
 			
 			if (!$dsna) {
 				// special handling of oracle, which might not have host
