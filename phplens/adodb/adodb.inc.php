@@ -14,7 +14,7 @@
 /**
 	\mainpage 	
 	
-	 @version V4.70 06 Jan 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved.
+	 @version V4.71 24 Jan 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
@@ -171,7 +171,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V4.70 06 Jan 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V4.71 24 Jan 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -3724,11 +3724,23 @@
 		if (!defined('ADODB_ASSOC_CASE')) define('ADODB_ASSOC_CASE',2);
 		$errorfn = (defined('ADODB_ERROR_HANDLER')) ? ADODB_ERROR_HANDLER : false;
 		$false = false;
-		if (strpos($db,'://')) {
+		if ($at = strpos($db,'://')) {
 			$origdsn = $db;
-			$db = str_replace('_','%5F',$db);
-			$dsna = @parse_url($db);
-			$dsna['scheme'] = rawurldecode($dsna['scheme']);
+			if (PHP_VERSION < 5) $dsna = @parse_url($db);
+			else {
+				$fakedsn = 'fake'.substr($db,$at);
+				$dsna = @parse_url($fakedsn);
+				$dsna['scheme'] = substr($db,0,$at);
+				
+				if (strncmp($db,'pdo',3) == 0) {
+					$sch = explode('_',$dsna['scheme']);
+					if (sizeof($sch)>1) {
+						$dsna['host'] = isset($dsna['host']) ? rawurldecode($dsna['host']) : '';
+						$dsna['host'] = rawurlencode($sch[1].':host='.rawurldecode($dsna['host']));
+						$dsna['scheme'] = 'pdo';
+					}
+				}
+			}
 			
 			if (!$dsna) {
 				// special handling of oracle, which might not have host
@@ -3849,7 +3861,14 @@
 		}
 		
 		switch($drivername) {
-		case 'mysqli': $drivername='mysql'; break;
+		case 'mysqlt':
+		case 'mysqli': 
+				$drivername='mysql'; 
+				break;
+		case 'postgres7':
+		case 'postgres8':
+				$drivername = 'postgres'; 
+				break;	
 		case 'firebird15': $drivername = 'firebird'; break;
 		case 'oracle': $drivername = 'oci8'; break;
 		case 'access': if ($perf) $drivername = ''; break;
