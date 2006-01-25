@@ -603,7 +603,7 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 			$discard = false;
 			// not a good hack, improvements?
 			if ($whereClause) {
-			var_dump($whereClause);
+			#var_dump($whereClause);
 				if (preg_match('/\s(ORDER\s.*)/is', $whereClause[1], $discard));
 				else if (preg_match('/\s(LIMIT\s.*)/is', $whereClause[1], $discard));
 				else if (preg_match('/\s(FOR UPDATE.*)/is', $whereClause[1], $discard));
