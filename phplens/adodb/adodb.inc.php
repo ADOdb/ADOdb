@@ -1506,11 +1506,11 @@
    * Flush cached recordsets that match a particular $sql statement. 
    * If $sql == false, then we purge all files in the cache.
     */
-   function CacheFlush($sql=false,$inputarr=false)
-   {
-   global $ADODB_CACHE_DIR;
-   
-      if (strlen($ADODB_CACHE_DIR) > 1 && !$sql) {
+	function CacheFlush($sql=false,$inputarr=false)
+	{
+	global $ADODB_CACHE_DIR;
+	
+		if (strlen($ADODB_CACHE_DIR) > 1 && !$sql) {
          /*if (strncmp(PHP_OS,'WIN',3) === 0)
             $dir = str_replace('/', '\\', $ADODB_CACHE_DIR);
          else */
@@ -1911,8 +1911,8 @@
 		if (empty($this->_metars)) {
 			$rsclass = $this->rsPrefix.$this->databaseType;
 			$this->_metars =& new $rsclass(false,$this->fetchMode); 
+			$this->_metars->connection =& $this;
 		}
-		
 		return $this->_metars->MetaType($t,$len,$fieldobj);
 	}
 	
@@ -3731,7 +3731,7 @@
 				$fakedsn = 'fake'.substr($db,$at);
 				$dsna = @parse_url($fakedsn);
 				$dsna['scheme'] = substr($db,0,$at);
-				
+			
 				if (strncmp($db,'pdo',3) == 0) {
 					$sch = explode('_',$dsna['scheme']);
 					if (sizeof($sch)>1) {
