@@ -276,7 +276,7 @@ If you have special characters such as /:? in your dsn, then you need to rawurle
 Legal options are:
 </p><p>
 <table align="center" border="1"><tbody><tr><td>For all drivers</td><td>
-	'persist', 'persistent', 'debug', 'fetchmode'
+	'persist', 'persistent', 'debug', 'fetchmode', 'new'
 	</td></tr><tr><td>Interbase/Firebird
 	</td><td>
 					 'dialect','charset','buffers','role'
@@ -291,7 +291,8 @@ Legal options are:
  'nls_date_format','charset'
 </td></tr></tbody></table>
 </p><p>
-For all drivers, when the options <i>persist</i> or <i>persistent</i> are set,  a persistent connection is forced.
+For all drivers, when the options <i>persist</i> or <i>persistent</i> are set,  a persistent connection is forced; similarly, when <i>new</i> is set, then
+a new connection will be created using NConnect if the underlying driver supports it. 
 The <i>debug</i> option enables debugging. The <i>fetchmode</i> calls <a href="#setfetchmode">SetFetchMode()</a>.
 If no value is defined for an option, then the value is set to 1.
 </p><p>
@@ -318,17 +319,18 @@ ADOdb DSN's are compatible with version 1.0 of PEAR DB's DSN format.
 <p><a name="connect_ex"> For most drivers, you can use the standard function: Connect($server, $user, $password, $database), or
 a </a><a href="dsnsupport">DSN</a> since ADOdb 4.51. Exceptions to this are listed below.
 </p>
+<a name=pdo>
 <h4>PDO</h4>
-<p>PDO accepts a PDO connection string:
+<p>PDO, which only works with PHP5, accepts a driver specific connection string:
 <pre>
-	$conn = NewADConnection('pdo');
+	$conn =& NewADConnection('pdo');
 	$conn->Connect('mysql:host=localhost',$user,$pwd,$mydb);
 	$conn->Connect('mysql:host=localhost;dbname=mydb',$user,$pwd);
 	$conn->Connect("mysql:host=localhost;dbname=mydb;username=$user;password=$pwd");
 </pre>
 <p>The DSN mechanism is also supported:
 <pre>
-	$conn = NewADConnection("pdo_mysql://user:pwd@localhost/mydb?persist"); # persist is optional
+	$conn =& NewADConnection("pdo_mysql://user:pwd@localhost/mydb?persist"); # persist is optional
 </pre>
 <h4>PostgreSQL</h4>
 <p>PostgreSQL 7 and 8 accepts connections using: </p>
@@ -524,6 +526,9 @@ false in the above hack_factory() function.
  ADOdb 4.02 or later will transparently determine which version of PHP you are using.
 If PHP5 is detected, the following features become available:
 <ul>
+
+<li><b>PDO</b>: PDO drivers are available. See the <a href=#pdo>connection examples</a>. Currently PDO drivers are
+ not as powerful as native drivers, and should be treated as experimental.<br><br>
 <a name="php5iterators"></a>
 <li><b>Foreach iterators</b>: This is a very natural way of going through a recordset:
 <pre>	$ADODB_FETCH_MODE = ADODB_FETCH_NUM;<br>	$rs = $db-&gt;Execute($sql);<br>	foreach($rs as $k =&gt; $row) {<br>		echo "r1=".$row[0]." r2=".$row[1]."&lt;br&gt;";<br>	}<br></pre>
@@ -1399,7 +1404,7 @@ tutorial</a>. We assume that your database supports the SQL case-when expression
 </tbody></table>
 <font> 
 </font><p><font>The following code will generate the SQL for a cross-tabulation: 
-</font></p><pre><font># Query the main "product" table<br># Set the rows to CompanyName<br># and the columns to the values of Categories<br># and define the joins to link to lookup tables <br># "categories" and "suppliers"<br>#<br> include "adodb/pivottable.php";<br> $sql = PivotTableSQL(<br> 	$gDB,                                      # adodb connection<br> 	'products p ,categories c ,suppliers s',   # tables<br>	'CompanyName',                             # rows (multiple fields allowed)<br>	'CategoryName',                            # column to pivot on <br>	'p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID' # joins/where<br>);<br></font></pre>
+</font></p><pre><font># Query the main "product" table<br># Set the rows to CompanyName<br># and the columns to the values of Categories<br># and define the joins to link to lookup tables <br># "categories" and "suppliers"<br>#<br> include "adodb/pivottable.inc.php";<br> $sql = PivotTableSQL(<br> 	$gDB,                                      # adodb connection<br> 	'products p ,categories c ,suppliers s',   # tables<br>	'CompanyName',                             # rows (multiple fields allowed)<br>	'CategoryName',                            # column to pivot on <br>	'p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID' # joins/where<br>);<br></font></pre>
  
 <p><font> This will generate the following SQL:</font></p>
 <p><code><font size="2">SELECT CompanyName, <br>
@@ -2826,6 +2831,9 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 <P>
+
+<p><a name="4.72"></a><b>4.72 ??  2006</b>
+<p>Added 'new' DSN parameter for NConnect().
 <p><a name="4.71"></a><b>4.71 24 Jan 2006</b>
 <p>Fixes postgresql security issue related to binary strings. Thx to Andy Staudacher.
 <p>Several DSN bugs found:
@@ -2835,7 +2843,8 @@ of MySQL.</font></p>
 <p>The oci8 datetime flag not correctly implemented in ADORecordSet_array. Fixed.
 <p>Added BlobDelete() to postgres, as a counterpoint to UpdateBlobFile().
 <p>Fixed GetInsertSQL() to support oci8po.
-<p>Fixed qstr() issue with postgresql with \0 in strings. 
+<p>Fixed qstr() issue with postgresql with \0 in strings.
+<p>Fixed some datadict driver loading issues in _adodb_getdriver(). 
 <p>Added register shutdown function session_write_close in adodb-session.inc.php for PHP 5 compat. See http://phplens.com/lens/lensforum/msgs.php?id=14200.
 <p><a name="4.70"></a><b>4.70 6 Jan 2006</b>
 <p>Many fixes from Danila Ulyanov  to ibase, oci8, postgres, mssql, odbc_oracle, odbtp, etc drivers.

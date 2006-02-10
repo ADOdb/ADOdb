@@ -1787,9 +1787,6 @@
 		return _adodb_getupdatesql($this,$rs,$arrFields,$forceUpdate,$magicq,$force);
 	}
 
-	
-	
-
 	/**
 	 * Generates an Insert Query based on an existing recordset.
 	 * $arrFields is an associative array of fields with the value
@@ -3764,7 +3761,6 @@
 				}
 			} else $opt = array();
 		}
-		
 	/*
 	 *  phptype: Database backend used in PHP (mysql, odbc etc.)
 	 *  dbsyntax: Database used with regards to SQL syntax etc.
@@ -3814,6 +3810,8 @@
 				if (isset($dsna['port'])) $obj->port = $dsna['port'];
 				foreach($opt as $k => $v) {
 					switch(strtolower($k)) {
+					case 'new':
+										$nconnect = true; $persist = true; break;
 					case 'persist':
 					case 'persistent': 	$persist = $v; break;
 					case 'debug':		$obj->debug = (integer) $v; break;
@@ -3837,8 +3835,10 @@
 				}
 				if (empty($persist))
 					$ok = $obj->Connect($dsna['host'], $dsna['user'], $dsna['pass'], $dsna['path']);
-				else
+				else if (empty($nconnect))
 					$ok = $obj->PConnect($dsna['host'], $dsna['user'], $dsna['pass'], $dsna['path']);
+				else
+					$ok = $obj->NConnect($dsna['host'], $dsna['user'], $dsna['pass'], $dsna['path']);
 					
 				if (!$ok) return $false;
 			}

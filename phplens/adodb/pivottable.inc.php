@@ -31,7 +31,7 @@
  * @returns			Sql generated
  */
  
- function PivotTableSQL($db,$tables,$rowfields,$colfield, $where=false,
+ function PivotTableSQL(&$db,$tables,$rowfields,$colfield, $where=false,
  	$aggfield = false,$sumlabel='Sum ',$aggfn ='SUM', $showcount = true)
  {
 	if ($aggfield) $hidecnt = true;
