@@ -2834,6 +2834,8 @@ of MySQL.</font></p>
 
 <p><a name="4.72"></a><b>4.72 ??  2006</b>
 <p>Added 'new' DSN parameter for NConnect().
+<p>Pager now sanitizes $PHP_SELF to protect against XSS.
+<p>ADOConnection::MetaType changed to setup $rs->connection correctly. 
 <p><a name="4.71"></a><b>4.71 24 Jan 2006</b>
 <p>Fixes postgresql security issue related to binary strings. Thx to Andy Staudacher.
 <p>Several DSN bugs found:
