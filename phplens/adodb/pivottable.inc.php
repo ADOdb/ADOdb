@@ -23,7 +23,7 @@
  * @where			Where clause. Optional.
  * @aggfield		This is the field to sum. Optional. 
  *						Since 2.3.1, if you can use your own aggregate function 
- *						instead of SUM, eg. $sumfield = 'AVG(fieldname)';
+ *						instead of SUM, eg. $aggfield = 'fieldname'; $aggfn = 'AVG';
  * @sumlabel		Prefix to display in sum columns. Optional.
  * @aggfn			Aggregate function to use (could be AVG, SUM, COUNT)
  * @showcount		Show count of records

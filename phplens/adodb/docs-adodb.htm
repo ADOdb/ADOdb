@@ -443,7 +443,12 @@ For Microsoft SQL Server:
 or if you prefer to use the mssql extension (which is limited to mssql 6.5 functionality):
 <pre>	$db =&amp; ADONewConnection('mssql');<br>	$db-&gt;Execute('localhost', 'userid', 'password', 'northwind');<br></pre>
 For DB2:
-<pre>	$db =&amp; ADONewConnection('db2');<br>	$dsn = "driver={IBM db2 odbc DRIVER};Database=sample;hostname=localhost;port=50000;protocol=TCPIP;".<br>			"uid=root; pwd=secret";<br>	$db-&gt;Connect($dsn);<br></pre>
+<pre>
+	$dbms = 'db2'; # or 'odbc_db2' if db2 extension not available
+	$db =&amp; ADONewConnection($dbms);
+	$dsn = "driver={IBM db2 odbc DRIVER};Database=sample;hostname=localhost;port=50000;protocol=TCPIP;".
+				"uid=root; pwd=secret";<br>	$db-&gt;Connect($dsn);
+</pre>
 <b>DSN-less Connections with ADO</b><br>
 If you are using versions of PHP earlier than PHP 4.3.0, DSN-less connections 
 only work with Microsoft's ADO, which is Microsoft's COM based API. An example 
@@ -589,11 +594,18 @@ The <i>name</i> below is the value you pass to NewADOConnection($name) to create
     <td><font size="2">ADO or OLEDB provider</font></td>
     <td><font size="2">Windows only</font></td>
   </tr>
-  <tr valign="top"> 
+    <tr valign="top"> 
     <td height="54"><b><font size="2">db2</font></b></td>
-    <td height="54"><font size="2">A</font></td>
-    <td height="54"><font size="2">DB2. Should work reliably as based on ODBC 
-      driver.</font></td>
+    <td height="54"><font size="2">C</font></td>
+    <td height="54"><font size="2">Uses PHP's db2-specific extension for better performance.</font></td>
+    <td height="54"><font size="2">Y/N</font></td>
+    <td height="54"><font size="2">DB2 CLI/ODBC interface</font></td>
+    <td height="54"> <p><font size="2">Unix and Windows. Requires IBM DB2 Universal Database client.</font></p></td>
+  </tr>
+  <tr valign="top"> 
+    <td height="54"><b><font size="2">odbc_db2</font></b></td>
+    <td height="54"><font size="2">C</font></td>
+    <td height="54"><font size="2">Connects to DB2 using generic ODBC extension.</font></td>
     <td height="54"><font size="2">Y/N</font></td>
     <td height="54"><font size="2">DB2 CLI/ODBC interface</font></td>
     <td height="54"> <p><font size="2">Unix and Windows. <a href="http://www.faqts.com/knowledge_base/view.phtml/aid/6283/fid/14">Unix 
@@ -2834,8 +2846,10 @@ of MySQL.</font></p>
 
 <p><a name="4.72"></a><b>4.72 ??  2006</b>
 <p>Added 'new' DSN parameter for NConnect().
-<p>Pager now sanitizes $PHP_SELF to protect against XSS.
+<p>Pager now sanitizes $PHP_SELF to protect against XSS. Thx to James Bercegay and others.
 <p>ADOConnection::MetaType changed to setup $rs->connection correctly. 
+<p>New native DB2 driver contributed by Larry Menard, Dan Scott, Andy Staudacher, Bharat Mediratta.
+<p>The mssql CreateSequence() did not BEGIN TRANSACTION correctly. Fixed. Thx Sean Lee.
 <p><a name="4.71"></a><b>4.71 24 Jan 2006</b>
 <p>Fixes postgresql security issue related to binary strings. Thx to Andy Staudacher.
 <p>Several DSN bugs found:

@@ -283,7 +283,7 @@ function _adodb_getmenu_gp(&$zthis, $name,$defstr='',$blank1stItem=true,$multipl
 
 /*
 	Count the number of records this sql statement will return by using
-	query rewriting techniques...
+	query rewriting heuristics...
 	
 	Does not work with UNIONs, except with postgresql and oracle.
 	
@@ -327,7 +327,12 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 
 		// fix by alexander zhukov, alex#unipack.ru, because count(*) and 'order by' fails 
 		// with mssql, access and postgresql. Also a good speedup optimization - skips sorting!
-		$rewritesql = preg_replace('/(\sORDER\s+BY\s[^)]*)/is','',$rewritesql);
+		// also see http://phplens.com/lens/lensforum/msgs.php?id=12752
+		if (preg_match('/\sORDER\s+BY\s*\(/i',$rewritesql))
+			$rewritesql = preg_replace('/(\sORDER\s+BY\s.*)/is','',$rewritesql);
+		else
+			$rewritesql = preg_replace('/(\sORDER\s+BY\s[^)]*)/is','',$rewritesql);
+		 
 	}
 	
 	if (isset($rewritesql) && $rewritesql != $sql) {
