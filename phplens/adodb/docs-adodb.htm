@@ -2844,12 +2844,13 @@ of MySQL.</font></p>
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 <P>
 
-<p><a name="4.72"></a><b>4.72 ??  2006</b>
+<p><a name="4.72"></a><b>4.72 21 Feb 2006</b>
 <p>Added 'new' DSN parameter for NConnect().
 <p>Pager now sanitizes $PHP_SELF to protect against XSS. Thx to James Bercegay and others.
 <p>ADOConnection::MetaType changed to setup $rs->connection correctly. 
 <p>New native DB2 driver contributed by Larry Menard, Dan Scott, Andy Staudacher, Bharat Mediratta.
 <p>The mssql CreateSequence() did not BEGIN TRANSACTION correctly. Fixed. Thx Sean Lee.
+<p>The _adodb_countrecs() function in adodb-lib.inc.php has been revised to handle more ORDER BY variations.
 <p><a name="4.71"></a><b>4.71 24 Jan 2006</b>
 <p>Fixes postgresql security issue related to binary strings. Thx to Andy Staudacher.
 <p>Several DSN bugs found:
