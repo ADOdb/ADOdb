@@ -1,6 +1,8 @@
 <?php
 /* 
-  This is a version of the ADODB driver for DB2.  It uses the 'ibm_db2' PECL extension for PHP
+  V4.72 21 Feb 2006  (c) 2006 John Lim (jlim@natsoft.com.my). All rights reserved.
+
+This is a version of the ADODB driver for DB2.  It uses the 'ibm_db2' PECL extension for PHP
   (http://pecl.php.net/package/ibm_db2), which in turn requires DB2 V8.2.2.
 
   Tested with PHP 5.1.1 and Apache 2.0.55 on Windows XP SP2.
@@ -32,9 +34,7 @@ class ADODB_db2 extends ADOConnection {
 
 	var $useFetchArray = false; // setting this to true will make array elements in FETCH_ASSOC mode case-sensitive
 								// breaking backward-compat
-	//var $longreadlen = 8000; // default number of chars to return for a Blob/Long field
 	var $_bindInputArray = false;	
-	var $curmode = SQL_CUR_USE_DRIVER; // See sqlext.h, SQL_CUR_DEFAULT == SQL_CUR_USE_DRIVER == 2L
 	var $_genSeqSQL = "create table %s (id integer)";
 	var $_autocommit = true;
 	var $_haserrorfunctions = true;
@@ -88,9 +88,6 @@ class ADODB_db2 extends ADOConnection {
 
 		if (isset($php_errormsg)) $php_errormsg = '';
 		$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
-		if ($this->debug && $argDatabasename) {
-			ADOConnection::outp("For db2 PConnect(), $argDatabasename is not used. Place dsn in 1st parameter.");
-		}
 		
 		if ($argDatabasename) {
 			$this->_connectionID = db2_pconnect($argDatabasename,$argUsername,$argPassword);
