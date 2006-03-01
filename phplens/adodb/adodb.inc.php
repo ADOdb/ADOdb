@@ -3873,7 +3873,6 @@
 		case 'oracle': $drivername = 'oci8'; break;
 		case 'access': if ($perf) $drivername = ''; break;
 		case 'db2'   : break;
-		case 'odbc_db2': $drivername = 'db2'; break;
 		case 'sapdb' : break;
 		default:
 			$drivername = 'generic';
