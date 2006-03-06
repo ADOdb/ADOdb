@@ -38,6 +38,7 @@ class ADODB_mysql extends ADOConnection {
 	var $clientFlags = 0;
 	var $substr = "substring";
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
+	var $compat323 = false; 		// true if compat with mysql 3.23
 	
 	function ADODB_mysql() 
 	{			
@@ -156,7 +157,7 @@ class ADODB_mysql extends ADOConnection {
 	
 	function GetOne($sql,$inputarr=false)
 	{
-		if (strncasecmp($sql,'sele',4) == 0) {
+		if ($this->compat323 == false && strncasecmp($sql,'sele',4) == 0) {
 			$rs =& $this->SelectLimit($sql,1,-1,$inputarr);
 			if ($rs) {
 				$rs->Close();

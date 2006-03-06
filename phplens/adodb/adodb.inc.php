@@ -314,7 +314,6 @@
 	var $_evalAll = false;
 	var $_affected = false;
 	var $_logsql = false;
-
 	
 	/**
 	 * Constructor
@@ -1953,6 +1952,44 @@
 		}
 	}
 
+	function &GetActiveRecordsClass($class, $table,$whereOrderBy=false,$bindarr=false)
+	{
+	global $_ADODB_ACTIVE_DBS;
+	
+		$save = $this->SetFetchMode(ADODB_FETCH_NUM);
+		if (empty($whereOrderBy)) $whereOrderBy = '1=1';
+		$rows = $this->GetAll("select * from ".$table.' WHERE '.$whereOrderBy,$bindarr);
+		$this->SetFetchMode($save);
+		
+		$false = false;
+		
+		if ($rows === false) {	
+			return $false;
+		}
+		
+		
+		if (!isset($_ADODB_ACTIVE_DBS)) {
+			include_once(ADODB_DIR.'/adodb-active-record.inc.php');
+		}	
+		if (!class_exists($class)) {
+			ADOConnection::outp("Unknown class $class in GetActiveRcordsClass()");
+			return $false;
+		}
+		$arr = array();
+		foreach($rows as $row) {
+		
+			$obj =& new $class($table,$this);
+			$obj->Set($row);
+			$arr[] =& $obj;
+		}
+		return $arr;
+	}
+	
+	function &GetActiveRecords($table,$where=false,$bindarr=false)
+	{
+		$arr =& $this->GetActiveRecordsClass('ADODB_Active_Record', $table, $where, $bindarr);
+		return $arr;
+	}
 	
 	/**
 	 * Close Connection
@@ -2017,6 +2054,7 @@
 			
 			return false;
 		}
+	
 		
 	/**
 	 * @param ttype can either be 'VIEW' or 'TABLE' or false. 
@@ -3142,6 +3180,7 @@
 		}
 		return $lnumrows;
 	}
+	
 	
 	/**
 	 * @return the current row in the recordset. If at EOF, will return the last row. 0-based.
