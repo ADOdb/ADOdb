@@ -166,6 +166,7 @@ pre {
   <li><b>Portable table and index creation</b> with the <a href="docs-datadict.htm">datadict</a> classes.
   </li><li><b>Database performance monitoring and SQL tuning</b> with the <a href="docs-perf.htm">performance monitoring</a> classes.
   </li><li><b>Database-backed sessions</b> with the <a href="docs-session.htm">session management</a> classes. Supports session expiry notification.
+<li><b>Object-Relational Mapping</b> using <a href="docs-active-record.htm">ADOdb_Active_Record</a> classes.
 </li></ul>
 <h2>How People are using ADOdb<a name="users"></a></h2>
 Here are some examples of how people are using ADOdb (for a much longer list, 
@@ -214,14 +215,15 @@ Norway.<p>
 </li><li>adodb-time.inc.php
 </li><li>drivers/adodb-$database.inc.php
 </li><li>license.txt (for legal reasons)
-</li><li>adodb-php4.inc.php
-</li><li>adodb-iterator.inc.php
+</li><li>adodb-php4.inc.php 
+</li><li>adodb-iterator.inc.php  (php5 functionality)
 </li></ul>
 Optional:
 <ul>
 <li>adodb-error.inc.php and lang/adodb-$lang.inc.php (if you use MetaError())
 </li><li>adodb-csvlib.inc.php (if you use cached recordsets - CacheExecute(), etc)
 </li><li>adodb-exceptions.inc.php and adodb-errorhandler.inc.php (if you use adodb error handler or php5 exceptions).
+<li>adodb-active-record.inc.php if you use <a href=docs-active-record.htm>Active Records</a>.
 </li></ul>
 
 <h3>Code Initialization Examples<a name="coding"></a></h3>

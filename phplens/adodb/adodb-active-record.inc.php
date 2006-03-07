@@ -9,6 +9,8 @@
   the BSD license will take precedence.
   
   Active Record implementation. Superset of Zend Framework's.
+  
+  Version 0.02
 */
 
 global $_ADODB_ACTIVE_DBS;
@@ -28,7 +30,7 @@ class ADODB_Active_Table {
 	var $keys; // assoc array of primary keys, indexed by fieldname
 }
 
-
+// returns index into $_ADODB_ACTIVE_DBS
 function ADODB_SetDatabaseAdapter(&$db)
 {
 	global $_ADODB_ACTIVE_DBS;
@@ -52,6 +54,7 @@ class ADODB_Active_Record {
 	var $_tableat; // associative index pointing to ADODB_Active_Table, eg $ADODB_Active_DBS[_dbat]->tables[$this->_tableat]
 	var $_where; // where clause set in Load()
 	var $_saved = false; // indicates whether data is already inserted.
+	var $_lasterr = false; // last error message
 	
 	// should be static
 	function SetDatabaseAdapter(&$db) 
@@ -60,16 +63,21 @@ class ADODB_Active_Record {
 	}
 	
 	// php4 constructor
-	function ADODB_Active_Record($table = false,$db=false)
+	function ADODB_Active_Record($table = false, $pkeyarr=false, $db=false)
 	{
-		ADODB_Active_Record::__construct($table,$db);
+		ADODB_Active_Record::__construct($table,$pkeyarr,$db);
 	}
 	
 	// php5 constructor
-	function __construct($table = false,$db=false, $tableat=false)
+	function __construct($table = false, $pkeyarr=false, $db=false)
 	{
 	global $ADODB_ASSOC_CASE,$_ADODB_ACTIVE_DBS;
 	
+		if ($db == false && is_object($pkeyarr)) {
+			$db = $pkeyarr;
+			$pkeyarr = false;
+		}
+		
 		if (!$table) $table = $this->_pluralize(get_class($this));
 		
 		if ($db) {
@@ -77,11 +85,12 @@ class ADODB_Active_Record {
 		} else
 			$this->_dbat = sizeof($_ADODB_ACTIVE_DBS)-1;
 		
-		if (!$tableat) $tableat = $table;
+		
+		if ($this->_dbat < 0) $this->Error("No database connection set; use ADOdb_Active_Record::SetDatabaseAdapter(\$db)",'ADODB_Active_Record::__constructor');
 		
 		$this->_table = $table;
-		$this->_tableat = $tableat;
-		$this->UpdateActiveTable();
+		$this->_tableat = $table; # reserved for setting the assoc value to a non-table name, eg. the sql string in future
+		$this->UpdateActiveTable($pkeyarr);
 	}
 	
 	function _pluralize($table)
@@ -94,7 +103,7 @@ class ADODB_Active_Record {
 		case 'S':
 			return $table.'es';	
 		case 'Y':
-			return substr($table,1,$len-1).'ies';
+			return substr($table,0,$len-1).'ies';
 		case 'X':	
 			return $table.'es';
 		case 'H': 
@@ -108,7 +117,7 @@ class ADODB_Active_Record {
 	//////////////////////////////////
 	
 	// update metadata
-	function UpdateActiveTable()
+	function UpdateActiveTable($pkeys=false,$forceUpdate=false)
 	{
 	global $ADODB_ASSOC_CASE,$_ADODB_ACTIVE_DBS;
 	
@@ -117,7 +126,7 @@ class ADODB_Active_Record {
 		$table = $this->_table;
 		$tables = $activedb->tables;
 		$tableat = $this->_tableat;
-		if (!empty($tables[$tableat])) {
+		if (!$forceUpdate && !empty($tables[$tableat])) {
 			$tobj =& $tables[$tableat];
 			foreach($tobj->flds as $name => $fld) 
 				$this->$name = null;
@@ -135,14 +144,15 @@ class ADODB_Active_Record {
 			return false;
 		}
 		$fld = reset($cols);
-		if (isset($fld->primary_key)) {
-			$pkeys = array();
-			foreach($cols as $name => $fld) {
-				if (!empty($fld->primary_key)) $pkeys[] = $name;
-			}
-		} else	
-			$pkeys = $this->GetPrimaryKeys($db, $table);
-		
+		if (!$pkeys) {
+			if (isset($fld->primary_key)) {
+				$pkeys = array();
+				foreach($cols as $name => $fld) {
+					if (!empty($fld->primary_key)) $pkeys[] = $name;
+				}
+			} else	
+				$pkeys = $this->GetPrimaryKeys($db, $table);
+		}
 		if (empty($pkeys)) {
 			$this->Error("No primary key found for table $table",'UpdateActiveTable');
 			return false;
@@ -196,10 +206,39 @@ class ADODB_Active_Record {
 		return $db->MetaPrimaryKeys($table);
 	}
 	
-	// primitive error handler for both PHP4+5. Needs to be more sophisticated, eg. do a throw in PHP5
+	// error handler for both PHP4+5. 
 	function Error($err,$fn)
 	{
-		ADOConnection::outp($fn.': '.$err);
+	global $_ADODB_ACTIVE_DBS;
+	
+		$fn = get_class($this).'::'.$fn;
+		$this->_lasterr = $fn.': '.$err;
+		
+		if ($this->_dbat < 0) $db = false;
+		else {
+			$activedb = $_ADODB_ACTIVE_DBS[$this->_dbat];
+			$db =& $activedb->db;
+		}
+		
+		if (function_exists('adodb_throw')) {	
+			if (!$db) adodb_throw('ADOdb_Active_Record', $fn, -1, $err, 0, 0, false);
+			else adodb_throw($db->databaseType, $fn, -1, $err, 0, 0, $db);
+		} else
+			if (!$db || $db->debug) ADOConnection::outp($this->_lasterr);
+		
+	}
+	
+	// return last error message
+	function ErrorMsg()
+	{
+		if (!function_exists('adodb_throw')) {
+			if ($this->_dbat < 0) $db = false;
+			else $db = $this->DB();
+		
+			// last error could be database error too
+			if ($db && $db->ErrorMsg()) return $db->ErrorMsg();
+		}
+		return $this->_lasterr;
 	}
 	
 	// retrieve ADOConnection from _ADODB_Active_DBs
@@ -207,6 +246,11 @@ class ADODB_Active_Record {
 	{
 	global $_ADODB_ACTIVE_DBS;
 	
+		if ($this->_dbat < 0) {
+			$false = false;
+			$this->Error("No database connection set: use ADOdb_Active_Record::SetDatabaseAdaptor(\$db)", "DB");
+			return $false;
+		}
 		$activedb = $_ADODB_ACTIVE_DBS[$this->_dbat];
 		$db =& $activedb->db;
 		return $db;
@@ -306,7 +350,7 @@ class ADODB_Active_Record {
 	
 	function Load($where,$bindarr=false)
 	{
-		$db =& $this->DB();
+		$db =& $this->DB(); if (!$db) return false;
 		$this->_where = $where;
 		
 		$save = $db->SetFetchMode(ADODB_FETCH_NUM);
@@ -316,16 +360,19 @@ class ADODB_Active_Record {
 		return $this->Set($row);
 	}
 	
-	
+	// false on error
 	function Save()
 	{
-		if ($this->_saved) $this->Update();
-		else $this->Insert();
+		if ($this->_saved) $ok = $this->Update();
+		else $ok = $this->Insert();
+		
+		return $ok;
 	}
 	
+	// false on error
 	function Insert()
 	{
-		$db =& $this->DB();
+		$db =& $this->DB(); if (!$db) return false;
 		$cnt = 0;
 		$table =& $this->TableInfo();
 
@@ -369,7 +416,7 @@ class ADODB_Active_Record {
 	
 	function Delete()
 	{
-		$db =& $this->DB();
+		$db =& $this->DB(); if (!$db) return false;
 		$table =& $this->TableInfo();
 		
 		$where = $this->GenWhere($db,$table);
@@ -378,12 +425,12 @@ class ADODB_Active_Record {
 	}
 	
 	
-	
+	// returns 0 on error, 1 on update, 2 on insert
 	function Replace()
 	{
 	global $ADODB_ASSOC_CASE;
 		
-		$db =& $this->DB();
+		$db =& $this->DB(); if (!$db) return false;
 		$table =& $this->TableInfo();
 		
 		$pkey = $table->keys;
@@ -418,7 +465,7 @@ class ADODB_Active_Record {
 		$ok = $db->Replace($this->_table,$arr,$pkey);
 		if ($ok) {
 			$this->_saved = true; // 1= update 2=insert
-			if ($ok == 1) {
+			if ($ok == 2) {
 				$autoinc = false;
 				foreach($table->keys as $k) {
 					if (is_null($this->$k)) {
@@ -437,9 +484,10 @@ class ADODB_Active_Record {
 		return $ok;
 	}
 
+	// returns false on error
 	function Update()
 	{
-		$db =& $this->DB();
+		$db =& $this->DB(); if (!$db) return false;
 		$table =& $this->TableInfo();
 		
 		$where = $this->GenWhere($db, $table);
@@ -479,6 +527,7 @@ class ADODB_Active_Record {
 	function GetAttributeNames()
 	{
 		$table =& $this->TableInfo();
+		if (!$table) return false;
 		return array_keys($table->flds);
 	}
 	

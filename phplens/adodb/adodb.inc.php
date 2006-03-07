@@ -1952,7 +1952,7 @@
 		}
 	}
 
-	function &GetActiveRecordsClass($class, $table,$whereOrderBy=false,$bindarr=false)
+	function &GetActiveRecordsClass($class, $table,$whereOrderBy=false,$bindarr=false, $primkeyArr=false)
 	{
 	global $_ADODB_ACTIVE_DBS;
 	
@@ -1978,16 +1978,20 @@
 		$arr = array();
 		foreach($rows as $row) {
 		
-			$obj =& new $class($table,$this);
+			$obj =& new $class($table,$primkeyArr,$this);
+			if ($obj->ErrorMsg()){
+				$this->_errorMsg = $obj->ErrorMsg();
+				return $false;
+			}
 			$obj->Set($row);
 			$arr[] =& $obj;
 		}
 		return $arr;
 	}
 	
-	function &GetActiveRecords($table,$where=false,$bindarr=false)
+	function &GetActiveRecords($table,$where=false,$bindarr=false,$primkeyArr=false)
 	{
-		$arr =& $this->GetActiveRecordsClass('ADODB_Active_Record', $table, $where, $bindarr);
+		$arr =& $this->GetActiveRecordsClass('ADODB_Active_Record', $table, $where, $bindarr, $primkeyArr);
 		return $arr;
 	}
 	

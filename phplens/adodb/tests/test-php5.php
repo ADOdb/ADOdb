@@ -30,7 +30,7 @@ case 'oci8po':
 default:
 case 'mysql':
 	$db = NewADOConnection("mysql");
-	$db->Connect('localhost','roots','','northwind');
+	$db->Connect('localhost','root','','northwind');
 	break;
 	
 case 'mysqli':
@@ -74,5 +74,26 @@ $rs = $db->Execute("select bad from badder");
 }
 
 $rs = $db->Execute("select distinct id, firstname,lastname from adoxyz order by id");
-echo "Result=\n",$rs;
+echo "Result=\n",$rs,"</p>";
+
+echo "<h3>Active Record</h3>";
+try {
+	include_once("../adodb-active-record.inc.php");
+	class City extends ADOdb_Active_Record{};
+	$a = new City();
+
+} catch(exception $e){
+	echo $e->getMessage();
+}
+
+try {
+	
+	ADOdb_Active_Record::SetDatabaseAdapter($db);
+	$a = new City();
+	
+} catch(exception $e){
+	echo $e->getMessage();
+}
+
+include_once("test-active-record.php");
 ?>

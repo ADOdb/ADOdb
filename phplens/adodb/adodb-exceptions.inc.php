@@ -45,8 +45,10 @@ var $database = '';
 		}
 	
 		$this->dbms = $dbms;
-		$this->host = $thisConnection->host;
-		$this->database = $thisConnection->database;
+		if ($thisConnection) {
+			$this->host = $thisConnection->host;
+			$this->database = $thisConnection->database;
+		}
 		$this->fn = $fn;
 		$this->msg = $errmsg;
 				
