@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V4.72 21 Feb 2006 (c) 2000-2006 John Lim (jlim#natsoft.com)</p>
+<p>V4.80 8 Mar 2006 (c) 2000-2006 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
   
@@ -1418,10 +1418,10 @@ tutorial</a>. We assume that your database supports the SQL case-when expression
 </tbody></table>
 <font> 
 </font><p><font>The following code will generate the SQL for a cross-tabulation: 
-</font></p><pre><font># Query the main "product" table<br># Set the rows to CompanyName<br># and the columns to the values of Categories<br># and define the joins to link to lookup tables <br># "categories" and "suppliers"<br>#<br> include "adodb/pivottable.inc.php";<br> $sql = PivotTableSQL(<br> 	$gDB,                                      # adodb connection<br> 	'products p ,categories c ,suppliers s',   # tables<br>	'CompanyName',                             # rows (multiple fields allowed)<br>	'CategoryName',                            # column to pivot on <br>	'p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID' # joins/where<br>);<br></font></pre>
+</font></p><pre><font># Query the main "product" table<br># Set the rows to SupplierName<br># and the columns to the values of Categories<br># and define the joins to link to lookup tables <br># "categories" and "suppliers"<br>#<br> include "adodb/pivottable.inc.php";<br> $sql = PivotTableSQL(<br> 	$gDB,                                      # adodb connection<br> 	'products p ,categories c ,suppliers s',   # tables<br>	'SupplierName',                             # rows (multiple fields allowed)<br>	'CategoryName',                            # column to pivot on <br>	'p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID' # joins/where<br>);<br></font></pre>
  
 <p><font> This will generate the following SQL:</font></p>
-<p><code><font size="2">SELECT CompanyName, <br>
+<p><code><font size="2">SELECT SupplierName, <br>
   SUM(CASE WHEN CategoryName='Beverages' THEN 1 ELSE 0 END) AS "Beverages", 
   <br>
   SUM(CASE WHEN CategoryName='Condiments' THEN 1 ELSE 0 END) AS "Condiments", 
@@ -1441,11 +1441,11 @@ tutorial</a>. We assume that your database supports the SQL case-when expression
   SUM(1) as Total <br>
   FROM products p ,categories c ,suppliers s WHERE p.CategoryID = c.CategoryID 
   and s.SupplierID= p.SupplierID <br>
-  GROUP BY CompanyName</font></code></p>
+  GROUP BY SupplierName</font></code></p>
 <p> You can also pivot on <i>numerical columns</i> and <i>generate totals</i> 
 	by using ranges. <font>This code was revised in ADODB 2.41 
 	and is not backward compatible.</font> The second example shows this:</p>
-<pre> $sql = PivotTableSQL(<br> 	$gDB,                                       # adodb connection<br> 	'products p ,categories c ,suppliers s',    # tables<br>	'CompanyName',                              #<font> rows (multiple fields allowed)</font>
+<pre> $sql = PivotTableSQL(<br> 	$gDB,                                       # adodb connection<br> 	'products p ,categories c ,suppliers s',    # tables<br>	'SupplierName',                              #<font> rows (multiple fields allowed)</font>
    array(                                       # column ranges
 	' 0 '      =&gt; 'UnitsInStock &lt;= 0',
 	"1 to 5"   =&gt; '0 &lt; UnitsInStock and UnitsInStock &lt;= 5',
@@ -1459,7 +1459,7 @@ tutorial</a>. We assume that your database supports the SQL case-when expression
 );
 </pre> 
 <p>Which generates: </p>
-<p> <code> <font size="2">SELECT CompanyName, <br>
+<p> <code> <font size="2">SELECT SupplierName, <br>
 	SUM(CASE WHEN UnitsInStock &lt;= 0 THEN UnitsInStock ELSE 0 END) AS "Sum 
 	0 ", <br>
 	SUM(CASE WHEN 0 &lt; UnitsInStock and UnitsInStock &lt;= 5 THEN UnitsInStock 
@@ -1474,7 +1474,7 @@ tutorial</a>. We assume that your database supports the SQL case-when expression
 	SUM(1) as Total,<br>
 	FROM products p ,categories c ,suppliers s WHERE p.CategoryID = c.CategoryID 
 	and s.SupplierID= p.SupplierID <br>
-	GROUP BY CompanyName</font></code><font size="2"><br>
+	GROUP BY SupplierName</font></code><font size="2"><br>
 	</font> </p>
 <font><hr />
 <h1>Class Reference<a name="ref"></a></h1>
