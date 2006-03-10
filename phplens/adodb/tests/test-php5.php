@@ -91,6 +91,15 @@ try {
 	ADOdb_Active_Record::SetDatabaseAdapter($db);
 	$a = new City();
 	
+	echo "<p>Successfully created City()<br>";
+	var_dump($a->GetPrimaryKeys());
+	$a->city = 'Kuala Lumpur';
+	$a->Save();
+	$a->Update();
+	$a->SetPrimaryKeys(array('city'));	
+	$a->country = "M'sia";
+	$a->save();
+	$a->Delete();
 } catch(exception $e){
 	echo $e->getMessage();
 }

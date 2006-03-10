@@ -247,18 +247,21 @@ try {
 }
 </pre>
 <p>
-
+<h3><li>Primary Keys</h3>
+<p>
+ADOdb_Active_Record does not require the table to have a primary key. You can insert records for such a table, but you will not be able to update nor delete. 
+<p>Sometimes you are retrieving data from a view or table that has no primary key, but has a unique index. You can dynamically set the primary key of a table through the constructor, or using ADOdb_Active_Record::SetPrimaryKeys():
+<pre>
+	$pkeys = array('category','prodcode');
+	
+	// set primary key using constructor
+	$rec = new ADOdb_Active_Record('Products', $pkeys);
+	
+	 // or use method
+	$rec->SetPrimaryKeys($pkeys);
+</pre>
 <h3><li>Retrieval of Auto-incrementing ID</h3>
 When creating a new record, the retrieval of the last auto-incrementing ID is not reliable for databases that do not support the Insert_ID() function call (check $connection->hasInsertID). In this case we perform a <b>SELECT MAX($primarykey) FROM $table</b>, which will not work reliably in a multi-user environment. You can override the ADOdb_Active_Record::LastInsertID() function in this case.
-
-<h3><li>Using Views or Tables With No Predefined Primary Key</h3>
-<p>
-Sometimes you are retrieving data from a view or table that has no primary key, but has a unique index. Consider the view "ProductView" which has the unique compound key (category, prodcode). You can set the primary key when creating the record like this:
-<pre>
-$rec = new ADOdb_Active_Record('ProductView', array('category','prodcode'));
-</pre>
-Alternatively you cacn by override the ADOdb_Active_Record::GetPrimaryKeys() function.
-
 
 <h3><li>Dealing with Multiple Databases</h3>
 <p>
@@ -439,14 +442,16 @@ echo "&lt;p>Name first (should be John): ",$person->name_first, "&lt;br>Class = 
 </pre>
 
  <h3>Todo (Code Contributions welcome)</h3>
- <p>Check _original and current field values before update, only update changes.
+ <p>Check _original and current field values before update, only update changes. Also if the primary key value is changed, then on update, we should save and use the original primary key values in the WHERE clause!
  <p>Handle 1-to-many relationships.
- <p>Make GetActiveRecords*() return an Iterator in PHP5.
- 
+ <p>PHP5 specific:  Make GetActiveRecords*() return an Iterator.
+ <p>PHP5 specific: Change PHP5 implementation of Active Record to use __get() and __set() for better performance.
+
 <h3> Change Log</h3>
 <p>0.02 <br>
 - Much better error handling. ErrorMsg() implemented. Throw implemented if adodb-exceptions.inc.php detected.<br>
 - You can now define the primary keys of the view or table you are accessing manually.<br>
+- The Active Record allows you to create an object which does not have a primary key. You can INSERT but not UPDATE in this case.
 - Set() documented.<br>
 - Fixed _pluralize bug with y suffix.
 

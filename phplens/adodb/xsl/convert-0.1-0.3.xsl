@@ -12,7 +12,7 @@ http://adodb-xmlschema.sourceforge.net
 </xsl:comment>
 		
 		<xsl:element name="schema">
-			<xsl:attribute name="version">0.2</xsl:attribute>
+			<xsl:attribute name="version">0.3</xsl:attribute>
 			
 			<xsl:apply-templates select="schema/table|schema/sql"/>
 		</xsl:element>
@@ -59,6 +59,22 @@ http://adodb-xmlschema.sourceforge.net
 			<xsl:if test="string-length(@size) > 0">
 				<xsl:attribute name="size"><xsl:value-of select="@size"/></xsl:attribute>
 			</xsl:if>
+			
+			<xsl:choose>
+				<xsl:when test="string-length(@opts) = 0"/>
+				<xsl:when test="@opts = 'UNSIGNED'">
+					<xsl:element name="UNSIGNED"/>
+				</xsl:when>
+				<xsl:when test="contains(@opts,'UNSIGNED')">
+					<xsl:attribute name="opts">
+						<xsl:value-of select="concat(substring-before(@opts,'UNSIGNED'),substring-after(@opts,'UNSIGNED'))"/>
+					</xsl:attribute>
+					<xsl:element name="UNSIGNED"/>
+				</xsl:when>
+				<xsl:otherwise>
+					<xsl:attribute name="opts"><xsl:value-of select="@opts"/></xsl:attribute>
+				</xsl:otherwise>
+			</xsl:choose>
 			
 			<xsl:choose>
 				<xsl:when test="count(PRIMARY) > 0">
