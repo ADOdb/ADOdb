@@ -800,6 +800,8 @@
 			$element0 = reset($inputarr);
 			# is_object check because oci8 descriptors can be passed in
 			$array_2d = is_array($element0) && !is_object(reset($element0));
+			//remove extra memory copy of input -mikefedyk
+			unset($element0);
 			
 			if (!is_array($sql) && !$this->_bindInputArray) {
 				$sqlarr = explode('?',$sql);
@@ -807,12 +809,14 @@
 				if (!$array_2d) $inputarr = array($inputarr);
 				foreach($inputarr as $arr) {
 					$sql = ''; $i = 0;
-					foreach($arr as $v) {
+					//Use each() instead of foreach to reduce memory usage -mikefedyk
+					while(list(, $v) = each($arr)) {
 						$sql .= $sqlarr[$i];
 						// from Ron Baldwin <ron.baldwin#sourceprose.com>
 						// Only quote string types	
 						$typ = gettype($v);
 						if ($typ == 'string')
+							//New memory copy of input created here -mikefedyk
 							$sql .= $this->qstr($v);
 						else if ($typ == 'double')
 							$sql .= str_replace(',','.',$v); // locales fix so 1.1 does not get converted to 1,1
