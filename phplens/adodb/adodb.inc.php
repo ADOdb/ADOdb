@@ -3952,7 +3952,7 @@
 		$path = ADODB_DIR."/datadict/datadict-$drivername.inc.php";
 
 		if (!file_exists($path)) {
-			ADOConnection::outp("Database driver '$path' not available");
+			ADOConnection::outp("Dictionary driver '$path' not available");
 			return $false;
 		}
 		include_once($path);

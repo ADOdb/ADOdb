@@ -216,6 +216,9 @@ class ADODB_ado extends ADOConnection {
 		$dbc = $this->_connectionID;
 		
 	//	return rs	
+	
+		$false = false;
+		
 		if ($inputarr) {
 			
 			if (!empty($this->charPage))
@@ -236,22 +239,24 @@ class ADODB_ado extends ADOConnection {
 			$p = false;
 			$rs = $oCmd->Execute();
 			$e = $dbc->Errors;
-			if ($dbc->Errors->Count > 0) return false;
+			if ($dbc->Errors->Count > 0) return $false;
 			return $rs;
 		}
 		
 		$rs = @$dbc->Execute($sql,$this->_affectedRows, $this->_execute_option);
 			
-		if ($dbc->Errors->Count > 0) return false;
-		if (! $rs) return false;
+		if ($dbc->Errors->Count > 0) return $false;
+		if (! $rs) return $false;
 		
-		if ($rs->State == 0) return true; // 0 = adStateClosed means no records returned
-		return $rs;
+		if ($rs->State == 0) {
+			$true = true;
+			return $true; // 0 = adStateClosed means no records returned
+		} return $rs;
 		
 		} catch (exception $e) {
 			
 		}
-		return false;
+		return $false;
 	}
 
 	

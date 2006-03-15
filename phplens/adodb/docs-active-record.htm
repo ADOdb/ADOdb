@@ -303,6 +303,18 @@ Of course a SELECT statement is superior because it's simpler and much more effi
 </pre>
 <p>Another issue is performance. For performance sensitive code, using direct SQL will always be faster than using Active Records due to overhead and the fact that all fields in a row are retrieved (rather than only the subset you need) whenever an Active Record is loaded.
 
+<h3><li>Transactions</h3>
+<p>
+The default transaction mode in ADOdb is autocommit. So that is the default with active record too. 
+The general rules for managing transactions still apply. Active Record to the database is a set of insert/update/delete statements, and the db has no knowledge of active records.
+<p>
+Smart transactions, that does an auto-rollback if an error occurs, is still the best method to multiple activities (inserts/updates/deletes) that need to be treated as a single transaction:
+<pre>
+$conn->StartTrans();
+$parent->save();
+$child->save();
+$conn->CompleteTrans();
+</pre>
 
 <h2>ADOConnection Supplement</h2>
 
