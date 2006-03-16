@@ -263,6 +263,7 @@ class ADODB_ado extends ADOConnection {
 		$this->transCnt += 1;
 		return true;
 	}
+	
 	function CommitTrans($ok=true) 
 	{ 
 		if (!$ok) return $this->RollbackTrans();
@@ -283,7 +284,9 @@ class ADODB_ado extends ADOConnection {
 
 	function ErrorMsg() 
 	{
+		if (!$this->_connectionID) return "No connection established";
 		$errc = $this->_connectionID->Errors;
+		if (!$errc) return "No Errors object found";
 		if ($errc->Count == 0) return '';
 		$err = $errc->Item($errc->Count-1);
 		return $err->Description;
