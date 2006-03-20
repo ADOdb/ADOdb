@@ -1646,7 +1646,7 @@ See  <a href="#connect_ex">Connection Examples</a> for many examples.
 <p><font>We now perform a rollback on persistent connection for selected databases since 
 	2.21, as advised in the PHP manual. See change log or source code for which 
 	databases are affected. 
-</font></p><p><font>Returns true/false depending on connection. Since 4.23, null is returned if the extension is not loaded.
+</font></p><p><font>Returns true/false depending on connection. Since 4.23, 0 is returned if the extension is not loaded.
 See Connect( ) above for more info.</font></p>
 <p><font>Since ADOdb 2.21, we also support autoRollback. If you set:</font></p>
  
@@ -2682,7 +2682,7 @@ $where)</b></font></p>
 <p><font><b>FetchNextObject<a name="fetchnextobject"></a>($toupper=true)</b></font></p>
 <p><font>Gets the current row as an object and moves to the next
     row automatically. Returns false if at end-of-file. If you set $toupper to
-  true, then the object fields are set to upper-case.</font></p>
+  true, then the object fields are set to upper-case. Note that for some drivers such as mssql, you need to SetFetchMode(ADODB_FETCH_ASSOC) or SetFetchMode(ADODB_FETCH_BOTH).</font></p>
 <pre><font>$rs = $db-&gt;Execute('select firstname,lastname from table');<br>if ($rs) {<br>	while ($o = $rs-&gt;FetchNextObject()) {<br>		print "$o-&gt;FIRSTNAME, $o-&gt;LASTNAME&lt;BR&gt;";<br>	}<br>}<br></font></pre>
 <p><font>There is some trade-off in speed in using FetchNextObject().
 If performance is important, you should access rows with the <code>fields[]</code> array. <b>FetchObj<a name="fetchobj" id="fetchobj"></a>()</b> </font></p>
