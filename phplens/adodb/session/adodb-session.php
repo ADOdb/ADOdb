@@ -26,7 +26,7 @@ V4.80 8 Mar 2006  (c) 2000-2006 John Lim (jlim@natsoft.com.my). All rights reser
 */
 
 if (!defined('_ADODB_LAYER')) {
-	require_once realpath(dirname(__FILE__) . '/../adodb.inc.php');
+	require realpath(dirname(__FILE__) . '/../adodb.inc.php');
 }
 
 if (defined('ADODB_SESSION')) return 1;

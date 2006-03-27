@@ -11,6 +11,9 @@
   Active Record implementation. Superset of Zend Framework's.
   
   Version 0.02
+  
+  See http://www-128.ibm.com/developerworks/java/library/j-cb03076/?ca=dgr-lnxw01ActiveRecord 
+  	for info on Ruby on Rails Active Record implementation
 */
 
 global $_ADODB_ACTIVE_DBS;

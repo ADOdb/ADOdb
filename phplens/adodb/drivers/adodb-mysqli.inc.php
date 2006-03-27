@@ -680,7 +680,7 @@ class ADODB_mysqli extends ADOConnection {
   function GetCharSet()
   {
     //we will use ADO's builtin property charSet
-    if (!is_callable($this->_connectionID,'character_set_name'))
+    if (!method_exists($this->_connectionID,'character_set_name'))
     	return false;
     	
     $this->charSet = @$this->_connectionID->character_set_name();
@@ -694,7 +694,7 @@ class ADODB_mysqli extends ADOConnection {
   // SetCharSet - switch the client encoding
   function SetCharSet($charset_name)
   {
-    if (!is_callable($this->_connectionID,'set_charset'))
+    if (!method_exists($this->_connectionID,'set_charset'))
     	return false;
 
     if ($this->charSet !== $charset_name) {
