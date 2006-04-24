@@ -558,7 +558,7 @@ class ADODB_ibase extends ADOConnection {
 	// still used to auto-decode all blob's
 	function _BlobDecode( $blob ) 
 	{
-		$blobid = ibase_blob_open( $blob );
+		$blobid = ibase_blob_open($this->_connectionID, $blob );
 		$realblob = ibase_blob_get( $blobid,$this->maxblobsize); // 2nd param is max size of blob -- Kevin Boillet <kevinboillet@yahoo.fr>
 		while($string = ibase_blob_get($blobid, 8192)){ 
 			$realblob .= $string; 

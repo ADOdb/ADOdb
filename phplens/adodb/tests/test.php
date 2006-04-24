@@ -1115,6 +1115,13 @@ END Adodb;
 	else print " Fail<BR>";
 	
 	$rs = &$db->CacheExecute(4,"select distinct firstname,lastname from ADOXYZ");
+	
+	if ($rs) print ' 1st line set to **** , Steven selected: '. $rs->GetMenu('menu','Steven','1st:****').'<BR>';
+	else print " Fail<BR>";
+	
+
+	
+	$rs = &$db->CacheExecute(4,"select distinct firstname,lastname from ADOXYZ");
 	if ($rs) print ' Multiple, Alan selected: '. $rs->GetMenu('menu','Alan',false,true).'<BR>';
 	else print " Fail<BR>";
 	print '</p><hr />';

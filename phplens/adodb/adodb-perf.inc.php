@@ -860,8 +860,11 @@ Committed_AS:   348732 kB
 	{
 		if (!$this->createTableSQL) return false;
 		
+		$table = $this->table();
+		$sql = str_replace('adodb_logsql',$table,$this->createTableSQL);
+		
 		$savelog = $this->conn->LogSQL(false);
-		$ok = $this->conn->Execute($this->createTableSQL);
+		$ok = $this->conn->Execute($sql);
 		$this->conn->LogSQL($savelog);
 		return ($ok) ? true : false;
 	}
