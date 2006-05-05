@@ -95,7 +95,7 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 			break;
 			
 			case 'N':
-				if (abs($v) - round($v,0) < 0.00000001)
+				if (abs(abs($v) - round($v,0)) < 0.00000001)
 					$v = round($v);
 				else
 					$v = round($v,$ADODB_ROUND);
