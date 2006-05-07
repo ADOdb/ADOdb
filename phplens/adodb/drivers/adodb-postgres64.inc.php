@@ -532,6 +532,8 @@ select viewname,'V' from pg_views where viewname like $mask";
 			$fld->name = $rs->fields[0];
 			$fld->type = $rs->fields[1];
 			$fld->max_length = $rs->fields[2];
+			$fld->attnum = $rs->fields[6];
+			
 			if ($fld->max_length <= 0) $fld->max_length = $rs->fields[3]-4;
 			if ($fld->max_length <= 0) $fld->max_length = -1;
 			if ($fld->type == 'numeric') {
@@ -617,12 +619,14 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 					return $false;
                 }
 				
-                $col_names = $this->MetaColumnNames($table,true);
+                $col_names = $this->MetaColumnNames($table,true,true); 
+				//3rd param is use attnum, 
+				// see http://sourceforge.net/tracker/index.php?func=detail&aid=1451245&group_id=42718&atid=433976
                 $indexes = array();
                 while ($row = $rs->FetchRow()) {
                         $columns = array();
                         foreach (explode(' ', $row[2]) as $col) {
-                                $columns[] = $col_names[$col - 1];
+                                $columns[] = $col_names[$col];
                         }
                         
                         $indexes[$row[0]] = array(

@@ -7,9 +7,6 @@
  *
  * Set tabs to 4 for best viewing.
  * 
- * Latest version is available at http://php.weblogs.com
- *
- * Requires PHP4.01pl2 or later because it uses include_once
 */
 
 /*
@@ -38,7 +35,7 @@
 	else $hidecnt = false;
 	
 	$iif = strpos($db->databaseType,'access') !== false; 
-		// note - vfp still doesn' work even with IIF enabled || $db->databaseType == 'vfp';
+		// note - vfp 6 still doesn' work even with IIF enabled || $db->databaseType == 'vfp';
 	
 	//$hidecnt = false;
 	
@@ -95,7 +92,12 @@
 	else
 		$sel = substr($sel,0,strlen($sel)-2);
 	
+	
+	// Strip aliases
+	$rowfields = preg_replace('/ AS (\w+)/i', '', $rowfields);
+	
 	$sql = "SELECT $sel \nFROM $tables $where \nGROUP BY $rowfields";
+	
 	return $sql;
  }
 

@@ -2212,7 +2212,7 @@
 	 *
 	 * @return  array of column names for current table.
 	 */ 
-	function &MetaColumnNames($table, $numIndexes=false) 
+	function &MetaColumnNames($table, $numIndexes=false,$useattnum=false /* only for postgres */) 
 	{
 		$objarr =& $this->MetaColumns($table);
 		if (!is_array($objarr)) {
@@ -2222,7 +2222,12 @@
 		$arr = array();
 		if ($numIndexes) {
 			$i = 0;
-			foreach($objarr as $v) $arr[$i++] = $v->name;
+			if ($useattnum) {
+				foreach($objarr as $v) 
+					$arr[$v->attnum] = $v->name;
+				
+			} else
+				foreach($objarr as $v) $arr[$i++] = $v->name;
 		} else
 			foreach($objarr as $v) $arr[strtoupper($v->name)] = $v->name;
 		
