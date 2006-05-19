@@ -11,8 +11,8 @@ Set tabs to 4 for best viewing.
   Microsoft SQL Server ADO data driver. Requires ADO and MSSQL client. 
   Works only on MS Windows.
   
-  It is normally better to use the mssql driver directly because it is much faster. 
-  This file is only a technology demonstration and for test purposes.
+  Warning: Some versions of PHP (esp PHP4) leak memory when ADO/COM is used. 
+  Please check http://bugs.php.net/ for more info.
 */
 
 // security - hide paths
@@ -82,6 +82,44 @@ class  ADODB_ado_mssql extends ADODB_ado {
         }
         $false = false;
 		return empty($arr) ? $false : $arr;
+	}
+	
+	function CreateSequence($seq='adodbseq',$start=1)
+	{
+		
+		$this->Execute('BEGIN TRANSACTION adodbseq');
+		$start -= 1;
+		$this->Execute("create table $seq (id float(53))");
+		$ok = $this->Execute("insert into $seq with (tablock,holdlock) values($start)");
+		if (!$ok) {
+				$this->Execute('ROLLBACK TRANSACTION adodbseq');
+				return false;
+		}
+		$this->Execute('COMMIT TRANSACTION adodbseq'); 
+		return true;
+	}
+
+	function GenID($seq='adodbseq',$start=1)
+	{
+		//$this->debug=1;
+		$this->Execute('BEGIN TRANSACTION adodbseq');
+		$ok = $this->Execute("update $seq with (tablock,holdlock) set id = id + 1");
+		if (!$ok) {
+			$this->Execute("create table $seq (id float(53))");
+			$ok = $this->Execute("insert into $seq with (tablock,holdlock) values($start)");
+			if (!$ok) {
+				$this->Execute('ROLLBACK TRANSACTION adodbseq');
+				return false;
+			}
+			$this->Execute('COMMIT TRANSACTION adodbseq'); 
+			return $start;
+		}
+		$num = $this->GetOne("select id from $seq");
+		$this->Execute('COMMIT TRANSACTION adodbseq'); 
+		return $num;
+		
+		// in old implementation, pre 1.90, we returned GUID...
+		//return $this->GetOne("SELECT CONVERT(varchar(255), NEWID()) AS 'Char'");
 	}
 	
 	} // end class 

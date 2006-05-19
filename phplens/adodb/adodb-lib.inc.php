@@ -1017,5 +1017,47 @@ function _adodb_backtrace($printOrArr=true,$levels=9999,$skippy=0)
 	
 	return $s;
 }
+/*
+function _adodb_find_from($sql) 
+{
+
+	$sql = str_replace(array("\n","\r"), ' ', $sql);
+	$charCount = strlen($sql);
+	
+	$inString = false;
+	$quote = '';
+	$parentheseCount = 0;
+	$prevChars = '';
+	$nextChars = '';
+	
+
+	for($i = 0; $i < $charCount; $i++) {
+
+    	$char = substr($sql,$i,1);
+	    $prevChars = substr($sql,0,$i);
+    	$nextChars = substr($sql,$i+1);
+
+		if((($char == "'" || $char == '"' || $char == '`') && substr($prevChars,-1,1) != '\\') && $inString === false) {
+			$quote = $char;
+			$inString = true;
+		}
+
+		elseif((($char == "'" || $char == '"' || $char == '`') && substr($prevChars,-1,1) != '\\') && $inString === true && $quote == $char) {
+			$quote = "";
+			$inString = false;
+		}
+
+		elseif($char == "(" && $inString === false)
+			$parentheseCount++;
+
+		elseif($char == ")" && $inString === false && $parentheseCount > 0)
+			$parentheseCount--;
+
+		elseif($parentheseCount <= 0 && $inString === false && $char == " " && strtoupper(substr($prevChars,-5,5)) == " FROM")
+			return $i;
+
+	}
+}
+*/
 
 ?>

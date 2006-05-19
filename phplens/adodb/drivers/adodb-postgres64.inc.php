@@ -1004,6 +1004,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		   		case 'BPCHAR':
 				case '_VARCHAR':
 				case 'INET':
+				case 'MACADDR':
 					if ($len <= $this->blobSize) return 'C';
 				
 				case 'TEXT':

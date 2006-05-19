@@ -3370,6 +3370,7 @@
 		'BPCHAR' => 'C',
 		'CHARACTER' => 'C',
 		'INTERVAL' => 'C',  # Postgres
+		'MACADDR' => 'C', # postgres
 		##
 		'LONGCHAR' => 'X',
 		'TEXT' => 'X',

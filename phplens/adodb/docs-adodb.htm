@@ -2851,6 +2851,9 @@ of MySQL.</font></p>
 See http://sourceforge.net/tracker/index.php?func=detail&aid=1451245&group_id=42718&atid=433976. Fixed.
 <p>MetaForeignkeys in mysql and mysqli did not work when fetchMode==ADODB_FETCH_ASSOC used. Fixed.
 <p>Reference error in AutoExecute() fixed.
+<p>Added macaddr postgres type to MetaType. Maps to 'C'.
+<p>Added to _connect() in adodb-ado5.inc.php support for $database and $dataProvider parameters.  Thx Larry Menard.
+<p>Added support for sequences in adodb-ado_mssql.inc.php. Thx Larry Menard.
 <p><a name="4.81"></a><b>4.81 3 May 2006</b>
 <p>Fixed variable ref errors in adodb-ado5.inc.php in _query().
 <p>Mysqli setcharset fix using method_exists().
