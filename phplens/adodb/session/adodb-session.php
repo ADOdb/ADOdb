@@ -523,7 +523,6 @@ class ADODB_Session {
 #		assert('$driver');
 #		assert('$host');
 
-		// cannot use =& below - do not know why...
 		$conn =& ADONewConnection($driver);
 
 		if ($debug) {
@@ -618,6 +617,10 @@ class ADODB_Session {
 		If the data has not been modified since the last read(), we do not write.
 	*/
 	function write($key, $val) {
+	global $ADODB_SESSION_READONLY;
+	
+		if (!empty($ADODB_SESSION_READONLY)) return;
+		
 		$clob			= ADODB_Session::clob();
 		$conn			=& ADODB_Session::_conn();
 		$crc			= ADODB_Session::_crc();
@@ -646,12 +649,19 @@ class ADODB_Session {
 			if ($debug) {
 				echo '<p>Session: Only updating date - crc32 not changed</p>';
 			}
-			$sql = "UPDATE $table SET expiry = ".$conn->Param('0')." WHERE $binary sesskey = ".$conn->Param('1')." AND expiry >= ".$conn->Param('2');
-			$rs =& $conn->Execute($sql,array($expiry,$key,time()));
-			ADODB_Session::_dumprs($rs);
-			if ($rs) {
-				$rs->Close();
+			
+			$expirevar = '';
+			if ($expire_notify) {
+				$var = reset($expire_notify);
+				global $$var;
+				if (isset($$var)) {
+					$expirevar = $$var;
+				}
 			}
+			
+			
+			$sql = "UPDATE $table SET expiry = ".$conn->Param('0').",expireref=".$conn->Param('1')." WHERE $binary sesskey = ".$conn->Param('2')." AND expiry >= ".$conn->Param('3');
+			$rs =& $conn->Execute($sql,array($expiry,$expirevar,$key,time()));
 			return true;
 		}
 		$val = rawurlencode($val);
@@ -673,7 +683,7 @@ class ADODB_Session {
 		if (!$clob) {	// no lobs, simply use replace()
 			$arr[$data] = $conn->qstr($val);
 			$rs = $conn->Replace($table, $arr, 'sesskey', $autoQuote = true);
-			ADODB_Session::_dumprs($rs);
+			
 		} else {
 			// what value shall we insert/update for lob row?
 			switch ($driver) {
@@ -691,13 +701,13 @@ class ADODB_Session {
 					break;
 			}
 			
+			$expiryref = $conn->qstr($arr['expireref']);
 			// do we insert or update? => as for sesskey
 			$rs =& $conn->Execute("SELECT COUNT(*) AS cnt FROM $table WHERE $binary sesskey = $qkey");
-			ADODB_Session::_dumprs($rs);
 			if ($rs && reset($rs->fields) > 0) {
-				$sql = "UPDATE $table SET expiry = $expiry, $data = $lob_value WHERE  sesskey = $qkey";
+				$sql = "UPDATE $table SET expiry = $expiry, $data = $lob_value, expireref=$expiryref WHERE  sesskey = $qkey";
 			} else {
-				$sql = "INSERT INTO $table (expiry, $data, sesskey) VALUES ($expiry, $lob_value, $qkey)";
+				$sql = "INSERT INTO $table (expiry, $data, sesskey,expireref) VALUES ($expiry, $lob_value, $qkey,$expiryref)";
 			}
 			if ($rs) {
 				$rs->Close();
@@ -705,12 +715,11 @@ class ADODB_Session {
 
 			$err = '';
 			$rs1 =& $conn->Execute($sql);
-			ADODB_Session::_dumprs($rs1);
 			if (!$rs1) {
 				$err = $conn->ErrorMsg()."\n";
 			}
 			$rs2 =& $conn->UpdateBlob($table, $data, $val, " sesskey=$qkey", strtoupper($clob));
-			ADODB_Session::_dumprs($rs2);
+			
 			if (!$rs2) {
 				$err .= $conn->ErrorMsg()."\n";
 			}
@@ -901,7 +910,8 @@ class ADODB_Session {
 }
 
 ADODB_Session::_init();
-register_shutdown_function('session_write_close');
+if (empty($ADODB_SESSION_READONLY))
+	register_shutdown_function('session_write_close');
 
 // for backwards compatability only
 function adodb_sess_open($save_path, $session_name, $persist = true) {
