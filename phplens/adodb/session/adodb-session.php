@@ -493,7 +493,7 @@ class ADODB_Session {
 	// public methods
 	/////////////////////
 	
-	function config($driver, $host, $user, $password, $database,$options)
+	function config($driver, $host, $user, $password, $database=false,$options=false)
 	{
 		ADODB_Session::driver($driver);
 		ADODB_Session::host($host);
@@ -503,6 +503,7 @@ class ADODB_Session {
 		
 		if (isset($options['table'])) ADODB_Session::table($options['table']);
 		if (isset($options['clob'])) ADODB_Session::table($options['clob']);
+		if (isset($options['field'])) ADODB_Session::dataFieldName($options['field']);
 	}
 
 	/*!
