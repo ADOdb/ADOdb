@@ -705,7 +705,7 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 	// returns queryID or false
 	function _query($sql,$inputarr)
 	{
-		
+		$this->_errorMsg = false;
 		if ($inputarr) {
 		/*
 			It appears that PREPARE/EXECUTE is slower for many queries.
@@ -735,6 +735,7 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 			if ($execp) $exsql = "EXECUTE $plan ($execp)";
 			else $exsql = "EXECUTE $plan";
 			
+			
 			$rez = @pg_exec($this->_connectionID,$exsql);
 			if (!$rez) {
 			# Perhaps plan does not exist? Prepare/compile plan.
@@ -760,12 +761,11 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 				$s = "PREPARE $plan ($params) AS ".substr($sql,0,strlen($sql)-2);		
 				//adodb_pr($s);
 				pg_exec($this->_connectionID,$s);
-				echo $this->ErrorMsg();
+				//echo $this->ErrorMsg();
 			}
 			
 			$rez = pg_exec($this->_connectionID,$exsql);
 		} else {
-			$this->_errorMsg = false;
 			//adodb_backtrace();
 			$rez = pg_exec($this->_connectionID,$sql);
 		}

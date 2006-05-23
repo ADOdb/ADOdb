@@ -492,6 +492,18 @@ class ADODB_Session {
 	/////////////////////
 	// public methods
 	/////////////////////
+	
+	function config($driver, $host, $user, $password, $database,$options)
+	{
+		ADODB_Session::driver($driver);
+		ADODB_Session::host($host);
+		ADODB_Session::user($user);
+		ADODB_Session::password($password);
+		ADODB_Session::database($database);
+		
+		if (isset($options['table'])) ADODB_Session::table($options['table']);
+		if (isset($options['clob'])) ADODB_Session::table($options['clob']);
+	}
 
 	/*!
 		Create the connection to the database.

@@ -97,6 +97,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			// We don't have native support for parameterized queries, so let's emulate it at the parent
 			return ADODB_postgres64::_query($sql, $inputarr);
 		}
+		$this->_errorMsg = false;
 		// -- added Cristiano da Cunha Duarte
 		if ($inputarr) {
 			$sqlarr = explode('?',trim($sql));
