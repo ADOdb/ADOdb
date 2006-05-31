@@ -314,15 +314,16 @@ if (false && !empty($testoracle)) {
 
 }
 
-ADOLoadCode("db2"); // no longer supported
+ADOLoadCode("odbc_db2"); // no longer supported
 if (!empty($testdb2)) { 
-	$db = ADONewConnection();
+	$db = ADONewConnection("odbc_db2");
 	print "<h1>Connecting $db->databaseType...</h1>";
 	
-	$dsn = "db2_sample";
-	$dsn = "driver={IBM db2 odbc DRIVER};Database=sample;hostname=localhost;port=50000;protocol=TCPIP; uid=root; pwd=natsoft";
+	$dsn = "db2test";
+	#$db->curMode = SQL_CUR_USE_ODBC;
+	#$dsn = "driver={IBM db2 odbc DRIVER};Database=test;hostname=localhost;port=50000;protocol=TCPIP; uid=natsoft; pwd=guest";
 	if ($db->Connect($dsn)) {
-	//	testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
+		testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
 	} else print "ERROR: DB2 test requires an server setup with odbc data source db2_sample".'<BR>'.$db->ErrorMsg();
 
 echo "<hr />";

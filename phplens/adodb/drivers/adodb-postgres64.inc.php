@@ -174,7 +174,7 @@ a different OID if a database must be reloaded. */
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
-		return @pg_Exec($this->_connectionID, "begin");
+		return @pg_Exec($this->_connectionID, "begin ".$this->_transmode);
 	}
 	
 	function RowLock($tables,$where,$flds='1 as ignore') 

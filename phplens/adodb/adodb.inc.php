@@ -314,6 +314,7 @@
 	var $_evalAll = false;
 	var $_affected = false;
 	var $_logsql = false;
+	var $_transmode = ''; // transaction mode
 	
 	/**
 	 * Constructor
@@ -2021,7 +2022,12 @@
 	 */
 	function BeginTrans() {return false;}
 	
-	
+	/* set transaction mode */
+	function SetTransactionMode( $transaction_mode ) 
+	{
+		$this->_transmode  = $transaction_mode;
+	}
+
 	/**
 	 * If database does not support transactions, always return true as data always commited
 	 *
@@ -2269,6 +2275,22 @@
 		}
 
 		return adodb_date($this->fmtDate,$d);
+	}
+	
+	function BindDate($d)
+	{
+		$d = $this->DBDate($d);
+		if (strncmp($d,"'",1)) return $d;
+		
+		return substr($d,1,strlen($d)-2);
+	}
+	
+	function BindTimeStamp($d)
+	{
+		$d = $this->DBTimeStamp($d);
+		if (strncmp($d,"'",1)) return $d;
+		
+		return substr($d,1,strlen($d)-2);
 	}
 	
 	

@@ -81,6 +81,7 @@ pre {
   <a href="#concat">Concat</a> <a href="#ifnull">IfNull</a> <a href="#length">length</a> <a href="#random">random</a> <a href="#substr">substr</a> 
   <a href="#qstr">qstr</a> <a href="#param">Param</a>  <a href="#OffsetDate">OffsetDate</a> <a href="#SQLDate">SQLDate</a> 
   <a href="#dbdate">DBDate</a>  <a href="#dbtimestamp">DBTimeStamp</a>
+  <a href="#binddate">BindDate</a>  <a href="#bindtimestamp">BindTimeStamp</a>
   <br>
   Blobs: <a href="#updateblob">UpdateBlob</a> <a href="#updateclob">UpdateClob</a> 
   <a href="#updateblobfile">UpdateBlobFile</a> <a href="#blobencode">BlobEncode</a> 
@@ -94,6 +95,7 @@ pre {
   Fetching Data: </font> <font size="2"><a href="#setfetchmode">SetFetchMode</a><br>
   Strings: <a href="#concat">concat</a> <a href="#length">length</a>  <a href="#qstr">qstr</a> <a href="#quote">quote</a> <a href="#substr">substr</a><br>
   Dates: <a href="#dbdate">DBDate</a> <a href="#dbtimestamp">DBTimeStamp</a> <a href="#unixdate">UnixDate</a> 
+  <a href="#binddate">BindDate</a>  <a href="#bindtimestamp">BindTimeStamp</a>
   <a href="#unixtimestamp">UnixTimeStamp</a> <a href="#OffsetDate">OffsetDate</a> 
   <a href="#SQLDate">SQLDate</a> <br>
   Row Management: <a href="#affected_rows">Affected_Rows</a> <a href="#inserted_id">Insert_ID</a>  <a href="#rowlock">RowLock</a>
@@ -2356,12 +2358,38 @@ function CountCachedExecs($db, $secs2cache, $sql, $inputarray)
   Y-m-d. Uses the fmtDate field, which holds the format to use. If null or false 
   or '' is passed in, it will be converted to an SQL null.</font></p>
 <p><font>Returns the date as a quoted string.</font></p>
+<pre>
+	$sql = "select * from atable where created > ".$db->DBDate("$year-$month-$day");
+	$db->Execute($sql);
+</pre>
+<p><font><b>BindDate<a name="binddate"></a>($date)</b></font></p>
+<p><font>Format the $<b>date</b> in the bind format the database accepts. Normally
+ this means that the date string is not quoted, unlike DBDate, which quotes the string.
+<pre>
+	$sql = "select * from atable where created > ".$db->Param('0');
+	// or
+	$sql = "select * from atable where created > ?";
+	$db->Execute($sql,array($db->BindDate("$year-$month-$day"));
+</pre>
 <p><font><b>DBTimeStamp<a name="dbtimestamp"></a>($ts)</b></font></p>
 <p><font>Format the timestamp $<b>ts</b> in the format the database accepts; this can 
   be a Unix integer timestamp or an ISO format Y-m-d H:i:s. Uses the fmtTimeStamp 
   field, which holds the format to use. If null or false or '' is passed in, it 
   will be converted to an SQL null.</font></p>
 <p><font>Returns the timestamp as a quoted string.</font></p>
+<pre>
+	$sql = "select * from atable where created > ".$db->DBTimeStamp("$year-$month-$day $hr:$min:$secs");
+	$db->Execute($sql);
+</pre>
+<p><font><b>BindTimeStamp<a name="bindtimestamp"></a>($ts)</b></font></p>
+<p><font>Format the timestamp $<b>ts</b> in the bind format the database accepts. Normally
+ this means that the timestamp string is not quoted, unlike DBTimeStamp, which quotes the string.
+<pre>
+	$sql = "select * from atable where created > ".$db->Param('0');
+	// or
+	$sql = "select * from atable where created > ?";
+	$db->Execute($sql,array($db->BindTimeStamp("$year-$month-$day $hr:$min:$secs"));
+</pre>
 <p><font><b>qstr<a name="qstr"></a>($s,[$magic_quotes_enabled</b>=false]<b>)</b></font></p>
 <p><font>Quotes a string to be sent to the database. The $<b>magic_quotes_enabled</b> 
   parameter may look funny, but the idea is if you are quoting a string extracted 
@@ -2845,6 +2873,32 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 <p><a name="4.82"></a><b>4.82 ? 2006</b>
+<p>Added support for transaction modes for postgres and oci8. These transaction modes affect all subsequent transactions of that
+connection.
+
+<pre>
+$db->SetTransactionMode("ISOLATION LEVEL SERIALIZABLE");
+$db->BeginTrans();
+$db->Execute(...); $db->Execute(...);
+$db->CommiTrans();
+
+$db->SetTransactionMode(""); // restore to default
+$db->StartTrans();
+$db->Execute(...); $db->Execute(...);
+$db->CompleteTrans();
+</pre>
+
+<p>
+See <a href=http://www.postgresql.org/docs/8.1/interactive/sql-set-transaction.html>PostgreSQL Transaction Levels</a>. Oracle levels
+are a  superset of those given below:
+<ul>
+<li>READ ONLY
+<li>READ WRITE
+<li>ISOLATION LEVEL SERIALIZABLE
+<li>ISOLATION LEVEL READ COMMITTED
+</ul>
+<p>Thanks to Halmai Csongor for suggestion.
+<p>Removed $off = $fieldOffset - 1 line in db2 driver, FetchField(). Tx Larry Menard.
 <p>Added support for PHP5 objects as Execute() bind parameters using __toString (eg. Simple-XML). Thx Carl-Christian Salvesen.
 <p>Rounding in tohtml.inc.php did not work properly. Fixed.
 <p>MetaIndexes in postgres fails when fields are deleted then added in again because the attnum has gaps in it. 
@@ -2857,6 +2911,7 @@ See http://sourceforge.net/tracker/index.php?func=detail&aid=1451245&group_id=42
 <p>Added ADODB_SESSION_READONLY.
 <p>Added session expiryref support to crc32 mode, and in LOB code.
 <p>Clear _errorMsg in postgres7 driver, so that ErrorMsg() displays properly when no error occurs.
+<p>Added BindDate and BindTimeStamp
 <p><a name="4.81"></a><b>4.81 3 May 2006</b>
 <p>Fixed variable ref errors in adodb-ado5.inc.php in _query().
 <p>Mysqli setcharset fix using method_exists().

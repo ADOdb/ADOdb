@@ -577,9 +577,6 @@ class ADORecordSet_db2 extends ADORecordSet {
 	// returns the field object
 	function &FetchField($fieldOffset = -1) 
 	{
-		
-		$off=$fieldOffset+1; // offsets begin at 1
-		
 		$o= new ADOFieldObject();
 		$o->name = @db2_field_name($this->_queryID,$off);
 		$o->type = @db2_field_type($this->_queryID,$off);

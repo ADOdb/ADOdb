@@ -747,7 +747,14 @@ END Adodb;
 		where id=".$db->Param('zid')." and created>=".$db->Param('ZDATE')."",
 		$array);
 	if ($id != 1) Err("Bad bind; id=$id");
-	else echo "<br>Bind date/integer passed";
+	else echo "<br>Bind date/integer 1 passed";
+	
+	$array =array(1,$db->BindDate(time()));
+	$id = $db->GetOne("select id from ADOXYZ 
+		where id=".$db->Param('0')." and created>=".$db->Param('1')."",
+		$array);
+	if ($id != 1) Err("Bad bind; id=$id");
+	else echo "<br>Bind date/integer 2 passed";
 	
 	$db->debug = false;
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;

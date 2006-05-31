@@ -60,7 +60,7 @@ Setting SQL_CUR_USE_ODBC
 ========================
 To set SQL_CUR_USE_ODBC for drivers that require it, do this:
 
-$db = NewADOConnection('db2');
+$db = NewADOConnection('odbc_db2');
 $db->curMode = SQL_CUR_USE_ODBC;
 $db->Connect($dsn, $userid, $pwd);
 
@@ -88,10 +88,10 @@ if (!defined('ADODB_DIR')) die();
 if (!defined('_ADODB_ODBC_LAYER')) {
 	include(ADODB_DIR."/drivers/adodb-odbc.inc.php");
 }
-if (!defined('ADODB_DB2')){
-define('ADODB_DB2',1);
+if (!defined('ADODB_ODBC_DB2')){
+define('ADODB_ODBC_DB2',1);
 
-class ADODB_DB2 extends ADODB_odbc {
+class ADODB_ODBC_DB2 extends ADODB_odbc {
 	var $databaseType = "db2";	
 	var $concat_operator = '||';
 	var $sysDate = 'CURRENT_DATE';
@@ -294,7 +294,7 @@ class ADODB_DB2 extends ADODB_odbc {
 };
  
 
-class  ADORecordSet_db2 extends ADORecordSet_odbc {	
+class  ADORecordSet_odbc_db2 extends ADORecordSet_odbc {	
 	
 	var $databaseType = "db2";		
 	
