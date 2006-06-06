@@ -2025,9 +2025,55 @@
 	/* set transaction mode */
 	function SetTransactionMode( $transaction_mode ) 
 	{
+		$transaction_mode = $this->MetaTransaction($transaction_mode, $this->dataProvider);
 		$this->_transmode  = $transaction_mode;
 	}
+/*
+http://msdn2.microsoft.com/en-US/ms173763.aspx
+http://dev.mysql.com/doc/refman/5.0/en/innodb-transaction-isolation.html
+http://www.postgresql.org/docs/8.1/interactive/sql-set-transaction.html
+http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_10005.htm
+*/
+	function MetaTransaction($mode,$db)
+	{
+		$mode = strtoupper($mode);
+		$mode = str_replace('ISOLATION LEVEL ','',$mode);
+		
+		switch($mode) {
 
+		case 'READ UNCOMMITTED':
+			switch($db) { 
+			case 'oci8':
+			case 'oracle':
+				return 'ISOLATION LEVEL READ COMMITTED';
+			default:
+				return 'ISOLATION LEVEL READ UNCOMMITTED';
+			}
+			break;
+					
+		case 'READ COMMITTED':
+				return 'ISOLATION LEVEL READ COMMITTED';
+			break;
+			
+		case 'REPEATABLE READ':
+			switch($db) {
+			case 'oci8':
+			case 'oracle':
+				return 'ISOLATION LEVEL SERIALIZABLE';
+			default:
+				return 'ISOLATION LEVEL REPEATABLE READ';
+			}
+			break;
+			
+		case 'SERIALIZABLE':
+				return 'ISOLATION LEVEL SERIALIZABLE';
+			break;
+			
+		default:
+			return $mode;
+		}
+	}
+	
 	/**
 	 * If database does not support transactions, always return true as data always commited
 	 *

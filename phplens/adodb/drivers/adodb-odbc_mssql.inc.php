@@ -142,6 +142,17 @@ order by constraint_name, referenced_table_name, keyno";
 		return ADODB_odbc::_query($sql,$inputarr);
 	}
 	
+	function SetTransactionMode( $transaction_mode ) 
+	{
+		$this->_transmode  = $transaction_mode;
+		if (empty($transaction_mode)) {
+			$this->Execute('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+			return;
+		}
+		if (!stristr($transaction_mode,'isolation')) $transaction_mode = 'ISOLATION LEVEL '.$transaction_mode;
+		$this->Execute("SET TRANSACTION ".$transaction_mode);
+	}
+	
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
 	function &MetaPrimaryKeys($table)

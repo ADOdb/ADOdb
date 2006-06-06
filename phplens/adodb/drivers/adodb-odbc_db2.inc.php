@@ -80,6 +80,10 @@ Connect() when using the CLI interface. From Halmai Csongor csongor.halmai#nexum
 > In case of DB2 I had to swap the first and last arguments in order to connect properly. 
 
 
+System Error 5
+==============
+IF you get a System Error 5 when trying to Connect/Load, it could be a permission problem. Give the user connecting
+to DB2 full rights to the DB2 SQLLIB directory, and place the user in the DBUSERS group.
 */
 
 // security - hide paths
@@ -94,7 +98,8 @@ define('ADODB_ODBC_DB2',1);
 class ADODB_ODBC_DB2 extends ADODB_odbc {
 	var $databaseType = "db2";	
 	var $concat_operator = '||';
-	var $sysDate = 'CURRENT_DATE';
+	var $sysTime = 'CURRENT TIME';
+	var $sysDate = 'CURRENT DATE';
 	var $sysTimeStamp = 'CURRENT TIMESTAMP';
 	// The complete string representation of a timestamp has the form 
 	// yyyy-mm-dd-hh.mm.ss.nnnnnn.
@@ -103,6 +108,7 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 	var $identitySQL = 'values IDENTITY_VAL_LOCAL()';
 	var $_bindInputArray = true;
 	 var $hasInsertID = true;
+	var $rsPrefix = 'ADORecordset_odbc_';
 	
 	function ADODB_DB2()
 	{

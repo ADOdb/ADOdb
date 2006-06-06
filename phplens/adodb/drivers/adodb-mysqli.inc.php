@@ -58,6 +58,16 @@ class ADODB_mysqli extends ADOConnection {
 	    
 	}
 	
+	function SetTransactionMode( $transaction_mode ) 
+	{
+		$this->_transmode  = $transaction_mode;
+		if (empty($transaction_mode)) {
+			$this->Execute('SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ');
+			return;
+		}
+		if (!stristr($transaction_mode,'isolation')) $transaction_mode = 'ISOLATION LEVEL '.$transaction_mode;
+		$this->Execute("SET SESSION TRANSACTION ".$transaction_mode);
+	}
 
 	// returns true or false
 	// To add: parameter int $port,

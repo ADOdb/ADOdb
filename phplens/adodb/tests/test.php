@@ -1334,13 +1334,16 @@ END Adodb;
 	$date = $db->SQLDate('d-m-M-Y-\QQ h:i:s A',$db->DBDate("1974-02-25"));
 	$sql = "SELECT $date from ADOXYZ";
 	print "<p>Test SQLDate: ".htmlspecialchars($sql)."</p>";
+	$db->debug=1;
 	$rs = $db->SelectLimit($sql,1);
 	$ts = ADOConnection::UnixDate('1974-02-25');
 	$d = date('d-m-M-Y-',$ts).'Q'.(ceil(date('m',$ts)/3.0)).date(' h:i:s A',$ts);
 	if (!$rs) {
 		Err("SQLDate query returned no recordset");
 		echo $db->ErrorMsg(),'<br>';
-	} else if ($d != $rs->fields[0]) Err("SQLDate 2 failed expected: <br>act:$d <br>sql:".$rs->fields[0]);
+	} else if ($d != reset($rs->fields)) {
+		Err("SQLDate 2 failed expected: <br>act:$d <br>sql:".$rs->fields[0].' <br>'.$db->ErrorMsg());
+	}
 	
 	
 	print "<p>Test Filter</p>";
@@ -1511,9 +1514,11 @@ END Adodb;
 	flush();
 	
 	if ($db->hasTransactions) {
-		//$db->debug=1;
+		$db->debug=1;
 		echo "<p>Testing StartTrans CompleteTrans</p>";
 		$db->raiseErrorFn = false;
+		
+		$db->SetTransactionMode('SERIALIZABLE');
 		$db->StartTrans();
 		$rs = $db->Execute('select * from notable');
 			$db->StartTrans();
@@ -1522,6 +1527,8 @@ END Adodb;
 				$db->CommitTrans();
 			$db->CompleteTrans();
 		$rez = $db->CompleteTrans();
+		$db->SetTransactionMode('');
+		$db->debug=0;
 		if ($rez !== false) {
 			if (is_null($rez)) Err("Error: _transOK not modified");
 			else Err("Error: CompleteTrans (1) should have failed");

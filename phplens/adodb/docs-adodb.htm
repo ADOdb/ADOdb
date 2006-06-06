@@ -91,7 +91,7 @@ pre {
   Transactions: <a href="#starttrans">StartTrans</a> <a href="#completetrans">CompleteTrans</a> 
   <a href="#failtrans">FailTrans</a> <a href="#hasfailedtrans">HasFailedTrans</a> 
   <a href="#begintrans">BeginTrans</a> <a href="#committrans">CommitTrans</a> 
-  <a href="#rollbacktrans">RollbackTrans</a> <br>
+  <a href="#rollbacktrans">RollbackTrans</a> <a href=#SetTransactionMode>SetTransactionMode</a><br>
   Fetching Data: </font> <font size="2"><a href="#setfetchmode">SetFetchMode</a><br>
   Strings: <a href="#concat">concat</a> <a href="#length">length</a>  <a href="#qstr">qstr</a> <a href="#quote">quote</a> <a href="#substr">substr</a><br>
   Dates: <a href="#dbdate">DBDate</a> <a href="#dbtimestamp">DBTimeStamp</a> <a href="#unixdate">UnixDate</a> 
@@ -128,7 +128,7 @@ pre {
   Menu generation:<a href="#getmenu">GetMenu</a> <a href="#getmenu2">GetMenu2</a><br>
   Dates:<a href="#userdate">UserDate</a> <a href="#usertimestamp">UserTimeStamp</a> 
   <a href="#unixdate">UnixDate</a> <a href="#unixtimestamp">UnixTimeStamp<br>
-  </a>Recordset Info:<a href="#recordcount">RecordCount</a> <a href="#po_recordcount">PO_RecordSet</a> 
+  </a>Recordset Info:<a href="#recordcount">RecordCount</a> <a href="#po_recordcount">PO_RecordCount</a> 
   <a href="#nextrecordset">NextRecordSet</a><br>
   Field Info:<a href="#fieldcount">FieldCount</a> <a href="#fetchfield">FetchField</a> 
   <a href="#metatype">MetaType</a><br>
@@ -2028,8 +2028,36 @@ useful if you are calling black-box functions in which SQL queries might be exec
 <p><font>End a transaction, rollback all changes. Returns true if successful. If the 
   database does not support transactions, will return false as data is never rollbacked. 
 </font></p>
-<font> 
-</font><p><font><b>GetAssoc<a name="getassoc1"></a>($sql,$inputarr=false,$force_array=false,$first2cols=false)</b></font></p>
+ 
+<p><font><b>SetTransactionMode<a name="SetTransactionMode"></a>($mode )</b></font></p>
+<p>SetTransactionMode allows you to pass in the transaction mode to use for all subsequent transactions. 
+Note: if you have persistent connections and using mssql or mysql, you might have to explicitly reset your transaction mode at the beginning of each page request. 
+This is only supported in postgresql, mssql, mysql with InnoDB and oci8 currently. For example:
+<pre>
+$db->SetTransactionMode("SERIALIZABLE");
+$db->BeginTrans();
+$db->Execute(...); $db->Execute(...);
+$db->CommiTrans();
+
+$db->SetTransactionMode(""); // restore to default
+$db->StartTrans();
+$db->Execute(...); $db->Execute(...);
+$db->CompleteTrans();
+</pre>
+
+<p>Supported values to pass in:
+<ul>
+<li>READ UNCOMMITTED (allows dirty reads, but fastest)
+<li>READ COMMITTED (default postgres, mssql and oci8)
+<li>REPEATABLE READ (default mysql)
+<li>SERIALIZABLE (slowest and most restrictive)
+</ul>
+<p>You can also pass in database specific values such as 'SNAPSHOT' for mssql or 'READ ONLY' for oci8/postgres.
+<p>See transaction levels for <a href=http://www.postgresql.org/docs/8.1/interactive/sql-set-transaction.html>PostgreSQL</a>,
+<a href=http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_10005.htm>Oracle</a>,
+<a href=http://dev.mysql.com/doc/refman/5.0/en/set-transaction.html>MySQL</a>, and
+<a href=http://msdn2.microsoft.com/en-US/ms173763.aspx>MS SQL Server</a>.
+<p><font><b>GetAssoc<a name="getassoc1"></a>($sql,$inputarr=false,$force_array=false,$first2cols=false)</b></font></p>
 <p><font>Returns an associative array for the given query $sql with optional bind parameters 
   in $inputarr. If the number of columns returned is greater to two, a 2-dimensional 
   array is returned, with the first column of the recordset becomes the keys 
@@ -2873,30 +2901,8 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 <p><a name="4.82"></a><b>4.82 ? 2006</b>
-<p>Added support for transaction modes for postgres and oci8. These transaction modes affect all subsequent transactions of that
-connection.
-
-<pre>
-$db->SetTransactionMode("ISOLATION LEVEL SERIALIZABLE");
-$db->BeginTrans();
-$db->Execute(...); $db->Execute(...);
-$db->CommiTrans();
-
-$db->SetTransactionMode(""); // restore to default
-$db->StartTrans();
-$db->Execute(...); $db->Execute(...);
-$db->CompleteTrans();
-</pre>
-
-<p>
-See <a href=http://www.postgresql.org/docs/8.1/interactive/sql-set-transaction.html>PostgreSQL Transaction Levels</a>. Oracle levels
-are a  superset of those given below:
-<ul>
-<li>READ ONLY
-<li>READ WRITE
-<li>ISOLATION LEVEL SERIALIZABLE
-<li>ISOLATION LEVEL READ COMMITTED
-</ul>
+<p>Added support for transaction modes for postgres and oci8 with SetTransactionMode(). 
+These transaction modes affect all subsequent transactions of that connection.
 <p>Thanks to Halmai Csongor for suggestion.
 <p>Removed $off = $fieldOffset - 1 line in db2 driver, FetchField(). Tx Larry Menard.
 <p>Added support for PHP5 objects as Execute() bind parameters using __toString (eg. Simple-XML). Thx Carl-Christian Salvesen.
