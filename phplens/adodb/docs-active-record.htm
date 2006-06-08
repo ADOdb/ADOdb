@@ -233,7 +233,7 @@ var $_table = 'people';
 }
 
 $person = new Person();
-peopleArray =& $person->Find("name like ? order by age", array('Sm%'));
+$peopleArray =& $person->Find("name like ? order by age", array('Sm%'));
 </pre>
 
 <h3><li>Error Handling and Debugging</h3>
