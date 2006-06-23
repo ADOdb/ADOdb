@@ -7,7 +7,7 @@ This is a version of the ADODB driver for DB2.  It uses the 'ibm_db2' PECL exten
 
   Tested with PHP 5.1.1 and Apache 2.0.55 on Windows XP SP2.
 
-  This file was ported from "adodb-odbc.inc.php" by Larry Menard, "larry.menard@rogers.com".
+  This file was ported from "adodb-odbc.inc.php" by Larry Menard, "larry.menard#rogers.com".
   I ripped out what I believed to be a lot of redundant or obsolete code, but there are
   probably still some remnants of the ODBC support in this file; I'm relying on reviewers
   of this code to point out any other things that can be removed.
@@ -257,8 +257,8 @@ class ADODB_db2 extends ADOConnection {
 	{
 		if ($this->_haserrorfunctions) {
 			if ($this->_errorMsg !== false) return $this->_errorMsg;
-			if (empty($this->_connectionID)) return @db2_errormsg();
-			return @db2_errormsg($this->_connectionID);
+			if (empty($this->_connectionID)) return @db2_conn_errormsg();
+			return @db2_conn_errormsg($this->_connectionID);
 		} else return ADOConnection::ErrorMsg();
 	}
 	
@@ -271,8 +271,8 @@ class ADODB_db2 extends ADOConnection {
 				return (strlen($this->_errorCode)<=2) ? 0 : $this->_errorCode;
 			}
 
-			if (empty($this->_connectionID)) $e = @db2_error(); 
-			else $e = @db2_error($this->_connectionID);
+			if (empty($this->_connectionID)) $e = @db2_conn_error(); 
+			else $e = @db2_conn_error($this->_connectionID);
 			
 			 // bug in 4.0.6, error number can be corrupted string (should be 6 digits)
 			 // so we check and patch
@@ -548,8 +548,8 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 			
 			if (! db2_execute($stmtid,$inputarr)) {
 				if ($this->_haserrorfunctions) {
-					$this->_errorMsg = db2_errormsg();
-					$this->_errorCode = db2_error();
+					$this->_errorMsg = db2_stmt_errormsg();
+					$this->_errorCode = db2_stmt_error();
 				}
 				return false;
 			}
@@ -558,13 +558,13 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 			$stmtid = $sql[1];
 			if (!db2_execute($stmtid)) {
 				if ($this->_haserrorfunctions) {
-					$this->_errorMsg = db2_errormsg();
-					$this->_errorCode = db2_error();
+					$this->_errorMsg = db2_stmt_errormsg();
+					$this->_errorCode = db2_stmt_error();
 				}
 				return false;
 			}
 		} else
-			$stmtid = db2_exec($this->_connectionID,$sql);
+			$stmtid = @db2_exec($this->_connectionID,$sql);
 		
 		$this->_lastAffectedRows = 0;
 		if ($stmtid) {
@@ -586,6 +586,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 				$this->_errorCode = db2_stmt_error();
 			} else
 				$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+
 		}
 		return $stmtid;
 	}

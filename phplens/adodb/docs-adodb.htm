@@ -2346,10 +2346,15 @@ function CountExecs($db, $sql, $inputarray)
 {
 global $EXECS;
 
-if (!is_array(inputarray)) $EXECS++;
-<font color="#006600"># handle 2-dimensional input arrays</font>
-else if (is_array(reset($inputarray))) $EXECS += sizeof($inputarray);
-else $EXECS++;
+	if (!is_array(inputarray)) $EXECS++;
+	<font color="#006600"># handle 2-dimensional input arrays</font>
+	else if (is_array(reset($inputarray))) $EXECS += sizeof($inputarray);
+	else $EXECS++;
+
+	
+	<font color="#006600"># in PHP4.4 and PHP5, we need to return a value by reference</font>
+	$null = null;
+	return $null;
 }
 
 <font color="#006600"># $db is the connection object</font>
@@ -2900,6 +2905,9 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
+<p><a name="4.91"></a><b>4.91 ?</b>
+<p>Removed accidental optgroup handling in GetMenu().
+<a>Fixed ibase _BlobDecode for php5 compat, and also mem alloc issues for small blobs, thx salvatori#interia.pl
 <p><a name="4.90"></a><b>4.90 8 June 2006</b>
 <p>Changed adodb_countrec() in adodb-lib.inc.php to allow LIMIT to be used as a speedup to reduce no of records counted.
 <p>Added support for transaction modes for postgres and oci8 with SetTransactionMode(). 

@@ -71,7 +71,7 @@ function& adodb_log_sql(&$conn,$sql,$inputarr)
 	$rs =& $conn->Execute($sql,$inputarr);
 	$t1 = microtime();
 
-	if (!empty($conn->_logsql)) {
+	if (!empty($conn->_logsql) && (empty($conn->_logsqlErrors) || !$rs)) {
 		$conn->_logsql = false; // disable logsql error simulation
 		$dbT = $conn->databaseType;
 		

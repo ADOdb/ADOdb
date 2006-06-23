@@ -156,7 +156,7 @@ function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=f
 		if ($fieldsize > 2) {
             $group = rtrim($zthis->fields[2]);
         }
- 
+/* 
         if ($optgroup != $group) {
             $optgroup = $group;
             if ($firstgroup) {
@@ -167,7 +167,7 @@ function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=f
                 $s .="\n<optgroup label='". htmlspecialchars($group) ."'>";
             }
 		}
-	
+*/
 		if ($hasvalue) 
 			$value = " value='".htmlspecialchars($zval2)."'";
 		
