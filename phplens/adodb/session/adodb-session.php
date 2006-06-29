@@ -802,9 +802,6 @@ class ADODB_Session {
 		$sql = "DELETE FROM $table WHERE $binary sesskey = $qkey";
 		$rs =& $conn->Execute($sql);
 		ADODB_Session::_dumprs($rs);
-		if ($rs) {
-			$rs->Close();
-		}
 
 		return $rs ? true : false;
 	}
@@ -824,7 +821,6 @@ class ADODB_Session {
 			return false;
 		}
 
-		//assert('$table');
 
 		$time			= time();
 		$binary = $conn->dataProvider === 'mysql' ? '/*! BINARY */' : '';
