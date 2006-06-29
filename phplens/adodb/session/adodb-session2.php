@@ -12,31 +12,55 @@ V4.90 8 June 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights rese
 
 */
 
-"
-CREATE TABLE /*! IF NOT EXISTS */sessions2(
-sesskey VARCHAR( 64 ) /*! BINARY */ NOT NULL DEFAULT '',
-expiry TIMESTAMP NOT NULL ,
-expireref VARCHAR( 250 ) DEFAULT '',
-created TIMESTAMP NOT NULL ,
-modified TIMESTAMP NOT NULL ,
-DATA LONGTEXT DEFAULT '',
-PRIMARY KEY ( sesskey ) ,
-INDEX expiry( expiry )
+/*
+
+CREATE Table SCripts
+
+Oracle
+======
+
+CREATE TABLE SESSIONS2
+(
+  SESSKEY    VARCHAR2(48 BYTE)                  NOT NULL,
+  EXPIRY     DATE                               NOT NULL,
+  EXPIREREF  VARCHAR2(64 BYTE),
+  CREATED    DATE                               NOT NULL,
+  MODIFIED   DATE                               NOT NULL,
+  SESSDATA   CLOB
+);
+
+
+CREATE INDEX ADODB_SESS2_EXPIRY ON SESSIONS2
+(EXPIRY);
+
+
+CREATE UNIQUE INDEX ADODB_SESS2_PK ON SESSIONS2
+(SESSKEY);
+
+
+CREATE INDEX ADODB_SESS2_EXP_REF ON SESSIONS2
+(EXPIREREF);
+
+ALTER TABLE SESSIONS2 ADD (
+  CONSTRAINT ADODB_SESS2_PK PRIMARY KEY (SESSKEY)
+    USING INDEX 
+ );
+ 
+ MySQL
+ =====
+ 
+CREATE TABLE sessions2(
+	sesskey VARCHAR( 64 ) NOT NULL DEFAULT '',
+	expiry TIMESTAMP NOT NULL ,
+	expireref VARCHAR( 250 ) DEFAULT '',
+	created TIMESTAMP NOT NULL ,
+	modified TIMESTAMP NOT NULL ,
+	sessdata LONGTEXT DEFAULT '',
+	PRIMARY KEY ( sesskey ) ,
+	INDEX sess2_expiry( expiry ),
+	INDEX sess2_expireref( expireref )
 )
 
-";
-/*
-	You may want to rename the 'data' field to 'session_data' as
-	'data' appears to be a reserved word for one or more of the following:
-		ANSI SQL
-		IBM DB2
-		MS SQL Server
-		Postgres
-		SAP
-
-	If you do, then execute:
-
-		ADODB_Session::dataFieldName('session_data');
 
 */
 
@@ -394,13 +418,7 @@ class ADODB_Session {
 	/*!
 	*/
 	function dataFieldName($data_field_name = null) {
-		static $_data_field_name = 'data';
-
-		if (!is_null($data_field_name)) {
-			$_data_field_name = trim($data_field_name);
-		}
-
-		return $_data_field_name;
+		echo ("<p>WARNING: ADODB_SESSION::dataFieldName() is longer used, please remove this function for your code</p>");
 	}
 
 	/*!
@@ -518,7 +536,6 @@ class ADODB_Session {
 		
 		if (isset($options['table'])) ADODB_Session::table($options['table']);
 		if (isset($options['clob'])) ADODB_Session::table($options['clob']);
-		if (isset($options['field'])) ADODB_Session::dataFieldName($options['field']);
 	}
 
 	/*!
@@ -596,7 +613,6 @@ class ADODB_Session {
 	function read($key) 
 	{
 		$conn	=& ADODB_Session::_conn();
-		$data	= ADODB_Session::dataFieldName();
 		$filter	= ADODB_Session::filter();
 		$table	= ADODB_Session::table();
 
@@ -609,12 +625,12 @@ class ADODB_Session {
 		$qkey = $conn->quote($key);
 		$binary = $conn->dataProvider === 'mysql' ? '/*! BINARY */' : '';
 	
-		$sql = "SELECT $data FROM $table WHERE sesskey = $binary $qkey AND expiry >= " . $conn->sysTimeStamp;
+		$sql = "SELECT sessdata FROM $table WHERE sesskey = $binary $qkey AND expiry >= " . $conn->sysTimeStamp;
 		/* Lock code does not work as it needs to hold transaction within whole page, and we don't know if 
 		  developer has commited elsewhere... :(
 		 */
 		#if (ADODB_Session::Lock())
-		#	$rs =& $conn->RowLock($table, "$binary sesskey = $qkey AND expiry >= " . time(), $data);
+		#	$rs =& $conn->RowLock($table, "$binary sesskey = $qkey AND expiry >= " . time(), sessdata);
 		#else
 		
 			$rs =& $conn->Execute($sql);
@@ -656,7 +672,6 @@ class ADODB_Session {
 		$clob			= ADODB_Session::clob();
 		$conn			=& ADODB_Session::_conn();
 		$crc			= ADODB_Session::_crc();
-		$data			= ADODB_Session::dataFieldName();
 		$debug			= ADODB_Session::debug();
 		$driver			= ADODB_Session::driver();
 		$expire_notify	= ADODB_Session::expireNotify();
@@ -718,10 +733,10 @@ class ADODB_Session {
 			if ($rs) $rs->Close();
 					
 			if ($rs && reset($rs->fields) > 0) {
-				$sql = "UPDATE $table SET expiry=$expiry, $data=".$conn->Param(0).", expireref= ".$conn->Param(1).",modified=$sysTimeStamp WHERE sesskey = ".$conn->Param('2');
+				$sql = "UPDATE $table SET expiry=$expiry, sessdata=".$conn->Param(0).", expireref= ".$conn->Param(1).",modified=$sysTimeStamp WHERE sesskey = ".$conn->Param('2');
 				
 			} else {
-				$sql = "INSERT INTO $table (expiry, $data, expireref, sesskey, created, modified) 
+				$sql = "INSERT INTO $table (expiry, sessdata, expireref, sesskey, created, modified) 
 					VALUES ($expiry,".$conn->Param('0').", ". $conn->Param('1').", ".$conn->Param('2').", $sysTimeStamp, $sysTimeStamp)";
 			}
 			
@@ -751,17 +766,17 @@ class ADODB_Session {
 			if ($rs) $rs->Close();
 					
 			if ($rs && reset($rs->fields) > 0) {
-				$sql = "UPDATE $table SET expiry=$expiry, $data=$lob_value, expireref= ".$conn->Param(0).",modified=$sysTimeStamp WHERE sesskey = ".$conn->Param('1');
+				$sql = "UPDATE $table SET expiry=$expiry, sessdata=$lob_value, expireref= ".$conn->Param(0).",modified=$sysTimeStamp WHERE sesskey = ".$conn->Param('1');
 				
 			} else {
-				$sql = "INSERT INTO $table (expiry, $data, expireref, sesskey, created, modified) 
+				$sql = "INSERT INTO $table (expiry, sessdata, expireref, sesskey, created, modified) 
 					VALUES ($expiry,$lob_value, ". $conn->Param('0').", ".$conn->Param('1').", $sysTimeStamp, $sysTimeStamp)";
 			}
 			
 			$rs =& $conn->Execute($sql,array($expireref,$key));
 			
 			$qkey = $conn->qstr($key);
-			$rs2 =& $conn->UpdateBlob($table, $data, $val, " sesskey=$qkey", strtoupper($clob));
+			$rs2 =& $conn->UpdateBlob($table, 'sessdata', $val, " sesskey=$qkey", strtoupper($clob));
 			$rs = $conn->CompleteTrans();
 			
 			
