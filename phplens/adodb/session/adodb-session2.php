@@ -47,7 +47,7 @@ if (!defined('_ADODB_LAYER')) {
 if (defined('ADODB_SESSION')) return 1;
 
 define('ADODB_SESSION', dirname(__FILE__));
-
+define('ADODB_SESSION2', ADODB_SESSION);
 
 /* 
 	Unserialize session data manually. See http://phplens.com/lens/lensforum/msgs.php?id=9821 
