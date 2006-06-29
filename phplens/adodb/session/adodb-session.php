@@ -718,6 +718,7 @@ class ADODB_Session {
 					break;
 			}
 			
+			$conn->StartTrans();
 			$expiryref = $conn->qstr($arr['expireref']);
 			// do we insert or update? => as for sesskey
 			$rs =& $conn->Execute("SELECT COUNT(*) AS cnt FROM $table WHERE $binary sesskey = $qkey");
@@ -726,27 +727,18 @@ class ADODB_Session {
 			} else {
 				$sql = "INSERT INTO $table (expiry, $data, sesskey,expireref) VALUES ($expiry, $lob_value, $qkey,$expiryref)";
 			}
-			if ($rs) {
-				$rs->Close();
-			}
+			if ($rs)$rs->Close();
+			
 
 			$err = '';
 			$rs1 =& $conn->Execute($sql);
-			if (!$rs1) {
-				$err = $conn->ErrorMsg()."\n";
-			}
-			$rs2 =& $conn->UpdateBlob($table, $data, $val, " sesskey=$qkey", strtoupper($clob));
+			if (!$rs1) $err = $conn->ErrorMsg()."\n";
 			
-			if (!$rs2) {
-				$err .= $conn->ErrorMsg()."\n";
-			}
+			$rs2 =& $conn->UpdateBlob($table, $data, $val, " sesskey=$qkey", strtoupper($clob));
+			if (!$rs2) $err .= $conn->ErrorMsg()."\n";
+			
 			$rs = ($rs && $rs2) ? true : false;
-			if ($rs1) {
-				$rs1->Close();
-			}
-			if (is_object($rs2)) {
-				$rs2->Close();
-			}
+			$conn->CompleteTrans();
 		}
 
 		if (!$rs) {

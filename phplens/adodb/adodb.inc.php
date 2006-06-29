@@ -1348,7 +1348,6 @@
 		return  '('.$date.'+'.$dayFraction.')';
 	}
 	
-	
 	/**
 	*
 	* @param sql			SQL statement

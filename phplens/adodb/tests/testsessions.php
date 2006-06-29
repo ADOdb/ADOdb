@@ -20,12 +20,14 @@ function NotifyExpire($ref,$key)
 error_reporting(E_ALL);
 
 #### CONNECTION
-if (0) {
+if (1) {
 	$ADODB_SESSION_DRIVER='oci8';
 	$ADODB_SESSION_CONNECT='';
-	$ADODB_SESSION_USER ='scott';
+	$ADODB_SESSION_USER ='jcollect';
 	$ADODB_SESSION_PWD ='natsoft';
 	$ADODB_SESSION_DB ='';
+	$ADODB_SESSION_TBL = 'adodb_sessions2';
+	$ADODB_SESSION_USE_LOBS = 'clob';
 } else {
 	$ADODB_SESSION_DRIVER='mysql';
 	$ADODB_SESSION_CONNECT='localhost';
@@ -42,10 +44,11 @@ if (0) {
 	$USER = 'JLIM'.rand();
 	$ADODB_SESSION_EXPIRE_NOTIFY = array('USER','NotifyExpire');
 
-	
 #### INIT
 	ob_start();
-	include('../session/adodb-cryptsession.php');
+	include('../session/adodb-session2.php');
+	
+	adodb_session_create_table();
 	session_start();
 
 	adodb_session_regenerate_id();
