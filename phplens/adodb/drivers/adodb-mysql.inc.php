@@ -341,8 +341,11 @@ class ADODB_mysql extends ADOConnection {
 	function OffsetDate($dayFraction,$date=false)
 	{		
 		if (!$date) $date = $this->sysDate;
+		
 		$fraction = $dayFraction * 24 * 3600;
-		return "from_unixtime(unix_timestamp($date)+$fraction)";
+		return $date . ' + INTERVAL ' .	 $fraction.' SECOND';
+		
+//		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
 	
 	// returns true or false

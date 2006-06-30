@@ -501,9 +501,11 @@ class ADODB_Session {
 		ADODB_Session::password($password);
 		ADODB_Session::database($database);
 		
+		if ($driver == 'oci8' || $driver == 'oci8po') $options['lob'] = 'CLOB';
+		
 		if (isset($options['table'])) ADODB_Session::table($options['table']);
-		if (isset($options['clob'])) ADODB_Session::table($options['clob']);
-		if (isset($options['field'])) ADODB_Session::dataFieldName($options['field']);
+		if (isset($options['lob'])) ADODB_Session::clob($options['lob']);
+		if (isset($options['debug'])) ADODB_Session::debug($options['debug']);
 	}
 
 	/*!

@@ -23,28 +23,19 @@ CREATE TABLE SESSIONS2
 (
   SESSKEY    VARCHAR2(48 BYTE)                  NOT NULL,
   EXPIRY     DATE                               NOT NULL,
-  EXPIREREF  VARCHAR2(64 BYTE),
+  EXPIREREF  VARCHAR2(200 BYTE),
   CREATED    DATE                               NOT NULL,
   MODIFIED   DATE                               NOT NULL,
-  SESSDATA   CLOB
+  SESSDATA   CLOB,
+  PRIMARY KEY(SESSKEY)
 );
 
 
-CREATE INDEX ADODB_SESS2_EXPIRY ON SESSIONS2
-(EXPIRY);
+CREATE INDEX SESS2_EXPIRY ON SESSIONS2(EXPIRY);
+CREATE UNIQUE INDEX SESS2_PK ON SESSIONS2(SESSKEY);
+CREATE INDEX SESS2_EXP_REF ON SESSIONS2(EXPIREREF);
 
 
-CREATE UNIQUE INDEX ADODB_SESS2_PK ON SESSIONS2
-(SESSKEY);
-
-
-CREATE INDEX ADODB_SESS2_EXP_REF ON SESSIONS2
-(EXPIREREF);
-
-ALTER TABLE SESSIONS2 ADD (
-  CONSTRAINT ADODB_SESS2_PK PRIMARY KEY (SESSKEY)
-    USING INDEX 
- );
  
  MySQL
  =====
@@ -163,7 +154,8 @@ class ADODB_Session {
 	*/
 	/*!
 	*/
-	function driver($driver = null) {
+	function driver($driver = null) 
+	{
 		static $_driver = 'mysql';
 		static $set = false;
 
@@ -201,7 +193,8 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function user($user = null) {
+	function user($user = null) 
+	{
 		static $_user = 'root';
 		static $set = false;
 
@@ -220,7 +213,8 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function password($password = null) {
+	function password($password = null) 
+	{
 		static $_password = '';
 		static $set = false;
 
@@ -239,10 +233,11 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function database($database = null) {
-		static $_database = 'xphplens_2';
+	function database($database = null) 
+	{
+		static $_database = '';
 		static $set = false;
-
+		
 		if (!is_null($database)) {
 			$_database = trim($database);
 			$set = true;
@@ -252,7 +247,6 @@ class ADODB_Session {
 				return $GLOBALS['ADODB_SESSION_DB'];
 			}
 		}
-
 		return $_database;
 	}
 
@@ -271,7 +265,8 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function lifetime($lifetime = null) {
+	function lifetime($lifetime = null) 
+	{
 		static $_lifetime;
 		static $set = false;
 
@@ -298,7 +293,8 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function debug($debug = null) {
+	function debug($debug = null) 
+	{
 		static $_debug = false;
 		static $set = false;
 
@@ -322,7 +318,8 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function expireNotify($expire_notify = null) {
+	function expireNotify($expire_notify = null) 
+	{
 		static $_expire_notify;
 		static $set = false;
 
@@ -341,7 +338,8 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function table($table = null) {
+	function table($table = null) 
+	{
 		static $_table = 'sessions2';
 		static $set = false;
 
@@ -360,7 +358,8 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function optimize($optimize = null) {
+	function optimize($optimize = null) 
+	{
 		static $_optimize = false;
 		static $set = false;
 
@@ -380,20 +379,9 @@ class ADODB_Session {
 	/*!
 	*/
 	function syncSeconds($sync_seconds = null) {
-		static $_sync_seconds = 60;
-		static $set = false;
-
-		if (!is_null($sync_seconds)) {
-			$_sync_seconds = (int) $sync_seconds;
-			$set = true;
-		} elseif (!$set) {
-			// backwards compatibility
-			if (defined('ADODB_SESSION_SYNCH_SECS')) {
-				return ADODB_SESSION_SYNCH_SECS;
-			}
-		}
-
-		return $_sync_seconds;
+		//echo ("<p>WARNING: ADODB_SESSION::syncSeconds is longer used, please remove this function for your code</p>");
+		
+		return 0;
 	}
 
 	/*!
@@ -418,7 +406,8 @@ class ADODB_Session {
 	/*!
 	*/
 	function dataFieldName($data_field_name = null) {
-		echo ("<p>WARNING: ADODB_SESSION::dataFieldName() is longer used, please remove this function for your code</p>");
+		//echo ("<p>WARNING: ADODB_SESSION::dataFieldName() is longer used, please remove this function for your code</p>");
+		return '';
 	}
 
 	/*!
@@ -534,8 +523,11 @@ class ADODB_Session {
 		ADODB_Session::password($password);
 		ADODB_Session::database($database);
 		
+		if ($driver == 'oci8' || $driver == 'oci8po') $options['lob'] = 'CLOB';
+		
 		if (isset($options['table'])) ADODB_Session::table($options['table']);
-		if (isset($options['clob'])) ADODB_Session::table($options['clob']);
+		if (isset($options['lob'])) ADODB_Session::clob($options['lob']);
+		if (isset($options['debug'])) ADODB_Session::debug($options['debug']);
 	}
 
 	/*!
@@ -572,10 +564,10 @@ class ADODB_Session {
 		$conn =& ADONewConnection($driver);
 
 		if ($debug) {
-			$conn->debug = true;
-//			ADOConnection::outp( " driver=$driver user=$user pwd=$password db=$database ");
+			$conn->debug = true;		
+			ADOConnection::outp( " driver=$driver user=$user db=$database ");
 		}
-
+		
 		if ($persist) {
 			switch($persist) {
 			default:
@@ -858,7 +850,6 @@ class ADODB_Session {
 		$debug			= ADODB_Session::debug();
 		$expire_notify	= ADODB_Session::expireNotify();
 		$optimize		= ADODB_Session::optimize();
-		$sync_seconds	= ADODB_Session::syncSeconds();
 		$table			= ADODB_Session::table();
 
 		if (!$conn) {
@@ -867,7 +858,7 @@ class ADODB_Session {
 
 		//assert('$table');
 
-		$time			= $conn->sysTimeStamp;
+		$time = $conn->sysTimeStamp;
 		$binary = $conn->dataProvider === 'mysql' ? '/*! BINARY */' : '';
 
 		if ($expire_notify) {

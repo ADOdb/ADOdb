@@ -26,6 +26,17 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,true);
 	}
 	
+		// dayFraction is a day in floating point
+	function OffsetDate($dayFraction,$date=false)
+	{		
+		if (!$date) $date = $this->sysDate;
+		
+		$fraction = $dayFraction * 24 * 3600;
+		return $date . ' + INTERVAL ' .	 $fraction.' SECOND';
+		
+//		return "from_unixtime(unix_timestamp($date)+$fraction)";
+	}
+	
 	function ServerInfo()
 	{
 		$arr['description'] = ADOConnection::GetOne("select version()");
