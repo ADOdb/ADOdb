@@ -454,7 +454,9 @@ class ADODB_Active_Record {
 		
 		$where = $this->GenWhere($db,$table);
 		$sql = 'DELETE FROM '.$this->_table.' WHERE '.$where;
-		$db->Execute($sql);
+		$ok = $db->Execute($sql);
+		
+		return $ok ? true : false;
 	}
 	
 	// returns an array of active record objects

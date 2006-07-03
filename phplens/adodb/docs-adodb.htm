@@ -257,7 +257,7 @@ different databases. The solution is to always use different userid's for differ
  or use NConnect().
 
  <a name="dsnsupport"></a>
- </p><h3>Data Source Name (DSN) Support</h3> 
+ </p><h3>Data Source Name (DSN) Support</h3>
  <p> Since ADOdb 4.51, you can connect to a database by passing a dsn to NewADOConnection() (or ADONewConnection, which is
  the same function). The dsn format is:
 </p><pre>	$driver://$username:$password@hostname/$database?options[=value]<br></pre><p>
@@ -274,8 +274,9 @@ NewADOConnection() calls Connect() or PConnect() internally for you. If the conn
 	$dsn2 = 'mysql://root:pwd@localhost/mydb?persist'; 
 </pre>
 <p>
-If you have special characters such as /:? in your dsn, then you need to rawurlencode them first:
-</p><pre>	$pwd = rawurlencode($pwd);<br>	$dsn = "mysql://root:$pwd@localhost/mydb";<br></pre>
+If you have special characters such as /:?_ in your dsn, then you need to rawurlencode them first:
+</p><pre>	$pwd = rawurlencode($pwd);<br>	$dsn = "mysql://root:$pwd@localhost/mydb";
+	$dsn2=rawurlencode("sybase_ase")."://user:pass@host/path?query";<br></pre>
 <p>
 Legal options are:
 </p><p>

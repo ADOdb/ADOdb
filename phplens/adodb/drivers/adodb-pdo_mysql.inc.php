@@ -16,7 +16,8 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	var $_bindInputArray = false;
 	var $sysDate = 'CURDATE()';
 	var $sysTimeStamp = 'NOW()';
-	
+	var $nameQuote = '`';
+
 	function _init($parentDriver)
 	{
 	

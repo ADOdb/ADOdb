@@ -9,6 +9,10 @@
   
   Contributed by Interakt Online. Thx Cristian MARIN cristic#interaktonline.com
 */
+
+
+require_once ADODB_DIR."/drivers/adodb-sybase.inc.php";
+
 class ADODB_sybase_ase extends ADODB_sybase {
  	var $databaseType = "sybase_ase";
 	
