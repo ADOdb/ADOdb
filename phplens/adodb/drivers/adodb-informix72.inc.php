@@ -192,7 +192,7 @@ class ADODB_informix72 extends ADOConnection {
 			}
 
 			$rs->Close();
-			$rspKey->Close(); //!eos
+			$rspkey->Close(); //!eos
 			return $retarr;	
 		}
 

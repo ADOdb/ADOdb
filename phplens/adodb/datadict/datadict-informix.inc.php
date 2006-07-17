@@ -32,7 +32,7 @@ class ADODB2_informix extends ADODB_DataDict {
 		case 'B': return 'BLOB';
 			
 		case 'D': return 'DATE';
-		case 'T': return 'DATETIME';
+		case 'T': return 'DATETIME YEAR TO SECOND';
 		
 		case 'L': return 'SMALLINT';
 		case 'I': return 'INTEGER';

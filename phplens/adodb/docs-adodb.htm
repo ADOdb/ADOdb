@@ -2910,7 +2910,9 @@ of MySQL.</font></p>
 <p>Removed accidental optgroup handling in GetMenu().
 <a>Fixed ibase _BlobDecode for php5 compat, and also mem alloc issues for small blobs, thx salvatori#interia.pl
 <p>Session code rewrite ....
-<p>OffsetDate() mysql speedup.
+<p>Mysql driver OffsetDate() speedup, useful for adodb-sessions.
+<p>Fix for GetAssoc() PHP5 compat. See http://phplens.com/lens/lensforum/msgs.php?id=15425
+<p>Active Record - If inserting a record and the value of a primary key field is null, then we do not insert that field in as we assume it is an auto-increment field. Needed by mssql.
 <p><a name="4.90"></a><b>4.90 8 June 2006</b>
 <p>Changed adodb_countrec() in adodb-lib.inc.php to allow LIMIT to be used as a speedup to reduce no of records counted.
 <p>Added support for transaction modes for postgres and oci8 with SetTransactionMode(). 

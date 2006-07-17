@@ -149,6 +149,7 @@ function& adodb_log_sql(&$conn,$sql,$inputarr)
 			if ($dbT == 'informix') $isql = str_replace(chr(10),' ',$isql);
 			$arr = false;
 		} else {
+			if ($dbT == 'db2') $arr['f'] = (float) $arr['f'];
 			$isql = "insert into $perf_table (created,sql0,sql1,params,tracer,timer) values( $d,?,?,?,?,?)";
 		}
 
@@ -862,7 +863,6 @@ Committed_AS:   348732 kB
 		
 		$table = $this->table();
 		$sql = str_replace('adodb_logsql',$table,$this->createTableSQL);
-		
 		$savelog = $this->conn->LogSQL(false);
 		$ok = $this->conn->Execute($sql);
 		$this->conn->LogSQL($savelog);

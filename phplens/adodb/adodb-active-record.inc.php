@@ -408,23 +408,29 @@ class ADODB_Active_Record {
 		$db =& $this->DB(); if (!$db) return false;
 		$cnt = 0;
 		$table =& $this->TableInfo();
+		
+		$valarr = array();
+		$names = array();
+		$valstr = array();
 
 		foreach($table->flds as $name=>$fld) {
 			$val = $this->$name;
-			/*
-			if (is_null($val)) {
-				if (isset($fld->not_null) && $fld->not_null) {
-					if (isset($fld->default_value) && strlen($fld->default_value)) continue;
-					else $this->Error("Cannot insert null into $name","Insert");
-				}
-			}*/
-			
-			$valarr[] = $val;
-			$names[] = $name;
-			$valstr[] = $db->Param($cnt);
-			$cnt += 1;
+			if(!is_null($val) || !array_key_exists($name, $table->keys)) {
+				$valarr[] = $val;
+				$names[] = $name;
+				$valstr[] = $db->Param($cnt);
+				$cnt += 1;
+			}
 		}
 		
+		if (empty($names)){
+			foreach($table->flds as $name=>$fld) {
+				$valarr[] = null;
+				$names[] = $name;
+				$valstr[] = $db->Param($cnt);
+				$cnt += 1;
+			}
+		}
 		$sql = 'INSERT INTO '.$this->_table."(".implode(',',$names).') VALUES ('.implode(',',$valstr).')';
 		$ok = $db->Execute($sql,$valarr);
 		
@@ -555,7 +561,6 @@ class ADODB_Active_Record {
 				continue;
 			}
 			
-			
 			if (is_null($val)) {
 				if (isset($fld->not_null) && $fld->not_null) {
 					if (isset($fld->default_value) && strlen($fld->default_value)) continue;
@@ -566,7 +571,7 @@ class ADODB_Active_Record {
 				}
 			}
 			
-			if ( $val == $this->_original[$i]) {
+			if (isset($this->_original[$i]) && $val == $this->_original[$i]) {
 				continue;
 			}			
 			$valarr[] = $val;

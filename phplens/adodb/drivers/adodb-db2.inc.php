@@ -85,7 +85,8 @@ class ADODB_db2 extends ADOConnection {
 		// For db2_connect(), there is an optional 4th arg.  If present, it must be
 		// an array of valid options.  So far, we don't use them.
 
-		$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+		$this->_errorMsg = @db2_conn_errormsg();
+ 
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
 		
 		return $this->_connectionID != false;
@@ -112,7 +113,7 @@ class ADODB_db2 extends ADOConnection {
 		}
 		if (isset($php_errormsg)) $php_errormsg = '';
 
-		$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+		$this->_errorMsg = @db2_conn_errormsg();
 		if ($this->_connectionID && $this->autoRollback) @db2_rollback($this->_connectionID);
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
 		
@@ -324,9 +325,53 @@ class ADODB_db2 extends ADOConnection {
 		return $arr2;
 	}
 	
+	function MetaForeignKeys($table, $owner = FALSE, $upper = FALSE, $asociative = FALSE )
+	{
+	global $ADODB_FETCH_MODE;
+	
+		if ($this->uCaseTables) $table = strtoupper($table);
+		$schema = '';
+		$this->_findschema($table,$schema);
+
+		$savem = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		$qid = @db2_foreign_keys($this->_connectionID,'',$schema,$table);
+		if (!$qid) {
+			$ADODB_FETCH_MODE = $savem;
+			return false;
+		}
+		$rs = new ADORecordSet_db2($qid);
+
+		$ADODB_FETCH_MODE = $savem;
+		/*
+		$rs->fields indices
+		0 PKTABLE_CAT
+		1 PKTABLE_SCHEM
+		2 PKTABLE_NAME
+		3 PKCOLUMN_NAME
+		4 FKTABLE_CAT
+		5 FKTABLE_SCHEM
+		6 FKTABLE_NAME
+		7 FKCOLUMN_NAME
+		*/	
+		if (!$rs) return false;
+
+		$foreign_keys = array();	 	 
+		while (!$rs->EOF) {
+			if (strtoupper(trim($rs->fields[2])) == $table && (!$schema || strtoupper($rs->fields[1]) == $schema)) {
+				if (!is_array($foreign_keys[$rs->fields[5].'.'.$rs->fields[6]])) 
+					$foreign_keys[$rs->fields[5].'.'.$rs->fields[6]] = array();
+				$foreign_keys[$rs->fields[5].'.'.$rs->fields[6]][$rs->fields[7]] = $rs->fields[3];	 		
+			}
+			$rs->MoveNext();
+		}
+
+		$rs->Close();
+		return $foreign_key;
+	}
 	
 	
-	function &MetaTables($ttype=false)
+	function &MetaTables($ttype=false,$schema=false)
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -353,11 +398,12 @@ class ADODB_db2 extends ADOConnection {
 		for ($i=0; $i < sizeof($arr); $i++) {
 			if (!$arr[$i][2]) continue;
 			$type = $arr[$i][3];
+			$schemaval = ($schema) ? $arr[$i][1].'.' : '';
 			if ($ttype) { 
 				if ($isview) {
-					if (strncmp($type,'V',1) === 0) $arr2[] = $arr[$i][2];
-				} else if (strncmp($type,'SYS',3) !== 0) $arr2[] = $arr[$i][2];
-			} else if (strncmp($type,'SYS',3) !== 0) $arr2[] = $arr[$i][2];
+					if (strncmp($type,'V',1) === 0) $arr2[] = $schemaval.$arr[$i][2];
+				} else if (strncmp($type,'SYS',3) !== 0) $arr2[] = $schemaval.$arr[$i][2];
+			} else if (strncmp($type,'SYS',3) !== 0) $arr2[] = $schemaval.$arr[$i][2];
 		}
 		return $arr2;
 	}
@@ -486,12 +532,41 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 					$fld->max_length = $rs->fields[7];
 				$fld->not_null = !empty($rs->fields[10]);
 				$fld->scale = $rs->fields[8];
+				$fld->primary_key = false;
 				$retarr[strtoupper($fld->name)] = $fld;	
 			} else if (sizeof($retarr)>0)
 				break;
 			$rs->MoveNext();
 		}
-		$rs->Close(); //-- crashes 4.03pl1 -- why?
+		$rs->Close(); 
+		if (empty($retarr)) $retarr = false;
+
+	      $qid = db2_primary_keys($this->_connectionID, "", $schema, $table);
+		if (empty($qid)) return $false;
+		
+		$rs =& new ADORecordSet_db2($qid);
+		$ADODB_FETCH_MODE = $savem;
+		
+		if (!$rs) return $retarr;
+		$rs->_fetch();
+		
+		/*
+		$rs->fields indices
+		0 TABLE_CAT
+		1 TABLE_SCHEM
+		2 TABLE_NAME
+		3 COLUMN_NAME
+		4 KEY_SEQ
+		5 PK_NAME
+		*/
+		while (!$rs->EOF) {
+			if (strtoupper(trim($rs->fields[2])) == $table && (!$schema || strtoupper($rs->fields[1]) == $schema)) {
+				$retarr[strtoupper($rs->fields[3])]->primary_key = true;
+			} else if (sizeof($retarr)>0)
+				break;
+			$rs->MoveNext();
+		}
+		$rs->Close(); 
 		
 		if (empty($retarr)) $retarr = false;
 		return $retarr;
