@@ -75,8 +75,8 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		case 'X': return $this->typeX;
 		case 'XL': return $this->typeXL;
 		
-		case 'C2': return 'NVARCHAR';
-		case 'X2': return 'NVARCHAR(2000)';
+		case 'C2': return 'NVARCHAR2';
+		case 'X2': return 'NVARCHAR2(4000)';
 		
 		case 'B': return 'BLOB';
 			

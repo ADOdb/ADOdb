@@ -12,7 +12,7 @@ V4.90 8 June 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights rese
 
 class ADODB_pdo_mysql extends ADODB_pdo {
 	var $metaTablesSQL = "SHOW TABLES";	
-	var $metaColumnsSQL = "SHOW COLUMNS FROM %s";
+	var $metaColumnsSQL = "SHOW COLUMNS FROM `%s`";
 	var $_bindInputArray = false;
 	var $sysDate = 'CURDATE()';
 	var $sysTimeStamp = 'NOW()';

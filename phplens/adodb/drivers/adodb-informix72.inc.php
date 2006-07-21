@@ -58,7 +58,7 @@ class ADODB_informix72 extends ADOConnection {
 	{
 		// alternatively, use older method:
 		//putenv("DBDATE=Y4MD-");
-
+		
 		// force ISO date format
 		putenv('GL_DATE=%Y-%m-%d');
 		

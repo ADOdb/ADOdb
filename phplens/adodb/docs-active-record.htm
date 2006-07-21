@@ -45,7 +45,7 @@ ADOdb_Active_Record maps a database table to a PHP class, and each instance of t
 The first step to using  ADOdb_Active_Record is to set the default connection that an ADOdb_Active_Record objects will use to connect to a database. 
 
 <pre>
-require_once('adodb/adodb-active-record.php');
+require_once('adodb/adodb-active-record.inc.php');
 
 $db = NewADOConnection('mysql://root:pwd@localhost/dbname');
 ADOdb_Active_Record::SetDatabaseAdapter($db);
