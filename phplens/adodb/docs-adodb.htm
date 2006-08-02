@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V4.90 8 June 2006 (c) 2000-2006 John Lim (jlim#natsoft.com)</p>
+<p>V4.91 2 Aug 2006 (c) 2000-2006 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
   
@@ -2912,17 +2912,18 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
-<p><a name="4.91"></a><b>4.91 ?</b>
+<p><a name="4.91"></a><b>4.91 2 Aug 2006</b>
+<p>Major session code rewrite .... See session docs.
 <p>PDO bindinputarray was not set properly for MySQL (changed from true to false).
 <p>Changed CacheSelectLimit() to re-cache when $secs2cache==0. This is one way to flush the cache when SelectLimit is called.
 <p>Added to quotes to mysql  and mysqli: "SHOW COLUMNS FROM `%s`";
 <p>Removed accidental optgroup handling in GetMenu().
 <a>Fixed ibase _BlobDecode for php5 compat, and also mem alloc issues for small blobs, thx salvatori#interia.pl
-<p>Session code rewrite ....
 <p>Mysql driver OffsetDate() speedup, useful for adodb-sessions.
 <p>Fix for GetAssoc() PHP5 compat. See http://phplens.com/lens/lensforum/msgs.php?id=15425
 <p>Active Record - If inserting a record and the value of a primary key field is null, then we do not insert that field in as we assume it is an auto-increment field. Needed by mssql.
 <p>Changed postgres7 MetaForeignKeys() see http://phplens.com/lens/lensforum/msgs.php?id=15531
+<p>DB2 will now return db2_conn_errormsg() when it is a connection error. 
 <p><a name="4.90"></a><b>4.90 8 June 2006</b>
 <p>Changed adodb_countrec() in adodb-lib.inc.php to allow LIMIT to be used as a speedup to reduce no of records counted.
 <p>Added support for transaction modes for postgres and oci8 with SetTransactionMode(). 
