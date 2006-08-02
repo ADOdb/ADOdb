@@ -885,7 +885,7 @@ class ADODB_Session {
 			}
 		} else {
 		
-			if (1) {
+			if (0) {
 				$sql = "SELECT sesskey FROM $table WHERE expiry < $time";
 				$arr =& $conn->GetAll($sql);
 				foreach ($arr as $row) {

@@ -74,21 +74,21 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		
 		$rs =& $this->Execute($sql);
 		
-		if ($rs && !$rs->EOF) {
-			$arr =& $rs->GetArray();
-			$a = array();
-			foreach($arr as $v)
-			{
-				$data = explode(chr(0), $v['args']);
-				if ($upper) {
-					$a[strtoupper($data[2])][] = strtoupper($data[4].'='.$data[5]);
-				} else {
-				$a[$data[2]][] = $data[4].'='.$data[5];
-				}
+		if (!$rs || $rs->EOF) return false;
+		
+		$arr =& $rs->GetArray();
+		$a = array();
+		foreach($arr as $v) {
+			$data = explode(chr(0), $v['args']);
+			$size = count($data)-1; //-1 because the last node is empty
+			for($i = 4; $i < $size; $i++) {
+				if ($upper) 
+					$a[strtoupper($data[2])][] = strtoupper($data[$i].'='.$data[++$i]);
+				else 
+					$a[$data[2]][] = $data[$i].'='.$data[++$i];
 			}
-			return $a;
 		}
-		return false;
+		return $a;
 	}
 
 	function _query($sql,$inputarr)

@@ -325,7 +325,8 @@ class ADODB_pdo extends ADOConnection {
 		$obj = new ADOPDOStatement($stmt,$this);
 		return $obj;
 	}
-
+	
+	
 	/* returns queryID or false */
 	function _query($sql,$inputarr=false) 
 	{
@@ -334,7 +335,8 @@ class ADODB_pdo extends ADOConnection {
 		} else {
 			$stmt = $this->_connectionID->prepare($sql);
 		}
-		
+		#adodb_backtrace();
+		#var_dump($this->_bindInputArray);
 		if ($stmt) {
 			$this->_driver->debug = $this->debug;
 			if ($inputarr) $ok = $stmt->execute($inputarr);

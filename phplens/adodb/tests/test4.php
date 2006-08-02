@@ -39,8 +39,14 @@ FROM ADOXYZ WHERE id = -1";
 $conn = &ADONewConnection("mysql");  // create a connection
 $conn->PConnect("localhost", "root", "", "test"); // connect to MySQL, testdb
 
-$conn =& ADONewConnection('oci8po');
-$conn->Connect('','scott','natsoft');
+#$conn =& ADONewConnection('oci8po');
+#$conn->Connect('','scott','natsoft');
+
+$connstr = "mysql:dbname=northwind";
+$u = 'root';$p='';
+$conn =& ADONewConnection('pdo');
+$conn->Connect($connstr, $u, $p);
+	
 //$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 
 $conn->debug=1;
