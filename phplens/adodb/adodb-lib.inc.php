@@ -304,7 +304,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		// but this is only supported by oracle and postgresql...
 		if ($zthis->dataProvider == 'oci8') {
 			
-			$rewritesql = preg_replace('/(\sORDER\s+BY\s.*)/is','',$sql);
+			$rewritesql = preg_replace('/(\sORDER\s+BY\s[^)]*)/is','',$sql);
 			
 			// Allow Oracle hints to be used for query optimization, Chris Wrye
 			if (preg_match('#/\\*+.*?\\*\\/#', $sql, $hint)) {
@@ -383,7 +383,6 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		$rstest->Close();
 		if ($qryRecs == -1) return 0;
 	}
-	
 	return $qryRecs;
 }
 
