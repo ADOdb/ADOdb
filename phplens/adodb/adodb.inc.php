@@ -14,7 +14,7 @@
 /**
 	\mainpage 	
 	
-	 @version V4.91 2 Aug 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved.
+	 @version V4.90 8 June 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
@@ -171,7 +171,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V4.91 2 Aug 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V4.90 8 June 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -273,6 +273,13 @@
 	var $raiseErrorFn = false; 	/// error function to call
 	var $isoDates = false; /// accepts dates in ISO format
 	var $cacheSecs = 3600; /// cache for 1 hour
+
+	// memcache
+	var $memCache = false; /// should we use memCache instead of caching in files
+	var $memCacheHost; /// memCache host
+	var $memCachePort = 11211; /// memCache port
+	var $memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
+
 	var $sysDate = false; /// name of function that returns the current date
 	var $sysTimeStamp = false; /// name of function that returns the current timestamp
 	var $arrayClass = 'ADORecordSet_array'; /// name of class used to generate array recordsets, which are pre-downloaded recordsets
@@ -1115,7 +1122,7 @@
 						$sql = preg_replace(
 						'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop.' '.((integer)$nrows).' ',$sql);
 
-						if ($secs2cache >= 0) {
+						if ($secs2cache>0) {
 							$ret =& $this->CacheExecute($secs2cache, $sql,$inputarr);
 						} else {
 							$ret =& $this->Execute($sql,$inputarr);
@@ -1148,10 +1155,10 @@
 		$ADODB_COUNTRECS = false;
 			
 		if ($offset>0){
-			if ($secs2cache >= 0) $rs = &$this->CacheExecute($secs2cache,$sql,$inputarr);
+			if ($secs2cache>0) $rs = &$this->CacheExecute($secs2cache,$sql,$inputarr);
 			else $rs = &$this->Execute($sql,$inputarr);
 		} else {
-			if ($secs2cache >= 0) $rs = &$this->CacheExecute($secs2cache,$sql,$inputarr);
+			if ($secs2cache>0) $rs = &$this->CacheExecute($secs2cache,$sql,$inputarr);
 			else $rs = &$this->Execute($sql,$inputarr);
 		}
 		$ADODB_COUNTRECS = $savec;
@@ -1348,6 +1355,7 @@
 		return  '('.$date.'+'.$dayFraction.')';
 	}
 	
+	
 	/**
 	*
 	* @param sql			SQL statement
@@ -1517,6 +1525,16 @@
 	{
 	global $ADODB_CACHE_DIR;
 	
+		if ($this->memCache) {
+		global $ADODB_INCLUDED_MEMCACHE;
+		
+			$key = false;
+			if (empty($ADODB_INCLUDED_MEMCACHE)) include(ADODB_DIR.'/adodb-memcache.lib.inc.php');
+			if ($sql) $key = $this->_gencachename($sql.serialize($inputarr),false,true);
+			FlushMemCache($key, $this->memCacheHost, $this->memCachePort, $this->debug);
+			return;
+		}
+	
 		if (strlen($ADODB_CACHE_DIR) > 1 && !$sql) {
          /*if (strncmp(PHP_OS,'WIN',3) === 0)
             $dir = str_replace('/', '\\', $ADODB_CACHE_DIR);
@@ -1567,6 +1585,15 @@
 	{
 	global $ADODB_CACHE_DIR;
 	
+		if ($this->memCache) {
+			global $ADODB_INCLUDED_MEMCACHE;
+			$key = false;
+			if (empty($ADODB_INCLUDED_MEMCACHE)) include(ADODB_DIR.'/adodb-memcache.lib.inc.php');
+			if ($sql) $key = $this->_gencachename($sql.serialize($inputarr),false,true);
+			flushmemCache($key, $this->memCacheHost, $this->memCachePort, $this->debug);
+			return;
+		}
+
 		if (strlen($ADODB_CACHE_DIR) > 1 && !$sql) {
 			if (strncmp(PHP_OS,'WIN',3) === 0) {
 				$cmd = 'del /s '.str_replace('/','\\',$ADODB_CACHE_DIR).'\adodb_*.cache';
@@ -1607,7 +1634,7 @@
 	* Assuming that we can have 50,000 files per directory with good performance, 
 	* then we can scale to 12.8 million unique cached recordsets. Wow!
  	*/
-	function _gencachename($sql,$createdir)
+	function _gencachename($sql,$createdir,$memcache=false)
 	{
 	global $ADODB_CACHE_DIR;
 	static $notSafeMode;
@@ -1619,6 +1646,7 @@
 			$mode = $this->fetchMode;
 		}
 		$m = md5($sql.$this->databaseType.$this->database.$this->user.$mode);
+		if ($memcache) return $m;
 		
 		if (!isset($notSafeMode)) $notSafeMode = !ini_get('safe_mode');
 		$dir = ($notSafeMode) ? $ADODB_CACHE_DIR.'/'.substr($m,0,2) : $ADODB_CACHE_DIR;
@@ -1658,14 +1686,23 @@
 		} else
 			$sqlparam = $sql;
 			
+		if ($this->memCache) {
+			global $ADODB_INCLUDED_MEMCACHE;
+			if (empty($ADODB_INCLUDED_MEMCACHE)) include(ADODB_DIR.'/adodb-memcache.lib.inc.php');
+			$md5file = $this->_gencachename($sql.serialize($inputarr),false,true);
+		} else {
 		global $ADODB_INCLUDED_CSV;
-		if (empty($ADODB_INCLUDED_CSV)) include(ADODB_DIR.'/adodb-csvlib.inc.php');
-		
-		$md5file = $this->_gencachename($sql.serialize($inputarr),true);
+			if (empty($ADODB_INCLUDED_CSV)) include(ADODB_DIR.'/adodb-csvlib.inc.php');
+			$md5file = $this->_gencachename($sql.serialize($inputarr),true);
+		}
+
 		$err = '';
 		
 		if ($secs2cache > 0){
-			$rs = &csv2rs($md5file,$err,$secs2cache,$this->arrayClass);
+			if ($this->memCache)
+				$rs = &getmemCache($md5file,$err,$secs2cache, $this->memCacheHost, $this->memCachePort);
+			else
+				$rs = &csv2rs($md5file,$err,$secs2cache,$this->arrayClass);
 			$this->numCacheHits += 1;
 		} else {
 			$err='Timeout 1';
@@ -1675,7 +1712,7 @@
 		if (!$rs) {
 		// no cached rs found
 			if ($this->debug) {
-				if (get_magic_quotes_runtime()) {
+				if (get_magic_quotes_runtime() && !$this->memCache) {
 					ADOConnection::outp("Please disable magic_quotes_runtime - it corrupts cache files :(");
 				}
 				if ($this->debug !== -1) ADOConnection::outp( " $md5file cache failure: $err (see sql below)");
@@ -1683,6 +1720,14 @@
 			
 			$rs = &$this->Execute($sqlparam,$inputarr);
 
+			if ($rs && $this->memCache) {
+				$rs = &$this->_rs2rs($rs); // read entire recordset into memory immediately
+				if(!putmemCache($md5file, $rs, $this->memCacheHost, $this->memCachePort, $this->memCacheCompress, $this->debug)) {
+					if ($fn = $this->raiseErrorFn)
+						$fn($this->databaseType,'CacheExecute',-32000,"Cache write error",$md5file,$sql,$this);
+					if ($this->debug) ADOConnection::outp( " Cache write error");
+				}
+			} else
 			if ($rs) {
 				$eof = $rs->EOF;
 				$rs = &$this->_rs2rs($rs); // read entire recordset into memory immediately
@@ -1701,6 +1746,7 @@
 				}  
 				
 			} else
+			if (!$this->memCache)
 				@unlink($md5file);
 		} else {
 			$this->_errorMsg = '';
@@ -2867,17 +2913,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if ($ADODB_EXTENSION) {
 				if ($numIndex) {
 					while (!$this->EOF) {
-						// $results[trim($this->fields[0])] = array_slice($this->fields, 1);
-						// Fix for array_slice re-numbering numeric associative keys in PHP5
-						$keys = array_slice(array_keys($this->fields), 1);
-						$sliced_array = array();
-
-						foreach($keys as $key) {
-							$sliced_array[$key] = $this->fields[$key];
-						}
-						
-						$results[trim(reset($this->fields))] = $sliced_array;
-
+						$results[trim($this->fields[0])] = array_slice($this->fields, 1);
 						adodb_movenext($this);
 					}
 				} else {
@@ -2889,16 +2925,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			} else {
 				if ($numIndex) {
 					while (!$this->EOF) {
-						//$results[trim($this->fields[0])] = array_slice($this->fields, 1);
-						// Fix for array_slice re-numbering numeric associative keys in PHP5
-						$keys = array_slice(array_keys($this->fields), 1);
-						$sliced_array = array();
-
-						foreach($keys as $key) {
-							$sliced_array[$key] = $this->fields[$key];
-						}
-						
-						$results[trim(reset($this->fields))] = $sliced_array;
+						$results[trim($this->fields[0])] = array_slice($this->fields, 1);
 						$this->MoveNext();
 					}
 				} else {

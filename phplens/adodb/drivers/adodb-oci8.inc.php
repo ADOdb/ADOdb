@@ -75,6 +75,7 @@ class ADODB_oci8 extends ADOConnection {
 	var $noNullStrings = false;
 	var $connectSID = false;
 	var $_bind = false;
+	var $_nestedSQL = true;
 	var $_hasOCIFetchStatement = false;
 	var $_getarray = false; // currently not working
 	var $leftOuter = '';  // oracle wierdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER

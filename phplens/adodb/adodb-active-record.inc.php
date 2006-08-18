@@ -102,6 +102,12 @@ class ADODB_Active_Record {
 		$this->UpdateActiveTable($pkeyarr);
 	}
 	
+	function __wakeup()
+	{
+  		$class = get_class($this);
+  		new $class;
+	}
+	
 	function _pluralize($table)
 	{
 		$ut = strtoupper($table);

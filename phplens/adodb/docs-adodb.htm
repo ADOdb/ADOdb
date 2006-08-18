@@ -102,7 +102,7 @@ pre {
   <a href="#genid">GenID</a> <a href="#createseq">CreateSequence</a> <a href="#dropseq">DropSequence</a> 
   <br>
   Error Handling: <a href="#errormsg">ErrorMsg</a> <a href="#errorno">ErrorNo</a> 
-  <a href="#metaerror">MetaError</a> <a href="#metaerrormsg">MetaErrorMsg</a><br>
+  <a href="#metaerror">MetaError</a> <a href="#metaerrormsg">MetaErrorMsg</a> <a href="#ignoreerrors">IgnoreErrors</a><br>
   Data Dictionary (metadata): <a href="#metadatabases">MetaDatabases</a> <a href="#metatables">MetaTables</a> 
   <a href="#metacolumns">MetaColumns</a> <a href="#metacolumnames">MetaColumnNames</a> 
   <a href="#metaprimarykeys">MetaPrimaryKeys</a> <a href="#metaforeignkeys">MetaForeignKeys</a> 
@@ -1812,7 +1812,16 @@ If 0 is returned, no error occurred.
 <font>Note that old versions of PHP (pre 4.0.6) do 
 	not support error number for ODBC. In general you do not need to call this 
 	function unless an ADOdb function returns false on an error.</font></p>
-
+<p><font><b>IgnoreErrors<a name="ignoreerrors"></a>($saveErrHandlers)</b></font></p>
+<p>Allows you to ignore errors so that StartTrans()/CompleteTrans() is not affected, nor is the default error handler called if an error occurs.
+Useful when you want to check if a field or table exists in a database without invoking an error if it does not exist.
+<p>Usage:
+<pre>
+$saveErrHandlers = $conn->IgnoreErrors();
+$rs = $conn->Execute("select field from some_table_that_might_not_exist");
+$conn->IgnoreErrors($saveErrHandlers);
+</pre>
+<p>Warning: do not call StartTrans()/CompleteTrans() inside a code block that is using IgnoreErrors().
 <p><font><b>SetFetchMode<a name="setfetchmode"></a>($mode)</b></font></p>
 <p><font>Sets the current fetch mode for the connection and stores 
 	it in $db-&gt;fetchMode. Legal modes are ADODB_FETCH_ASSOC and ADODB_FETCH_NUM. 
@@ -2912,6 +2921,11 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
+<p><a name="4.92"></a><b>4.92 ??  Aug 2006</b>
+<P>Added IgnoreErrors() to bypass default error handling.
+<p>The _adodb_getcount() function in adodb-lib.inc.php, some ORDER BY bug fixes.
+<p>For ibase and firebird, set  $sysTimeStamp = "CURRENT_TIMESTAMP".
+<p>Fixed postgres connection bug: http://phplens.com/lens/lensforum/msgs.php?id=11057.
 <p><a name="4.91"></a><b>4.91 2 Aug 2006</b>
 <p>Major session code rewrite .... See session docs.
 <p>PDO bindinputarray was not set properly for MySQL (changed from true to false).

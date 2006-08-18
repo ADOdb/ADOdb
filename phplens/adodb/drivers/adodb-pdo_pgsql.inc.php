@@ -59,6 +59,7 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 	
 		$parentDriver->hasTransactions = false; ## <<< BUG IN PDO pgsql driver
 		$parentDriver->hasInsertID = true;
+		$parentDriver->_nestedSQL = true;
 	}
 	
 	function ServerInfo()

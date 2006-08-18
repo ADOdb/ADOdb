@@ -47,7 +47,7 @@ class ADODB_ibase extends ADOConnection {
 	var $buffers = 0;
 	var $dialect = 1;
 	var $sysDate = "cast('TODAY' as timestamp)";
-	var $sysTimeStamp = "cast('NOW' as timestamp)";
+	var $sysTimeStamp = "CURRENT_TIMESTAMP"; //"cast('NOW' as timestamp)";
 	var $ansiOuter = true;
 	var $hasAffectedRows = false;
 	var $poorAffectedRows = true;

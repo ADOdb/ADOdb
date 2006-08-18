@@ -297,7 +297,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 {
 	$qryRecs = 0;
 	
-	 if (preg_match("/^\s*SELECT\s+DISTINCT/is", $sql) || 
+	 if (!empty($zthis->_nestedSQL) || preg_match("/^\s*SELECT\s+DISTINCT/is", $sql) || 
 	 	preg_match('/\s+GROUP\s+BY\s+/is',$sql) || 
 		preg_match('/\s+UNION\s+/is',$sql)) {
 		// ok, has SELECT DISTINCT or GROUP BY so see if we can use a table alias
@@ -313,12 +313,8 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 				$rewritesql = "SELECT COUNT(*) FROM (".$rewritesql.")"; 
 			
 		} else if (strncmp($zthis->databaseType,'postgres',8) == 0)  {
-			
-			$info = $zthis->ServerInfo();
-			if (substr($info['version'],0,3) >= 7.1) { // good till version 999
-				$rewritesql = preg_replace('/(\sORDER\s+BY\s[^)]*)/is','',$sql);
-				$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
-			}
+			$rewritesql = preg_replace('/(\sORDER\s+BY\s[^)]*)/is','',$sql);
+			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
 		}
 	} else {
 		// now replace SELECT ... FROM with SELECT COUNT(*) FROM
