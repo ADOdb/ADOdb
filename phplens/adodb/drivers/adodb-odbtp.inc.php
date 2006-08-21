@@ -150,6 +150,8 @@ class ADODB_odbtp extends ADOConnection{
     function _connect($HostOrInterface, $UserOrDSN='', $argPassword='', $argDatabase='')
 	{
 		$this->_connectionID = @odbtp_connect($HostOrInterface,$UserOrDSN,$argPassword,$argDatabase);
+		odbtp_convert_datetime($this->_connectionID,true);
+		
 		if ($this->_connectionID === false) {
 			$this->_errorMsg = $this->ErrorMsg() ;
 			return false;
