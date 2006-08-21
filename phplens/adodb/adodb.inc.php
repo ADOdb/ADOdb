@@ -685,6 +685,7 @@
 		return $this->Parameter($stmt,$var,$name,true,$maxLen,$type);
 	
 	}
+
 	
 	/* 
 	Usage in oracle
@@ -704,6 +705,19 @@
 	function Parameter(&$stmt,&$var,$name,$isOutput=false,$maxLen=4000,$type=false)
 	{
 		return false;
+	}
+	
+	
+	function IgnoreErrors($saveErrs=false)
+	{
+		if (!$saveErrs) {
+			$saveErrs = array($this->raiseErrorFn,$this->_transOK);
+			$this->raiseErrorFn = false;
+			return $saveErrs;
+		} else {
+			$this->raiseErrorFn = $saveErrs[0];
+			$this->_transOK = $saveErrs[1];
+		}
 	}
 	
 	/**
@@ -2913,7 +2927,17 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if ($ADODB_EXTENSION) {
 				if ($numIndex) {
 					while (!$this->EOF) {
-						$results[trim($this->fields[0])] = array_slice($this->fields, 1);
+						// $results[trim($this->fields[0])] = array_slice($this->fields, 1);
+						// Fix for array_slice re-numbering numeric associative keys in PHP5
+						$keys = array_slice(array_keys($this->fields), 1);
+						$sliced_array = array();
+
+						foreach($keys as $key) {
+							$sliced_array[$key] = $this->fields[$key];
+						}
+						
+						$results[trim(reset($this->fields))] = $sliced_array;
+
 						adodb_movenext($this);
 					}
 				} else {
@@ -2925,7 +2949,16 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			} else {
 				if ($numIndex) {
 					while (!$this->EOF) {
-						$results[trim($this->fields[0])] = array_slice($this->fields, 1);
+						//$results[trim($this->fields[0])] = array_slice($this->fields, 1);
+						// Fix for array_slice re-numbering numeric associative keys in PHP5
+						$keys = array_slice(array_keys($this->fields), 1);
+						$sliced_array = array();
+
+						foreach($keys as $key) {
+							$sliced_array[$key] = $this->fields[$key];
+						}
+						
+						$results[trim(reset($this->fields))] = $sliced_array;
 						$this->MoveNext();
 					}
 				} else {
