@@ -1769,9 +1769,9 @@ only with SELECT statements.
 </font></p><p><font>If no parameter is passed in, then all adodb_*.cache files are deleted. 
 </font></p>
   <p>CacheSelectLimit() rewrites the SQL query, so you won't be able to pass the SQL to CacheFlush. In this case,
-   to flush the cached SQL recordset returned by CacheSelectLimit(), set $secs2cache to 0:
+   to flush the cached SQL recordset returned by CacheSelectLimit(), set $secs2cache to -1:
 <pre>
-	$db->CacheSelectLimit(0, $sql, $nrows);
+	$db->CacheSelectLimit(-1, $sql, $nrows);
 </pre>
 <p><font> If you want to flush all cached recordsets manually, execute the following 
 	PHP code (works only under Unix): <br>
@@ -2926,6 +2926,16 @@ of MySQL.</font></p>
 <p>The _adodb_getcount() function in adodb-lib.inc.php, some ORDER BY bug fixes.
 <p>For ibase and firebird, set  $sysTimeStamp = "CURRENT_TIMESTAMP".
 <p>Fixed postgres connection bug: http://phplens.com/lens/lensforum/msgs.php?id=11057.
+<p>Changed CacheSelectLimit() to flush cache when $secs2cache==-1 due to complaints from other users. 
+<p>Added support for using memcached with CacheExecute/CacheSelectLimit. Usage:
+<pre>
+$db = NewADOConnection($driver);
+$db->memCache = true; /// should we use memCache instead of caching in files
+$db->memCacheHost = 126.0.1.1; /// memCache host
+$db->memCachePort = 11211; /// this is default memCache port
+$db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
+</pre>
+
 <p><a name="4.91"></a><b>4.91 2 Aug 2006</b>
 <p>Major session code rewrite .... See session docs.
 <p>PDO bindinputarray was not set properly for MySQL (changed from true to false).
