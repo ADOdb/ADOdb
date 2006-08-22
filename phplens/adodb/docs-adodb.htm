@@ -2927,7 +2927,7 @@ of MySQL.</font></p>
 <p>For ibase and firebird, set  $sysTimeStamp = "CURRENT_TIMESTAMP".
 <p>Fixed postgres connection bug: http://phplens.com/lens/lensforum/msgs.php?id=11057.
 <p>Changed CacheSelectLimit() to flush cache when $secs2cache==-1 due to complaints from other users. 
-<p>Added support for using memcached with CacheExecute/CacheSelectLimit. Usage:
+<p>Added support for using memcached with CacheExecute/CacheSelectLimit. Requires memcache module PECL extension. Usage:
 <pre>
 $db = NewADOConnection($driver);
 $db->memCache = true; /// should we use memCache instead of caching in files
