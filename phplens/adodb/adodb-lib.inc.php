@@ -16,6 +16,27 @@ $ADODB_INCLUDED_LIB = 1;
   Less commonly used functions are placed here to reduce size of adodb.inc.php. 
 */ 
 
+function  &adodb_transpose(&$arr, &$newarr, &$hdr)
+{
+	$oldX = sizeof(reset($arr));
+	$oldY = sizeof($arr);	
+	
+	if ($hdr) {
+		$startx = 1;
+		$hdr = array();
+		for ($y = 0; $y < $oldY; $y++) {
+			$hdr[] = $arr[$y][0];
+		}
+	} else
+		$startx = 0;
+
+	for ($x = $startx; $x < $oldX; $x++) {
+		$newarr[] = array();
+		for ($y = 0; $y < $oldY; $y++) {
+			$newarr[$x-$startx][] = $arr[$y][$x];
+		}
+	}
+}
 
 // Force key to upper. 
 // See also http://www.php.net/manual/en/function.array-change-key-case.php

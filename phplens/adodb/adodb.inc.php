@@ -1129,7 +1129,7 @@
 			if ($ismssql) $isaccess = false;
 			else $isaccess = (strpos($this->databaseType,'access') !== false);
 			
-			if ($offset <= 0) {
+			if ($offset <= 	0) {
 				
 					// access includes ties in result
 					if ($isaccess) {
@@ -1354,6 +1354,16 @@
 	   		$rs->Close();
 	  	}
 	  	return $rv;
+	}
+	
+	function &Transpose(&$rs)
+	{
+		$rs2 =& $this->_rs2rs($rs);
+		$false = false;
+		if (!$rs2) return $false;
+		
+		$rs2->_transpose();
+		return $rs2;
 	}
  
 	/*
@@ -3633,6 +3643,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 	}
 	
+	
 	function _close() {}
 	
 	/**
@@ -3689,7 +3700,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		var $_types;	// the array of types of each column (C B I L M)
 		var $_colnames;	// names of each column in array
 		var $_skiprow1;	// skip 1st row because it holds column names
-		var $_fieldarr; // holds array of field objects
+		var $_fieldobjects; // holds array of field objects
 		var $canSeek = true;
 		var $affectedrows = false;
 		var $insertid = false;
@@ -3709,6 +3720,37 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$this->fetchMode = $ADODB_FETCH_MODE;
 		}
 		
+		function _transpose()
+		{
+		global $ADODB_INCLUDED_LIB;
+			
+			if (empty($ADODB_INCLUDED_LIB)) include(ADODB_DIR.'/adodb-lib.inc.php');
+			$hdr = true;
+			
+			adodb_transpose($this->_array, $newarr, $hdr);
+			//adodb_pr($newarr);
+			
+			$this->_skiprow1 = false;
+			$this->_array =& $newarr;
+			$this->_colnames = $hdr;
+			
+			$this->_types = array();
+			$this->_fieldobjects = array();
+			
+			foreach($hdr as $k => $name) {
+				$t = 'C';
+				$this->_types[] = $t;
+				$f = new ADOFieldObject();
+				$f->name = $name;
+				$f->type = $t;
+				$f->max_length = -1;
+				$this->_fieldobjects[] = $f;
+				
+			}
+			
+			$this->_initrs();
+			
+		}
 		
 		/**
 		 * Setup the array.

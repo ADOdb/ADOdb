@@ -2934,6 +2934,9 @@ $db->memCache = true; /// should we use memCache instead of caching in files
 $db->memCacheHost = 126.0.1.1; /// memCache host
 $db->memCachePort = 11211; /// this is default memCache port
 $db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
+
+$db->Connect(...);
+$db->CacheExecute($sql);
 </pre>
 
 <p><a name="4.91"></a><b>4.91 2 Aug 2006</b>
