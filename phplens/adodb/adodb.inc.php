@@ -3734,19 +3734,19 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$this->_array =& $newarr;
 			$this->_colnames = $hdr;
 			
-			$this->_types = array();
+			adodb_probetypes($newarr,$this->_types);
+		
 			$this->_fieldobjects = array();
 			
 			foreach($hdr as $k => $name) {
-				$t = 'C';
-				$this->_types[] = $t;
 				$f = new ADOFieldObject();
 				$f->name = $name;
-				$f->type = $t;
+				$f->type = $this->_types[$k];
 				$f->max_length = -1;
 				$this->_fieldobjects[] = $f;
 				
 			}
+			$this->fields = reset($this->_array);
 			
 			$this->_initrs();
 			

@@ -2938,7 +2938,15 @@ $db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses
 $db->Connect(...);
 $db->CacheExecute($sql);
 </pre>
-
+<p>Implemented Transpose() for recordsets. Recordset must be retrieved using ADODB_FETCH_NUM.
+<pre>
+$DB = NewADOConnection('mysql');
+$DB->Connect(...);
+$DB->SetFetchMode(ADODB_FETCH_NUM);
+$rs = $DB->Execute('select productname,productid,unitprice from products limit 10');
+$rs2 = $DB->Transpose($rs);
+rs2html($rs2);
+</pre>
 <p><a name="4.91"></a><b>4.91 2 Aug 2006</b>
 <p>Major session code rewrite .... See session docs.
 <p>PDO bindinputarray was not set properly for MySQL (changed from true to false).

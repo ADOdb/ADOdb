@@ -16,6 +16,47 @@ $ADODB_INCLUDED_LIB = 1;
   Less commonly used functions are placed here to reduce size of adodb.inc.php. 
 */ 
 
+function adodb_probetypes(&$array,&$types,$probe=8)
+{
+// probe and guess the type
+	$types = array();
+	if ($probe > sizeof($array)) $max = sizeof($array);
+	else $max = $probe;
+	
+	
+	for ($j=0;$j < $max; $j++) {
+		$row =& $array[$j];
+		if (!$row) break;
+		$i = -1;
+		foreach($row as $v) {
+			$i += 1;
+
+			if (isset($types[$i]) && $types[$i]=='C') continue;
+			
+			//print " ($i ".$types[$i]. "$v) ";
+			$v = trim($v);
+			
+			if (preg_match('/^[+-]{0,1}[0-9\.]+$/',$v) === false) {
+				$types[$i] = 'C'; // once C, always C
+				continue;
+			}
+			if ($j == 0) { 
+			// If empty string, we presume is character
+			// test for integer for 1st row only
+			// after that it is up to testing other rows to prove
+			// that it is not an integer
+				if (strlen($v) == 0) $types[$i] = 'C';
+				if (strpos($v,'.') !== false) $types[$i] = 'N';
+				else  $types[$i] = 'I';
+				continue;
+			}
+			
+			if (strpos($v,'.') !== false) $types[$i] = 'N';
+			
+		}
+	}
+}
+
 function  &adodb_transpose(&$arr, &$newarr, &$hdr)
 {
 	$oldX = sizeof(reset($arr));
