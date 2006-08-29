@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V4.91 2 Aug 2006 (c) 2000-2006 John Lim (jlim#natsoft.com)</p>
+<p>V4.92 29 Aug 2006 (c) 2000-2006 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
   
@@ -2921,7 +2921,7 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
-<p><a name="4.92"></a><b>4.92 ??  Aug 2006</b>
+<p><a name="4.92"></a><b>4.92 29 Aug 2006</b>
 <P>Added IgnoreErrors() to bypass default error handling.
 <p>The _adodb_getcount() function in adodb-lib.inc.php, some ORDER BY bug fixes.
 <p>For ibase and firebird, set  $sysTimeStamp = "CURRENT_TIMESTAMP".
@@ -2938,7 +2938,8 @@ $db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses
 $db->Connect(...);
 $db->CacheExecute($sql);
 </pre>
-<p>Implemented Transpose() for recordsets. Recordset must be retrieved using ADODB_FETCH_NUM.
+<p>Implemented Transpose() for recordsets. Recordset must be retrieved using ADODB_FETCH_NUM. First column becomes the 
+column name.
 <pre>
 $DB = NewADOConnection('mysql');
 $DB->Connect(...);

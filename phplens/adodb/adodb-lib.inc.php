@@ -7,7 +7,7 @@ global $ADODB_INCLUDED_LIB;
 $ADODB_INCLUDED_LIB = 1;
 
 /* 
- @version V4.91 2 Aug 2006 (c) 2000-2006 John Lim (jlim\@natsoft.com.my). All rights reserved.
+ @version V4.92 29 Aug 2006 (c) 2000-2006 John Lim (jlim\@natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
@@ -36,8 +36,9 @@ function adodb_probetypes(&$array,&$types,$probe=8)
 			//print " ($i ".$types[$i]. "$v) ";
 			$v = trim($v);
 			
-			if (preg_match('/^[+-]{0,1}[0-9\.]+$/',$v) === false) {
+			if (!preg_match('/^[+-]{0,1}[0-9\.]+$/',$v)) {
 				$types[$i] = 'C'; // once C, always C
+				
 				continue;
 			}
 			if ($j == 0) { 
