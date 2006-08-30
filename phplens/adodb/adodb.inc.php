@@ -14,7 +14,7 @@
 /**
 	\mainpage 	
 	
-	 @version V4.92 29 Aug 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved.
+	 @version V4.92a 29 Aug 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
