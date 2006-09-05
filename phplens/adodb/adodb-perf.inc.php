@@ -64,7 +64,6 @@ function adodb_microtime()
 /* sql code timing */
 function& adodb_log_sql(&$connx,$sql,$inputarr)
 {
-
     $perf_table = adodb_perf::table();
 	$connx->fnExecute = false;
 	$t0 = microtime();
@@ -74,8 +73,16 @@ function& adodb_log_sql(&$connx,$sql,$inputarr)
 	if (!empty($connx->_logsql) && (empty($connx->_logsqlErrors) || !$rs)) {
 	global $ADODB_LOG_CONN;
 	
-		if (!empty($ADODB_LOG_CONN)) $conn = &$ADODB_LOG_CONN;
-		else $conn =& $connx;
+		if (!empty($ADODB_LOG_CONN)) {
+			$conn = &$ADODB_LOG_CONN;
+			if ($conn->databaseType != $connx->databaseType)
+				$prefix = '/*dbx='.$connx->databaseType .'*/ ';
+			else
+				$prefix = '';
+		} else {
+			$conn =& $connx;
+			$prefix = '';
+		}
 		
 		$conn->_logsql = false; // disable logsql error simulation
 		$dbT = $conn->databaseType;
@@ -131,6 +138,7 @@ function& adodb_log_sql(&$connx,$sql,$inputarr)
 		}
 		
 		if (is_array($sql)) $sql = $sql[0];
+		if ($prefix) $sql = $prefix.$sql;
 		$arr = array('b'=>strlen($sql).'.'.crc32($sql),
 					'c'=>substr($sql,0,3900), 'd'=>$params,'e'=>$tracer,'f'=>adodb_round($time,6));
 		//var_dump($arr);
@@ -141,7 +149,7 @@ function& adodb_log_sql(&$connx,$sql,$inputarr)
 		if (empty($d)) $d = date("'Y-m-d H:i:s'");
 		if ($conn->dataProvider == 'oci8' && $dbT != 'oci8po') {
 			$isql = "insert into $perf_table values($d,:b,:c,:d,:e,:f)";
-		} else if ($dbT == 'odbc_mssql' || $dbT == 'informix' || $dbT == 'odbtp') {
+		} else if ($dbT == 'odbc_mssql' || $dbT == 'informix' || strncmp($dbT,'odbtp',4)==0) {
 			$timer = $arr['f'];
 			if ($dbT == 'informix') $sql2 = substr($sql2,0,230);
 
@@ -157,7 +165,6 @@ function& adodb_log_sql(&$connx,$sql,$inputarr)
 			if ($dbT == 'db2') $arr['f'] = (float) $arr['f'];
 			$isql = "insert into $perf_table (created,sql0,sql1,params,tracer,timer) values( $d,?,?,?,?,?)";
 		}
-
 		$ok = $conn->Execute($isql,$arr);
 		$conn->debug = $saved;
 		
