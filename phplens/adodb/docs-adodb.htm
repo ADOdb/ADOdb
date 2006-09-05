@@ -2358,7 +2358,7 @@ Also see <a href="docs-perf.htm">Performance Monitor</a>.
 <p>Here is an example of using fnExecute, to count all cached queries and non-cached 
   queries, you can do this:</p>
 <pre><font color="#006600"># $db is the connection object</font>
-function CountExecs($db, $sql, $inputarray)
+function &CountExecs($db, $sql, $inputarray)
 {
 global $EXECS;
 
@@ -2366,7 +2366,6 @@ global $EXECS;
 	<font color="#006600"># handle 2-dimensional input arrays</font>
 	else if (is_array(reset($inputarray))) $EXECS += sizeof($inputarray);
 	else $EXECS++;
-
 	
 	<font color="#006600"># in PHP4.4 and PHP5, we need to return a value by reference</font>
 	$null = null;
@@ -2921,6 +2920,8 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
+<p><a name="4.93"></a><b>4.93 ? 2006</b>
+<p>Fixed typo in session_schema2.xml.
 <p><a name="4.92a"></a><b>4.92a 30 Aug 2006</b>
 <p>Syntax error in postgres7 driver. Thx Eloy Lafuente Plaza. 
 <p>Minor bug fixes - adodb informix 10 types added to adodb.inc.php. Thx Fernando Ortiz.

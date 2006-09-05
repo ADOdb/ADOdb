@@ -112,19 +112,21 @@ class ADODB_mssql extends ADOConnection {
 	{
 	global $ADODB_FETCH_MODE;
 	
-		$stmt = $this->PrepareSP('sp_server_info');
-		$val = 2;
+	
 		if ($this->fetchMode === false) {
 			$savem = $ADODB_FETCH_MODE;
 			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		} else 
 			$savem = $this->SetFetchMode(ADODB_FETCH_NUM);
+				
+		if (0) {
+			$stmt = $this->PrepareSP('sp_server_info');
+			$val = 2;
+			$this->Parameter($stmt,$val,'attribute_id');
+			$row = $this->GetRow($stmt);
+		}
 		
-		
-		$this->Parameter($stmt,$val,'attribute_id');
-		$row = $this->GetRow($stmt);
-		
-		//$row = $this->GetRow("execute sp_server_info 2");
+		$row = $this->GetRow("execute sp_server_info 2");
 		
 		
 		if ($this->fetchMode === false) {

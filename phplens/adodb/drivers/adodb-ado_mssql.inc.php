@@ -35,6 +35,7 @@ class  ADODB_ado_mssql extends ADODB_ado {
 	var $ansiOuter = true; // for mssql7 or later
 	var $substr = "substring";
 	var $length = 'len';
+	var $_dropSeqSQL = "drop table %s";
 	
 	//var $_inTransaction = 1; // always open recordsets, so no transaction problems.
 	

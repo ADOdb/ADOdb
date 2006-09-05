@@ -62,16 +62,20 @@ function adodb_microtime()
 }
 
 /* sql code timing */
-function& adodb_log_sql(&$conn,$sql,$inputarr)
+function& adodb_log_sql(&$connx,$sql,$inputarr)
 {
-	
+
     $perf_table = adodb_perf::table();
-	$conn->fnExecute = false;
+	$connx->fnExecute = false;
 	$t0 = microtime();
-	$rs =& $conn->Execute($sql,$inputarr);
+	$rs =& $connx->Execute($sql,$inputarr);
 	$t1 = microtime();
 
-	if (!empty($conn->_logsql) && (empty($conn->_logsqlErrors) || !$rs)) {
+	if (!empty($connx->_logsql) && (empty($connx->_logsqlErrors) || !$rs)) {
+	global $ADODB_LOG_CONN;
+	
+		if (!empty($ADODB_LOG_CONN)) $conn =&$ADODB_LOG_CONN;
+		
 		$conn->_logsql = false; // disable logsql error simulation
 		$dbT = $conn->databaseType;
 		
@@ -84,8 +88,8 @@ function& adodb_log_sql(&$conn,$sql,$inputarr)
 		$time = $a1 - $a0;
 	
 		if (!$rs) {
-			$errM = $conn->ErrorMsg();
-			$errN = $conn->ErrorNo();
+			$errM = $connx->ErrorMsg();
+			$errN = $connx->ErrorNo();
 			$conn->lastInsID = 0;
 			$tracer = substr('ERROR: '.htmlspecialchars($errM),0,250);
 		} else {
@@ -178,10 +182,10 @@ function& adodb_log_sql(&$conn,$sql,$inputarr)
 				$conn->_logsql = false;
 			}
 		}
-		$conn->_errorMsg = $errM;
-		$conn->_errorCode = $errN;
+		$connx->_errorMsg = $errM;
+		$connx->_errorCode = $errN;
 	} 
-	$conn->fnExecute = 'adodb_log_sql';
+	$connx->fnExecute = 'adodb_log_sql';
 	return $rs;
 }
 

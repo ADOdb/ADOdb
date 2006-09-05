@@ -166,12 +166,13 @@
 		
 			
 		// Initialize random number generator for randomizing cache flushes
-		srand(((double)microtime())*1000000);
+		// -- note Since PHP 4.2.0, the seed  becomes optional and defaults to a random value if omitted.
+		 srand(((double)microtime())*1000000);
 		
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V4.90 8 June 2006  (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V4.92a 29 Aug 2006 (c) 2000-2006 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -1408,7 +1409,8 @@
 	
 	function &CacheGetAll($secs2cache,$sql=false,$inputarr=false)
 	{
-		return $this->CacheGetArray($secs2cache,$sql,$inputarr);
+		$arr =& $this->CacheGetArray($secs2cache,$sql,$inputarr);
+		return $arr;
 	}
 	
 	function &CacheGetArray($secs2cache,$sql=false,$inputarr=false)
@@ -2937,8 +2939,12 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if ($ADODB_EXTENSION) {
 				if ($numIndex) {
 					while (!$this->EOF) {
-						// $results[trim($this->fields[0])] = array_slice($this->fields, 1);
-						// Fix for array_slice re-numbering numeric associative keys in PHP5
+						$results[trim($this->fields[0])] = array_slice($this->fields, 1);
+						adodb_movenext($this);
+					}
+				} else {
+					while (!$this->EOF) {
+					// Fix for array_slice re-numbering numeric associative keys
 						$keys = array_slice(array_keys($this->fields), 1);
 						$sliced_array = array();
 
@@ -2947,20 +2953,18 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 						}
 						
 						$results[trim(reset($this->fields))] = $sliced_array;
-
-						adodb_movenext($this);
-					}
-				} else {
-					while (!$this->EOF) {
-						$results[trim(reset($this->fields))] = array_slice($this->fields, 1);
 						adodb_movenext($this);
 					}
 				}
 			} else {
 				if ($numIndex) {
 					while (!$this->EOF) {
-						//$results[trim($this->fields[0])] = array_slice($this->fields, 1);
-						// Fix for array_slice re-numbering numeric associative keys in PHP5
+						$results[trim($this->fields[0])] = array_slice($this->fields, 1);
+						$this->MoveNext();
+					}
+				} else {
+					while (!$this->EOF) {
+					// Fix for array_slice re-numbering numeric associative keys
 						$keys = array_slice(array_keys($this->fields), 1);
 						$sliced_array = array();
 
@@ -2969,11 +2973,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 						}
 						
 						$results[trim(reset($this->fields))] = $sliced_array;
-						$this->MoveNext();
-					}
-				} else {
-					while (!$this->EOF) {
-						$results[trim(reset($this->fields))] = array_slice($this->fields, 1);
 						$this->MoveNext();
 					}
 				}
