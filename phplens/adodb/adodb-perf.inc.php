@@ -72,9 +72,9 @@ function& adodb_log_sql(&$connx,$sql,$inputarr)
 	$t1 = microtime();
 
 	if (!empty($connx->_logsql) && (empty($connx->_logsqlErrors) || !$rs)) {
-	global $ADODB_LOG_DB;
+	global $ADODB_LOG_CONN;
 	
-		if (!empty($ADODB_LOG_DB)) $conn = &$ADODB_LOG_DB;
+		if (!empty($ADODB_LOG_CONN)) $conn = &$ADODB_LOG_CONN;
 		else $conn =& $connx;
 		
 		$conn->_logsql = false; // disable logsql error simulation
