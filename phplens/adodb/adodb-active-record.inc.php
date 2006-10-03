@@ -41,7 +41,12 @@ function ADODB_SetDatabaseAdapter(&$db)
 	global $_ADODB_ACTIVE_DBS;
 	
 		foreach($_ADODB_ACTIVE_DBS as $k => $d) {
-			if ($d->db == $db) return $k;
+			if (PHP_VERSION >= 5) {
+				if ($d->db == $db) return $k;
+			} else {
+				if ($d->db->_connectionID == $db->_connectionID && $db->database == $d->db->database) 
+					return $k;
+			}
 		}
 		
 		$obj = new ADODB_Active_DB();
@@ -218,12 +223,12 @@ class ADODB_Active_Record {
 			break;
 		default:
 			foreach($cols as $name => $fldobj) {
-				$name = ($name);
+				$name = ($fldobj->$name);
 				$this->$name = null;
 				$attr[$name] = $fldobj;
 			}
 			foreach($pkeys as $k => $name) {
-				$keys[$name] = ($name);
+				$keys[$name] = $cols[$name]->name;
 			}
 			break;
 		}

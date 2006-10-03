@@ -517,7 +517,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 		}
 		//adodb_pr($arr);
 		$o->name = $arr['name'];
-		if (isset($arr['native_type'])) $o->type = $arr['native_type'];
+		if (isset($arr['native_type']) && $arr['native_type'] <> "null") $o->type = $arr['native_type'];
 		else $o->type = adodb_pdo_type($arr['pdo_type']);
 		$o->max_length = $arr['len'];
 		$o->precision = $arr['precision'];

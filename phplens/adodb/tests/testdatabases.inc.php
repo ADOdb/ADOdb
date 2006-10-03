@@ -294,9 +294,12 @@ if (!empty($testproxy)){
 
 ADOLoadCode('oci805');
 ADOLoadCode("oci8po");
+
 if (!empty($testoracle)) {
 	$dsn = "oci8po://juris10:natsoft@sherkhan?persist";
-	$db = ADONewConnection($dsn);
+	$db = ADONewConnection('oci8');
+	
+	$db->debug=1;
 	print "<h1>Connecting $db->databaseType...</h1>";
 	if (true || $db->Connect('', "scott", "natsoft",''))
 		testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
