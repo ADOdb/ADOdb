@@ -306,6 +306,8 @@
 	var $transCnt = 0; 			/// count of nested transactions
 	
 	var $fetchMode=false;
+	
+	var $null2null = 'null'; // in autoexecute/getinsertsql/getupdatesql, this value will be converted to a null
 	 //
 	 // PRIVATE VARS
 	 //
@@ -323,6 +325,8 @@
 	var $_affected = false;
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
+	
+
 	
 	/**
 	 * Constructor
