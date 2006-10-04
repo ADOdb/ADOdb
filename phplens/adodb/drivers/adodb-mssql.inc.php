@@ -412,7 +412,7 @@ order by constraint_name, referenced_table_name, keyno";
 	{ 
 		if(@mssql_select_db("master")) { 
 				 $qry=$this->metaDatabasesSQL; 
-				 if($rs=@mssql_query($qry)){ 
+				 if($rs=@mssql_query($qry,$this->_connectionID)){ 
 						 $tmpAr=$ar=array(); 
 						 while($tmpAr=@mssql_fetch_row($rs)) 
 								 $ar[]=$tmpAr[0]; 
@@ -700,7 +700,7 @@ order by constraint_name, referenced_table_name, keyno";
 			}
 			$decl = $this->qstr($decl);
 			if ($this->debug) ADOConnection::outp("<font size=-1>sp_executesql N{$sql[1]},N$decl,$params</font>");
-			$rez = mssql_query("sp_executesql N{$sql[1]},N$decl,$params");
+			$rez = mssql_query("sp_executesql N{$sql[1]},N$decl,$params", $this->_connectionID);
 			
 		} else if (is_array($sql)) {
 			# PrepareSP()
