@@ -110,7 +110,9 @@
 	
 		// PHP's version scheme makes converting to numbers difficult - workaround
 		$_adodb_ver = (float) PHP_VERSION;
-		if ($_adodb_ver >= 5.0) {
+		if ($_adodb_ver >= 5.2) {
+			define('ADODB_PHPVER',0x5200);
+		} else if ($_adodb_ver >= 5.0) {
 			define('ADODB_PHPVER',0x5000);
 		} else if ($_adodb_ver > 4.299999) { # 4.3
 			define('ADODB_PHPVER',0x4300);
