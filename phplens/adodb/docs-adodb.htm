@@ -2920,8 +2920,9 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
-<p><a name="4.93"></a><b>4.93 ? 2006</b>
-<p>Added connection property $db->null2null = 'null'. In autoexecute/getinsertsql/getupdatesql, this value will be converted to a null. Set this to a funny invalid value if you do not want null conversion.
+<p><a name="4.93"></a><b>4.93 10 Oct 2006</b>
+<p>Added MetaIndexes() to odbc_mssql.
+<p>Added connection property $db->null2null = 'null'. In autoexecute/getinsertsql/getupdatesql, this value will be converted to a null. Set this to a funny invalid value if you do not want null conversion. See http://phplens.com/lens/lensforum/msgs.php?id=15902.
 <p>Path disclosure problem in mysqli fixed. Thx Andy.
 <p>Fixed typo in session_schema2.xml.
 <p>Changed INT in oci8 to return correct precision in $fld->max_length, MetaColumns(). Thx Eloy Lafuente Plaza.
