@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V4.92a 29 Aug 2006 (c) 2000-2006 John Lim (jlim#natsoft.com)</p>
+<p>V4.93 10 Oct 2006 (c) 2000-2006 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
   
@@ -2921,6 +2921,7 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 <p><a name="4.93"></a><b>4.93 10 Oct 2006</b>
+<p>Added support for multiple database connections in performance monitoring code (adodb-perf.inc.php). Now all sql in multiple database connections can be saved into one database ($ADODB_LOG_CONN).
 <p>Added MetaIndexes() to odbc_mssql.
 <p>Added connection property $db->null2null = 'null'. In autoexecute/getinsertsql/getupdatesql, this value will be converted to a null. Set this to a funny invalid value if you do not want null conversion. See http://phplens.com/lens/lensforum/msgs.php?id=15902.
 <p>Path disclosure problem in mysqli fixed. Thx Andy.
