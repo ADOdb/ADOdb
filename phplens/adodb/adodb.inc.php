@@ -2019,6 +2019,7 @@
 				$this->fmtTimeStamp = "'m-d-Y H:i:s'";
 				break;
 				
+			case 'PT_BR': 	
 			case 'NL':
 			case 'FR':
 			case 'RO':
