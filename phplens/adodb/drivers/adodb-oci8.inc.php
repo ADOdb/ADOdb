@@ -1383,10 +1383,11 @@ class ADORecordset_oci8 extends ADORecordSet {
 			$arr =& $this->GetArray($nrows);
 			return $arr;
 		}
+		$arr = array();
 		for ($i=1; $i < $offset; $i++) 
-			if (!@OCIFetch($this->_queryID)) return array();
+			if (!@OCIFetch($this->_queryID)) return $arr;
 			
-		if (!@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode)) return array();
+		if (!@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode)) return $arr;;
 		$results = array();
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
