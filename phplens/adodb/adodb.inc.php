@@ -3742,7 +3742,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if (empty($ADODB_INCLUDED_LIB)) include(ADODB_DIR.'/adodb-lib.inc.php');
 			$hdr = true;
 			
-			adodb_transpose($this->_array, $newarr, $hdr);
+			adodb_transpose($this->_array, $newarr, $hdr, $this->_fieldobjects);
 			//adodb_pr($newarr);
 			
 			$this->_skiprow1 = false;
@@ -3759,7 +3759,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$f->type = $this->_types[$k];
 				$f->max_length = -1;
 				$this->_fieldobjects[] = $f;
-				
 			}
 			$this->fields = reset($this->_array);
 			

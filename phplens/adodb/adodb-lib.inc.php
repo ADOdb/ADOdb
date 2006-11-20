@@ -58,14 +58,14 @@ function adodb_probetypes(&$array,&$types,$probe=8)
 	}
 }
 
-function  &adodb_transpose(&$arr, &$newarr, &$hdr)
+function  adodb_transpose(&$arr, &$newarr, &$hdr, &$fobjs)
 {
 	$oldX = sizeof(reset($arr));
 	$oldY = sizeof($arr);	
 	
 	if ($hdr) {
 		$startx = 1;
-		$hdr = array();
+		$hdr = array('Fields');
 		for ($y = 0; $y < $oldY; $y++) {
 			$hdr[] = $arr[$y][0];
 		}
@@ -73,7 +73,9 @@ function  &adodb_transpose(&$arr, &$newarr, &$hdr)
 		$startx = 0;
 
 	for ($x = $startx; $x < $oldX; $x++) {
-		$newarr[] = array();
+		$o = $fobjs[$x];
+		$newarr[] = array($o->name);
+		
 		for ($y = 0; $y < $oldY; $y++) {
 			$newarr[$x-$startx][] = $arr[$y][$x];
 		}
