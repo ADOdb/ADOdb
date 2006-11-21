@@ -56,6 +56,7 @@ function adodb_probetypes(&$array,&$types,$probe=8)
 			
 		}
 	}
+	
 }
 
 function  adodb_transpose(&$arr, &$newarr, &$hdr, &$fobjs)
