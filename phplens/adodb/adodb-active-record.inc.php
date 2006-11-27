@@ -10,7 +10,7 @@
   
   Active Record implementation. Superset of Zend Framework's.
   
-  Version 0.04
+  Version 0.06
   
   See http://www-128.ibm.com/developerworks/java/library/j-cb03076/?ca=dgr-lnxw01ActiveRecord 
   	for info on Ruby on Rails Active Record implementation
@@ -42,9 +42,9 @@ function ADODB_SetDatabaseAdapter(&$db)
 	
 		foreach($_ADODB_ACTIVE_DBS as $k => $d) {
 			if (PHP_VERSION >= 5) {
-				if ($d->db == $db) return $k;
+				if ($d->db === $db) return $k;
 			} else {
-				if ($d->db->_connectionID == $db->_connectionID && $db->database == $d->db->database) 
+				if ($d->db->_connectionID === $db->_connectionID && $db->database == $d->db->database) 
 					return $k;
 			}
 		}
@@ -285,6 +285,15 @@ class ADODB_Active_Record {
 		return $this->_lasterr;
 	}
 	
+	function ErrorNo() 
+	{
+		if ($this->_dbat < 0) $db = false;
+		else $db = $this->DB();
+		
+		return (int) $db->ErrorNo();
+	}
+
+
 	// retrieve ADOConnection from _ADODB_Active_DBs
 	function &DB()
 	{

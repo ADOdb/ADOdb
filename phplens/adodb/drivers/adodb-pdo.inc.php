@@ -133,7 +133,12 @@ class ADODB_pdo extends ADOConnection {
 		$this->random = $d->random;
 		$this->concat_operator = $d->concat_operator;
 		$this->nameQuote = $d->nameQuote;
-		
+				
+		$this->hasGenID = $d->hasGenID;
+		$this->_genIDSQL = $d->_genIDSQL;
+		$this->_genSeqSQL = $d->_genSeqSQL;
+		$this->_dropSeqSQL = $d->_dropSeqSQL;
+
 		$d->_init($this);
 	}
 	

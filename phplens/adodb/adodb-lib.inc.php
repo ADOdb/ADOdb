@@ -74,9 +74,12 @@ function  adodb_transpose(&$arr, &$newarr, &$hdr, &$fobjs)
 		$startx = 0;
 
 	for ($x = $startx; $x < $oldX; $x++) {
-		$o = $fobjs[$x];
-		$newarr[] = array($o->name);
-		
+		if ($fobjs) {
+			$o = $fobjs[$x];
+			$newarr[] = array($o->name);
+		} else
+			$newarr[] = array();
+			
 		for ($y = 0; $y < $oldY; $y++) {
 			$newarr[$x-$startx][] = $arr[$y][$x];
 		}
@@ -563,6 +566,8 @@ function &_adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputar
 
 function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq=false,$force=2)
 {
+	global $ADODB_QUOTE_FIELDNAMES;
+
 		if (!$rs) {
 			printf(ADODB_BAD_RS,'GetUpdateSQL');
 			return false;
@@ -609,7 +614,7 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 						$type = 'C';
 					}
 					
-					if (strpos($upperfname,' ') !== false)
+					if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES))
 						$fnameq = $zthis->nameQuote.$upperfname.$zthis->nameQuote;
 					else
 						$fnameq = $upperfname;
@@ -723,6 +728,7 @@ function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false,$force=2)
 static $cacheRS = false;
 static $cacheSig = 0;
 static $cacheCols;
+	global $ADODB_QUOTE_FIELDNAMES;
 
 	$tableName = '';
 	$values = '';
@@ -772,7 +778,7 @@ static $cacheCols;
 		$upperfname = strtoupper($field->name);
 		if (adodb_key_exists($upperfname,$arrFields,$force)) {
 			$bad = false;
-			if (strpos($upperfname,' ') !== false)
+			if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES))
 				$fnameq = $zthis->nameQuote.$upperfname.$zthis->nameQuote;
 			else
 				$fnameq = $upperfname;
