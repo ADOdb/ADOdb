@@ -287,8 +287,8 @@ class ADODB_Active_Record {
 	
 	function ErrorNo() 
 	{
-		if ($this->_dbat < 0) $db = false;
-		else $db = $this->DB();
+		if ($this->_dbat < 0) return -9999; // no database connection...
+		$db = $this->DB();
 		
 		return (int) $db->ErrorNo();
 	}
