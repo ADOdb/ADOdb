@@ -2927,14 +2927,29 @@ of MySQL.</font></p>
 
 <p><a name="4.94"></a><b>4.94 ? 2006</b>
 <p>
+Added handling of nulls in adodb-ado_mssql.inc.php for qstr(). Thx to Felix Rabinovich.
+<p>
 
 Adodb-dict contributions by Gaetano:
 <br>
-+Support for INDEX in data-dict.
++ Support for INDEX in data-dict. Example:
+idx_ev1. The ability to define indexes using the INDEX keyword was added in ADOdb 4.94. The following example features mutiple indexes, including a compound index idx_ev1. 
+<pre>
+  event_id I(11) NOTNULL AUTOINCREMENT PRIMARY,
+  event_type I(4) NOTNULL  <b>INDEX idx_evt</b>,
+  event_start_date T DEFAULT NULL <b>INDEX id_esd</b>,
+  event_end_date T DEFAULT '0000-00-00 00:00:00' <b>INDEX id_eted</b>,
+  event_parent I(11) UNSIGNED NOTNULL DEFAULT 0 <b>INDEX id_evp</b>,
+  event_owner I(11) DEFAULT 0 <b>INDEX idx_ev1</b>,
+  event_project I(11) DEFAULT 0 <b>INDEX idx_ev1</b>,
+  event_times_recuring I(11) UNSIGNED NOTNULL DEFAULT 0,
+  event_icon C(20) DEFAULT 'obj/event',
+  event_description X
+</pre>
 <br>
-+ prevents the generated SQL from including double drop-sequence statements for REPLACE case of tables with autoincrement columns (on those dbs that emulate it via sequences)
++ Prevents the generated SQL from including double drop-sequence statements for REPLACE case of tables with autoincrement columns (on those dbs that emulate it via sequences)
 <br>
-+ makes any date defined as DEFAULT value for D and T columns work cross-database, not just the "sysdate" value (as long as it is specified using adodb standard format).
++ makes any date defined as DEFAULT value for D and T columns work cross-database, not just the "sysdate" value (as long as it is specified using adodb standard format). See above example.
 <p>Fixed pdo's GetInsertID() support. Thx Ricky Su.
 <p>oci8 Prepare() now sets error messages if an error occurs.
 <p>Added 'PT_BR' to SetDateLocale() -- brazilian portugese.

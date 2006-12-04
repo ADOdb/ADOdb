@@ -531,7 +531,7 @@ class ADODB_DataDict {
 		$idxs = array();
 		foreach($flds as $fld) {
 			$fld = _array_change_key_case($fld);
-		
+			
 			$fname = false;
 			$fdefault = false;
 			$fautoinc = false;
@@ -673,6 +673,12 @@ class ADODB_DataDict {
 			
 			// add index creation
 			if ($widespacing) $fname = str_pad($fname,24);
+			
+			 // check for field names appearing twice
+            if (array_key_exists($fid, $lines)) {
+            	 ADOConnection::outp("Field '$fname' defined twice");
+            }
+			
 			$lines[$fid] = $fname.' '.$ftype.$suffix;
 			
 			if ($fautoinc) $this->autoIncrement = true;
