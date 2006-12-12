@@ -2074,7 +2074,7 @@
 				return $false;
 			}
 			$obj->Set($row);
-			$arr[] =& $obj;
+			$arr[] = $obj;
 		}
 		return $arr;
 	}
@@ -3393,6 +3393,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	function &FetchField($fieldoffset = -1) 
 	{
 		// must be defined by child class
+		
+		$false = false;
+		return $false;
 	}	
 	
 	/**

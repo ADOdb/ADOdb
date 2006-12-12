@@ -770,11 +770,11 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 				}
 				$s = "PREPARE $plan ($params) AS ".substr($sql,0,strlen($sql)-2);		
 				//adodb_pr($s);
-				pg_exec($this->_connectionID,$s);
+				$rez = pg_exec($this->_connectionID,$s);
 				//echo $this->ErrorMsg();
 			}
-			
-			$rez = pg_exec($this->_connectionID,$exsql);
+			if ($rez)
+				$rez = pg_exec($this->_connectionID,$exsql);
 		} else {
 			//adodb_backtrace();
 			$rez = pg_exec($this->_connectionID,$sql);

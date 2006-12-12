@@ -572,7 +572,8 @@ class ADODB_DataDict {
 				case 'AUTOINCREMENT':
 				case 'AUTO':	$fautoinc = true; $fnotnull = true; break;
 				case 'KEY':
-				case 'PRIMARY':	$fprimary = $v; $fnotnull = true; $funiqueindex = true; break;
+                // a primary key col can be non unique in itself (if key spans many cols...)
+				case 'PRIMARY':	$fprimary = $v; $fnotnull = true; /*$funiqueindex = true;*/ break;
 				case 'DEF':
 				case 'DEFAULT': $fdefault = $v; break;
 				case 'NOTNULL': $fnotnull = $v; break;
