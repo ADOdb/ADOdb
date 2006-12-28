@@ -79,7 +79,7 @@ pre {
   (oci8 only)<br>
   Generates SQL strings: <a href="#getupdatesql">GetUpdateSQL</a> <a href="#getinsertsql">GetInsertSQL</a> 
   <a href="#concat">Concat</a> <a href="#ifnull">IfNull</a> <a href="#length">length</a> <a href="#random">random</a> <a href="#substr">substr</a> 
-  <a href="#qstr">qstr</a> <a href="#param">Param</a>  <a href="#OffsetDate">OffsetDate</a> <a href="#SQLDate">SQLDate</a> 
+  <a href="#qstr">qstr</a> <a href="#param">Param</a>  <a href="#OffsetDate">OffsetDate</a> <a href="#sqldate">SQLDate</a> 
   <a href="#dbdate">DBDate</a>  <a href="#dbtimestamp">DBTimeStamp</a>
   <a href="#binddate">BindDate</a>  <a href="#bindtimestamp">BindTimeStamp</a>
   <br>
@@ -2617,7 +2617,7 @@ by a global array, which might need localisation).</font></p>
 <font> 
 </font><p><font>This function is available in both ADORecordSet
     and ADOConnection since 1.91. </font></p>
-<p><font><b>OffsetDate<a name="offsetdate"></a>($dayFraction,
+<p><font><b>OffsetDate<a name="OffsetDate"></a>($dayFraction,
   $basedate=false)</b></font></p>
 <p><font>Returns a string with the native SQL functions to calculate
     future and past dates based on $basedate in a portable fashion. If $basedate
@@ -2926,6 +2926,8 @@ of MySQL.</font></p>
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 
 <p><a name="4.94"></a><b>4.94 ? 2006</b>
+<p>Active Record: $ADODB_ASSOC_CASE=2 did not work properly. Fixed. Thx gmane#auxbuss.com.
+
 <p>Postgres64 driver, if preparing plan failed in _query, did not handle error properly. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=16131.
 <p>Fixed  GetActiveRecordsClass() reference bug. See http://phplens.com/lens/lensforum/msgs.php?id=16120
 <p>

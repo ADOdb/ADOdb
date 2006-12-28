@@ -2100,7 +2100,11 @@
 	 *
 	 * @return true if succeeded or false if database does not support transactions
 	 */
-	function BeginTrans() {return false;}
+	function BeginTrans() 
+	{
+		if ($this->debug) ADOConnection::outp("BeginTrans: Transactions not supported for this driver");
+		return false;
+	}
 	
 	/* set transaction mode */
 	function SetTransactionMode( $transaction_mode ) 

@@ -10,7 +10,7 @@
   
   Active Record implementation. Superset of Zend Framework's.
   
-  Version 0.06
+  Version 0.07
   
   See http://www-128.ibm.com/developerworks/java/library/j-cb03076/?ca=dgr-lnxw01ActiveRecord 
   	for info on Ruby on Rails Active Record implementation
@@ -223,7 +223,7 @@ class ADODB_Active_Record {
 			break;
 		default:
 			foreach($cols as $name => $fldobj) {
-				$name = ($fldobj->$name);
+				$name = ($fldobj->name);
 				$this->$name = null;
 				$attr[$name] = $fldobj;
 			}
