@@ -196,6 +196,14 @@ end;
 			$seqname = $this->seqPrefix.$tabname;
 			$trigname = $this->trigPrefix.$seqname;
 		}
+		
+		if (strlen($seqname) > 30) {
+			$seqname = $this->seqPrefix.uniqid('');
+		} // end if
+		if (strlen($trigname) > 30) {
+			$trigname = $this->trigPrefix.uniqid('');
+		} // end if
+
 		if (isset($tableoptions['REPLACE'])) $sql[] = "DROP SEQUENCE $seqname";
 		$seqCache = '';
 		if (isset($tableoptions['SEQUENCE_CACHE'])){$seqCache = $tableoptions['SEQUENCE_CACHE'];}

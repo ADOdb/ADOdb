@@ -769,7 +769,7 @@ class ADODB_Session {
 			
 			$qkey = $conn->qstr($key);
 			$rs2 =& $conn->UpdateBlob($table, 'sessdata', $val, " sesskey=$qkey", strtoupper($clob));
-			$rs = $conn->CompleteTrans();
+			$rs = @$conn->CompleteTrans();
 			
 			
 		}
