@@ -2927,7 +2927,8 @@ of MySQL.</font></p>
 
 <p><a name="4.94"></a><b>4.94 23 Jan 2007</b>
 <p>Active Record: $ADODB_ASSOC_CASE=2 did not work properly. Fixed. Thx gmane#auxbuss.com.
-
+<p>mysqli had bugs in BeginTrans() and EndTrans(). Fixed.</p>
+<p>Improved error handling when no database is connected for oci8. Thx Andy Hassall.</p>
 <p>Names longer than 30 chars in oci8 datadict will be changed to random name. Thx Eugenio. http://phplens.com/lens/lensforum/msgs.php?id=16182
 <p>Added var $upperCase = 'ucase' to access and ado_access drivers. Thx Renato De Giovanni renato#cria.org.br</p>
 <p>Postgres64 driver, if preparing plan failed in _query, did not handle error properly. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=16131.
