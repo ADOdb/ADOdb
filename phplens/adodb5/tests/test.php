@@ -85,7 +85,7 @@ GLOBAL $ADODB_vers,$ADODB_CACHE_DIR,$ADODB_FETCH_MODE,$ADODB_COUNTRECS;
 	$create =false;
 	/*$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 	
-	$rs = $db->Execute('select lastname,firstname,lastname,id from adoxyz');
+	$rs = $db->Execute('select lastname,firstname,lastname,id from ADOXYZ');
 	$arr = $rs->GetAssoc();
 	echo "<pre>";print_r($arr);
 	die();*/
@@ -127,6 +127,7 @@ FROM `nuke_stories` `t1`, `nuke_authors` `t2`, `nuke_stories_cat` `t3`, `nuke_to
 	
 	flush();
 
+	if (function_exists('date_default_timezone_set')) date_default_timezone_set('Asia/Kuala_Lumpur');
 	
 	$arr = $db->ServerInfo();
 	print_r($arr);
@@ -170,7 +171,7 @@ FROM `nuke_stories` `t1`, `nuke_authors` `t2`, `nuke_stories_cat` `t3`, `nuke_to
 	flush();
 
 	//$ADODB_COUNTRECS=false;
-	$rs=$db->Execute('select * from adoxyz order by id');
+	$rs=$db->Execute('select * from ADOXYZ order by id');
 	if($rs === false) $create = true;
 	else $rs->Close();
 	
@@ -346,7 +347,7 @@ FROM `nuke_stories` `t1`, `nuke_authors` `t2`, `nuke_stories_cat` `t3`, `nuke_to
 ef")."</p>";//'
 
 		print "<p>Testing Foreign Keys</p>";
-		$arr = $db->MetaForeignKeys('adoxyz',false,true);
+		$arr = $db->MetaForeignKeys('ADOXYZ',false,true);
 		print_r($arr);
 		if (!$arr) Err("No MetaForeignKeys");
 		break;
@@ -914,7 +915,7 @@ END Adodb;
 	}
 	
 	print "<p>GetCol Test</p>";
-	$col = $db->GetCol('select distinct firstname from adoxyz order by 1');
+	$col = $db->GetCol('select distinct firstname from ADOXYZ order by 1');
 	if (!is_array($col)) Err("Col size is wrong");
 	if (trim($col[0]) != 'Alan' or trim($col[9]) != 'Yat Sun') Err("Col elements wrong");
 
@@ -1225,7 +1226,7 @@ END Adodb;
 	echo "<p>";
 	
 	if (substr($db->dataProvider,0,3) != 'notused') { // used to crash ado
-		$sql = "select firstnames from adoxyz";
+		$sql = "select firstnames from ADOXYZ";
 		print "<p>Testing execution of illegal statement: <i>$sql</i></p>";
 		if ($db->Execute($sql) === false) {
 			print "<p>This returns the following ErrorMsg(): <i>".$db->ErrorMsg()."</i> and ErrorNo(): ".$db->ErrorNo().'</p>';
@@ -1236,7 +1237,7 @@ END Adodb;
 	
 	print "<p>ASSOC TEST 2<br>";
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-	$rs = $db->query('select * from adoxyz order by id');
+	$rs = $db->query('select * from ADOXYZ order by id');
 	if ($ee = $db->ErrorMsg()) {
 		Err("Error message=$ee");
 	}
@@ -1257,7 +1258,7 @@ END Adodb;
 		print "<b>ADODB_FETCH_BOTH not supported</b> for dataProvider=".$db->dataProvider."<br>";
 	} else {
 		$ADODB_FETCH_MODE = ADODB_FETCH_BOTH;
-		$rs = $db->query('select * from adoxyz order by id');
+		$rs = $db->query('select * from ADOXYZ order by id');
 		for($i=0;$i<$rs->FieldCount();$i++) 
 		{ 
 			$fld=$rs->FetchField($i); 
@@ -1268,7 +1269,7 @@ END Adodb;
 	
 	print "<p>NUM TEST 2<br>";
 	$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-	$rs = $db->query('select * from adoxyz order by id');
+	$rs = $db->query('select * from ADOXYZ order by id');
 	for($i=0;$i<$rs->FieldCount();$i++) 
 	{ 
 		$fld=$rs->FetchField($i); 
@@ -1278,7 +1279,7 @@ END Adodb;
 	
 	print "<p>ASSOC Test of SelectLimit<br>";
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-	$rs = $db->selectlimit('select * from adoxyz order by id',3,4);
+	$rs = $db->selectlimit('select * from ADOXYZ order by id',3,4);
 	$cnt = 0;
 	while ($rs && !$rs->EOF) {
 		$cnt += 1;
@@ -1295,7 +1296,7 @@ END Adodb;
 	if ($db->sysDate) {
 		$saved = $db->debug;
 		$db->debug = 1;
-		$rs = $db->Execute("select {$db->sysDate} from adoxyz where id=1");
+		$rs = $db->Execute("select {$db->sysDate} from ADOXYZ where id=1");
 		if (ADORecordSet::UnixDate(date('Y-m-d')) != $rs->UnixDate($rs->fields[0])) {
 			print "<p><b>Invalid date {$rs->fields[0]}</b></p>";
 		} else
@@ -1311,13 +1312,13 @@ END Adodb;
 	print "<p>Test CSV</p>";
 	include_once('../toexport.inc.php');
 	//$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-	$rs = $db->SelectLimit('select id,firstname,lastname,created,\'He, he\' he,\'"\' q  from adoxyz',10);	
+	$rs = $db->SelectLimit('select id,firstname,lastname,created,\'He, he\' he,\'"\' q  from ADOXYZ',10);	
 	
 	print "<pre>";
 	print rs2csv($rs);
 	print "</pre>";
 	
-	$rs = $db->SelectLimit('select id,firstname,lastname,created,\'The	"young man", he said\' from adoxyz',10);	
+	$rs = $db->SelectLimit('select id,firstname,lastname,created,\'The	"young man", he said\' from ADOXYZ',10);	
 	
 	if (PHP_VERSION < 5) {
 		print "<pre>";
@@ -1368,7 +1369,7 @@ END Adodb;
 	
 	print "<p>Test Replace</p>";
 	
-	$ret = $db->Replace('adoxyz', 
+	$ret = $db->Replace('ADOXYZ', 
 		array('id'=>1,'firstname'=>'Caroline','lastname'=>'Miranda'),
 		array('id'),
 		$autoq = true);
@@ -1387,14 +1388,14 @@ END Adodb;
 		}
 		$ADODB_COUNTRECS = $savec;
 	}
-	$ret = $db->Replace('adoxyz', 
+	$ret = $db->Replace('ADOXYZ', 
 		array('id'=>1000,'firstname'=>'Harun','lastname'=>'Al-Rashid'),
 		array('id','firstname'),
 		$autoq = true);
 	if ($ret != 2) print "<b>Replace failed: </b>";
 	print "test A return value=$ret (2 expected) <p>";
 	
-	$ret = $db->Replace('adoxyz', 
+	$ret = $db->Replace('ADOXYZ', 
 		array('id'=>1000,'firstname'=>'Sherazade','lastname'=>'Al-Rashid'),
 		'id',
 		$autoq = true);
@@ -1405,7 +1406,7 @@ END Adodb;
 	
 	print "<h3>rs2rs Test</h3>";
 	
-	$rs = $db->Execute('select * from adoxyz where id>= 1 order by id');
+	$rs = $db->Execute('select * from ADOXYZ where id>= 1 order by id');
 	$rs = $db->_rs2rs($rs);
 	$rs->valueX = 'X';
 	$rs->MoveNext();
@@ -1419,7 +1420,7 @@ END Adodb;
 	$db->debug=true;
  	$sql = PivotTableSQL(
  		$db,  			# adodb connection
- 		'adoxyz',  		# tables
+ 		'ADOXYZ',  		# tables
 		'firstname',	# row fields
 		'lastname',		# column fields 
 		false,			# join
@@ -1440,7 +1441,7 @@ END Adodb;
 	$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 	
 	include_once "PEAR.php";
-	$rs = $db->query('select * from adoxyz where id>0 and id<10 order by id');
+	$rs = $db->query('select * from ADOXYZ where id>0 and id<10 order by id');
 	
 	$i = 0;
 	if ($rs && !$rs->EOF) {
@@ -1458,12 +1459,12 @@ END Adodb;
 	}
 	
 	
-	if ($i != $db->GetOne('select count(*) from adoxyz where id>0 and id<10')) {
+	if ($i != $db->GetOne('select count(*) from ADOXYZ where id>0 and id<10')) {
 		print "<p><b>PEAR DB emulation error 1.1 EOF ($i)</b></p>";
 		$pear = false;
 	}
 	
-	$rs = $db->limitQuery('select * from adoxyz where id>0 order by id',$i=3,$top=3);
+	$rs = $db->limitQuery('select * from ADOXYZ where id>0 order by id',$i=3,$top=3);
 	$i2 = $i;
 	if ($rs && !$rs->EOF) {
 
@@ -1489,7 +1490,7 @@ END Adodb;
 	flush();
 
 	
-	$rs = $db->SelectLimit("select ".$db->sysDate." from adoxyz",1);
+	$rs = $db->SelectLimit("select ".$db->sysDate." from ADOXYZ",1);
 	$date = $rs->fields[0];
 	if (!$date) Err("Bad sysDate");
 	else {
@@ -1499,9 +1500,9 @@ END Adodb;
 	}
 	$db->debug=1;
 	if ($db->dataProvider == 'oci8') 
-		$rs = $db->SelectLimit("select to_char(".$db->sysTimeStamp.",'YYYY-MM-DD HH24:MI:SS') from adoxyz",1);
+		$rs = $db->SelectLimit("select to_char(".$db->sysTimeStamp.",'YYYY-MM-DD HH24:MI:SS') from ADOXYZ",1);
 	else 
-		$rs = $db->SelectLimit("select ".$db->sysTimeStamp." from adoxyz",1);
+		$rs = $db->SelectLimit("select ".$db->sysTimeStamp." from ADOXYZ",1);
 	$date = $rs->fields[0];
 	if (!$date) Err("Bad sysTimeStamp");
 	else {
@@ -1574,7 +1575,7 @@ END Adodb;
 	if ($metae !== DB_ERROR_NOSUCHTABLE) print "<p><b>MetaError=".$metae." wrong</b>, should be ".DB_ERROR_NOSUCHTABLE."</p>";
 	else print "<p>MetaError ok (".DB_ERROR_NOSUCHTABLE."): ".$db->MetaErrorMsg($metae)."</p>";
 	if ($TESTERRS != 1) print "<b>raiseErrorFn select nowhere failed</b><br>";
-	$rs = $db->Execute('select * from adoxyz');
+	$rs = $db->Execute('select * from ADOXYZ');
 	if ($debugerr) print " Move";
 	$rs->Move(100);
 	$rs->_queryID = false;
@@ -1587,17 +1588,17 @@ END Adodb;
 	
 	print "<p>SetFetchMode() tests</p>";
 	$db->SetFetchMode(ADODB_FETCH_ASSOC);
-	$rs = $db->SelectLimit('select firstname from adoxyz',1);
+	$rs = $db->SelectLimit('select firstname from ADOXYZ',1);
 	if (!isset($rs->fields['firstname'])) Err("BAD FETCH ASSOC");
 	
 	$ADODB_FETCH_MODE = ADODB_FETCH_NUM;	
-	$rs = $db->SelectLimit('select firstname from adoxyz',1);
+	$rs = $db->SelectLimit('select firstname from ADOXYZ',1);
 	//var_dump($rs->fields);
 	if (!isset($rs->fields['firstname'])) Err("BAD FETCH ASSOC");
 	
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;	
 	$db->SetFetchMode(ADODB_FETCH_NUM);
-	$rs = $db->SelectLimit('select firstname from adoxyz',1);
+	$rs = $db->SelectLimit('select firstname from ADOXYZ',1);
 	if (!isset($rs->fields[0])) Err("BAD FETCH NUM");
 	
 	flush();
