@@ -442,8 +442,9 @@ class ADODB_mysql extends ADOConnection {
 			$fld->primary_key = ($rs->fields[3] == 'PRI');
 			$fld->auto_increment = (strpos($rs->fields[5], 'auto_increment') !== false);
 			$fld->binary = (strpos($type,'blob') !== false);
-			$fld->unsigned = (strpos($type,'unsigned') !== false);
-				
+			$fld->unsigned = (strpos($type,'unsigned') !== false);	
+			$fld->zerofill = (strpos($type,'zerofill') !== false);
+			
 			if (!$fld->binary) {
 				$d = $rs->fields[4];
 				if ($d != '' && $d != 'NULL') {

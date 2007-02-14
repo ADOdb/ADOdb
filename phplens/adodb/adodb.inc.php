@@ -1576,7 +1576,7 @@
             $dir = $ADODB_CACHE_DIR;
             
          if ($this->debug) {
-            ADOConnection::outp( "CacheFlush: $dir<br><pre>\n", $this->_dirFlush($dir),"</pre>");
+            ADOConnection::outp( "CacheFlush: $dir<br><pre>\n". $this->_dirFlush($dir)."</pre>");
          } else {
             $this->_dirFlush($dir);
          }

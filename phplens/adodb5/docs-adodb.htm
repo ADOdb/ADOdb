@@ -340,7 +340,7 @@ a </a><a href="dsnsupport">DSN</a> since ADOdb 4.51. Exceptions to this are list
 <h4>PostgreSQL</h4>
 <p>PostgreSQL 7 and 8 accepts connections using: </p>
 <p>a. the standard connection string:</p>
-<pre>	$conn =ADONewConnection('postgres');  <br>	$conn-&gt;PConnect('host=localhost port=5432 dbname=mary');</pre>
+<pre>	$conn = ADONewConnection('postgres');  <br>	$conn-&gt;PConnect('host=localhost port=5432 dbname=mary');</pre>
 <p> b. the classical 4 parameters:</p>
  <pre>	$conn-&gt;PConnect('localhost','userid','password','database');<br> </pre>
 <p>c. dsn:
@@ -2404,8 +2404,8 @@ function CountCachedExecs($db, $secs2cache, $sql, $inputarray)
   this function if a concatenation operator is not used, eg. MySQL.</font></p>
 <p><font>Returns the concatenated string.</font></p>
 <p><font><b>DBDate<a name="dbdate"></a>($date)</b></font></p>
-<p><font>Format the $<b>date</b> in the format the database accepts. This is used in 
-  INSERT/UPDATE statements; for SELECT statements, use <a href="#sqldate">SQLDate</a>. 
+<p><font>Format the $<b>date</b> in the format the database accepts - the return string is also quoted. This is used
+when you are sending dates to the database (eg INSERT, UPDATE or where clause of SELECT statement). 
   The $<b>date</b> parameter can be a Unix integer timestamp or an ISO format 
   Y-m-d. Uses the fmtDate field, which holds the format to use. If null or false 
   or '' is passed in, it will be converted to an SQL null.</font></p>
@@ -2414,6 +2414,7 @@ function CountCachedExecs($db, $secs2cache, $sql, $inputarray)
 	$sql = "select * from atable where created > ".$db->DBDate("$year-$month-$day");
 	$db->Execute($sql);
 </pre>
+<p>Note to retrieve a date column in a specific format,  use <a href="#sqldate">SQLDate</a>. </p>
 <p><font><b>BindDate<a name="binddate"></a>($date)</b></font></p>
 <p><font>Format the $<b>date</b> in the bind format the database accepts. Normally
  this means that the date string is not quoted, unlike DBDate, which quotes the string.
@@ -2633,8 +2634,9 @@ by a global array, which might need localisation).</font></p>
 <font> </font>
 <p><font><b>SQLDate<a name="sqldate"></a>($dateFormat, $basedate=false)</b></font></p>
 <font>Returns a string which contains the native SQL functions
-to format a date or date column $basedate. This is used in SELECT statements.
-For INSERT/UPDATE statements, use <a href="#dbdate">DBDate</a>. It uses a case-sensitive
+to format a date or date column $basedate. This is used when retrieving date columns in SELECT statements.
+For sending dates to the database (eg. in UPDATE, INSERT or the where clause of SELECT statements) 
+use <a href="#dbdate">DBDate</a>. It uses a case-sensitive
 $dateFormat, which supports: </font>
 <pre><font> 
   Y: 4-digit Year
