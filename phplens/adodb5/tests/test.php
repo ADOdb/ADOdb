@@ -1213,7 +1213,7 @@ END Adodb;
 	
 	echo "<p> GenID test: ";
 	for ($i=1; $i <= 10; $i++) 
-		echo  "($i: ",$val = $db->GenID($db->databaseType.'abcseq6' ,5), ") ";
+		echo  "($i: ",$val = $db->GenID($db->databaseType.'abcseq7' ,5), ") ";
 	if ($val == 0) Err("GenID not supported");
 	
 	if ($val) {

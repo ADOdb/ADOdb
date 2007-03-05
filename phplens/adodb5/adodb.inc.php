@@ -1591,23 +1591,24 @@
    *
    * Just specify the directory, and tell it if you want to delete the directory or just clear it out.
    * Note: $kill_top_level is used internally in the function to flush subdirectories.
+   *
    */
-   function _dirFlush($dir, $kill_top_level = false) {
+   function _dirFlush($dir, $kill_top_level = false) 
+   {
       if(!$dh = @opendir($dir)) return;
       
       while (($obj = readdir($dh))) {
-         if($obj=='.' || $obj=='..')
-            continue;
-			
-         if (!@unlink($dir.'/'.$obj))
-			  $this->_dirFlush($dir.'/'.$obj, true);
+         if($obj=='.' || $obj=='..') continue;
+		$f = $dir.'/'.$obj;
+		
+		if (strpos($obj,'.cache')) @unlink($f);
+		if (is_dir($f)) $this->_dirFlush($f, true);
       }
-      if ($kill_top_level === true)
-         @rmdir($dir);
+      if ($kill_top_level === true) @rmdir($dir);
       return true;
    }
    
-   
+    // this only deletes .cache files
 	function xCacheFlush($sql=false,$inputarr=false)
 	{
 	global $ADODB_CACHE_DIR;

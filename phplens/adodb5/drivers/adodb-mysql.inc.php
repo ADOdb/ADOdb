@@ -180,10 +180,11 @@ class ADODB_mysql extends ADOConnection {
 			return mysql_affected_rows($this->_connectionID);
 	}
   
- 	// See http://www.mysql.com/doc/M/i/Miscellaneous_functions.html
+ 	 // See http://www.mysql.com/doc/M/i/Miscellaneous_functions.html
 	// Reference on Last_Insert_ID on the recommended way to simulate sequences
  	var $_genIDSQL = "update %s set id=LAST_INSERT_ID(id+1);";
 	var $_genSeqSQL = "create table %s (id int not null)";
+	var $_genSeqCountSQL = "select count(*) from %s";
 	var $_genSeq2SQL = "insert into %s values (%s)";
 	var $_dropSeqSQL = "drop table %s";
 	
@@ -212,12 +213,16 @@ class ADODB_mysql extends ADOConnection {
 			if ($holdtransOK) $this->_transOK = true; //if the status was ok before reset
 			$u = strtoupper($seqname);
 			$this->Execute(sprintf($this->_genSeqSQL,$seqname));
-			$this->Execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
+			$cnt = $this->GetOne(sprintf($this->_genSeqCountSQL,$seqname));
+			if (!$cnt) $this->Execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
 			$rs = $this->Execute($getnext);
 		}
-		$this->genID = mysql_insert_id($this->_connectionID);
 		
-		if ($rs) $rs->Close();
+		if ($rs) {
+			$this->genID = mysql_insert_id($this->_connectionID);
+			$rs->Close();
+		} else
+			$this->genID = 0;
 		
 		$this->_logsql = $savelog;
 		return $this->genID;
