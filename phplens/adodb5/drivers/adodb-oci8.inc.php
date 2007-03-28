@@ -86,7 +86,7 @@ class ADODB_oci8 extends ADOConnection {
  	var $useDBDateFormatForTextInput=false;
 	var $datetime = false; // MetaType('DATE') returns 'D' (datetime==false) or 'T' (datetime == true)
 	var $_refLOBs = array();
-	
+		
 	// var $ansiOuter = true; // if oracle9
     
 	function ADODB_oci8() 
@@ -300,7 +300,7 @@ NATSOFT.DOMAIN =
 	{
 		if (empty($ts) && $ts !== 0) return 'null';
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
-		return 'TO_DATE('.adodb_date($this->fmtTimeStamp,$ts).",'RRRR-MM-DD, HH:MI:SS AM')";
+		return 'TO_DATE('.adodb_date("'Y-m-d H:i:s'",$ts).",'RRRR-MM-DD, HH24:MI:SS')";
 	}
 	
 	function RowLock($tables,$where,$flds='1 as ignore') 
