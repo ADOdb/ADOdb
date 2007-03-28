@@ -10,7 +10,7 @@ V4.80 8 Mar 2006  (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reser
 */
 
 
-if (!defined('E_STRICT')) define('E_STRICT',0);
+if (!defined('E_STRICT')) define('E_STRICT',E_NOTICE);
 error_reporting(E_ALL|E_STRICT);
 
 $ADODB_FLUSH = true;

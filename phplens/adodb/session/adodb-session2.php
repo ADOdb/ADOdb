@@ -444,7 +444,7 @@ class ADODB_Session {
 	/*!
 	*/
 	function &_conn($conn=null) {
-		return $GLOBALS['ADODB_SESS_CONN'];
+		return @$GLOBALS['ADODB_SESS_CONN'];
 	}
 
 	/*!
@@ -768,7 +768,7 @@ class ADODB_Session {
 			$rs =& $conn->Execute($sql,array($expireref,$key));
 			
 			$qkey = $conn->qstr($key);
-			$rs2 =& $conn->UpdateBlob($table, 'sessdata', $val, " sesskey=$qkey", strtoupper($clob));
+			$rs2 = $conn->UpdateBlob($table, 'sessdata', $val, " sesskey=$qkey", strtoupper($clob));
 			$rs = @$conn->CompleteTrans();
 			
 			

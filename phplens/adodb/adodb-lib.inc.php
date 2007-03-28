@@ -968,12 +968,18 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 			$val = $zthis->DBDate($arrFields[$fname]);
 			break;
 
-		case "T":
-			$val = $zthis->DBTimeStamp($arrFields[$fname]);
-			break;
+
+		case "N":
+		    $val = (float) $arrFields[$fname];
+		    break;
+
+		case "I":
+		case "R":
+		    $val = (int) $arrFields[$fname];
+		    break;
 
 		default:
-			$val = $arrFields[$fname];
+			$val = str_replace(array("'"," ","("),"",$arrFields[$fname]); // basic sql injection defence
 			if (empty($val)) $val = '0';
 			break;
 	}

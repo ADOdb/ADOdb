@@ -2933,6 +2933,8 @@ of MySQL.</font></p>
 <p>Added zerofill checking support to MetaColumns for mysql and mysqli.
 <p>CacheFlush no longer deletes all files/directories. Only *.cache files deleted.</p>
 <p>DB2 timestamp format changed to var $fmtTimeStamp = "'Y-m-d-H:i:s'";</p>
+<p>Added some code sanitization to AutoExecute in adodb-lib.inc.php.</p>
+<p>Due to typo, all connections in adodb-oracle.inc.php would become persistent, even non-persistent ones. Fixed.</p>
 <p><a name="4.94"></a><b>4.94 23 Jan 2007</b>
 <p>Active Record: $ADODB_ASSOC_CASE=2 did not work properly. Fixed. Thx gmane#auxbuss.com.
 <p>mysqli had bugs in BeginTrans() and EndTrans(). Fixed.</p>
