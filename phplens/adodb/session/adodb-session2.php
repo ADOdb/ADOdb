@@ -443,8 +443,14 @@ class ADODB_Session {
 
 	/*!
 	*/
-	function &_conn($conn=null) {
-		return @$GLOBALS['ADODB_SESS_CONN'];
+	function &_conn($conn=null) 
+	{
+		if (isset($GLOBALS['ADODB_SESS_CONN'])) {
+			$conn =& $GLOBALS['ADODB_SESS_CONN'];
+			return $conn;
+		}
+		$false = false;
+		return $false;
 	}
 
 	/*!
