@@ -2668,10 +2668,54 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	// CLASS ADORecordSet_empty
 	//==============================================================================================	
 	
+	class ADODB_Iterator_empty implements Iterator {
+	
+	    private $rs;
+	
+	    function __construct($rs) 
+		{
+	        $this->rs = $rs;
+	    }
+	    function rewind() 
+		{
+	    }
+	
+		function valid() 
+		{
+	        return !$this->rs->EOF;
+	    }
+		
+	    function key() 
+		{
+	        return $false;
+	    }
+		
+	    function current() 
+		{
+	        return $false;
+	    }
+		
+	    function next() 
+		{
+	    }
+		
+		function __call($func, $params)
+		{
+			return call_user_func_array(array($this->rs, $func), $params);
+		}
+		
+		function hasMore()
+		{
+			return false;
+		}
+	
+	}
+
+	
 	/**
 	* Lightweight recordset when there are no records to be returned
 	*/
-	class ADORecordSet_empty
+	class ADORecordSet_empty implements IteratorAggregate
 	{
 		var $dataProvider = 'empty';
 		var $databaseType = false;
@@ -2686,6 +2730,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		function FetchRow() {return false;}
 		function FieldCount(){ return 0;}
 		function Init() {}
+		function getIterator() {return new ADODB_Iterator_empty($this);}
 	}
 	
 	//==============================================================================================	
@@ -2697,14 +2742,61 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	// CLASS ADORecordSet
 	//==============================================================================================	
 
-	include_once(ADODB_DIR.'/adodb-iterator.inc.php');
+	class ADODB_Iterator implements Iterator {
+	
+	    private $rs;
+	
+	    function __construct($rs) 
+		{
+	        $this->rs = $rs;
+	    }
+	    function rewind() 
+		{
+	        $this->rs->MoveFirst();
+	    }
+	
+		function valid() 
+		{
+	        return !$this->rs->EOF;
+	    }
+		
+	    function key() 
+		{
+	        return $this->rs->_currentRow;
+	    }
+		
+	    function current() 
+		{
+	        return $this->rs->fields;
+	    }
+		
+	    function next() 
+		{
+	        $this->rs->MoveNext();
+	    }
+		
+		function __call($func, $params)
+		{
+			return call_user_func_array(array($this->rs, $func), $params);
+		}
+	
+		
+		function hasMore()
+		{
+			return !$this->rs->EOF;
+		}
+	
+	}
+
+
+
    /**
 	 * RecordSet class that represents the dataset returned by the database.
 	 * To keep memory overhead low, this class holds only the current row in memory.
 	 * No prefetching of data is done, so the RecordCount() can return -1 ( which
 	 * means recordcount not known).
 	 */
-	class ADORecordSet extends ADODB_BASE_RS {
+	class ADORecordSet implements IteratorAggregate {
 	/*
 	 * public variables	
 	 */
@@ -2754,6 +2846,17 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$this->_queryID = $queryID;
 	}
 	
+	function getIterator() 
+	{
+        return new ADODB_Iterator($this);
+    }
+	
+	/* this is experimental - i don't really know what to return... */
+	function __toString()
+	{
+		include_once(ADODB_DIR.'/toexport.inc.php');
+		return _adodb_export($this,',',',',false,true);
+	}
 	
 	
 	function Init()

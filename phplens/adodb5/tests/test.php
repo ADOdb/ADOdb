@@ -1709,11 +1709,7 @@ foreach($_GET as $k=>$v)  {
 	//global $$k;
 	$$k = $v;
 }	
-if (strpos(PHP_VERSION,'5') === 0) {
-	//$testaccess=1;
-	//$testmssql = 1;
-	//$testsqlite=1;
-}
+
 ?>
 <html>
 <title>ADODB Testing</title>

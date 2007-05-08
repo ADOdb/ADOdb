@@ -18,14 +18,14 @@ include("$path/../adodb.inc.php");
 echo "<h3>PHP ".PHP_VERSION."</h3>\n";
 try {
 
-$dbt = 'mysql';
+$dbt = 'oci8po';
 
 try {
 switch($dbt) {
 case 'oci8po':
 	$db = NewADOConnection("oci8po");
 	
-	$db->Connect('','scott','natsoft');
+	$db->Connect('localhost','scott','natsoft','sherkhan');
 	break;
 default:
 case 'mysql':
@@ -61,6 +61,11 @@ foreach($rs as $v) {
 	flush();
 }
 
+$rs = new ADORecordSet_empty();
+foreach($rs as $v) {
+	echo "<p>empty ";var_dump($v);
+}
+
 
 if ($i != $cnt) die("actual cnt is $i, cnt should be $cnt\n");
 else echo "Count $i is correct<br>";
@@ -77,8 +82,11 @@ $rs = $db->Execute("select distinct id, firstname,lastname from adoxyz order by 
 echo "Result=\n",$rs,"</p>";
 
 echo "<h3>Active Record</h3>";
-try {
+
 	include_once("../adodb-active-record.inc.php");
+	ADOdb_Active_Record::SetDatabaseAdapter($db);
+	
+try {
 	class City extends ADOdb_Active_Record{};
 	$a = new City();
 
@@ -88,15 +96,14 @@ try {
 
 try {
 	
-	ADOdb_Active_Record::SetDatabaseAdapter($db);
 	$a = new City();
 	
 	echo "<p>Successfully created City()<br>";
-	var_dump($a->GetPrimaryKeys());
+	#var_dump($a->GetPrimaryKeys());
 	$a->city = 'Kuala Lumpur';
 	$a->Save();
 	$a->Update();
-	$a->SetPrimaryKeys(array('city'));	
+	#$a->SetPrimaryKeys(array('city'));	
 	$a->country = "M'sia";
 	$a->save();
 	$a->Delete();
@@ -104,5 +111,5 @@ try {
 	echo $e->getMessage();
 }
 
-include_once("test-active-record.php");
+//include_once("test-active-record.php");
 ?>
