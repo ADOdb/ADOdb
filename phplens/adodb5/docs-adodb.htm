@@ -2926,6 +2926,19 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
+<p><a name="5.01"></a><b>4.95/5.01 17 May 2007</b>
+<p>CacheFlush debug outp() passed in invalid parameters. Fixed.
+<p>Added Thai language file for adodb. Thx Trirat Petchsingh rosskouk#gmail.com and Marcos Pont</p>
+<p>Added zerofill checking support to MetaColumns for mysql and mysqli.
+<p>CacheFlush no longer deletes all files/directories. Only *.cache files deleted.</p>
+<p>DB2 timestamp format changed to var $fmtTimeStamp = "'Y-m-d-H:i:s'";</p>
+<p>Added some code sanitization to AutoExecute in adodb-lib.inc.php.</p>
+<p>Due to typo, all connections in adodb-oracle.inc.php would become persistent, even non-persistent ones. Fixed.</p>
+<P>Oci8 DBTimeStamp uses 24 hour time for input now, so you can perform string comparisons between 2 DBTimeStamp values.</P>
+<p>Some PHP4.4 compat issues fixed in adodb-session2.inc.php</p>
+<p>For ADOdb 5.01, fixed some adodb-datadict.inc.php MetaType compat issues with PHP5.
+<p>The $argHostname was wiped out in adodb-ado5.inc.php. Fixed.
+<p>Adodb5 version, added iterator support for adodb_recordset_empty.
 <p><a name="5.00"></a><b>5.00 5 Feb 2007</b>
 <p>Experimental PHP5 version - conforms to E_STRICT (PHP 5.1.6 version), 
 added static to functions outp(), UnixTimeStamp(), UnixDate(), and removed object references: =&amp; changed to =. Otherwise code is the same as 4.94.</p>
