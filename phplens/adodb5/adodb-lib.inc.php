@@ -970,7 +970,8 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 
 		case "T":
 			$val = $zthis->DBTimeStamp($arrFields[$fname]);
-			break;
+			break
+			;
 		case "N":
 		    $val = (float) $arrFields[$fname];
 		    break;
