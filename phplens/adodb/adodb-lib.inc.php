@@ -1003,7 +1003,8 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 	if ($inputarr) {
 		foreach($inputarr as $kk=>$vv) {
 			if (is_string($vv) && strlen($vv)>64) $vv = substr($vv,0,64).'...';
-			$ss .= "($kk=>'$vv') ";
+			if (is_null($vv)) $ss .= "($kk=>null) ";
+			else $ss .= "($kk=>'$vv') ";
 		}
 		$ss = "[ $ss ]";
 	}
