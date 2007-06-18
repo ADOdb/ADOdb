@@ -1729,13 +1729,16 @@ Test <a href=test4.php>GetInsertSQL/GetUpdateSQL</a> &nbsp;
 	<a href=testpaging.php>Paging</a> &nbsp;
 	<a href=test-perf.php>Perf Monitor</a><p>
 <?php
+
+
+include_once('../adodb-time.inc.php');
+if (isset($_GET['time'])) adodb_date_test();
+
 include('./testdatabases.inc.php');
 
 echo "<br>vers=",ADOConnection::Version();
 
 
-include_once('../adodb-time.inc.php');
-if (isset($_GET['time'])) adodb_date_test();
 
 ?>
 <p><i>ADODB Database Library  (c) 2000-2007 John Lim. All rights reserved. Released under BSD and LGPL, PHP <?php echo PHP_VERSION ?>.</i></p>

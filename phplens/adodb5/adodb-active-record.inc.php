@@ -70,15 +70,9 @@ class ADODB_Active_Record {
 	var $_original = false; // the original values loaded or inserted, refreshed on update
 	
 	// should be static
-	function SetDatabaseAdapter(&$db) 
+	static function SetDatabaseAdapter(&$db) 
 	{
 		return ADODB_SetDatabaseAdapter($db);
-	}
-	
-	// php4 constructor
-	function ADODB_Active_Record($table = false, $pkeyarr=false, $db=false)
-	{
-		ADODB_Active_Record::__construct($table,$pkeyarr,$db);
 	}
 	
 	// php5 constructor

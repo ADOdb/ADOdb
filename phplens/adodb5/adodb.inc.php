@@ -333,7 +333,7 @@
 		die('Virtual Class -- cannot instantiate');
 	}
 	
-	function Version()
+	static function Version()
 	{
 	global $ADODB_vers;
 	
@@ -1436,7 +1436,12 @@
 		return $arr;
 	}
 	
-	
+	function GetRandRow($sql, $arr= false)
+	{
+		$rezarr = $this->GetAll($sql, $arr);
+		$sz = sizeof($rez);
+		return $rezarr[abs(rand()) % $sz];
+	}
 	
 	/**
 	* Return one row of sql statement. Recordset is disposed for you.

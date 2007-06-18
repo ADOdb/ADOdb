@@ -33,6 +33,11 @@ if (!defined('ADODB_DIR')) die();
 //	 http://support.microsoft.com/default.aspx?scid=kb;EN-US;q220918
 // Alternatively use:
 // 	   CONVERT(char(12),datecol,120)
+//
+// Also if your month is showing as month-1, 
+//   e.g. Jan 13, 2002 is showing as 13/0/2002, then see
+//     http://phplens.com/lens/lensforum/msgs.php?id=7048&x=1
+//   it's a localisation problem.
 //----------------------------------------------------------------
 
 
