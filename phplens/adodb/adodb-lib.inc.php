@@ -974,12 +974,14 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
             break;
 
 		case "N":
-		    $val = (float) $arrFields[$fname];
+		    $val = $arrFields[$fname];
+			if (!is_numeric($val)) $val = (float) $val;
 		    break;
 
 		case "I":
 		case "R":
-		    $val = (int) $arrFields[$fname];
+		    $val = $arrFields[$fname];
+			if (!is_numeric($val)) $val = (int) $val;
 		    break;
 
 		default:
