@@ -754,7 +754,6 @@ NATSOFT.DOMAIN =
 		}
 		if ($inputarr) {
 			#if (!is_array($inputarr)) $inputarr = array($inputarr);
-			
 			$element0 = reset($inputarr);
 			
 			# is_object check because oci8 descriptors can be passed in
