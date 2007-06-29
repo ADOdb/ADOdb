@@ -58,7 +58,7 @@ class ADODB_ldap extends ADOConnection {
 		    $conn_info = split( ':', $host );
 		} 
 		
-		$this->_connectionID = ldap_connect( $conn_info[0], $conn_info[1] );
+		$this->_connectionID = @ldap_connect( $conn_info[0], $conn_info[1] );
 		if (!$this->_connectionID) {
 			$e = 'Could not connect to ' . $conn_info[0];
 			$this->_errorMsg = $e;
@@ -70,10 +70,10 @@ class ADODB_ldap extends ADOConnection {
 		}
 		
 		if ($username) {
-		    $bind = ldap_bind( $this->_connectionID, $username, $password );
+		    $bind = @ldap_bind( $this->_connectionID, $username, $password );
 		} else {
 			$username = 'anonymous';
-		    $bind = ldap_bind( $this->_connectionID );		
+		    $bind = @ldap_bind( $this->_connectionID );		
 		}
 		
 		if (!$bind) {
@@ -149,7 +149,7 @@ class ADODB_ldap extends ADOConnection {
 	/* returns _queryID or false */
 	function _query($sql,$inputarr)
 	{
-		$rs = ldap_search( $this->_connectionID, $this->database, $sql );
+		$rs = @ldap_search( $this->_connectionID, $this->database, $sql );
 		$this->_errorMsg = ($rs) ? '' : 'Search error on '.$sql.': '.ldap_error($this->_connectionID);
 		return $rs; 
 	}
