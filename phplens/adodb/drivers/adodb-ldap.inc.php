@@ -77,7 +77,7 @@ class ADODB_ldap extends ADOConnection {
 		}
 		
 		if (!$bind) {
-			$e = 'Could not bind to ' . $conn_info[0] . " as ".$username;
+			$e = 'Could not bind to ' . $conn_info[0] . " as ".$username.': '.ldap_error($this->_connectionID);
 			$this->_errorMsg = $e;
 			if ($this->debug) ADOConnection::outp($e);
 			return false;
@@ -150,7 +150,7 @@ class ADODB_ldap extends ADOConnection {
 	function _query($sql,$inputarr)
 	{
 		$rs = ldap_search( $this->_connectionID, $this->database, $sql );
-		$this->_errorMsg = ($rs) ? '' : 'Search error on '.$sql;
+		$this->_errorMsg = ($rs) ? '' : 'Search error on '.$sql.': '. ldap_error($this->_connectionID);
 		return $rs; 
 	}
 
