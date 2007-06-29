@@ -39,13 +39,15 @@ class ADODB_ldap extends ADOConnection {
 
 	# Options configuration information
 	var $LDAP_CONNECT_OPTIONS;
+	
+	# error on binding, eg. "Binding: invalid credentials"
+	var $_bind_errmsg = "Binding: %s";
 
 	function ADODB_ldap() 
 	{		
 	}
   		
 	// returns true or false
-	
 	function _connect( $host, $username, $password, $ldapbase)
 	{
 	global $LDAP_CONNECT_OPTIONS;
@@ -77,7 +79,7 @@ class ADODB_ldap extends ADOConnection {
 		}
 		
 		if (!$bind) {
-			$e = 'Binding: '.ldap_error($this->_connectionID);
+			$e = sprintf($this->_bind_errmsg,ldap_error($this->_connectionID));;
 			$this->_errorMsg = $e;
 			if ($this->debug) ADOConnection::outp($e);
 			return false;
