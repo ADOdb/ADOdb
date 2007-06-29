@@ -77,7 +77,7 @@ class ADODB_ldap extends ADOConnection {
 		}
 		
 		if (!$bind) {
-			$e = 'Could not bind to ' . $conn_info[0] . " as ".$username.': '.ldap_error($this->_connectionID);
+			$e = 'Binding: '.ldap_error($this->_connectionID);
 			$this->_errorMsg = $e;
 			if ($this->debug) ADOConnection::outp($e);
 			return false;
