@@ -154,6 +154,16 @@ class ADODB_ldap extends ADOConnection {
 		return $rs; 
 	}
 
+	function ErrorMsg()
+	{
+		return $this->_errorMsg;
+	}
+	
+	function ErrorNo()
+	{
+		return @ldap_errno($this->_connectionID);
+	}
+	
     /* closes the LDAP connection */
 	function _close()
 	{
