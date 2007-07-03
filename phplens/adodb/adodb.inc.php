@@ -1303,7 +1303,9 @@
 		$ret = false;
 		$rs = &$this->Execute($sql,$inputarr);
 		if ($rs) {	
-			if (!$rs->EOF) $ret = reset($rs->fields);
+			if ($rs->EOF) $ret = null;
+			else $ret = reset($rs->fields);
+			
 			$rs->Close();
 		}
 		$ADODB_COUNTRECS = $crecs;
@@ -1315,7 +1317,8 @@
 		$ret = false;
 		$rs = &$this->CacheExecute($secs2cache,$sql,$inputarr);
 		if ($rs) {		
-			if (!$rs->EOF) $ret = reset($rs->fields);
+			if ($rs->EOF) $ret = null;
+			else $ret = reset($rs->fields);
 			$rs->Close();
 		} 
 		
