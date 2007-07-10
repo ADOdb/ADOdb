@@ -1,5 +1,8 @@
 <?php
 
+
+
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -15,6 +18,36 @@ $ADODB_INCLUDED_LIB = 1;
   
   Less commonly used functions are placed here to reduce size of adodb.inc.php. 
 */ 
+
+function adodb_strip_order_by($sql)
+{
+	$rez = preg_match('/(\sORDER\s+BY\s[^)]*)/is',$sql,$arr);
+	if ($arr)
+		if (strpos($arr[0],'(') !== false) {
+			$at = strpos($sql,$arr[0]);
+			$cntin = 0;
+			for ($i=$at, $max=strlen($sql); $i < $max; $i++) {
+				$ch = $sql[$i];
+				if ($ch == '(') {
+					$cntin += 1;
+				} elseif($ch == ')') {
+					$cntin -= 1;
+					if ($cntin < 0) {
+						break;
+					}
+				}
+			}
+			$sql = substr($sql,0,$at).substr($sql,$i);
+		} else
+			$sql = str_replace($arr[0], '', $sql); 
+	return $sql;
+ }
+
+if (false) {
+	$sql = 'select * from (select a from b order by a(b),b(c) desc)';
+	$sql = '(select * from abc order by 1)';
+	die(adodb_strip_order_by($sql));
+}
 
 function adodb_probetypes(&$array,&$types,$probe=8)
 {
@@ -369,12 +402,12 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	 if (!empty($zthis->_nestedSQL) || preg_match("/^\s*SELECT\s+DISTINCT/is", $sql) || 
 	 	preg_match('/\s+GROUP\s+BY\s+/is',$sql) || 
 		preg_match('/\s+UNION\s+/is',$sql)) {
+		
+		$rewritesql = adodb_strip_order_by($sql);
+		
 		// ok, has SELECT DISTINCT or GROUP BY so see if we can use a table alias
 		// but this is only supported by oracle and postgresql...
 		if ($zthis->dataProvider == 'oci8') {
-			
-			$rewritesql = preg_replace('/(\sORDER\s+BY\s[^)]*)/is','',$sql);
-			
 			// Allow Oracle hints to be used for query optimization, Chris Wrye
 			if (preg_match('#/\\*+.*?\\*\\/#', $sql, $hint)) {
 				$rewritesql = "SELECT ".$hint[0]." COUNT(*) FROM (".$rewritesql.")"; 
@@ -382,26 +415,13 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 				$rewritesql = "SELECT COUNT(*) FROM (".$rewritesql.")"; 
 			
 		} else if (strncmp($zthis->databaseType,'postgres',8) == 0)  {
-			$rewritesql = preg_replace('/(\sORDER\s+BY\s[^)]*)/is','',$sql);
 			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
 		}
 	} else {
 		// now replace SELECT ... FROM with SELECT COUNT(*) FROM
 		$rewritesql = preg_replace(
-					'/^\s*SELECT\s.*\s+FROM\s/Uis','SELECT COUNT(*) FROM ',$sql);
-
-		
-		
-		// fix by alexander zhukov, alex#unipack.ru, because count(*) and 'order by' fails 
-		// with mssql, access and postgresql. Also a good speedup optimization - skips sorting!
-		// also see http://phplens.com/lens/lensforum/msgs.php?id=12752
-		if (preg_match('/\sORDER\s+BY\s*\(/i',$rewritesql))
-			$rewritesql = preg_replace('/(\sORDER\s+BY\s.*)/is','',$rewritesql);
-		else
-			$rewritesql = preg_replace('/(\sORDER\s+BY\s[^)]*)/is','',$rewritesql);
+					'/^\s*SELECT\s.*\s+FROM\s/Uis','SELECT COUNT(*) FROM ',$rewritesql);
 	}
-	
-	
 	
 	if (isset($rewritesql) && $rewritesql != $sql) {
 		if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) $rewritesql .= $limitarr[1];
@@ -426,7 +446,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	
 	if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) $rewritesql .= $limitarr[0];
 		
-	$rstest = $zthis->Execute($rewritesql,$inputarr);
+	$rstest = &$zthis->Execute($rewritesql,$inputarr);
 	if (!$rstest) $rstest = $zthis->Execute($sql,$inputarr);
 	
 	if ($rstest) {

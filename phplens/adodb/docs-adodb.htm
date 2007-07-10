@@ -2113,7 +2113,8 @@ row3: Rose, Flower </font></p>
 </font></p><p><font><b>GetOne<a name="getone"></a>($sql,$inputarr=false)</b></font></p>
 <p><font>Executes the SQL and returns the first field of the first row. The recordset 
   and remaining rows are discarded for you automatically. If an error occur, false 
-  is returned. If no record is found, null is returned.</font></p>
+  is returned; use ErrorNo() or ErrorMsg() to get the error details.
+  Since 4.96, we return null if no records were found.</font></p>
 <p><font><b>GetRow<a name="getrow"></a>($sql,$inputarr=false)</b></font></p>
 <p><font>Executes the SQL and returns the first row as an array. The recordset and remaining 
   rows are discarded for you automatically. If an error occurs, false is returned.</font></p>
@@ -2928,7 +2929,9 @@ of MySQL.</font></p>
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 
 <p><a name="4.96"></a><b>4.96/5.02 ? ? 2007</b>
-<p>Added BIT support to adodb-ado.inc.php and adodb-ado5.inc.php.
+<p>Rewrote the ORDER BY stripping code in _adodb_getcount(), adodb-lib.inc.php.
+<p>Now GetOne returns null if EOF (no records found), and false if error occurs. Use ErrorMsg()/ErrorNo() to get the error.
+<p>Added BIT data type support to adodb-ado.inc.php and adodb-ado5.inc.php.
 <p>Ldap driver did not return actual ldap error messages. Fixed.
 <p>Implemented GetRandRow($sql, $inputarr). Optimized for Oci8.
 <p>Changed adodb5 active record to use static SetDatabaseAdapter() and removed php4 constructor. Bas van Beek bas.vanbeek#gmail.com.
