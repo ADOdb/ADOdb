@@ -104,7 +104,7 @@ class ADODB_mssql extends ADOConnection {
 	var $rightOuter = '=*';
 	var $ansiOuter = true; // for mssql7 or later
 	var $poorAffectedRows = true;
-	var $identitySQL = 'select @@IDENTITY'; // 'select SCOPE_IDENTITY'; # for mssql 2000
+	var $identitySQL = 'select SCOPE_IDENTITY()'; // 'select SCOPE_IDENTITY'; # for mssql 2000
 	var $uniqueOrderBy = true;
 	var $_bindInputArray = true;
 	

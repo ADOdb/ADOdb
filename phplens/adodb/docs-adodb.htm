@@ -2941,6 +2941,7 @@ of MySQL.</font></p>
 <p>In mysql/mysqli, qstr(null) will return the string "null" instead of empty quoted string "''".
 <p>postgresql optimizeTable in perf-postgres.inc.php added by Daniel Berlin (mail#daniel-berlin.de)
 <p>Added 5.2.1 compat code for oci8.
+<p>Changed @@identity to SCOPE_IDENTITY() for multiple mssql drivers. Thx  Stefano Nari.
 <p>Code sanitization introduced in 4.95 caused problems in European locales (as float 3.2 was typecast to 3,2). Now we only sanitize if is_numeric fails.
 <p><a name="4.95"></a><b>4.95/5.01 17 May 2007</b>
 <p>CacheFlush debug outp() passed in invalid parameters. Fixed.

@@ -293,6 +293,20 @@ class ADODB2_postgres extends ADODB_DataDict {
 		return "DROP SEQUENCE ".$seq;
 	}
 	
+	function RenameTableSQL($tabname,$newname)
+	{
+		if (!empty($this->schema)) {
+			$rename_from = $this->TableName($tabname);
+			$schema_save = $this->schema;
+			$this->schema = false;
+			$rename_to = $this->TableName($newname);
+			$this->schema = $schema_save;
+			return array (sprintf($this->renameTable, $rename_from, $rename_to));
+		}
+
+		return array (sprintf($this->renameTable, $this->TableName($tabname),$this->TableName($newname)));
+	}
+	
 	/*
 	CREATE [ [ LOCAL ] { TEMPORARY | TEMP } ] TABLE table_name (
 	{ column_name data_type [ DEFAULT default_expr ] [ column_constraint [, ... ] ]
