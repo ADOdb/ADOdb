@@ -913,7 +913,9 @@
 		} 
 		
 		if ($this->_queryID === true) { // return simplified recordset for inserts/updates/deletes with lower overhead
-			$rs = new ADORecordSet_empty();
+			$rsclass = $this->rsPrefix.'empty';
+			$rs = (class_exists($rsclass)) ? new $rsclass():  new ADORecordSet_empty();
+			
 			return $rs;
 		}
 		

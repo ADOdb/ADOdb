@@ -531,6 +531,7 @@ can be controlled using $rsPrefix. Here we set it to 'hack_rs_', which will make
 <p></p><p>Don't forget to call the constructor of the parent class in
 your constructor. If you want to use the default ADOdb drivers return
 false in the above hack_factory() function.
+ Also you can define your own ADORecordSet_empty() class, by defining a class $$this->rsPrefix.'empty' since 4.96/5.02.
 <a name="php5"></a>
 </p><h2>PHP5 Features</h2>
  ADOdb 4.02 or later will transparently determine which version of PHP you are using.
