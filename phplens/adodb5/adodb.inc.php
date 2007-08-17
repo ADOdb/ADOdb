@@ -499,6 +499,15 @@
 		return $ret;
 	}
 
+	function outp_throw($msg,$src='WARN',$sql='')
+	{
+		if (defined('ADODB_ERROR_HANDLER') &&  ADODB_ERROR_HANDLER == 'adodb_throw')) {
+			adodb_throw($this->databaseType,$src,-9999,$msg,$sql,false,$this);
+			return;
+		} 
+		ADOConnection::outp($msg);
+	}
+	
 	// Format date column in sql string given an input format that understands Y M D
 	function SQLDate($fmt, $col=false)
 	{	
@@ -858,9 +867,9 @@
 					}
 					if (isset($sqlarr[$i])) {
 						$sql .= $sqlarr[$i];
-						if ($i+1 != sizeof($sqlarr)) ADOConnection::outp( "Input Array does not match ?: ".htmlspecialchars($sql));
+						if ($i+1 != sizeof($sqlarr)) $this->outp_throw( "Input Array does not match ?: ".htmlspecialchars($sql),'Execute');
 					} else if ($i != sizeof($sqlarr))	
-						ADOConnection::outp( "Input array does not match ?: ".htmlspecialchars($sql));
+						$this->outp_throw( "Input array does not match ?: ".htmlspecialchars($sql),'Execute');
 		
 					$ret = $this->_Execute($sql);
 					if (!$ret) return $ret;
@@ -1542,7 +1551,7 @@
 									  // sql,	nrows, offset,inputarr
 			$rs = $this->SelectLimit($secs2cache,$sql,$nrows,$offset,$this->cacheSecs);
 		} else {
-			if ($sql === false) ADOConnection::outp( "Warning: \$sql missing from CacheSelectLimit()");
+			if ($sql === false) $this->outp_throw("Warning: \$sql missing from CacheSelectLimit()",'CacheSelectLimit');
 			$rs = $this->SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 		}
 		return $rs;
@@ -1823,7 +1832,7 @@
 		$sql = 'SELECT * FROM '.$table;  
 		if ($where!==FALSE) $sql .= ' WHERE '.$where;
 		else if ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) {
-			ADOConnection::outp('AutoExecute: Illegal mode=UPDATE with empty WHERE clause');
+			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause','AutoExecute');
 			return $false;
 		}
 
@@ -1841,7 +1850,7 @@
 			$sql = $this->GetInsertSQL($rs, $fields_values, $magicq);
 			break;
 		default:
-			ADOConnection::outp("AutoExecute: Unknown mode=$mode");
+			$this->outp_throw("AutoExecute: Unknown mode=$mode",'AutoExecute');
 			return $false;
 		}
 		$ret = false;
@@ -2066,7 +2075,7 @@
 			include(ADODB_DIR.'/adodb-active-record.inc.php');
 		}	
 		if (!class_exists($class)) {
-			ADOConnection::outp("Unknown class $class in GetActiveRcordsClass()");
+			$this->outp_throw("Unknown class $class in GetActiveRecordsClass()",'GetActiveRecordsClass');
 			return $false;
 		}
 		$arr = array();
