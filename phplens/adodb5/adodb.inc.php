@@ -501,7 +501,7 @@
 
 	function outp_throw($msg,$src='WARN',$sql='')
 	{
-		if (defined('ADODB_ERROR_HANDLER') &&  ADODB_ERROR_HANDLER == 'adodb_throw')) {
+		if (defined('ADODB_ERROR_HANDLER') &&  ADODB_ERROR_HANDLER == 'adodb_throw') {
 			adodb_throw($this->databaseType,$src,-9999,$msg,$sql,false,$this);
 			return;
 		} 
@@ -534,7 +534,7 @@
 	{
 		return $sql;
 	}
-	
+
 	/**
 	 * Some databases, eg. mssql require a different function for preparing
 	 * stored procedures. So we cannot use Prepare().
@@ -553,7 +553,7 @@
 	{
 		return $this->Prepare($sql,$param);
 	}
-	
+
 	/**
 	* PEAR DB Compat
 	*/
