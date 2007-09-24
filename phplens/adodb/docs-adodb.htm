@@ -2930,6 +2930,8 @@ of MySQL.</font></p>
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 
 <p><a name="4.96"></a><b>4.96/5.02 ? ? 2007</b>
+<p>Fix adodb count optimisation. Preg_match did not work properly.
+<p>SelectLimit for oci8 not optimal for large recordsets when offset=0. Changed $nrows check.
 <p>Rewrote the ORDER BY stripping code in _adodb_getcount(), adodb-lib.inc.php.
 <p>Now GetOne returns null if EOF (no records found), and false if error occurs. Use ErrorMsg()/ErrorNo() to get the error.
 <p>Added BIT data type support to adodb-ado.inc.php and adodb-ado5.inc.php.

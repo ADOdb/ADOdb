@@ -144,7 +144,10 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 			$keyCol = array($keyCol);
 		}
 		foreach($fieldArray as $k => $v) {
-			if ($autoQuote && !is_numeric($v) and strncmp($v,"'",1) !== 0 and strcasecmp($v,$zthis->null2null)!=0) {
+			if ($v === null) {
+				$v = 'NULL';
+				$fieldArray[$k] = $v;
+			} else if ($autoQuote && !is_numeric($v) /*and strncmp($v,"'",1) !== 0 -- sql injection risk*/ and strcasecmp($v,$zthis->null2null)!=0) {
 				$v = $zthis->qstr($v);
 				$fieldArray[$k] = $v;
 			}
@@ -424,7 +427,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	}
 	
 	if (isset($rewritesql) && $rewritesql != $sql) {
-		if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) $rewritesql .= $limitarr[1];
+		if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) $rewritesql .= $limitarr[0];
 		 
 		if ($secs2cache) {
 			// we only use half the time of secs2cache because the count can quickly

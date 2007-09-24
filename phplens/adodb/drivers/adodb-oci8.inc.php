@@ -573,7 +573,7 @@ NATSOFT.DOMAIN =
 				$sql = preg_replace('/^[ \t\n]*select/i','SELECT /*+FIRST_ROWS*/',$sql);
 		}
 		
-		if ($offset < $this->selectOffsetAlg1) {
+		if ($offset < $this->selectOffsetAlg1 && 0 < $nrows  && $nrows < 1000) {
 			if ($nrows > 0) {	
 				if ($offset > 0) $nrows += $offset;
 				//$inputarr['adodb_rownum'] = $nrows;
