@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V4.94 23 Jan 2007 (c) 2000-2007 John Lim (jlim#natsoft.com)</p>
+<p>V4.96 24 Sept 2007 (c) 2000-2007 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
   
@@ -2929,10 +2929,11 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 
-<p><a name="4.96"></a><b>4.96/5.02 ? ? 2007</b>
-<p>Fix adodb count optimisation. Preg_match did not work properly.
+<p><a name="4.96"></a><b>4.96/5.02 24 Sept 2007</b>
+<p>Fix adodb count optimisation. Preg_match did not work properly. Also rewrote the ORDER BY stripping code in _adodb_getcount(), adodb-lib.inc.php.
 <p>SelectLimit for oci8 not optimal for large recordsets when offset=0. Changed $nrows check.
-<p>Rewrote the ORDER BY stripping code in _adodb_getcount(), adodb-lib.inc.php.
+<p>Active record optimizations. 
+Added support for assoc arrays in Set().
 <p>Now GetOne returns null if EOF (no records found), and false if error occurs. Use ErrorMsg()/ErrorNo() to get the error.
 <p>Added BIT data type support to adodb-ado.inc.php and adodb-ado5.inc.php.
 <p>Ldap driver did not return actual ldap error messages. Fixed.
@@ -2949,6 +2950,7 @@ of MySQL.</font></p>
 <p>Added support for customizing ADORecordset_empty using $this->rsPrefix.'empty'. By Josh Truwin.
 <p>Added proper support for ALterColumnSQL for Postgresql in datadict code. Thx. Josh Truwin. 
 <p>Added better support for MetaType() in mysqli when using an array recordset.
+
 <p><a name="4.95"></a><b>4.95/5.01 17 May 2007</b>
 <p>CacheFlush debug outp() passed in invalid parameters. Fixed.
 <p>Added Thai language file for adodb. Thx Trirat Petchsingh rosskouk#gmail.com and Marcos Pont</p>

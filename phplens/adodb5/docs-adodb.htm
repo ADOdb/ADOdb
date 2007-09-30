@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V5.00 05 Feb 2007  (c) 2000-2007 John Lim (jlim#natsoft.com)</p>
+<p>V5.02 24 Sept 2007  (c) 2000-2007 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
   
@@ -2928,6 +2928,28 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
+<p><a name="4.96"></a><b>4.96/5.02 24 Sept 2007</b>
+p>Fix adodb count optimisation. Preg_match did not work properly. Also rewrote the ORDER BY stripping code in _adodb_getcount(), adodb-lib.inc.php.
+<p>SelectLimit for oci8 not optimal for large recordsets when offset=0. Changed $nrows check.
+<p>Active record optimizations. 
+Added support for assoc arrays in Set().
+<p>Now GetOne returns null if EOF (no records found), and false if error occurs. Use ErrorMsg()/ErrorNo() to get the error.
+<p>Added BIT data type support to adodb-ado.inc.php and adodb-ado5.inc.php.
+<p>Ldap driver did not return actual ldap error messages. Fixed.
+<p>Implemented GetRandRow($sql, $inputarr). Optimized for Oci8.
+<p>Changed adodb5 active record to use static SetDatabaseAdapter() and removed php4 constructor. Bas van Beek bas.vanbeek#gmail.com.
+<p>Also in adodb5, changed adodb-session2 to use static function declarations in class. Thx Daniel Berlin.
+<p>Added "Clear SQL Log" to bottom of Performance screen.
+<p>Sessions2 code echo'ed directly to the screen in debug mode. Now uses ADOConnection::outp().
+<p>In mysql/mysqli, qstr(null) will return the string "null" instead of empty quoted string "''".
+<p>postgresql optimizeTable in perf-postgres.inc.php added by Daniel Berlin (mail#daniel-berlin.de)
+<p>Added 5.2.1 compat code for oci8.
+<p>Changed @@identity to SCOPE_IDENTITY() for multiple mssql drivers. Thx  Stefano Nari.
+<p>Code sanitization introduced in 4.95 caused problems in European locales (as float 3.2 was typecast to 3,2). Now we only sanitize if is_numeric fails.
+<p>Added support for customizing ADORecordset_empty using $this->rsPrefix.'empty'. By Josh Truwin.
+<p>Added proper support for ALterColumnSQL for Postgresql in datadict code. Thx. Josh Truwin. 
+<p>Added better support for MetaType() in mysqli when using an array recordset.
+
 <p><a name="5.01"></a><b>4.95/5.01 17 May 2007</b>
 <p>CacheFlush debug outp() passed in invalid parameters. Fixed.
 <p>Added Thai language file for adodb. Thx Trirat Petchsingh rosskouk#gmail.com and Marcos Pont</p>

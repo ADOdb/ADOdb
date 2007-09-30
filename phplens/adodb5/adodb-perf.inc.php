@@ -1,6 +1,6 @@
 <?php
 /* 
-V5.00 05 Feb 2007   (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved.
+V5.02 24 Sept 2007   (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
@@ -660,7 +660,7 @@ Committed_AS:   348732 kB
 	$savelog = $this->conn->LogSQL(false);	
 	$info = $conn->ServerInfo();
 	if (isset($_GET['clearsql'])) {
-		$this->conn->Execute("delete from $perf_table");
+		$this->conn->Execute("delete from $perf_table where created<".$this->conn->sysTimeStamp);
 	}
 	$this->conn->LogSQL($savelog);
 	
