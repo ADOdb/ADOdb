@@ -268,7 +268,7 @@ CREATE TABLE PLAN_TABLE (
 	
 		if ($partial) {
 			$sqlq = $this->conn->qstr($sql.'%');
-			$arr = $this->conn->GetArray("select distinct distinct sql1 from adodb_logsql where sql1 like $sqlq");
+			$arr = $this->conn->GetArray("select distinct sql1 from adodb_logsql where sql1 like $sqlq");
 			if ($arr) {
 				foreach($arr as $row) {
 					$sql = reset($row);
@@ -523,5 +523,28 @@ order by
 		return $s;
 	}
 	
+	function clearsql() 
+	{
+	$this->conn->debug=1;
+		$perf_table = adodb_perf::table();
+	// using the naive "delete from $perf_table where created<".$this->conn->sysTimeStamp will cause the table to lock, possibly
+	// for a long time
+		$sql = 
+"DECLARE cnt pls_integer;
+BEGIN
+	cnt := 0;
+	FOR rec IN (SELECT ROWID AS rr FROM $perf_table WHERE created<SYSDATE) 
+	LOOP
+	  cnt := cnt + 1;
+	  DELETE FROM $perf_table WHERE ROWID=rec.rr;
+	  IF cnt = 10000 THEN
+	  	COMMIT;
+		cnt := 0;
+	  END IF;
+	END LOOP;
+END;";
+
+		$ok = $this->conn->Execute($sql);
+	}
 }
 ?>

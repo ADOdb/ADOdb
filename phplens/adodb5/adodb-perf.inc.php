@@ -640,6 +640,11 @@ Committed_AS:   348732 kB
 		else return '';
 	}
 	
+	function clearsql()
+	{
+		$perf_table = adodb_perf::table();
+		$this->conn->Execute("delete from $perf_table where created<".$this->conn->sysTimeStamp);
+	}
 	/***********************************************************************************************/
 	//                                    HIGH LEVEL UI FUNCTIONS
 	/***********************************************************************************************/
@@ -660,7 +665,7 @@ Committed_AS:   348732 kB
 	$savelog = $this->conn->LogSQL(false);	
 	$info = $conn->ServerInfo();
 	if (isset($_GET['clearsql'])) {
-		$this->conn->Execute("delete from $perf_table where created<".$this->conn->sysTimeStamp);
+		$this->clearsql();
 	}
 	$this->conn->LogSQL($savelog);
 	
