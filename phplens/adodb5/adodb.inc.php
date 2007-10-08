@@ -1487,8 +1487,9 @@
 	{
 		$rs = $this->CacheExecute($secs2cache,$sql,$inputarr);
 		if ($rs) {
-			$arr = false;
 			if (!$rs->EOF) $arr = $rs->fields;
+			else $arr = array();
+			
 			$rs->Close();
 			return $arr;
 		}

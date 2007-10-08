@@ -917,12 +917,12 @@ class ADORecordset_mssql extends ADORecordSet {
 		return $rez;
 	}
 	// mssql uses a default date like Dec 30 2000 12:00AM
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 		return ADORecordSet_array_mssql::UnixDate($v);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 		return ADORecordSet_array_mssql::UnixTimeStamp($v);
 	}
@@ -937,7 +937,7 @@ class ADORecordSet_array_mssql extends ADORecordSet_array {
 	}
 	
 		// mssql uses a default date like Dec 30 2000 12:00AM
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 	
 		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixDate($v);
@@ -968,7 +968,7 @@ class ADORecordSet_array_mssql extends ADORecordSet_array {
 		return  mktime(0,0,0,$themth,$theday,$rr[3]);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 	
 		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixTimeStamp($v);
