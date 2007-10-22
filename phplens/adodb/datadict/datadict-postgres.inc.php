@@ -151,6 +151,12 @@ class ADODB2_postgres extends ADODB_DataDict {
 		return $sql;
 	}
 	
+
+	function DropIndexSQL ($idxname, $tabname = NULL)
+	{
+	   return array(sprintf($this->dropIndex, $this->TableName($idxname), $this->TableName($tabname)));
+	}
+	
 	/**
 	 * Change the definition of one column
 	 *

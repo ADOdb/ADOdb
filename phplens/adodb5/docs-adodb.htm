@@ -328,14 +328,14 @@ a </a><a href="dsnsupport">DSN</a> since ADOdb 4.51. Exceptions to this are list
 <h4>PDO</h4>
 <p>PDO, which only works with PHP5, accepts a driver specific connection string:
 <pre>
-	$conn = NewADConnection('pdo');
+	$conn = NewADOConnection('pdo');
 	$conn->Connect('mysql:host=localhost',$user,$pwd,$mydb);
 	$conn->Connect('mysql:host=localhost;dbname=mydb',$user,$pwd);
 	$conn->Connect("mysql:host=localhost;dbname=mydb;username=$user;password=$pwd");
 </pre>
 <p>The DSN mechanism is also supported:
 <pre>
-	$conn = NewADConnection("pdo_mysql://user:pwd@localhost/mydb?persist"); # persist is optional
+	$conn = NewADOConnection("pdo_mysql://user:pwd@localhost/mydb?persist"); # persist is optional
 </pre>
 <h4>PostgreSQL</h4>
 <p>PostgreSQL 7 and 8 accepts connections using: </p>

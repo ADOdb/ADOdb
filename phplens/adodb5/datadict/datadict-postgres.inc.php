@@ -150,6 +150,12 @@ class ADODB2_postgres extends ADODB_DataDict {
 		}
 		return $sql;
 	}
+
+
+	function DropIndexSQL ($idxname, $tabname = NULL)
+	{
+	   return array(sprintf($this->dropIndex, $this->TableName($idxname), $this->TableName($tabname)));
+	}
 	
 	/**
 	 * Change the definition of one column
@@ -171,6 +177,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 		}
 		return $this->_recreate_copy_table($tabname,False,$tableflds,$tableoptions);
 	}*/
+	
 	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 	   // Check if alter single column datatype available - works with 8.0+
@@ -346,6 +353,20 @@ class ADODB2_postgres extends ADODB_DataDict {
 			return False;
 		}
 		return "DROP SEQUENCE ".$seq;
+	}
+	
+	function RenameTableSQL($tabname,$newname)
+	{
+		if (!empty($this->schema)) {
+			$rename_from = $this->TableName($tabname);
+			$schema_save = $this->schema;
+			$this->schema = false;
+			$rename_to = $this->TableName($newname);
+			$this->schema = $schema_save;
+			return array (sprintf($this->renameTable, $rename_from, $rename_to));
+		}
+
+		return array (sprintf($this->renameTable, $this->TableName($tabname),$this->TableName($newname)));
 	}
 	
 	/*

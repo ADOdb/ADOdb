@@ -1778,14 +1778,25 @@
 			} else
 			if ($rs) {
 				$eof = $rs->EOF;
-				$rs = $this->_rs2rs($rs); // read entire recordset into memory immediately
+				$rs = &$this->_rs2rs($rs); // read entire recordset into memory immediately
 				$txt = _rs2serialize($rs,false,$sql); // serialize
 		
-				if (!adodb_write_file($md5file,$txt,$this->debug)) {
-					if ($fn = $this->raiseErrorFn) {
-						$fn($this->databaseType,'CacheExecute',-32000,"Cache write error",$md5file,$sql,$this);
+				$ok = adodb_write_file($md5file,$txt,$this->debug);
+				if (!$ok) {
+					if ($ok === false) {
+						$em = 'Cache write error';
+						$en = -32000;
+						
+						if ($fn = $this->raiseErrorFn) {
+							$fn($this->databaseType,'CacheExecute', $en, $em, $md5file,$sql,$this);
+						}
+					} else {
+						$em = 'Cache file locked warning';
+						$en = -32001;
+						// do not call error handling for just a warning
 					}
-					if ($this->debug) ADOConnection::outp( " Cache write error");
+					
+					if ($this->debug) ADOConnection::outp( " ".$em);
 				}
 				if ($rs->EOF && !$eof) {
 					$rs->MoveFirst();

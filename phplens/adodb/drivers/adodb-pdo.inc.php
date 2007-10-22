@@ -64,41 +64,6 @@ function adodb_pdo_type($t)
 
 
 
-class ADODB_pdo_base extends ADODB_pdo {
-
-	var $sysDate = "'?'";
-	var $sysTimeStamp = "'?'";
-	
-
-	function _init($parentDriver)
-	{
-		$parentDriver->_bindInputArray = true;
-		#$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,true);
-	}
-	
-	function ServerInfo()
-	{
-		return ADOConnection::ServerInfo();
-	}
-	
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
-	{
-		$ret = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
-		return $ret;
-	}
-	
-	function MetaTables()
-	{
-		return false;
-	}
-	
-	function MetaColumns()
-	{
-		return false;
-	}
-}
-
-
 class ADODB_pdo extends ADOConnection {
 	var $databaseType = "pdo";	
 	var $dataProvider = "pdo";
@@ -389,6 +354,43 @@ class ADODB_pdo extends ADOConnection {
 		return ($this->_connectionID) ? $this->_connectionID->lastInsertId() : 0;
 	}
 }
+
+
+
+class ADODB_pdo_base extends ADODB_pdo {
+
+	var $sysDate = "'?'";
+	var $sysTimeStamp = "'?'";
+	
+
+	function _init($parentDriver)
+	{
+		$parentDriver->_bindInputArray = true;
+		#$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,true);
+	}
+	
+	function ServerInfo()
+	{
+		return ADOConnection::ServerInfo();
+	}
+	
+	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	{
+		$ret = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+		return $ret;
+	}
+	
+	function MetaTables()
+	{
+		return false;
+	}
+	
+	function MetaColumns()
+	{
+		return false;
+	}
+}
+
 
 class ADOPDOStatement {
 
