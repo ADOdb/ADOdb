@@ -1309,12 +1309,19 @@ class ADORecordset_oci8 extends ADORecordSet {
 		$fld->name =OCIcolumnname($this->_queryID, $fieldOffset);
 		$fld->type = OCIcolumntype($this->_queryID, $fieldOffset);
 		$fld->max_length = OCIcolumnsize($this->_queryID, $fieldOffset);
-	 	if ($fld->type == 'NUMBER') {
+	 	switch($fld->type) {
+		case 'NUMBER':
 	 		$p = OCIColumnPrecision($this->_queryID, $fieldOffset);
 			$sc = OCIColumnScale($this->_queryID, $fieldOffset);
 			if ($p != 0 && $sc == 0) $fld->type = 'INT';
-			//echo " $this->name ($p.$sc) ";
-	 	}
+			break;
+		
+	 	case 'CLOB':
+		case 'NCLOB':
+		case 'BLOB': 
+			$fld->max_length = -1;
+			break;
+		}
 		return $fld;
 	}
 	
