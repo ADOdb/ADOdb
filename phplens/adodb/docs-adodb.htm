@@ -2929,6 +2929,7 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 <p><a name="4.97"></a><b>4.97/5.03 ? ? 2007</b>
+<p>Changed oci8 FetchField, which returns the max_length of BLOB/CLOB/NCLOB as 4000 (incorrectly) to -1.
 <p>CacheExecute would sometimes return an error on Windows if it was unable to lock the cache file. This is harmless
 and has been changed to a warning that can be ignored. Also adodb_write_file() code revised.
 <p>ADOdb perf code changed to only log sql if execution time >= 0.05 seconds. New $ADODB_PERF_MIN variable holds min sql timing. 
