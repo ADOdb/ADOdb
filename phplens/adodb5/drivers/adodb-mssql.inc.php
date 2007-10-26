@@ -14,6 +14,7 @@ Set tabs to 4 for best viewing.
 	
 */
 
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -722,12 +723,12 @@ order by constraint_name, referenced_table_name, keyno";
 	}
 	
 	// mssql uses a default date like Dec 30 2000 12:00AM
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 		return ADORecordSet_array_mssql::UnixDate($v);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 		return ADORecordSet_array_mssql::UnixTimeStamp($v);
 	}	

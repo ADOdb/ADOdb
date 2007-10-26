@@ -367,9 +367,9 @@ if (!empty($testmssql)) { // MS SQL Server -- the extension is buggy -- probably
 	//$db->debug=1;
 	print "<h1>Connecting $db->databaseType...</h1>";
 	
-	$ok = $db->Connect('','adodb','natsoft','northwind');
+	#$ok = $db->Connect('','adodb','natsoft','northwind');
 
-	if ($ok or $db->PConnect("mangrove", "sa", "natsoft", "ai")) {
+	if ($db->PConnect("mangrove", "sa", "natsoft", "Northwind")) {
 		AutoDetect_MSSQL_Date_Order($db);
 	//	$db->Execute('drop table adoxyz');
 		testdb($db,"create table ADOXYZ (id int, firstname char(24) null, lastname char(24) null,created datetime null)");

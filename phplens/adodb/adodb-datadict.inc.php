@@ -982,7 +982,8 @@ class ADODB_DataDict {
 				
 				//  We are trying to change the size of the field, if not allowed, simply ignore the request.
 				if ($flds && in_array(strtoupper(substr($flds[0][1],0,4)),$this->invalidResizeTypes4)) {
-					echo "<h3>$this->alterCol cannot be changed to $flds currently</h3>";
+					if ($this->debug) ADOConnection::outp(sprintf("<h3>%s cannot be changed to %s currently</h3>", $flds[0][0], $flds[0][1]));
+					#echo "<h3>$this->alterCol cannot be changed to $flds currently</h3>";
 					continue;	 
 	 			}
 				$sql[] = $alter . $this->alterCol . ' ' . $v;
