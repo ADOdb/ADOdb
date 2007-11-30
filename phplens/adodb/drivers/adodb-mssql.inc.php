@@ -611,7 +611,7 @@ order by constraint_name, referenced_table_name, keyno";
 		if ($type === false) 
 			switch(gettype($var)) {
 			default:
-			case 'string': $type = SQLCHAR; break;
+			case 'string': $type = SQLVARCHAR; break;
 			case 'double': $type = SQLFLT8; break;
 			case 'integer': $type = SQLINT4; break;
 			case 'boolean': $type = SQLINT1; break; # SQLBIT not supported in 4.1.0
