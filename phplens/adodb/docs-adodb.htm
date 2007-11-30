@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V4.96 24 Sept 2007 (c) 2000-2007 John Lim (jlim#natsoft.com)</p>
+<p>V4.97 30 Nov 2007 (c) 2000-2007 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
   
@@ -2937,6 +2937,7 @@ Any SQL with timing value below this and is not causing an error is not logged.
 <p>Also adodb_backtrace() now traces 1 level deeper as sometimes actual culprit function is not displayed.
 <p>Fixed a group by problem with adodb_getcount() for db's which are not postgres/oci8 based.
 <p>Changed mssql driver Parameter() from SQLCHAR to SQLVARCHAR: case 'string': $type = SQLVARCHAR; break.
+<p>Problem with mssql driver in php5 (for adodb 5.03) because some functions are not static. Fixed.
 <p><a name="4.96"></a><b>4.96/5.02 24 Sept 2007</b>
 <p>ADOdb perf for oci8 now has non-table-locking code when clearing the sql. Slower but better transparency. Added in 4.96a and 5.02a.
 <p>Fix adodb count optimisation. Preg_match did not work properly. Also rewrote the ORDER BY stripping code in _adodb_getcount(), adodb-lib.inc.php.

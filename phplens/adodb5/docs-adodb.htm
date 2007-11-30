@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V5.02 24 Sept 2007  (c) 2000-2007 John Lim (jlim#natsoft.com)</p>
+<p>V5.03 30 Nov 2007  (c) 2000-2007 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
   
@@ -2928,6 +2928,16 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
+<p>Changed oci8 FetchField, which returns the max_length of BLOB/CLOB/NCLOB as 4000 (incorrectly) to -1.
+<p>CacheExecute would sometimes return an error on Windows if it was unable to lock the cache file. This is harmless
+and has been changed to a warning that can be ignored. Also adodb_write_file() code revised.
+<p>ADOdb perf code changed to only log sql if execution time >= 0.05 seconds. New $ADODB_PERF_MIN variable holds min sql timing. 
+Any SQL with timing value below this and is not causing an error is not logged.
+<p>Also adodb_backtrace() now traces 1 level deeper as sometimes actual culprit function is not displayed.
+<p>Fixed a group by problem with adodb_getcount() for db's which are not postgres/oci8 based.
+<p>Changed mssql driver Parameter() from SQLCHAR to SQLVARCHAR: case 'string': $type = SQLVARCHAR; break.
+<p>Problem with mssql driver in php5 (for adodb 5.03) because some functions are not static. Fixed.
+<p>Function _rs2rs() was incorrectly declared. Fixed.
 <p><a name="4.96"></a><b>4.96/5.02 24 Sept 2007</b>
 p>Fix adodb count optimisation. Preg_match did not work properly. Also rewrote the ORDER BY stripping code in _adodb_getcount(), adodb-lib.inc.php.
 <p>SelectLimit for oci8 not optimal for large recordsets when offset=0. Changed $nrows check.

@@ -14,7 +14,7 @@
 /**
 	\mainpage 	
 	
-	 @version V5.02 24 Sept 2007   (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved.
+	 @version V5.03 30 Nov 2007   (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
@@ -169,7 +169,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V5.02 24 Sept 2007  (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V5.03 30 Nov 2007  (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -1220,7 +1220,7 @@
 	* @param [offset] 	offset by number of rows (optional)
 	* @return 			the new recordset
 	*/
-	function _rs2rs(&$rs,$nrows=-1,$offset=-1,$close=true)
+	function &_rs2rs(&$rs,$nrows=-1,$offset=-1,$close=true)
 	{
 		if (! $rs) {
 			$false = false;
@@ -1778,7 +1778,7 @@
 			} else
 			if ($rs) {
 				$eof = $rs->EOF;
-				$rs = &$this->_rs2rs($rs); // read entire recordset into memory immediately
+				$rs2 = &$this->_rs2rs($rs); // read entire recordset into memory immediately
 				$txt = _rs2serialize($rs,false,$sql); // serialize
 		
 				$ok = adodb_write_file($md5file,$txt,$this->debug);
