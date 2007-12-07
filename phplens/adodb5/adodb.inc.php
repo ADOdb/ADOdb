@@ -4119,31 +4119,31 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (!defined('ADODB_ASSOC_CASE')) define('ADODB_ASSOC_CASE',2);
 		$errorfn = (defined('ADODB_ERROR_HANDLER')) ? ADODB_ERROR_HANDLER : false;
 		$false = false;
-		if ($at = strpos($db,'://')) {
+		if (($at = strpos($db,'://')) !== FALSE) {
 			$origdsn = $db;
-			if (PHP_VERSION < 5) $dsna = @parse_url($db);
-			else {
-				$fakedsn = 'fake'.substr($db,$at);
+			$fakedsn = 'fake'.substr($origdsn,$at);
+			if (($at2 = strpos($origdsn,'@/')) !== FALSE) {
+				// special handling of oracle, which might not have host
+				$fakedsn = str_replace('@/','@adodb-fakehost/',$fakedsn);
+			}
 				$dsna = @parse_url($fakedsn);
-				$dsna['scheme'] = substr($db,0,$at);
+			if (!$dsna) {
+				return $false;
+			}
+				$dsna['scheme'] = substr($origdsn,0,$at);
+			if ($at2 !== FALSE) {
+				$dsna['host'] = '';
+			}
 			
-				if (strncmp($db,'pdo',3) == 0) {
-					$sch = explode('_',$dsna['scheme']);
-					if (sizeof($sch)>1) {
-						$dsna['host'] = isset($dsna['host']) ? rawurldecode($dsna['host']) : '';
-						$dsna['host'] = rawurlencode($sch[1].':host='.rawurldecode($dsna['host']));
-						$dsna['scheme'] = 'pdo';
-					}
+			if (strncmp($origdsn,'pdo',3) == 0) {
+				$sch = explode('_',$dsna['scheme']);
+				if (sizeof($sch)>1) {
+					$dsna['host'] = isset($dsna['host']) ? rawurldecode($dsna['host']) : '';
+					$dsna['host'] = rawurlencode($sch[1].':host='.rawurldecode($dsna['host']));
+					$dsna['scheme'] = 'pdo';
 				}
 			}
 			
-			if (!$dsna) {
-				// special handling of oracle, which might not have host
-				$db = str_replace('@/','@adodb-fakehost/',$db);
-				$dsna = parse_url($db);
-				if (!$dsna) return $false;
-				$dsna['host'] = '';
-			}
 			$db = @$dsna['scheme'];
 			if (!$db) return $false;
 			$dsna['host'] = isset($dsna['host']) ? rawurldecode($dsna['host']) : '';
