@@ -757,6 +757,7 @@ NATSOFT.DOMAIN =
 			
 			$element0 = reset($inputarr);
 			
+			if (!$this->_bindInputArray) {
 			# is_object check because oci8 descriptors can be passed in
 			if (is_array($element0) && !is_object(reset($element0))) {
 				if (is_string($sql))
@@ -769,8 +770,41 @@ NATSOFT.DOMAIN =
 					if (!$ret) return $ret;
 				}
 			} else {
-				$ret = $this->_Execute($sql,$inputarr);
+				$sqlarr = explode(':',$sql);
+				$sql = '';
+				$lastnomatch = -2;
+				#var_dump($sqlarr);echo "<hr>";var_dump($inputarr);echo"<hr>";
+				foreach($sqlarr as $k => $str) {
+						if ($k == 0) { $sql = $str; continue; }
+						// we need $lastnomatch because of the following datetime, 
+						// eg. '10:10:01', which causes code to think that there is bind param :10 and :1
+						$ok = preg_match('/^([0-9]*)/', $str, $arr); 
+			
+						if (!$ok) $sql .= $str;
+						else {
+							$at = $arr[1];
+							if (isset($inputarr[$at]) || is_null($inputarr[$at])) {
+								if ((strlen($at) == strlen($str) && $k < sizeof($arr)-1)) {
+									$sql .= ':'.$str;
+									$lastnomatch = $k;
+								} else if ($lastnomatch == $k-1) {
+									$sql .= ':'.$str;
+								} else {
+									if (is_null($inputarr[$at])) $sql .= 'null';
+									else $sql .= $this->qstr($inputarr[$at]);
+									$sql .= substr($str, strlen($at));
+								}
+							} else {
+								$sql .= ':'.$str;
+							}
+							
+						}
+					}
+					$inputarr = false;
+				}
 			}
+			$ret = $this->_Execute($sql,$inputarr);
+			
 			
 		} else {
 			$ret = $this->_Execute($sql,false);
