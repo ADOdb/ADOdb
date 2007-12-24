@@ -1720,8 +1720,6 @@
 	 */
 	function CacheExecute($secs2cache,$sql=false,$inputarr=false)
 	{
-
-		
 		if (!is_numeric($secs2cache)) {
 			$inputarr = $sql;
 			$sql = $secs2cache;
@@ -1757,6 +1755,7 @@
 			$rs = false;
 			$this->numCacheMisses += 1;
 		}
+		$rs = false;
 		if (!$rs) {
 		// no cached rs found
 			if ($this->debug) {
@@ -1775,12 +1774,11 @@
 						$fn($this->databaseType,'CacheExecute',-32000,"Cache write error",$md5file,$sql,$this);
 					if ($this->debug) ADOConnection::outp( " Cache write error");
 				}
-			} else
-			if ($rs) {
+			} else if ($rs) {
 				$eof = $rs->EOF;
 				$rs2 = &$this->_rs2rs($rs); // read entire recordset into memory immediately
-				$txt = _rs2serialize($rs,false,$sql); // serialize
-		
+				$txt = _rs2serialize($rs2,false,$sql); // serialize
+	
 				$ok = adodb_write_file($md5file,$txt,$this->debug);
 				if (!$ok) {
 					if ($ok === false) {
