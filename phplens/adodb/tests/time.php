@@ -6,6 +6,9 @@ include_once('../adodb-time.inc.php');
 <?php 
 //require("adodb-time.inc.php"); 
 
+
+echo adodb_date('d/m/Y', adodb_mktime(0,0,0,12,1,2056));
+
 $datestring = "1963-12-04"; // string normally from mySQL 
 $stringArray = explode("-", $datestring);
 $date = adodb_mktime(0,0,0,$stringArray[1],$stringArray[2],$stringArray[0]); 
