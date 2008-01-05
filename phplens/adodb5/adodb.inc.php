@@ -1776,8 +1776,8 @@
 				}
 			} else if ($rs) {
 				$eof = $rs->EOF;
-				$rs2 = &$this->_rs2rs($rs); // read entire recordset into memory immediately
-				$txt = _rs2serialize($rs2,false,$sql); // serialize
+				$rs = $this->_rs2rs($rs); // read entire recordset into memory immediately
+				$txt = _rs2serialize($rs,false,$sql); // serialize
 	
 				$ok = adodb_write_file($md5file,$txt,$this->debug);
 				if (!$ok) {
