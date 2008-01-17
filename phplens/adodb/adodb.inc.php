@@ -1329,7 +1329,7 @@
 	
 	function GetCol($sql, $inputarr = false, $trim = false)
 	{
-	  	$rv = false;
+	  	
 	  	$rs = &$this->Execute($sql, $inputarr);
 	  	if ($rs) {
 			$rv = array();
@@ -1345,15 +1345,16 @@
 		   		}
 			}
 	   		$rs->Close();
-	  	}
+	  	} else
+			$rv = false;
 	  	return $rv;
 	}
 	
 	function CacheGetCol($secs, $sql = false, $inputarr = false,$trim=false)
 	{
-	  	$rv = false;
 	  	$rs = &$this->CacheExecute($secs, $sql, $inputarr);
 	  	if ($rs) {
+			$rv = array();
 			if ($trim) {
 				while (!$rs->EOF) {
 					$rv[] = trim(reset($rs->fields));
@@ -1366,8 +1367,10 @@
 		   		}
 			}
 	   		$rs->Close();
-	  	}
-	  	return $rv;
+	  	} else		
+		  	$rv = false;
+	  	
+		return $rv;
 	}
 	
 	function &Transpose(&$rs,$addfieldnames=true)
@@ -1697,8 +1700,8 @@
 			
 		if ($createdir && $notSafeMode && !file_exists($dir)) {
 			$oldu = umask(0);
-			if (!mkdir($dir,0771)) 
-				if ($this->debug) ADOConnection::outp( "Unable to mkdir $dir for $sql");
+			if (!@mkdir($dir,0771)) 
+				 if(!is_dir($dir) && $this->debug) ADOConnection::outp( "Unable to mkdir $dir for $sql");
 			umask($oldu);
 		}
 		return $dir.'/adodb_'.$m.'.cache';

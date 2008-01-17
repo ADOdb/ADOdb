@@ -2929,6 +2929,9 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 <p><a name="4.97"></a><b>4.97/5.03 ? ? 2007</b>
+<p>In ADOdb5, active record implementation, we now support column names with spaces in them - we autoconvert the spaces to _ using
+ __set(). Thx Daniel Cook. http://phplens.com/lens/lensforum/msgs.php?id=17200
+<p>Removed $arg3 from mysqli SelectLimit. See http://phplens.com/lens/lensforum/msgs.php?id=16243. Thx Zsolt Szeberenyi.
 <p>Changed oci8 FetchField, which returns the max_length of BLOB/CLOB/NCLOB as 4000 (incorrectly) to -1.
 <p>CacheExecute would sometimes return an error on Windows if it was unable to lock the cache file. This is harmless
 and has been changed to a warning that can be ignored. Also adodb_write_file() code revised.
@@ -2945,6 +2948,8 @@ Any SQL with timing value below this and is not causing an error is not logged.
 <p>Active record optimizations. 
 Added support for assoc arrays in Set().
 <p>Now GetOne returns null if EOF (no records found), and false if error occurs. Use ErrorMsg()/ErrorNo() to get the error.
+<p>Also CacheGetRow and CacheGetCol will return false if error occurs, or empty array() if EOF, just like GetRow and GetCol.
+<p>Datadict now allows changing of types which are not resizable, eg. VARCHAR to TEXT in ChangeTableSQL. --  Mateo Tibaquirá
 <p>Added BIT data type support to adodb-ado.inc.php and adodb-ado5.inc.php.
 <p>Ldap driver did not return actual ldap error messages. Fixed.
 <p>Implemented GetRandRow($sql, $inputarr). Optimized for Oci8.
@@ -2960,7 +2965,7 @@ Added support for assoc arrays in Set().
 <p>Added support for customizing ADORecordset_empty using $this->rsPrefix.'empty'. By Josh Truwin.
 <p>Added proper support for ALterColumnSQL for Postgresql in datadict code. Thx. Josh Truwin. 
 <p>Added better support for MetaType() in mysqli when using an array recordset.
-
+<p>Changed parser for pgsql error messages in adodb-error.inc.php  to case-insensitive regex.
 <p><a name="4.95"></a><b>4.95/5.01 17 May 2007</b>
 <p>CacheFlush debug outp() passed in invalid parameters. Fixed.
 <p>Added Thai language file for adodb. Thx Trirat Petchsingh rosskouk#gmail.com and Marcos Pont</p>
