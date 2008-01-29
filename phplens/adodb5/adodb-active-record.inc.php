@@ -1,7 +1,7 @@
 <?php
 /*
 
-@version V5.03 30 Nov 2007   (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved.
+@version V5.03 22 Jan 2008   (c) 2000-2008 John Lim (jlim#natsoft.com.my). All rights reserved.
   Latest version is available at http://adodb.sourceforge.net
  
   Released under both BSD license and Lesser GPL library license. 
@@ -575,7 +575,7 @@ class ADODB_Active_Record {
 		if ($ADODB_ASSOC_CASE == 0) 
 			foreach($pkey as $k => $v)
 				$pkey[$k] = strtolower($v);
-		elseif ($ADODB_ASSOC_CASE == 0) 
+		elseif ($ADODB_ASSOC_CASE == 1) 
 			foreach($pkey as $k => $v)
 				$pkey[$k] = strtoupper($v);
 				

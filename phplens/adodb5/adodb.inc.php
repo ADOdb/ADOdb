@@ -14,7 +14,7 @@
 /**
 	\mainpage 	
 	
-	 @version V5.03 30 Nov 2007   (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved.
+	 @version V5.03 22 Jan 2008   (c) 2000-2008 John Lim (jlim#natsoft.com.my). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
@@ -169,7 +169,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V5.03 30 Nov 2007  (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V5.03 22 Jan 2008  (c) 2000-2008 John Lim (jlim#natsoft.com.my). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -3971,7 +3971,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$mode = isset($this->adodbFetchMode) ? $this->adodbFetchMode : $this->fetchMode;
 			
 			if ($mode & ADODB_FETCH_ASSOC) {
-				if (!isset($this->fields[$colname])) $colname = strtolower($colname);
+				if (!isset($this->fields[$colname]) && !is_null($this->fields[$colname])) $colname = strtolower($colname);
 				return $this->fields[$colname];
 			}
 			if (!$this->bind) {
