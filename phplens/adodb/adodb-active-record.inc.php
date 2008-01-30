@@ -10,7 +10,7 @@
   
   Active Record implementation. Superset of Zend Framework's.
   
-  Version 0.08
+  Version 0.09
   
   See http://www-128.ibm.com/developerworks/java/library/j-cb03076/?ca=dgr-lnxw01ActiveRecord 
   	for info on Ruby on Rails Active Record implementation
@@ -572,7 +572,7 @@ class ADODB_Active_Record {
 		if ($ADODB_ASSOC_CASE == 0) 
 			foreach($pkey as $k => $v)
 				$pkey[$k] = strtolower($v);
-		elseif ($ADODB_ASSOC_CASE == 0) 
+		elseif ($ADODB_ASSOC_CASE == 1) 
 			foreach($pkey as $k => $v)
 				$pkey[$k] = strtoupper($v);
 				
