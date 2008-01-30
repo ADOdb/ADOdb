@@ -1002,7 +1002,7 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 		case "N":
 		    $val = $arrFields[$fname];
 			if (!is_numeric($val)) $val = str_replace(',', '.', (float)$val);
-		    break;
+			break;
 
 		case "I":
 		case "R":
