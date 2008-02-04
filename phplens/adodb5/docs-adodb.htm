@@ -2118,7 +2118,7 @@ row3: Rose, Flower </font></p>
   Since 4.96, we return null if no records were found.</font></p>
 <p><font><b>GetRow<a name="getrow"></a>($sql,$inputarr=false)</b></font></p>
 <p><font>Executes the SQL and returns the first row as an array. The recordset and remaining 
-  rows are discarded for you automatically. If an error occurs, false is returned.</font></p>
+  rows are discarded for you automatically. If no data is found, an empty recordset is returned. If an error occurs, false is returned.</font></p>
 <p><font><b>GetAll<a name="getall"></a>($sql,$inputarr=false)</b></font></p>
 
 <p>Executes the SQL and returns the all the rows as a 2-dimensional 

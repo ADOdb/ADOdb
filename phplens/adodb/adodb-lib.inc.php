@@ -993,7 +993,6 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 		case "D":
 			$val = $zthis->DBDate($arrFields[$fname]);
 			break;
-
 		
 		case "T":
 			$val = $zthis->DBTimeStamp($arrFields[$fname]);

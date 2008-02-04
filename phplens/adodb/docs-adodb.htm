@@ -2118,7 +2118,7 @@ row3: Rose, Flower </font></p>
   Since 4.96, we return null if no records were found.</font></p>
 <p><font><b>GetRow<a name="getrow"></a>($sql,$inputarr=false)</b></font></p>
 <p><font>Executes the SQL and returns the first row as an array. The recordset and remaining 
-  rows are discarded for you automatically. If an error occurs, false is returned.</font></p>
+  rows are discarded for you automatically. If no records are returned, an empty array is returned. If an error occurs, false is returned.</font></p>
 <p><font><b>GetAll<a name="getall"></a>($sql,$inputarr=false)</b></font></p>
 
 <p>Executes the SQL and returns the all the rows as a 2-dimensional 
@@ -2138,7 +2138,8 @@ row3: Rose, Flower </font></p>
   cached in the $ADODB_CACHE_DIR directory for $secs2cache seconds. Good for speeding 
   up queries on rarely changing data. Note that the $secs2cache parameter is optional. 
   If omitted, we use the value in $connection-&gt;cacheSecs (default is 3600 seconds, 
-  or 1 hour).</font></p>
+  or 1 hour).</font>
+  </p>
 <p><font><b>Prepare<a name="prepare"></a>($sql )</b></font></p>
  
 <p><font>Prepares (compiles) an SQL query for repeated execution. Bind parameters
