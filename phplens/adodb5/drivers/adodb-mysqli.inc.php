@@ -945,7 +945,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		 case 'SET': 
 		
 		case MYSQLI_TYPE_TINY_BLOB :
-		case MYSQLI_TYPE_CHAR :
+		#case MYSQLI_TYPE_CHAR :
 		case MYSQLI_TYPE_STRING :
 		case MYSQLI_TYPE_ENUM :
 		case MYSQLI_TYPE_SET :
@@ -1052,7 +1052,7 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array {
 		 case 'SET': 
 		
 		case MYSQLI_TYPE_TINY_BLOB :
-		case MYSQLI_TYPE_CHAR :
+		#case MYSQLI_TYPE_CHAR :
 		case MYSQLI_TYPE_STRING :
 		case MYSQLI_TYPE_ENUM :
 		case MYSQLI_TYPE_SET :
