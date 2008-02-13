@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2>
-<p>V5.03 22 Jan 2008  (c) 2000-2008 John Lim (jlim#natsoft.com)</p>
+<p>V5.04 13 Feb 2008  (c) 2000-2008 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
   
@@ -2928,6 +2928,11 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
+
+<p><a name="4.98"></a><b>4.98/5.04 13 Feb 2008</b>
+<p> Fixed adodb_mktime problem which causes a performance bottleneck in $hrs.
+<p>Added mysqli support to adodb_getcount().
+<p>Removed MYSQLI_TYPE_CHAR from MetaType().
 
 <p><a name="4.97"></a><b>4.97/5.03 22 Jan 2008</b>
 <p>Active Record: $ADODB_ASSOC_CASE=1 did not work properly. Fixed. 

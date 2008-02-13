@@ -8,7 +8,7 @@ $ADODB_INCLUDED_CSV = 1;
 
 /* 
 
-  V4.97 22 Jan 2008  (c) 2000-2008 John Lim (jlim#natsoft.com.my). All rights reserved.
+  V4.98 13 Feb 2008  (c) 2000-2008 John Lim (jlim#natsoft.com.my). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 

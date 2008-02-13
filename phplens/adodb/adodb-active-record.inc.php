@@ -1,7 +1,7 @@
 <?php
 /*
 
-@version V4.97 22 Jan 2008  (c) 2000-2008 John Lim (jlim#natsoft.com.my). All rights reserved.
+@version V4.98 13 Feb 2008  (c) 2000-2008 John Lim (jlim#natsoft.com.my). All rights reserved.
   Latest version is available at http://adodb.sourceforge.net
  
   Released under both BSD license and Lesser GPL library license. 
