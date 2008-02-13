@@ -242,6 +242,9 @@ b. Implement daylight savings, which looks awfully complicated, see
 
 CHANGELOG
 
+- 11 Feb 2008 0.33
+* Bug in 0.32 fix for hour handling. Fixed.
+
 - 1 Feb 2008 0.32
 * Now adodb_mktime(0,0,0,12+$m,20,2040) works properly. 
 
@@ -383,7 +386,7 @@ First implementation.
 /*
 	Version Number
 */
-define('ADODB_DATE_VERSION',0.32);
+define('ADODB_DATE_VERSION',0.33);
 
 $ADODB_DATETIME_CLASS = (PHP_VERSION >= 5.2);
 
@@ -1217,7 +1220,7 @@ function adodb_mktime($hr,$min,$sec,$mon=false,$day=false,$year=false,$is_dst=fa
 			); 
 			
 		
-		if ($usephpfns && ($year + $mon/12+$day/365.25+$hr*24*365.25 >= 2038)) $usephpfns = false;
+		if ($usephpfns && ($year + $mon/12+$day/365.25+$hr/(24*365.25) >= 2038)) $usephpfns = false;
 			
 		if ($usephpfns) {
 				return $is_gmt ?
