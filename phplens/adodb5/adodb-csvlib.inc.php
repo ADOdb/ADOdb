@@ -287,7 +287,7 @@ $ADODB_INCLUDED_CSV = 1;
 			fclose($fd);
 			
 			if ($ok) {
-				chmod($tmpname,0644);
+				@chmod($tmpname,0644);
 				// the tricky moment
 				@unlink($filename);
 				if (!@rename($tmpname,$filename)) {
@@ -305,7 +305,7 @@ $ADODB_INCLUDED_CSV = 1;
 			if (fwrite( $fd, $contents )) $ok = true;
 			else $ok = false;
 			fclose($fd);
-			chmod($filename,0644);
+			@chmod($filename,0644);
 		}else {
 			fclose($fd);
 			if ($debug)ADOConnection::outp( " Failed acquiring lock for $filename<br>\n");
