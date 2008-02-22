@@ -211,7 +211,7 @@ class ADODB_sybase extends ADOConnection {
                 $s .= "convert(char(3),$col,0)";
                 break;
             case 'm':
-                $s .= "replace(str(month($col),2),' ','0')";
+                $s .= "str_replace(str(month($col),2),' ','0')";
                 break;
             case 'Q':
             case 'q':
@@ -219,21 +219,21 @@ class ADODB_sybase extends ADOConnection {
                 break;
             case 'D':
             case 'd':
-                $s .= "replace(str(datepart(dd,$col),2),' ','0')";
+                $s .= "str_replace(str(datepart(dd,$col),2),' ','0')";
                 break;
             case 'h':
                 $s .= "substring(convert(char(14),$col,0),13,2)";
                 break;
 
             case 'H':
-                $s .= "replace(str(datepart(hh,$col),2),' ','0')";
+                $s .= "str_replace(str(datepart(hh,$col),2),' ','0')";
                 break;
 
             case 'i':
-                $s .= "replace(str(datepart(mi,$col),2),' ','0')";
+                $s .= "str_replace(str(datepart(mi,$col),2),' ','0')";
                 break;
             case 's':
-                $s .= "replace(str(datepart(ss,$col),2),' ','0')";
+                $s .= "str_replace(str(datepart(ss,$col),2),' ','0')";
                 break;
             case 'a':
             case 'A':
