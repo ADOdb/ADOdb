@@ -116,9 +116,9 @@ function& adodb_log_sql(&$connx,$sql,$inputarr)
 		}
 		if (isset($_SERVER['HTTP_HOST'])) {
 			$tracer .= '<br>'.$_SERVER['HTTP_HOST'];
-			if (isset($_SERVER['PHP_SELF'])) $tracer .= $_SERVER['PHP_SELF'];
+			if (isset($_SERVER['PHP_SELF'])) $tracer .= htmlspecialchars($_SERVER['PHP_SELF']);
 		} else 
-			if (isset($_SERVER['PHP_SELF'])) $tracer .= '<br>'.$_SERVER['PHP_SELF'];
+			if (isset($_SERVER['PHP_SELF'])) $tracer .= '<br>'.htmlspecialchars($_SERVER['PHP_SELF']);
 		//$tracer .= (string) adodb_backtrace(false);
 		
 		$tracer = (string) substr($tracer,0,500);
@@ -728,8 +728,9 @@ Committed_AS:   348732 kB
 			global $ADODB_LOG_CONN;
 			break;
 		case 'poll':
+			$self = htmlspecialchars($_SERVER['PHP_SELF']);
 			echo "<iframe width=720 height=80% 
-				src=\"{$_SERVER['PHP_SELF']}?do=poll2&hidem=1\"></iframe>";
+				src=\"{$self}?do=poll2&hidem=1\"></iframe>";
 			break;
 		case 'poll2':
 			echo "<pre>";
@@ -904,9 +905,7 @@ Committed_AS:   348732 kB
 	
 	function DoSQLForm()
 	{
-	
-		
-		$PHP_SELF = $_SERVER['PHP_SELF'];
+		$PHP_SELF = htmlspecialchars($_SERVER['PHP_SELF']);
 		$sql = isset($_REQUEST['sql']) ? $_REQUEST['sql'] : '';
 
 		if (isset($_SESSION['phplens_sqlrows'])) $rows = $_SESSION['phplens_sqlrows'];
