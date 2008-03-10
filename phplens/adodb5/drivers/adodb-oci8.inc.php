@@ -945,7 +945,7 @@ NATSOFT.DOMAIN =
 			if ($isOutput == false) {
 				$var = $this->BlobEncode($var);
 				$tmp->WriteTemporary($var);
-				$this->_refLOBs[$numlob]['VAR'] = $var;
+				$this->_refLOBs[$numlob]['VAR'] = &$var;
 				if ($this->debug) {
 					ADOConnection::outp("<b>Bind</b>: LOB has been written to temp");
 				}

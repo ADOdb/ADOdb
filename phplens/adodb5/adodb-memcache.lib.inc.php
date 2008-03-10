@@ -8,17 +8,28 @@ $ADODB_INCLUDED_MEMCACHE = 1;
 
 /* 
 
-  V4.90 8 June 2006  (c) 2000-2008 John Lim (jlim#natsoft.com.my). All rights reserved.
+  V5.04 13 Feb 2008  (c) 2000-2008 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
   Set tabs to 4 for best viewing.
   
   Latest version is available at http://adodb.sourceforge.net
+
+Usage:
+  
+$db = NewADOConnection($driver);
+$db->memCache = true; /// should we use memCache instead of caching in files
+$db->memCacheHost = array($ip1, $ip2, $ip3);
+$db->memCachePort = 11211; /// this is default memCache port
+$db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
+
+$db->Connect(...);
+$db->CacheExecute($sql);
   
 */
 
-	function getmemcache($key,&$err, $timeout=0, $host, $port)
+	function getmemcache($key,&$err, $timeout=0, $hosts, $port)
 	{
 		$false = false;
 		$err = false;
@@ -29,11 +40,20 @@ $ADODB_INCLUDED_MEMCACHE = 1;
 		}
 
 		$memcache = new Memcache;
-		if (!@$memcache->pconnect($host, $port)) {
-			$err = 'Can\'t connect to memcache server on: '.$host.':'.$port;
+		
+		if (!is_array($hosts)) $hosts = array($hosts);
+		
+		$failcnt = 0;
+		foreach($hosts as $host) {
+			if (!@$memcache->addServer($host,$port,true)) {
+				$failcnt += 1;
+			}
+		}
+		if ($failcnt == sizeof($hosts)) {
+			$err = 'Can\'t connect to any memcache server';
 			return $false;
 		}
-
+		
 		$rs = $memcache->get($key);
 		if (!$rs) {
 			$err = 'Item with such key doesn\'t exists on the memcached server.';
@@ -74,8 +94,14 @@ $ADODB_INCLUDED_MEMCACHE = 1;
 		}
 
 		$memcache = new Memcache;
-		if (!@$memcache->pconnect($host, $port)) {
-			if ($debug) ADOConnection::outp(" Can't connect to memcache server on: $host:$port<br>\n");
+		$failcnt = 0;
+		foreach($hosts as $host) {
+			if (!@$memcache->addServer($host,$port,true)) {
+				$failcnt += 1;
+			}
+		}
+		if ($failcnt == sizeof($hosts)) {
+			$err = 'Can\'t connect to any memcache server';
 			return $false;
 		}
 
@@ -95,9 +121,15 @@ $ADODB_INCLUDED_MEMCACHE = 1;
 		}
 
 		$memcache = new Memcache;
-		if (!@$memcache->pconnect($host, $port)) {
-			if ($debug) ADOConnection::outp(" Can't connect to memcache server on: $host:$port<br>\n");
-			return;
+		$failcnt = 0;
+		foreach($hosts as $host) {
+			if (!@$memcache->addServer($host,$port,true)) {
+				$failcnt += 1;
+			}
+		}
+		if ($failcnt == sizeof($hosts)) {
+			$err = 'Can\'t connect to any memcache server';
+			return $false;
 		}
 
 		if ($key) {

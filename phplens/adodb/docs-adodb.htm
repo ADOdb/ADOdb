@@ -200,7 +200,7 @@ Norway.<p>
 </li></ul><p>
 
 </p><h2>Feature Requests and Bug Reports<a name="bugs"></a></h2>
-<p>Feature requests and bug reports can be emailed to <a href="mailto:jlim#natsoft.com.my">jlim#natsoft.com.my</a> 
+<p>Feature requests and bug reports can be emailed to <a href="mailto:jlim#natsoft.com">jlim#natsoft.com</a> 
   or posted to the ADOdb Help forums at <a href="http://phplens.com/lens/lensforum/topics.php?id=4">http://phplens.com/lens/lensforum/topics.php?id=4</a>.</p>
 <h2>Installation Guide<a name="install"></a></h2>
 <p>Make sure you are running PHP 4.0.5 or later. 
@@ -2855,7 +2855,7 @@ ADO<a name="adodiff"></a></font></h3>
 <h1><font>Database Driver Guide<a name="driverguide"></a></font></h1>
 <p><font>This describes how to create a class to connect to a
     new database. To ensure there is no duplication of work, kindly email me
-  at jlim#natsoft.com.my if you decide to create such a class.</font></p>
+  at jlim#natsoft.com if you decide to create such a class.</font></p>
 <p><font>First decide on a name in lower case to call the database
   type. Let's say we call it xbase. </font></p>
 <p><font>Then we need to create two classes ADODB_xbase and ADORecordSet_xbase
@@ -2930,9 +2930,23 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 
-<p><a name="4.99"></a><b>4.99/5.05 13 Feb 2008</b>
+<p><a name="4.990"></a><b>4.990/5.05 13 Feb 2008</b>
 <p> Fixed sybase driver SQLDate to use str_replace()
+<p>Changed oci8 lob handler to use &amp; reference $this->_refLOBs[$numlob]['VAR'] = &amp;$var.
+<p>We now strtolower the get_class() function in PEAR::isError() for php5 compat.
+<p>CacheExecute did not retrieve cache recordsets properly for 5.04 (worked in 4.98). Fixed.
+<p>Memcache supports multiple pooled hosts now. Only if none of the pooled servers can be contacted will a connect error be generated. 
+Usage example below:
+<pre>
+$db = NewADOConnection($driver);
+$db->memCache = true; /// should we use memCache instead of caching in files
+$db->memCacheHost = array($ip1, $ip2, $ip3);
+$db->memCachePort = 11211; /// this is default memCache port
+$db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
 
+$db->Connect(...);
+$db->CacheExecute($sql);
+</pre>
 <p><a name="4.98"></a><b>4.98/5.04 13 Feb 2008</b>
 <p> Fixed adodb_mktime problem which causes a performance bottleneck in $hrs.
 <p>Added mysqli support to adodb_getcount().
@@ -3066,7 +3080,7 @@ idx_ev1. The ability to define indexes using the INDEX keyword was added in ADOd
 <pre>
 $db = NewADOConnection($driver);
 $db->memCache = true; /// should we use memCache instead of caching in files
-$db->memCacheHost = 126.0.1.1; /// memCache host
+$db->memCacheHost = "126.0.1.1"; /// memCache host
 $db->memCachePort = 11211; /// this is default memCache port
 $db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
 
