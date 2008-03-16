@@ -35,7 +35,7 @@ pre {
   <li>ADOdb library</li>
 </ul>
 <p>The wide range of choices is confusing to someone just starting with Oracle and PHP. I will briefly summarize the differences, and  show you the advantages of using <a href="http://adodb.sourceforge.net/">ADOdb</a>. </p>
-<p>First we have the C extensions which provide low-level access to Oracle functionality. These C extensions are precompiled into PHP, or linked in dynamically when the web server starts up. Just in case you need it, here's a <a href=http://www.oracle.com/technology/tech/opensource/php/apache/inst_php_apache_linux.html>guide to installing Oracle and PHP on Linux</a>.</p>
+<p>First we have the C extensions which provide low-level access to Oracle functionality. These C extensions are precompiled into PHP, or linked in dynamically when the web server starts up. Just in case you need it, here's a <a href=http://www.oracle.com/technology/tech/php/htdocs/inst_php_apache_linux.html>guide to installing Oracle and PHP on Linux</a>.</p>
 <table width="75%" border="1" align="center">
   <tr valign="top">
     <td nowrap><b>Oracle extension</b></td>
@@ -457,9 +457,9 @@ $db-&gt;Connect($tns, $user, $pwd);
 $db-&gt;Execute(&quot;insert into atable (f1, f2) values (?,?)&quot;, array(12, 'abc'));</pre>
 <p>&nbsp;<a name=connecting></a>
 <h3>9. Connecting to Oracle</h3>
-<p>Before you can use ADOdb, you need to have the Oracle client installed and setup the oci8 extension. This extension comes pre-compiled for Windows (but you still need to enable it in the php.ini file). For information on compiling the oci8 extension for PHP and Apache on Unix, there is an excellent guide at <a href="http://www.oracle.com/technology/tech/opensource/php/apache/inst_php_apache_linux.html">oracle.com</a>. </p>
+<p>Before you can use ADOdb, you need to have the Oracle client installed and setup the oci8 extension. This extension comes pre-compiled for Windows (but you still need to enable it in the php.ini file). For information on compiling the oci8 extension for PHP and Apache on Unix, there is an excellent guide at <a href="http://www.oracle.com/technology/tech/php/htdocs/inst_php_apache_linux.html">oracle.com</a>. </p>
 <h4>Should You Use Persistent Connections</h4>
-<p>One question that is frequently asked is should you use persistent connections to Oracle. Persistent connections allow PHP to recycle existing connections, reusing them after the previous web pages have completed. Non-persistent connections close automatically after the web page has completed. Persistent connections are faster because the cost of reconnecting is expensive, but there is additional resource overhead. As an alternative, Oracle allows you to pool and reuse server processes; this is called  <a href="http://www.cise.ufl.edu/help/database/oracle-docs/server.920/a96521/manproc.htm#13132">Shared Server</a> (also known as MTS).</p>
+<p>One question that is frequently asked is should you use persistent connections to Oracle. Persistent connections allow PHP to recycle existing connections, reusing them after the previous web pages have completed. Non-persistent connections close automatically after the web page has completed. Persistent connections are faster because the cost of reconnecting is expensive, but there is additional resource overhead. As an alternative, Oracle allows you to pool and reuse server processes; this is called  <a href="http://www.dba-oracle.com/t_mts_multithreaded_servers_shared.htm">Shared Server</a> (also known as MTS).</p>
 <p>The author's benchmarks suggest that using non-persistent connections and the  Shared Server configuration offer the best performance. If Shared Server is not an option, only then consider using persistent connections.</p>
 <h4>Connection Examples</h4>
 <p>Just in case you are having problems connecting to Oracle, here are some examples:</p>
@@ -534,7 +534,7 @@ This variable is checked every time a query is executed, so you can selectively 
 <ul>
   <li>Oracle's <a href="http://www.oracle.com/technology/pub/articles/php_experts/index.html">Hitchhiker Guide to PHP</a></li>
   <li>OTN article on <a href=http://www.oracle.com/technology/pub/articles/deployphp/lim_deployphp.html>Optimizing PHP and Oracle</a> by this author.
-  <li>Oracle has an excellent <a href="http://www.oracle.com/technology/tech/opensource/php/php_troubleshooting_faq.html">FAQ on PHP</a></li>
+  <li>Oracle has an excellent <a href="http://www.oracle.com/technology/tech/php/htdocs/php_troubleshooting_faq.html">FAQ on PHP</a></li>
   <li>PHP <a href="http://php.net/oci8">oci8</a> manual pages</li>
   <li><a href=http://phplens.com/lens/lensforum/topics.php?id=4>ADOdb forums</a>.
 </ul>
