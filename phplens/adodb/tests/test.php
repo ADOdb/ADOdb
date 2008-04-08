@@ -1327,8 +1327,8 @@ END Adodb;
 		rs2tabout($rs);
 		print "</pre>";
 	}
-	print " CacheFlush ";
-	$db->CacheFlush();
+	#print " CacheFlush ";
+	#$db->CacheFlush();
 	
 	$date = $db->SQLDate('d-m-M-Y-\QQ h:i:s A');
 	$sql = "SELECT $date from ADOXYZ";

@@ -264,7 +264,7 @@ $ADODB_INCLUDED_CSV = 1;
 	* Returns true if ok, false if fopen/fwrite error, 0 if rename error (eg. file is locked)
 	*/
 	function adodb_write_file($filename, $contents,$debug=false)
-	{ 
+	{
 	# http://www.php.net/bugs.php?id=9203 Bug that flock fails on Windows
 	# So to simulate locking, we assume that rename is an atomic operation.
 	# First we delete $filename, then we create a $tempfile write to it and 
@@ -285,7 +285,7 @@ $ADODB_INCLUDED_CSV = 1;
 			if (fwrite($fd,$contents)) $ok = true;
 			else $ok = false;
 			fclose($fd);
-			
+
 			if ($ok) {
 				@chmod($tmpname,0644);
 				// the tricky moment

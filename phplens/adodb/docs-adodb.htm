@@ -2936,12 +2936,31 @@ of MySQL.</font></p>
 <p>Changed oci8 lob handler to use &amp; reference $this->_refLOBs[$numlob]['VAR'] = &amp;$var.
 <p>We now strtolower the get_class() function in PEAR::isError() for php5 compat.
 <p>CacheExecute did not retrieve cache recordsets properly for 5.04 (worked in 4.98). Fixed.
+<p>New ADODB_Cache_File class for file caching defined in adodb.inc.php.
+<p>New API for creating your custom caching class which is stored in $ADODB_CACHE:
+<pre>
+include "/path/to/adodb.inc.php";
+$ADODB_CACHE_CLASS = 'MyCacheClass';
+
+class MyCacheClass extends ADODB_Cache_File
+{
+	function writecache($filename, $contents,$debug=false){...}
+	function &readcache($filename, &$err, $secs2cache, $rsClass){ ...}
+	 :
+}
+
+$DB = NewADOConnection($driver);
+$DB->Connect(...);  ## MyCacheClass created here and stored in $ADODB_CACHE global variable.
+
+$data = $rs->CacheGetOne($sql); ## MyCacheClass is used here for caching...
+</pre>
+<p> 
 <p>Memcache supports multiple pooled hosts now. Only if none of the pooled servers can be contacted will a connect error be generated. 
 Usage example below:
 <pre>
 $db = NewADOConnection($driver);
 $db->memCache = true; /// should we use memCache instead of caching in files
-$db->memCacheHost = array($ip1, $ip2, $ip3);
+$db->memCacheHost = array($ip1, $ip2, $ip3); /// $db->memCacheHost = $ip1; still works
 $db->memCachePort = 11211; /// this is default memCache port
 $db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
 
