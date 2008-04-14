@@ -271,7 +271,7 @@
 		function flushcache($f, $debug=false)
 		{
 			if (!@unlink($f)) {
-		   		if ($this->debug) ADOConnection::outp( "flushcache: failed for $f");
+		   		if ($debug) ADOConnection::outp( "flushcache: failed for $f");
 			}
 		}
 		
