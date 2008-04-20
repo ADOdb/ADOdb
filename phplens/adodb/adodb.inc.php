@@ -232,7 +232,7 @@
 	// class for caching
 	class ADODB_Cache_File {
 	
-		var $createdir = true; // is able to create temp dirs
+		var $createdir = true; // requires creation of temp dirs
 		
 		function ADODB_Cache_File()
 		{
