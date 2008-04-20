@@ -218,7 +218,7 @@
 	// class for caching
 	class ADODB_Cache_File {
 	
-		var $createdir = true; // is able to create temp dirs
+		var $createdir = true; // true = temp dirs will be created -- set this to false if no temp dirs created for storing cached data
 		
 		function ADODB_Cache_File()
 		{
