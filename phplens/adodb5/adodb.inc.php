@@ -256,7 +256,6 @@
 		function flushcache($f, $debug=false)
 		{
 			if (!@unlink($f)) {
-				die($ADODB_CACHE_DIR.'/'.$f);
 		   		if ($debug) ADOConnection::outp( "flushcache: failed for $f");
 			}
 		}
