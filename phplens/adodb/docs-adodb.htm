@@ -1361,6 +1361,47 @@ else {
 <p>Please note that magic_quotes_runtime should be turned off. <a href="http://phplens.com/lens/lensforum/msgs.php?LeNs#LensBM_forummsg">More 
   info</a>, and do not change $ADODB_FETCH_MODE (or SetFetchMode) 
   as the cached recordset will use the $ADODB_FETCH_MODE set when the query was executed. <font> 
+  
+ <h3>MemCache support</h3>
+<p>The memcache API supports multiple pooled hosts. Only if none of the pooled servers can be contacted will a connect error be generated. 
+Example below:
+<pre>
+$db = NewADOConnection($driver);
+$db->memCache = true;
+$db->memCacheHost = array($ip1, $ip2, $ip3); /// $db->memCacheHost = $ip1; will work too
+$db->memCachePort = 11211; /// this is default memCache port
+$db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
+
+$db->Connect(...);
+$db->CacheExecute($sql);
+</pre>
+<h3>Caching API</h3>
+<p> There is also a caching API since 4.99/5.05. Two implementations of the API are already available  providing file and memcache support. 
+ <p>The new API for creating your custom caching class uses 2 globals:
+  <ul><li>$ADODB_CACHE_CLASS: name of caching class 
+  <li>$ADODB_CACHE: instance of $ADODB_CACHE_CLASS
+  </ul>
+
+<pre>
+include "/path/to/adodb.inc.php";
+$ADODB_CACHE_CLASS = 'MyCacheClass';
+
+class MyCacheClass extends ADODB_Cache_File
+{
+	var $createdir = false; // requires creation of create temp dirs
+	function writecache($filename, $contents,$debug=false){...}
+	function &readcache($filename, &$err, $secs2cache, $rsClass){ ...}
+	 :
+}
+
+$DB = NewADOConnection($driver);
+$DB->Connect(...);  ## MyCacheClass created here and stored in $ADODB_CACHE global variable.
+
+$data = $rs->CacheGetOne($sql); ## MyCacheClass is used here for caching...
+</pre>
+<p> 
+
+
 <h2><a name="pivot"></a>Pivot Tables</h2>
 </font> </p><p><font>Since ADOdb 2.30, we support the generation of 
 SQL to create pivot tables, also known as cross-tabulations. For further explanation 
@@ -2937,6 +2978,7 @@ of MySQL.</font></p>
 <p>We now strtolower the get_class() function in PEAR::isError() for php5 compat.
 <p>CacheExecute did not retrieve cache recordsets properly for 5.04 (worked in 4.98). Fixed.
 <p>New ADODB_Cache_File class for file caching defined in adodb.inc.php.
+<p>Farsi language file contribution by Peyman Hooshmandi Raad (phooshmand#gmail.com)
 <p>New API for creating your custom caching class which is stored in $ADODB_CACHE:
 <pre>
 include "/path/to/adodb.inc.php";

@@ -271,18 +271,23 @@
 		function flushcache($f, $debug=false)
 		{
 			if (!@unlink($f)) {
+				die($ADODB_CACHE_DIR.'/'.$f);
 		   		if ($debug) ADOConnection::outp( "flushcache: failed for $f");
 			}
+		}
+		
+		function getdirname($hash)
+		{
+		global $ADODB_CACHE_DIR;
+			if (!isset($this->notSafeMode)) $this->notSafeMode = !ini_get('safe_mode');
+			return ($this->notSafeMode) ? $ADODB_CACHE_DIR.'/'.substr($hash,0,2) : $ADODB_CACHE_DIR;
 		}
 		
 		// create temp directories
 		function createdir($hash, $debug)
 		{
-		global $ADODB_CACHE_DIR;
-		
-			if (!isset($notSafeMode)) $notSafeMode = !ini_get('safe_mode');
-			$dir = ($notSafeMode) ? $ADODB_CACHE_DIR.'/'.substr($hash,0,2) : $ADODB_CACHE_DIR;
-			if ($notSafeMode && !file_exists($dir)) {
+			$dir = $this->getdirname($hash);
+			if ($this->notSafeMode && !file_exists($dir)) {
 				$oldu = umask(0);
 				if (!@mkdir($dir,0771)) if(!is_dir($dir) && $debug) ADOConnection::outp("Cannot create $dir");
 				umask($oldu);
@@ -1682,7 +1687,7 @@
     */
 	function CacheFlush($sql=false,$inputarr=false)
 	{
-	global $ADODB_CACHE_DIR, $ADODB_CACHE;
+	global  $ADODB_CACHE;
 		
 		if (!$sql) {
 			 $ADODB_CACHE->flushall($this->debug);
@@ -1712,7 +1717,6 @@
 	function _gencachename($sql,$createdir)
 	{
 	global $ADODB_CACHE, $ADODB_CACHE_DIR;
-	static $notSafeMode;
 		
 		if ($this->fetchMode === false) { 
 		global $ADODB_FETCH_MODE;
@@ -1721,9 +1725,9 @@
 			$mode = $this->fetchMode;
 		}
 		$m = md5($sql.$this->databaseType.$this->database.$this->user.$mode);
-		if (!$ADODB_CACHE->createdir || !$createdir) return $m;
-		
-		$dir = $ADODB_CACHE->createdir($m, $this->debug);
+		if (!$ADODB_CACHE->createdir) return $m;
+		if (!$createdir) $dir = $ADODB_CACHE->getdirname($m);
+		else $dir = $ADODB_CACHE->createdir($m, $this->debug);
 		
 		return $dir.'/adodb_'.$m.'.cache';
 	}
