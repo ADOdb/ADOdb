@@ -10,7 +10,7 @@ pre {
   padding: 0.75em 1.5em;
   font-size: 12px;
   border: 1px solid #ddd;
-}
+}f
 </style></head>
 <body bgcolor="#ffffff" text="black">
 
@@ -51,8 +51,10 @@ pre {
 	<br>
 	<b> <a href="#errorhandling">Using Custom Error Handlers and PEAR_Error</a><br>
 	<a href="#DSN">Data Source Names</a><br>
-	<a href="#caching">Caching</a><br>
-	<a href="#pivot">Pivot Tables</a></b> 
+	<a href="#caching">Caching</a></b><br>
+	&nbsp; &nbsp;  <a href="#memcache">MemCache</a><br>
+	&nbsp; &nbsp;  <a href="#cacheapi">Caching API</a><br>
+	<b><a href="#pivot">Pivot Tables</a></b> 
 </p><p><a href="#ref"><b>REFERENCE</b></a>
 </p><p> <font size="2">Variables: <a href="#adodb_countrecs">$ADODB_COUNTRECS</a> 
 <a href="#adodb_ansi_padding_off">$ADODB_ANSI_PADDING_OFF</a>
@@ -1342,7 +1344,7 @@ else {
 	free
 </pre>
 <h2><a name="caching"></a>Caching of Recordsets</h2>
-<p>ADOdb now supports caching of recordsets using the CacheExecute( ), CachePageExecute( 
+<p>ADOdb now supports caching of recordsets in the file system using the CacheExecute( ), CachePageExecute( 
   ) and CacheSelectLimit( ) functions. There are similar to the non-cache functions, 
   except that they take a new first parameter, $secs2cache. 
 </p><p> An example: 
@@ -1356,14 +1358,22 @@ else {
   in php.ini if you are using $ADODB_CACHE_DIR.</font></p>
 <p>In ADOdb 1.80 onwards, the secs2cache parameter is optional in CacheSelectLimit() 
   and CacheExecute(). If you leave it out, it will use the $connection-&gt;cacheSecs 
-  parameter, which defaults to 60 minutes. 
+  parameter, which defaults to 60 minutes. The following are equivalent:
+  <pre>
+  # (1)
+  $rs = $db->SelectLimit(30, 'select * from table', 10);
+  
+  # (2)
+  $db->cacheSsecs = 30;
+  $rs = $db->SelectLimit('select * from table', 10);
+  </pre>
 </p><pre>	$conn-&gt;Connect(...);<br>	$conn-&gt;cacheSecs = 3600*24; # cache 24 hours<br>	$rs = $conn-&gt;CacheExecute('select * from table');<br></pre>
-<p>Please note that magic_quotes_runtime should be turned off. <a href="http://phplens.com/lens/lensforum/msgs.php?LeNs#LensBM_forummsg">More 
-  info</a>, and do not change $ADODB_FETCH_MODE (or SetFetchMode) 
+<p>Please note that magic_quotes_runtime should be turned off. Do not change $ADODB_FETCH_MODE (or SetFetchMode) 
   as the cached recordset will use the $ADODB_FETCH_MODE set when the query was executed. <font> 
   
+  <a name="memcache">
  <h3>MemCache support</h3>
-<p>The memcache API supports multiple pooled hosts. Only if none of the pooled servers can be contacted will a connect error be generated. 
+<p>You can also share cached recordsets on a memcache server. The memcache API supports one or more pooled hosts. Only if none of the pooled servers can be contacted will a connect error be generated. 
 Example below:
 <pre>
 $db = NewADOConnection($driver);
@@ -1375,8 +1385,11 @@ $db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses
 $db->Connect(...);
 $db->CacheExecute($sql);
 </pre>
+<p>More info on memcache can be found at <a href=http://www.danga.com/memcached/>http://www.danga.com/memcached/</a>.
+
+<a name="cacheapi">
 <h3>Caching API</h3>
-<p> There is also a caching API since 4.99/5.05. Two implementations of the API are already available  providing file and memcache support. 
+<p> There is also a caching API since 4.99/5.05. Two implementations of the API are already available  providing file and memcache support.
  <p>The new API for creating your custom caching class uses 2 globals:
   <ul><li>$ADODB_CACHE_CLASS: name of caching class 
   <li>$ADODB_CACHE: instance of $ADODB_CACHE_CLASS
@@ -1388,7 +1401,7 @@ $ADODB_CACHE_CLASS = 'MyCacheClass';
 
 class MyCacheClass extends ADODB_Cache_File
 {
-	var $createdir = false; // requires creation of create temp dirs
+	var $createdir = false; // do not set this to true unless you use temp directories in cache path
 	function writecache($filename, $contents,$debug=false){...}
 	function &readcache($filename, &$err, $secs2cache, $rsClass){ ...}
 	 :
