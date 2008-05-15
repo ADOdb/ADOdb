@@ -1299,13 +1299,10 @@
 		$savec = $ADODB_COUNTRECS;
 		$ADODB_COUNTRECS = false;
 			
-		if ($offset>0){
-			if ($secs2cache != 0) $rs = $this->CacheExecute($secs2cache,$sql,$inputarr);
-			else $rs = $this->Execute($sql,$inputarr);
-		} else {
-			if ($secs2cache != 0) $rs = $this->CacheExecute($secs2cache,$sql,$inputarr);
-			else $rs = $this->Execute($sql,$inputarr);
-		}
+
+		if ($secs2cache != 0) $rs = $this->CacheExecute($secs2cache,$sql,$inputarr);
+		else $rs = $this->Execute($sql,$inputarr);
+		
 		$ADODB_COUNTRECS = $savec;
 		if ($rs && !$rs->EOF) {
 			$rs = $this->_rs2rs($rs,$nrows,$offset);
@@ -1574,7 +1571,7 @@
 	function GetRandRow($sql, $arr= false)
 	{
 		$rezarr = $this->GetAll($sql, $arr);
-		$sz = sizeof($rez);
+		$sz = sizeof($rezarr);
 		return $rezarr[abs(rand()) % $sz];
 	}
 	
@@ -1786,6 +1783,7 @@
 			$rs = $this->Execute($sqlparam,$inputarr);
 
 			if ($rs) {
+
 				$eof = $rs->EOF;
 				$rs = $this->_rs2rs($rs); // read entire recordset into memory immediately
 				$rs->timeCreated = time(); // used by caching
@@ -2727,12 +2725,12 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		
 	    function key() 
 		{
-	        return $false;
+	        return false;
 	    }
 		
 	    function current() 
 		{
-	        return $false;
+	        return false;
 	    }
 		
 	    function next() 

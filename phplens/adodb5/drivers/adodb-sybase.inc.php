@@ -177,12 +177,12 @@ class ADODB_sybase extends ADOConnection {
 		return @sybase_close($this->_connectionID);
 	}
 	
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 		return ADORecordSet_array_sybase::UnixDate($v);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 		return ADORecordSet_array_sybase::UnixTimeStamp($v);
 	}	
@@ -353,12 +353,12 @@ class ADORecordset_sybase extends ADORecordSet {
 	}
 	
 	// sybase/mssql uses a default date like Dec 30 2000 12:00AM
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 		return ADORecordSet_array_sybase::UnixDate($v);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 		return ADORecordSet_array_sybase::UnixTimeStamp($v);
 	}
@@ -371,7 +371,7 @@ class ADORecordSet_array_sybase extends ADORecordSet_array {
 	}
 	
 		// sybase/mssql uses a default date like Dec 30 2000 12:00AM
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 	global $ADODB_sybase_mths;
 	
@@ -388,7 +388,7 @@ class ADORecordSet_array_sybase extends ADORecordSet_array {
 		return  mktime(0,0,0,$themth,$rr[2],$rr[3]);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 	global $ADODB_sybase_mths;
 		//11.02.2001 Toni Tunkkari toni.tunkkari@finebyte.com
