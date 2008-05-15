@@ -2972,8 +2972,9 @@ of MySQL.</font></p>
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 
 <p><a name="4.990"></a><b>4.990/5.05 ? ? 2008</b>
+<p>Thanks  Zoltan Monori [monzol#fotoprizma.hu] for bug fixes in iterator, SelectLimit, GetRandRow, etc.
 <p>Under heavy loads, the performance monitor for oci8 disables Ixora views.
-<p> Fixed sybase driver SQLDate to use str_replace()
+<p> Fixed sybase driver SQLDate to use str_replace(). Also for adodb5, changed sybase driver UnixDate and UnixTimeStamp calls to static.
 <p>Changed oci8 lob handler to use &amp; reference $this->_refLOBs[$numlob]['VAR'] = &amp;$var.
 <p>We now strtolower the get_class() function in PEAR::isError() for php5 compat.
 <p>CacheExecute did not retrieve cache recordsets properly for 5.04 (worked in 4.98). Fixed.

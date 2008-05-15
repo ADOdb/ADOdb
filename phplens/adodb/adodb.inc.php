@@ -1295,13 +1295,9 @@
 		$savec = $ADODB_COUNTRECS;
 		$ADODB_COUNTRECS = false;
 			
-		if ($offset>0){
-			if ($secs2cache != 0) $rs = &$this->CacheExecute($secs2cache,$sql,$inputarr);
-			else $rs = &$this->Execute($sql,$inputarr);
-		} else {
-			if ($secs2cache != 0) $rs = &$this->CacheExecute($secs2cache,$sql,$inputarr);
-			else $rs = &$this->Execute($sql,$inputarr);
-		}
+		if ($secs2cache != 0) $rs = &$this->CacheExecute($secs2cache,$sql,$inputarr);
+		else $rs = &$this->Execute($sql,$inputarr);
+	
 		$ADODB_COUNTRECS = $savec;
 		if ($rs && !$rs->EOF) {
 			$rs =& $this->_rs2rs($rs,$nrows,$offset);
@@ -1570,7 +1566,7 @@
 	function GetRandRow($sql, $arr= false)
 	{
 		$rezarr = $this->GetAll($sql, $arr);
-		$sz = sizeof($rez);
+		$sz = sizeof($rezarr);
 		return $rezarr[abs(rand()) % $sz];
 	}
 	
