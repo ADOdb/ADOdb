@@ -347,6 +347,18 @@ class ADODB_Active_Record {
 		return $table;
 	}
 	
+	
+	// I have an ON INSERT trigger on a table that sets other columns in the table.
+	// So, I find that for myTable, I want to reload an active record after saving it. -- Malcolm Cook
+	function Reload()
+	{
+		$db =& $this->DB(); if (!$db) return false;
+		$table =& $this->TableInfo();
+		$where = $this->GenWhere($db, $table);
+		return($this->Load($where));
+	}
+
+	
 	// set a numeric array (using natural table field ordering) as object properties
 	function Set(&$row)
 	{
