@@ -14,7 +14,7 @@
 /**
 	\mainpage 	
 	
-	 @version V4.990 15 May 2008  (c) 2000-2008 John Lim (jlim#natsoft.com). All rights reserved.
+	 @version V4.990 11 July 2008  (c) 2000-2008 John Lim (jlim#natsoft.com). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
@@ -178,7 +178,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V4.990 15 May 2008 (c) 2000-2008 John Lim (jlim#natsoft.com). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V4.990 11 July 2008 (c) 2000-2008 John Lim (jlim#natsoft.com). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
