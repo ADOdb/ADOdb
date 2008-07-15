@@ -630,7 +630,6 @@ class ADODB_mysqli extends ADOConnection {
 	function Prepare($sql)
 	{
 		return $sql;
-		
 		$stmt = $this->_connectionID->prepare($sql);
 		if (!$stmt) {
 			echo $this->ErrorMsg();
@@ -652,6 +651,10 @@ class ADODB_mysqli extends ADOConnection {
 		//	if (!mysqli_next_result($this->connection->_connectionID))	return false;
 	
 		if (is_array($sql)) {
+		
+			// Prepare() not supported because mysqli_stmt_execute does not return a recordset, but
+			// returns as bound variables.
+		
 			$stmt = $sql[1];
 			$a = '';
 			foreach($inputarr as $k => $v) {
@@ -662,7 +665,6 @@ class ADODB_mysqli extends ADOConnection {
 			
 			$fnarr = array_merge( array($stmt,$a) , $inputarr);
 			$ret = call_user_func_array('mysqli_stmt_bind_param',$fnarr);
-
 			$ret = mysqli_stmt_execute($stmt);
 			return $ret;
 		}
