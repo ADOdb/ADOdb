@@ -426,8 +426,13 @@ newer versions of the Oracle, eg. 9i and 10g.</p>
 <pre> 	$conn-&gt;PConnect('myTNS', 'scott', 'tiger');</pre>
 <p>c. Host Address and SID</p>
 <pre>
+	# with adodb 5.06 or 4.991 and later
+	$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', "SID=$SID");
+	
+	# OR with all versions of ADOdb
 	$conn->connectSID = true;
-	$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', 'SID');</pre>
+	$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', $SID);
+	</pre>
 <p>d. Host Address and Service Name</p>
 <pre>	$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', 'servicename');</pre>
 <p>e. Oracle connection string:
@@ -2984,6 +2989,8 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 <p><a name="5.06"></a><b>5.06 ?? 2008</b>
+<p>Added support for connecting to oci8 using $DB->Connect($ip, $user, $pwd, "SID=$sid");
+
 <p>Changed db2 driver to use format "Y-m-d H-i-s" for datetime instead of "Y-m-d-H-i-s" which was legacy from odbc_db2 conversion.
 <p>MetaForeignKeys did not work for views in MySQL 5. Fixed.
 <p>Changed error handling in GetActiveRecordsClass.
