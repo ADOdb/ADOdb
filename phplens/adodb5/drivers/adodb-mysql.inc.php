@@ -559,8 +559,9 @@ class ADODB_mysql extends ADOConnection {
             $table = "$owner.$table";
          }
          $a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
-		 if ($associative) $create_sql = $a_create_table["Create Table"];
-         else $create_sql  = $a_create_table[1];
+		 if ($associative) {
+		 	$create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
+         } else $create_sql  = $a_create_table[1];
 
          $matches = array();
 

@@ -33,7 +33,7 @@ class ADODB_db2 extends ADOConnection {
 	var $sysDate = 'CURRENT DATE';
 	var $sysTimeStamp = 'CURRENT TIMESTAMP';
 	
-	var $fmtTimeStamp = "'Y-m-d-H:i:s'";
+	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $dataProvider = "db2";
 	var $hasAffectedRows = true;
@@ -250,8 +250,8 @@ class ADODB_db2 extends ADOConnection {
 		// if you have to modify the parameter below, your database is overloaded,
 		// or you need to implement generation of id's yourself!
 		$num = $this->GetOne("VALUES NEXTVAL FOR $seq");
-				return $num;
-			}
+		return $num;
+	}
 
 
 	function ErrorMsg()

@@ -33,7 +33,7 @@ class ADODB_db2 extends ADOConnection {
 	var $sysDate = 'CURRENT DATE';
 	var $sysTimeStamp = 'CURRENT TIMESTAMP';
 	
-	var $fmtTimeStamp = "'Y-m-d-H:i:s'";
+	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $dataProvider = "db2";
 	var $hasAffectedRows = true;
@@ -44,7 +44,7 @@ class ADODB_db2 extends ADOConnection {
 								// breaking backward-compat
 	var $_bindInputArray = false;	
 	var $_genIDSQL = "VALUES NEXTVAL FOR %s";
-	var $_genSeqSQL = "CREATE SEQUENCE %s START WITH 1 NO MAXVALUE NO CYCLE";
+	var $_genSeqSQL = "CREATE SEQUENCE %s START WITH %s NO MAXVALUE NO CYCLE";
 	var $_dropSeqSQL = "DROP SEQUENCE %s";
 	var $_autocommit = true;
 	var $_haserrorfunctions = true;
@@ -228,7 +228,7 @@ class ADODB_db2 extends ADOConnection {
 	function CreateSequence($seqname='adodbseq',$start=1)
 	{
 		if (empty($this->_genSeqSQL)) return false;
-		$ok = $this->Execute(sprintf($this->_genSeqSQL,$seqname));
+		$ok = $this->Execute(sprintf($this->_genSeqSQL,$seqname,$start));
 		if (!$ok) return false;
 		return true;
 	}

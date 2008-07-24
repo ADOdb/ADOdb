@@ -504,11 +504,12 @@ class dbTable extends dbObject {
 	* @return array Options
 	*/
 	function addTableOpt( $opt ) {
-		if( $this->currentPlatform ) {
-		$this->opts[] = $opt;
+		if(isset($this->currentPlatform)) {
+			$this->opts[$this->parent->db->databaseType] = $opt;
 		}
 		return $this->opts;
 	}
+
 	
 	/**
 	* Generates the SQL that will create the table in the database

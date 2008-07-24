@@ -920,6 +920,11 @@ END Adodb;
 	$col = $db->GetCol('select distinct firstname from ADOXYZ order by 1');
 	if (!is_array($col)) Err("Col size is wrong");
 	if (trim($col[0]) != 'Alan' or trim($col[9]) != 'Yat Sun') Err("Col elements wrong");
+	
+	
+	$col = $db->CacheGetCol('select distinct firstname from ADOXYZ order by 1');
+	if (!is_array($col)) Err("Col size is wrong");
+	if (trim($col[0]) != 'Alan' or trim($col[9]) != 'Yat Sun') Err("Col elements wrong");
 
 	$db->debug = true;
 	

@@ -12,7 +12,7 @@
  */
 
 /**
-	\mainpage 	
+	\mainpage
 	
 	 @version V5.05 11 July 2008   (c) 2000-2008 John Lim (jlim#natsoft.com). All rights reserved.
 
@@ -2101,7 +2101,7 @@
 		foreach($rows as $row) {
 		
 			$obj = new $class($table,$primkeyArr,$this);
-			if ($obj->ErrorMsg()){
+			if ($obj->ErrorNo()){
 				$this->_errorMsg = $obj->ErrorMsg();
 				return $false;
 			}
@@ -4178,7 +4178,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (!empty($ADODB_NEWCONNECTION)) {
 			$obj = $ADODB_NEWCONNECTION($db);
 
-		} else {
+		} 
+		
+		if(empty($obj)) {
 		
 			if (!isset($ADODB_LASTDB)) $ADODB_LASTDB = '';
 			if (empty($db)) $db = $ADODB_LASTDB;

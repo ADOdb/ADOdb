@@ -199,6 +199,10 @@ NATSOFT.DOMAIN =
 			 	} else {
 					$argHostport = empty($this->port)?  "1521" : $this->port;
 	   			}
+				if (strncmp($argDatabasename,'SID=',4) == 0) {
+					$argDatabasename = substr($argDatabasename,4);
+					$this->connectSID = true;
+				}
 				
 				if ($this->connectSID) {
 					$argDatabasename="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=".$argHostname

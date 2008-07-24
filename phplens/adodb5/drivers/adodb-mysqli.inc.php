@@ -491,8 +491,9 @@ class ADODB_mysqli extends ADOConnection {
 	       $table = "$owner.$table";
 	    }
 	    $a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
-		if ($associative) $create_sql = $a_create_table["Create Table"];
-	    else $create_sql  = $a_create_table[1];
+		if ($associative) {
+			$create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
+	    } else $create_sql  = $a_create_table[1];
 	
 	    $matches = array();
 	
@@ -556,8 +557,10 @@ class ADODB_mysqli extends ADOConnection {
 				$fld->max_length = is_numeric($query_array[2]) ? $query_array[2] : -1;
 			} elseif (preg_match("/^(enum)\((.*)\)$/i", $type, $query_array)) {
 				$fld->type = $query_array[1];
-				$fld->max_length = max(array_map("strlen",explode(",",$query_array[2]))) - 2; // PHP >= 4.0.6
-				$fld->max_length = ($fld->max_length == 0 ? 1 : $fld->max_length);
+				$arr = explode(",",$query_array[2]);
+				$fld->enums = $arr;
+				$zlen = max(array_map("strlen",$arr)) - 2; // PHP >= 4.0.6
+				$fld->max_length = ($zlen > 0) ? $zlen : 1;
 			} else {
 				$fld->type = $type;
 				$fld->max_length = -1;
