@@ -722,6 +722,15 @@ The <i>name</i> below is the value you pass to NewADOConnection($name) to create
     <td height="73"> <p><font size="2">Unix and Windows. <a href="http://phpbuilder.com/columns/alberto20000919.php3"><br>
         Unix install howto</a>.</font></p></td>
   </tr>
+    <tr valign="top"> 
+    <td height="73"><b><font size="2">mssqlnative</font></b></td>
+    <td height="73"><font size="2">C</font></td>
+    <td height="73"> <p><font size="2"> Native mssql driver from M'soft. </font></p></td>
+    <td height="73"><font size="2">?</font></td>
+    <td height="73"><font size="2">?</font></td>
+    <td height="73"> <p><font size="2">Windows. Tq Garrett Serack of M'soft.</td>
+  </tr>
+  <tr valign="top"> 
   <tr valign="top"> 
     <td><b><font size="2">mysql</font></b></td>
     <td><font size="2">A</font></td>
@@ -2999,6 +3008,9 @@ of MySQL.</font></p>
 <p>In adodb-xmlschema03.inc.php, changed addTableOpt to include db name.
 <p>If bytea blob in postgresql is null, empty string was formerly returned. Now null is returned.
 <p>Changed db2 driver CreateSequence to support $start parameter.
+
+<p>New mssqlnative drivers for php. TQ Garrett Serack of M'soft. <a href=http://www.microsoft.com/downloads/details.aspx?FamilyId=61BF87E0-D031-466B-B09A-6597C21A2E2A&displaylang=en>Download</a> mssqlnative extension.
+
 <p><a name="5.05"></a><b>4.990/5.05 11 Jul 2008</b>
 <p>
 <p>Added  support for multiple recordsets in mysqli "Geisel Sierote" geisel#4up.com.br. See http://phplens.com/lens/lensforum/msgs.php?id=15917
