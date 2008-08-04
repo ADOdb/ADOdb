@@ -2183,7 +2183,7 @@ row3: Rose, Flower </font></p>
 <p><font>Executes the SQL and returns the first field of the first row. The recordset 
   and remaining rows are discarded for you automatically. If an error occur, false 
   is returned; use ErrorNo() or ErrorMsg() to get the error details.
-  Since 4.96, we return null if no records were found.</font></p>
+    Since 4.96/5.00, we return null if no records were found. And since 4.991/5.06, you can have change the return value if no records are found using the global variable $ADODB_GETONE_EOF: $ADODB_GETONE_EOF = false;</font></p>
 <p><font><b>GetRow<a name="getrow"></a>($sql,$inputarr=false)</b></font></p>
 <p><font>Executes the SQL and returns the first row as an array. The recordset and remaining 
   rows are discarded for you automatically. If no records are returned, an empty array is returned. If an error occurs, false is returned.</font></p>
@@ -3011,6 +3011,7 @@ of MySQL.</font></p>
 
 <p>New mssqlnative drivers for php. TQ Garrett Serack of M'soft. <a href=http://www.microsoft.com/downloads/details.aspx?FamilyId=61BF87E0-D031-466B-B09A-6597C21A2E2A&displaylang=en>Download</a> mssqlnative extension.
 
+<p>You can now change the return value of GetOne if no records are found using the global variable $ADODB_GETONE_EOF. The default is null. To change it back to the pre-4.99/5.00 behaviour of false, set $ADODB_GETONE_EOF = false; 
 <p><a name="5.05"></a><b>4.990/5.05 11 Jul 2008</b>
 <p>
 <p>Added  support for multiple recordsets in mysqli "Geisel Sierote" geisel#4up.com.br. See http://phplens.com/lens/lensforum/msgs.php?id=15917

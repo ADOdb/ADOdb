@@ -2169,7 +2169,7 @@ row3: Rose, Flower </font></p>
 <p><font>Executes the SQL and returns the first field of the first row. The recordset 
   and remaining rows are discarded for you automatically. If an error occur, false 
   is returned; use ErrorNo() or ErrorMsg() to get the error details.
-  Since 4.96, we return null if no records were found.</font></p>
+  Since 4.96/5.00, we return null if no records were found. And since 4.991/5.06, you can have change the return value if no records are found using the global variable $ADODB_GETONE_EOF: $ADODB_GETONE_EOF = false; </font></p>
 <p><font><b>GetRow<a name="getrow"></a>($sql,$inputarr=false)</b></font></p>
 <p><font>Executes the SQL and returns the first row as an array. The recordset and remaining 
   rows are discarded for you automatically. If no records are returned, an empty array is returned. If an error occurs, false is returned.</font></p>
