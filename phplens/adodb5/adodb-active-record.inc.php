@@ -71,6 +71,10 @@ class ADODB_Active_Record {
 	var $_lasterr = false; // last error message
 	var $_original = false; // the original values loaded or inserted, refreshed on update
 	
+	var $_hasMany; // CFR: Relationships
+	var $_belongsTo; // CFR: Relationships
+	var $foreignName; // CFR: class name when in a relationship
+
 	static function UseDefaultValues($bool=null)
 	{
 	global $ADODB_ACTIVE_DEFVALS;
@@ -105,6 +109,7 @@ class ADODB_Active_Record {
 			if (!empty($this->_table)) $table = $this->_table;
 			else $table = $this->_pluralize(get_class($this));
 		}
+		$this->foreignName = strtolower(get_class($this)); // CFR: default foreign name
 		if ($db) {
 			$this->_dbat = ADODB_Active_Record::SetDatabaseAdapter($db);
 		} else
@@ -115,6 +120,10 @@ class ADODB_Active_Record {
 		
 		$this->_table = $table;
 		$this->_tableat = $table; # reserved for setting the assoc value to a non-table name, eg. the sql string in future
+
+		$this->_hasMany = array(); // CFR
+		$this->_belongsTo = array(); // CFR
+
 		$this->UpdateActiveTable($pkeyarr);
 	}
 	
@@ -145,6 +154,82 @@ class ADODB_Active_Record {
 		}
 	}
 	
+	// CFR Lamest singular inflector ever - @todo Make it real!
+	// Note: There is an assumption here...and it is that the argument's length >= 4
+	function _singularize($tables)
+	{
+		$ut = strtoupper($tables);
+		$len = strlen($tables);
+		if($ut[$len-1] != 'S')
+			return $tables; // I know...forget oxen
+		if($ut[$len-2] != 'E')
+			return substr($tables, 0, $len-1);
+		switch($ut[$len-3])
+		{
+			case 'S':
+			case 'X':
+				return substr($tables, 0, $len-2);
+			case 'I':
+				return substr($tables, 0, $len-3) . 'y';
+			case 'H';
+				if($ut[$len-4] == 'C' || $ut[$len-4] == 'S')
+					return substr($tables, 0, $len-2);
+			default:
+				return substr($tables, 0, $len-1); // ?
+		}
+	}
+
+	function hasMany($foreignRef)
+	{
+		$ar = new ADODB_Active_Record($foreignRef);
+		$ar->foreignName = $foreignRef;
+		$ar->UpdateActiveTable();
+		$this->_hasMany[$foreignRef] = $ar;
+		$this->$foreignRef = $this->_hasMany[$foreignRef]; // WATCHME Removed assignment by ref. to please __get()
+	}
+
+	function belongsTo($foreignRef)
+	{
+		global $inflector;
+
+		$ar = new ADODB_Active_Record($this->_pluralize($foreignRef));
+		$ar->foreignName = $foreignRef;
+		$ar->UpdateActiveTable();
+		$this->_belongsTo[$foreignRef] = $ar;
+		$this->$foreignRef = $this->_belongsTo[$foreignRef];
+	}
+
+	/**
+	 * __get Access properties - used for lazy loading
+	 * 
+	 * @param mixed $name 
+	 * @access protected
+	 * @return void
+	 */
+	function __get($name)
+	{
+		if(!empty($this->_belongsTo[$name]))
+		{
+			$obj = $this->_belongsTo[$name];
+			$columnName = $name . '_id';
+			if(empty($this->$columnName))
+				$this->_belongsTo[$name] = null;
+			else
+			{
+				$arrayOfOne = $obj->Find('id='.$this->$columnName);
+				$this->_belongsTo[$name] = $arrayOfOne[0];
+			}
+			$this->$name = $this->_belongsTo[$name];
+			return $this->_belongsTo[$name];
+		}
+		if(!empty($this->_hasMany[$name]))
+		{
+			$obj = $this->_hasMany[$name];
+			$this->_hasMany[$name] = $obj->Find($this->foreignName.'_id='.$this->id);
+			$this->$name = $this->_hasMany[$name];
+			return $this->_hasMany[$name];
+		}
+	}
 	//////////////////////////////////
 	
 	// update metadata
@@ -400,6 +485,28 @@ class ADODB_Active_Record {
             $this->_original[] = $value;
             next($keys);
 		}
+		foreach($this->_belongsTo as $foreignTable)
+		{
+			$ft = $foreignTable->TableInfo();
+			foreach($ft->flds as $name=>$fld)
+			{
+				$value = $row[current($keys)];
+				$foreignTable->$name = $value;
+				$foreignTable->_original[] = $value;
+				next($keys);
+			}
+		}
+		foreach($this->_hasMany as $foreignTable)
+		{
+			$ft = $foreignTable->TableInfo();
+			foreach($ft->flds as $name=>$fld)
+			{
+				$value = $row[current($keys)];
+				$foreignTable->$name = $value;
+				$foreignTable->_original[] = $value;
+				next($keys);
+			}
+		}
         # </AP>
 		return true;
 	}
@@ -459,13 +566,29 @@ class ADODB_Active_Record {
 	
 	//------------------------------------------------------------ Public functions below
 	
-	function Load($where,$bindarr=false)
+	function Load($where=null,$bindarr=false)
 	{
 		$db = $this->DB(); if (!$db) return false;
 		$this->_where = $where;
 		
 		$save = $db->SetFetchMode(ADODB_FETCH_NUM);
-		$row = $db->GetRow("select * from ".$this->_table.' WHERE '.$where,$bindarr);
+		$qry = "select * from ".$this->_table;
+
+		foreach($this->_belongsTo as $foreignTable)
+		{
+			$qry .= ' LEFT JOIN '.$foreignTable->_table.' ON '.
+				$this->_table.'.'.$foreignTable->foreignName.'_id='.
+				$foreignTable->_table.'.id';
+		}
+		foreach($this->_hasMany as $foreignTable)
+		{
+			$qry .= ' LEFT JOIN '.$foreignTable->_table.' ON '.
+				$this->_table.'.id='.
+				$foreignTable->_table.'.'.$this->foreignName.'_id';
+		}
+		if($where)
+			$qry .= ' WHERE '.$where;
+		$row = $db->GetRow($qry,$bindarr);
 		$db->SetFetchMode($save);
 		
 		return $this->Set($row);
@@ -544,10 +667,23 @@ class ADODB_Active_Record {
 	}
 	
 	// returns an array of active record objects
-	function Find($whereOrderBy,$bindarr=false,$pkeysArr=false)
+	function Find($whereOrderBy,$bindarr=false,$pkeysArr=false,$extra=array())
 	{
 		$db = $this->DB(); if (!$db || empty($this->_table)) return false;
-		$arr = $db->GetActiveRecordsClass(get_class($this),$this->_table, $whereOrderBy,$bindarr,$pkeysArr);
+		$arr = $db->GetActiveRecordsClass(get_class($this),$this->_table, $whereOrderBy,$bindarr,$pkeysArr,$extra,
+			array('foreignName'=>$this->foreignName, 'belongsTo'=>$this->_belongsTo, 'hasMany'=>$this->_hasMany));
+		return $arr;
+	}
+	
+	// CFR: In introduced this method to ensure that inner workings are not disturbed by
+	// subclasses...for instance when GetActiveRecordsClass invokes Find()
+	// Why am I not invoking parent::Find?
+	// Shockingly because I want to preserve PHP4 compatibility.
+	function packageFind($whereOrderBy,$bindarr=false,$pkeysArr=false,$extra=array())
+	{
+		$db = $this->DB(); if (!$db || empty($this->_table)) return false;
+		$arr = $db->GetActiveRecordsClass(get_class($this),$this->_table, $whereOrderBy,$bindarr,$pkeysArr,$extra,
+			array('foreignName'=>$this->foreignName, 'belongsTo'=>$this->_belongsTo, 'hasMany'=>$this->_hasMany));
 		return $arr;
 	}
 	

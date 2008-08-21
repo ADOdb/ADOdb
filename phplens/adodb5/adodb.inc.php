@@ -122,6 +122,11 @@
 			die("PHP5 or later required. You are running ".PHP_VERSION);
 	}
 	
+	// CFR: Active Records Definitions
+	define('ADODB_JOIN_AR', 0x01);
+	define('ADODB_WORK_AR', 0x02);
+	define('ADODB_LAZY_AR', 0x03);
+	
 	//if (!defined('ADODB_ASSOC_CASE')) define('ADODB_ASSOC_CASE',2);
 
 	
@@ -2077,13 +2082,62 @@
 		}
 	}
 
-	function GetActiveRecordsClass($class, $table,$whereOrderBy=false,$bindarr=false, $primkeyArr=false)
+	/**
+	 * GetActiveRecordsClass Performs an 'ALL' query 
+	 * 
+	 * @param mixed $class This string represents the class of the current active record
+	 * @param mixed $table Table used by the active record object
+	 * @param mixed $whereOrderBy Where, order, by clauses
+	 * @param mixed $bindarr 
+	 * @param mixed $primkeyArr 
+	 * @param array $extra Query extras: limit, offset...
+	 * @param mixed $relations Associative array: table's foreign name, "hasMany", "belongsTo"
+	 * @access public
+	 * @return void
+	 */
+	function GetActiveRecordsClass(
+			$class, $table,$whereOrderBy=false,$bindarr=false, $primkeyArr=false,
+			$extra=array('loading'=>ADODB_LAZY_AR),
+			$relations=array())
 	{
 	global $_ADODB_ACTIVE_DBS;
 	
 		$save = $this->SetFetchMode(ADODB_FETCH_NUM);
-		if (empty($whereOrderBy)) $whereOrderBy = '1=1';
-		$rows = $this->GetAll("select * from ".$table.' WHERE '.$whereOrderBy,$bindarr);
+		$qry = "select * from ".$table;
+		if(ADODB_JOIN_AR == $extra['loading'])
+		{
+			if(!empty($relations['belongsTo']))
+			{
+				foreach($relations['belongsTo'] as $foreignTable)
+				{
+					$qry .= ' LEFT JOIN '.$foreignTable->_table.' ON '.
+						$table.'.'.$foreignTable->foreignName.'_id='.
+						$foreignTable->_table.'.id';
+				}
+			}
+			if(!empty($relations['hasMany']))
+			{
+				if(empty($relations['foreignName']))
+					$this->outp_throw("Missing foreignName is relation specification in GetActiveRecordsClass()",'GetActiveRecordsClass');
+				foreach($relations['hasMany'] as $foreignTable)
+				{
+					$qry .= ' LEFT JOIN '.$foreignTable->_table.' ON '.
+						$table.'.id='.
+						$foreignTable->_table.'.'.$relations['foreignName'].'_id';
+				}
+			}
+		}
+		if (!empty($whereOrderBy))
+			$qry .= ' WHERE '.$whereOrderBy;
+		if(isset($extra['limit']))
+		{
+			if(isset($extra['offset']))
+				$qry .= " LIMIT {$extra['offet']},{$extra['limit']}";
+			else
+				$qry .= " LIMIT {$extra['limit']}";
+		}
+
+		$rows = $this->GetAll($qry,$bindarr);
 		$this->SetFetchMode($save);
 		
 		$false = false;
@@ -2100,7 +2154,14 @@
 			$this->outp_throw("Unknown class $class in GetActiveRecordsClass()",'GetActiveRecordsClass');
 			return $false;
 		}
+		$uniqArr = array(); // CFR Keep track of records for relations
 		$arr = array();
+		// arrRef will be the structure that knows about our objects.
+		// It is an associative array.
+		// We will, however, return arr, preserving regular 0.. order so that
+		// obj[0] can be used by app developpers.
+		$arrRef = array();
+		$bTos = array(); // Will store belongTo's indices if any
 		foreach($rows as $row) {
 		
 			$obj = new $class($table,$primkeyArr,$this);
@@ -2109,8 +2170,183 @@
 				return $false;
 			}
 			$obj->Set($row);
+			// CFR: FIXME: Insane assumption here:
+			// If the first column returned is an integer, then it's a 'id' field
+			// And to make things a bit worse, I use intval() rather than is_int() because, in fact,
+			// $row[0] is not an integer.
+			//
+			// So, what does this whole block do?
+			// When relationships are found, we perform JOINs. This is fast. But not accurate:
+			// instead of returning n objects with their n' associated cousins,
+			// we get n*n' objects. This code fixes this.
+			// Note: to-many relationships mess around with the 'limit' parameter
+			$rowId = intval($row[0]);
+
+			if(ADODB_WORK_AR == $extra['loading'])
+			{
+				$arrRef[$rowId] = $obj;
+				$arr[] = &$arrRef[$rowId];
+				if(!isset($indices))
+					$indices = $rowId;
+				else
+					$indices .= ','.$rowId;
+				if(!empty($relations['belongsTo']))
+				{
+					foreach($relations['belongsTo'] as $foreignTable)
+					{
+						$foreignTableRef = $foreignTable->foreignName . '_id';
+						// First array: list of foreign ids we are looking for
+						if(empty($bTos[$foreignTableRef]))
+							$bTos[$foreignTableRef] = array();
+						// Second array: list of ids found
+						if(empty($bTos[$foreignTableRef][$obj->$foreignTableRef]))
+							$bTos[$foreignTableRef][$obj->$foreignTableRef] = array();
+						$bTos[$foreignTableRef][$obj->$foreignTableRef][] = $obj;
+					}
+				}
+				continue;
+			}
+
+			if($rowId>0)
+			{
+				if(ADODB_JOIN_AR == $extra['loading'])
+				{
+					if(isset($uniqArr['_'.$row[0]]))
+					{
+						// TODO Copy/paste code below: bad!
+						if(!empty($relations['hasMany']))
+						{
+							foreach($relations['hasMany'] as $foreignTable)
+							{
+								$foreignName = $foreignTable->foreignName;
+								if(!empty($obj->$foreignName))
+								{
+									$masterObj = &$uniqArr['_'.$row[0]];
+									// Assumption: this property exists in every object since they are instances of the same class
+									if(!is_array($masterObj->$foreignName))
+									{
+										// Pluck!
+										$foreignObj = $masterObj->$foreignName;
+										$masterObj->$foreignName = array($foreignObj);
+									}
+									// Pluck pluck!
+									$foreignObj = $obj->$foreignName;
+									array_push($masterObj->$foreignName, $foreignObj);
+									// We do not need this object anymore
+									unset($obj);
+								}
+							}
+						}
+						if(!empty($relations['belongsTo']))
+						{
+							foreach($relations['belongsTo'] as $foreignTable)
+							{
+								$foreignName = $foreignTable->foreignName;
+								if(!empty($obj->$foreignName))
+								{
+									$masterObj = &$uniqArr['_'.$row[0]];
+									// Assumption: this property exists in every object since they are instances of the same class
+									if(!is_array($masterObj->$foreignName))
+									{
+										// Pluck!
+										$foreignObj = $masterObj->$foreignName;
+										$masterObj->$foreignName = array($foreignObj);
+									}
+									// Pluck pluck!
+									$foreignObj = $obj->$foreignName;
+									array_push($masterObj->$foreignName, $foreignObj);
+									// We do not need this object anymore
+									unset($obj);
+								}
+							}
+						}
+					}
+					else
+						$uniqArr['_'.$row[0]] = $obj;
+				}
+				else
+				{
+					// Lazy loading: we need to give AdoDb a hint that we have not really loaded
+					// anything, all the while keeping enough information on what we wish to load.
+					// Let's do this by keeping the relevant info in our relationship arrays
+					// but get rid of the actual properties.
+					// We will then use PHP's __get to load these properties on-demand.
+					if(!empty($relations['hasMany']))
+					{
+						foreach($relations['hasMany'] as $foreignTable)
+						{
+							$foreignName = $foreignTable->foreignName;
+							if(!empty($obj->$foreignName))
+							{
+								unset($obj->$foreignName);
+							}
+						}
+					}
+					if(!empty($relations['belongsTo']))
+					{
+						foreach($relations['belongsTo'] as $foreignTable)
+						{
+							$foreignName = $foreignTable->foreignName;
+							if(!empty($obj->$foreignName))
+							{
+								unset($obj->$foreignName);
+							}
+						}
+					}
+				}
+			}
+			if(isset($obj))
 			$arr[] = $obj;
 		}
+
+		if(ADODB_WORK_AR == $extra['loading'])
+		{
+			// The best of both worlds?
+			// Here, the number of queries is constant: 1 + n*relationship.
+			// The second query will allow us to perform a good join
+			// while preserving LIMIT etc.
+			if(!empty($relations['hasMany']))
+			{
+				foreach($relations['hasMany'] as $foreignTable)
+				{
+					$foreignName = $foreignTable->foreignName;
+					$className = ucfirst($foreignTable->_singularize($foreignName));
+					$obj = new $className();
+					$thisClassRef = strtolower($class).'_id';
+					$objs = $obj->packageFind($thisClassRef.' IN ('.$indices.')');
+					foreach($objs as $obj)
+					{
+						if(!is_array($arrRef[$obj->$thisClassRef]->$foreignName))
+							$arrRef[$obj->$thisClassRef]->$foreignName = array();
+						array_push($arrRef[$obj->$thisClassRef]->$foreignName, $obj);
+					}
+				}
+				
+			}
+			if(!empty($relations['belongsTo']))
+			{
+				foreach($relations['belongsTo'] as $foreignTable)
+				{
+					$foreignTableRef = $foreignTable->foreignName . '_id';
+					if(empty($bTos[$foreignTableRef]))
+						continue;
+					$origObjsArr = $bTos[$foreignTableRef];
+					$bTosString = implode(',', array_keys($bTos[$foreignTableRef]));
+					$foreignName = $foreignTable->foreignName;
+					$className = ucfirst($foreignTable->_singularize($foreignName));
+					$obj = new $className();
+					$objs = $obj->packageFind('id IN ('.$bTosString.')');
+					foreach($objs as $obj)
+					{
+						foreach($origObjsArr[$obj->id] as $idx=>$origObj)
+						{
+							$origObj->$foreignName = $obj;
+						}
+					}
+				}
+			}
+		}
+
 		return $arr;
 	}
 	

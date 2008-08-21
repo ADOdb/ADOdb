@@ -547,11 +547,12 @@ BEGIN
 	LOOP
 	  cnt := cnt + 1;
 	  DELETE FROM $perf_table WHERE ROWID=rec.rr;
-	  IF cnt = 10000 THEN
+	  IF cnt = 1000 THEN
 	  	COMMIT;
 		cnt := 0;
 	  END IF;
 	END LOOP;
+	commit;
 END;";
 
 		$ok = $this->conn->Execute($sql);
