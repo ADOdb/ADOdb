@@ -7,7 +7,7 @@
   
   Some pretty-printing by Chris Oxenreider <oxenreid@state.net>
 */ 
-  
+
 // specific code for tohtml
 GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 
