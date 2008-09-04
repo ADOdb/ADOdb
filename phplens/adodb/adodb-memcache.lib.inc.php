@@ -6,6 +6,9 @@ if (!defined('ADODB_DIR')) die();
 global $ADODB_INCLUDED_MEMCACHE;
 $ADODB_INCLUDED_MEMCACHE = 1;
 
+global $ADODB_INCLUDED_CSV;
+if (empty($ADODB_INCLUDED_CSV)) include(ADODB_DIR.'/adodb-csvlib.inc.php');
+
 /* 
 
   V4.990 11 July 2008  (c) 2000-2008 John Lim (jlim#natsoft.com). All rights reserved.
@@ -29,6 +32,7 @@ $db->CacheExecute($sql);
 
   Note the memcache class is shared by all connections, is created during the first call to Connect/PConnect.
   
+  Class instance is stored in $ADODB_CACHE
 */
 
 	class ADODB_Cache_MemCache {
@@ -69,7 +73,7 @@ $db->CacheExecute($sql);
 					$failcnt += 1;
 				}
 			}
-			if ($failcnt == sizeof($hosts)) {
+			if ($failcnt == sizeof($this->hosts)) {
 				$err = 'Can\'t connect to any memcache server';
 				return false;
 			}
@@ -85,7 +89,7 @@ $db->CacheExecute($sql);
 				$err = '';
 				if (!$this->connect($err) && $debug) ADOConnection::outp($err);
 			}
-			if ($this->_memcache) return false;
+			if (!$this->_memcache) return false;
 			
 			if (!$this->_memcache->set($filename, $contents, $this->compress, 0)) {
 				if ($debug) ADOConnection::outp(" Failed to save data at the memcached server!<br>\n");
@@ -98,8 +102,9 @@ $db->CacheExecute($sql);
 		// returns a recordset
 		function &readcache($filename, &$err, $secs2cache, $rsClass)
 		{
+			$false = false;
 			if (!$this->_connected) $this->connect($err);
-			if ($this->_memcache) return false;
+			if (!$this->_memcache) return $false;
 			
 			$rs = $this->_memcache->get($filename);
 			if (!$rs) {
@@ -107,7 +112,16 @@ $db->CacheExecute($sql);
 				return $false;
 			}
 	
-			$tdiff = intval($rs->timeCreated+$timeout - time());
+			// hack, should actually use _csv2rs
+			$rs = explode("\n", $rs);
+            unset($rs[0]);
+            $rs = join("\n", $rs);
+            $rs = unserialize($rs);
+			if (! is_object($rs)) {
+				$err = 'Unable to unserialize $rs';		
+				return $false;
+			}
+			$tdiff = intval($rs->timeCreated+$secs2cache - time());
 			if ($tdiff <= 2) {
 				switch($tdiff) {
 					case 2: 

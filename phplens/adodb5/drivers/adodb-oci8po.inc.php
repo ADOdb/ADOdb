@@ -102,7 +102,8 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	{
 		 $fld = new ADOFieldObject;
  		 $fieldOffset += 1;
-		 $fld->name = strtolower(OCIcolumnname($this->_queryID, $fieldOffset));
+		 $fld->name = OCIcolumnname($this->_queryID, $fieldOffset);
+		 if (ADODB_ASSOC_CASE == 0) $fld->name = strtolower($fld->name);
 		 $fld->type = OCIcolumntype($this->_queryID, $fieldOffset);
 		 $fld->max_length = OCIcolumnsize($this->_queryID, $fieldOffset);
 		 if ($fld->type == 'NUMBER') {

@@ -174,6 +174,15 @@ class ADODB_pdo extends ADOConnection {
 		return false;
 	}
 	
+	function Concat() 
+	{
+		$args = func_get_args();
+		if(method_exists($this->_driver, 'Concat')) 
+			return call_user_func_array(array($this->_driver, 'Concat'), $args); 
+		
+		return call_user_func_array(array($this,'parent::Concat'), $args); 
+	}
+	
 	// returns true or false
 	function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{

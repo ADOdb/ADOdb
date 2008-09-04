@@ -41,6 +41,16 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 //		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
 	
+	function Concat() 
+	{	
+		$s = "";
+		$arr = func_get_args();
+
+		// suggestion by andrew005#mnogo.ru
+		$s = implode(',',$arr);
+		if (strlen($s) > 0) return "CONCAT($s)"; return ''; 
+	}
+	
 	function ServerInfo()
 	{
 		$arr['description'] = ADOConnection::GetOne("select version()");
