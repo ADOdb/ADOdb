@@ -83,9 +83,13 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 			$type = $typearr[$i];
 			switch($type) {
 			case 'D':
-				if (empty($v)) $s .= "<TD> &nbsp; </TD>\n";
-				else if (!strpos($v,':')) {
-					$s .= "	<TD>".$rs->UserDate($v,"D d, M Y") ."&nbsp;</TD>\n";				
+				if (strpos($v,':') !== false);
+				else {
+					if (empty($v)) {
+					$s .= "<TD> &nbsp; </TD>\n";
+					} else {
+						$s .= "	<TD>".$rs->UserDate($v,"D d, M Y") ."</TD>\n";				
+					}
 					break;
 				}
 			case 'T':
