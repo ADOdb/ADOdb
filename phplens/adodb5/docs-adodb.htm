@@ -76,7 +76,7 @@ pre {
   <a href="#cachegetone"><i>CacheGetOne</i></a> <a href="#getrow">GetRow</a> <a href="#cachegetrow"><i>CacheGetRow</i></a> 
   <a href="#getall">GetAll</a> <a href="#cachegetall"><i>CacheGetAll</i></a> <a href="#getcol">GetCol</a> 
   <a href="#cachegetcol"><i>CacheGetCol</i></a> <a href="#getassoc1">GetAssoc</a> <a href="#cachegetassoc"><i>CacheGetAssoc</i></a> <a href="#replace">Replace</a> 
-  <br>
+ <a href="#getmedian">GetMedian</a>  <br>
   &nbsp; &nbsp; &nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <a href="#executecursor">ExecuteCursor</a> 
   (oci8 only)<br>
   Generates SQL strings: <a href="#getupdatesql">GetUpdateSQL</a> <a href="#getinsertsql">GetInsertSQL</a> 
@@ -2179,7 +2179,11 @@ row3: Rose, Flower </font></p>
 <p><b>CacheGetAssoc<a name="cachegetassoc"></a>([$secs2cache,] $sql,$inputarr=false,$force_array=false,$first2cols=false)</b></p>
 </font>
 <p><font>Caching version of <a href="#getassoc1">GetAssoc</a> function above.
-</font></p><p><font><b>GetOne<a name="getone"></a>($sql,$inputarr=false)</b></font></p>
+</font></p>
+<p><font><b>GetMedian<a name="getmedian"></a>($table, $field, $where='')</b></font></p>
+<p>Returns the median value of $field for $table. The $where clause is optional. If used, make sure the WHERE is included, as in "WHERE name > 'A'". If an error occurs, false is returned. Since ADOdb 5.06 and PHP 4.991.
+<p>
+<p><font><b>GetOne<a name="getone"></a>($sql,$inputarr=false)</b></font></p>
 <p><font>Executes the SQL and returns the first field of the first row. The recordset 
   and remaining rows are discarded for you automatically. If an error occur, false 
   is returned; use ErrorNo() or ErrorMsg() to get the error details.
@@ -2998,8 +3002,10 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 <p><a name="5.06"></a><b>5.06 ?? 2008</b>
-<p>Added support for connecting to oci8 using $DB->Connect($ip, $user, $pwd, "SID=$sid");
-<p>Added mysql type 'VAR_STRING' to MetaType().
+<p>New $conn->GetMedian($table, $field, $where='') to get median account no. (also in 4.991)
+<p>The rs2html() function in tohtml.inc.php did not handle dates with ':' in it properly. Fixed. (also in 4.991)
+<p>Added support for connecting to oci8 using $DB->Connect($ip, $user, $pwd, "SID=$sid"); (also in 4.991)
+<p>Added mysql type 'VAR_STRING' to MetaType(). (also in 4.991)
 <p>Added concat support to pdo. Thx Andrea Baron.
 <p>Changed db2 driver to use format "Y-m-d H-i-s" for datetime instead of "Y-m-d-H-i-s" which was legacy from odbc_db2 conversion.
 <p>MetaForeignKeys did not work for views in MySQL 5. Fixed.

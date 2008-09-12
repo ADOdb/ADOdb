@@ -1438,6 +1438,19 @@
 		return $ret;
 	}
 	
+	// $where should include 'WHERE fld=value'
+	function GetMedian($table, $field,$where = '')
+	{
+		$total = $this->GetOne("select count(*) from $table $where");
+		if (!$total) return false;
+	
+		$midrow = (integer) ($total/2);
+		$rs = $this->SelectLimit("select $field from $table $where order by 1",1,$midrow);
+		if ($rs && !$rs->EOF) return reset($rs->fields);
+		return false;
+	}
+	
+	
 	function CacheGetOne($secs2cache,$sql=false,$inputarr=false)
 	{
 	global $ADODB_GETONE_EOF;

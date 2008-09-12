@@ -1404,6 +1404,18 @@
 		return $arr;
 	}
 	
+		// $where should include 'WHERE fld=value'
+	function GetMedian($table, $field,$where = '')
+	{
+		$total = $this->GetOne("select count(*) from $table $where");
+		if (!$total) return false;
+	
+		$midrow = (integer) ($total/2);
+		$rs = $this->SelectLimit("select $field from $table $where order by 1",1,$midrow);
+		if ($rs && !$rs->EOF) return reset($rs->fields);
+		return false;
+	}
+	
 	/**
 	* Return first element of first row of sql statement. Recordset is disposed
 	* for you.
