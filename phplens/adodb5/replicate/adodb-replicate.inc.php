@@ -40,7 +40,7 @@ class ADODB_Replicate {
 			else {
 				$ok = $this->connDest->Execute($s);
 				if (!$ok)
-					if $this->neverAbort) $ret = false;
+					if ($this->neverAbort) $ret = false;
 					else return false;
 			}
 			
@@ -80,8 +80,10 @@ class ADODB_Replicate {
 		$types = $conn->MetaColumns($table);
 		
 		if (!$types) return array();
-		var_dump($types);
+		if ($this->debug) var_dump($types);
 		$sa = array();
+		$idxcols = array();
+		
 		foreach($types as $name => $t) {
 			$s = '';
 			$mt = $this->ddSrc->MetaType($t->type);
@@ -92,6 +94,8 @@ class ADODB_Replicate {
 			else $precision = '';
 			if ($mt == 'C' or $mt == 'X') $s .= "($len)";
 			else if ($mt == 'N' && $precision) $s .= "($len$precision)";
+			
+			if ($mt == 'R') $idxcols[] = $fldname;
 			
 			if ($this->copyTableDefaults) {
 				if (isset($t->default_value)) {
@@ -111,9 +115,13 @@ class ADODB_Replicate {
 		
 		$sqla =  $this->ddDest->CreateTableSQL($desttable,$s);
 		
-		$conn->debug=1;
+		if ($idxcols) {
+			$idxoptions = array('UNIQUE'=>1);
+			$sqla2 = $this->ddDest->_IndexSQL($table.'_'.$fldname.'_SERIAL', $desttable, $idxcols,$idxoptions); 
+			$sqla = array_merge($sqla,$sqla2);
+		}
+		
 		$idxs = $conn->MetaIndexes($table);
-		var_dump($idxs);
 		if ($idxs)
 		foreach($idxs as $name => $iarr) {
 			if(isset($iarr['unique'])) {
@@ -414,7 +422,7 @@ $DB2->debug=1;
 if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
 
 $rep = new ADODB_Replicate($DB,$DB2);
-$table = 'sysenvironment';
+$table = 'SysEnvironment';
 $dtable = '';
 
 $rep->fieldFilter = 'FieldFilter';
