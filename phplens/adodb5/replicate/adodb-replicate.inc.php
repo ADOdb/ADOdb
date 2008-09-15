@@ -115,11 +115,12 @@ class ADODB_Replicate {
 		
 		$sqla =  $this->ddDest->CreateTableSQL($desttable,$s);
 		
+		/*
 		if ($idxcols) {
 			$idxoptions = array('UNIQUE'=>1);
 			$sqla2 = $this->ddDest->_IndexSQL($table.'_'.$fldname.'_SERIAL', $desttable, $idxcols,$idxoptions); 
 			$sqla = array_merge($sqla,$sqla2);
-		}
+		}*/
 		
 		$idxs = $conn->MetaIndexes($table);
 		if ($idxs)
@@ -191,7 +192,7 @@ class ADODB_Replicate {
 	Default is never abort if error occurs. You can set $rep->neverAbort = false; to force replication to abort if an error occurs.
 		
 		
-	Filtering
+	Value Filtering
 	========
 	Sometimes you might need to modify/massage the data before the code works. Assume that the value used for True and False is 
 	'T' and 'F' in src DB, but is 'Y' and 'N' in dest DB for field[2] in select stmt. You can do this by
@@ -211,7 +212,23 @@ class ADODB_Replicate {
 		TRUE: the order of fields matches the src table order
 		FALSE: the order of fields is all non-primary key fields first, followed by primary key fields. This is because it needs
 				to match the UPDATE statement, which is UPDATE $table SET f2 = ?, f3 = ? ... WHERE f1 = ?
+				
+	Name Filtering
+	=========	
+	Sometimes field names that are legal in one RDBMS can be illegal in another. We allow you to handle this using a field filter.
 	
+		$rep->fieldFilter = 'ffilter';	
+
+			function ffilter(&$fld,$mode)
+			{
+				$uf = strtoupper($fld);
+				switch($uf) {
+					case 'GROUP': 
+						if ($mode == 'SELECT') $fld = '"Group"';
+						return 'GroupFld';
+				}
+				return $fld;
+			}
 	*/
 	
 	function ReplicateData($table, $desttable = '',  $uniqflds = array(), $where = '',$onlyInsert=false)
@@ -386,6 +403,10 @@ class ADODB_Replicate {
 	}
 }
 
+
+$REPL_TEST = true;
+
+if ($REPL_TEST) {
 function SELFILTER($table, &$arr, $delfirst)
 {
 	if ($delfirst) {
@@ -409,26 +430,29 @@ function FieldFilter(&$fld,$mode)
 	return $fld;
 }
 
-$DB = ADONewConnection('odbtp');
-#$ok = $DB->Connect('localhost','root','','northwind');
-$ok = $DB->Connect('192.168.0.1','DRIVER={SQL Server};SERVER=(local);UID=sa;PWD=natsoft;DATABASE=OIR;','','');
 
-$DB->debug=1;
+	$DB = ADONewConnection('odbtp');
+	#$ok = $DB->Connect('localhost','root','','northwind');
+	$ok = $DB->Connect('192.168.0.1','DRIVER={SQL Server};SERVER=(local);UID=sa;PWD=natsoft;DATABASE=OIR;','','');
+	
+	$DB->debug=1;
+	
+	$DB2 = ADONewConnection('oci8');
+	$ok2 = $DB2->Connect('192.168.0.2','tnb','natsoft','RAPTOR','');
+	$DB2->debug=1;
+	
+	if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
+	
+	$rep = new ADODB_Replicate($DB,$DB2);
+	$table = 'SysEnvironment';
+	$dtable = '';
+	
+	$rep->fieldFilter = 'FieldFilter';
+	$rep->execute = true;
+	$rep->CopyTableStruct($table,$dtable);
+	$rep->execute = true;
+	#$rep->selFilter = 'SELFILTER';
+	$rep->ReplicateData($table,$dtable);
+}
 
-$DB2 = ADONewConnection('oci8');
-$ok2 = $DB2->Connect('192.168.0.2','tnb','natsoft','RAPTOR','');
-$DB2->debug=1;
-
-if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
-
-$rep = new ADODB_Replicate($DB,$DB2);
-$table = 'SysEnvironment';
-$dtable = '';
-
-$rep->fieldFilter = 'FieldFilter';
-$rep->execute = true;
-$rep->CopyTableStruct($table,$dtable);
-$rep->execute = true;
-#$rep->selFilter = 'SELFILTER';
-$rep->ReplicateData($table,$dtable);
 ?>

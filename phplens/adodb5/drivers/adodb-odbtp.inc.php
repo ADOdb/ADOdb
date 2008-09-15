@@ -523,7 +523,7 @@ class ADODB_odbtp extends ADOConnection{
 	
 	function MetaIndexes_mssql($table,$primary=false)
 	{
-		$table = $this->qstr($table);
+		$table = strtolower($this->qstr($table));
 
 		$sql = "SELECT i.name AS ind_name, C.name AS col_name, USER_NAME(O.uid) AS Owner, c.colid, k.Keyno, 
 			CASE WHEN I.indid BETWEEN 1 AND 254 AND (I.status & 2048 = 2048 OR I.Status = 16402 AND O.XType = 'V') THEN 1 ELSE 0 END AS IsPK,
@@ -531,7 +531,7 @@ class ADODB_odbtp extends ADOConnection{
 			FROM dbo.sysobjects o INNER JOIN dbo.sysindexes I ON o.id = i.id 
 			INNER JOIN dbo.sysindexkeys K ON I.id = K.id AND I.Indid = K.Indid 
 			INNER JOIN dbo.syscolumns c ON K.id = C.id AND K.colid = C.Colid
-			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND O.Name LIKE $table
+			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND lower(O.Name) LIKE $table
 			ORDER BY O.name, I.Name, K.keyno";
 
 		global $ADODB_FETCH_MODE;
@@ -553,7 +553,7 @@ class ADODB_odbtp extends ADOConnection{
 
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
-			if (!$primary && $row[5]) continue;
+			if ($primary && !$row[5]) continue;
 			
             $indexes[$row[0]]['unique'] = $row[6];
             $indexes[$row[0]]['columns'][] = $row[1];
