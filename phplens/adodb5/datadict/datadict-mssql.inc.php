@@ -69,7 +69,7 @@ class ADODB2_mssql extends ADODB_DataDict {
 		case 'TINYINT': return  'I1';
 		case 'SMALLINT': return 'I2';
 		case 'BIGINT':  return  'I8';
-		
+		case 'SMALLDATETIME': return 'T';
 		case 'REAL':
 		case 'FLOAT': return 'F';
 		default: return parent::MetaType($t,$len,$fieldobj);

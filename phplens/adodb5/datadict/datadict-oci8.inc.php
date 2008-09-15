@@ -89,8 +89,9 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		case 'I4': return 'DECIMAL(10)';
 		
 		case 'I8': return 'DECIMAL(20)';
-		case 'F': return 'DECIMAL';
-		case 'N': return 'DECIMAL';
+		case 'F': return 'NUMBER';
+		case 'N': return 'NUMBER';
+		case 'R': return 'NUMBER(20)';
 		default:
 			return $meta;
 		}	
