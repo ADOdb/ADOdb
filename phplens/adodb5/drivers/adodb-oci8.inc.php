@@ -277,10 +277,10 @@ NATSOFT.DOMAIN =
 	}
 	
 	// format and return date string in database date format
-	function DBDate($d)
+	function DBDate($d,$isfld=false)
 	{
 		if (empty($d) && $d !== 0) return 'null';
-		
+		if ($isfld) return 'TO_DATE('.$d.",'".$this->dateformat."')";
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
 		return "TO_DATE(".adodb_date($this->fmtDate,$d).",'".$this->dateformat."')";
 	}
@@ -302,9 +302,10 @@ NATSOFT.DOMAIN =
 	}
 	
 	// format and return date string in database timestamp format
-	function DBTimeStamp($ts)
+	function DBTimeStamp($ts,$isfld=false)
 	{
 		if (empty($ts) && $ts !== 0) return 'null';
+		if ($isfld) return 'TO_DATE('.$ts.",'RRRR-MM-DD, HH24:MI:SS')";
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
 		return 'TO_DATE('.adodb_date("'Y-m-d H:i:s'",$ts).",'RRRR-MM-DD, HH24:MI:SS')";
 	}

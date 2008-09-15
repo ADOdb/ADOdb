@@ -230,6 +230,7 @@ class ADODB_DataDict {
 		'CHARACTER' => 'C',
 		'INTERVAL' => 'C',  # Postgres
 		'MACADDR' => 'C', # postgres
+		'VAR_STRING' => 'C', # mysql
 		##
 		'LONGCHAR' => 'X',
 		'TEXT' => 'X',
