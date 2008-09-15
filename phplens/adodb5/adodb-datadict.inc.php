@@ -258,6 +258,7 @@ class ADODB_DataDict {
 		'TIMESTAMP' => 'T',
 		'DATETIME' => 'T',
 		'TIMESTAMPTZ' => 'T',
+		'SMALLDATETIME' => 'T',
 		'T' => 'T',
 		'TIMESTAMP WITHOUT TIME ZONE' => 'T', // postgresql
 		##
