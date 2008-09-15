@@ -33,14 +33,18 @@ class ADODB_Replicate {
 	{
 		if (!is_array($sql)) $sql[] = $sql;
 		
+		$ret = true;
+		var_dump($sql);
 		foreach($sql as $s) 
 			if (!$this->execute) echo "<pre>",$s.";\n</pre>";
 			else {
 				$ok = $this->connDest->Execute($s);
-				if (!$ok) return false;
+				if (!$ok)
+					if $this->neverAbort) $ret = false;
+					else return false;
 			}
 			
-		return true;
+		return $ret;
 	}
 	
 	/*
