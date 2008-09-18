@@ -4611,11 +4611,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		@param printOrArr  Pass in a boolean to indicate print, or an $exception->trace array (assumes that print is true then).
 		@param levels Number of levels to display
 	*/
-	function adodb_backtrace($printOrArr=true,$levels=9999)
+	function adodb_backtrace($printOrArr=true,$levels=9999,$ishtml=null)
 	{
 		global $ADODB_INCLUDED_LIB;
 		if (empty($ADODB_INCLUDED_LIB)) include(ADODB_DIR.'/adodb-lib.inc.php');
-		return _adodb_backtrace($printOrArr,$levels);
+		return _adodb_backtrace($printOrArr,$levels,0,$ishtml);
 	}
 
 

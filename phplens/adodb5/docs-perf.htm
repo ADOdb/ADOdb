@@ -90,7 +90,7 @@ parameters and automated tuning hints.</p>
 supported. To create a new performance monitor, call NewPerfMonitor( )
 as demonstrated below: </p>
 <pre>&lt;?php<br>include_once('adodb.inc.php');<br>session_start(); <font
- color="#006600"># session variables required for monitoring</font><br>$conn = ADONewConnection($driver);<br>$conn-&gt;Connect($server,$user,$pwd,$db);<br>$perf =amp; NewPerfMonitor($conn);<br>$perf-&gt;UI($pollsecs=5);<br>?&gt;<br></pre>
+ color="#006600"># session variables required for monitoring</font><br>$conn = ADONewConnection($driver);<br>$conn-&gt;Connect($server,$user,$pwd,$db);<br>$perf =&amp; NewPerfMonitor($conn);<br>$perf-&gt;UI($pollsecs=5);<br>?&gt;<br></pre>
 <p>It is also possible to retrieve a single database parameter:</p>
 <pre>$size = $perf-&gt;DBParameter('data cache size');<br></pre>
 <p>
