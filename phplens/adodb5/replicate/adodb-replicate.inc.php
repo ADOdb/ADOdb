@@ -17,7 +17,7 @@ class ADODB_Replicate {
 	var $fieldFilter = false;
 	var $indexFilter = false;
 	
-		var $commitRecs = -1; // only commit at end of ReplicateData()
+	var $commitRecs = -1; // only commit at end of ReplicateData()
 	var $neverAbort = true;
 	var $copyTableDefaults = false; // turn off because functions defined as defaults will not work when copied
 	var $errHandler = false; // name of error handler function, if used.

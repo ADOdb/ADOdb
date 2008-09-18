@@ -38,8 +38,25 @@ $ok2 = $DB2->Connect('192.168.0.2','tnb','natsoft','RAPTOR','');
 
 if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
 
-$tables = 
-"#tblReport
+$tables =
+"
+sysRestoration
+sysRepairMethod
+tblRepRepairMethod
+";
+
+$tablesOld = 
+"
+sysRestoration
+sysRepairMethod
+tblRepRepairMethod
+tblInterruptionType
+sysInterruptionType
+tblRepFailureMode
+tblRepFailureCause
+netTransformer
+#
+tblReport
 tblRepProtection
 tblRepComponent
 tblRepWeather
@@ -85,7 +102,7 @@ $rep->fieldFilter = 'FieldFilter';
 $rep->selFilter = 'SELFILTER';
 $rep->indexFilter = 'IndexFilter';
 
-if (0) {
+if (1) {
 	$rep->debug = 1;
 	$DB->debug=1;
 	$DB2->debug=1;
@@ -119,7 +136,6 @@ foreach($tables as $k => $table) {
 	
 	# COPY DATA
 	$rep->execute = true;
-	$DB2->debug=0;
 	$rows = $rep->ReplicateData($table,$dtable);
 	if (!$rows || !$rows[0] || !$rows[1] || $rows[1] != $rows[2]+$rows[3]) {
 		echo "<hr>Error: "; var_dump($rows);  echo "<hr>\n";
@@ -127,4 +143,6 @@ foreach($tables as $k => $table) {
 		echo $rows[1]." record(s) copied<br>\n";
 	flush();@ob_flush();
 }
+
+echo "<hr>Done</hr>";
 ?>
