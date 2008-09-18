@@ -1,6 +1,6 @@
 <?php
 
-include_once('../adodb.inc.php');
+define('ADODB_REPLICATE',1);
 
 include_once(ADODB_DIR.'/adodb-datadict.inc.php');
 
@@ -11,14 +11,16 @@ class ADODB_Replicate {
 	var $ddDest;
 	
 	var $execute = false;
-	var $debug = true;
+	var $debug = false;
 	
 	var $selFilter = false;
-	var $commitRecs = -1; // only commit at end of ReplicateData()
+	var $fieldFilter = false;
+	var $indexFilter = false;
+	
+		var $commitRecs = -1; // only commit at end of ReplicateData()
 	var $neverAbort = true;
 	var $copyTableDefaults = false; // turn off because functions defined as defaults will not work when copied
 	var $errHandler = false; // name of error handler function, if used.
-	var $fieldFilter = false;
 	
 	function ADODB_Replicate($connSrc, $connDest)
 	{
@@ -34,7 +36,6 @@ class ADODB_Replicate {
 		if (!is_array($sql)) $sql[] = $sql;
 		
 		$ret = true;
-		var_dump($sql);
 		foreach($sql as $s) 
 			if (!$this->execute) echo "<pre>",$s.";\n</pre>";
 			else {
@@ -56,6 +57,7 @@ class ADODB_Replicate {
 	function CopyTableStruct($table,$desttable='')
 	{
 		$sql = $this->CopyTableStructSQL($table,$desttable);
+		if (empty($sql)) return false;
 		return $this->ExecSQL($sql);
 	}
 	
@@ -125,17 +127,24 @@ class ADODB_Replicate {
 		$idxs = $conn->MetaIndexes($table);
 		if ($idxs)
 		foreach($idxs as $name => $iarr) {
-			if(isset($iarr['unique'])) {
-				$idxoptions = array('UNIQUE'=>1);
-			} else {
-			 	$idxoptions = array();
+			$idxoptions = array();
+			$fldnames = array();
+			
+			if(!empty($iarr['unique'])) {
+				$idxoptions['UNIQUE'] = 1;
 			}
 			
 			foreach($iarr['columns'] as $fld) {
 				$fldnames[] = $this->RunFieldFilter($fld);
 			}
 			
-			$sqla2 = $this->ddDest->_IndexSQL($prefixidx.str_replace($table,'',$name), $desttable, $fldnames,$idxoptions); 
+			$idxname = $prefixidx.str_replace($table,$desttable,$name);
+			
+			if (!empty($this->indexFilter)) {
+				$fn = $this->indexFilter;
+				$idxname = $fn($desttable,$idxname,$fldnames,$idxoptions);
+			}
+			$sqla2 = $this->ddDest->_IndexSQL($idxname, $desttable, $fldnames,$idxoptions); 
 			$sqla = array_merge($sqla,$sqla2);
 		}
 		
@@ -278,7 +287,7 @@ class ADODB_Replicate {
 			if ($mt == 'D') $fldval = $dest->DBDate($fldval);
 			elseif ($mt == 'T') $fldval = $dest->DBTimeStamp($fldval);
 			
-			echo " $fld $mt $fldval<br>";
+			if ($this->debug) echo " field=$fld type=$mt fldval=$fldval<br>";
 			if (!isset($uniq[strtoupper($fld)])) {
 				
 				$selfld = $fld;
@@ -401,58 +410,6 @@ class ADODB_Replicate {
 		$fn = $this->errHandler;
 		if ($fn) $fn($this, $reason, $flds); // set $this->neverAbort to true or false as required inside $fn
 	}
-}
-
-
-$REPL_TEST = true;
-
-if ($REPL_TEST) {
-function SELFILTER($table, &$arr, $delfirst)
-{
-	if ($delfirst) {
-		if ($arr[11] == '0000-00-00') $arr[11] = null;
-		if ($arr[13] == '0000-00-00 00:00:00') $arr[13] = null;
-	} else {
-		if ($arr[10] == '0000-00-00') $arr[10] = null;
-		if ($arr[12] == '0000-00-00 00:00:00') $arr[12] = null;
-	}
-	return true;
-}
-
-function FieldFilter(&$fld,$mode)
-{
-	$uf = strtoupper($fld);
-	switch($uf) {
-		case 'GROUP': 
-			if ($mode == 'SELECT') $fld = '"Group"';
-			return 'GroupFld';
-	}
-	return $fld;
-}
-
-
-	$DB = ADONewConnection('odbtp');
-	#$ok = $DB->Connect('localhost','root','','northwind');
-	$ok = $DB->Connect('192.168.0.1','DRIVER={SQL Server};SERVER=(local);UID=sa;PWD=natsoft;DATABASE=OIR;','','');
-	
-	$DB->debug=1;
-	
-	$DB2 = ADONewConnection('oci8');
-	$ok2 = $DB2->Connect('192.168.0.2','tnb','natsoft','RAPTOR','');
-	$DB2->debug=1;
-	
-	if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
-	
-	$rep = new ADODB_Replicate($DB,$DB2);
-	$table = 'SysEnvironment';
-	$dtable = '';
-	
-	$rep->fieldFilter = 'FieldFilter';
-	$rep->execute = true;
-	$rep->CopyTableStruct($table,$dtable);
-	$rep->execute = true;
-	#$rep->selFilter = 'SELFILTER';
-	$rep->ReplicateData($table,$dtable);
 }
 
 ?>

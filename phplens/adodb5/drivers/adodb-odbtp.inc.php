@@ -531,7 +531,7 @@ class ADODB_odbtp extends ADOConnection{
 			FROM dbo.sysobjects o INNER JOIN dbo.sysindexes I ON o.id = i.id 
 			INNER JOIN dbo.sysindexkeys K ON I.id = K.id AND I.Indid = K.Indid 
 			INNER JOIN dbo.syscolumns c ON K.id = C.id AND K.colid = C.Colid
-			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND lower(O.Name) LIKE $table
+			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND lower(O.Name) = $table
 			ORDER BY O.name, I.Name, K.keyno";
 
 		global $ADODB_FETCH_MODE;

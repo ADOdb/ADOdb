@@ -82,13 +82,13 @@ class ADODB2_oci8 extends ADODB_DataDict {
 			
 		case 'D': 
 		case 'T': return 'DATE';
-		case 'L': return 'DECIMAL(1)';
-		case 'I1': return 'DECIMAL(3)';
-		case 'I2': return 'DECIMAL(5)';
+		case 'L': return 'NUMBER(1)';
+		case 'I1': return 'NUMBER(3)';
+		case 'I2': return 'NUMBER(5)';
 		case 'I':
-		case 'I4': return 'DECIMAL(10)';
+		case 'I4': return 'NUMBER(10)';
 		
-		case 'I8': return 'DECIMAL(20)';
+		case 'I8': return 'NUMBER(20)';
 		case 'F': return 'NUMBER';
 		case 'N': return 'NUMBER';
 		case 'R': return 'NUMBER(20)';
