@@ -15,7 +15,7 @@ pre {
 <body bgcolor="#ffffff" text="black">
 
 <h2>ADOdb Library for PHP</h2> 
-<p>V5.05 11 July 2008 (c) 2000-2008 John Lim (jlim#natsoft.com)</p>
+<p>V5.06 29 Sept 2008 (c) 2000-2008 John Lim (jlim#natsoft.com)</p>
 <p><font size="1">This software is dual licensed using BSD-Style and LGPL. This 
   means you can use it in compiled proprietary and commercial products.</font></p>
   
@@ -3001,7 +3001,7 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
-<p><a name="5.06"></a><b>5.06 ?? 2008</b>
+<p><a name="5.06"></a><b>5.06 29 Sept 2008</b>
 <p>New $conn->GetMedian($table, $field, $where='') to get median account no. (also in 4.991)
 <p>The rs2html() function in tohtml.inc.php did not handle dates with ':' in it properly. Fixed. (also in 4.991)
 <p>Added support for connecting to oci8 using $DB->Connect($ip, $user, $pwd, "SID=$sid"); (also in 4.991)
@@ -3019,6 +3019,7 @@ of MySQL.</font></p>
 <p>The oci8po FetchField() now only lowercases field names if ADODB_ASSOC_CASE is set to 0.
 <p>New mssqlnative drivers for php. TQ Garrett Serack of M'soft. <a href=http://www.microsoft.com/downloads/details.aspx?FamilyId=61BF87E0-D031-466B-B09A-6597C21A2E2A&displaylang=en>Download</a> mssqlnative extension.
 Note that this is still in beta.
+<p>Fixed bugs in memcache support.
 <p>You can now change the return value of GetOne if no records are found using the global variable $ADODB_GETONE_EOF. The default is null. To change it back to the pre-4.99/5.00 behaviour of false, set $ADODB_GETONE_EOF = false; 
 <p><a name="5.05"></a><b>4.990/5.05 11 Jul 2008</b>
 <p>
