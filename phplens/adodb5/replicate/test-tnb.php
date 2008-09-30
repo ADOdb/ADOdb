@@ -40,13 +40,16 @@ if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
 
 $tables =
 "
-sysRestoration
-sysRepairMethod
-tblRepRepairMethod
+tblProtType
 ";
 
 $tablesOld = 
 "
+SelMVFuseType
+selFuseSize
+netRelay
+SysListVolt
+sysVoltLevel
 sysRestoration
 sysRepairMethod
 tblRepRepairMethod
@@ -102,7 +105,7 @@ $rep->fieldFilter = 'FieldFilter';
 $rep->selFilter = 'SELFILTER';
 $rep->indexFilter = 'IndexFilter';
 
-if (1) {
+if (0) {
 	$rep->debug = 1;
 	$DB->debug=1;
 	$DB2->debug=1;
