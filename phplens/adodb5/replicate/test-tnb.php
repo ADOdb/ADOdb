@@ -40,12 +40,17 @@ if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
 
 $tables =
 "
-tblProtType
+# comment1
+tblProtType  # comment2
+SelMVFuseType
 ";
+
+# net* are ERMS, need last updated field from LGBnet
+# tblRep* are tables insert or update from Juris, need last updated field also
+# The rest are lookup tables, can copy all from LGBnet
 
 $tablesOld = 
 "
-SelMVFuseType
 selFuseSize
 netRelay
 SysListVolt
@@ -59,14 +64,16 @@ tblRepFailureMode
 tblRepFailureCause
 netTransformer
 #
+#
 tblReport
+tblRepRestoration
+tblRepResdetail
+#
 tblRepProtection
 tblRepComponent
 tblRepWeather
 tblRepEnvironment
 tblRepSubstation
-tblRepRestoration
-tblRepResdetail
 sysComponent
 sysCodecibs
 sysCodeno
@@ -115,10 +122,10 @@ $cnt = sizeof($tables);
 foreach($tables as $k => $table) {
 	$table = trim($table);
 	if (strlen($table) == 0) continue;
-	if (strncmp($table,'#',1) == 0) {
-		echo "<h3>Ignoring $table</h3>\n";	
-		flush();@ob_flush();
-		continue;
+	if (strpos($table, '#') !== false) {
+		$at = strpos($table, '#');
+		$table = trim(substr($table,0,$at));
+		if (strlen($table) == 0) continue;
 	}
 	$dtable = '';
 	
@@ -143,9 +150,9 @@ foreach($tables as $k => $table) {
 	if (!$rows || !$rows[0] || !$rows[1] || $rows[1] != $rows[2]+$rows[3]) {
 		echo "<hr>Error: "; var_dump($rows);  echo "<hr>\n";
 	} else
-		echo $rows[1]." record(s) copied<br>\n";
+		echo date('H:i:s'),': ',$rows[1]," record(s) copied, ",$rows[2]," inserted, ",$rows[3]," updated<br>\n";
 	flush();@ob_flush();
 }
 
-echo "<hr>Done</hr>";
+echo "<hr>",date('H:i:s'),": Done</hr>";
 ?>
