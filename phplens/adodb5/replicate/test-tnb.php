@@ -41,16 +41,8 @@ if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
 $tables =
 "
 # comment1
-tblProtType  # comment2
+tblProtType  # id_pt
 SelMVFuseType
-";
-
-# net* are ERMS, need last updated field from LGBnet
-# tblRep* are tables insert or update from Juris, need last updated field also
-# The rest are lookup tables, can copy all from LGBnet
-
-$tablesOld = 
-"
 selFuseSize
 netRelay
 SysListVolt
@@ -63,6 +55,14 @@ sysInterruptionType
 tblRepFailureMode
 tblRepFailureCause
 netTransformer
+";
+
+# net* are ERMS, need last updated field from LGBnet
+# tblRep* are tables insert or update from Juris, need last updated field also
+# The rest are lookup tables, can copy all from LGBnet
+
+$tablesOld = 
+"
 #
 #
 tblReport
@@ -70,10 +70,18 @@ tblRepRestoration
 tblRepResdetail
 #
 tblRepProtection
-tblRepComponent
+tblRepComponent # id_rc
 tblRepWeather
 tblRepEnvironment
 tblRepSubstation
+tblInstallationType
+tblInstallationCat
+tblFailureCause
+tblFailureMode
+tblProtection  # id_tp
+tblComponent
+tblProtdetail # id
+tblInstallation  
 sysComponent
 sysCodecibs
 sysCodeno
@@ -93,14 +101,6 @@ SysInstallationType
 SysFaultCategory
 SysResponsible
 SysProtectionOperation
-tblInstallationType
-tblInstallationCat
-tblFailureCause
-tblFailureMode
-tblProtection
-tblComponent
-tblProtdetail
-tblInstallation
 netCodename
 netSubstation
 netLvFeeder";
@@ -134,7 +134,7 @@ foreach($tables as $k => $table) {
 	flush();@ob_flush();
 	
 	## CREATE TABLE
-	$DB2->Execute("drop table $table");
+	#$DB2->Execute("drop table $table");
 	
 	$rep->execute = true;
 	$ok = $rep->CopyTableStruct($table);
@@ -146,11 +146,13 @@ foreach($tables as $k => $table) {
 	
 	# COPY DATA
 	$rep->execute = true;
+	$secs = time();
 	$rows = $rep->ReplicateData($table,$dtable);
+	$secs = time() - $secs;
 	if (!$rows || !$rows[0] || !$rows[1] || $rows[1] != $rows[2]+$rows[3]) {
-		echo "<hr>Error: "; var_dump($rows);  echo "<hr>\n";
+		echo "<hr>Error: "; var_dump($rows);  echo " (secs=$secs) <hr>\n";
 	} else
-		echo date('H:i:s'),': ',$rows[1]," record(s) copied, ",$rows[2]," inserted, ",$rows[3]," updated<br>\n";
+		echo date('H:i:s'),': ',$rows[1]," record(s) copied, ",$rows[2]," inserted, ",$rows[3]," updated (secs=$secs)<br>\n";
 	flush();@ob_flush();
 }
 
