@@ -3006,6 +3006,7 @@ of MySQL.</font></p>
 <p>The rs2html() function in tohtml.inc.php did not handle dates with ':' in it properly. Fixed. (also in 4.991)
 <p>Added support for connecting to oci8 using $DB->Connect($ip, $user, $pwd, "SID=$sid"); (also in 4.991)
 <p>Added mysql type 'VAR_STRING' to MetaType(). (also in 4.991)
+<p>The session and session2 code supports setfetchmode assoc properly now (also in 4.991).
 <p>Added concat support to pdo. Thx Andrea Baron.
 <p>Changed db2 driver to use format "Y-m-d H-i-s" for datetime instead of "Y-m-d-H-i-s" which was legacy from odbc_db2 conversion.
 <p>MetaForeignKeys did not work for views in MySQL 5. Fixed.

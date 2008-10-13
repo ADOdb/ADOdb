@@ -4,6 +4,11 @@ define('ADODB_REPLICATE',1);
 
 include_once(ADODB_DIR.'/adodb-datadict.inc.php');
 
+/*
+	Note: this code assumes that the comments allow / *    * / which works with:
+		 mssql, postgresql, oracle, mssql
+*/
+
 class ADODB_Replicate {
 	var $connSrc;
 	var $connDest;
@@ -12,6 +17,7 @@ class ADODB_Replicate {
 	
 	var $execute = false;
 	var $debug = false;
+	var $deleteFirst = true;
 	
 	var $selFilter = false;
 	var $fieldFilter = false;
@@ -21,6 +27,7 @@ class ADODB_Replicate {
 	var $neverAbort = true;
 	var $copyTableDefaults = false; // turn off because functions defined as defaults will not work when copied
 	var $errHandler = false; // name of error handler function, if used.
+	var $htmlSpecialChars = true; // if execute false, then output with htmlspecialchars enabled
 	
 	function ADODB_Replicate($connSrc, $connDest)
 	{
@@ -29,6 +36,7 @@ class ADODB_Replicate {
 		
 		$this->ddSrc = NewDataDictionary($connSrc);
 		$this->ddDest = NewDataDictionary($connDest);
+		$this->htmlSpecialChars = isset($_SERVER['HTTP_HOST']);
 	}
 	
 	function ExecSQL($sql)
@@ -151,6 +159,18 @@ class ADODB_Replicate {
 		return $sqla;
 	}
 	
+	function _concat($v)
+	{ 
+		return $this->connDest->concat("' ","chr(".ord($v).")","'");
+	}
+	function fixupbinary($v) 
+	{
+		return str_replace(
+			array("\r","\n"), 
+			array($this->_concat("\r"),$this->_concat("\n")),
+			$v );
+	}
+	
 	/*
 	// if no uniqflds defined, then all desttable recs will be deleted
 	// $where clause must include the WHERE word if used
@@ -258,6 +278,11 @@ class ADODB_Replicate {
 		
 		$src = $this->connSrc;
 		$dest = $this->connDest;
+		$dest->noNullStrings = false;
+		$src->noNullStrings = false;
+		
+		if ($src === $dest) $this->execute = false;
+		
 		$types = $src->MetaColumns($table);
 		if (!$types) {
 			echo "Source $table does not exist<br>\n";
@@ -326,81 +351,111 @@ class ADODB_Replicate {
 		$sa['INS'] = "INSERT INTO $desttable ($insfldss) VALUES ($paramss)";
 		$sa['UPD'] = "UPDATE $desttable SET $setss WHERE $wheress";
 		
-		$DB1 = "/* Source DB */\n";
-		$DB2 = "/* Dest DB */\n";
-		if ($deleteFirst) {
+		$DB1 = "/* <font color=green> Source DB - sample sql in case you need to adapt code\n\n";
+		$DB2 = "/* <font color=green> Dest DB - sample sql in case you need to adapt code\n\n";
+		
+		if (!$this->execute) echo '/*<style>
+pre {
+white-space: pre-wrap; /* css-3 */
+white-space: -moz-pre-wrap !important; /* Mozilla, since 1999 */
+white-space: -pre-wrap; /* Opera 4-6 */
+white-space: -o-pre-wrap; /* Opera 7 */
+word-wrap: break-word; /* Internet Explorer 5.5+ */
+}
+</style><pre>*/
+';
+		if ($deleteFirst && $this->deleteFirst) {
 			$sql = "DELETE FROM $desttable\n";
-			if (!$this->execute) echo '<pre>',$DB2,$sql,"\n</pre>";
+			if (!$this->execute) echo $DB2,'</font>*/',$sql,"\n";
 			else $dest->Execute($sql);
 		}
 		
-		
-		if (!$this->execute) {
-			echo $DB1,$sa['SEL'],"<hr>\n";
-			echo $DB2,$sa['INS'],"<hr>\n";
-			echo $DB2,$sa['UPD'],"\n";
-			
-			return $sa;
-		}
 		global $ADODB_COUNTRECS;
 		$err = false;
 		$src->setFetchMode(ADODB_FETCH_NUM);
-		$ADODB_COUNTRECS = false;
+		$ADODB_COUNTRECS = false;		
 		
-		$dest->BeginTrans();
-		$rs = $src->Execute($sa['SEL']);
-		if (!$rs) {
-			if ($this->errHandler) $this->_doerr('SEL',array());
-			return array(0,0,0,0);
-		}
-		
-		$cnt = 0;
-		$upd = 0;
-		$ins = 0;
-		$fn = $this->selFilter;
-		$commitRecs = $this->commitRecs;
-		
-		while (!$rs->EOF) {
-			if ($fn) {
-				if (!$fn($desttable, $rs->fields,$deleteFirst,$this)) continue;
-			}
-			if (!$onlyInsert) {
-				if (!$dest->Execute($sa['UPD'],$rs->fields)) {
-					$err = true;
-					if ($this->errHandler) $this->_doerr('UPD',$rs->fields);
-					if ($this->neverAbort) continue;
-					else break;
+		if (!$this->execute) {
+			echo $DB1,$sa['SEL'],"</font>\n*/\n\n";
+			echo $DB2,$sa['INS'],"</font>\n*/\n\n";
+			$suffix = ($onlyInsert) ? ' PRIMKEY=?' : '';
+			echo $DB2,$sa['UPD'],"$suffix</font>\n*/\n\n";
+			
+			$src->setFetchMode(ADODB_FETCH_NUM);
+			$rs = $src->Execute($sa['SEL']);
+			$cnt = 1;
+			$upd = 0;
+			$ins = 0;
+			while ($rs && !$rs->EOF) {
+				$INS = $sa['INS'];
+				$arr = array_reverse($rs->fields);
+				foreach($arr as $k => $v) {
+					$k = sizeof($arr)-$k-1;
+					$INS = str_replace(':'.$k,$this->fixupbinary($dest->qstr($v)),$INS);
 				}
-			 	if ($dest->Affected_Rows() == 0) {
-					if (!$dest->Execute($sa['INS'],$rs->fields)) {
+				if ($this->htmlSpecialChars) $INS = htmlspecialchars($INS);
+				echo "-- $cnt\n",$INS,";\n\n";
+				$cnt += 1;
+				$ins += 1;
+				$rs->MoveNext();
+			}
+			
+			return $sa;
+		} else {
+			$dest->BeginTrans();
+			$rs = $src->Execute($sa['SEL']);
+			if (!$rs) {
+				if ($this->errHandler) $this->_doerr('SEL',array());
+				return array(0,0,0,0);
+			}
+			
+			$cnt = 0;
+			$upd = 0;
+			$ins = 0;
+			$fn = $this->selFilter;
+			$commitRecs = $this->commitRecs;
+			
+			while (!$rs->EOF) {
+				if ($fn) {
+					if (!$fn($desttable, $rs->fields,$deleteFirst,$this)) continue;
+				}
+				if (!$onlyInsert) {
+					if (!$dest->Execute($sa['UPD'],$rs->fields)) {
+						$err = true;
+						if ($this->errHandler) $this->_doerr('UPD',$rs->fields);
+						if ($this->neverAbort) continue;
+						else break;
+					}
+				 	if ($dest->Affected_Rows() == 0) {
+						if (!$dest->Execute($sa['INS'],$rs->fields)) {
+							$err = true;
+							if ($this->errHandler) $this->_doerr('INS',$rs->fields);
+							if ($this->neverAbort) continue;
+							else break;
+						}
+						$ins += 1;
+					} else
+						$upd += 1;
+				}  else {
+					if (! $dest->Execute($sa['INS'],$rs->fields)) {
 						$err = true;
 						if ($this->errHandler) $this->_doerr('INS',$rs->fields);
 						if ($this->neverAbort) continue;
 						else break;
 					}
+					
 					$ins += 1;
-				} else
-					$upd += 1;
-			}  else {
-				if (! $dest->Execute($sa['INS'],$rs->fields)) {
-					$err = true;
-					if ($this->errHandler) $this->_doerr('INS',$rs->fields);
-					if ($this->neverAbort) continue;
-					else break;
 				}
+				$cnt += 1;
 				
-				$ins += 1;
-			}
-			$cnt += 1;
-			
-			if ($commitRecs > 0 && ($cnt % $commitRecs) == 0) {
-				$dest->CommitTrans();
-				$dest->BeginTrans();
-			}
-			$rs->MoveNext();
-		} // while 
-		$dest->CommitTrans();
-		
+				if ($commitRecs > 0 && ($cnt % $commitRecs) == 0) {
+					$dest->CommitTrans();
+					$dest->BeginTrans();
+				}
+				$rs->MoveNext();
+			} // while 
+			$dest->CommitTrans();
+		}		
 		if ($cnt != $ins + $upd) echo "<p>ERROR: $cnt != INS $ins + UPD $upd</p>";
 		return array(!$err, $cnt, $ins, $upd);
 	}
