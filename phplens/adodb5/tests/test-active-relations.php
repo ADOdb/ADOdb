@@ -73,10 +73,11 @@
 			echo "error LoadRelations<br>";
 		}
 	}
-	
+	if ($p)
 	foreach($p->children as $c) {
 		echo " $c->name_first ";
 		$c->name_first .= ' K.';
 		$c->Save();
 	}
+
 ?>

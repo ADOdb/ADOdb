@@ -357,8 +357,8 @@ $conn->CompleteTrans();
 <h2>One to Many Relations</h3>
 <p>Since 0.90, we support parent child relationships. This is done using the BelongsTo() and HasMany() functions.
 <h3><li>HasMany</h3>
-<p>To define a one-to-many relationship we use $parentobj->HasMany($relation, $foreignKey). For example, we have 2 tables, <strong>persons</strong> (parent table) and <strong>children</strong> (child table)
-linked by persons.id = children.person_id. The variable $person->children is an array that holds the children. To define this relationship:
+<p>To define a one-to-many relationship we use $parentobj->HasMany($relation, $foreignKey = ''). For example, we have 2 tables, <strong>persons</strong> (parent table) and <strong>children</strong> (child table)
+linked by <strong>persons.id = children.person_id</strong>. The variable $person->children is an array that holds the children. To define this relationship:
 <pre>
 	class person extends ADOdb_Active_Record{}
 	
@@ -368,7 +368,7 @@ linked by persons.id = children.person_id. The variable $person->children is an 
 	foreach($person->children as $c) {
 		echo " $c->name_first ";
 		$c->name_first .= ' K.';
-		$c->Save();
+		$c->Save();  ## each child record must be saved individually
 	}
 </pre>
 <p>This HasMany() definition is global for the current script. This means that you only need to define it once. In the following example, $person2 knows about <em>children</em>.
@@ -380,7 +380,56 @@ linked by persons.id = children.person_id. The variable $person->children is an 
 	$person->Load("id=1");
 	$p = $person2->children;
 </pre>
-<p>The 
+<p>If no data is loaded, then children is set to an empty array:
+<pre>
+	$person2 = new person();
+	$person2->HasMany('children','person_id');
+	$p = $person2->children;  ## $p is an empty array()
+</pre>
+<P>By default, data returned by HasMany() is unsorted. To define an order by clause, see <a href=#loadrelations>LoadRelations()</a> below.
+<p>To create and save new parent and child records:
+<pre>
+
+	class person extends ADOdb_Active_Record{}
+	class children extends ADOdb_Active_Record{}
+	
+	$person = new person();
+	$person->HasMany('children','person_id');
+	
+	for ($i=0; $i<10; $i++) 
+		$person->children[0] = new children('children'); # because pluralization of children is wrong
+	 
+	 // modify fields of $person, then...
+	$person->save();
+	
+	foreach($person->children as $c) {
+		// modify fields of $c then...
+		$c->save();
+	}
+</pre>
+<p>You can have multiple relationships:
+<pre>
+	$person = new person();
+	$person->HasMany('children','person_id');
+	$person->HasMany('siblings','person_id');
+	
+	# WARNING: relations are case-sensitive. This creates 3rd relation
+	$person->HasMany('Children','person_id'); 
+</pre>
+<p>Lastly some troubleshooting issues. We use the __get() method to set 
+$p->children below. So once $p->children is defined by accessing it, we don't change the child reference, as shown below:
+<pre>
+	$p = new person();
+	$p->HasMany('children','person_id');
+	$p->Load('id=1');
+	# $p->children points to person_id = 1
+	var_dump($p->children);
+	
+	$p->Load('id=2');
+	# $p->children still points to person_id = 1
+	var_dump($p->children); 
+</pre>
+<p>The solution to the above is to unset($p->children) before $p->Load('id=2').
 <h3><li>A Complete HasMany example</h3>
 <p>Here is sample usage using mysql:
 <pre>
@@ -402,6 +451,7 @@ linked by persons.id = children.person_id. The variable $person->children is an 
 	$db->Execute("CREATE TEMPORARY TABLE `children` (
 	                `id` int(10) unsigned NOT NULL auto_increment,
 					`person_id` int(10) unsigned NOT NULL,
+					`gender` varchar(10) default 'F',
 	                `name_first` varchar(100) NOT NULL default '',
 	                `name_last` varchar(100) NOT NULL default '',
 	                `favorite_pet` varchar(100) NOT NULL default '',
@@ -434,23 +484,52 @@ linked by persons.id = children.person_id. The variable $person->children is an 
 	}
 </pre>
 <h3><li>BelongsTo</h3>
-<p>You can also define parents using BelongsTo($relationName, $foreignKey, $parentPrimaryKey). In the example below,
-we have a child table <strong>children</strong>, and a parent table <strong>person</strong>. We have a link children.person_id = person.id:
+<p>You can also define parents using BelongsTo($relationName, $foreignKey, $parentPrimaryKey = 'id'). In the example below,
+we have a child table <strong>children</strong>, and a parent table <strong>person</strong>. We have a link <strong>children.person_id = persons.id</strong>:
 <pre>
 	class Child extends ADOdb_Active_Record{};
 	$ch = new Child('children',array('id'));
 	$ch->BelongsTo('person','person_id','id');  ## this can be simplified to $ch->BelongsTo('person')
 	                                            ## as foreign key defaults to $table.'_id' and 
-												## parent pkey defaults to 'id' 
+	                                            ## parent pkey defaults to 'id' 
 	$ch->Load('id=1');
 	$p = $ch->person;
 	if (!$p || $p->name_first != 'John') echo "Error loading belongsTo&lt;br>";
 	else echo "OK loading BelongTo&lt;br>";
 </pre>
+<p>You only need to define BelongsTo() once in a script as it is global. Also if no data is loaded, then $p will return null;
+<pre>
+	$ch = new Child('children',array('id'));
+	$ch->BelongsTo('person','person_id','id');
+	$p = $ch->person; # $p is null
+</pre>
+<a name=loadrelations>
 <h3><li>LoadRelations</h3>
-<p>
-
-<p>Thanks to Chris Ravenscroft for original code (chris#voilaweb.com).
+<p>Sometimes you want to load only a subset of data in a relationship. For example, you could load all female children sorted by children.id
+using LoadRelation($relation, $whereOrderBy = '', $offset = -1, $limit = -1);
+<pre>
+	$person = new person();
+	$person->HasMany('children','person_id'); 
+	$person->Load('id=23');
+	$person->LoadRelations('children',"and gender='F' order by id");
+</pre>
+<p>Lastly, if you have lots of data, you can define a window of data to load using:
+<pre>
+	$acc = new Account();
+	$acc->HasMany('transactions','account_id'); 
+	$acc->Load('id=23');
+	for ($i = $start; $i < 10000; $i++) {
+		$acc->LoadRelations('transactions',"order by trxdate", $start, $start+100);
+		foreach ($acc->transactions as $k => $trx) {
+			## process
+			$trx->save();
+		}
+		if (sizeof($acc->transactions) == 0) break;
+	}
+</pre>
+<p>The $offset is 0-based, and $limit is the number of records to retrieve. The default is to ignore $offset (-1) and $limit (-1).
+<h3><li>Acknowledgements</h3>
+<p>Thanks to Chris Ravenscroft for original one-to-many code (chris#voilaweb.com).
 <h2>ADOConnection Supplement</h2>
 
 <h3><li>ADOConnection::GetActiveRecords()</h3>

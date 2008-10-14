@@ -241,7 +241,7 @@ class ADODB_Active_Record {
 			$obj = $table->_belongsTo[$name];
 			$columnName = $obj->foreignKey;
 			if(empty($this->$columnName))
-				$this->_belongsTo[$name] = null;
+				$this->$name = null;
 			else
 			{
 				if ($obj->parentKey) $key = $obj->parentKey;
@@ -261,6 +261,7 @@ class ADODB_Active_Record {
 			$tbarr = false;array('foreignName'=>$name, 
 						'belongsTo'=>$table->_belongsTo, 'hasMany'=>$table->_hasMany);
 			$objs = $obj->Find($obj->foreignKey.'='.$this->id. ' '.$whereOrderBy,false,false,$extras,$tbarr);
+			if (!$objs) $objs = array();
 			$this->$name = $objs;
 			return $objs;
 		}
