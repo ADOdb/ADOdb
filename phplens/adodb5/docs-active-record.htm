@@ -508,7 +508,7 @@ we have a child table <strong>children</strong>, and a parent table <strong>pers
 <a name=loadrelations>
 <h3><li>LoadRelations</h3>
 <p>Sometimes you want to load only a subset of data in a relationship. For example, you could load all female children sorted by children.id
-using LoadRelation($relation, $whereOrderBy = '', $offset = -1, $limit = -1);
+using LoadRelations($relation, $whereOrderBy = '', $offset = -1, $limit = -1);
 <pre>
 	$person = new person();
 	$person->HasMany('children','person_id'); 
@@ -684,7 +684,8 @@ echo "&lt;p>Name first (should be John): ",$person->name_first, "&lt;br>Class = 
 
 <h3> Change Log</h3>
 <p>0.90
-Support for belongsTo and hasMany. Thanks to Chris Ravenscroft (chris#voilaweb.com)
+Support for belongsTo and hasMany. Thanks to Chris Ravenscroft (chris#voilaweb.com).
+Added LoadRelations().
 
 <p>0.08
 Added support for assoc arrays in Set().
