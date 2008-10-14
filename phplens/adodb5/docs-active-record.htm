@@ -32,7 +32,8 @@ This implementation differs from Zend Framework's implementation in the followin
 <li>No field name conversion to camel-caps style, unlike Zend's implementation which will convert field names such as 'first_name' to 'firstName'.<p>
 <li>NewADOConnection::GetActiveRecords() and ADOConnection::GetActiveRecordsClass() functions in adodb.inc.php.<p>
 <li>Caching of table metadata so it is only queried once per table, no matter how many Active Records are created.<p>
-<li>The additional functionality is described <a href=#additional>below</a>. 
+<li>PHP5 version of ADOdb_Active_Record now supports <a href=#onetomany>one-to-many</a> relationships.<p>
+<li>Lots of  <a href=#additional>additional functionality</a>.<p> 
 </ul>
 <P>
 ADOdb_Active_Record is designed upon the principles of the "ActiveRecord" design pattern, which was first described by Martin Fowler. The ActiveRecord pattern has been implemented in many forms across the spectrum of programming languages. ADOdb_Active_Record attempts to represent the database as closely to native PHP objects as possible.
@@ -334,11 +335,11 @@ the global variable $ADODB_ACTIVE_CACHESECS to a value greater than 0. This will
     $rec->save();
  }
 </pre>
-Of course a SELECT statement is superior because it's simpler and much more efficient (probably by a factor of x10 or more):
+Of course an UPDATE statement is superior because it's simpler and much more efficient (probably by a factor of x10 or more):
 <pre>
    $db->Execute("update Products set price = price * 1.1 where category='Furniture'");
 </pre>
-<p>Another issue is performance. For performance sensitive code, using direct SQL will always be faster than using Active Records due to overhead and the fact that all fields in a row are retrieved (rather than only the subset you need) whenever an Active Record is loaded.
+<p>For performance sensitive code, using direct SQL will always be faster than using Active Records due to overhead and the fact that all fields in a row are retrieved (rather than only the subset you need) whenever an Active Record is loaded.
 
 <h3><li>Transactions</h3>
 <p>
@@ -353,7 +354,7 @@ $child->save();
 $conn->CompleteTrans();
 </pre>
 
-
+<a name=onetomany>
 <h2>One to Many Relations</h3>
 <p>Since 0.90, we support parent child relationships. This is done using the BelongsTo() and HasMany() functions.
 <h3><li>HasMany</h3>
@@ -397,7 +398,7 @@ linked by <strong>persons.id = children.person_id</strong>. The variable $person
 	$person->HasMany('children','person_id');
 	
 	for ($i=0; $i<10; $i++) 
-		$person->children[0] = new children('children'); # because pluralization of children is wrong
+		$person->children[0] = new children('children');
 	 
 	 // modify fields of $person, then...
 	$person->save();
@@ -484,8 +485,8 @@ $p->children below. So once $p->children is defined by accessing it, we don't ch
 	}
 </pre>
 <h3><li>BelongsTo</h3>
-<p>You can also define parents using BelongsTo($relationName, $foreignKey, $parentPrimaryKey = 'id'). In the example below,
-we have a child table <strong>children</strong>, and a parent table <strong>person</strong>. We have a link <strong>children.person_id = persons.id</strong>:
+<p>You can also define parents of the currrent object using BelongsTo($relationName, $foreignKey, $parentPrimaryKey = 'id'). In the example below,
+we have a child table <strong>children</strong>, and a parent table <strong>person</strong>. We have a link <strong>children.person_id = persons.id</strong>. We create a child first, then link it to the parent:
 <pre>
 	class Child extends ADOdb_Active_Record{};
 	$ch = new Child('children',array('id'));
@@ -497,7 +498,8 @@ we have a child table <strong>children</strong>, and a parent table <strong>pers
 	if (!$p || $p->name_first != 'John') echo "Error loading belongsTo&lt;br>";
 	else echo "OK loading BelongTo&lt;br>";
 </pre>
-<p>You only need to define BelongsTo() once in a script as it is global. Also if no data is loaded, then $p will return null;
+<p>You only need to define BelongsTo() once in a script as it is global for all instances. Note that relationships are case-sensitive, so BelongsTo('Parent', 'parent_id') and BelongsTo('parent', 'parent_id') are not the same. 
+<p>Also if no data is loaded into the child instance, then $p will return null;
 <pre>
 	$ch = new Child('children',array('id'));
 	$ch->BelongsTo('person','person_id','id');
