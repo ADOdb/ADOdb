@@ -109,7 +109,7 @@ An ADOdb_Active_Record object is a representation of a single table row. However
 <p>
 To insert a new record into the database, change the object's properties and then call the ADOdb_Active_Record::save() method:
 <pre>
-$person = new Person();
+$person = new person();
 $person->nameFirst = 'Andi';
 $person->nameLast  = 'Gutmans';
 $person->save();
@@ -130,7 +130,7 @@ To insert a new ADOdb_Active_Record in the database, populate all of ADOdb_Activ
  * Calling the save() method will successfully INSERT
  * this $person into the database table.
  */
-$person = new Person();
+$person = new person();
 $person->name_first     = 'Andi';
 $person->name_last      = 'Gutmans';
 $person->favorite_color = 'blue';
@@ -160,21 +160,21 @@ The code snippet above will change the favorite color to red, and then UPDATE th
 <h2>ADOdb Specific Functionality</h2>
 <h3><li>Setting the Table Name</h3>
 <p>The default behaviour on creating an ADOdb_Active_Record is to "pluralize" the class name and
- use that as the table name. Often, this is not the case. For example, the Person class could be reading 
+ use that as the table name. Often, this is not the case. For example, the person class could be reading 
  from the "People" table. 
 <p>We provide two ways to define your own table:
 <p>1. Use a constructor parameter to override the default table naming behaviour.
 <pre>
-	class Person extends ADOdb_Active_Record{}
-	$person = new Person('People');
+	class person extends ADOdb_Active_Record{}
+	$person = new person('People');
 </pre>
 <p>2. Define it in a class declaration:
 <pre>
-	class Person extends ADOdb_Active_Record
+	class person extends ADOdb_Active_Record
 	{
 	var $_table = 'People';
 	}
-	$person = new Person();
+	$person = new person();
 </pre>
 
 <h3><li>$ADODB_ASSOC_CASE</h3>
@@ -188,10 +188,10 @@ can force field names to be lowercase using $ADODB_ASSOC_CASE. Legal values are 
 <p>So to force all Oracle field names to lower-case, use
 <pre>
 $ADODB_ASSOC_CASE = 0;
-$person = new Person('People');
+$person = new person('People');
 $person->name = 'Lily';
 $ADODB_ASSOC_CASE = 2;
-$person2 = new Person('People');
+$person2 = new person('People');
 $person2->NAME = 'Lily'; 
 </pre>
 
@@ -228,11 +228,11 @@ $person->load("id=?", array(3));
 <h3><li>ADOdb_Active_Record::Find($whereOrderBy, $bindarr=false, $pkeyArr=false)</h3>
 <p>We want to retrieve an array of active records based on some search criteria. For example:
 <pre>
-class Person extends ADOdb_Active_Record {
+class person extends ADOdb_Active_Record {
 var $_table = 'people';
 }
 
-$person = new Person();
+$person = new person();
 $peopleArray = $person->Find("name like ? order by age", array('Sm%'));
 </pre>
 
@@ -353,6 +353,104 @@ $child->save();
 $conn->CompleteTrans();
 </pre>
 
+
+<h2>One to Many Relations</h3>
+<p>Since 0.90, we support parent child relationships. This is done using the BelongsTo() and HasMany() functions.
+<h3><li>HasMany</h3>
+<p>To define a one-to-many relationship we use $parentobj->HasMany($relation, $foreignKey). For example, we have 2 tables, <strong>persons</strong> (parent table) and <strong>children</strong> (child table)
+linked by persons.id = children.person_id. The variable $person->children is an array that holds the children. To define this relationship:
+<pre>
+	class person extends ADOdb_Active_Record{}
+	
+	$person = new person();
+	$person->HasMany('children','person_id');
+	$person->Load("id=1");
+	foreach($person->children as $c) {
+		echo " $c->name_first ";
+		$c->name_first .= ' K.';
+		$c->Save();
+	}
+</pre>
+<p>This HasMany() definition is global for the current script. This means that you only need to define it once. In the following example, $person2 knows about <em>children</em>.
+<pre>
+	$person = new person();
+	$person->HasMany('children','person_id');
+	
+	$person2 = new person();
+	$person->Load("id=1");
+	$p = $person2->children;
+</pre>
+<p>The 
+<h3><li>A Complete HasMany example</h3>
+<p>Here is sample usage using mysql:
+<pre>
+	include_once('../adodb.inc.php');
+	include_once('../adodb-active-record.inc.php');
+
+	$db = NewADOConnection('mysql://root@localhost/northwind');
+	ADOdb_Active_Record::SetDatabaseAdapter($db);
+
+	$db->Execute("CREATE TEMPORARY TABLE `persons` (
+	                `id` int(10) unsigned NOT NULL auto_increment,
+	                `name_first` varchar(100) NOT NULL default '',
+	                `name_last` varchar(100) NOT NULL default '',
+	                `favorite_color` varchar(100) NOT NULL default '',
+	                PRIMARY KEY  (`id`)
+	            ) ENGINE=MyISAM;
+	           ");
+			   
+	$db->Execute("CREATE TEMPORARY TABLE `children` (
+	                `id` int(10) unsigned NOT NULL auto_increment,
+					`person_id` int(10) unsigned NOT NULL,
+	                `name_first` varchar(100) NOT NULL default '',
+	                `name_last` varchar(100) NOT NULL default '',
+	                `favorite_pet` varchar(100) NOT NULL default '',
+	                PRIMARY KEY  (`id`)
+	            ) ENGINE=MyISAM;
+	           ");
+			   
+	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'Jill','Lim')");
+	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'Joan','Lim')");
+	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'JAMIE','Lim')");
+			   
+	class person extends ADOdb_Active_Record{}
+	
+	$person = new person();
+	$person->HasMany('children','person_id'); ## this is affects all other instances of person
+	
+	$person->name_first     = 'John';
+	$person->name_last      = 'Lim';
+	$person->favorite_color = 'lavender';
+	$person->save(); // this save will perform an INSERT successfully
+	
+	$person2 = new person(); # no need to define HasMany() again, adodb remembers definition
+	$person2->Load('id=1');
+	
+	$c = $person2->children;
+	if (is_array($c) && sizeof($c) == 3 && $c[0]->name_first=='Jill' && $c[1]->name_first=='Joan'
+		&& $c[2]->name_first == 'JAMIE') echo "OK Loaded HasMany&lt;br>";
+	else {
+		echo "Error loading hasMany should have 3 array elements Jill Joan Jamie&lt;br>";
+	}
+</pre>
+<h3><li>BelongsTo</h3>
+<p>You can also define parents using BelongsTo($relationName, $foreignKey, $parentPrimaryKey). In the example below,
+we have a child table <strong>children</strong>, and a parent table <strong>person</strong>. We have a link children.person_id = person.id:
+<pre>
+	class Child extends ADOdb_Active_Record{};
+	$ch = new Child('children',array('id'));
+	$ch->BelongsTo('person','person_id','id');  ## this can be simplified to $ch->BelongsTo('person')
+	                                            ## as foreign key defaults to $table.'_id' and 
+												## parent pkey defaults to 'id' 
+	$ch->Load('id=1');
+	$p = $ch->person;
+	if (!$p || $p->name_first != 'John') echo "Error loading belongsTo&lt;br>";
+	else echo "OK loading BelongTo&lt;br>";
+</pre>
+<h3><li>LoadRelations</h3>
+<p>
+
+<p>Thanks to Chris Ravenscroft for original code (chris#voilaweb.com).
 <h2>ADOConnection Supplement</h2>
 
 <h3><li>ADOConnection::GetActiveRecords()</h3>
@@ -418,7 +516,8 @@ $activeRecArr = $db->GetActiveRecordsClass($className,$tableName, 'name LIKE ?',
 <p>Returns last error message.
 <h3><li>ADOConnection::ErrorNo()</h3>
 <p>Returns last error number.
-<h2>Code Sample</h2>
+
+<h2>ActiveRecord Code Sample</h2>
 <p>The following works with PHP4 and PHP5
 <pre>
 include('../adodb.inc.php');
@@ -440,8 +539,8 @@ $db->Execute("CREATE TEMPORARY TABLE `persons` (
             ) ENGINE=MyISAM;
            ");
 		   
-class Person extends ADOdb_Active_Record{}
-$person = new Person();
+class person extends ADOdb_Active_Record{}
+$person = new person();
 
 echo "&lt;p>Output of getAttributeNames: ";
 var_dump($person->getAttributeNames());
@@ -460,13 +559,13 @@ var_dump($person->getAttributeNames());
  *  }
  */
 
-$person = new Person();
+$person = new person();
 $person->nameFirst = 'Andi';
 $person->nameLast  = 'Gutmans';
 $person->save(); // this save() will fail on INSERT as favorite_color is a must fill...
 
 
-$person = new Person();
+$person = new person();
 $person->name_first     = 'Andi';
 $person->name_last      = 'Gutmans';
 $person->favorite_color = 'blue';
@@ -477,30 +576,35 @@ echo "&lt;p>The Insert ID generated:"; print_r($person->id);
 $person->favorite_color = 'red';
 $person->save(); // this save() will perform an UPDATE
 
-$person = new Person();
+$person = new person();
 $person->name_first     = 'John';
 $person->name_last      = 'Lim';
 $person->favorite_color = 'lavender';
 $person->save(); // this save will perform an INSERT successfully
 
 // load record where id=2 into a new ADOdb_Active_Record
-$person2 = new Person();
+$person2 = new person();
 $person2->Load('id=2');
 var_dump($person2);
 
 // retrieve an array of records
-$activeArr = $db->GetActiveRecordsClass($class = "Person",$table = "persons","id=".$db->Param(0),array(2));
+$activeArr = $db->GetActiveRecordsClass($class = "person",$table = "persons","id=".$db->Param(0),array(2));
 $person2 = $activeArr[0];
 echo "&lt;p>Name first (should be John): ",$person->name_first, "&lt;br>Class = ",get_class($person2);	
 </pre>
 
+
+
  <h3>Todo (Code Contributions welcome)</h3>
  <p>Check _original and current field values before update, only update changes. Also if the primary key value is changed, then on update, we should save and use the original primary key values in the WHERE clause!
- <p>Handle 1-to-many relationships.
+
  <p>PHP5 specific:  Make GetActiveRecords*() return an Iterator.
  <p>PHP5 specific: Change PHP5 implementation of Active Record to use __get() and __set() for better performance.
 
 <h3> Change Log</h3>
+<p>0.90
+Support for belongsTo and hasMany. Thanks to Chris Ravenscroft (chris#voilaweb.com)
+
 <p>0.08
 Added support for assoc arrays in Set().
 

@@ -5,7 +5,7 @@
 	
 
 	$db = NewADOConnection('mysql://root@localhost/northwind');
-	$db->debug=1;
+	#$db->debug=1;
 	ADOdb_Active_Record::SetDatabaseAdapter($db);
 
 	$db->Execute("CREATE TEMPORARY TABLE `persons` (
@@ -32,9 +32,9 @@
 	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'Joan','Lim')");
 	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'JAMIE','Lim')");
 			   
-	class Person extends ADOdb_Active_Record{}
+	class person extends ADOdb_Active_Record{}
 	
-	$person = new Person();
+	$person = new person();
 	$person->HasMany('children','person_id');  ## this is affects all other instances of Person
 	
 	$person->name_first     = 'John';
@@ -42,7 +42,7 @@
 	$person->favorite_color = 'lavender';
 	$person->save(); // this save will perform an INSERT successfully
 	
-	$person2 = new Person();
+	$person2 = new person();
 	$person2->Load('id=1');
 	
 	$c = $person2->children;
@@ -53,7 +53,7 @@
 		echo "error loading hasMany should have 3 array elements Jill Joan Jamie<br>";
 	}
 	
-	class Child extends ADOdb_Active_Record{};
+	class child extends ADOdb_Active_Record{};
 	$ch = new Child('children',array('id'));
 	$ch->BelongsTo('person','person_id','id');
 	
@@ -65,10 +65,18 @@
 	else echo "OK loading BelongTo<br>";
 
 	if ($p) {
-		$p->HasMany('children','person_id');
+		#$p->HasMany('children','person_id');  ## this is affects all other instances of Person
 		$p->LoadRelations('children', 'order by id',1,2);
-	
 		if (sizeof($p->children) == 2 && $p->children[1]->name_first == 'JAMIE') echo "OK LoadRelations<br>";
-		else echo "error LoadRelations<br>";
+		else {
+		 	var_dump($p->children);
+			echo "error LoadRelations<br>";
+		}
+	}
+	
+	foreach($p->children as $c) {
+		echo " $c->name_first ";
+		$c->name_first .= ' K.';
+		$c->Save();
 	}
 ?>

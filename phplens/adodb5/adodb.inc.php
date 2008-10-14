@@ -2110,11 +2110,13 @@
 	 */
 	function GetActiveRecordsClass(
 			$class, $table,$whereOrderBy=false,$bindarr=false, $primkeyArr=false,
-			$extra=array('loading'=>ADODB_LAZY_AR),
+			$extra=array(),
 			$relations=array())
 	{
 	global $_ADODB_ACTIVE_DBS;
 	
+		if (empty($extra['loading'])) $extra['loading'] = ADODB_JOIN_AR;
+		
 		$save = $this->SetFetchMode(ADODB_FETCH_NUM);
 		$qry = "select * from ".$table;
 		if(ADODB_JOIN_AR == $extra['loading'])
@@ -2144,13 +2146,21 @@
 			$qry .= ' WHERE '.$whereOrderBy;
 		if(isset($extra['limit']))
 		{
-			if(isset($extra['offset']))
-				$qry .= " LIMIT {$extra['offet']},{$extra['limit']}";
-			else
-				$qry .= " LIMIT {$extra['limit']}";
-		}
-
-		$rows = $this->GetAll($qry,$bindarr);
+			$rows = false;
+			if(isset($extra['offset'])) {
+				$rs = $this->SelectLimit($qry, $extra['limit'], $extra['offset']);
+			} else {
+				$rs = $this->SelectLimit($qry, $extra['limit']);
+			}
+			if ($rs) {
+				while (!$rs->EOF) {
+					$rows[] = $rs->fields;
+					$rs->MoveNext();
+				}
+			}
+		} else
+			$rows = $this->GetAll($qry,$bindarr);
+			
 		$this->SetFetchMode($save);
 		
 		$false = false;
@@ -2207,7 +2217,7 @@
 				{
 					foreach($relations['belongsTo'] as $foreignTable)
 					{
-						$foreignTableRef = $foreignTable->foreignName . '_id';
+						$foreignTableRef = $foreignTable->foreignKey;
 						// First array: list of foreign ids we are looking for
 						if(empty($bTos[$foreignTableRef]))
 							$bTos[$foreignTableRef] = array();
@@ -2325,7 +2335,7 @@
 					$foreignName = $foreignTable->foreignName;
 					$className = ucfirst($foreignTable->_singularize($foreignName));
 					$obj = new $className();
-					$thisClassRef = strtolower($class).'_id';
+					$thisClassRef = $foreignTable->foreignKey;
 					$objs = $obj->packageFind($thisClassRef.' IN ('.$indices.')');
 					foreach($objs as $obj)
 					{
@@ -2340,7 +2350,7 @@
 			{
 				foreach($relations['belongsTo'] as $foreignTable)
 				{
-					$foreignTableRef = $foreignTable->foreignName . '_id';
+					$foreignTableRef = $foreignTable->foreignKey;
 					if(empty($bTos[$foreignTableRef]))
 						continue;
 					$origObjsArr = $bTos[$foreignTableRef];
