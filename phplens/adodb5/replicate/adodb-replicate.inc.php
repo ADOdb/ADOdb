@@ -78,7 +78,7 @@ class ADODB_Replicate {
 			return $fld;
 	}
 	
-	function CopyTableStructSQL($table, $desttable='')
+	function CopyTableStructSQL($table, $desttable='',$dropdest =false)
 	{
 		if (!$desttable) {
 			$desttable = $table;
@@ -87,9 +87,15 @@ class ADODB_Replicate {
 			$prefixidx = $desttable;
 			
 		$conn = $this->connSrc;
-		$types = $conn->MetaColumns($table);
-		
-		if (!$types) return array();
+		$types = $conn->MetaColumns($table);		
+		if (!$types) {
+			echo "$table does not exist in source db<br>\n";
+			return array();
+		}
+		if (!$dropdest && $this->connDest->MetaColumns($desttable)) {
+			echo "$desttable already exists in dest db<br>\n";
+			return array();
+		}
 		if ($this->debug) var_dump($types);
 		$sa = array();
 		$idxcols = array();
@@ -99,6 +105,8 @@ class ADODB_Replicate {
 			$mt = $this->ddSrc->MetaType($t->type);
 			$len = $t->max_length;
 			$fldname = $this->RunFieldFilter($t->name,'TABLE');
+			if (!$fldname) continue;
+			
 			$s .= $fldname . ' '.$mt;
 			if (isset($t->scale)) $precision = '.'.$t->scale;
 			else $precision = '';
@@ -143,7 +151,7 @@ class ADODB_Replicate {
 			}
 			
 			foreach($iarr['columns'] as $fld) {
-				$fldnames[] = $this->RunFieldFilter($fld);
+				$fldnames[] = $this->RunFieldFilter($fld,'TABLE');
 			}
 			
 			$idxname = $prefixidx.str_replace($table,$desttable,$name);
@@ -244,7 +252,9 @@ class ADODB_Replicate {
 				
 	Name Filtering
 	=========	
-	Sometimes field names that are legal in one RDBMS can be illegal in another. We allow you to handle this using a field filter.
+	Sometimes field names that are legal in one RDBMS can be illegal in another. 
+	We allow you to handle this using a field filter. 
+	Also if you don't want to replicate certain fields, just return false.
 	
 		$rep->fieldFilter = 'ffilter';	
 
@@ -255,6 +265,9 @@ class ADODB_Replicate {
 					case 'GROUP': 
 						if ($mode == 'SELECT') $fld = '"Group"';
 						return 'GroupFld';
+						
+					case 'PRIVATEFLD':  # do not replicate
+						return false;
 				}
 				return $fld;
 			}
@@ -300,8 +313,8 @@ class ADODB_Replicate {
 		
 		$k = 0;
 		foreach($types as $name => $t) {
-			$name2 = strtoupper($this->RunFieldFilter($name));
-			if (!isset($dtypes[strtoupper($name2)])) {
+			$name2 = strtoupper($this->RunFieldFilter($name,'SELECT'));
+			if (!isset($dtypes[strtoupper($name2)]) || !$name2) {
 				if ($this->debug) echo " Skipping $name as not in destination $desttable<br>";
 				continue;
 			}
