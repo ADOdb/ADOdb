@@ -5,7 +5,7 @@
 	
 
 	$db = NewADOConnection('mysql://root@localhost/northwind');
-	#$db->debug=1;
+	$db->debug=1;
 	ADOdb_Active_Record::SetDatabaseAdapter($db);
 
 	$db->Execute("CREATE TEMPORARY TABLE `persons` (
@@ -75,7 +75,7 @@
 	}
 	if ($p)
 	foreach($p->children as $c) {
-		echo " $c->name_first ";
+		echo " Saving $c->name_first <br>";
 		$c->name_first .= ' K.';
 		$c->Save();
 	}
