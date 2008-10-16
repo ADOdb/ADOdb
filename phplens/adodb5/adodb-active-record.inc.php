@@ -569,7 +569,9 @@ class ADODB_Active_Record {
 		case 'D':
 		case 'T':
 			if (empty($val)) return 'null';
-			
+		
+		case 'B':
+		case 'N':
 		case 'C':
 		case 'X':
 			if (is_null($val)) return 'null';
@@ -834,10 +836,7 @@ function adodb_GetActiveRecordsClass(&$db, $class, $table,$whereOrderBy,$bindarr
 {
 global $_ADODB_ACTIVE_DBS;
 
-	if (isset($extra['loading'])) {
-		$loading = true;
-	} else
-		$loading = false;
+	$loading = isset($extra['loading']);
 	
 	$save = $db->SetFetchMode(ADODB_FETCH_NUM);
 	$qry = "select * from ".$table;

@@ -422,6 +422,8 @@ class ADODB_Active_Record {
 		case 'T':
 			if (empty($val)) return 'null';
 			
+		case 'B':
+		case 'N':
 		case 'C':
 		case 'X':
 			if (is_null($val)) return 'null';
