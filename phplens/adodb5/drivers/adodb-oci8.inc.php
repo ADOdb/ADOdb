@@ -601,14 +601,14 @@ NATSOFT.DOMAIN =
 			
 			 // Let Oracle return the name of the columns
 			$q_fields = "SELECT * FROM (".$sql.") WHERE NULL = NULL";
-			 
+		
 			$false = false;
 			if (! $stmt_arr = $this->Prepare($q_fields)) {
 				return $false;
 			}
 			$stmt = $stmt_arr[1];
 			 
-			 if (is_array($inputarr)) {
+			if (is_array($inputarr)) {
 			 	foreach($inputarr as $k => $v) {
 					if (is_array($v)) {
 						if (sizeof($v) == 2) // suggested by g.giunta@libero.
@@ -622,6 +622,7 @@ NATSOFT.DOMAIN =
 							$bindarr[$k] = $v;
 						} else { 				// dynamic sql, so rebind every time
 							OCIBindByName($stmt,":$k",$inputarr[$k],$len);
+							
 						}
 					}
 				}
@@ -640,7 +641,8 @@ NATSOFT.DOMAIN =
 			
 			 OCIFreeStatement($stmt); 
 			 $fields = implode(',', $cols);
-			 $nrows += $offset;
+			 if ($nrows <= 0) $nrows = 999999999999;
+			 else $nrows += $offset;
 			 $offset += 1; // in Oracle rownum starts at 1
 			
 			if ($this->databaseType == 'oci8po') {

@@ -447,7 +447,7 @@ class ADODB_mysql extends ADOConnection {
 			$fld->not_null = ($rs->fields[2] != 'YES');
 			$fld->primary_key = ($rs->fields[3] == 'PRI');
 			$fld->auto_increment = (strpos($rs->fields[5], 'auto_increment') !== false);
-			$fld->binary = (strpos($type,'blob') !== false);
+			$fld->binary = (strpos($type,'blob') !== false || strpos($type,'binary') !== false);
 			$fld->unsigned = (strpos($type,'unsigned') !== false);
 			$fld->zerofill = (strpos($type,'zerofill') !== false);
 
@@ -734,6 +734,7 @@ class ADORecordSet_mysql extends ADORecordSet{
 		case 'LONGBLOB': 
 		case 'BLOB':
 		case 'MEDIUMBLOB':
+		case 'BINARY':
 			return !empty($fieldobj->binary) ? 'B' : 'X';
 			
 		case 'YEAR':

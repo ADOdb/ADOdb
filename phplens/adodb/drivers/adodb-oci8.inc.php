@@ -638,7 +638,8 @@ NATSOFT.DOMAIN =
 			
 			 OCIFreeStatement($stmt); 
 			 $fields = implode(',', $cols);
-			 $nrows += $offset;
+			 if ($nrows <= 0) $nrows = 999999999999;
+			 else $nrows += $offset;
 			 $offset += 1; // in Oracle rownum starts at 1
 			
 			if ($this->databaseType == 'oci8po') {
