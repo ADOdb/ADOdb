@@ -296,12 +296,12 @@ ADOLoadCode('oci805');
 ADOLoadCode("oci8po");
 	
 if (!empty($testoracle)) {
-	$dsn = "oci8po://scott:natsoft@kk2?persist";
+	$dsn = "oci8po";//://scott:natsoft@kk2?persist";
 	$db = ADONewConnection($dsn );//'oci8');
 	
 	//$db->debug=1;
 	print "<h1>Connecting $db->databaseType...</h1>";
-	if ($db->Connect('', "scott", "natsoft",''))
+	if ($db->Connect('', "scott", "natsoft",'kk2'))
 		testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
 	else 
 		print "ERROR: Oracle test requires an Oracle server setup with scott/natsoft".'<BR>'.$db->ErrorMsg();

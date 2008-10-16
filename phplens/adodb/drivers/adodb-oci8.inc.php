@@ -1019,7 +1019,7 @@ NATSOFT.DOMAIN =
 					else
 						OCIBindByName($stmt,":$k",$inputarr[$k][0],$v[1],$v[2]);
 					
-					if ($this->debug==99) echo "name=:$k",' var='.$inputarr[$k][0],' len='.$v[1],' type='.$v[2],'<br>';
+					#if ($this->debug==99) echo "name=:$k",' var='.$inputarr[$k][0],' len='.$v[1],' type='.$v[2],'<br>';
 				} else {
 					$len = -1;
 					if ($v === ' ') $len = 1;

@@ -3002,7 +3002,7 @@ of MySQL.</font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
 <p><a name="5.06"></a><b>5.06 29 Sept 2008</b>
-<p>Support for one-to-many relationships in active record.
+<p>Added support for <a href=docs-active-record.htm#onetomany>one-to-many relationships</a> with BelongsTo() and HasMany() in adodb_active_record.
 <p>Added BINARY type to mysql.inc.php (also in 4.991).
 <p>Added support for SelectLimit($sql,-1,100) in oci8. (also in 4.991).
 <p>New $conn->GetMedian($table, $field, $where='') to get median account no. (also in 4.991)
@@ -3012,6 +3012,7 @@ of MySQL.</font></p>
 <p>The session and session2 code supports setfetchmode assoc properly now (also in 4.991).
 <p>Added concat support to pdo. Thx Andrea Baron.
 <p>Changed db2 driver to use format "Y-m-d H-i-s" for datetime instead of "Y-m-d-H-i-s" which was legacy from odbc_db2 conversion.
+<p>Removed vestigal break on adodb_tz_offset in adodb-time.inc.php.
 <p>MetaForeignKeys did not work for views in MySQL 5. Fixed.
 <p>Changed error handling in GetActiveRecordsClass.
 <p>Added better support for using existing driver when $ADODB_NEWCONNECTION function returns false.
