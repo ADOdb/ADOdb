@@ -2109,6 +2109,7 @@
 			$extra=array(),
 			$relations=array())
 	{
+	global $_ADODB_ACTIVE_DBS;
 		## reduce overhead of adodb.inc.php -- moved to adodb-active-record.inc.php
 		if (!isset($_ADODB_ACTIVE_DBS))include_once(ADODB_DIR.'/adodb-active-record.inc.php');
 		return adodb_GetActiveRecordsClass($this, $class, $table, $whereOrderBy, $bindarr, $primkeyArr, $extra, $relations);
