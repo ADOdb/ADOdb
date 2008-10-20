@@ -248,13 +248,7 @@ class ADODB_Active_Record {
 				if ($obj->parentKey) $key = $obj->parentKey;
 				else $key = reset($table->keys);
 				
-				if (0) {
-					$otable = $obj->TableInfo();
-					$tbarr =  array('foreignName'=>$this->_table,
-						'belongsTo'=>$otable->_belongsTo, 'hasMany'=>$otable->_hasMany);
-				} else
-					$tbarr = false;
-				$arrayOfOne = $obj->Find($key.'='.$this->$columnName.' '.$whereOrderBy,false,false,$extras,$tbarr);
+				$arrayOfOne = $obj->_Find($key.'='.$this->$columnName.' '.$whereOrderBy,false,false,$extras);
 				if ($arrayOfOne) {
 					$this->$name = $arrayOfOne[0];
 					return $arrayOfOne[0];
@@ -264,12 +258,7 @@ class ADODB_Active_Record {
 		if(!empty($table->_hasMany[$name]))
 		{	
 			$obj = $table->_hasMany[$name];
-			if (0) {
-				$tbarr =  array('foreignName'=>$this->_table, 
-						'belongsTo'=>$obj->_belongsTo, 'hasMany'=>$obj->_hasMany);
-			} else 
-				$tbarr = false;
-			$objs = $obj->Find($obj->foreignKey.'='.$this->id. ' '.$whereOrderBy,false,false,$extras,$tbarr);
+			$objs = $obj->_Find($obj->foreignKey.'='.$this->id. ' '.$whereOrderBy,false,false,$extras);
 			if (!$objs) $objs = array();
 			$this->$name = $objs;
 			return $objs;
@@ -692,11 +681,10 @@ class ADODB_Active_Record {
 	}
 	
 	// returns an array of active record objects
-	function Find($whereOrderBy,$bindarr=false,$pkeysArr=false,$extra=array(),$tbarr=array())
+	function _Find($whereOrderBy,$bindarr=false,$pkeysArr=false,$extra=array())
 	{
 		$db = $this->DB(); if (!$db || empty($this->_table)) return false;
-		$arr = $db->GetActiveRecordsClass(get_class($this),$this->_table, $whereOrderBy,$bindarr,$pkeysArr,$extra,
-			$tbarr);
+		$arr = $db->GetActiveRecordsClass(get_class($this),$this->_table, $whereOrderBy,$bindarr,$pkeysArr,$extra);
 		return $arr;
 	}
 	
@@ -827,8 +815,7 @@ class ADODB_Active_Record {
 };
 
 function adodb_GetActiveRecordsClass(&$db, $class, $table,$whereOrderBy,$bindarr, $primkeyArr,
-			$extra,
-			$relations)
+			$extra)
 {
 global $_ADODB_ACTIVE_DBS;
 
@@ -868,7 +855,6 @@ global $_ADODB_ACTIVE_DBS;
 		$db->outp_throw("Unknown class $class in GetActiveRecordsClass()",'GetActiveRecordsClass');
 		return $false;
 	}
-	$uniqArr = array(); // CFR Keep track of records for relations
 	$arr = array();
 	// arrRef will be the structure that knows about our objects.
 	// It is an associative array.

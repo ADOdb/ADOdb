@@ -983,7 +983,7 @@ function adodb_GetActiveRecordsClass(&$db, $class, $table,$whereOrderBy,$bindarr
 	
 		if (empty($extra['loading'])) $extra['loading'] = ADODB_LAZY_AR;
 		
-		$save = $this->SetFetchMode(ADODB_FETCH_NUM);
+		$save = $db->SetFetchMode(ADODB_FETCH_NUM);
 		$qry = "select * from ".$table;
 		if(ADODB_JOIN_AR == $extra['loading'])
 		{
@@ -999,7 +999,7 @@ function adodb_GetActiveRecordsClass(&$db, $class, $table,$whereOrderBy,$bindarr
 			if(!empty($relations['hasMany']))
 			{
 				if(empty($relations['foreignName']))
-					$this->outp_throw("Missing foreignName is relation specification in GetActiveRecordsClass()",'GetActiveRecordsClass');
+					$db->outp_throw("Missing foreignName is relation specification in GetActiveRecordsClass()",'GetActiveRecordsClass');
 				foreach($relations['hasMany'] as $foreignTable)
 				{
 					$qry .= ' LEFT JOIN '.$foreignTable->_table.' ON '.
@@ -1014,9 +1014,9 @@ function adodb_GetActiveRecordsClass(&$db, $class, $table,$whereOrderBy,$bindarr
 		{
 			$rows = false;
 			if(isset($extra['offset'])) {
-				$rs = $this->SelectLimit($qry, $extra['limit'], $extra['offset']);
+				$rs = $db->SelectLimit($qry, $extra['limit'], $extra['offset']);
 			} else {
-				$rs = $this->SelectLimit($qry, $extra['limit']);
+				$rs = $db->SelectLimit($qry, $extra['limit']);
 			}
 			if ($rs) {
 				while (!$rs->EOF) {
@@ -1025,9 +1025,9 @@ function adodb_GetActiveRecordsClass(&$db, $class, $table,$whereOrderBy,$bindarr
 				}
 			}
 		} else
-			$rows = $this->GetAll($qry,$bindarr);
+			$rows = $db->GetAll($qry,$bindarr);
 			
-		$this->SetFetchMode($save);
+		$db->SetFetchMode($save);
 		
 		$false = false;
 		
@@ -1040,7 +1040,7 @@ function adodb_GetActiveRecordsClass(&$db, $class, $table,$whereOrderBy,$bindarr
 			include(ADODB_DIR.'/adodb-active-record.inc.php');
 		}	
 		if (!class_exists($class)) {
-			$this->outp_throw("Unknown class $class in GetActiveRecordsClass()",'GetActiveRecordsClass');
+			$db->outp_throw("Unknown class $class in GetActiveRecordsClass()",'GetActiveRecordsClass');
 			return $false;
 		}
 		$uniqArr = array(); // CFR Keep track of records for relations
@@ -1053,9 +1053,9 @@ function adodb_GetActiveRecordsClass(&$db, $class, $table,$whereOrderBy,$bindarr
 		$bTos = array(); // Will store belongTo's indices if any
 		foreach($rows as $row) {
 		
-			$obj = new $class($table,$primkeyArr,$this);
+			$obj = new $class($table,$primkeyArr,$db);
 			if ($obj->ErrorNo()){
-				$this->_errorMsg = $obj->ErrorMsg();
+				$db->_errorMsg = $obj->ErrorMsg();
 				return $false;
 			}
 			$obj->Set($row);
@@ -1204,13 +1204,13 @@ function adodb_GetActiveRecordsClass(&$db, $class, $table,$whereOrderBy,$bindarr
 					$foreignName = $foreignTable->foreignName;
 					$className = ucfirst($foreignTable->_singularize($foreignName));
 					$obj = new $className();
-					$thisClassRef = $foreignTable->foreignKey;
-					$objs = $obj->packageFind($thisClassRef.' IN ('.$indices.')');
+					$dbClassRef = $foreignTable->foreignKey;
+					$objs = $obj->packageFind($dbClassRef.' IN ('.$indices.')');
 					foreach($objs as $obj)
 					{
-						if(!is_array($arrRef[$obj->$thisClassRef]->$foreignName))
-							$arrRef[$obj->$thisClassRef]->$foreignName = array();
-						array_push($arrRef[$obj->$thisClassRef]->$foreignName, $obj);
+						if(!is_array($arrRef[$obj->$dbClassRef]->$foreignName))
+							$arrRef[$obj->$dbClassRef]->$foreignName = array();
+						array_push($arrRef[$obj->$dbClassRef]->$foreignName, $obj);
 					}
 				}
 				
