@@ -22,12 +22,15 @@ class ADODB_Replicate {
 	var $selFilter = false;
 	var $fieldFilter = false;
 	var $indexFilter = false;
+	var $updateFilter = false;
+	var $updateSrcFn = false;
 	
 	var $commitRecs = -1; // only commit at end of ReplicateData()
 	var $neverAbort = true;
 	var $copyTableDefaults = false; // turn off because functions defined as defaults will not work when copied
 	var $errHandler = false; // name of error handler function, if used.
 	var $htmlSpecialChars = true; // if execute false, then output with htmlspecialchars enabled
+	var $_mergeNulls = false; // if merging and null field, then set
 	
 	function ADODB_Replicate($connSrc, $connDest)
 	{
@@ -78,6 +81,45 @@ class ADODB_Replicate {
 			return $fld;
 	}
 	
+	function RunUpdateFilter($table, $fld, $val)
+	{
+		if ($this->updateFilter) {
+			$fn = $this->updateFilter;
+			return $fn($table, $fld, $val);
+		} else
+			return $fld;
+	}
+	
+	/*
+		$mode = INS or UPD
+	*/
+	function RunUpdateSrcFn($srcdb, $table, $fldoffsets, $row, $where, $mode, $dest_insertid=null)
+	{
+
+		if (!$this->updateSrcFn) return;
+		
+		$bindarr = array();
+		foreach($fldoffsets as $k) {
+			$bindarr[$k] = $row[$k];
+		}
+		$where = "WHERE $where";
+		$fn = $this->updateSrcFn;
+		
+		if (is_array($fn) !== false) {
+			if (sizeof($fn) == 1) $set = reset($fn);
+			else $set = @$fn[$mode];
+			if ($set) {
+				
+				if ($mode == 'INS') {
+					if (strlen($dest_insertid)) == 0) $dest_insertid = 'null';
+					$set = str_replace('$INSERT_ID',$dest_insertid,$set);
+				}
+				$srcdb->Execute("UPDATE $table SET $set $where",$bindarr);
+			}
+		} else $fn($srcdb, $table, $row, $where, $bindarr, $mode, $dest_insertid);
+		
+	}
+	
 	function CopyTableStructSQL($table, $desttable='',$dropdest =false)
 	{
 		if (!$desttable) {
@@ -87,7 +129,7 @@ class ADODB_Replicate {
 			$prefixidx = $desttable;
 			
 		$conn = $this->connSrc;
-		$types = $conn->MetaColumns($table);		
+		$types = $conn->MetaColumns($table);
 		if (!$types) {
 			echo "$table does not exist in source db<br>\n";
 			return array();
@@ -167,10 +209,16 @@ class ADODB_Replicate {
 		return $sqla;
 	}
 	
+	function _clearcache()
+	{
+	
+	}
+	
 	function _concat($v)
 	{ 
 		return $this->connDest->concat("' ","chr(".ord($v).")","'");
 	}
+	
 	function fixupbinary($v) 
 	{
 		return str_replace(
@@ -180,11 +228,10 @@ class ADODB_Replicate {
 	}
 	
 	/*
-	// if no uniqflds defined, then all desttable recs will be deleted
+	// if no uniqflds defined, then all desttable recs will be deleted before insert
 	// $where clause must include the WHERE word if used
 	// if $this->commitRecs is set to a +ve value, then it will autocommit every $this->commitRecs records 
 	//		-- this should never be done with 7x24 db's
-	// if $onlyInsert is set to true, it will never try to update first
 	
 	Thus we have the following behaviours:
 	
@@ -271,10 +318,64 @@ class ADODB_Replicate {
 				}
 				return $fld;
 			}
+			
+			
+	UPDATE FILTERING
+	================
+	Sometimes, when we want to update
+		UPDATE table SET fld = val WHERE ....
+		
+	we want to modify val. To do so, define
+	
+		$rep->updateFilter = 'ufilter';
+		
+		function ufilter($table, $fld, $val)
+		{
+			return "nvl($fld, $val)";
+		}
+		
+		
+	Sending back audit info back to src Table
+	=========================================
+	
+	Use $rep->updateSrcFn. This can be an array of strings, or the name of a php function to call.
+	
+	If an array of strings is defined, then it will perform an update statement...
+	
+		UPDATE srctable SET $string WHERE ....
+	
+	With $string set to the array you define. If a new record was inserted into desttable, then the
+	'INS' string is used ($INSERT_ID will be replaced with the real INSERT_ID, if any), 
+	and if an update then use the 'UPD' string.
+	
+		array(
+			'INS' => 'insertid = $INSERT_ID, copieddate=getdate(), copied = 1',
+			'UPD' => 'copieddate=getdate(), copied = 1'
+		)
+	
+	If a single string array is defined, then it will be used for both insert and update.
+		array('copieddate=getdate(), copied = 1')
+		
+	Note that the where clause is automatically defined by the system.
+	
+	If $rep->updateSrcFn is a PHP function name, then it will be called with the following params:
+	
+		$fn($srcConnection, $tableName, $row, $where, $bindarr, $mode, $dest_insertid)
+	
+	$srcConnection - source db connection
+	$tableName	- source tablename
+	$row - array holding records updated into dest
+	$where - where clause to be used (uses bind vars)
+	$bindarr - array holding bind variables for where clause
+	$mode - INS or UPD
+	$dest_insertid - when mode=INS, then the insert_id is stored here.
 	*/
 	
-	function ReplicateData($table, $desttable = '',  $uniqflds = array(), $where = '',$onlyInsert=false)
+	
+	function ReplicateData($table, $desttable = '',  $uniqflds = array(), $where = '')
 	{
+		$this->_clearcache();
+		
 		if (!$desttable) $desttable = $table;
 		
 		$uniq = array();
@@ -333,9 +434,11 @@ class ADODB_Replicate {
 				$flds[] = $selfld;
 				
 				$p = $dest->Param($k);
+				
 				if ($mt == 'D') $p = $dest->DBDate($p, true);
 				else if ($mt == 'T') $p = $dest->DBTimeStamp($p, true);
-				$sets[] = "$fld = $p";
+				
+				$sets[] = "$fld = ".$this->RunUpdateFilter($desttable, $fld, $p);
 				$vals[] = $fldval;
 				$params[] = $p;
 				$insflds[] = $fld;
@@ -346,10 +449,14 @@ class ADODB_Replicate {
 			}
 		}
 		
+		
 		foreach($wheref as $fld) {
 			$flds[] = $fld;
 			$params[] = $dest->Param($k);
+			$srcwheres[] = $fld.' = '.$src->Param($k);
 			$wheres[] = $fld.' = '.$dest->Param($k);
+			$insflds[] = $fld;
+			$fldoffsets[] = $k;
 			$k++;
 		}
 		
@@ -358,7 +465,8 @@ class ADODB_Replicate {
 		$valss = implode(', ', $vals);
 		$setss = implode(', ', $sets);
 		$paramss = implode(', ', $params);
-		$wheress = implode(', ', $wheres);
+		$wheress = implode('AND ', $wheres);
+		$srcwheress = implode('AND ',$srcwheres);
 		
 		$sa['SEL'] = "SELECT $fldss FROM $table $where";
 		$sa['INS'] = "INSERT INTO $desttable ($insfldss) VALUES ($paramss)";
@@ -416,6 +524,8 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			return $sa;
 		} else {
 			$dest->BeginTrans();
+			if ($this->updateSrcFn) $src->BeginTrans();
+			
 			$rs = $src->Execute($sa['SEL']);
 			if (!$rs) {
 				if ($this->errHandler) $this->_doerr('SEL',array());
@@ -428,35 +538,42 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			$fn = $this->selFilter;
 			$commitRecs = $this->commitRecs;
 			
-			while (!$rs->EOF) {
+			while ($row = $rs->FetchRow()) {
+				#var_dump($row);
+				if ($dest->debug) {flush(); @ob_flush();}
+				
+			
 				if ($fn) {
-					if (!$fn($desttable, $rs->fields,$deleteFirst,$this)) continue;
+					if (!$fn($desttable, $row,$deleteFirst,$this)) continue;
 				}
 				if (!$onlyInsert) {
-					if (!$dest->Execute($sa['UPD'],$rs->fields)) {
+					if (!$dest->Execute($sa['UPD'],$row)) {
 						$err = true;
-						if ($this->errHandler) $this->_doerr('UPD',$rs->fields);
+						if ($this->errHandler) $this->_doerr('UPD',$row);
 						if ($this->neverAbort) continue;
 						else break;
 					}
 				 	if ($dest->Affected_Rows() == 0) {
-						if (!$dest->Execute($sa['INS'],$rs->fields)) {
+						if (!$dest->Execute($sa['INS'],$row)) {
 							$err = true;
-							if ($this->errHandler) $this->_doerr('INS',$rs->fields);
+							if ($this->errHandler) $this->_doerr('INS',$row);
 							if ($this->neverAbort) continue;
 							else break;
 						}
 						$ins += 1;
-					} else
+					} else {
+						$this->RunUpdateSrcFn($src, $table,$fldoffsets, $row, $srcwheress,'UPD');
 						$upd += 1;
+					}
 				}  else {
-					if (! $dest->Execute($sa['INS'],$rs->fields)) {
+					if (! $dest->Execute($sa['INS'],$row)) {
 						$err = true;
-						if ($this->errHandler) $this->_doerr('INS',$rs->fields);
+						if ($this->errHandler) $this->_doerr('INS',$row);
 						if ($this->neverAbort) continue;
 						else break;
-					}
-					
+					} 
+					$lastid = $dest->Insert_ID();
+					$this->RunUpdateSrcFn($src, $table, $fldoffsets, $row, $srcwheress,'INS',$lastid);
 					$ins += 1;
 				}
 				$cnt += 1;
@@ -464,13 +581,42 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 				if ($commitRecs > 0 && ($cnt % $commitRecs) == 0) {
 					$dest->CommitTrans();
 					$dest->BeginTrans();
+					
+					
+					if ($this->updateSrcFn) {
+						$src->CommitTrans();
+						$src->BeginTrans();
+					}
 				}
-				$rs->MoveNext();
 			} // while 
-			$dest->CommitTrans();
+			
+			if (!$this->neveAbort && $err) {
+				$dest->RollbackTrans();
+				if ($this->updateSrcFn) $src->RollbackTrans();
+			} else {
+				$dest->CommitTrans();
+				if ($this->updateSrcFn) $src->CommitTrans();
+			}
 		}		
 		if ($cnt != $ins + $upd) echo "<p>ERROR: $cnt != INS $ins + UPD $upd</p>";
 		return array(!$err, $cnt, $ins, $upd);
+	}
+	
+	/*
+		Perform Merge by copying all data modified from src to dest
+			then update copied flag if present.
+	*/
+	function Merge($srcTable, $dstTable, $pkeys, $lastCopyDate, $insertOnly, $srcUpdateDateFld, $dstUpdateDateFld, 
+		$srcCopyFlagFld = false, $dstCopyFlagFld = false, $flagvals=array('Y','N'))
+	{
+		$delfirst = $this->deleteFirst;
+		$this->deleteFirst = false;
+		$src = $this->connSrc;
+		$dest = $this->connDest;
+		
+		$this->ReplicateData($srcTable, $dstTable, $pkeys, 'where ');
+		
+		$this->deleteFirst = $delfirst;
 	}
 	
 	function _doerr($reason, $flds)
