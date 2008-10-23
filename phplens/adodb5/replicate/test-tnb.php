@@ -146,6 +146,8 @@ foreach($tables as $k => $table) {
 	
 	# COPY DATA
 	$rep->execute = true;
+	$rep->deleteFirst = true;
+	
 	$secs = time();
 	$rows = $rep->ReplicateData($table,$dtable);
 	$secs = time() - $secs;

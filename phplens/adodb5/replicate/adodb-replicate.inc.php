@@ -5,8 +5,39 @@ define('ADODB_REPLICATE',1);
 include_once(ADODB_DIR.'/adodb-datadict.inc.php');
 
 /*
-	Note: this code assumes that the comments allow / *    * / which works with:
+	Note: this code assumes that comments such as  / *    * / are allowed which works with:
 		 mssql, postgresql, oracle, mssql
+		 
+	Replication engine to 
+	 	- copy table structures and data from different databases (e.g. mysql to oracle) 
+		  for replication purposes
+		- generate CREATE TABLE, CREATE INDEX, INSERT ... for installation scripts
+		
+	Table Structure copying includes
+		- fields and limited subset of types
+		- optional default values
+		- indexes
+		- but not constraints
+		
+		
+	Two modes of data copy:
+	
+	ReplicateData
+		- Copy from src to dest, with update of status of copy back to src, 
+		  with configurable src SELECT where clause
+	
+	MergeData
+		- Copy from src to dest based on last mod date field and/or copied flag field
+		
+	Default settings are
+		- do not execute, generate sql ($rep->execute = false)
+		- do not delete records in dest table first ($rep->deleteFirst = false).
+			if $rep->deleteFirst is true and primary keys are defined, 
+			then no deletion will occur unless *INSERTONLY* is defined in pkey array
+		- only commit once at the end of every ReplicateData ($rep->commitReplicate = true)
+		- do not autocommit every x records processed ($rep->commitRecs = -1)
+		- even if error occurs on one record, continue copying remaining records ($rep->neverAbort = true)
+		- debugging turned off ($rep->debug = false)
 */
 
 class ADODB_Replicate {
@@ -17,7 +48,9 @@ class ADODB_Replicate {
 	
 	var $execute = false;
 	var $debug = false;
-	var $deleteFirst = true;
+	var $deleteFirst = false;
+	var $commitReplicate = true; // commit at end of replicatedata
+	var $commitRecs = -1; // only commit at end of ReplicateData()
 	
 	var $selFilter = false;
 	var $fieldFilter = false;
@@ -25,12 +58,11 @@ class ADODB_Replicate {
 	var $updateFilter = false;
 	var $updateSrcFn = false;
 	
-	var $commitRecs = -1; // only commit at end of ReplicateData()
 	var $neverAbort = true;
 	var $copyTableDefaults = false; // turn off because functions defined as defaults will not work when copied
 	var $errHandler = false; // name of error handler function, if used.
-	var $htmlSpecialChars = true; // if execute false, then output with htmlspecialchars enabled
-	var $_mergeNulls = false; // if merging and null field, then set
+	var $htmlSpecialChars = true; 	// if execute false, then output with htmlspecialchars enabled. 
+									// Will autoconfigure itself. No need to modify
 	
 	function ADODB_Replicate($connSrc, $connDest)
 	{
@@ -87,7 +119,7 @@ class ADODB_Replicate {
 			$fn = $this->updateFilter;
 			return $fn($table, $fld, $val);
 		} else
-			return $fld;
+			return $val;
 	}
 	
 	/*
@@ -111,7 +143,7 @@ class ADODB_Replicate {
 			if ($set) {
 				
 				if ($mode == 'INS') {
-					if (strlen($dest_insertid)) == 0) $dest_insertid = 'null';
+					if (strlen($dest_insertid) == 0) $dest_insertid = 'null';
 					$set = str_replace('$INSERT_ID',$dest_insertid,$set);
 				}
 				$srcdb->Execute("UPDATE $table SET $set $where",$bindarr);
@@ -227,11 +259,31 @@ class ADODB_Replicate {
 			$v );
 	}
 	
+	function SwapDBs()
+	{
+		$o = $this->connSrc;
+		$this->connSrc = $this->connDest;
+		$this->connDest = $o;
+		
+		$o = $this->ddSrc;
+		$this->ddSrc = $this->ddDest;
+		$this->ddDest = $o;
+	}
+	
 	/*
 	// if no uniqflds defined, then all desttable recs will be deleted before insert
 	// $where clause must include the WHERE word if used
 	// if $this->commitRecs is set to a +ve value, then it will autocommit every $this->commitRecs records 
 	//		-- this should never be done with 7x24 db's
+	
+	$table = src table name
+	$desttable = dest table name, leave blank to use src table name
+	$uniqflds = array() = an array. If set, then inserts and updates will occur. eg. array('PK1', 'PK2');
+		To prevent updates to desttable (allow only to src table), add '*INSERTONLY*' or '*ONLYINSERT*' to array. 
+	$where = where clause for SELECT from $table $where. Include the WHERE reserved word in beginning. 
+		You can put ORDER BY at the end also
+	$ignoreflds = array(), list of fields to ignore. e.g. array('FLD1',FLD2');
+	$dstCopyDateFld = date field on $desttable to update with current date
 	
 	Thus we have the following behaviours:
 	
@@ -369,26 +421,41 @@ class ADODB_Replicate {
 	$bindarr - array holding bind variables for where clause
 	$mode - INS or UPD
 	$dest_insertid - when mode=INS, then the insert_id is stored here.
+	
+	
 	*/
 	
 	
-	function ReplicateData($table, $desttable = '',  $uniqflds = array(), $where = '')
+	function ReplicateData($table, $desttable = '',  $uniqflds = array(), $where = '',$ignore_flds = array(), $dstCopyDateFld='')
 	{
-		$this->_clearcache();
+		$dstCopyDateName = $dstCopyDateFld;
+		$dstCopyDateFld = strtoupper($dstCopyDateFld);
 		
+		$this->_clearcache();
+		if (is_string($uniqflds) && strlen($uniqflds)) $uniqflds = array($uniqflds);
 		if (!$desttable) $desttable = $table;
 		
 		$uniq = array();
 		if ($uniqflds) {
 			foreach($uniqflds as $u) {
+				if ($u == '*INSERTONLY*' || $u == '*ONLYINSERT*') {
+					$onlyInsert = true;
+					continue;
+				}
 				$uniq[strtoupper($u)] = 1;
 			}
-			$deleteFirst = false;
-			$onlyInsert = false;
+			$deleteFirst = ($this->deleteFirst && $onlyInsert);
 		} else {
 			$deleteFirst = true;
 			$onlyInsert = true;
 		}
+		
+		if ($ignore_flds) {
+			foreach($ignore_flds as $u) {
+				$ignoreflds[strtoupper($u)] = 1;
+			}
+		} else
+			$ignoreflds = array();
 		
 		$src = $this->connSrc;
 		$dest = $this->connDest;
@@ -415,8 +482,15 @@ class ADODB_Replicate {
 		$k = 0;
 		foreach($types as $name => $t) {
 			$name2 = strtoupper($this->RunFieldFilter($name,'SELECT'));
-			if (!isset($dtypes[strtoupper($name2)]) || !$name2) {
+			if (!isset($dtypes[($name2)]) || !$name2) {
 				if ($this->debug) echo " Skipping $name as not in destination $desttable<br>";
+				continue;
+			}
+			
+			if (isset($ignoreflds[($name2)])) continue;
+			
+			if ($name2 == $dstCopyDateFld) {
+				$dstCopyDateName = $t->name;
 				continue;
 			}
 			
@@ -426,8 +500,10 @@ class ADODB_Replicate {
 			if ($mt == 'D') $fldval = $dest->DBDate($fldval);
 			elseif ($mt == 'T') $fldval = $dest->DBTimeStamp($fldval);
 			
+			
 			if ($this->debug) echo " field=$fld type=$mt fldval=$fldval<br>";
-			if (!isset($uniq[strtoupper($fld)])) {
+			$ufld = strtoupper($fld);
+			if (!isset($uniq[$ufld])) {
 				
 				$selfld = $fld;
 				$fld = $this->RunFieldFilter($selfld,'SELECT');
@@ -438,10 +514,11 @@ class ADODB_Replicate {
 				if ($mt == 'D') $p = $dest->DBDate($p, true);
 				else if ($mt == 'T') $p = $dest->DBTimeStamp($p, true);
 				
+				# UPDATES
 				$sets[] = "$fld = ".$this->RunUpdateFilter($desttable, $fld, $p);
-				$vals[] = $fldval;
-				$params[] = $p;
-				$insflds[] = $fld;
+				
+				# INSERTS
+				$insflds[] = $fld; $params[] = $p;
 				$k++;
 			} else {
 				$fld = $this->RunFieldFilter($fld);
@@ -449,7 +526,13 @@ class ADODB_Replicate {
 			}
 		}
 		
+		if ($dstCopyDateFld) { 
+			$sets[] = "$dstCopyDateName = ".$dest->sysTimeStamp;
+
+			$insflds[] = $dstCopyDateName; $params[] = $dest->sysTimeStamp;
+		}
 		
+		$fldoffsets = array();
 		foreach($wheref as $fld) {
 			$flds[] = $fld;
 			$params[] = $dest->Param($k);
@@ -462,11 +545,11 @@ class ADODB_Replicate {
 		
 		$insfldss = implode(', ', $insflds);
 		$fldss = implode(', ', $flds);
-		$valss = implode(', ', $vals);
 		$setss = implode(', ', $sets);
 		$paramss = implode(', ', $params);
 		$wheress = implode('AND ', $wheres);
-		$srcwheress = implode('AND ',$srcwheres);
+		if (isset($srcwheres))
+			$srcwheress = implode('AND ',$srcwheres);
 		
 		$sa['SEL'] = "SELECT $fldss FROM $table $where";
 		$sa['INS'] = "INSERT INTO $desttable ($insfldss) VALUES ($paramss)";
@@ -523,8 +606,10 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			
 			return $sa;
 		} else {
-			$dest->BeginTrans();
-			if ($this->updateSrcFn) $src->BeginTrans();
+			if ($this->commitReplicate || $commitRecs > 0) {
+				$dest->BeginTrans();
+				if ($this->updateSrcFn) $src->BeginTrans();
+			}
 			
 			$rs = $src->Execute($sa['SEL']);
 			if (!$rs) {
@@ -537,7 +622,6 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			$ins = 0;
 			$fn = $this->selFilter;
 			$commitRecs = $this->commitRecs;
-			
 			while ($row = $rs->FetchRow()) {
 				#var_dump($row);
 				if ($dest->debug) {flush(); @ob_flush();}
@@ -546,7 +630,9 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 				if ($fn) {
 					if (!$fn($desttable, $row,$deleteFirst,$this)) continue;
 				}
+				$doinsert = true;
 				if (!$onlyInsert) {
+					$doinsert = false;
 					if (!$dest->Execute($sa['UPD'],$row)) {
 						$err = true;
 						if ($this->errHandler) $this->_doerr('UPD',$row);
@@ -554,26 +640,22 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 						else break;
 					}
 				 	if ($dest->Affected_Rows() == 0) {
-						if (!$dest->Execute($sa['INS'],$row)) {
-							$err = true;
-							if ($this->errHandler) $this->_doerr('INS',$row);
-							if ($this->neverAbort) continue;
-							else break;
-						}
-						$ins += 1;
+						$doinsert = true;
 					} else {
-						$this->RunUpdateSrcFn($src, $table,$fldoffsets, $row, $srcwheress,'UPD');
+						if (!empty($uniqflds)) $this->RunUpdateSrcFn($src, $table,$fldoffsets, $row, $srcwheress,'UPD');
 						$upd += 1;
 					}
-				}  else {
+				} 
+				
+				if ($doinsert) {
 					if (! $dest->Execute($sa['INS'],$row)) {
 						$err = true;
 						if ($this->errHandler) $this->_doerr('INS',$row);
 						if ($this->neverAbort) continue;
 						else break;
 					} 
-					$lastid = $dest->Insert_ID();
-					$this->RunUpdateSrcFn($src, $table, $fldoffsets, $row, $srcwheress,'INS',$lastid);
+					$lastid = ($dest->dataProvider != 'oci8') ? $dest->Insert_ID() : 'null';
+					if (!empty($uniqflds)) $this->RunUpdateSrcFn($src, $table, $fldoffsets, $row, $srcwheress,'INS',$lastid);
 					$ins += 1;
 				}
 				$cnt += 1;
@@ -590,33 +672,144 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 				}
 			} // while 
 			
-			if (!$this->neveAbort && $err) {
-				$dest->RollbackTrans();
-				if ($this->updateSrcFn) $src->RollbackTrans();
-			} else {
-				$dest->CommitTrans();
-				if ($this->updateSrcFn) $src->CommitTrans();
+			if ($this->commitReplicate || $commitRecs > 0) {
+				if (!$this->neverAbort && $err) {
+					$dest->RollbackTrans();
+					if ($this->updateSrcFn) $src->RollbackTrans();
+				} else {
+					$dest->CommitTrans();
+					if ($this->updateSrcFn) $src->CommitTrans();
+				}
 			}
 		}		
 		if ($cnt != $ins + $upd) echo "<p>ERROR: $cnt != INS $ins + UPD $upd</p>";
 		return array(!$err, $cnt, $ins, $upd);
 	}
 	
+	// trigger support only for sql server and oracle
+	function MergeCreateSrcIndex($srcTable,  $pkeys, $srcUpdateDateFld, $srcCopyFlagFld, 
+		$srcCopyFlagType='C(1)', $srcCopyFlagVals = array('Y','N'))
+	{
+		$src = $this->connSrc;
+		$idx = $srcTable.'_idx_Merge';
+		$cols = $src->MetaColumns($srcTable);
+		if (!isset($cols[strtoupper($srcUpdateDateFld)])) {
+			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcUpdateDateFld T DEFDATE");
+			foreach($sqla as $sql) $src->Execute($sql);
+		}
+		
+		
+		$sysdate = $src->sysTimeStamp;
+		$arrv1 = $src->qstr($srcCopyFlagVals[0]);
+		$arrv2 = $src->qstr($srcCopyFlagVals[1]);
+			
+		if ($srcCopyFlagFld && !isset($cols[strtoupper($srcCopyFlagFld)])) {
+			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcCopyFlagFld  $srcCopyFlagType DEFAULT $arrv2");
+		}
+		
+		$sqla = array();
+		$name = "{$srcTable}_tr_merge";
+		if (is_array($pkeys) && strpos($src->databaseType,'mssql') !== false) {		
+			$pk = reset($pkeys);
+			
+			$sqla[] = "DROP TRIGGER $name";
+			$sqla[] =" 
+	CREATE TRIGGER $name
+	ON $srcTable
+	AFTER UPDATE
+	AS
+	  UPDATE $srcTable
+	  SET 
+	  	$srcUpdateDateFld = $sysdate,
+	  	$srcCopyFlagFld = $arrv2
+	  FROM $srcTable AS F
+	  JOIN Inserted AS I
+	    ON F.$pk = I.$pk;
+	";
+		} else if (strpos($src->databaseType,'oci') !== false) {
+			
+			$sqla[] = "
+CREATE OR REPLACE TRIGGER $name
+BEFORE UPDATE ON $srcTable REFERENCING NEW AS NEW OLD AS OLD
+FOR EACH ROW
+BEGIN
+	 :new.$srcUpdateDateFld := $sysdate;
+	 :new.$srcCopyFlagFld := $arrv2;
+END;
+";
+		}
+		foreach($sqla as $sql) $src->Execute($sql);
+		
+		
+
+		if ($srcCopyFlagFld) $srcCopyFlagFld .= ', ';
+		$src->Execute("CREATE INDEX $idx on $srcTable ($srcCopyFlagFld$srcUpdateDateFld)");
+	}
+	
 	/*
 		Perform Merge by copying all data modified from src to dest
-			then update copied flag if present.
+			then update src copied flag if present.
+			
+		Returns the current time of the src database before the replication
+		
+		$srcTable = src table 
+		$dstTable = dest table
+		$pkeys    = primary keys array. if empty, then only inserts will occur
+		$srcignoreflds = ignore these flds (must be upper cased)
+		$setsrc        = updateSrcFn string
+		$lastCopyDateTime = last time a Merge occured
+		$srcUpdateDateFld = field in src with the last update date
+		$srcCopyFlagFld = false = optional field that holds the copied indicator
+		$flagvals=array('Y','N') = array of values indicating array(copied, not copied). Null is assumed to mean not copied
+		$srcCopyDateFld = field that holds last copy date in src table, which will be updated on Merge()
+		$dstCopyDateFld = field that holds last copy date in dst table, which will be updated on Merge()
+		$defaultDestRaiseErrorFn = The adodb raiseErrorFn handler. Default is to not raise an error.
+								 	Just output error message to stdout
+		
 	*/
-	function Merge($srcTable, $dstTable, $pkeys, $lastCopyDate, $insertOnly, $srcUpdateDateFld, $dstUpdateDateFld, 
-		$srcCopyFlagFld = false, $dstCopyFlagFld = false, $flagvals=array('Y','N'))
+	function Merge($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
+		$lastCopyDateTime, 
+		$srcUpdateDateFld, 
+		$srcCopyFlagFld = false,  $flagvals=array('Y','N'),
+		$srcCopyDateFld = false,
+		$dstCopyDateFld = false,
+		$defaultDestRaiseErrorFn = '')
 	{
-		$delfirst = $this->deleteFirst;
-		$this->deleteFirst = false;
 		$src = $this->connSrc;
 		$dest = $this->connDest;
 		
-		$this->ReplicateData($srcTable, $dstTable, $pkeys, 'where ');
+		$time = $src->Time();
 		
+		$delfirst = $this->deleteFirst;
+		$upd = $this->updateSrcFn;
+		
+		$this->deleteFirst = false;
+		$srcignoreflds[] = $srcUpdateDateFld;
+		$srcignoreflds[] = $srcCopyFlagFld;
+		$srcignoreflds[] = $srcCopyDateFld;
+		
+		$where = "WHERE $srcUpdateDateFld >= ".$src->DBTimeStamp($lastCopyDateTime);
+		if (!empty($srcCopyFlagFld)) $where .= " and ($srcCopyFlagFld is null or $srcCopyFlagFld = ".$src->qstr($flagvals[1]).')'; 
+		
+		if ($setsrc) $set[] = $setsrc;
+		else $set = array();
+		
+		if ($srcCopyFlagFld) $set[] = "$srcCopyFlagFld = ".$src->qstr($flagvals[0]);
+		 
+		if ($srcCopyDateFld) $set[]= "$srcCopyDateFld = ".$src->sysTimeStamp;
+		if ($set) $this->updateSrcFn = array(implode(', ',$set));
+		else $this->updateSrcFn = '';
+		
+		
+		$saveraise = $dest->raiseErrorFn; 
+		$dest->raiseErrorFn = '';
+		$this->ReplicateData($srcTable, $dstTable, $pkeys, $where, $srcignoreflds, $dstCopyDateFld);
+		$dest->raiseErrorFn = $saveraise;
+		
+		$this->updateSrcFn = $upd;
 		$this->deleteFirst = $delfirst;
+		
+		return $time;
 	}
 	
 	function _doerr($reason, $flds)
