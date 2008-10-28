@@ -72,6 +72,9 @@
 		 	var_dump($p->children);
 			echo "error LoadRelations<br>";
 		}
+		
+		unset($p->children);
+		$p->LoadRelations('children', " name_first like 'J%' order by id",1,2);
 	}
 	if ($p)
 	foreach($p->children as $c) {
