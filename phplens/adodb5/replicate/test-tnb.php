@@ -22,6 +22,9 @@ function FieldFilter(&$fld,$mode)
 		case 'GROUP': 
 			if ($mode == 'SELECT') $fld = '"Group"';
 			return 'GroupFld';
+		case 'SIZE': 
+			if ($mode == 'SELECT') $fld = '"Size"';
+			return 'SizeFld';
 	}
 	return $fld;
 }
@@ -40,6 +43,159 @@ if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
 
 $tables =
 "
+# Lookup table for Restoration Details screen
+sysefi
+sysgenkva
+sysrestoredby
+";
+
+# net* are ERMS, need last updated field from LGBnet
+# tblRep* are tables insert or update from Juris, need last updated field also
+# The rest are lookup tables, can copy all from LGBnet
+
+$tablesOld = 
+"
+# Sel* table added on 24 Oct
+SELSGManufacturer
+SelABCCondSizeLV
+SelABCCondSizeMV
+SelArchingHornSize
+SelBallastSize
+SelBallastType
+SelBatteryType
+SelBreakerCapacity
+SelBreakerType
+SelCBreakerManuf
+SelCTRatio
+SelCableBrand
+SelCableSize
+SelCableSizeLV
+SelCapacitorSize
+SelCapacitorType
+SelColourCode
+SelCombineSealingChamberSize
+SelConductorBrand
+SelConductorSize4
+SelConductorSizeLV
+SelConductorSizeMV
+SelContactorSize
+SelContractor
+SelCoverType
+SelCraddleSize
+SelDeadEndClampBrand
+SelDeadEndClampSize
+SelDevTermination
+SelFPManuf
+SelFPillarRating
+SelFalseTrue
+SelFuseManuf
+SelFuseType
+SelIPCBrand
+SelIPCSize
+SelIgnitorSize
+SelIgnitorType
+SelInsulatorBrand
+SelJoint
+SelJointBrand
+SelJunctionBoxBrand
+SelLVBoardBrand
+SelLVBoardSize
+SelLVOHManuf
+SelLVVoltage
+SelLightningArresterBrand
+SelLightningShieldwireSize
+SelLineTapSize
+SelLocation
+SelMVVoltage
+SelMidSpanConnectorsSize
+SelMidSpanJointSize
+SelNERManuf
+SelNERType
+SelNLinkSize
+SelPVCCondSizeLV
+SelPoleBrand
+SelPoleConcreteSize
+SelPoleSize
+SelPoleSpunConcreteSize
+SelPoleSteelSize
+SelPoleType
+SelPoleWoodSize
+SelPorcelainFuseSize
+SelRatedFaultCurrentBreaker
+SelRatedVoltageSG
+SelRelayType
+SelResistanceValue
+SelSGEquipmentType
+SelSGInsulationType
+SelSGManufacturer
+SelStayInsulatorSize
+SelSuspensionClampBrand
+SelSuspensionClampSize
+SelTSwitchType
+SelTowerType
+SelTransformerCapacity
+SelTransformerManuf
+SelTransformerType
+SelTypeOfArchingHorn
+SelTypeOfCable
+SelTypeOfConductor
+SelTypeOfInsulationCB
+SelTypeOfMidSpanJoint
+SelTypeOfSTJoint
+SelTypeSTCable
+SelUGVoltage
+SelVoltageInOut
+SelWireSize
+SelWireType
+SelWonpieceBrand
+#
+# Net* tables added on 24 Oct
+NetArchingHorn
+NetBatteryBank
+NetBiMetal
+NetBoxFuse
+NetCable
+NetCapacitorBank
+NetCircuitBreaker
+NetCombineSealingChamber
+NetCommunication
+NetCompInfras
+NetControl
+NetCraddle
+NetDeadEndClamp
+NetEarthing
+NetFaultIndicator
+NetFeederPillar
+NetGenCable
+NetGenerator
+NetGrid
+NetHVOverhead
+NetHVUnderground
+NetIPC
+NetInductorBank
+NetInsulator
+NetJoint
+NetJunctionBox
+NetLVDB
+NetLVOverhead
+NetLVUnderground
+NetLightningArrester
+NetLineTap
+NetMidSpanConnectors
+NetMidSpanJoint
+NetNER
+NetOilPump
+NetOtherComponent
+NetPole
+NetRMU
+NetStreetLight
+NetStrucSupp
+NetSuspensionClamp
+NetSwitchGear
+NetTermination
+NetTransition
+NetWonpiece
+#
 # comment1
 tblProtType  # id_pt
 SelMVFuseType
@@ -55,14 +211,6 @@ sysInterruptionType
 tblRepFailureMode
 tblRepFailureCause
 netTransformer
-";
-
-# net* are ERMS, need last updated field from LGBnet
-# tblRep* are tables insert or update from Juris, need last updated field also
-# The rest are lookup tables, can copy all from LGBnet
-
-$tablesOld = 
-"
 #
 #
 tblReport
