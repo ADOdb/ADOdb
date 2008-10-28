@@ -691,7 +691,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 		$srcCopyFlagType='C(1)', $srcCopyFlagVals = array('Y','N'))
 	{
 		$src = $this->connSrc;
-		$idx = $srcTable.'_idx_Merge';
+		$idx = $srcTable.'_adodb_Merge';
 		$cols = $src->MetaColumns($srcTable);
 		if (!isset($cols[strtoupper($srcUpdateDateFld)])) {
 			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcUpdateDateFld T DEFDATE");
@@ -708,14 +708,14 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 		}
 		
 		$sqla = array();
-		$name = "{$srcTable}_tr_merge";
+		$name = "{$srcTable}_adodb_merge";
 		if (is_array($pkeys) && strpos($src->databaseType,'mssql') !== false) {		
 			$pk = reset($pkeys);
 			
 			$sqla[] = "DROP TRIGGER $name";
 			$sqla[] =" 
 	CREATE TRIGGER $name
-	ON $srcTable
+	ON $srcTable /* for data replication and merge */
 	AFTER UPDATE
 	AS
 	  UPDATE $srcTable
@@ -723,18 +723,21 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	  	$srcUpdateDateFld = $sysdate,
 	  	$srcCopyFlagFld = $arrv2
 	  FROM $srcTable AS F
-	  JOIN Inserted AS I
-	    ON F.$pk = I.$pk;
+	  JOIN Inserted AS I ON F.$pk = I.$pk 
+	  JOIN Deleted as D ON F.$pk = D.$pk 
+		WHERE I.$srcCopyFlagFld = D.$srcCopyFlagFld
 	";
 		} else if (strpos($src->databaseType,'oci') !== false) {
 			
 			$sqla[] = "
-CREATE OR REPLACE TRIGGER $name
+CREATE OR REPLACE TRIGGER $name /* for data replication and merge */
 BEFORE UPDATE ON $srcTable REFERENCING NEW AS NEW OLD AS OLD
 FOR EACH ROW
 BEGIN
+	if :old.$srcCopyFlagFld = :new.$srcCopyFlagFld then
 	 :new.$srcUpdateDateFld := $sysdate;
 	 :new.$srcCopyFlagFld := $arrv2;
+	end if;
 END;
 ";
 		}

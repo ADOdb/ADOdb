@@ -357,7 +357,7 @@ $conn->CompleteTrans();
 
 <a name=onetomany>
 <h2>One to Many Relations</h3>
-<p>Since 0.90, we support parent child relationships. This is done using the BelongsTo() and HasMany() functions.
+<p>Since ADOdb 5.06, we support parent child relationships. This is done using the BelongsTo() and HasMany() functions. 
 <h3><li>HasMany</h3>
 <p>To define a one-to-many relationship we use $parentobj->HasMany($relation, $foreignKey = ''). For example, we have 2 tables, <strong>persons</strong> (parent table) and <strong>children</strong> (child table)
 linked by <strong>persons.id = children.person_id</strong>. The variable $person->children is an array that holds the children. To define this relationship:
@@ -388,7 +388,8 @@ linked by <strong>persons.id = children.person_id</strong>. The variable $person
 	$person2->HasMany('children','person_id');
 	$p = $person2->children;  ## $p is an empty array()
 </pre>
-<P>By default, data returned by HasMany() is unsorted. To define an order by clause, see <a href=#loadrelations>LoadRelations()</a> below.
+<P>By default, data returned by HasMany() is unsorted. To define an order by clause (or define a SELECT LIMIT window), see <a href=#loadrelations>LoadRelations()</a> below. Another point is that all children are loaded only when the child member is accessed (in __get), and not when the Load() function is called. This helps to conserve memory.
+
 <p>To create and save new parent and child records:
 <pre>
 
@@ -508,15 +509,16 @@ we have a child table <strong>children</strong>, and a parent table <strong>pers
 </pre>
 <a name=loadrelations>
 <h3><li>LoadRelations</h3>
-<p>Sometimes you want to load only a subset of data in a relationship. For example, you could load all female children sorted by children.id
+<p>Sometimes you want to load only a subset of data in a relationship. For example, you could load all female children sorted by children.name
 using LoadRelations($relation, $whereOrderBy = '', $offset = -1, $limit = -1);
 <pre>
 	$person = new person();
 	$person->HasMany('children','person_id'); 
-	$person->Load('id=23');
-	$person->LoadRelations('children',"and gender='F' order by id");
+	$person->Load('id=23');  
+	# Load doesn't load children until $person->children is accessed or LoadRelations is called:
+	$person->LoadRelations('children',"and gender='F' order by name");
 </pre>
-<p>Lastly, if you have lots of data, you can define a window of data to load using:
+<p>Lastly, if you have lots of child data, you can define a window of data to load using:
 <pre>
 	$acc = new Account();
 	$acc->HasMany('transactions','account_id'); 
@@ -679,10 +681,11 @@ echo "&lt;p>Name first (should be John): ",$person->name_first, "&lt;br>Class = 
 
 <a name=recordx>
 <h2>Active Record eXtended</h2>
-<p>This is an improved Active Record implementation that also supports one-to-many relationships  by
-Chris Ravenscroft  (chris#voilaweb.com). 
+<p>This is the original one-to-many Active Record implementation submitted by
+Chris Ravenscroft  (chris#voilaweb.com). The reason why we are offering both versions is that the Extended version
+is more powerful but more complex. My personal preference is to keep it simpler, but your view may vary. 
 <p>To use, just include adodb-active-recordx.inc.php instead of adodb-active-record.inc.php.
-<p>It provides a new function called Find() that is quite intuitive to use as shown in the example below.
+<p>It provides a new function called Find() that is quite intuitive to use as shown in the example below. It also supports loading all relationships using a single query (using joins).
 <pre>
 &lt;?php
 	function ar_assert($obj, $cond)

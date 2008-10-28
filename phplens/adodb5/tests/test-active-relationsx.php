@@ -95,6 +95,7 @@
 	echo "---------------------------------------------------------------------------\n";
 	$person5 = new Person();
 	$people5 = $person5->Find('id=1');
+	
 	echo (ar_assert($people5, "'name_first' => 'John'")) ? "[OK] Found John\n" : "[!!] Find failed\n";
 	echo (ar_assert($people5, "'favorite_pet' => 'tortoise'")) ? "[!!] Found relation when I shouldn't\n" : "[OK] No relation yet\n";
 	foreach($people5 as $person)
@@ -105,7 +106,7 @@
 		}
 	}
 	echo (ar_assert($people5, "'favorite_pet' => 'tortoise'")) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n";
-
+	adodb_pr($people5);
 	echo "\n\n---------------------------------------------------------------------------\n";
 	echo "person->Find('id=1' ... ADODB_WORK_AR) [Worker Method]\n";
 	echo "person is loaded, and so are its children\n";
@@ -114,7 +115,7 @@
 	$people6 = $person6->Find('id=1', false, false, array('loading' => ADODB_WORK_AR));
 	echo (ar_assert($people6, "'name_first' => 'John'")) ? "[OK] Found John\n" : "[!!] Find failed\n";
 	echo (ar_assert($people6, "'favorite_pet' => 'tortoise'")) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n";
-
+	adodb_pr($people6);
 	echo "\n\n---------------------------------------------------------------------------\n";
 	echo "person->Find('id=1' ... ADODB_JOIN_AR) [Join Method]\n";
 	echo "person and its children are loaded using a single query\n";
@@ -125,7 +126,7 @@
 	$people7 = $person7->Find('people.id=1', false, false, array('loading' => ADODB_JOIN_AR));
 	echo (ar_assert($people7, "'name_first' => 'John'")) ? "[OK] Found John\n" : "[!!] Find failed\n";
 	echo (ar_assert($people7, "'favorite_pet' => 'tortoise'")) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n";
-	
+	adodb_pr($people7);
 	echo "\n\n---------------------------------------------------------------------------\n";
 	echo "person->Load('people.id=1') [Join Method]\n";
 	echo "Load() always uses the join method since it returns only one row\n";
