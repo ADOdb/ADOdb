@@ -709,9 +709,10 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 		
 		$sqla = array();
 		$name = "{$srcTable}_adodb_merge";
-		if (is_array($pkeys) && strpos($src->databaseType,'mssql') !== false) {		
+		if (strpos($src->databaseType,'mssql') !== false) {		
+			if (!is_array($pkeys) || sizeof($pkeys == 0) die("Must define primary keys in array");
 			$pk = reset($pkeys);
-			
+			if (sizeof($pkeys)>1) die("Cannot handle multiple keys yet");
 			$sqla[] = "DROP TRIGGER $name";
 			$sqla[] =" 
 	CREATE TRIGGER $name

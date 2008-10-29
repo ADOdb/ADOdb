@@ -510,13 +510,13 @@ we have a child table <strong>children</strong>, and a parent table <strong>pers
 <a name=loadrelations>
 <h3><li>LoadRelations</h3>
 <p>Sometimes you want to load only a subset of data in a relationship. For example, you could load all female children sorted by children.name
-using LoadRelations($relation, $whereOrderBy = '', $offset = -1, $limit = -1). Note that you have to prefix your where clause with <b>AND</b>:
+using LoadRelations($relation, $whereOrderBy = '', $offset = -1, $limit = -1):
 <pre>
 	$person = new person();
 	$person->HasMany('children','person_id'); 
 	$person->Load('id=23');  
 	# Load doesn't load children until $person->children is accessed or LoadRelations is called:
-	$person->LoadRelations('children',"and gender='F' order by name");
+	$person->LoadRelations('children',"gender='F' order by name");
 </pre>
 <p>Lastly, if you have lots of child data, you can define a window of data of records to load. In the following
 example, we load a window of 100 records at a time:
@@ -526,7 +526,7 @@ example, we load a window of 100 records at a time:
 	$acc->Load('id=23');
 	while(true) {
 		$start = 0;
-		$acc->LoadRelations('transactions',"and tx_done=0 order by trxdate", $start, $start+100);
+		$acc->LoadRelations('transactions',"tx_done=0 order by trxdate", $start, $start+100);
 		if (!$acc->transactions) break;
 		foreach ($acc->transactions as $k => $trx) {
 			## process

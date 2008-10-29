@@ -111,7 +111,7 @@
 	else echo "OK loading BelongTo<br>";
 
 	$p->hasMany('children','person_id');
-	$p->LoadRelations('children', 'order by id',1,2);
+	$p->LoadRelations('children', "	Name_first like 'J%' order by id",1,2);
 	if (sizeof($p->children) == 2 && $p->children[1]->name_first == 'JAMIE') echo "OK LoadRelations<br>";
 	else echo "error LoadRelations<br>";
 	

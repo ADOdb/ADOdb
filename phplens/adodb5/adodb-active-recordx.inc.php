@@ -348,6 +348,12 @@ class ADODB_Active_Record {
 		if($offset >= 0) $extras['offset'] = $offset;
 		if($limit >= 0) $extras['limit'] = $limit;
 		$table =& $this->TableInfo();
+		
+		if (strlen($whereOrderBy)) 
+			if (!preg_match('/^[ \n\r]*AND/i',$whereOrderBy))
+				if (!preg_match('/^[ \n\r]*ORDER[ \n\r]/i',$whereOrderBy))
+					$whereOrderBy = 'AND '.$whereOrderBy;
+					
 		if(!empty($table->_belongsTo[$name]))
 		{
 			$obj = $table->_belongsTo[$name];
