@@ -687,7 +687,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	}
 	
 	// trigger support only for sql server and oracle
-	function MergeCreateSrcIndex($srcTable,  $pkeys, $srcUpdateDateFld, $srcCopyFlagFld, 
+	function MergeSrcSetup($srcTable,  $pkeys, $srcUpdateDateFld, $srcCopyFlagFld, 
 		$srcCopyFlagType='C(1)', $srcCopyFlagVals = array('Y','N'))
 	{
 		$src = $this->connSrc;
