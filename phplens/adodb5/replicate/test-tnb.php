@@ -88,14 +88,16 @@ function CopyData($rep, $table, $pkey)
 	flush();@ob_flush();
 }
 
-function MergeData($rep, $table, $pkey)
+function MergeDataJohnTest($rep, $table, $pkey)
 {
 	$dtable = $table;
-	$rep->MergeSrcSetup($table, $pkey,'UpdatedOn','CopyFlag');
+	$rep->MergeSrcSetup($table, $pkey,'UpdatedOn','CopiedFlag');
 	$ignoreflds = '';
 	$set = '';
-	$ok = $rep->Merge($table, $dtable, $pkey, $ignoreflds, $set, 'UpdatedOn','CopyFlag',array('Y','N'), 'CopyDate');
+	$ok = $rep->Merge($table, $dtable, $pkey, $ignoreflds, $set, 'UpdatedOn','CopiedFlag',array('Y','N'), 'CopyDate');
 	var_dump($ok);
+	
+	#$rep->connSrc->Execute("update JohnTest set name='Apple' where id=4");
 }
 
 $DB = ADONewConnection('odbtp');
@@ -357,7 +359,11 @@ foreach($tables as $k => $table) {
 	# COPY DATA
 	if ($pkey) $parr = array($pkey);
 	else $parr = array();
-	CopyData($rep, $table,$parr);
+	
+	if ($table == 'JohnTest') MergeDataJohnTest($rep, $table, $parr);
+	else CopyData($rep, $table, $parr);
+	
+	
 }
 
 echo "<hr>",date('H:i:s'),": Done</hr>";
