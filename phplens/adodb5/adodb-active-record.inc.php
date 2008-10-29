@@ -248,7 +248,7 @@ class ADODB_Active_Record {
 				if ($obj->parentKey) $key = $obj->parentKey;
 				else $key = reset($table->keys);
 				
-				$arrayOfOne = $obj->_Find($key.'='.$this->$columnName.' '.$whereOrderBy,false,false,$extras);
+				$arrayOfOne = $obj->Find($key.'='.$this->$columnName.' '.$whereOrderBy,false,false,$extras);
 				if ($arrayOfOne) {
 					$this->$name = $arrayOfOne[0];
 					return $arrayOfOne[0];
@@ -258,7 +258,7 @@ class ADODB_Active_Record {
 		if(!empty($table->_hasMany[$name]))
 		{	
 			$obj = $table->_hasMany[$name];
-			$objs = $obj->_Find($obj->foreignKey.'='.$this->id. ' '.$whereOrderBy,false,false,$extras);
+			$objs = $obj->Find($obj->foreignKey.'='.$this->id. ' '.$whereOrderBy,false,false,$extras);
 			if (!$objs) $objs = array();
 			$this->$name = $objs;
 			return $objs;
@@ -681,7 +681,7 @@ class ADODB_Active_Record {
 	}
 	
 	// returns an array of active record objects
-	function _Find($whereOrderBy,$bindarr=false,$pkeysArr=false,$extra=array())
+	function Find($whereOrderBy,$bindarr=false,$pkeysArr=false,$extra=array())
 	{
 		$db = $this->DB(); if (!$db || empty($this->_table)) return false;
 		$arr = $db->GetActiveRecordsClass(get_class($this),$this->_table, $whereOrderBy,$bindarr,$pkeysArr,$extra);
