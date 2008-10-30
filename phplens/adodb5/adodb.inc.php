@@ -960,7 +960,7 @@
 			
 			if (!is_array($sql) && !$this->_bindInputArray) {
 				$sqlarr = explode('?',$sql);
-					
+				$nparams = sizeof($sqlarr)-1;
 				if (!$array_2d) $inputarr = array($inputarr);
 				foreach($inputarr as $arr) {
 					$sql = ''; $i = 0;
@@ -985,7 +985,9 @@
 						else
 							$sql .= $v;
 						$i += 1;
-					}
+						
+						if ($i == $nparams) break;
+					} // while
 					if (isset($sqlarr[$i])) {
 						$sql .= $sqlarr[$i];
 						if ($i+1 != sizeof($sqlarr)) $this->outp_throw( "Input Array does not match ?: ".htmlspecialchars($sql),'Execute');
