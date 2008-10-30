@@ -63,7 +63,10 @@ class ADODB_Replicate {
 	var $errHandler = false; // name of error handler function, if used.
 	var $htmlSpecialChars = true; 	// if execute false, then output with htmlspecialchars enabled. 
 									// Will autoconfigure itself. No need to modify
-	
+	var $updateFirst = false;
+		// if true then code will try update before insert (better when refreshing old records), 
+		// if false then insert tried first (better when most data copied is new records).
+		
 	function ADODB_Replicate($connSrc, $connDest)
 	{
 		$this->connSrc = $connSrc;
@@ -433,6 +436,7 @@ class ADODB_Replicate {
 	
 	function ReplicateData($table, $desttable = '',  $uniqflds = array(), $where = '',$ignore_flds = array(), $dstCopyDateFld='')
 	{
+		$updateFirst = $this->updateFirst;
 		$dstCopyDateName = $dstCopyDateFld;
 		$dstCopyDateFld = strtoupper($dstCopyDateFld);
 		
@@ -633,6 +637,11 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			$ins = 0;
 			$fn = $this->selFilter;
 			$commitRecs = $this->commitRecs;
+			
+			var_dump($updateFirst);
+			$updateFirst =false;
+			/* UPDATE FIRST LOOP */
+			if ($updateFirst) 
 			while ($row = $rs->FetchRow()) {
 				#var_dump($row);
 				if ($dest->debug) {flush(); @ob_flush();}
@@ -681,7 +690,59 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 					}
 				}
 			} // while 
-			$rs->Close();
+			else /* INSERT FIRST LOOP */
+			while ($row = $rs->FetchRow()) {
+				#var_dump($row);
+				if ($dest->debug) {flush(); @ob_flush();}
+				
+				if ($fn) {
+					if (!$fn($desttable, $row,$deleteFirst,$this)) continue;
+				}
+	
+				if (!$dest->Execute($sa['INS'],$row)) {
+					$doupdate = $onlyInsert;
+					if (!$doupdate) {
+						$err = true;
+						if ($this->errHandler) $this->_doerr('INS',$row);
+						if ($this->neverAbort) continue;
+						else break;
+					}
+				}else {
+					$doupdate = false;
+					$lastid = ($dest->dataProvider != 'oci8') ? $dest->Insert_ID() : 'null';
+					if (!empty($uniqflds)) $this->RunUpdateSrcFn($src, $table,$fldoffsets, $row, $srcwheress,'UPD',$lastid);
+					$ins += 1;
+				}
+			
+				
+				if ($doupdate) {
+					if (! $dest->Execute($sa['UPD'],$row) || $dest->Affected_Rows() == 0) {
+						$err = true;
+						if ($this->errHandler) $this->_doerr('UPD',$row);
+						if ($this->neverAbort) continue;
+						else break;
+					}  else {	
+						$doinsert = true;
+						$upd += 1;
+					} 
+					$lastid = ($dest->dataProvider != 'oci8') ? $dest->Insert_ID() : 'null';
+					if (!empty($uniqflds)) $this->RunUpdateSrcFn($src, $table, $fldoffsets, $row, $srcwheress,'INS',$lastid);
+					$ins += 1;
+				}
+				$cnt += 1;
+				
+				if ($commitRecs > 0 && ($cnt % $commitRecs) == 0) {
+					$dest->CommitTrans();
+					$dest->BeginTrans();
+					
+					
+					if ($this->updateSrcFn) {
+						$src->CommitTrans();
+						$src->BeginTrans();
+					}
+				}
+			} // while
+			
 			if ($this->commitReplicate || $commitRecs > 0) {
 				if (!$this->neverAbort && $err) {
 					$dest->RollbackTrans();
