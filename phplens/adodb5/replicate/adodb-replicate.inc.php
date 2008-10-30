@@ -127,7 +127,6 @@ class ADODB_Replicate {
 	*/
 	function RunUpdateSrcFn($srcdb, $table, $fldoffsets, $row, $where, $mode, $dest_insertid=null)
 	{
-
 		if (!$this->updateSrcFn) return;
 		
 		$bindarr = array();
@@ -146,7 +145,13 @@ class ADODB_Replicate {
 					if (strlen($dest_insertid) == 0) $dest_insertid = 'null';
 					$set = str_replace('$INSERT_ID',$dest_insertid,$set);
 				}
-				$srcdb->Execute("UPDATE $table SET $set $where",$bindarr);
+				if (strpos($srcdb->databaseType,'odbtp') !== false) {
+					$srcdb->_bindInputArray = false;  # bug in odbtp, binding fails
+				}
+				
+				$sql = "UPDATE $table SET $set $where";
+				$ok = $srcdb->Execute($sql,$bindarr);
+				if (!$ok) adodb_backtrace();
 			}
 		} else $fn($srcdb, $table, $row, $where, $bindarr, $mode, $dest_insertid);
 		
@@ -437,6 +442,7 @@ class ADODB_Replicate {
 		
 		$uniq = array();
 		if ($uniqflds) {
+			$onlyInsert = false;
 			foreach($uniqflds as $u) {
 				if ($u == '*INSERTONLY*' || $u == '*ONLYINSERT*') {
 					$onlyInsert = true;
@@ -606,10 +612,6 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			
 			return $sa;
 		} else {
-			if ($this->commitReplicate || $commitRecs > 0) {
-				$dest->BeginTrans();
-				if ($this->updateSrcFn) $src->BeginTrans();
-			}
 			
 			$rs = $src->Execute($sa['SEL']);
 			if (!$rs) {
@@ -617,6 +619,15 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 				return array(0,0,0,0);
 			}
 			
+			if ($this->commitReplicate || $commitRecs > 0) {
+				$dest->BeginTrans();
+				if ($this->updateSrcFn) $src->BeginTrans();
+			}
+			
+			if ($this->updateSrcFn && strpos($src->databaseType,'mssql') !== false) {
+				# problem is writers interfere with readers in mssql
+				$rs = $src->_rs2rs($rs);
+			}
 			$cnt = 0;
 			$upd = 0;
 			$ins = 0;
@@ -626,7 +637,6 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 				#var_dump($row);
 				if ($dest->debug) {flush(); @ob_flush();}
 				
-			
 				if ($fn) {
 					if (!$fn($desttable, $row,$deleteFirst,$this)) continue;
 				}
@@ -659,7 +669,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 					$ins += 1;
 				}
 				$cnt += 1;
-				
+
 				if ($commitRecs > 0 && ($cnt % $commitRecs) == 0) {
 					$dest->CommitTrans();
 					$dest->BeginTrans();
@@ -671,7 +681,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 					}
 				}
 			} // while 
-			
+			$rs->Close();
 			if ($this->commitReplicate || $commitRecs > 0) {
 				if (!$this->neverAbort && $err) {
 					$dest->RollbackTrans();
@@ -681,7 +691,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 					if ($this->updateSrcFn) $src->CommitTrans();
 				}
 			}
-		}		
+		}
 		if ($cnt != $ins + $upd) echo "<p>ERROR: $cnt != INS $ins + UPD $upd</p>";
 		return array(!$err, $cnt, $ins, $upd);
 	}
@@ -690,11 +700,13 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	function MergeSrcSetup($srcTable,  $pkeys, $srcUpdateDateFld, $srcCopyFlagFld, 
 		$srcCopyFlagType='C(1)', $srcCopyFlagVals = array('Y','N'))
 	{
+		$sqla = array();
 		$src = $this->connSrc;
 		$idx = $srcTable.'_adodb_Merge';
 		$cols = $src->MetaColumns($srcTable);
+		#adodb_pr($cols);
 		if (!isset($cols[strtoupper($srcUpdateDateFld)])) {
-			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcUpdateDateFld T DEFDATE");
+			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcUpdateDateFld T DEFTIMESTAMP");
 			foreach($sqla as $sql) $src->Execute($sql);
 		}
 		
@@ -705,14 +717,14 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			
 		if ($srcCopyFlagFld && !isset($cols[strtoupper($srcCopyFlagFld)])) {
 			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcCopyFlagFld  $srcCopyFlagType DEFAULT $arrv2");
+			foreach($sqla as $sql) $src->Execute($sql);
 		}
 		
 		$sqla = array();
-		$name = "{$srcTable}_adodb_merge";
-		if (strpos($src->databaseType,'mssql') !== false) {		
-			if (!is_array($pkeys) || sizeof($pkeys == 0) die("Must define primary keys in array");
+		$name = "{$srcTable}_adodb_merge_tr";
+		if (is_array($pkeys) && strpos($src->databaseType,'mssql') !== false) {		
 			$pk = reset($pkeys);
-			if (sizeof($pkeys)>1) die("Cannot handle multiple keys yet");
+			
 			$sqla[] = "DROP TRIGGER $name";
 			$sqla[] =" 
 	CREATE TRIGGER $name
@@ -723,10 +735,10 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	  SET 
 	  	$srcUpdateDateFld = $sysdate,
 	  	$srcCopyFlagFld = $arrv2
-	  FROM $srcTable AS F
-	  JOIN Inserted AS I ON F.$pk = I.$pk 
-	  JOIN Deleted as D ON F.$pk = D.$pk 
-		WHERE I.$srcCopyFlagFld = D.$srcCopyFlagFld
+	 Where $pk in (SELECT I.$pk
+	  FROM Inserted AS I 
+	  JOIN Deleted as D ON I.$pk = D.$pk 
+		WHERE I.$srcCopyFlagFld = D.$srcCopyFlagFld)
 	";
 		} else if (strpos($src->databaseType,'oci') !== false) {
 			
@@ -744,11 +756,10 @@ END;
 		}
 		foreach($sqla as $sql) $src->Execute($sql);
 		
-		
-
 		if ($srcCopyFlagFld) $srcCopyFlagFld .= ', ';
-		$src->Execute("CREATE INDEX $idx on $srcTable ($srcCopyFlagFld$srcUpdateDateFld)");
+		$src->Execute("CREATE INDEX {$idx}_idx on $srcTable ($srcCopyFlagFld$srcUpdateDateFld)");
 	}
+	
 	
 	/*
 		Perform Merge by copying all data modified from src to dest
@@ -761,7 +772,6 @@ END;
 		$pkeys    = primary keys array. if empty, then only inserts will occur
 		$srcignoreflds = ignore these flds (must be upper cased)
 		$setsrc        = updateSrcFn string
-		$lastCopyDateTime = last time a Merge occured
 		$srcUpdateDateFld = field in src with the last update date
 		$srcCopyFlagFld = false = optional field that holds the copied indicator
 		$flagvals=array('Y','N') = array of values indicating array(copied, not copied). Null is assumed to mean not copied
@@ -772,9 +782,8 @@ END;
 		
 	*/
 	function Merge($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
-		$lastCopyDateTime, 
 		$srcUpdateDateFld, 
-		$srcCopyFlagFld = false,  $flagvals=array('Y','N'),
+		$srcCopyFlagFld,  $flagvals=array('Y','N'),
 		$srcCopyDateFld = false,
 		$dstCopyDateFld = false,
 		$defaultDestRaiseErrorFn = '')
@@ -792,8 +801,7 @@ END;
 		$srcignoreflds[] = $srcCopyFlagFld;
 		$srcignoreflds[] = $srcCopyDateFld;
 		
-		$where = "WHERE $srcUpdateDateFld >= ".$src->DBTimeStamp($lastCopyDateTime);
-		if (!empty($srcCopyFlagFld)) $where .= " and ($srcCopyFlagFld is null or $srcCopyFlagFld = ".$src->qstr($flagvals[1]).')'; 
+		$where = " WHERE ($srcCopyFlagFld is null or $srcCopyFlagFld = ".$src->qstr($flagvals[1]).') ORDER BY '.$srcUpdateDateFld; 
 		
 		if ($setsrc) $set[] = $setsrc;
 		else $set = array();
@@ -807,15 +815,17 @@ END;
 		
 		$saveraise = $dest->raiseErrorFn; 
 		$dest->raiseErrorFn = '';
-		$this->ReplicateData($srcTable, $dstTable, $pkeys, $where, $srcignoreflds, $dstCopyDateFld);
+		$arr = $this->ReplicateData($srcTable, $dstTable, $pkeys, $where, $srcignoreflds, $dstCopyDateFld);
+		$ok = isset($arr[0]) ? $arr[0] : true;
+		
 		$dest->raiseErrorFn = $saveraise;
 		
 		$this->updateSrcFn = $upd;
 		$this->deleteFirst = $delfirst;
 		
-		return $time;
+		return $ok;
 	}
-	
+
 	function _doerr($reason, $flds)
 	{
 		$fn = $this->errHandler;
