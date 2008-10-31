@@ -587,10 +587,20 @@ class ADODB_odbtp extends ADOConnection{
 				}
 			}
 			$num_params = @odbtp_num_params( $stmtid );
+			/*
 			for( $param = 1; $param <= $num_params; $param++ ) {
 				@odbtp_input( $stmtid, $param );
 				@odbtp_set( $stmtid, $param, $inputarr[$param-1] );
+			}*/
+			
+			$param = 1;
+			foreach($inputarr as $v) {
+				@odbtp_input( $stmtid, $param );
+				@odbtp_set( $stmtid, $param, $v );
+				$param += 1;
+				if ($param > $num_params) break;
 			}
+			
 			if (!@odbtp_execute($stmtid) ) {
 				return false;
 			}

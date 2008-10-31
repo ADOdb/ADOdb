@@ -15,14 +15,22 @@ function SelFilter($table, &$arr, $delfirst)
 	return true;
 }
 
+function updatefilter($table, $fld, $val)
+{
+	return "nvl($fld, $val)";
+}
+
+
 function FieldFilter(&$fld,$mode)
 {
 	$uf = strtoupper($fld);
 	switch($uf) {
 		case 'SIZEFLD':
-			break;
+			return 'Size';
+			
 		case 'GROUPFLD':
-			break;
+			return 'Group';
+
 		case 'GROUP': 
 			if ($mode == 'SELECT') $fld = '"Group"';
 			return 'GroupFld';
@@ -55,6 +63,25 @@ function ParseTable(&$table, &$pkey)
 	}
 	
 	return true;
+}
+
+global $TARR;
+
+function TableStats($rep, $table, $pkeyarr)
+{
+global $TARR;
+
+	if (empty($TARR)) $TARR = array();
+	$cnt = $rep->connSrc->GetOne("select count(*) from $table");
+	if (isset($TARR[$table])) echo "<h1>Table $table repeated twice</h1>";
+	$TARR[$table] = $cnt;
+	
+	$pkey = reset($pkeyarr);
+	if ($pkey) {
+		$ok = $rep->connSrc->SelectLimit("select $pkey from $table",1);
+		if (!$ok) echo "<h1>$table: $pkey does not exist</h1>";
+	} else
+		echo "<h1>$table: no primary key</h1>";
 }
 
 function CreateTable($rep, $table)
@@ -91,10 +118,20 @@ function CopyData($rep, $table, $pkey)
 function MergeDataJohnTest($rep, $table, $pkey)
 {
 	$dtable = $table;
+	$rep->oracleSequence = 'LGBSEQUENCE';
 	$rep->MergeSrcSetup($table, $pkey,'UpdatedOn','CopiedFlag');
-	$ignoreflds = '';
-	$set = '';
-	$ok = $rep->Merge($table, $dtable, $pkey, $ignoreflds, $set, 'UpdatedOn','CopiedFlag',array('Y','N'), 'CopyDate');
+	if (strpos($rep->connDest->databaseType,'mssql') !== false)  {
+		$ignoreflds = $pkey;
+		$ignoreflds[] = 'MSSQL_ID';
+		$set = 'MSSQL_ID=nvl($INSERT_ID,'.reset($pkey).')';
+	} else {
+		$ignoreflds = $pkey;
+		$ignoreflds[] = 'ORA_ID';
+		$set = 'ORA_ID=$INSERT_ID';
+	}
+	$rep->execute = true;
+	#$rep->updateFirst = false;
+	$ok = $rep->Merge($table, $dtable, $pkey, $ignoreflds, $set, 'UpdatedOn','CopiedFlag',array('Y','N','P'), 'CopyDate');
 	var_dump($ok);
 	
 	#$rep->connSrc->Execute("update JohnTest set name='Apple' where id=4");
@@ -103,11 +140,10 @@ function MergeDataJohnTest($rep, $table, $pkey)
 $DB = ADONewConnection('odbtp');
 #$ok = $DB->Connect('localhost','root','','northwind');
 $ok = $DB->Connect('192.168.0.1','DRIVER={SQL Server};SERVER=(local);UID=sa;PWD=natsoft;DATABASE=OIR;','','');
-
+$DB->_bindInputArray = false;
 
 $DB2 = ADONewConnection('oci8');
 $ok2 = $DB2->Connect('192.168.0.2','tnb','natsoft','RAPTOR','');
-
 
 if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
 
@@ -120,8 +156,9 @@ JohnTest,id
 # tblRep* are tables insert or update from Juris, need last updated field also
 # The rest are lookup tables, can copy all from LGBnet
 
-$tablesOld = 
+$tablesOrig = 
 "
+SysVoltSubLevel,id 
 # Lookup table for Restoration Details screen
 sysefi,ID # (not identity)
 sysgenkva,ID #(not identity)
@@ -336,11 +373,13 @@ $rep->fieldFilter = 'FieldFilter';
 $rep->selFilter = 'SELFILTER';
 $rep->indexFilter = 'IndexFilter';
 
-if (1) {
+if (0) {
 	$rep->debug = 1;
 	$DB->debug=1;
 	$DB2->debug=1;
 }
+
+	#	$rep->SwapDBs();
 
 $cnt = sizeof($tables);
 foreach($tables as $k => $table) {
@@ -360,10 +399,19 @@ foreach($tables as $k => $table) {
 	if ($pkey) $parr = array($pkey);
 	else $parr = array();
 	
+	TableStats($rep, $table, $parr);
+	
 	if ($table == 'JohnTest') MergeDataJohnTest($rep, $table, $parr);
 	else CopyData($rep, $table, $parr);
 	
-	
+}
+
+
+if (!empty($TARR)) {
+	ksort($TARR);
+	adodb_pr($TARR);
+	asort($TARR);
+	adodb_pr($TARR);
 }
 
 echo "<hr>",date('H:i:s'),": Done</hr>";

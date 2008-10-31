@@ -305,7 +305,7 @@ NATSOFT.DOMAIN =
 	function DBTimeStamp($ts,$isfld=false)
 	{
 		if (empty($ts) && $ts !== 0) return 'null';
-		if ($isfld) return 'TO_DATE('.$ts.",'RRRR-MM-DD, HH24:MI:SS')";
+		if ($isfld) return 'TO_DATE(substr('.$ts.",1,19),'RRRR-MM-DD, HH24:MI:SS')";
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
 		return 'TO_DATE('.adodb_date("'Y-m-d H:i:s'",$ts).",'RRRR-MM-DD, HH24:MI:SS')";
 	}
