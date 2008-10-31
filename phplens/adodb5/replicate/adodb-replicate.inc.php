@@ -474,12 +474,12 @@ class ADODB_Replicate {
 				$srcuniqflds = array();
 			}
 			$onlyInsert = false;
-			foreach($destuniqflds as $u) {
+			foreach($destuniqflds as $k => $u) {
 				if ($u == '*INSERTONLY*' || $u == '*ONLYINSERT*') {
 					$onlyInsert = true;
 					continue;
 				}
-				$uniq[strtoupper($u)] = 1;
+				$uniq[strtoupper($u)] = $k;
 			}
 			$deleteFirst = ($this->deleteFirst && $onlyInsert);
 		} else {
@@ -512,9 +512,10 @@ class ADODB_Replicate {
 			return array();
 		}
 		$sa = array();
-		$flds = array();
+		$selflds = array();
 		$wheref = array();
 		$wheres = array();
+		$srcwheref = array();
 		
 		$k = 0;
 		foreach($types as $name => $t) {
@@ -523,8 +524,6 @@ class ADODB_Replicate {
 				if ($this->debug) echo " Skipping $name as not in destination $desttable<br>";
 				continue;
 			}
-			
-			
 			
 			if ($name2 == $dstCopyDateFld) {
 				$dstCopyDateName = $t->name;
@@ -548,7 +547,7 @@ class ADODB_Replicate {
 				
 				$selfld = $fld;
 				$fld = $this->RunFieldFilter($selfld,'SELECT');
-				$flds[] = $selfld;
+				$selflds[] = $selfld;
 				
 				$p = $dest->Param($k);
 				
@@ -564,8 +563,12 @@ class ADODB_Replicate {
 			} else {
 				$fld = $this->RunFieldFilter($fld);
 				$wheref[] = $fld;
+				if (!empty($srcuniqflds)) $srcwheref[] = $srcuniqflds[$uniq[$ufld]];
 			}
 		}
+		
+		if (!empty($srcuniqflds) && sizeof($srcuniqflds) > sizeof($srcwheref))
+			$srcPKDest = $srcuniqflds[sizeof($srcuniqflds)-1];
 		
 		foreach($extraflds as $fld => $evals) {
 			$sets[] = "$fld = ".$evals[1];
@@ -577,13 +580,24 @@ class ADODB_Replicate {
 
 			$insflds[] = $dstCopyDateName; $params[] = $dest->sysTimeStamp;
 		}
-		
-		$fldoffsets = array();
-		foreach($wheref as $fld) {
-			$flds[] = $fld;
+
+		// mssql ==> oracle
+		// $pkeyarr = array(array('ID'),array('ORA_ID', 'MSSQL_ID'));
+		foreach($wheref as $uu => $fld) {
+
+			if(!empty($srcPKDest)) {
+				if ($uu > 1) die("Only one primary key for srcwheref allowed currently");
+				$srcff = $srcwheref[$uu];  # ORA_ID
+				$selflds[] = $fld;   # ID
+				$params[] = $dest->Param($k);
+				$srcPKDestIdx = $k;
+				$srcwheres[] = $fld.' = '.$src->Param($k);
+				
+			} else {
+				$selflds[] = $fld;
+				$wheres[] = $fld.' = '.$dest->Param($k);
+			}
 			
-			$srcwheres[] = $fld.' = '.$src->Param($k);
-			$wheres[] = $fld.' = '.$dest->Param($k);
 			if (!isset($ignoreflds[strtoupper($fld)])) {
 				$insflds[] = $fld;
 				$params[] = $dest->Param($k);
@@ -592,13 +606,27 @@ class ADODB_Replicate {
 			$k++;
 		}
 		
+		if (!empty($srcPKDest)) {
+		
+			$selflds[] = $srcff;
+			
+			$wheres[] = $srcPKDest.' = '.$dest->Param($k-1);
+			$insflds[] = $srcPKDest;
+			
+			$fldoffsets = array($srcPKDestIdx);
+			
+			$srcPKDestIdx = $k;
+			$k++;
+		} else	
+			$fldoffsets = array();	
+					
 		$insfldss = implode(', ', $insflds);
-		$fldss = implode(', ', $flds);
+		$fldss = implode(', ', $selflds);
 		$setss = implode(', ', $sets);
 		$paramss = implode(', ', $params);
-		$wheress = implode('AND ', $wheres);
+		$wheress = implode(' AND ', $wheres);
 		if (isset($srcwheres))
-			$srcwheress = implode('AND ',$srcwheres);
+			$srcwheress = implode(' AND ',$srcwheres);
 		
 		$sa['SEL'] = "SELECT $fldss FROM $table $where";
 		$sa['INS'] = "INSERT INTO $desttable ($insfldss) VALUES ($paramss)";
@@ -674,14 +702,15 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			$cnt = 0;
 			$upd = 0;
 			$ins = 0;
+			
+			$sizeofrow = sizeof($selflds);
+			
 			$fn = $this->selFilter;
 			$commitRecs = $this->commitRecs;
 			
 			$saved = $dest->debug;
 			
-			/* UPDATE FIRST LOOP */
-			if ($updateFirst) 
-			while ($row = $rs->FetchRow()) {
+			while ($origrow = $rs->FetchRow()) {
 				#var_dump($row);
 				if ($dest->debug) {flush(); @ob_flush();}
 				
@@ -689,39 +718,60 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 					if (!$fn($desttable, $row,$deleteFirst,$this)) continue;
 				}
 				$doinsert = true;
+				$row = $origrow;
+				
 				if (!$onlyInsert) {
 					$doinsert = false;
 					$upderr = false;
-					if (!$dest->Execute($sa['UPD'],$row)) {
+					if (isset($srcPKDestIdx)) {var_dump($origrow);
+						if(is_null($origrow[$srcPKDestIdx])) {
+							$upderr = true;
+						} else {
+							$row = array_slice($origrow,0,$sizeofrow-1);
+							#$row[] = $origrow[$sizeofrow-1];	
+						}
+					} 
+					
+					if (!$upderr && !$dest->Execute($sa['UPD'],$row)) {
 						$err = true;
 						$upderr = true;
 						if ($this->errHandler) $this->_doerr('UPD',$row);
 						if (!$this->neverAbort) break;
 					}
+					
 				 	if ($upderr || $dest->Affected_Rows() == 0) {
 						$doinsert = true;
 					} else {
-						if (!empty($uniqflds)) $this->RunUpdateSrcFn($src, $table,$fldoffsets, $row, $srcwheress,'UPD');
+						if (!empty($uniqflds)) $this->RunUpdateSrcFn($src, $table, $fldoffsets, $origrow, $srcwheress, 'UPD');
 						$upd += 1;
 					}
 				} 
 				
 				if ($doinsert) {
+					$inserr = false;
+					if (isset($srcPKDestIdx)) {
+						$row = array_slice($origrow,0,$sizeofrow-1);
+					}
+					
 					if (! $dest->Execute($sa['INS'],$row)) {
 						$err = true;
+						$inserr = true;
 						if ($this->errHandler) $this->_doerr('INS',$row);
 						if ($this->neverAbort) continue;
 						else break;
 					} else {
 						if ($dest->dataProvider == 'oci8') {
-						 if ($this->oracleSequence) $lastid = $dest->GetOne("select ".$this->oracleSequence.".currVal from dual");
-						 else $lastid = 'null';
-					} else { 	
-						$lastid = $dest->Insert_ID();
-					}
-						if (!empty($uniqflds)) $this->RunUpdateSrcFn($src, $table, $fldoffsets, $row, $srcwheress,'INS',$lastid);
+							if ($this->oracleSequence) $lastid = $dest->GetOne("select ".$this->oracleSequence.".currVal from dual");
+						 	else $lastid = 'null';
+						} else { 	
+							$lastid = $dest->Insert_ID();
+						}
+					
+						if (!$inserr && !empty($uniqflds)) {
+							$this->RunUpdateSrcFn($src, $table, $fldoffsets, $origrow, $srcwheress, 'INS', $lastid);
+						}
 						$ins += 1;
-					}
+					} 
 				}
 				$cnt += 1;
 
@@ -734,63 +784,9 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 						$src->BeginTrans();
 					}
 				}
+				
 			} // while 
-			else /* INSERT FIRST LOOP */
-			while ($row = $rs->FetchRow()) {
-				#var_dump($row);
-				if ($dest->debug) {flush(); @ob_flush();}
-				
-				if ($fn) {
-					if (!$fn($desttable, $row,$deleteFirst,$this)) continue;
-				}
-				#$dest->debug = false;
-				if (!$dest->Execute($sa['INS'],$row)) {
-					$doupdate = !$onlyInsert;
-					if (!$doupdate) {
-						$err = true;
-						if ($this->errHandler) $this->_doerr('INS',$row);
-						if ($this->neverAbort) continue;
-						else break;
-					}
-				}else {
-					$doupdate = false;
-					if ($dest->dataProvider == 'oci8') {
-						 if ($this->oracleSequence) $lastid = $dest->GetOne("select ".$this->oracleSequence.".currVal from dual");
-						 else $lastid = 'null';
-					} else { 	
-						$lastid = $dest->Insert_ID();
-					}
-					#echo "LASTID=",$lastid;
-					if (!empty($uniqflds)) $this->RunUpdateSrcFn($src, $table,$fldoffsets, $row, $srcwheress,'INS',$lastid);
-					$ins += 1;
-				}
-				#$dest->debug = $saved;
 			
-				
-				if ($doupdate) {
-					if (! $dest->Execute($sa['UPD'],$row) || $dest->Affected_Rows() == 0) {
-						$err = true;
-						if ($this->errHandler) $this->_doerr('UPD',$row);
-						if ($this->neverAbort) continue;
-						else break;
-					}  else {	
-						$upd += 1;					
-						if (!empty($uniqflds)) $this->RunUpdateSrcFn($src, $table, $fldoffsets, $row, $srcwheress,'UPD');
-					} 
-				}
-				$cnt += 1;
-				
-				if ($commitRecs > 0 && ($cnt % $commitRecs) == 0) {
-					$dest->CommitTrans();
-					$dest->BeginTrans();
-					
-					
-					if ($this->updateSrcFn) {
-						$src->CommitTrans();
-						$src->BeginTrans();
-					}
-				}
-			} // while
 			
 			if ($this->commitReplicate || $commitRecs > 0) {
 				if (!$this->neverAbort && $err) {
@@ -844,12 +840,10 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	  UPDATE $srcTable
 	  SET 
 	  	$srcUpdateDateFld = $sysdate,
-	  	$srcCopyFlagFld = case when (select $srcCopyFlagFld from Inserted)= $arrv2 then $arrv0 else $arrv1 end
-		WHERE $pk in (
-		SELECT I.$pk 
-	  FROM Inserted AS I 
+	  	$srcCopyFlagFld = case when I.$srcCopyFlagFld = $arrv2 then $arrv0 else $arrv1 end
+	  FROM $srcTable S Join Inserted AS I on I.$pk = S.$pk
 	  JOIN Deleted as D ON I.$pk = D.$pk 
-		WHERE I.$srcCopyFlagFld = D.$srcCopyFlagFld or I.$srcCopyFlagFld = $arrv2)
+		WHERE I.$srcCopyFlagFld = D.$srcCopyFlagFld or I.$srcCopyFlagFld = $arrv2
 	";
 		} else if (strpos($src->databaseType,'oci') !== false) {
 			
@@ -943,10 +937,10 @@ END;
 		return $ok;
 	}
 
-	function _doerr($reason, $flds)
+	function _doerr($reason, $selflds)
 	{
 		$fn = $this->errHandler;
-		if ($fn) $fn($this, $reason, $flds); // set $this->neverAbort to true or false as required inside $fn
+		if ($fn) $fn($this, $reason, $selflds); // set $this->neverAbort to true or false as required inside $fn
 	}
 }
 

@@ -67,7 +67,7 @@ function ParseTable(&$table, &$pkey)
 
 global $TARR;
 
-function TableStats($rep, $table, $pkeyarr)
+function TableStats($rep, $table, $pkey)
 {
 global $TARR;
 
@@ -76,7 +76,6 @@ global $TARR;
 	if (isset($TARR[$table])) echo "<h1>Table $table repeated twice</h1>";
 	$TARR[$table] = $cnt;
 	
-	$pkey = reset($pkeyarr);
 	if ($pkey) {
 		$ok = $rep->connSrc->SelectLimit("select $pkey from $table",1);
 		if (!$ok) echo "<h1>$table: $pkey does not exist</h1>";
@@ -106,7 +105,7 @@ function CopyData($rep, $table, $pkey)
 	$rep->deleteFirst = true;
 	
 	$secs = time();
-	$rows = $rep->ReplicateData($table,$dtable,$pkey);
+	$rows = $rep->ReplicateData($table,$dtable,array($pkey));
 	$secs = time() - $secs;
 	if (!$rows || !$rows[0] || !$rows[1] || $rows[1] != $rows[2]+$rows[3]) {
 		echo "<hr>Error: "; var_dump($rows);  echo " (secs=$secs) <hr>\n";
@@ -119,19 +118,21 @@ function MergeDataJohnTest($rep, $table, $pkey)
 {
 	$dtable = $table;
 	$rep->oracleSequence = 'LGBSEQUENCE';
-	$rep->MergeSrcSetup($table, $pkey,'UpdatedOn','CopiedFlag');
-	if (strpos($rep->connDest->databaseType,'mssql') !== false)  {
-		$ignoreflds = $pkey;
+	$rep->MergeSrcSetup($table, array($pkey),'UpdatedOn','CopiedFlag');
+	if (strpos($rep->connDest->databaseType,'mssql') !== false)  {  # oracle ==> mssql
+		$ignoreflds = array($pkey);
 		$ignoreflds[] = 'MSSQL_ID';
-		$set = 'MSSQL_ID=nvl($INSERT_ID,'.reset($pkey).')';
-	} else {
-		$ignoreflds = $pkey;
+		$set = 'MSSQL_ID=nvl($INSERT_ID,MSSQL_ID)'; 
+		$pkeyarr = array(array($pkey),array('MSSQL_ID', 'ORA_ID'));
+	} else {  # mssql ==> oracle
+		$ignoreflds = array($pkey);
 		$ignoreflds[] = 'ORA_ID';
-		$set = 'ORA_ID=$INSERT_ID';
+		$set = 'ORA_ID=isnull($INSERT_ID,ORA_ID)';
+		$pkeyarr = array(array($pkey),array('ORA_ID', 'MSSQL_ID'));
 	}
 	$rep->execute = true;
 	#$rep->updateFirst = false;
-	$ok = $rep->Merge($table, $dtable, $pkey, $ignoreflds, $set, 'UpdatedOn','CopiedFlag',array('Y','N','P'), 'CopyDate');
+	$ok = $rep->Merge($table, $dtable, $pkeyarr, $ignoreflds, $set, 'UpdatedOn','CopiedFlag',array('Y','N','P'), 'CopyDate');
 	var_dump($ok);
 	
 	#$rep->connSrc->Execute("update JohnTest set name='Apple' where id=4");
@@ -373,13 +374,13 @@ $rep->fieldFilter = 'FieldFilter';
 $rep->selFilter = 'SELFILTER';
 $rep->indexFilter = 'IndexFilter';
 
-if (0) {
+if (1) {
 	$rep->debug = 1;
 	$DB->debug=1;
 	$DB2->debug=1;
 }
 
-	#	$rep->SwapDBs();
+#	$rep->SwapDBs();
 
 $cnt = sizeof($tables);
 foreach($tables as $k => $table) {
@@ -396,13 +397,12 @@ foreach($tables as $k => $table) {
 	
 	
 	# COPY DATA
-	if ($pkey) $parr = array($pkey);
-	else $parr = array();
 	
-	TableStats($rep, $table, $parr);
 	
-	if ($table == 'JohnTest') MergeDataJohnTest($rep, $table, $parr);
-	else CopyData($rep, $table, $parr);
+	TableStats($rep, $table, $pkey);
+	
+	if ($table == 'JohnTest') MergeDataJohnTest($rep, $table, $pkey);
+	else CopyData($rep, $table, $pkey);
 	
 }
 
