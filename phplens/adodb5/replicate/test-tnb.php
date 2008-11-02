@@ -132,7 +132,7 @@ function MergeDataJohnTest($rep, $table, $pkey)
 	}
 	$rep->execute = true;
 	#$rep->updateFirst = false;
-	$ok = $rep->Merge($table, $dtable, $pkeyarr, $ignoreflds, $set, 'UpdatedOn','CopiedFlag',array('Y','N','P'), 'CopyDate');
+	$ok = $rep->Merge($table, $dtable, $pkeyarr, $ignoreflds, $set, 'UpdatedOn','CopiedFlag',array('Y','N','P','='), 'CopyDate');
 	var_dump($ok);
 	
 	#$rep->connSrc->Execute("update JohnTest set name='Apple' where id=4");

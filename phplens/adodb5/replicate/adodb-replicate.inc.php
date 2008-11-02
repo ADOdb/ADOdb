@@ -285,6 +285,9 @@ class ADODB_Replicate {
 	// if $this->commitRecs is set to a +ve value, then it will autocommit every $this->commitRecs records 
 	//		-- this should never be done with 7x24 db's
 	
+	
+	ReplicateData() params:
+	
 	$table = src table name
 	$desttable = dest table name, leave blank to use src table name
 	$uniqflds = array() = an array. If set, then inserts and updates will occur. eg. array('PK1', 'PK2');
@@ -295,6 +298,8 @@ class ADODB_Replicate {
 	$dstCopyDateFld = date field on $desttable to update with current date
 	$extraflds allows you to add additional flds to insert/update. Format
 		array(fldname => $fldval)
+		$fldval itself can be an array or a string. If an array, then
+		$extraflds = array($fldname => array($insertval, $updateval))
 	
 	Thus we have the following behaviours:
 	
@@ -571,8 +576,9 @@ class ADODB_Replicate {
 			$srcPKDest = $srcuniqflds[sizeof($srcuniqflds)-1];
 		
 		foreach($extraflds as $fld => $evals) {
-			$sets[] = "$fld = ".$evals[1];
+			if (!is_array($evals)) $evals = array($evals, $evals);
 			$insflds[] = $fld; $params[] = $evals[0];
+			$sets[] = "$fld = ".$evals[1];
 		}
 		
 		if ($dstCopyDateFld) { 
@@ -728,7 +734,6 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 							$upderr = true;
 						} else {
 							$row = array_slice($origrow,0,$sizeofrow-1);
-							#$row[] = $origrow[$sizeofrow-1];	
 						}
 					} 
 					
@@ -802,8 +807,9 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 		return array(!$err, $cnt, $ins, $upd);
 	}
 	// trigger support only for sql server and oracle
+	// need to add 
 	function MergeSrcSetup($srcTable,  $pkeys, $srcUpdateDateFld, $srcCopyFlagFld, 
-		$srcCopyFlagType='C(1)', $srcCopyFlagVals = array('Y','N','P'))
+		$srcCopyFlagType='C(1)', $srcCopyFlagVals = array('Y','N','P','='))
 	{
 		$sqla = array();
 		$src = $this->connSrc;
@@ -820,6 +826,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 		$arrv0 = $src->qstr($srcCopyFlagVals[0]);
 		$arrv1 = $src->qstr($srcCopyFlagVals[1]);
 		$arrv2 = $src->qstr($srcCopyFlagVals[2]);
+		$arrv3 = $src->qstr($srcCopyFlagVals[3]);
 		
 		if ($srcCopyFlagFld && !isset($cols[strtoupper($srcCopyFlagFld)])) {
 			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcCopyFlagFld  $srcCopyFlagType DEFAULT $arrv1");
@@ -840,7 +847,10 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	  UPDATE $srcTable
 	  SET 
 	  	$srcUpdateDateFld = $sysdate,
-	  	$srcCopyFlagFld = case when I.$srcCopyFlagFld = $arrv2 then $arrv0 else $arrv1 end
+	  	$srcCopyFlagFld = case 
+			when I.$srcCopyFlagFld = $arrv2 then $arrv0 
+			when I.$srcCopyFlagFld = $arrv3 then D.$srcCopyFlagFld
+			else $arrv1 end
 	  FROM $srcTable S Join Inserted AS I on I.$pk = S.$pk
 	  JOIN Deleted as D ON I.$pk = D.$pk 
 		WHERE I.$srcCopyFlagFld = D.$srcCopyFlagFld or I.$srcCopyFlagFld = $arrv2
@@ -854,6 +864,8 @@ FOR EACH ROW
 BEGIN
 	if :new.$srcCopyFlagFld = $arrv2 then
 		:new.$srcCopyFlagFld := $arrv0;
+	elsif :new.$srcCopyFlagFld = $arrv3 then
+		:new.$srcCopyFlagFld := :old.$srcCopyFlagFld;
 	elsif :old.$srcCopyFlagFld = :new.$srcCopyFlagFld then
 	 :new.$srcUpdateDateFld := $sysdate;
 	 :new.$srcCopyFlagFld := $arrv1;
@@ -892,7 +904,7 @@ END;
 	*/
 	function Merge($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
 		$srcUpdateDateFld, 
-		$srcCopyFlagFld,  $flagvals=array('Y','N','P'),
+		$srcCopyFlagFld,  $flagvals=array('Y','N','P','='),
 		$srcCopyDateFld = false,
 		$dstCopyDateFld = false,
 		$defaultDestRaiseErrorFn = '')
@@ -922,7 +934,8 @@ END;
 		if ($set) $this->updateSrcFn = array(implode(', ',$set));
 		else $this->updateSrcFn = '';
 		
-		$extra[$srcCopyFlagFld] = array($dest->qstr($flagvals[0]),$dest->qstr($flagvals[2]));
+		
+		$extra[$srcCopyFlagFld] = array($dest->qstr($flagvals[0]),$dest->qstr($flagvals[3]));
 		
 		$saveraise = $dest->raiseErrorFn; 
 		$dest->raiseErrorFn = '';
