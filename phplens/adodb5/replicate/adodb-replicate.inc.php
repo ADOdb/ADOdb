@@ -298,6 +298,17 @@ class ADODB_Replicate {
 	$desttable = dest table name, leave blank to use src table name
 	$uniqflds = array() = an array. If set, then inserts and updates will occur. eg. array('PK1', 'PK2');
 		To prevent updates to desttable (allow only to src table), add '*INSERTONLY*' or '*ONLYINSERT*' to array. 
+		
+		Sometimes you are replicating a src table with an autoinc primary key.
+			You sometimes create recs in the dest table. The dest table has to retrieve the 
+			src table's autoinc key (stored in a 2nd field) so you can match the two tables.
+			
+		To define this, and the uniqflds contains nested arrays. Copying from autoinc table to other table:
+			array(array($destpkey), array($destfld_holds_src_autoinc_pkey)) 
+			
+		Copying from normal table to autoinc table:
+			array(array($destpkey), array(), array($srcfld_holds_dest_autoinc_pkey)) 
+		
 	$where = where clause for SELECT from $table $where. Include the WHERE reserved word in beginning. 
 		You can put ORDER BY at the end also
 	$ignoreflds = array(), list of fields to ignore. e.g. array('FLD1',FLD2');
