@@ -579,6 +579,10 @@ class ADODB_Replicate {
 				$fld = $this->RunFieldFilter($fld);
 				$wheref[] = $fld;
 				if (!empty($srcuniqflds)) $srcwheref[] = $srcuniqflds[$uniq[$ufld]];
+				if ($mt == 'C') { # normally we don't include the primary key in the insert if it is numeric, but ok if varchar
+					$insertpkey = true;
+					adodb_backtrace();
+				}
 			}
 		}
 		
@@ -601,24 +605,26 @@ class ADODB_Replicate {
 		}	
 		
 		foreach($wheref as $uu => $fld) {
-
+			
+			$p = $dest->Param($k);
+			$sp = $src->Param($k);
 			if (!empty($srcuniqflds)) {
 				if ($uu > 1) die("Only one primary key for srcuniqflds allowed currently");
 				$destsrckey = reset($srcuniqflds);
-				$wheres[] = reset($srcuniqflds).' = '.$dest->Param($k);
+				$wheres[] = reset($srcuniqflds).' = '.$p;
 				
 				$insflds[] = $this->RunInsertFilter($desttable,$destsrckey, $p);
-				$params[] = $dest->Param($k);
+				$params[] = $p;
 			} else {
-				$wheres[] = $fld.' = '.$dest->Param($k);
-				if (!isset($ignoreflds[strtoupper($fld)])) {
+				$wheres[] = $fld.' = '.$p;
+				if (!isset($ignoreflds[strtoupper($fld)]) || !empty($insertpkey)) {
 					$insflds[] = $this->RunInsertFilter($desttable,$fld, $p);
-					$params[] = $dest->Param($k);
+					$params[] = $p;
 				}
 			}
 			
 			$selflds[] = $fld;
-			$srcwheres[] = $fld.' = '.$src->Param($k);
+			$srcwheres[] = $fld.' = '.$sp;
 			$fldoffsets[] = $k;
 			
 			$k++;
@@ -867,6 +873,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	  FROM $srcTable S Join Inserted AS I on I.$pk = S.$pk
 	  JOIN Deleted as D ON I.$pk = D.$pk 
 		WHERE I.$srcCopyFlagFld = D.$srcCopyFlagFld or I.$srcCopyFlagFld = $arrv2
+		or I.$srcCopyFlagFld = $arrv3
 	";
 		} else if (strpos($src->databaseType,'oci') !== false) {
 		
