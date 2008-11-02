@@ -116,19 +116,23 @@ function CopyData($rep, $table, $pkey)
 
 function MergeDataJohnTest($rep, $table, $pkey)
 {
+	$rep->SwapDBs();
+	
 	$dtable = $table;
 	$rep->oracleSequence = 'LGBSEQUENCE';
-	$rep->MergeSrcSetup($table, array($pkey),'UpdatedOn','CopiedFlag');
+	
+#	$rep->MergeSrcSetup($table, array($pkey),'UpdatedOn','CopiedFlag');
 	if (strpos($rep->connDest->databaseType,'mssql') !== false)  {  # oracle ==> mssql
 		$ignoreflds = array($pkey);
 		$ignoreflds[] = 'MSSQL_ID';
 		$set = 'MSSQL_ID=nvl($INSERT_ID,MSSQL_ID)'; 
-		$pkeyarr = array(array($pkey),array('MSSQL_ID', 'ORA_ID'));
+		$pkeyarr = array(array($pkey),false,array('MSSQL_ID'));# array('MSSQL_ID', 'ORA_ID'));
 	} else {  # mssql ==> oracle
 		$ignoreflds = array($pkey);
 		$ignoreflds[] = 'ORA_ID';
-		$set = 'ORA_ID=isnull($INSERT_ID,ORA_ID)';
-		$pkeyarr = array(array($pkey),array('ORA_ID', 'MSSQL_ID'));
+		$set = '';
+		#$set = 'ORA_ID=isnull($INSERT_ID,ORA_ID)';
+		$pkeyarr = array(array($pkey),array('MSSQL_ID'));
 	}
 	$rep->execute = true;
 	#$rep->updateFirst = false;
