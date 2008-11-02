@@ -581,7 +581,6 @@ class ADODB_Replicate {
 				if (!empty($srcuniqflds)) $srcwheref[] = $srcuniqflds[$uniq[$ufld]];
 				if ($mt == 'C') { # normally we don't include the primary key in the insert if it is numeric, but ok if varchar
 					$insertpkey = true;
-					adodb_backtrace();
 				}
 			}
 		}
