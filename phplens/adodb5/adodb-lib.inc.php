@@ -1057,7 +1057,8 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 		else if ($zthis->debug !== -99)
 			ADOConnection::outp( "<hr />\n($dbt): ".htmlspecialchars($sqlTxt)." &nbsp; $ss\n<hr />\n",false);
 	} else {
-		ADOConnection::outp("-----\n($dbt): ".$sqlTxt."\n-----\n",false);
+		if ($zthis->debug !== -99)
+			ADOConnection::outp("-----\n($dbt): ".$sqlTxt."\n-----\n",false);
 	}
 
 	$qID = $zthis->_query($sql,$inputarr);
@@ -1080,8 +1081,9 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 	} else if (!$qID) {
 	
 		if ($zthis->debug === -99) 
-				ADOConnection::outp( "<hr />\n($dbt): ".htmlspecialchars($sqlTxt)." &nbsp; $ss\n<hr />\n",false);
-		
+				if ($inBrowser) ADOConnection::outp( "<hr />\n($dbt): ".htmlspecialchars($sqlTxt)." &nbsp; $ss\n<hr />\n",false);
+				else ADOConnection::outp("-----\n($dbt): ".$sqlTxt."\n-----\n",false);
+				
 		ADOConnection::outp($zthis->ErrorNo() .': '. $zthis->ErrorMsg());
 	}
 	
