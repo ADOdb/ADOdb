@@ -45,12 +45,14 @@ class ADODB_odbtp extends ADOConnection{
 
 	function ErrorMsg()
 	{
+		if ($this->_errorMsg !== false) return $this->_errorMsg;
 		if (empty($this->_connectionID)) return @odbtp_last_error();
 		return @odbtp_last_error($this->_connectionID);
 	}
 
 	function ErrorNo()
 	{
+		if ($this->_errorCode !== false) return $this->_errorCode;
 		if (empty($this->_connectionID)) return @odbtp_last_error_state();
 			return @odbtp_last_error_state($this->_connectionID);
 	}
@@ -437,6 +439,10 @@ class ADODB_odbtp extends ADOConnection{
 	function Prepare($sql)
 	{
 		if (! $this->_bindInputArray) return $sql; // no binding
+		
+        $this->_errorMsg = false;
+		$this->_errorCode = false;
+		
 		$stmt = @odbtp_prepare($sql,$this->_connectionID);
 		if (!$stmt) {
 		//	print "Prepare Error for ($sql) ".$this->ErrorMsg()."<br>";
@@ -449,6 +455,9 @@ class ADODB_odbtp extends ADOConnection{
 	{
 		if (!$this->_canPrepareSP) return $sql; // Can't prepare procedures
 
+        $this->_errorMsg = false;
+		$this->_errorCode = false;
+		
 		$stmt = @odbtp_prepare_proc($sql,$this->_connectionID);
 		if (!$stmt) return false;
 		return array($sql,$stmt);
@@ -576,6 +585,9 @@ class ADODB_odbtp extends ADOConnection{
 	{
 	global $php_errormsg;
 	
+        $this->_errorMsg = false;
+		$this->_errorCode = false;
+		
  		if ($inputarr) {
 			if (is_array($sql)) {
 				$stmtid = $sql[1];

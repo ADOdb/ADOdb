@@ -66,6 +66,7 @@ class ADODB_Replicate {
 									// Will autoconfigure itself. No need to modify
 			
 	var $oracleSequence = false;
+	var $readUncommitted = false; 
 	
 	function ADODB_Replicate($connSrc, $connDest)
 	{
@@ -656,8 +657,10 @@ class ADODB_Replicate {
 			$srcwheress = implode(' AND ',$srcwheres);
 		
 		
-		#if (strpos($src->databaseType,'mssql')) $sa['SEL'] .= ' with (NOLOCK)';
-		$sa['SEL'] = "SELECT $fldss FROM $table $where";
+		$seltable = $table;
+		if ($this->readUncommitted && strpos($src->databaseType,'mssql')) $seltable .= ' with (NOLOCK)';
+		
+		$sa['SEL'] = "SELECT $fldss FROM $seltable $where";
 		$sa['INS'] = "INSERT INTO $desttable ($insfldss) VALUES ($paramss)";
 		$sa['UPD'] = "UPDATE $desttable SET $setss WHERE $wheress";
 		

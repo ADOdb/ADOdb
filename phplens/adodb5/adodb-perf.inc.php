@@ -70,9 +70,9 @@ function adodb_log_sql(&$connx,$sql,$inputarr)
 {
     $perf_table = adodb_perf::table();
 	$connx->fnExecute = false;
-	$t0 = microtime();
+	$a0 = microtime(true);
 	$rs = $connx->Execute($sql,$inputarr);
-	$t1 = microtime();
+	$a1 = microtime(true);
 
 	if (!empty($connx->_logsql) && (empty($connx->_logsqlErrors) || !$rs)) {
 	global $ADODB_LOG_CONN;
@@ -90,12 +90,6 @@ function adodb_log_sql(&$connx,$sql,$inputarr)
 		
 		$conn->_logsql = false; // disable logsql error simulation
 		$dbT = $conn->databaseType;
-		
-		$a0 = split(' ',$t0);
-		$a0 = (float)$a0[1]+(float)$a0[0];
-		
-		$a1 = split(' ',$t1);
-		$a1 = (float)$a1[1]+(float)$a1[0];
 		
 		$time = $a1 - $a0;
 	
