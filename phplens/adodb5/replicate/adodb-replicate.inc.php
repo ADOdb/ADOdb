@@ -43,6 +43,9 @@ include_once(ADODB_DIR.'/adodb-datadict.inc.php');
 class ADODB_Replicate {
 	var $connSrc;
 	var $connDest;
+	
+	var $connSrc2 = false;
+	var $connDest2 = false;
 	var $ddSrc;
 	var $ddDest;
 	
@@ -59,6 +62,8 @@ class ADODB_Replicate {
 	var $insertFilter = false;
 	var $updateSrcFn = false;
 	
+	var $limitRecs = false;
+	
 	var $neverAbort = true;
 	var $copyTableDefaults = false; // turn off because functions defined as defaults will not work when copied
 	var $errHandler = false; // name of error handler function, if used.
@@ -66,12 +71,27 @@ class ADODB_Replicate {
 									// Will autoconfigure itself. No need to modify
 			
 	var $oracleSequence = false;
-	var $readUncommitted = false; 
+	var $readUncommitted = false;  // read without obeying shared locks for fast select (mssql)
 	
-	function ADODB_Replicate($connSrc, $connDest)
+	// connSrc2 and connDest2 are only required if the db driver
+	// does not allow updates back to src db in first connection (the select connection), 
+	// so we need 2nd connection 
+	function ADODB_Replicate($connSrc, $connDest, $connSrc2=false, $connDest2=false)
 	{
+		
+		if (strpos($connSrc->databaseType,'odbtp') !== false) {
+			$connSrc->_bindInputArray = false;  # bug in odbtp, binding fails
+		}
+		
+		if (strpos($connDest->databaseType,'odbtp') !== false) {
+			$connDest->_bindInputArray = false;  # bug in odbtp, binding fails
+		}
+		
 		$this->connSrc = $connSrc;
 		$this->connDest = $connDest;
+		
+		$this->connSrc2 = ($connSrc2) ? $connSrc2 : $connSrc;
+		$this->connDest2 = ($connDest2) ? $connDest2 : $connDest;
 		
 		$this->ddSrc = NewDataDictionary($connSrc);
 		$this->ddDest = NewDataDictionary($connDest);
@@ -156,13 +176,12 @@ class ADODB_Replicate {
 				if (strlen($dest_insertid) == 0) $dest_insertid = 'null';
 				$set = str_replace('$INSERT_ID',$dest_insertid,$set);
 					
-				if (strpos($srcdb->databaseType,'odbtp') !== false) {
-					$srcdb->_bindInputArray = false;  # bug in odbtp, binding fails
-				}
-				
-				$sql = "UPDATE $table SET $set $where";
+				$sql = "UPDATE $table SET $set $where  ";
 				$ok = $srcdb->Execute($sql,$bindarr);
-				if (!$ok) adodb_backtrace();
+				if (!$ok) {
+					echo $srcdb->ErrorMsg(),"<br>\n";
+					die();
+				}
 			}
 		} else $fn($srcdb, $table, $row, $where, $bindarr, $mode, $dest_insertid);
 		
@@ -280,6 +299,11 @@ class ADODB_Replicate {
 		$o = $this->connSrc;
 		$this->connSrc = $this->connDest;
 		$this->connDest = $o;
+		
+		
+		$o = $this->connSrc2;
+		$this->connSrc2 = $this->connDest2;
+		$this->connDest2 = $o;
 		
 		$o = $this->ddSrc;
 		$this->ddSrc = $this->ddDest;
@@ -471,6 +495,12 @@ class ADODB_Replicate {
 	function ReplicateData($table, $desttable = '',  $uniqflds = array(), $where = '',$ignore_flds = array(), 
 		$dstCopyDateFld='', $extraflds = array())
 	{
+		if (is_array($where)) {
+			$wheresrc = $where[0];
+			$wheredest = $where[1];
+		} else {
+			$wheresrc = $wheredest = $where;
+		}
 		$dstCopyDateName = $dstCopyDateFld;
 		$dstCopyDateFld = strtoupper($dstCopyDateFld);
 		
@@ -523,8 +553,11 @@ class ADODB_Replicate {
 		
 		$src = $this->connSrc;
 		$dest = $this->connDest;
+		$src2 = $this->connSrc2;
+		
 		$dest->noNullStrings = false;
 		$src->noNullStrings = false;
+		$src2->noNullStrings = false;
 		
 		if ($src === $dest) $this->execute = false;
 		
@@ -533,7 +566,7 @@ class ADODB_Replicate {
 			echo "Source $table does not exist<br>\n";
 			return array();
 		}
-		$dtypes = $this->connDest->MetaColumns($desttable);
+		$dtypes = $dest->MetaColumns($desttable);
 		if (!$dtypes) {
 			echo "Destination $desttable does not exist<br>\n";
 			return array();
@@ -660,9 +693,9 @@ class ADODB_Replicate {
 		$seltable = $table;
 		if ($this->readUncommitted && strpos($src->databaseType,'mssql')) $seltable .= ' with (NOLOCK)';
 		
-		$sa['SEL'] = "SELECT $fldss FROM $seltable $where";
-		$sa['INS'] = "INSERT INTO $desttable ($insfldss) VALUES ($paramss)";
-		$sa['UPD'] = "UPDATE $desttable SET $setss WHERE $wheress";
+		$sa['SEL'] = "SELECT $fldss FROM $seltable $wheresrc";
+		$sa['INS'] = "INSERT INTO $desttable ($insfldss) VALUES ($paramss) /**INS**/";
+		$sa['UPD'] = "UPDATE $desttable SET $setss WHERE $wheress /**UPD**/";
 		
 					
 		
@@ -680,14 +713,15 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 </style><pre>*/
 ';
 		if ($deleteFirst && $this->deleteFirst) {
-			$sql = "DELETE FROM $desttable\n";
+			$where = preg_replace('/[ \n\r\t]+order[ \n\r\t]+by.*$/i', '', $where);
+			$sql = "DELETE FROM $desttable $wheredest\n";
 			if (!$this->execute) echo $DB2,'</font>*/',$sql,"\n";
 			else $dest->Execute($sql);
 		}
 		
 		global $ADODB_COUNTRECS;
 		$err = false;
-		$src->setFetchMode(ADODB_FETCH_NUM);
+		$savemode = $src->setFetchMode(ADODB_FETCH_NUM);
 		$ADODB_COUNTRECS = false;		
 		
 		if (!$this->execute) {
@@ -696,40 +730,85 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			$suffix = ($onlyInsert) ? ' PRIMKEY=?' : '';
 			echo $DB2,$sa['UPD'],"$suffix</font>\n*/\n\n";
 			
-			$src->setFetchMode(ADODB_FETCH_NUM);
 			$rs = $src->Execute($sa['SEL']);
 			$cnt = 1;
 			$upd = 0;
 			$ins = 0;
+			
+			$sqlarr = explode('?',$sa['INS']);
+			$nparams = sizeof($sqlarr)-1;
+			
+			$useQmark = $dest->databaseProvider != 'oci8';
 			while ($rs && !$rs->EOF) {
-				$INS = $sa['INS'];
-				$arr = array_reverse($rs->fields);
-				foreach($arr as $k => $v) {
-					$k = sizeof($arr)-$k-1;
-					$INS = str_replace(':'.$k,$this->fixupbinary($dest->qstr($v)),$INS);
+				if ($useQmark) {
+					$sql = ''; $i = 0;
+					//Use each() instead of foreach to reduce memory usage -mikefedyk
+					while(list(, $v) = each($arr)) {
+						$sql .= $sqlarr[$i];
+						// from Ron Baldwin <ron.baldwin#sourceprose.com>
+						// Only quote string types	
+						$typ = gettype($v);
+						if ($typ == 'string')
+							//New memory copy of input created here -mikefedyk
+							$sql .= $dest->qstr($v);
+						else if ($typ == 'double')
+							$sql .= str_replace(',','.',$v); // locales fix so 1.1 does not get converted to 1,1
+						else if ($typ == 'boolean')
+							$sql .= $v ? $dest->true : $dest->false;
+						else if ($typ == 'object') {
+							if (method_exists($v, '__toString')) $sql .= $dest->qstr($v->__toString());
+							else $sql .= $dest->qstr((string) $v);
+						} else if ($v === null)
+							$sql .= 'NULL';
+						else
+							$sql .= $v;
+						$i += 1;
+						
+						if ($i == $nparams) break;
+					} // while
+					
+					if (isset($sqlarr[$i])) {
+						$sql .= $sqlarr[$i];
+					}
+					$INS = $sql;
+				} else {			
+					$INS = $sa['INS'];
+					$arr = array_reverse($rs->fields);
+					foreach($arr as $k => $v) { // only works on oracle currently
+						$k = sizeof($arr)-$k-1;
+						$v = str_replace(":","%~%COLON%!%",$v);
+						$INS = str_replace(':'.$k,$this->fixupbinary($dest->qstr($v)),$INS);
+					}
+					$INS = str_replace("%~%COLON%!%",":",$INS);
+					if ($this->htmlSpecialChars) $INS = htmlspecialchars($INS);
 				}
-				if ($this->htmlSpecialChars) $INS = htmlspecialchars($INS);
 				echo "-- $cnt\n",$INS,";\n\n";
 				$cnt += 1;
 				$ins += 1;
 				$rs->MoveNext();
 			}
-			
+			$src->setFetchMode($savemode);
 			return $sa;
 		} else {
-			
-			$rs = $src->Execute($sa['SEL']);
+			$saved = $src->debug;
+			#$src->debug=1;
+			if ($this->limitRecs>100) 
+				$rs = $src->SelectLimit($sa['SEL'],$this->limitRecs);
+			else
+				$rs = $src->Execute($sa['SEL']);
+			$src->debug = $saved;
 			if (!$rs) {
 				if ($this->errHandler) $this->_doerr('SEL',array());
 				return array(0,0,0,0);
 			}
 			
+			
 			if ($this->commitReplicate || $commitRecs > 0) {
 				$dest->BeginTrans();
-				if ($this->updateSrcFn) $src->BeginTrans();
+				if ($this->updateSrcFn) $src2->BeginTrans();
 			}
 			
-			if ($this->updateSrcFn && strpos($src->databaseType,'mssql') !== false) {
+			if ($this->updateSrcFn && strpos($src2->databaseType,'mssql') !== false) {
 				# problem is writers interfere with readers in mssql
 				$rs = $src->_rs2rs($rs);
 			}
@@ -746,7 +825,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			
 			if ($this->deleteFirst) $onlyInsert = true;	
 			while ($origrow = $rs->FetchRow()) {
-				#var_dump($origrow);
+			#var_dump($origrow);
 				if ($dest->debug) {flush(); @ob_flush();}
 				
 				if ($fn) {
@@ -777,7 +856,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 				 	if ($upderr || $dest->Affected_Rows() == 0) {
 						$doinsert = true;
 					} else {
-						if (!empty($uniqflds)) $this->RunUpdateSrcFn($src, $table, $fldoffsets, $origrow, $srcwheress, 'UPD');
+						if (!empty($uniqflds)) $this->RunUpdateSrcFn($src2, $table, $fldoffsets, $origrow, $srcwheress, 'UPD');
 						$upd += 1;
 					}
 				} 
@@ -803,7 +882,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 						}
 					
 						if (!$inserr && !empty($uniqflds)) {
-							$this->RunUpdateSrcFn($src, $table, $fldoffsets, $origrow, $srcwheress, 'INS', $lastid);
+							$this->RunUpdateSrcFn($src2, $table, $fldoffsets, $origrow, $srcwheress, 'INS', $lastid);
 						}
 						$ins += 1;
 					} 
@@ -815,8 +894,8 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 					$dest->BeginTrans();
 					
 					if ($this->updateSrcFn) {
-						$src->CommitTrans();
-						$src->BeginTrans();
+						$src2->CommitTrans();
+						$src2->BeginTrans();
 					}
 				}
 				
@@ -826,19 +905,20 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			if ($this->commitReplicate || $commitRecs > 0) {
 				if (!$this->neverAbort && $err) {
 					$dest->RollbackTrans();
-					if ($this->updateSrcFn) $src->RollbackTrans();
+					if ($this->updateSrcFn) $src2->RollbackTrans();
 				} else {
 					$dest->CommitTrans();
-					if ($this->updateSrcFn) $src->CommitTrans();
+					if ($this->updateSrcFn) $src2->CommitTrans();
 				}
 			}
 		}
 		if ($cnt != $ins + $upd) echo "<p>ERROR: $cnt != INS $ins + UPD $upd</p>";
+		$src->setFetchMode($savemode);
 		return array(!$err, $cnt, $ins, $upd);
 	}
 	// trigger support only for sql server and oracle
 	// need to add 
-	function MergeSrcSetup($srcTable,  $pkeys, $srcUpdateDateFld, $srcCopyFlagFld, 
+	function MergeSrcSetup($srcTable,  $pkeys, $srcUpdateDateFld, $srcCopyDateFld, $srcCopyFlagFld, 
 		$srcCopyFlagType='C(1)', $srcCopyFlagVals = array('Y','N','P','='))
 	{
 		$sqla = array();
@@ -851,6 +931,10 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			foreach($sqla as $sql) $src->Execute($sql);
 		}
 		
+		if ($srcCopyDateFld && !isset($cols[strtoupper($srcCopyDateFld)])) {
+			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcCopyDateFld T DEFTIMESTAMP");
+			foreach($sqla as $sql) $src->Execute($sql);
+		}
 		
 		$sysdate = $src->sysTimeStamp;
 		$arrv0 = $src->qstr($srcCopyFlagVals[0]);
@@ -870,15 +954,16 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 		if (is_array($pkeys) && strpos($src->databaseType,'mssql') !== false) {		
 			$pk = reset($pkeys);
 			
-			$sqla[] = "DROP TRIGGER $name";
-			$sqla[] =" 
-	CREATE TRIGGER $name
+			#$sqla[] = "DROP TRIGGER $name";
+			$sqltr = " 
+	 TRIGGER $name
 	ON $srcTable /* for data replication and merge */
 	AFTER UPDATE
 	AS
 	  UPDATE $srcTable
 	  SET 
-	  	$srcUpdateDateFld = $sysdate,
+	  	$srcUpdateDateFld = case when I.$srcCopyFlagFld = $arrv2 or I.$srcCopyFlagFld = $arrv3 then I.$srcUpdateDateFld
+						else $sysdate end,
 	  	$srcCopyFlagFld = case 
 			when I.$srcCopyFlagFld = $arrv2 then $arrv0 
 			when I.$srcCopyFlagFld = $arrv3 then D.$srcCopyFlagFld
@@ -886,8 +971,10 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	  FROM $srcTable S Join Inserted AS I on I.$pk = S.$pk
 	  JOIN Deleted as D ON I.$pk = D.$pk 
 		WHERE I.$srcCopyFlagFld = D.$srcCopyFlagFld or I.$srcCopyFlagFld = $arrv2
-		or I.$srcCopyFlagFld = $arrv3
+		or I.$srcCopyFlagFld = $arrv3 or I.$srcCopyFlagFld is null
 	";
+			$sqla[] = 'CREATE '.$sqltr; // first if does not exists
+			$sqla[] = 'ALTER '.$sqltr; // second if it already exists
 		} else if (strpos($src->databaseType,'oci') !== false) {
 		
 			if (strlen($srcTable)>22) $tableidx = substr($srcTable,0,16).substr(crc32($srcTable),6);
@@ -905,7 +992,7 @@ BEGIN
 		:new.$srcCopyFlagFld := $arrv0;
 	elsif :new.$srcCopyFlagFld = $arrv3 then
 		:new.$srcCopyFlagFld := :old.$srcCopyFlagFld;
-	elsif :old.$srcCopyFlagFld = :new.$srcCopyFlagFld then
+	elsif :old.$srcCopyFlagFld = :new.$srcCopyFlagFld or :new.$srcCopyFlagFld is null then
 	 :new.$srcUpdateDateFld := $sysdate;
 	 :new.$srcCopyFlagFld := $arrv1;
 	end if;
@@ -941,6 +1028,8 @@ END;
 								 	Just output error message to stdout
 		
 	*/
+	
+	
 	function Merge($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
 		$srcUpdateDateFld, 
 		$srcCopyFlagFld,  $flagvals=array('Y','N','P','='),
@@ -948,6 +1037,7 @@ END;
 		$dstCopyDateFld = false,
 		$whereClauses = '',
 		$orderBy = '', # MUST INCLUDE THE "ORDER BY" suffix
+		$copyDoneFlagIdx = 3,
 		$defaultDestRaiseErrorFn = '')
 	{
 		$src = $this->connSrc;
@@ -966,7 +1056,7 @@ END;
 		$srcignoreflds[] = $srcCopyDateFld;
 		
 		if (empty($whereClauses)) $whereClauses = '1=1';
-		$where = " WHERE (($whereClauses) and $srcCopyFlagFld is null or $srcCopyFlagFld = ".$src->qstr($flagvals[1]).')';
+		$where = " WHERE ($whereClauses) and ($srcCopyFlagFld = ".$src->qstr($flagvals[1]).')';
 		if ($orderBy) $where .= ' '.$orderBy;
 		else $where .= ' ORDER BY '.$srcUpdateDateFld; 
 		
@@ -979,7 +1069,7 @@ END;
 		else $this->updateSrcFn = '';
 		
 		
-		$extra[$srcCopyFlagFld] = array($dest->qstr($flagvals[0]),$dest->qstr($flagvals[3]));
+		$extra[$srcCopyFlagFld] = array($dest->qstr($flagvals[0]),$dest->qstr($flagvals[$copyDoneFlagIdx]));
 		
 		$saveraise = $dest->raiseErrorFn; 
 		$dest->raiseErrorFn = '';
@@ -992,7 +1082,38 @@ END;
 		
 		return $arr;
 	}
-
+	/*
+		If doing a 2 way merge, then call
+			$rep->Merge()
+		to save without modifying the COPIEDFLAG ('=').
+		
+		Then call the following copy the reverse way and set the COPIEDFLAG to 'P' which forces the COPIEDFLAG = 'Y'
+			$rep->MergeDone()
+			
+		This ensures that we don't replicate infinitely from one db to the other.
+	*/
+	
+	function MergeDone($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
+		$srcUpdateDateFld, 
+		$srcCopyFlagFld,  $flagvals=array('Y','N','P','='),
+		$srcCopyDateFld = false,
+		$dstCopyDateFld = false,
+		$whereClauses = '',
+		$orderBy = '', # MUST INCLUDE THE "ORDER BY" suffix
+		$copyDoneFlagIdx = 2,
+		$defaultDestRaiseErrorFn = '')
+	{
+		return  $this->Merge($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
+		$srcUpdateDateFld, 
+		$srcCopyFlagFld,  $flagvals,
+		$srcCopyDateFld,
+		$dstCopyDateFld,
+		$whereClauses,
+		$orderBy, # MUST INCLUDE THE "ORDER BY" suffix
+		$copyDoneFlagIdx,
+		$defaultDestRaiseErrorFn);
+	}
+	
 	function _doerr($reason, $selflds)
 	{
 		$fn = $this->errHandler;
