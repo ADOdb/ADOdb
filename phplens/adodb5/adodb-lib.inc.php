@@ -1130,7 +1130,7 @@ function _adodb_backtrace($printOrArr=true,$levels=9999,$skippy=0,$ishtml=null)
 			else if (is_bool($v)) $args[] = $v ? 'true' : 'false';
 			else {
 				$v = (string) @$v;
-				$str = htmlspecialchars(substr($v,0,$MAXSTRLEN));
+				$str = htmlspecialchars(str_replace(array("\r","\n"),' ',substr($v,0,$MAXSTRLEN)));
 				if (strlen($v) > $MAXSTRLEN) $str .= '...';
 				$args[] = $str;
 			}

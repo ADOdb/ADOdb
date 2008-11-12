@@ -1087,10 +1087,8 @@ END;
 			$rep->Merge()
 		to save without modifying the COPIEDFLAG ('=').
 		
-		Then call the following copy the reverse way and set the COPIEDFLAG to 'P' which forces the COPIEDFLAG = 'Y'
+		Then can the following to set the COPIEDFLAG to 'P' which forces the COPIEDFLAG = 'Y'
 			$rep->MergeDone()
-			
-		This ensures that we don't replicate infinitely from one db to the other.
 	*/
 	
 	function MergeDone($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
