@@ -10,7 +10,7 @@
   
   Active Record implementation. Superset of Zend Framework's.
   
-  Version 0.90
+  Version 0.91
   
   See http://www-128.ibm.com/developerworks/java/library/j-cb03076/?ca=dgr-lnxw01ActiveRecord 
   	for info on Ruby on Rails Active Record implementation
@@ -262,7 +262,13 @@ class ADODB_Active_Record {
 		if(!empty($table->_hasMany[$name]))
 		{	
 			$obj = $table->_hasMany[$name];
-			$objs = $obj->Find($obj->foreignKey.'='.$this->id. ' '.$whereOrderBy,false,false,$extras);
+			$key = reset($table->keys);
+			$id = @$this->$key;
+			if (!is_numeric($id)) {
+				$db = $this->DB();
+				$id = $db->qstr($id);
+			}
+			$objs = $obj->Find($obj->foreignKey.'='.$id. ' '.$whereOrderBy,false,false,$extras);
 			if (!$objs) $objs = array();
 			$this->$name = $objs;
 			return $objs;
@@ -605,7 +611,6 @@ class ADODB_Active_Record {
 	
 		$db = $this->DB(); if (!$db) return false;
 		$this->_where = $where;
-		
 		
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
