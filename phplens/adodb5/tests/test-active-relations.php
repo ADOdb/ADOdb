@@ -31,11 +31,12 @@
 	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'Jill','Lim')");
 	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'Joan','Lim')");
 	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'JAMIE','Lim')");
-			   
+	
+	ADODB_Active_Record::TableHasMany('persons', 'children','person_id');
 	class person extends ADOdb_Active_Record{}
 	
 	$person = new person();
-	$person->HasMany('children','person_id');  ## this is affects all other instances of Person
+#	$person->HasMany('children','person_id');  ## this is affects all other instances of Person
 	
 	$person->name_first     = 'John';
 	$person->name_last      = 'Lim';
@@ -54,8 +55,8 @@
 	}
 	
 	class child extends ADOdb_Active_Record{};
+	ADODB_Active_Record::TableBelongsTo('children','person','person_id','id');
 	$ch = new Child('children',array('id'));
-	$ch->BelongsTo('person','person_id','id');
 	
 	$ch->Load('id=1');
 	if ($ch->name_first !== 'Jill') echo "error in Loading Child<br>";

@@ -3001,9 +3001,17 @@ of MySQL.</font></p>
   PHP</a>. </font></p>
 
 <h2><font>Change Log<a name="Changes"></a><a name="changes"></a><a name="changelog"></a></font></h2>
-<p><a name="5.07"></a><b>5.07 ? Oct 2008</b>
-<p>ADOdb Active Record now sets ADODB_FETCH_ASSOC as required to get MetaColumns().
-<p>ADOdb Active Record HasMany hardcoded primary key to "id". Fixed.
+<p><a name="5.07"></a><b>5.07 ? Dec 2008</b>
+<p>BeginTrans/CommitTrans/RollbackTrans return true/false correctly on success/failure now for mssql, odbc, oci8, mysqlt, mysqli, postgres, pdo.
+<p>Fixed memcachelib flushcache and flushall bugs. Also fixed possible timeCreated = 0 problem in readcache. (Also in adodb 4.992). Thanks AlexB_UK (alexbarnes#hotmail.com).
+<p>Fixed a notice in adodb-sessions2.inc.php, in _conn(). Thx  bober m.derlukiewicz#rocktech.remove_me.pl;
+<p>ADOdb Active Record: Fixed some issues with incompatible fetch modes (ADODB_FETCH_ASSOC) causing problems in UpdateActiveTable().
+<p>ADOdb Active Record: Added support for functions that support predefining one-to-many relationships:<br> 
+&nbsp; <i>ClassHasMany ClassBelongsTo TableHasMany TableBelongsTo TableKeyHasMany TableKeyBelongsTo</i>. <br>
+You can also define your child/parent class in these functions, instead of the default ADODB_Active_Record. Thx  Arialdo Martini &amp; Chris R for idea.
+<p>ADOdb Active Record: HasMany hardcoded primary key to "id". Fixed. 
+<p>Many pdo and pdo-sqlite fixes from Sid Dunayer [sdunayer#interserv.com].
+<p>CacheSelectLimit not working for mssql. Fixed. Thx AlexB.
 <p><a name="5.06"></a><b>5.06 16 Oct 2008</b>
 <p>Added driver adodb-pdo_sqlite.inc.php. 
   Thanks Diogo Toscano (diogo#scriptcase.net) for the code.

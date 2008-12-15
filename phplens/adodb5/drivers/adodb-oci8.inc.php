@@ -405,8 +405,10 @@ NATSOFT.DOMAIN =
 		$this->autoCommit = false;
 		$this->_commit = OCI_DEFAULT;
 		
-		if ($this->_transmode) $this->Execute("SET TRANSACTION ".$this->_transmode);
-		return true;
+		if ($this->_transmode) $ok = $this->Execute("SET TRANSACTION ".$this->_transmode);
+		else $ok = true;
+		
+		return $ok ? true : false;
 	}
 	
 	function CommitTrans($ok=true) 

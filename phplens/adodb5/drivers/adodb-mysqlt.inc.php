@@ -62,18 +62,18 @@ class ADODB_mysqlt extends ADODB_mysql {
 		if (!$ok) return $this->RollbackTrans();
 		
 		if ($this->transCnt) $this->transCnt -= 1;
-		$this->Execute('COMMIT');
+		$ok = $this->Execute('COMMIT');
 		$this->Execute('SET AUTOCOMMIT=1');
-		return true;
+		return $ok ? true : false;
 	}
 	
 	function RollbackTrans()
 	{
 		if ($this->transOff) return true;
 		if ($this->transCnt) $this->transCnt -= 1;
-		$this->Execute('ROLLBACK');
+		$ok = $this->Execute('ROLLBACK');
 		$this->Execute('SET AUTOCOMMIT=1');
-		return true;
+		return $ok ? true : false;
 	}
 	
 	function RowLock($tables,$where='',$flds='1 as adodb_ignore') 

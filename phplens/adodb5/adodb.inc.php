@@ -866,7 +866,7 @@
 	{
 		if ($this->transOff > 0) {
 			$this->transOff += 1;
-			return;
+			return true;
 		}
 		
 		$this->_oldRaiseFn = $this->raiseErrorFn;
@@ -874,8 +874,9 @@
 		$this->_transOK = true;
 		
 		if ($this->debug && $this->transCnt > 0) ADOConnection::outp("Bad Transaction: StartTrans called within BeginTrans");
-		$this->BeginTrans();
+		$ok = $this->BeginTrans();
 		$this->transOff = 1;
+		return $ok;
 	}
 	
 	

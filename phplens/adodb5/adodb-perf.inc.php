@@ -258,7 +258,7 @@ processes 69293
 
 */
 		// Algorithm is taken from
-		// http://msdn.microsoft.com/library/default.asp?url=/library/en-us/wmisdk/wmi/example__obtaining_raw_performance_data.asp
+		// http://social.technet.microsoft.com/Forums/en-US/winservergen/thread/414b0e1b-499c-411e-8a02-6a12e339c0f1/
 		if (strncmp(PHP_OS,'WIN',3)==0) {
 			if (PHP_VERSION == '5.0.0') return false;
 			if (PHP_VERSION == '5.0.1') return false;
@@ -266,14 +266,33 @@ processes 69293
 			if (PHP_VERSION == '5.0.3') return false;
 			if (PHP_VERSION == '4.3.10') return false; # see http://bugs.php.net/bug.php?id=31737
 			
-			@$c = new COM("WinMgmts:{impersonationLevel=impersonate}!Win32_PerfRawData_PerfOS_Processor.Name='_Total'");
-			if (!$c) return false;
+			static $FAIL = false;
+			if ($FAIL) return false;
 			
-			$info[0] = $c->PercentProcessorTime;
-			$info[1] = 0;
-			$info[2] = 0;
-			$info[3] = $c->TimeStamp_Sys100NS;
-			//print_r($info);
+			$objName = "winmgmts:{impersonationLevel=impersonate}!\\\\.\\root\\CIMV2";	
+			$myQuery = "SELECT * FROM Win32_PerfFormattedData_PerfOS_Processor WHERE Name = '_Total'";
+			
+			try {
+				@$objWMIService = new COM($objName);
+				if (!$objWMIService) {
+					$FAIL = true;
+					return false;
+				}
+		
+				$info[0] = -1;
+				$info[1] = 0;
+				$info[2] = 0;
+				$info[3] = 0;
+				foreach($objWMIService->ExecQuery($myQuery) as $objItem)  {
+						$info[0] = $objItem->PercentProcessorTime();
+				}
+			
+			} catch(Exception $e) {
+				$FAIL = true;
+				echo $e->getMessage();
+				return false;
+			}
+			
 			return $info;
 		}
 		
@@ -336,27 +355,26 @@ Committed_AS:   348732 kB
 	{
 		$info = $this->_CPULoad();
 		if (!$info) return false;
-			
-		if (empty($this->_lastLoad)) {
-			sleep(1);
-			$this->_lastLoad = $info;
-			$info = $this->_CPULoad();
-		}
 		
-		$last = $this->_lastLoad;
-		$this->_lastLoad = $info;
-		
-		$d_user = $info[0] - $last[0];
-		$d_nice = $info[1] - $last[1];
-		$d_system = $info[2] - $last[2];
-		$d_idle = $info[3] - $last[3];
-		
-		//printf("Delta - User: %f  Nice: %f  System: %f  Idle: %f<br>",$d_user,$d_nice,$d_system,$d_idle);
-
 		if (strncmp(PHP_OS,'WIN',3)==0) {
-			if ($d_idle < 1) $d_idle = 1;
-			return 100*(1-$d_user/$d_idle);
+			return (integer) $info[0];
 		}else {
+			if (empty($this->_lastLoad)) {
+				sleep(1);
+				$this->_lastLoad = $info;
+				$info = $this->_CPULoad();
+			}
+			
+			$last = $this->_lastLoad;
+			$this->_lastLoad = $info;
+			
+			$d_user = $info[0] - $last[0];
+			$d_nice = $info[1] - $last[1];
+			$d_system = $info[2] - $last[2];
+			$d_idle = $info[3] - $last[3];
+			
+			//printf("Delta - User: %f  Nice: %f  System: %f  Idle: %f<br>",$d_user,$d_nice,$d_system,$d_idle);
+		
 			$total=$d_user+$d_nice+$d_system+$d_idle;
 			if ($total<1) $total=1;
 			return 100*($d_user+$d_nice+$d_system)/$total; 
