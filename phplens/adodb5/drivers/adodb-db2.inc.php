@@ -249,9 +249,9 @@ class ADODB_db2 extends ADOConnection {
 	{	
 		// if you have to modify the parameter below, your database is overloaded,
 		// or you need to implement generation of id's yourself!
-		$num = $this->GetOne("VALUES NEXTVAL FOR $seq");
+				$num = $this->GetOne("VALUES NEXTVAL FOR $seq");
 				return $num;
-			}
+	}
 
 
 	function ErrorMsg()

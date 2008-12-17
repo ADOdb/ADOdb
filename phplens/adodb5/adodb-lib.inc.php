@@ -147,7 +147,7 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 			if ($v === null) {
 				$v = 'NULL';
 				$fieldArray[$k] = $v;
-			} else if ($autoQuote && !is_numeric($v) /*and strncmp($v,"'",1) !== 0 -- sql injection risk*/ and strcasecmp($v,$zthis->null2null)!=0) {
+			} else if ($autoQuote && /*!is_numeric($v) /*and strncmp($v,"'",1) !== 0 -- sql injection risk*/ and strcasecmp($v,$zthis->null2null)!=0) {
 				$v = $zthis->qstr($v);
 				$fieldArray[$k] = $v;
 			}
