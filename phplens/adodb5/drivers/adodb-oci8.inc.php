@@ -720,7 +720,7 @@ NATSOFT.DOMAIN =
 	}
 	
 	/**
-	* Usage:  store file pointed to by $var in a blob
+	* Usage:  store file pointed to by $val in a blob
 	*/
 	function UpdateBlobFile($table,$column,$val,$where,$blobtype='BLOB')
 	{
