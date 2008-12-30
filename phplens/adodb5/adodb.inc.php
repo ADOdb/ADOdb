@@ -4157,8 +4157,12 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if (strncmp($origdsn,'pdo',3) == 0) {
 				$sch = explode('_',$dsna['scheme']);
 				if (sizeof($sch)>1) {
+				
 					$dsna['host'] = isset($dsna['host']) ? rawurldecode($dsna['host']) : '';
-					$dsna['host'] = rawurlencode($sch[1].':host='.rawurldecode($dsna['host']));
+					if ($sch[1] == 'sqlite')
+						$dsna['host'] = rawurlencode($sch[1].':'.rawurldecode($dsna['host']));
+					else
+						$dsna['host'] = rawurlencode($sch[1].':host='.rawurldecode($dsna['host']));
 					$dsna['scheme'] = 'pdo';
 				}
 			}

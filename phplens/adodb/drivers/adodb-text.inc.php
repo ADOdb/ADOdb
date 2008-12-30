@@ -146,7 +146,7 @@ class ADODB_text extends ADOConnection {
 					$i += 1;
 					//print " ($i ".$types[$i]. "$v) ";
 					$v = trim($v);
-	 				if (ereg('^[+-]{0,1}[0-9\.]+$',$v) === false) {
+	 				if (preg_match('/^[+-]{0,1}[0-9\.]+$/',$v) === false) {
 						$types[$i] = 'C'; // once C, always C
 						continue;
 					}
@@ -157,12 +157,12 @@ class ADODB_text extends ADOConnection {
 					// after that it is up to testing other rows to prove
 					// that it is not an integer
 						if (strlen($v) == 0) $types[0] = 'C';
-						if (ereg('\.',$v)) $types[0] = 'N';
+						if (strpos($v,'.') !== false) $types[0] = 'N';
 						else  $types[$i] = 'I';
 						continue;
 					}
 					
-					if (ereg('\.',$v)) $types[$i] = 'N';
+					if (preg_match($v, '.') !== false) $types[$i] = 'N';
 					
 				}
 				$firstrow = false;
@@ -187,8 +187,8 @@ class ADODB_text extends ADOConnection {
 		
 		$eval = $this->evalAll;
 		$usql = strtoupper(trim($sql)); 
-		$usql = ereg_replace("[\t\n\r]",' ',$usql);
-		$usql = eregi_replace(' *BY',' BY',strtoupper($usql));
+		$usql = preg_replace("/[\t\n\r]/",' ',$usql);
+		$usql = preg_replace('/ *BY/i',' BY',strtoupper($usql));
 		
 		$eregword ='([A-Z_0-9]*)';
 		//print "<BR> $sql $eval ";
@@ -240,7 +240,7 @@ class ADODB_text extends ADOConnection {
 			if (strpos(',',$sel)===false) {
 				$colarr = array();
 				
-				ereg($eregword,$sel,$colarr);
+				preg_match("/$eregword/",$sel,$colarr);
 				$col = $colarr[1];
 				$i = 0;
 				$n = '';
@@ -293,7 +293,7 @@ class ADODB_text extends ADOConnection {
 		if ($pos === false) return $this; 
 		$orderby = trim(substr($usql,$pos+10));
 		
-		ereg($eregword,$orderby,$arr);
+		preg_match("/$eregword/",$orderby,$arr);
 		if (sizeof($arr) < 2) return $this; // actually invalid sql
 		$col = $arr[1]; 
 		$at = (integer) $col;
@@ -325,7 +325,7 @@ class ADODB_text extends ADOConnection {
 		// check for desc sort
 		$orderby = substr($orderby,strlen($col)+1);
 		$arr == array();
-		ereg('([A-Z_0-9]*)',$orderby,$arr);
+		preg_match('/([A-Z_0-9]*)/',$orderby,$arr);
 		
 		if (trim($arr[1]) == 'DESC') $sortf = 'adodb_cmpr';
 		else $sortf = 'adodb_cmp';

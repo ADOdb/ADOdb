@@ -6081,7 +6081,11 @@ PHP</a>. </p>
 
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
 
-<p><a name=5.07></a><b>5.07 ? Dec 2008</b> </p>
+<p><a name=5.08></a><b>5.08 ? 2009</b> </p>
+
+<p>Minor dsn fix for pdo_sqlite in adodb.inc.php. Thx Sergey Chvalyuk.
+
+<p><a name=5.07></a><b>5.07 26 Dec 2008</b> </p>
 
 <p>BeginTrans/CommitTrans/RollbackTrans return true/false correctly on
 success/failure now for mssql, odbc, oci8, mysqlt, mysqli, postgres, pdo. </p>
@@ -6127,7 +6131,7 @@ default ADODB_Active_Record. Thx Arialdo Martini &amp; Chris R for idea. </p>
 <p>The rs2html function did not display hours in timestamps correctly. Now 24hr
 clock used.</p>
 
-<p>Changed ereg* functions to use preg* functions as ereg* is deprecated in PHP 5.3.</p>
+<p>Changed ereg* functions to use preg* functions as ereg* is deprecated in PHP 5.3. Modified sybase and postgresql drivers.</p>
 
 <p><a name=5.06></a><b>5.06 16 Oct 2008</b> </p>
 

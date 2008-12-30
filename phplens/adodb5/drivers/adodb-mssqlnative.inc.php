@@ -21,6 +21,26 @@ Set tabs to 4 for best viewing.
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
+if (!function_exists('sqlsrv_configure')) {
+	die("mssqlnative extension not installed");
+}
+
+if (!function_exists('sqlsrv_set_error_handling')) {
+	function sqlsrv_set_error_handling($constant) {
+		sqlsrv_configure("WarningsReturnAsErrors", $constant);
+	}
+}
+if (!function_exists('sqlsrv_log_set_severity')) {
+	function sqlsrv_log_set_severity($constant) {
+		sqlsrv_configure("LogSeverity", $constant);
+	}
+}
+if (!function_exists('sqlsrv_log_set_subsystems')) {
+	function sqlsrv_log_set_subsystems($constant) {
+		sqlsrv_configure("LogSubsystems", $constant);
+	}
+}
+
 
 //----------------------------------------------------------------
 // MSSQL returns dates with the format Oct 13 2002 or 13 Oct 2002
@@ -463,12 +483,12 @@ class ADODB_mssqlnative extends ADOConnection {
 	}
 	
 	// mssql uses a default date like Dec 30 2000 12:00AM
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 		return ADORecordSet_array_mssql::UnixDate($v);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 		return ADORecordSet_array_mssql::UnixTimeStamp($v);
 	}	
@@ -783,12 +803,12 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	}
 
 	// mssql uses a default date like Dec 30 2000 12:00AM
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 		return ADORecordSet_array_mssqlnative::UnixDate($v);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 		return ADORecordSet_array_mssqlnative::UnixTimeStamp($v);
 	}
@@ -802,7 +822,7 @@ class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
 	}
 	
 		// mssql uses a default date like Dec 30 2000 12:00AM
-	function UnixDate($v)
+	static function UnixDate($v)
 	{
 	
 		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixDate($v);
@@ -833,7 +853,7 @@ class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
 		return  mktime(0,0,0,$themth,$theday,$rr[3]);
 	}
 	
-	function UnixTimeStamp($v)
+	static function UnixTimeStamp($v)
 	{
 	
 		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixTimeStamp($v);
