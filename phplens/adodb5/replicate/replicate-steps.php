@@ -20,7 +20,7 @@ $ok = $DB->Connect($HOST,$USER,$PWD,$DBASE);
 if (!$ok) return;
 	
 
-$DB->debug=1;
+#$DB->debug=1;
 
 $bkup = 'tmp'.date('ymd_His');
 
