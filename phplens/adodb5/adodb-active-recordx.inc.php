@@ -715,7 +715,8 @@ class ADODB_Active_Record {
 		case 'X':
 			if (is_null($val)) return 'null';
 			
-			if (strncmp($val,"'",1) != 0 && substr($val,strlen($val)-1,1) != "'") { 
+			if (strlen($val)>1 && 
+				(strncmp($val,"'",1) != 0 || substr($val,strlen($val)-1,1) != "'")) { 
 				return $db->qstr($val);
 				break;
 			}

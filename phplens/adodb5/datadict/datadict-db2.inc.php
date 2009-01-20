@@ -47,7 +47,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 	}
 	
 	// return string must begin with space
-	function _CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint)
+	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{	
 		$suffix = '';
 		if ($fautoinc) return ' GENERATED ALWAYS AS IDENTITY'; # as identity start with 

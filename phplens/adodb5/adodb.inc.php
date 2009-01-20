@@ -156,7 +156,7 @@
 		$ADODB_GETONE_EOF,
 		$ADODB_QUOTE_FIELDNAMES;
 		
-		$ADODB_CACHE_CLASS = 'ADODB_Cache_File';
+		if (empty($ADODB_CACHE_CLASS)) $ADODB_CACHE_CLASS =  'ADODB_Cache_File' ;
 		$ADODB_FETCH_MODE = ADODB_FETCH_DEFAULT;
 		$ADODB_FORCE_TYPE = ADODB_FORCE_VALUE;
 		$ADODB_GETONE_EOF = null;
@@ -1783,7 +1783,7 @@
 		$err = '';
 		
 		if ($secs2cache > 0){
-			$rs = &$ADODB_CACHE->readcache($md5file,$err,$secs2cache,$this->arrayClass);
+			$rs = $ADODB_CACHE->readcache($md5file,$err,$secs2cache,$this->arrayClass);
 			$this->numCacheHits += 1;
 		} else {
 			$err='Timeout 1';

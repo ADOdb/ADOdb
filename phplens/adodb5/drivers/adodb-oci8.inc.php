@@ -200,7 +200,7 @@ NATSOFT.DOMAIN =
 					$argHostport = empty($this->port)?  "1521" : $this->port;
 	   			}
 				
-				if (strncmp($argDatabasename,'SID=',4) == 0) {
+				if (strncasecmp($argDatabasename,'SID=',4) == 0) {
 					$argDatabasename = substr($argDatabasename,4);
 					$this->connectSID = true;
 				}
@@ -1128,6 +1128,32 @@ NATSOFT.DOMAIN =
 					// ociclose -- no because it could be used in a LOB?
                     return true;
             }
+		}
+		return false;
+	}
+	
+	// From Oracle Whitepaper: PHP Scalability and High Availability
+	function IsConnectionError($err)
+	{
+		switch($err) {
+			case 378: /* buffer pool param incorrect */
+			case 602: /* core dump */
+			case 603: /* fatal error */
+			case 609: /* attach failed */
+			case 1012: /* not logged in */
+			case 1033: /* init or shutdown in progress */
+			case 1043: /* Oracle not available */
+			case 1089: /* immediate shutdown in progress */
+			case 1090: /* shutdown in progress */
+			case 1092: /* instance terminated */
+			case 3113: /* disconnect */
+			case 3114: /* not connected */
+			case 3122: /* closing window */
+			case 3135: /* lost contact */
+			case 12153: /* TNS: not connected */
+			case 27146: /* fatal or instance terminated */
+			case 28511: /* Lost RPC */
+			return true;
 		}
 		return false;
 	}

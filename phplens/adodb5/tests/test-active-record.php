@@ -81,7 +81,7 @@
 	$person2 = new Person();
 	$person2->Load('id=2');
 	
-	$activeArr = $db->GetActiveRecordsClass($class = "Person",$table = "persons","id=".$db->Param(0),array(2));
+	$activeArr = $db->GetActiveRecordsClass($class = "Person",$table = "Persons","id=".$db->Param(0),array(2));
 	$person2 = $activeArr[0];
 	echo "<p>Name (should be John): ",$person->name_first, " <br> Class (should be Person): ",get_class($person2),"<br>";	
 	
@@ -92,7 +92,10 @@
 	$newperson2 = new Person();
 	$person2->HasMany('children','person_id');
 	$person2->Load('id=2');
+	$person2->name_last='green';
 	$c = $person2->children;
+	$person2->save();
+
 	if (is_array($c) && sizeof($c) == 3 && $c[0]->name_first=='Jill' && $c[1]->name_first=='Joan'
 		&& $c[2]->name_first == 'JAMIE') echo "OK Loaded HasMany</br>";
 	else {
@@ -115,4 +118,22 @@
 	if (sizeof($p->children) == 2 && $p->children[1]->name_first == 'JAMIE') echo "OK LoadRelations<br>";
 	else echo "error LoadRelations<br>";
 	
+		$db->Execute("CREATE TEMPORARY TABLE `persons2` (
+	                `id` int(10) unsigned NOT NULL auto_increment,
+	                `name_first` varchar(100) NOT NULL default '',
+	                `name_last` varchar(100) NOT NULL default '',
+	                `favorite_color` varchar(100) default '',
+	                PRIMARY KEY  (`id`)
+	            ) ENGINE=MyISAM;
+	           ");
+	
+	$p = new adodb_active_record('persons2');
+	$p->name_first = 'James';
+	
+	$p->name_last = 'James';
+	
+	$p->HasMany('children','person_id');
+	$p->children;
+	var_dump($p);
+	$p->Save();
 ?>

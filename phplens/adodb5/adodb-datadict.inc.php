@@ -814,7 +814,7 @@ class ADODB_DataDict {
 	
 	
 	// return string must begin with space
-	function _CreateSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
+	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{	
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
@@ -919,7 +919,7 @@ class ADODB_DataDict {
 	This function changes/adds new fields to your table. You don't
 	have to know if the col is new or not. It will check on its own.
 	*/
-	function ChangeTableSQL($tablename, $flds, $tableoptions = false)
+	function ChangeTableSQL($tablename, $flds, $tableoptions = false, , $dropOldFlds=false)
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -995,6 +995,11 @@ class ADODB_DataDict {
 			}
 		}
 		
+		if ($dropOldFlds) {
+			foreach ( $cols as $id => $v )
+			    if ( !isset($lines[$id]) ) 
+					$sql[] = $alter . $this->dropCol . ' ' . $v->name;
+		}
 		return $sql;
 	}
 } // class
