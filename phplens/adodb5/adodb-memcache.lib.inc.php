@@ -91,7 +91,7 @@ $db->CacheExecute($sql);
 			}
 			if (!$this->_memcache) return false;
 			
-			if (!$this->_memcache->set($filename, $contents, $this->compress, 0)) {
+			if (!$this->_memcache->set($filename, $contents, $this->compress, $secs2cache)) {
 				if ($debug) ADOConnection::outp(" Failed to save data at the memcached server!<br>\n");
 				return false;
 			}
