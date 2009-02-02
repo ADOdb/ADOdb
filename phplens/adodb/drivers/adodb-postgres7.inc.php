@@ -99,7 +99,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	    } else {
 	      $a[$rs->Fields('lookup_table')][] = str_replace('"','',$rs->Fields('dep_field').'='.$rs->Fields('lookup_field'));
 	    }
-	    adodb_movenext($rs);
+		$rs->MoveNext();
 	  }
 	
 	  return $a;
