@@ -995,8 +995,16 @@ style='mso-tab-count:1'>         </span></pre><pre><span style='mso-tab-count:
 1'>         </span><span style='color:green'># no need to call connect/pconnect!</span></pre><pre><span
 style='mso-tab-count:1'>         </span>$arr = $db-&gt;GetArray(&quot;select * from table&quot;);</pre><pre><span
 style='mso-tab-count:1'>         </span></pre><pre><span style='mso-tab-count:
-1'>         </span><span style='color:green'># persistent connection</span></pre><pre><span
-style='mso-tab-count:1'>         </span>$dsn2 = 'mysql://root:pwd@localhost/mydb?persist'; </pre></div>
+1'>         </span><span style='color:green'># persistent connection</span></pre>
+<pre><span
+style='mso-tab-count:1'>         </span>$dsn2 = 'mysql://root:pwd@localhost/mydb?persist'; 
+<span
+style='mso-tab-count:1'></span></pre>
+<pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='color:green'># non-persistent connection on port 3000</span></pre>
+<pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn2 = 'mysqli://root:pwd@localhost/mydb?persist=0&amp;port=3000';</pre>
+</div>
 
 <p>If you have special characters such as /:?_ in your dsn, then you need to
 rawurlencode them first: </p>
@@ -6082,6 +6090,7 @@ PHP</a>. </p>
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
 
 <p><a name=5.08></a><b>5.08 ? 2009</b> </p>
+<p>Fixed spelling mistake in flushall() in adodb.inc.ophp.
 <p>Fixed handling of quotes in adodb_active_record::doquote. Thx Jonathan Hohle (jhohle#godaddy.com).
 <p>Added new index parameter to adodb_active_record::setdatabaseadaptor. Thx Jonathan Hohle
 <p>Fixed & readcache() reference compat problem with php 5.3 in adodb.Thx Jonathan Hohle.
