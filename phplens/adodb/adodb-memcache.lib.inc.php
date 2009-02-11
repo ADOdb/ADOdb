@@ -79,7 +79,9 @@ $db->CacheExecute($sql);
 			}
 			
 			$this->_memcache = $memcache;
-			return 0;
+			$this->_connected = true;
+
+			return true;
 		}
 		
 		// returns true or false. true if successful save

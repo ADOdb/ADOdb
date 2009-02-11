@@ -77,9 +77,9 @@ $db->CacheExecute($sql);
 				$err = 'Can\'t connect to any memcache server';
 				return false;
 			}
-			
+			$this->_connected = true;
 			$this->_memcache = $memcache;
-			return 0;
+			return true;
 		}
 		
 		// returns true or false. true if successful save
