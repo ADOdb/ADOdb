@@ -140,13 +140,15 @@ class ADODB_text extends ADOConnection {
 			else $max = $this->_proberows;
 			for ($j=($this->_skiprow1)?1:0;$j < $max; $j++) {
 				$row = $array[$j];
+				
 				if (!$row) break;
 				$i = -1;
 				foreach($row as $v) {
 					$i += 1;
+					
 					//print " ($i ".$types[$i]. "$v) ";
 					$v = trim($v);
-	 				if (preg_match('/^[+-]{0,1}[0-9\.]+$/',$v) === false) {
+	 				if (!preg_match('/^[+-]{0,1}[0-9\.]+$/',$v)) {
 						$types[$i] = 'C'; // once C, always C
 						continue;
 					}
