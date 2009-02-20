@@ -162,7 +162,7 @@ class ADODB_text extends ADOConnection {
 						continue;
 					}
 					
-					if (preg_match($v, '.') !== false) $types[$i] = 'N';
+					if (strpos($v, '.') !== false) $types[$i] = 'N';
 					
 				}
 				$firstrow = false;
