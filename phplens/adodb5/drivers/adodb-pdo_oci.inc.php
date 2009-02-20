@@ -47,7 +47,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		return $ret;
 	}
 	
-	function MetaColumns($table) 
+	function MetaColumns($table,$normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 	

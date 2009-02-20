@@ -18,7 +18,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	var $hasGenID = true;
 	var $_genIDSQL = "update %s set id=LAST_INSERT_ID(id+1);";
 	var $_dropSeqSQL = "drop table %s";
-
+	var $fmtTimeStamp = "'Y-m-d, H:i:s'";
 	var $nameQuote = '`';
 
 	function _init($parentDriver)
@@ -86,7 +86,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		$this->Execute("SET SESSION TRANSACTION ".$transaction_mode);
 	}
 	
- 	function MetaColumns($table) 
+ 	function MetaColumns($table,$normalize=true)
 	{
 		$this->_findschema($table,$schema);
 		if ($schema) {
