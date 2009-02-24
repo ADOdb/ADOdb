@@ -499,7 +499,7 @@ class ADODB_mysql extends ADOConnection {
 	}
 	
 	// returns queryID or false
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 	//global $ADODB_COUNTRECS;
 		//if($ADODB_COUNTRECS) 

@@ -45,7 +45,7 @@ class ADODB_mssqlpo extends ADODB_mssql {
 		return array($sql,$stmt);
 	}
 	
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 		if (is_string($sql)) $sql = str_replace('||','+',$sql);
 		return ADODB_mssql::_query($sql,$inputarr);

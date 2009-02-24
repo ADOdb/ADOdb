@@ -50,7 +50,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 	}
 	
 	// emulate handling of parameters ? ?, replacing with :bind0 :bind1
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 		if (is_array($inputarr)) {
 			$i = 0;

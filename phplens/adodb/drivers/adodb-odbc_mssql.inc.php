@@ -177,7 +177,7 @@ order by constraint_name, referenced_table_name, keyno";
         return $indexes;
 	}
 	
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 		if (is_string($sql)) $sql = str_replace('||','+',$sql);
 		return ADODB_odbc::_query($sql,$inputarr);

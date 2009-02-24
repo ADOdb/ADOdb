@@ -150,7 +150,7 @@ class ADODB_ldap extends ADOConnection {
 	}
 	
 	/* returns _queryID or false */
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 		$rs = @ldap_search( $this->_connectionID, $this->database, $sql );
 		$this->_errorMsg = ($rs) ? '' : 'Search error on '.$sql.': '.ldap_error($this->_connectionID);

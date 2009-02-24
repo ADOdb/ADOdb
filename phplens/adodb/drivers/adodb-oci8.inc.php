@@ -980,7 +980,7 @@ NATSOFT.DOMAIN =
 		  $db->bind($stmt,1); $db->bind($stmt,2); $db->bind($stmt,3); 
 		  $db->execute($stmt);
 	*/ 
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 		if (is_array($sql)) { // is prepared sql
 			$stmt = $sql[1];

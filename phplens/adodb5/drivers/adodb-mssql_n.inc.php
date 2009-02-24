@@ -58,7 +58,7 @@ class ADODB_mssql_n extends ADODB_mssql {
 		ADODB_mssql::ADODB_mssql();
 	}
 
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
         $sql = $this->_appendN($sql);
 		return ADODB_mssql::_query($sql,$inputarr);

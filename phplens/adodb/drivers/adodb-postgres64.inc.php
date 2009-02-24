@@ -713,7 +713,7 @@ WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 	
 
 	// returns queryID or false
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 		$this->_errorMsg = false;
 		if ($inputarr) {

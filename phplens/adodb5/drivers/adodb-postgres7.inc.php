@@ -140,7 +140,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		return $a;
 	}
 
-	function _query($sql,$inputarr)
+	function _query($sql,$inputarr=false)
 	{
 		if (! $this->_bindInputArray) {
 			// We don't have native support for parameterized queries, so let's emulate it at the parent
