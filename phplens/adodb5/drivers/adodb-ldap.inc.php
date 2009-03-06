@@ -55,13 +55,17 @@ class ADODB_ldap extends ADOConnection {
 		
 		if ( !function_exists( 'ldap_connect' ) ) return null;
 		
-		$conn_info = array( $host,$this->port);
+		if (strpos('ldap://',$host) === 0 || strpos('ldaps://',$host) === 0) {
+			$this->_connectionID = @ldap_connect($host);
+		} else {
+			$conn_info = array( $host,$this->port);
 		
-		if ( strstr( $host, ':' ) ) {
-		    $conn_info = split( ':', $host );
-		} 
+			if ( strstr( $host, ':' ) ) {
+			    $conn_info = split( ':', $host );
+			} 
 		
-		$this->_connectionID = @ldap_connect( $conn_info[0], $conn_info[1] );
+			$this->_connectionID = @ldap_connect( $conn_info[0], $conn_info[1] );
+		}
 		if (!$this->_connectionID) {
 			$e = 'Could not connect to ' . $conn_info[0];
 			$this->_errorMsg = $e;

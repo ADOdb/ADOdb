@@ -56,7 +56,28 @@ class ADODB_odbtp extends ADOConnection{
 		if (empty($this->_connectionID)) return @odbtp_last_error_state();
 			return @odbtp_last_error_state($this->_connectionID);
 	}
-
+/*
+	function DBDate($d,$isfld=false)
+	{
+		if (empty($d) && $d !== 0) return 'null';
+		if ($isfld) return "convert(date, $d, 120)";
+		
+		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
+		$d = adodb_date($this->fmtDate,$d);
+		return "convert(date, $d, 120)"; 
+	}
+	
+	function DBTimeStamp($d,$isfld=false)
+	{
+		if (empty($d) && $d !== 0) return 'null';
+		if ($isfld) return "convert(datetime, $d, 120)";
+		
+		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
+		$d = adodb_date($this->fmtDate,$d);
+		return "convert(datetime, $d, 120)"; 
+	}
+*/
+	
 	function _insertid()
 	{
 	// SCOPE_IDENTITY()

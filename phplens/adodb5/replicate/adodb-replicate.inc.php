@@ -69,7 +69,12 @@ class ADODB_Replicate {
 	var $errHandler = false; // name of error handler function, if used.
 	var $htmlSpecialChars = true; 	// if execute false, then output with htmlspecialchars enabled. 
 									// Will autoconfigure itself. No need to modify
-			
+	
+	var $trgSuffix = '_mrgTr';
+	var $idxSuffix = '_mrgidx';
+	var $trLogic = '1 = 1';
+	var $datesAreTimeStamps = false;
+
 	var $oracleSequence = false;
 	var $readUncommitted = false;  // read without obeying shared locks for fast select (mssql)
 	
@@ -580,8 +585,15 @@ class ADODB_Replicate {
 		$k = 0;
 		foreach($types as $name => $t) {
 			$name2 = strtoupper($this->RunFieldFilter($name,'SELECT')); 
-			if (!isset($dtypes[($name2)]) || !$name2) {
-				if ($this->debug) echo " Skipping $name as not in destination $desttable<br>";
+			// handle quotes
+			if ($name2 && $name2[0] == '"' && $name2[strlen($name2)-1] == '"') $name22 = substr($name2,1,strlen($name2)-2);
+			else $name22 = $name2;
+			
+			if ($name2 && $name2[0] == '`' && $name2[strlen($name2)-1] == '`') $name22 = substr($name2,1,strlen($name2)-2);
+			else $name22 = $name2;
+			
+			if (!isset($dtypes[($name22)]) || !$name2) {
+				if ($this->debug) echo " Skipping $name ==> $name2 as not in destination $desttable<br>";
 				continue;
 			}
 			
@@ -593,6 +605,7 @@ class ADODB_Replicate {
 			$fld = $t->name;
 			$fldval = $t->name;
 			$mt = $src->MetaType($t->type);
+			if ($this->datesAreTimeStamps && $mt == 'D') $mt = 'T';
 			if ($mt == 'D') $fldval = $dest->DBDate($fldval);
 			elseif ($mt == 'T') $fldval = $dest->DBTimeStamp($fldval);
 			$ufld = strtoupper($fld);
@@ -825,7 +838,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			
 			if ($this->deleteFirst) $onlyInsert = true;	
 			while ($origrow = $rs->FetchRow()) {
-			#var_dump($origrow);
+			
 				if ($dest->debug) {flush(); @ob_flush();}
 				
 				if ($fn) {
@@ -845,7 +858,6 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 						} else
 							$row = array_slice($origrow,0,$sizeofrow-1);
 					} 
-					
 					if (!$upderr && !$dest->Execute($sa['UPD'],$row)) {
 						$err = true;
 						$upderr = true;
@@ -980,9 +992,8 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			if (strlen($srcTable)>22) $tableidx = substr($srcTable,0,16).substr(crc32($srcTable),6);
 			else $tableidx = $srcTable;
 			
-			$name = "{$tableidx}_mrgTr";
-			$idx = "{$tableidx}_mrgidx";
-			
+			$name = $tableidx.$this->trgSuffix;
+			$idx = $tableidx.$this->idxSuffix;
 			$sqla[] = "
 CREATE OR REPLACE TRIGGER $name /* for data replication and merge */
 BEFORE UPDATE ON $srcTable REFERENCING NEW AS NEW OLD AS OLD
@@ -993,8 +1004,10 @@ BEGIN
 	elsif :new.$srcCopyFlagFld = $arrv3 then
 		:new.$srcCopyFlagFld := :old.$srcCopyFlagFld;
 	elsif :old.$srcCopyFlagFld = :new.$srcCopyFlagFld or :new.$srcCopyFlagFld is null then
-	 :new.$srcUpdateDateFld := $sysdate;
-	 :new.$srcCopyFlagFld := $arrv1;
+		if $this->trLogic then
+			:new.$srcUpdateDateFld := $sysdate;
+	 		:new.$srcCopyFlagFld := $arrv1;
+		end if;
 	end if;
 END;
 ";

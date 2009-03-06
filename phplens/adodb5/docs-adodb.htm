@@ -6090,6 +6090,7 @@ PHP</a>. </p>
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
 
 <p><a name=5.08></a><b>5.08 ? 2009</b> </p>
+<p>Made $inputarr optional for _query() in all drivers.
 <p>Fixed spelling mistake in flushall() in adodb.inc.ophp.
 <p>Fixed handling of quotes in adodb_active_record::doquote. Thx Jonathan Hohle (jhohle#godaddy.com).
 <p>Added new index parameter to adodb_active_record::setdatabaseadaptor. Thx Jonathan Hohle
@@ -6101,6 +6102,7 @@ PHP</a>. </p>
 <p>Option to delete old fields $dropOldFlds in datadict ChangeTableSQL($table, $flds, $tableOptions, $dropOldFlds=false) added. Thx  Philipp Niethammer.
 <p>Memcache caching did not expire properly. Fixed.
 <p>MetaForeignKeys for postgres7 driver changed from adodb_movenext to $rs->MoveNext (also in 4.99)
+<p>Added support for ldap and ldaps url format in ldap driver.
 <p><a name=5.07></a><b>5.07 26 Dec 2008</b> </p>
 
 <p>BeginTrans/CommitTrans/RollbackTrans return true/false correctly on
