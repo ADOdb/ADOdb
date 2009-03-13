@@ -1032,9 +1032,10 @@ END;
 		$setsrc        = updateSrcFn string
 		$srcUpdateDateFld = field in src with the last update date
 		$srcCopyFlagFld = false = optional field that holds the copied indicator
-		$flagvals=array('Y','N','P') = array of values indicating array(copied, not copied). 
+		$flagvals=array('Y','N','P','=') = array of values indicating array(copied, not copied). 
 			Null is assumed to mean not copied. The 3rd value 'P' indicates that we want to force 'Y', bypassing
 			default trigger behaviour to reset the COPIED='N' when the record is replicated from other side.
+			The last value '=' is don't change copyflag.
 		$srcCopyDateFld = field that holds last copy date in src table, which will be updated on Merge()
 		$dstCopyDateFld = field that holds last copy date in dst table, which will be updated on Merge()
 		$defaultDestRaiseErrorFn = The adodb raiseErrorFn handler. Default is to not raise an error.
