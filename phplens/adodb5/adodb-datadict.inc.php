@@ -919,7 +919,7 @@ class ADODB_DataDict {
 	This function changes/adds new fields to your table. You don't
 	have to know if the col is new or not. It will check on its own.
 	*/
-	function ChangeTableSQL($tablename, $flds, $tableoptions = false, , $dropOldFlds=false)
+	function ChangeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -952,13 +952,15 @@ class ADODB_DataDict {
 					$obj = $cols[$k];
 					if (isset($obj->not_null) && $obj->not_null)
 						$v = str_replace('NOT NULL','',$v);
-
+					if (isset($obj->auto_increment) && $obj->auto_increment && empty($v['AUTOINCREMENT'])) 
++					    $v = str_replace('AUTOINCREMENT','',$v);
++					
 					$c = $cols[$k];
 					$ml = $c->max_length;
 					$mt = $this->MetaType($c->type,$ml);
 					if ($ml == -1) $ml = '';
 					if ($mt == 'X') $ml = $v['SIZE'];
-					if (($mt != $v['TYPE']) ||  $ml != $v['SIZE']) {
+					if (($mt != $v['TYPE']) ||  $ml != $v['SIZE'] || (isset($v['AUTOINCREMENT']) && $v['AUTOINCREMENT'] != $obj->auto_increment)) {
 						$holdflds[$k] = $v;
 					}
 				} else {

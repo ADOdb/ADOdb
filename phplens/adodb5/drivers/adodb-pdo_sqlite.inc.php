@@ -25,7 +25,8 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	var $_genSeqCountSQL = 'SELECT COUNT(*) FROM %s';
 	var $_genSeq2SQL     = 'INSERT INTO %s VALUES(%s)';
 	var $_dropSeqSQL     = 'DROP TABLE %s';
-        var $pdoDriver       = false;
+	var $concat_operator = '||';
+    var $pdoDriver       = false;
     
 	function _init($parentDriver)
 	{
@@ -142,7 +143,7 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 
 
     // mark newnham
-	function MetaColumns($tab)
+	function MetaColumns($tab,$normalize=true))
 	{
 	  global $ADODB_FETCH_MODE;
 

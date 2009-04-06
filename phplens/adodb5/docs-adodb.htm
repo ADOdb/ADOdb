@@ -3446,7 +3446,7 @@ Example below: </span></p>
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
 style='mso-bookmark:memcache'><o:p>&nbsp;</o:p></span></pre><pre><span
-style='mso-bookmark:memcache'>$db = NewADOConnection($driver);</span></pre><pre><span
+style='mso-bookmark:memcache'>$db = NewADOConnection($driver='mysql');</span></pre><pre><span
 style='mso-bookmark:memcache'>$db-&gt;memCache = true;</span></pre><pre><span
 style='mso-bookmark:memcache'>$db-&gt;memCacheHost = array($ip1, $ip2, $ip3); /// $db-&gt;memCacheHost = $ip1; will work too</span></pre><pre><span
 style='mso-bookmark:memcache'>$db-&gt;memCachePort = 11211; /// this is default memCache port</span></pre><pre><span
@@ -6090,6 +6090,9 @@ PHP</a>. </p>
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
 
 <p><a name=5.08></a><b>5.08 ? 2009</b> </p>
+<p>adodb-ado5.inc.php. Fixed some bind param issues. Thx Jirka Novak. 
+<p>adodb-ado5.inc.php. Now has improved error handling.
+<p>Fixed typo in adodb-xmlschema03.inc.php. See XMLS_EXISTING_DATA, line 1501. Thx james johnson.
 <p>Made $inputarr optional for _query() in all drivers.
 <p>Fixed spelling mistake in flushall() in adodb.inc.ophp.
 <p>Fixed handling of quotes in adodb_active_record::doquote. Thx Jonathan Hohle (jhohle#godaddy.com).

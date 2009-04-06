@@ -136,7 +136,7 @@ for postgresql:
 <pre>  $taboptarray = array('constraints' =gt; ', FOREIGN KEY (col1) REFERENCES reftable (refcol)');</pre>
 <h4>function DropTableSQL($tabname)</h4>
 <p>Returns the SQL to drop the specified table.</p>
-<h4>function ChangeTableSQL($tabname, $flds,$tableOptions, $dropOldFlds=false)</h4>
+<h4>function ChangeTableSQL($tabname, $flds, $tableOptions=false, $dropOldFlds=false)</h4>
 <p>Checks to see if table exists, if table does not exist, behaves like
 CreateTableSQL. If table exists, generates appropriate ALTER TABLE
 MODIFY COLUMN commands if field already exists, or ALTER TABLE ADD

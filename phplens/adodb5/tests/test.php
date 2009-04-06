@@ -483,7 +483,7 @@ GO
 		/*
 		CREATE TABLE PHOTOS
 		(
-		  ID           NUMBER(16),
+		  ID           NUMBER(16) primary key,
 		  PHOTO        BLOB,
 		  DESCRIPTION  VARCHAR2(4000 BYTE),
 		  DESCCLOB     CLOB
