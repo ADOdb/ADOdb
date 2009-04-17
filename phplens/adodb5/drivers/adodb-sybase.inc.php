@@ -123,6 +123,12 @@ class ADODB_sybase extends ADOConnection {
 	{
 		if (!function_exists('sybase_connect')) return null;
 		
+		if ($this->charSet) {
+ 			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword, $this->charSet);
+       	} else {
+       		$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
+       	}
+
 		$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
@@ -133,7 +139,11 @@ class ADODB_sybase extends ADOConnection {
 	{
 		if (!function_exists('sybase_connect')) return null;
 		
-		$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword);
+		if ($this->charSet) {
+ 			$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword, $this->charSet);
+       	} else {
+       		$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword);
+       	}
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
 		return true;	
