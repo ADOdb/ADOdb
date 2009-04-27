@@ -81,7 +81,7 @@ class ADODB_oci8 extends ADOConnection {
 	var $leftOuter = '';  // oracle wierdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
 	var $session_sharing_force_blob = false; // alter session on updateblob if set to true 
 	var $firstrows = true; // enable first rows optimization on SelectLimit()
-	var $selectOffsetAlg1 = 100; // when to use 1st algorithm of selectlimit.
+	var $selectOffsetAlg1 = 1000; // when to use 1st algorithm of selectlimit.
 	var $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'
 	var $dateformat = 'YYYY-MM-DD'; // DBDate format
  	var $useDBDateFormatForTextInput=false;
@@ -648,12 +648,12 @@ NATSOFT.DOMAIN =
 			 $offset += 1; // in Oracle rownum starts at 1
 			
 			if ($this->databaseType == 'oci8po') {
-					 $sql = "SELECT $fields FROM".
+					 $sql = "SELECT /*+ FIRST_ROWS */ $fields FROM".
 					  "(SELECT rownum as adodb_rownum, $fields FROM".
 					  " ($sql) WHERE rownum <= ?".
 					  ") WHERE adodb_rownum >= ?";
 				} else {
-					 $sql = "SELECT $fields FROM".
+					 $sql = "SELECT /*+ FIRST_ROWS */ $fields FROM".
 					  "(SELECT rownum as adodb_rownum, $fields FROM".
 					  " ($sql) WHERE rownum <= :adodb_nrows".
 					  ") WHERE adodb_rownum >= :adodb_offset";

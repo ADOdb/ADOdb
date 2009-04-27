@@ -953,8 +953,8 @@ class ADODB_DataDict {
 					if (isset($obj->not_null) && $obj->not_null)
 						$v = str_replace('NOT NULL','',$v);
 					if (isset($obj->auto_increment) && $obj->auto_increment && empty($v['AUTOINCREMENT'])) 
-+					    $v = str_replace('AUTOINCREMENT','',$v);
-+					
+					    $v = str_replace('AUTOINCREMENT','',$v);
+					
 					$c = $cols[$k];
 					$ml = $c->max_length;
 					$mt = $this->MetaType($c->type,$ml);
