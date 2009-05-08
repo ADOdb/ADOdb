@@ -313,7 +313,7 @@ NATSOFT.DOMAIN =
 		if ($isfld) return 'TO_DATE(substr('.$ts.",1,19),'RRRR-MM-DD, HH24:MI:SS')";
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
 		
-		if (is_object($ts)) $tss = ts->format("'Y-m-d H:i:s'");
+		if (is_object($ts)) $tss = $ts->format("'Y-m-d H:i:s'");
 		else $tss = adodb_date("'Y-m-d H:i:s'",$ts);
 		
 		return 'TO_DATE('.$tss.",'RRRR-MM-DD, HH24:MI:SS')";
