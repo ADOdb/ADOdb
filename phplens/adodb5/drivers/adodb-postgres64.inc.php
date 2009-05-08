@@ -104,7 +104,8 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 	var $random = 'random()';		/// random function
 	var $autoRollback = true; // apparently pgsql does not autorollback properly before php 4.3.4
 							// http://bugs.php.net/bug.php?id=25404
-							
+	
+	var $uniqueIisR = true;
 	var $_bindInputArray = false; // requires postgresql 7.3+ and ability to modify database
 	var $disableBlobs = false; // set to true to disable blob checking, resulting in 2-5% improvement in performance.
 	
@@ -1052,7 +1053,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				case 'INT4':
 				case 'INT2':
 					if (isset($fieldobj) &&
-				empty($fieldobj->primary_key) && empty($fieldobj->unique)) return 'I';
+				empty($fieldobj->primary_key) && (!$this->uniqueIisR || empty($fieldobj->unique))) return 'I';
 				
 				case 'OID':
 				case 'SERIAL':

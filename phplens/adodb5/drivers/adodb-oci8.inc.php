@@ -281,8 +281,13 @@ NATSOFT.DOMAIN =
 	{
 		if (empty($d) && $d !== 0) return 'null';
 		if ($isfld) return 'TO_DATE('.$d.",'".$this->dateformat."')";
+		
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
-		return "TO_DATE(".adodb_date($this->fmtDate,$d).",'".$this->dateformat."')";
+		
+		if (is_object($d)) $ds = $d->format($this->fmtDate);
+		else $ds = adodb_date($this->fmtDate,$d);
+		
+		return "TO_DATE(".$ds.",'".$this->dateformat."')";
 	}
 
 	function BindDate($d)
@@ -307,7 +312,11 @@ NATSOFT.DOMAIN =
 		if (empty($ts) && $ts !== 0) return 'null';
 		if ($isfld) return 'TO_DATE(substr('.$ts.",1,19),'RRRR-MM-DD, HH24:MI:SS')";
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
-		return 'TO_DATE('.adodb_date("'Y-m-d H:i:s'",$ts).",'RRRR-MM-DD, HH24:MI:SS')";
+		
+		if (is_object($ts)) $tss = ts->format("'Y-m-d H:i:s'");
+		else $tss = adodb_date("'Y-m-d H:i:s'",$ts);
+		
+		return 'TO_DATE('.$tss.",'RRRR-MM-DD, HH24:MI:SS')";
 	}
 	
 	function RowLock($tables,$where,$flds='1 as ignore') 
@@ -1546,7 +1555,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 		case 'NCHAR':
 		case 'NVARCHAR':
 		case 'NVARCHAR2':
-				 if (isset($this) && $len <= $this->blobSize) return 'C';
+				 if ($len <= $this->blobSize) return 'C';
 		
 		case 'NCLOB':
 		case 'LONG':

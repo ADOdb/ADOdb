@@ -2439,6 +2439,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (empty($d) && $d !== 0) return 'null';
 		if ($isfld) return $d;
 		
+		if (is_object($d)) return $d->format($this->fmtDate);
+		
+		
 		if (is_string($d) && !is_numeric($d)) {
 			if ($d === 'null' || strncmp($d,"'",1) === 0) return $d;
 			if ($this->isoDates) return "'$d'";
@@ -2476,6 +2479,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	{
 		if (empty($ts) && $ts !== 0) return 'null';
 		if ($isfld) return $ts;
+		if (is_object($ts)) return $ts->format($this->fmtTimeStamp);
 		
 		# strlen(14) allows YYYYMMDDHHMMSS format
 		if (!is_string($ts) || (is_numeric($ts) && strlen($ts)<14)) 
