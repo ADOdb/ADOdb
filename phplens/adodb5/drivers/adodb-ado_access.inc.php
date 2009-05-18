@@ -34,11 +34,11 @@ class  ADODB_ado_access extends ADODB_ado {
 		$this->ADODB_ado();
 	}
 	
-	function BeginTrans() { return false;}
+	/*function BeginTrans() { return false;}
 	
 	function CommitTrans() { return false;}
 	
-	function RollbackTrans() { return false;}
+	function RollbackTrans() { return false;}*/
 
 }
 

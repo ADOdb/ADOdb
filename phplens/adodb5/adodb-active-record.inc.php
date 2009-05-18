@@ -922,9 +922,9 @@ global $_ADODB_ACTIVE_DBS;
 	{
 		$rows = false;
 		if(isset($extra['offset'])) {
-			$rs = $db->SelectLimit($qry, $extra['limit'], $extra['offset']);
+			$rs = $db->SelectLimit($qry, $extra['limit'], $extra['offset'],$bindarr);
 		} else {
-			$rs = $db->SelectLimit($qry, $extra['limit']);
+			$rs = $db->SelectLimit($qry, $extra['limit'],-1,$bindarr);
 		}
 		if ($rs) {
 			while (!$rs->EOF) {
