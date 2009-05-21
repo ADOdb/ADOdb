@@ -26,7 +26,6 @@ class  ADODB_ado_access extends ADODB_ado {
 	var $fmtTimeStamp = "#Y-m-d h:i:sA#";// note no comma
 	var $sysDate = "FORMAT(NOW,'yyyy-mm-dd')";
 	var $sysTimeStamp = 'NOW';
-	var $hasTransactions = false;
 	var $upperCase = 'ucase';
 	
 	function ADODB_ado_access()
