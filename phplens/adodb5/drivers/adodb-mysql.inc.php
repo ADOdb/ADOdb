@@ -349,7 +349,7 @@ class ADODB_mysql extends ADOConnection {
 		if (!$date) $date = $this->sysDate;
 		
 		$fraction = $dayFraction * 24 * 3600;
-		return $date . ' + INTERVAL ' .	 $fraction.' SECOND';
+		return '('. $date . ' + INTERVAL ' .	 $fraction.' SECOND)';
 		
 //		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
