@@ -15,6 +15,7 @@
 	$db->debug=1;
 	ADOdb_Active_Record::SetDatabaseAdapter($db);
 
+	
 	$db->Execute("CREATE TEMPORARY TABLE `persons` (
 	                `id` int(10) unsigned NOT NULL auto_increment,
 	                `name_first` varchar(100) NOT NULL default '',
@@ -36,6 +37,7 @@
 			   
 	class Person extends ADOdb_Active_Record{}
 	$person = new Person();
+	ADOdb_Active_Record::$_quoteNames = '111';
 	
 	echo "<p>Output of getAttributeNames: ";
 	var_dump($person->getAttributeNames());

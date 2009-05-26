@@ -6090,11 +6090,14 @@ PHP</a>. </p>
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
 
 <p><a name=5.09></a><b>5.09 ?? 2009</b> </p>
+<p>Active Record: You can force column names to be quoted in INSERT and UPDATE statements, typically because you are using reserved words as column names by setting
+ADODB_Active_Record::$_quoteNames = true;
 <p>Added support for PHP 5.1+ DateTime objects in DBDate and DBTimeStamp.
 <p>Added new property to postgres64 driver to support returning I if type is unique int called $db->uniqueIisR, defaulting to true. See http://phplens.com/lens/lensforum/msgs.php?id=17963
 <p>Added support for bindarray in adodb_GetActiveRecordsClass with SelectLimit in adodb-active-record.inc.php.
 <p>Transactions now allowed in ado_access driver. Thx to  petar.petrov.georgiev#gmail.com.
 <p>Sessions2 garbage collection is now much more robust. We perform ORDER BY to prevent deadlock in adodb-sessions2.inc.php.
+<p>Fixed typo in pdo_sqlite driver.
 <p><a name=5.08a></a><b>5.08a 17 Apr 2009</b> </p>
 <p>Fixes wrong version number string.
 <p>Incorrect + in adodb-datadict.inc.php removed.

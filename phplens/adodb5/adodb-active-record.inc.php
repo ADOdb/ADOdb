@@ -73,6 +73,8 @@ function ADODB_SetDatabaseAdapter(&$db, $index=false)
 
 class ADODB_Active_Record {
 	static $_changeNames = true; // dynamically pluralize table names
+	static $_quoteNames = false;
+	
 	static $_foreignSuffix = '_id'; // 
 	var $_dbat; // associative index pointing to ADODB_Active_DB eg. $ADODB_Active_DBS[_dbat]
 	var $_table; // tablename, if set in class definition then use it as table name
@@ -655,6 +657,13 @@ class ADODB_Active_Record {
 	}
 	
 	
+	function _QName($n,$db=false)
+	{
+		if (!ADODB_Active_Record::$_quoteNames) return $n;
+		if (!$db) $db = $this->DB(); if (!$db) return false;
+		return $db->nameQuote.$n.$db->nameQuote;
+	}
+	
 	//------------------------------------------------------------ Public functions below
 	
 	function Load($where=null,$bindarr=false)
@@ -708,6 +717,7 @@ class ADODB_Active_Record {
 		return $ok;
 	}
 	
+	
 	// false on error
 	function Insert()
 	{
@@ -723,7 +733,7 @@ class ADODB_Active_Record {
 			$val = $this->$name;
 			if(!is_array($val) || !is_null($val) || !array_key_exists($name, $table->keys)) {
 				$valarr[] = $val;
-				$names[] = $name;
+				$names[] = $this->_QName($name,$db);
 				$valstr[] = $db->Param($cnt);
 				$cnt += 1;
 			}
@@ -883,7 +893,7 @@ class ADODB_Active_Record {
 				continue;
 			}			
 			$valarr[] = $val;
-			$pairs[] = $name.'='.$db->Param($cnt);
+			$pairs[] = $this->_QName($name,$db).'='.$db->Param($cnt);
 			$cnt += 1;
 		}
 		
