@@ -14,7 +14,7 @@
 /**
 	\mainpage
 	
-	 @version V5.08 6 Apr 2009   (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reserved.
+	 @version V5.09 28 May 2009   (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
@@ -177,7 +177,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V5.08 6 Apr 2009  (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V5.09 28 May 2009  (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -377,6 +377,7 @@
 
 	var $sysDate = false; /// name of function that returns the current date
 	var $sysTimeStamp = false; /// name of function that returns the current timestamp
+	var $sysUTimeStamp = false; // name of function that returns the current timestamp accurate to the microsecond or nearest fraction
 	var $arrayClass = 'ADORecordSet_array'; /// name of class used to generate array recordsets, which are pre-downloaded recordsets
 	
 	var $noNullStrings = false; /// oracle specific stuff - if true ensures that '' is converted to ' '

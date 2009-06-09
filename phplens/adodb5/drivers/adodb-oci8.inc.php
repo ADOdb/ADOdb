@@ -58,7 +58,7 @@ class ADODB_oci8 extends ADOConnection {
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $concat_operator='||';
 	var $sysDate = "TRUNC(SYSDATE)";
-	var $sysTimeStamp = 'SYSDATE';
+	var $sysTimeStamp = 'SYSTIMESTAMP'; // requires oracle 9 or later, otherwise use SYSDATE
 	var $metaDatabasesSQL = "SELECT USERNAME FROM ALL_USERS WHERE USERNAME NOT IN ('SYS','SYSTEM','DBSNMP','OUTLN') ORDER BY 1";
 	var $_stmt;
 	var $_commit = OCI_COMMIT_ON_SUCCESS;

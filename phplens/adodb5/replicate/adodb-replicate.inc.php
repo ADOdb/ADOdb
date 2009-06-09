@@ -1,10 +1,22 @@
 <?php
 
-define('ADODB_REPLICATE',1);
+define('ADODB_REPLICATE',1.1);
 
 include_once(ADODB_DIR.'/adodb-datadict.inc.php');
 
+
 /*
+1.1		8 June 2009
+Added $lastUpdateFld to replicatedata
+Added $rep->compat. If compat set to 1.0, then $lastUpdateFld not used during MergeData.
+
+1.0		Apr 2009
+Added support for MFFA
+
+0.9 	? 2008
+First release
+
+
 	Note: this code assumes that comments such as  / *    * / are allowed which works with:
 		 mssql, postgresql, oracle, mssql
 		 
@@ -69,14 +81,11 @@ class ADODB_Replicate {
 	var $errHandler = false; // name of error handler function, if used.
 	var $htmlSpecialChars = true; 	// if execute false, then output with htmlspecialchars enabled. 
 									// Will autoconfigure itself. No need to modify
-	
-	var $trgSuffix = '_mrgTr';
-	var $idxSuffix = '_mrgidx';
-	var $trLogic = '1 = 1';
-	var $datesAreTimeStamps = false;
-
+			
 	var $oracleSequence = false;
 	var $readUncommitted = false;  // read without obeying shared locks for fast select (mssql)
+	
+	var $compat = false;
 	
 	// connSrc2 and connDest2 are only required if the db driver
 	// does not allow updates back to src db in first connection (the select connection), 
@@ -162,8 +171,12 @@ class ADODB_Replicate {
 	
 	/*
 		$mode = INS or UPD
+		
+		The lastUpdateFld holds the field that counts the number of updates or the date of last mod. This ensures that
+		if the rec was modified after replicatedata retrieves the data but before we update back the src record,
+		we don't set the copiedflag='Y' yet.
 	*/
-	function RunUpdateSrcFn($srcdb, $table, $fldoffsets, $row, $where, $mode, $dest_insertid=null)
+	function RunUpdateSrcFn($srcdb, $table, $fldoffsets, $row, $where, $mode, $dest_insertid=null, $lastUpdateFld='')
 	{
 		if (!$this->updateSrcFn) return;
 		
@@ -171,7 +184,15 @@ class ADODB_Replicate {
 		foreach($fldoffsets as $k) {
 			$bindarr[$k] = $row[$k];
 		}
-		$where = "WHERE $where";
+		$last = sizeof($row);
+		
+		if ($lastUpdateFld && $row[$last-1]) {
+			$ds = $row[$last-1];
+			if (strpos($ds,':') !== false) $s = $srcdb->DBTimeStamp($ds);
+			else $s = $srcdb->qstr($ds);
+			$where = "WHERE $lastUpdateFld = $s and $where";
+		} else
+			$where = "WHERE $where";
 		$fn = $this->updateSrcFn;
 		if (is_array($fn)) {
 			if (sizeof($fn) == 1) $set = reset($fn);
@@ -186,7 +207,8 @@ class ADODB_Replicate {
 				if (!$ok) {
 					echo $srcdb->ErrorMsg(),"<br>\n";
 					die();
-				}
+				} else if ($srcdb->Affected_Rows() == 0) 
+					echo "ERR: Update of src $set failed: $where<br>\n";
 			}
 		} else $fn($srcdb, $table, $row, $where, $bindarr, $mode, $dest_insertid);
 		
@@ -498,7 +520,7 @@ class ADODB_Replicate {
 	
 	
 	function ReplicateData($table, $desttable = '',  $uniqflds = array(), $where = '',$ignore_flds = array(), 
-		$dstCopyDateFld='', $extraflds = array())
+		$dstCopyDateFld='', $extraflds = array(), $lastUpdateFld = '')
 	{
 		if (is_array($where)) {
 			$wheresrc = $where[0];
@@ -585,15 +607,8 @@ class ADODB_Replicate {
 		$k = 0;
 		foreach($types as $name => $t) {
 			$name2 = strtoupper($this->RunFieldFilter($name,'SELECT')); 
-			// handle quotes
-			if ($name2 && $name2[0] == '"' && $name2[strlen($name2)-1] == '"') $name22 = substr($name2,1,strlen($name2)-2);
-			else $name22 = $name2;
-			
-			if ($name2 && $name2[0] == '`' && $name2[strlen($name2)-1] == '`') $name22 = substr($name2,1,strlen($name2)-2);
-			else $name22 = $name2;
-			
-			if (!isset($dtypes[($name22)]) || !$name2) {
-				if ($this->debug) echo " Skipping $name ==> $name2 as not in destination $desttable<br>";
+			if (!isset($dtypes[($name2)]) || !$name2) {
+				if ($this->debug) echo " Skipping $name as not in destination $desttable<br>";
 				continue;
 			}
 			
@@ -605,7 +620,6 @@ class ADODB_Replicate {
 			$fld = $t->name;
 			$fldval = $t->name;
 			$mt = $src->MetaType($t->type);
-			if ($this->datesAreTimeStamps && $mt == 'D') $mt = 'T';
 			if ($mt == 'D') $fldval = $dest->DBDate($fldval);
 			elseif ($mt == 'T') $fldval = $dest->DBTimeStamp($fldval);
 			$ufld = strtoupper($fld);
@@ -692,7 +706,11 @@ class ADODB_Replicate {
 			$srcwheres = array($fld.'='.$src->Param($k));
 			$k++;
 		}	
-			
+		
+		if ($lastUpdateFld) {
+			$selflds[] = $lastUpdateFld;
+		} else
+			$selflds[] = 'null as Z55_DUMMY_LA5TUPD';
 					
 		$insfldss = implode(', ', $insflds);
 		$fldss = implode(', ', $selflds);
@@ -838,26 +856,27 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			
 			if ($this->deleteFirst) $onlyInsert = true;	
 			while ($origrow = $rs->FetchRow()) {
-			
+			#var_dump($origrow);
 				if ($dest->debug) {flush(); @ob_flush();}
 				
 				if ($fn) {
 					if (!$fn($desttable, $origrow, $deleteFirst, $this, $selflds)) continue;
 				}
 				$doinsert = true;
-				$row = $origrow;
+				$row = array_slice($origrow,0,$sizeofrow-1);
 				
 				if (!$onlyInsert) {
 					$doinsert = false;
 					$upderr = false;
 					
 					if (isset($srcPKDest)) {
-						if (is_null($origrow[$sizeofrow-2])) {
+						if (is_null($origrow[$sizeofrow-3])) {
 							$doinsert = true;
 							$upderr = true;
-						} else
 							$row = array_slice($origrow,0,$sizeofrow-1);
+						}
 					} 
+					
 					if (!$upderr && !$dest->Execute($sa['UPD'],$row)) {
 						$err = true;
 						$upderr = true;
@@ -868,7 +887,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 				 	if ($upderr || $dest->Affected_Rows() == 0) {
 						$doinsert = true;
 					} else {
-						if (!empty($uniqflds)) $this->RunUpdateSrcFn($src2, $table, $fldoffsets, $origrow, $srcwheress, 'UPD');
+						if (!empty($uniqflds)) $this->RunUpdateSrcFn($src2, $table, $fldoffsets, $origrow, $srcwheress, 'UPD', null, $lastUpdateFld);
 						$upd += 1;
 					}
 				} 
@@ -876,7 +895,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 				if ($doinsert) {
 					$inserr = false;
 					if (isset($srcPKDest)) {
-						$row = array_slice($origrow,0,$sizeofrow-1);
+						$row = array_slice($origrow,0,$sizeofrow-2);
 					}
 					
 					if (! $dest->Execute($sa['INS'],$row)) {
@@ -894,7 +913,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 						}
 					
 						if (!$inserr && !empty($uniqflds)) {
-							$this->RunUpdateSrcFn($src2, $table, $fldoffsets, $origrow, $srcwheress, 'INS', $lastid);
+							$this->RunUpdateSrcFn($src2, $table, $fldoffsets, $origrow, $srcwheress, 'INS', $lastid,$lastUpdateFld);
 						}
 						$ins += 1;
 					} 
@@ -939,12 +958,12 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 		$cols = $src->MetaColumns($srcTable);
 		#adodb_pr($cols);
 		if (!isset($cols[strtoupper($srcUpdateDateFld)])) {
-			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcUpdateDateFld T DEFTIMESTAMP");
+			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcUpdateDateFld TS DEFTIMESTAMP");
 			foreach($sqla as $sql) $src->Execute($sql);
 		}
 		
 		if ($srcCopyDateFld && !isset($cols[strtoupper($srcCopyDateFld)])) {
-			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcCopyDateFld T DEFTIMESTAMP");
+			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcCopyDateFld TS DEFTIMESTAMP");
 			foreach($sqla as $sql) $src->Execute($sql);
 		}
 		
@@ -992,8 +1011,9 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			if (strlen($srcTable)>22) $tableidx = substr($srcTable,0,16).substr(crc32($srcTable),6);
 			else $tableidx = $srcTable;
 			
-			$name = $tableidx.$this->trgSuffix;
-			$idx = $tableidx.$this->idxSuffix;
+			$name = "{$tableidx}_mrgTr";
+			$idx = "{$tableidx}_mrgidx";
+			
 			$sqla[] = "
 CREATE OR REPLACE TRIGGER $name /* for data replication and merge */
 BEFORE UPDATE ON $srcTable REFERENCING NEW AS NEW OLD AS OLD
@@ -1004,10 +1024,8 @@ BEGIN
 	elsif :new.$srcCopyFlagFld = $arrv3 then
 		:new.$srcCopyFlagFld := :old.$srcCopyFlagFld;
 	elsif :old.$srcCopyFlagFld = :new.$srcCopyFlagFld or :new.$srcCopyFlagFld is null then
-		if $this->trLogic then
-			:new.$srcUpdateDateFld := $sysdate;
-	 		:new.$srcCopyFlagFld := $arrv1;
-		end if;
+	 :new.$srcUpdateDateFld := $sysdate;
+	 :new.$srcCopyFlagFld := $arrv1;
 	end if;
 END;
 ";
@@ -1032,10 +1050,9 @@ END;
 		$setsrc        = updateSrcFn string
 		$srcUpdateDateFld = field in src with the last update date
 		$srcCopyFlagFld = false = optional field that holds the copied indicator
-		$flagvals=array('Y','N','P','=') = array of values indicating array(copied, not copied). 
+		$flagvals=array('Y','N','P') = array of values indicating array(copied, not copied). 
 			Null is assumed to mean not copied. The 3rd value 'P' indicates that we want to force 'Y', bypassing
 			default trigger behaviour to reset the COPIED='N' when the record is replicated from other side.
-			The last value '=' is don't change copyflag.
 		$srcCopyDateFld = field that holds last copy date in src table, which will be updated on Merge()
 		$dstCopyDateFld = field that holds last copy date in dst table, which will be updated on Merge()
 		$defaultDestRaiseErrorFn = The adodb raiseErrorFn handler. Default is to not raise an error.
@@ -1087,7 +1104,10 @@ END;
 		
 		$saveraise = $dest->raiseErrorFn; 
 		$dest->raiseErrorFn = '';
-		$arr = $this->ReplicateData($srcTable, $dstTable, $pkeys, $where, $srcignoreflds, $dstCopyDateFld,$extra);
+		
+		if ($this->compat && $this->compat == 1.0) $srcUpdateDateFld = '';
+		$arr = $this->ReplicateData($srcTable, $dstTable, $pkeys, $where, $srcignoreflds,
+			 $dstCopyDateFld,$extra,$srcUpdateDateFld);
 		
 		$dest->raiseErrorFn = $saveraise;
 		

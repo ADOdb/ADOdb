@@ -6092,6 +6092,9 @@ PHP</a>. </p>
 <p><a name=5.09></a><b>5.09 ?? 2009</b> </p>
 <p>Active Record: You can force column names to be quoted in INSERT and UPDATE statements, typically because you are using reserved words as column names by setting
 ADODB_Active_Record::$_quoteNames = true;
+<p>The oci8 driver did not handle LOBs properly when binding. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=17991.
+<p>In order to support TIMESTAMP with subsecond accuracy, added to datadict the new TS type. Supported by mssql, postgresql and oci8 (oracle).
+Also changed oci8 $conn->sysTimeStamp to use 'SYSTIMESTAMP' instead of 'SYSDATE'. Should be backwards compat.
 <p>Added support for PHP 5.1+ DateTime objects in DBDate and DBTimeStamp.
 <p>Added new property to postgres64 driver to support returning I if type is unique int called $db->uniqueIisR, defaulting to true. See http://phplens.com/lens/lensforum/msgs.php?id=17963
 <p>Added support for bindarray in adodb_GetActiveRecordsClass with SelectLimit in adodb-active-record.inc.php.
