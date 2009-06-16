@@ -541,7 +541,7 @@ class ADODB_odbtp extends ADOConnection{
 		return @odbtp_execute( $stmt ) != false;
 	}
 
-	function MetaIndexes($table,$primary=false)
+	function MetaIndexes($table,$primary=false, $owner=false)
 	{
 		switch ( $this->odbc_driver) {
 			case ODB_DRIVER_MSSQL:

@@ -96,8 +96,8 @@ class ADODB_oci8 extends ADOConnection {
 		if (defined('ADODB_EXTENSION')) $this->rsPrefix .= 'ext_';
 	}
 	
-	/*  function MetaColumns($table) added by smondino@users.sourceforge.net*/
-	function MetaColumns($table) 
+	/*  function MetaColumns($table, $normalize=true) added by smondino@users.sourceforge.net*/
+	function MetaColumns($table, $normalize=true) 
 	{
 	global $ADODB_FETCH_MODE;
 	

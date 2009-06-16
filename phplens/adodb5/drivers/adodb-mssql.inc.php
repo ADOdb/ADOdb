@@ -338,7 +338,7 @@ class ADODB_mssql extends ADOConnection {
 	}
 	
 	
-	function MetaIndexes($table,$primary=false)
+	function MetaIndexes($table,$primary=false, $owner=false)
 	{
 		$table = $this->qstr($table);
 

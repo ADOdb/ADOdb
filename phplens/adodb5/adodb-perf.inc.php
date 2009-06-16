@@ -57,12 +57,10 @@ function adodb_round($n,$prec)
 	return number_format($n, $prec, '.', '');
 }
 
-/* return microtime value as a float */
+/* obsolete: return microtime value as a float. Retained for backward compat */
 function adodb_microtime()
 {
-	$t = microtime();
-	$t = explode(' ',$t);
-	return (float)$t[1]+ (float)$t[0];
+	return microtime(true);
 }
 
 /* sql code timing */

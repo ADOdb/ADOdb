@@ -526,7 +526,7 @@ class ADODB_mysqli extends ADOConnection {
 	    return  $foreign_keys;
 	}
 	
- 	function MetaColumns($table) 
+ 	function MetaColumns($table, $normalize=true) 
 	{
 		$false = false;
 		if (!$this->metaColumnsSQL)

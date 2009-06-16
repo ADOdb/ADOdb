@@ -460,7 +460,10 @@ select viewname,'V' from pg_views where viewname like $mask";
 			if (10 <= $len && $len <= 12) $date = 'date '.$date;
 			else $date = 'timestamp '.$date;
 		}
-		return "($date+interval'$dayFraction days')";
+		
+		
+		return "($date+interval'".($dayFraction * 1440)." minutes')";
+		#return "($date+interval'$dayFraction days')";
 	}
 	
 
