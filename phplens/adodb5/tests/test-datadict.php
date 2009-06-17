@@ -48,7 +48,7 @@ foreach(array('sapdb','sybase','mysql','access','oci8po','odbc_mssql','odbc','db
 	$flds = "
 ID            I           AUTO KEY,
 FIRSTNAME     VARCHAR(30) DEFAULT 'Joan' INDEX idx_name,
-LASTNAME      VARCHAR(28) DEFAULT 'Chen' key INDEX idx_name,
+LASTNAME      VARCHAR(28) DEFAULT 'Chen' key INDEX idx_name INDEX idx_lastname,
 averylonglongfieldname X(1024) DEFAULT 'test',
 price         N(7.2)  DEFAULT '0.00',
 MYDATE        D      DEFDATE INDEX idx_date,

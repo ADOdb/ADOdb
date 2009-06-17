@@ -1025,7 +1025,7 @@ style='background:#EEEEEE'><span style='mso-tab-count:1'>         </span>$dsn2=r
   <p class=MsoNormal>For all drivers</p>
   </td>
   <td style='padding:.75pt .75pt .75pt .75pt'>
-  <p class=MsoNormal>'persist', 'persistent', 'debug', 'fetchmode', 'new' </p>
+  <p class=MsoNormal>'persist', 'persistent', 'debug', 'fetchmode', 'new' , 'cachesecs', 'memcache'</p>
   </td>
  </tr>
  <tr style='mso-yfti-irow:1'>
@@ -1078,6 +1078,26 @@ a new connection will be created using NConnect if the underlying driver
 supports it. The <i>debug</i> option enables debugging. The <i>fetchmode</i>
 calls <a href="#setfetchmode">SetFetchMode()</a>. If no value is defined for an
 option, then the value is set to 1. </p>
+
+<p>Since ADOdb 5.09, we added 2 new parameters:</p>
+<ul>
+<li class=MsoNormal><i>cachesecs</i> which globally determines how many seconds to cache recordsets (default is 3600 secs if not defined) when
+CacheExecute() and CacheSelectLimit() are called and no cache-time parameter is passed into these functions.
+<li class=MsoNormal><i>memcache</i> which defines the memcache host, port and whether to use compression. For example:
+<pre>
+	# we have a memcache server at 10.1.1.22 using default port 11211, no compression
+	$dsn = 'mysql://user:pwd@localhost/mydb?memcache=10.1.1.22'; 
+	
+	# we have a memcache server 10.1.1.22 port 8888, compression=on
+	$dsn = 'mysql://user:pwd@localhost/mydb?memcache=10.1.1.22:8888:1';
+	 	
+	# we have a memcache servers mem1,mem2 on port 8888, compression=off
+	$dsn = 'mysql://user:pwd@localhost/mydb?memcache=mem1,mem2:8888:0'; 
+	
+	# we have a memcache servers mem1,mem2 on port 8888, compression=off and cachesecs=120
+	$dsn = 'mysql://user:pwd@localhost/mydb?memcache=mem1,mem2:8888:0&cachesecs=120';
+</pre>
+</ul>
 
 <p>ADOdb DSN's are compatible with version 1.0 of PEAR DB's DSN format. <a
 name="connect_ex"></a></p>
@@ -6092,6 +6112,7 @@ PHP</a>. </p>
 <p><a name=5.09></a><b>5.09 ?? 2009</b> </p>
 <p>Active Record: You can force column names to be quoted in INSERT and UPDATE statements, typically because you are using reserved words as column names by setting
 ADODB_Active_Record::$_quoteNames = true;
+<p>Added memcache and cachesecs to DSN.
 <p>Fixed up MetaColumns and MetaPrimaryIndexes() for php 5.3 compat. Thx http://adodb.pastebin.com/m52082b16
 <p>The postgresql driver's OffsetDate() apparently does not work with postgres 8.3. Fixed.
 <p>The oci8 driver did not handle LOBs properly when binding. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=17991.

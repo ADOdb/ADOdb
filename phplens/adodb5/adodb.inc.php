@@ -4259,6 +4259,18 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 					case 'socket': $obj->socket = $v; break;
 					#oci8
 					case 'nls_date_format': $obj->NLS_DATE_FORMAT = $v; break;
+					case 'cachesecs': $obj->cacheSecs = $v; break;
+					case 'memcache': 
+						$varr = explode(':',$v);
+						$vlen = sizeof($varr);
+						if ($vlen == 0) break;	
+						$obj->memCache = true;
+						$obj->memCacheHost = explode(',',$varr[0]);
+						if ($vlen == 1) break;	
+						$obj->memCachePort = $varr[1];
+						if ($vlen == 2) break;	
+						$obj->memCacheCompress = $varr[2] ?  true : false;
+						break;
 					}
 				}
 				if (empty($persist))

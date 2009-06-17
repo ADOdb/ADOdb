@@ -11,7 +11,7 @@
 		}
 	}
 
-	$db = NewADOConnection('mysql://root@localhost/northwind');
+	$db = NewADOConnection('mysql://root@localhost/northwind?persist');
 	$db->debug=1;
 	ADOdb_Active_Record::SetDatabaseAdapter($db);
 
