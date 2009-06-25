@@ -300,10 +300,13 @@ NATSOFT.DOMAIN =
 	
 	function BindTimeStamp($d)
 	{
-		$d = ADOConnection::DBTimeStamp($d);
-		if (strncmp($d,"'",1)) return $d;
+		if (empty($ts) && $ts !== 0) return 'null';
+		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
 		
-		return substr($d,1,strlen($d)-2);
+		if (is_object($ts)) $tss = $ts->format("'Y-m-d H:i:s'");
+		else $tss = adodb_date("'Y-m-d H:i:s'",$ts);
+		
+		return $tss;
 	}
 	
 	// format and return date string in database timestamp format
