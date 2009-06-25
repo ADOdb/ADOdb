@@ -52,17 +52,27 @@ if (isset($nocountrecs)) $ADODB_COUNTRECS = false;
 // cannot test databases below, but we include them anyway to check
 // if they parse ok...
 
-if (!strpos(PHP_VERSION,'5') === 0) {
-	ADOLoadCode("sybase");
-	//ADOLoadCode("postgres");
-	//ADOLoadCode("postgres7");
-	ADOLoadCode("firebird");
-	ADOLoadCode("borland_ibase");
-	ADOLoadCode("informix");
-	ADOLoadCode("sqlanywhere");
-//	ADOLoadCode('mysqli');
+if (sizeof($_GET) || !isset($_SERVER['HTTP_HOST'])) {
+	echo "<BR>";
+	ADOLoadCode2("sybase"); 
+	ADOLoadCode2("postgres");
+	ADOLoadCode2("postgres7");
+	ADOLoadCode2("firebird");
+	ADOLoadCode2("borland_ibase");
+	ADOLoadCode2("informix");
+	ADOLoadCode2("sqlanywhere");
+	ADOLoadCode2('mysqli');
+	ADOLoadCode2("access");
+	ADOLoadCode2("mysql");
+	ADOLoadCode2("oci8");
 }
 
+function ADOLoadCode2($d)
+{
+	ADOLoadCode($d);
+	$c = ADONewConnection($d);
+	echo "Loaded $d ",($c ? 'ok' : 'extension not installed'),"<br>";
+}
 
 flush();
 if (!empty($testpostgres)) {
