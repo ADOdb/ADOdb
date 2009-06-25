@@ -298,7 +298,7 @@ NATSOFT.DOMAIN =
 		return substr($d,1,strlen($d)-2);
 	}
 	
-	function BindTimeStamp($d)
+	function BindTimeStamp($ts)
 	{
 		if (empty($ts) && $ts !== 0) return 'null';
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
