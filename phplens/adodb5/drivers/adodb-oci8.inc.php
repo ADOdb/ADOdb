@@ -58,7 +58,7 @@ class ADODB_oci8 extends ADOConnection {
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $concat_operator='||';
 	var $sysDate = "TRUNC(SYSDATE)";
-	var $sysTimeStamp = 'SYSTIMESTAMP'; // requires oracle 9 or later, otherwise use SYSDATE
+	var $sysTimeStamp = 'SYSDATE'; // requires oracle 9 or later, otherwise use SYSDATE
 	var $metaDatabasesSQL = "SELECT USERNAME FROM ALL_USERS WHERE USERNAME NOT IN ('SYS','SYSTEM','DBSNMP','OUTLN') ORDER BY 1";
 	var $_stmt;
 	var $_commit = OCI_COMMIT_ON_SUCCESS;
@@ -82,7 +82,7 @@ class ADODB_oci8 extends ADOConnection {
 	var $session_sharing_force_blob = false; // alter session on updateblob if set to true 
 	var $firstrows = true; // enable first rows optimization on SelectLimit()
 	var $selectOffsetAlg1 = 1000; // when to use 1st algorithm of selectlimit.
-	var $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'
+	var $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'zz
 	var $dateformat = 'YYYY-MM-DD'; // DBDate format
  	var $useDBDateFormatForTextInput=false;
 	var $datetime = false; // MetaType('DATE') returns 'D' (datetime==false) or 'T' (datetime == true)
