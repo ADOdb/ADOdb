@@ -27,12 +27,13 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	var $_dropSeqSQL     = 'DROP TABLE %s';
 	var $concat_operator = '||';
     var $pdoDriver       = false;
+	var $random='abs(random())';
     
 	function _init($parentDriver)
 	{
 		$this->pdoDriver = $parentDriver;
 		$parentDriver->_bindInputArray = true;
-		$parentDriver->hasTransactions = true;
+		$parentDriver->hasTransactions = false; // // should be set to false because of PDO SQLite driver not supporting changing autocommit mode
 		$parentDriver->hasInsertID = true;
 	}
 
@@ -40,7 +41,7 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	{
 		$parent = $this->pdoDriver;
 		@($ver = array_pop($parent->GetCol("SELECT sqlite_version()")));
-		@($end = array_pop($parent->GetCol("PRAGMA encoding")));
+		@($enc = array_pop($parent->GetCol("PRAGMA encoding")));
 
 		$arr['version']     = $ver;
 		$arr['description'] = 'SQLite ';
@@ -184,7 +185,19 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$parent = $this->pdoDriver;
-	        return $parent->GetCol($this->metaTablesSQL);
-	}
+		
+		if ($mask) {
+			$save = $this->metaTablesSQL;
+			$mask = $this->qstr(strtoupper($mask));
+			$this->metaTablesSQL .= " AND name LIKE $mask";
+		}
+		
+		$ret = $parent->GetCol($this->metaTablesSQL);
+		
+		if ($mask) {
+			$this->metaTablesSQL = $save;
+		}
+		return $ret;
+   }
 }
 ?>

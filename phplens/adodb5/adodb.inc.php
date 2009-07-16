@@ -516,9 +516,6 @@
 		
 		$this->_isPersistentConnection = false;	
 			
-		global $ADODB_CACHE;
-		if (empty($ADODB_CACHE)) $this->_CreateCache();
-		
 		if ($forceNew) {
 			if ($rez=$this->_nconnect($this->host, $this->user, $this->password, $this->database)) return true;
 		} else {
@@ -584,9 +581,6 @@
 		if ($argDatabaseName != "") $this->database = $argDatabaseName;		
 			
 		$this->_isPersistentConnection = true;	
-		
-		global $ADODB_CACHE;
-		if (empty($ADODB_CACHE)) $this->_CreateCache();
 		
 		if ($rez = $this->_pconnect($this->host, $this->user, $this->password, $this->database)) return true;
 		if (isset($rez)) {
@@ -1711,6 +1705,8 @@
 	{
 	global $ADODB_CACHE_DIR, $ADODB_CACHE;
 		
+		if (empty($ADODB_CACHE)) return false;
+		
 		if (!$sql) {
 			 $ADODB_CACHE->flushall($this->debug);
 	         return;
@@ -1767,6 +1763,8 @@
 	{
 	global $ADODB_CACHE;
 	
+		if (empty($ADODB_CACHE)) $this->_CreateCache();
+		
 		if (!is_numeric($secs2cache)) {
 			$inputarr = $sql;
 			$sql = $secs2cache;
