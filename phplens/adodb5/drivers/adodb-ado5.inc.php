@@ -640,6 +640,10 @@ class ADORecordSet_ado extends ADORecordSet {
 			case 1: // null
 				$this->fields[] = false;
 				break;
+			case 20:
+			case 21: // bigint (64 bit)
+    			$this->fields[] = (float) $f->value; // if 64 bit PHP, could use (int)
+    			break;
 			case 6: // currency is not supported properly;
 				ADOConnection::outp( '<b>'.$f->Name.': currency type not supported by PHP</b>');
 				$this->fields[] = (float) $f->value;

@@ -947,6 +947,19 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	
 	function _close() 
 	{
+	    //if results are attached to this pointer from Stored Proceedure calls, the next standard query will die 2014
+        //only a problem with persistant connections
+
+        //mysqli_next_result($this->connection->_connectionID); trashes the DB side attached results.
+
+        while(mysqli_more_results($this->connection->_connectionID)){
+           @mysqli_next_result($this->connection->_connectionID);
+        }
+
+        //Because you can have one attached result, without tripping mysqli_more_results
+        @mysqli_next_result($this->connection->_connectionID);
+
+
 		mysqli_free_result($this->_queryID); 
 	  	$this->_queryID = false;	
 	}

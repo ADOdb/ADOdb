@@ -26,6 +26,7 @@ global $ADODB_ACTIVE_DEFVALS; // use default values of table definition when cre
 $_ADODB_ACTIVE_DBS = array();
 $ACTIVE_RECORD_SAFETY = true;
 $ADODB_ACTIVE_DEFVALS = false;
+$ADODB_ACTIVE_CACHESECS = 0;
 
 class ADODB_Active_DB {
 	var $db; // ADOConnection
