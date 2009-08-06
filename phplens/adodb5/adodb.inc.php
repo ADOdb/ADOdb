@@ -1877,6 +1877,7 @@
 		$rs = $this->SelectLimit($sql,1);
 		if (!$rs) return $false; // table does not exist
 		$rs->tableName = $table;
+		$rs->sql = $sql;
 		
 		switch((string) $mode) {
 		case 'UPDATE':

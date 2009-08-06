@@ -279,7 +279,7 @@ try {
 <p>
 <h3><li>Primary Keys</h3>
 <p>
-ADOdb_Active_Record does not require the table to have a primary key. You can insert records for such a table, but you will not be able to update nor delete. 
+Warning: the following statement is no longer true and i am investigating whether we can restore this behaviour in the future - John: ADOdb_Active_Record does not require the table to have a primary key. You can insert records for such a table, but you will not be able to update nor delete. 
 <p>Sometimes you are retrieving data from a view or table that has no primary key, but has a unique index. You can dynamically set the primary key of a table through the constructor, or using ADOdb_Active_Record::SetPrimaryKeys():
 <pre>
 	$pkeys = array('category','prodcode');

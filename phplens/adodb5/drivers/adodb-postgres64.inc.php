@@ -1056,7 +1056,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				case 'INT4':
 				case 'INT2':
 					if (isset($fieldobj) &&
-				empty($fieldobj->primary_key) && (!$this->uniqueIisR || empty($fieldobj->unique))) return 'I';
+				empty($fieldobj->primary_key) && (!$this->connection->uniqueIisR || empty($fieldobj->unique))) return 'I';
 				
 				case 'OID':
 				case 'SERIAL':
