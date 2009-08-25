@@ -35,7 +35,7 @@
 	            ) ENGINE=MyISAM;
 	           ");
 			   
-	class Person extends ADOdb_Active_Record{}
+	class Person extends ADOdb_Active_Record{ function ret($v) {return $v;} }
 	$person = new Person();
 	ADOdb_Active_Record::$_quoteNames = '111';
 	

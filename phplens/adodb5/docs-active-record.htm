@@ -636,8 +636,9 @@ example, we load a window of 100 records at a time:
 	#  ADODB_Active_Record::ClassHasMany('Account', 'transactions','account_id'); 
 	$acc = new Account();
 	$acc->Load('id=23');
+	
+	$start = 0;
 	while(true) {
-		$start = 0;
 		$acc->LoadRelations('transactions',"tx_done=0 order by trxdate", $start, $start+100);
 		if (!$acc->transactions) break;
 		foreach ($acc->transactions as $k => $trx) {
@@ -646,6 +647,9 @@ example, we load a window of 100 records at a time:
 			$trx->save();
 		}
 		$start += 100;
+		unset($acc->transactions);
+
+
 	}
 </pre>
 <p>The $offset is 0-based, and $limit is the number of records to retrieve. The default is to ignore $offset (-1) and $limit (-1).
