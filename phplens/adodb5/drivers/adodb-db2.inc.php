@@ -24,6 +24,9 @@ if (!defined('ADODB_DIR')) die();
 --------------------------------------------------------------------------------------*/
 
 
+
+
+
 class ADODB_db2 extends ADOConnection {
 	var $databaseType = "db2";	
 	var $fmtDate = "'Y-m-d'";
@@ -51,6 +54,7 @@ class ADODB_db2 extends ADOConnection {
 	var $_lastAffectedRows = 0;
 	var $uCaseTables = true; // for meta* functions, uppercase table names
 	var $hasInsertID = true;
+	
 	
     function _insertid()
     {
@@ -223,7 +227,6 @@ class ADODB_db2 extends ADOConnection {
 			return ADOConnection::ServerInfo();
 		}
 	}
-
 	
 	function CreateSequence($seqname='adodbseq',$start=1)
 	{
@@ -237,6 +240,25 @@ class ADODB_db2 extends ADOConnection {
 	{
 		if (empty($this->_dropSeqSQL)) return false;
 		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
+	}
+	
+	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false)
+	{
+		$nrows = (integer) $nrows;
+		if ($offset <= 0) {
+		// could also use " OPTIMIZE FOR $nrows ROWS "
+			if ($nrows >= 0) $sql .=  " FETCH FIRST $nrows ROWS ONLY ";
+			$rs = $this->Execute($sql,$inputArr);
+		} else {
+			if ($offset > 0 && $nrows < 0);
+			else {
+				$nrows += $offset;
+				$sql .=  " FETCH FIRST $nrows ROWS ONLY ";
+			}
+			$rs = ADOConnection::SelectLimit($sql,-1,$offset,$inputArr);
+		}
+		
+		return $rs;
 	}
 	
 	/*
@@ -591,6 +613,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 		return $retarr;
 	}
 	
+		
 	function Prepare($sql)
 	{
 		if (! $this->_bindInputArray) return $sql; // no binding
