@@ -59,12 +59,48 @@ class ADODB_db2oci extends ADODB_db2 {
 	}
 	
 	
+		function MetaTables($ttype=false,$schema=false)
+	{
+	global $ADODB_FETCH_MODE;
+	
+		$savem = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		$qid = db2_tables($this->_connectionID);
+		
+		$rs = new ADORecordSet_db2($qid);
+		
+		$ADODB_FETCH_MODE = $savem;
+		if (!$rs) {
+			$false = false;
+			return $false;
+		}
+		
+		$arr = $rs->GetArray();
+		$rs->Close();
+		$arr2 = array();
+	//	adodb_pr($arr);
+		if ($ttype) {
+			$isview = strncmp($ttype,'V',1) === 0;
+		}
+		for ($i=0; $i < sizeof($arr); $i++) {
+			if (!$arr[$i][2]) continue;
+			$type = $arr[$i][3];
+			$schemaval = ($schema) ? $arr[$i][1].'.' : '';
+			$name = $schemaval.$arr[$i][2];
+			$owner = $arr[$i][1];
+			if (substr($name,0,8) == 'EXPLAIN_') continue;
+			if ($ttype) { 
+				if ($isview) {
+					if (strncmp($type,'V',1) === 0) $arr2[] = $name;
+				} else if (strncmp($type,'T',1) === 0 && strncmp($owner,'SYS',3) !== 0) $arr2[] = $name;
+			} else if (strncmp($type,'T',1) === 0 && strncmp($owner,'SYS',3) !== 0) $arr2[] = $name;
+		}
+		return $arr2;
+	}
+	
 	function _Execute($sql, $inputarr=false	)
 	{
-		adodb_backtrace();
 		if ($inputarr) list($sql,$inputarr) = _colonscope($sql, $inputarr);
-		
-		var_dump($inputarr);
 		return parent::_Execute($sql, $inputarr);
 	}
 };

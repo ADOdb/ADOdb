@@ -1742,6 +1742,29 @@ NewADOConnection($name) to create a connection object for that database. </p>
   Universal Database client.</span></p>
   </td>
  </tr>
+ 
+ <tr style='mso-yfti-irow:5;height:40.5pt'>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
+  <p class=MsoNormal><b><span style='font-size:10.0pt'>db2oci</span></b></p>
+  </td>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
+  <p class=MsoNormal><span style='font-size:10.0pt'>C</span></p>
+  </td>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
+  <p class=MsoNormal><span style='font-size:10.0pt'>Based on db2 driver. Allows use of oracle style :0, :1, :2 bind variables. Used with DB2 9.7 or later with PL/SQL mode turned on.</span></p>
+  </td>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
+  <p class=MsoNormal><span style='font-size:10.0pt'>Y/N</span></p>
+  </td>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
+  <p class=MsoNormal><span style='font-size:10.0pt'>DB2 CLI/ODBC interface</span></p>
+  </td>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
+  <p><span style='font-size:10.0pt'>Unix and Windows. Requires IBM DB2
+  Universal Database client.</span></p>
+  </td>
+ </tr>
+ 
  <tr style='mso-yfti-irow:6;height:40.5pt'>
   <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
   <p class=MsoNormal><b><span style='font-size:10.0pt'>odbc_db2</span></b></p>
@@ -6110,6 +6133,8 @@ PHP</a>. </p>
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
 <p><a name=5.10></a><b>5.10 ? 2009</b> </p>
 <p>adodb-ado.inc.php: Added BigInt support for PHP5. Will return float instead to support large numbers. Thx nasb#mail.goo.ne.jp.
+<p>adodb-mysqli.inc.php: mysqli_multi_query is now turned off by default. To turn it on, use $conn->multiQuery = true; This is because of the risks of sql injection. See http://phplens.com/lens/lensforum/msgs.php?id=18144
+<p>New db2oci driver for db2 9.7 when using PL/SQL mode.
 <p>adodb-mysqli.inc.php: Now $rs->Close() closes all pending next resultsets. Thx Clifton mesmackgod#gmail.com
 <p>Moved _CreateCache() from PConnect()/Connect() to CacheExecute(). Suggested by Dumka.
 <p>Many bug fixes to adodb-pdo_sqlite.inc.php and new datadict-sqlite.inc.php. Thx Andrei B. [andreutz#mymail.ro]

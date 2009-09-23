@@ -90,7 +90,6 @@ class ADODB_db2 extends ADOConnection {
 		// an array of valid options.  So far, we don't use them.
 
 		$this->_errorMsg = @db2_conn_errormsg();
- 
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
 		
 		return $this->_connectionID != false;
@@ -429,7 +428,6 @@ class ADODB_db2 extends ADOConnection {
 		}
 		
 		$arr = $rs->GetArray();
-		
 		$rs->Close();
 		$arr2 = array();
 		
@@ -439,12 +437,13 @@ class ADODB_db2 extends ADOConnection {
 		for ($i=0; $i < sizeof($arr); $i++) {
 			if (!$arr[$i][2]) continue;
 			$type = $arr[$i][3];
+			$owner = $arr[$i][1];
 			$schemaval = ($schema) ? $arr[$i][1].'.' : '';
 			if ($ttype) { 
 				if ($isview) {
 					if (strncmp($type,'V',1) === 0) $arr2[] = $schemaval.$arr[$i][2];
-				} else if (strncmp($type,'SYS',3) !== 0) $arr2[] = $schemaval.$arr[$i][2];
-			} else if (strncmp($type,'SYS',3) !== 0) $arr2[] = $schemaval.$arr[$i][2];
+				} else if (strncmp($owner,'SYS',3) !== 0) $arr2[] = $schemaval.$arr[$i][2];
+			} else if (strncmp($owner,'SYS',3) !== 0) $arr2[] = $schemaval.$arr[$i][2];
 		}
 		return $arr2;
 	}

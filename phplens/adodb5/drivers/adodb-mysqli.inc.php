@@ -50,7 +50,8 @@ class ADODB_mysqli extends ADOConnection {
 	var $_bindInputArray = false;
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
 	var $optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0));
-  var $arrayClass = 'ADORecordSet_array_mysqli';
+  	var $arrayClass = 'ADORecordSet_array_mysqli';
+  	var $multiQuery = false;
 	
 	function ADODB_mysqli() 
 	{			
@@ -684,15 +685,23 @@ class ADODB_mysqli extends ADOConnection {
 		return $mysql_res;
 		*/
 		
-		if( $rs = mysqli_multi_query($this->_connectionID, $sql.';') )//Contributed by "Geisel Sierote" <geisel#4up.com.br>
-		{
-			$rs = ($ADODB_COUNTRECS) ? @mysqli_store_result( $this->_connectionID ) : @mysqli_use_result( $this->_connectionID );
-			return $rs ? $rs : true; // mysqli_more_results( $this->_connectionID )
+		if ($this->multiQuery) {
+			$rs = mysqli_multi_query($this->_connectionID, $sql.';');
+			if ($rs) {
+				$rs = ($ADODB_COUNTRECS) ? @mysqli_store_result( $this->_connectionID ) : @mysqli_use_result( $this->_connectionID );
+				return $rs ? $rs : true; // mysqli_more_results( $this->_connectionID )
+			}
 		} else {
-			if($this->debug)
-			ADOConnection::outp("Query: " . $sql . " failed. " . $this->ErrorMsg());
-			return false;
+			$rs = mysqli_query($this->_connectionID, $sql, $ADODB_COUNTRECS ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
+		
+			if ($rs) return $rs;
 		}
+
+		if($this->debug)
+			ADOConnection::outp("Query: " . $sql . " failed. " . $this->ErrorMsg());
+		
+		return false;
+		
 	}
 
 	/*	Returns: the last error message from previous database operation	*/	
