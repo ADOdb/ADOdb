@@ -58,8 +58,13 @@ class ADODB_db2oci extends ADODB_db2 {
 		parent::ADODB_db2();
 	}
 	
+	function Param($name,$type=false)
+	{
+		return ':'.$name;
+	}
 	
-		function MetaTables($ttype=false,$schema=false)
+	
+	function MetaTables($ttype=false,$schema=false)
 	{
 	global $ADODB_FETCH_MODE;
 	
