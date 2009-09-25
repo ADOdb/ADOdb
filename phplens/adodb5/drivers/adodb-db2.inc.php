@@ -79,10 +79,14 @@ class ADODB_db2 extends ADOConnection {
 		// Replaces the odbc_binmode() call that was in Execute()
 		ini_set('ibm_db2.binmode', $this->binmode);
 
-		if ($argDatabasename) {
-			$this->_connectionID = db2_connect($argDatabasename,$argUsername,$argPassword);
+		if ($argDatabasename && empty($argDSN)) {
+		
+			if (stripos($argDatabasename,'UID=') && stripos($argDatabasename,'PWD=')) $this->_connectionID = db2_connect($argDatabasename,null,null);
+			else $this->_connectionID = db2_connect($argDatabasename,$argUsername,$argPassword);
 		} else {
-			$this->_connectionID = db2_connect($argDSN,$argUsername,$argPassword);
+			if ($argDatabasename) $schema = $argDatabasename;
+			if (stripos($argDSN,'UID=') && stripos($argDSN,'PWD=')) $this->_connectionID = db2_connect($argDSN,null,null);
+			else $this->_connectionID = db2_connect($argDSN,$argUsername,$argPassword);
 		}
 		if (isset($php_errormsg)) $php_errormsg = '';
 
@@ -92,6 +96,7 @@ class ADODB_db2 extends ADOConnection {
 		$this->_errorMsg = @db2_conn_errormsg();
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
 		
+		if ($this->_connectionID && isset($schema)) $this->Execute("SET SCHEMA=$schema");
 		return $this->_connectionID != false;
 	}
 	

@@ -6138,7 +6138,7 @@ PHP</a>. </p>
 <p>adodb-ado.inc.php: Added BigInt support for PHP5. Will return float instead to support large numbers. Thx nasb#mail.goo.ne.jp.
 <p>adodb-mysqli.inc.php: mysqli_multi_query is now turned off by default. To turn it on, use $conn->multiQuery = true; This is because of the risks of sql injection. See http://phplens.com/lens/lensforum/msgs.php?id=18144
 <p>New db2oci driver for db2 9.7 when using PL/SQL mode. Allows oracle style :0, :1, :2 bind parameters which are remapped to ? ? ?.
-<p>adodb-db2.inc.php: fixed bugs in MetaTables. SYS owner field not checked properly.
+<p>adodb-db2.inc.php: fixed bugs in MetaTables. SYS owner field not checked properly. Also in $conn->Connect($dsn, null, null, $schema), we do a SET SCHEMA=$schema on connection.
 <p>adodb-mysqli.inc.php: Now $rs->Close() closes all pending next resultsets. Thx Clifton mesmackgod#gmail.com
 <p>Moved _CreateCache() from PConnect()/Connect() to CacheExecute(). Suggested by Dumka.
 <p>Many bug fixes to adodb-pdo_sqlite.inc.php and new datadict-sqlite.inc.php. Thx Andrei B. [andreutz#mymail.ro]
