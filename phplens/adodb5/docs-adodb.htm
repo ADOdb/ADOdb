@@ -1367,7 +1367,10 @@ style='mso-tab-count:1'>         </span>$dbms = 'db2'; # or 'odbc_db2' if db2 ex
 style='mso-tab-count:1'>         </span>$db =&amp; ADONewConnection($dbms);</pre><pre><span
 style='mso-tab-count:1'>         </span>$dsn = &quot;driver={IBM db2 odbc DRIVER};Database=sample;hostname=localhost;port=50000;protocol=TCPIP;&quot;.</pre><pre><span
 style='mso-tab-count:4'>                                   </span>&quot;uid=root; pwd=secret&quot;;<br>
-<span style='mso-tab-count:1'>         </span>$db-&gt;Connect($dsn);</pre></div>
+<span style='mso-tab-count:1'>         </span>$db-&gt;Connect($dsn);<br>
+		  # or connect and set schema
+		  $db-&gt;Connect($dsn,null,null,$schema);</pre>
+</div>
 
 <p class=MsoNormal><b>DSN-less Connections with <st1:City w:st="on">ADO</st1:City></b><br>
 If you are using versions of PHP earlier than PHP 4.3.0, DSN-less connections
