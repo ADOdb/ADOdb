@@ -109,10 +109,14 @@ class ADODB_db2 extends ADOConnection {
 		if (isset($php_errormsg)) $php_errormsg = '';
 		$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
 		
-		if ($argDatabasename) {
-			$this->_connectionID = db2_pconnect($argDatabasename,$argUsername,$argPassword);
+		if ($argDatabasename && empty($argDSN)) {
+		
+			if (stripos($argDatabasename,'UID=') && stripos($argDatabasename,'PWD=')) $this->_connectionID = db2_pconnect($argDatabasename,null,null);
+			else $this->_connectionID = db2_pconnect($argDatabasename,$argUsername,$argPassword);
 		} else {
-			$this->_connectionID = db2_pconnect($argDSN,$argUsername,$argPassword);
+			if ($argDatabasename) $schema = $argDatabasename;
+			if (stripos($argDSN,'UID=') && stripos($argDSN,'PWD=')) $this->_connectionID = db2_pconnect($argDSN,null,null);
+			else $this->_connectionID = db2_pconnect($argDSN,$argUsername,$argPassword);
 		}
 		if (isset($php_errormsg)) $php_errormsg = '';
 
@@ -120,6 +124,7 @@ class ADODB_db2 extends ADOConnection {
 		if ($this->_connectionID && $this->autoRollback) @db2_rollback($this->_connectionID);
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
 		
+		if ($this->_connectionID && isset($schema)) $this->Execute("SET SCHEMA=$schema");
 		return $this->_connectionID != false;
 	}
 

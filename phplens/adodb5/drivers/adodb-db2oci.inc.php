@@ -19,7 +19,7 @@ include(ADODB_DIR."/drivers/adodb-db2.inc.php");
 if (!defined('ADODB_DB2OCI')){
 define('ADODB_DB2OCI',1);
 
-
+// regex code for smart remapping of :0, :1 bind vars to ? ?
 function _colontrack($p)
 {
 global $_COLONARR,$_COLONSZ;
@@ -29,6 +29,7 @@ global $_COLONARR,$_COLONSZ;
 	return '?';
 }
 
+// smart remapping of :0, :1 bind vars to ? ?
 function _colonscope($sql,$arr)
 {
 global $_COLONARR,$_COLONSZ;
