@@ -19,6 +19,7 @@ include(ADODB_DIR."/drivers/adodb-db2.inc.php");
 if (!defined('ADODB_DB2OCI')){
 define('ADODB_DB2OCI',1);
 
+/*
 // regex code for smart remapping of :0, :1 bind vars to ? ?
 function _colontrack($p)
 {
@@ -43,6 +44,109 @@ global $_COLONARR,$_COLONSZ;
 	
 	foreach($_COLONARR as $k => $v) {
 		$arr2[] = $arr[$v]; 
+	}
+	
+	return array($sql2,$arr2);
+}
+*/
+
+/*
+	Smart remapping of :0, :1 bind vars to ? ?
+	
+	Handles colons in comments -- and / * * / and in quoted strings.
+*/
+
+function _colonparser($sql,$arr)
+{
+	$lensql = strlen($sql);
+	$arrsize = sizeof($arr);
+	$state = 'NORM';
+	$at = 1;
+	$ch = $sql[0]; 
+	$ch2 = @$sql[1];
+	$sql2 = '';
+	$arr2 = array();
+	$nprev = 0;
+	
+	
+	while (strlen($ch)) {
+	
+		switch($ch) {
+		case '/':
+			if ($state == 'NORM' && $ch2 == '*') {
+				$state = 'COMMENT';
+				
+				$at += 1;
+				$ch = $ch2;
+				$ch2 = $at < $lensql ? $sql[$at] : '';
+			}
+			break;
+			
+		case '*':
+			if ($state == 'COMMENT' && $ch2 == '/') {
+				$state = 'NORM';
+				
+				$at += 1;
+				$ch = $ch2;
+				$ch2 = $at < $lensql ? $sql[$at] : '';
+			}
+			break;
+		
+		case "\n":
+		case "\r":
+			if ($state == 'COMMENT2') $state = 'NORM';
+			break;
+		
+		case "'":
+			do {
+				$at += 1;
+				$ch = $ch2;
+				$ch2 = $at < $lensql ? $sql[$at] : '';
+			} while ($ch !== "'");
+			break;
+			
+		case ':':
+			if ($state == 'COMMENT' || $state == 'COMMENT2') break;
+			
+			//echo "$at=$ch $ch2, ";
+			if ('0' <= $ch2 && $ch2 <= '9') {
+				$n = '';
+				$nat = $at;
+				do {
+					$at += 1;
+					$ch = $ch2;
+					$n .= $ch;
+					$ch2 = $at < $lensql ? $sql[$at] : '';
+				} while ('0' <= $ch && $ch <= '9');
+				#echo "$n $arrsize ] ";
+				$n = (integer) $n;
+				if ($n < $arrsize) {
+					$sql2 .= substr($sql,$nprev,$nat-$nprev-1).'?';
+					$nprev = $at-1;
+					$arr2[] = $arr[$n];
+				}
+			}
+			break;
+			
+		case '-':
+			if ($state == 'NORM') {
+				if ($ch2 == '-') $state = 'COMMENT2';
+				$at += 1;
+				$ch = $ch2;
+				$ch2 = $at < $lensql ? $sql[$at] : '';
+			}
+			break;
+		}
+		
+		$at += 1;
+		$ch = $ch2;
+		$ch2 = $at < $lensql ? $sql[$at] : '';
+	}
+	
+	if ($nprev == 0) {
+		$sql2 = $sql;
+	} else {
+		$sql2 .= substr($sql,$nprev);
 	}
 	
 	return array($sql2,$arr2);
@@ -106,7 +210,7 @@ class ADODB_db2oci extends ADODB_db2 {
 	
 	function _Execute($sql, $inputarr=false	)
 	{
-		if ($inputarr) list($sql,$inputarr) = _colonscope($sql, $inputarr);
+		if ($inputarr) list($sql,$inputarr) = _colonparser($sql, $inputarr);
 		return parent::_Execute($sql, $inputarr);
 	}
 };
