@@ -134,10 +134,10 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 		return $this->GetOne($this->identitySQL);
 	}
 	
-	function RowLock($tables,$where,$flds='1 as ignore')
+	function RowLock($tables,$where,$col='1 as ignore')
 	{
 		if ($this->_autocommit) $this->BeginTrans();
-		return $this->GetOne("select $flds from $tables where $where for update");
+		return $this->GetOne("select $col from $tables where $where for update");
 	}
 	
 	function MetaTables($ttype=false,$showSchema=false, $qtable="%", $qschema="%")

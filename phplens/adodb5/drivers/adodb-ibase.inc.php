@@ -242,7 +242,7 @@ class ADODB_ibase extends ADOConnection {
 
 	
 	// See http://community.borland.com/article/0,1410,25844,00.html
-	function RowLock($tables,$where,$col)
+	function RowLock($tables,$where,$col=false)
 	{
 		if ($this->autoCommit) $this->BeginTrans();
 		$this->Execute("UPDATE $table SET $col=$col WHERE $where "); // is this correct - jlim?

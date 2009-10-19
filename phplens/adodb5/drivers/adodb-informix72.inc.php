@@ -123,10 +123,10 @@ class ADODB_informix72 extends ADOConnection {
 		return true;
 	}
 
-	function RowLock($tables,$where,$flds='1 as ignore')
+	function RowLock($tables,$where,$col='1 as ignore')
 	{
 		if ($this->_autocommit) $this->BeginTrans();
-		return $this->GetOne("select $flds from $tables where $where for update");
+		return $this->GetOne("select $col from $tables where $where for update");
 	}
 
 	/*	Returns: the last error message from previous database operation

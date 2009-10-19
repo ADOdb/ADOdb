@@ -195,11 +195,11 @@ class ADODB_mysqli extends ADOConnection {
 		return true;
 	}
 	
-	function RowLock($tables,$where='',$flds='1 as adodb_ignore') 
+	function RowLock($tables,$where='',$col='1 as adodb_ignore') 
 	{
 		if ($this->transCnt==0) $this->BeginTrans();
 		if ($where) $where = ' where '.$where;
-		$rs = $this->Execute("select $flds from $tables $where for update");
+		$rs = $this->Execute("select $col from $tables $where for update");
 		return !empty($rs); 
 	}
 	

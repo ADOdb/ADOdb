@@ -716,7 +716,7 @@
 	*  @param $table	name of table to lock
 	*  @param $where	where clause to use, eg: "WHERE row=12". If left empty, will escalate to table lock
 	*/
-	function RowLock($table,$where)
+	function RowLock($table,$where,$col='1 as ignore')
 	{
 		return false;
 	}

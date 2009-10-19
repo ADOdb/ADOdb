@@ -178,10 +178,10 @@ a different OID if a database must be reloaded. */
 		return @pg_Exec($this->_connectionID, "begin ".$this->_transmode);
 	}
 	
-	function RowLock($tables,$where,$flds='1 as ignore') 
+	function RowLock($tables,$where,$col='1 as ignore') 
 	{
 		if (!$this->transCnt) $this->BeginTrans();
-		return $this->GetOne("select $flds from $tables where $where for update");
+		return $this->GetOne("select $col from $tables where $where for update");
 	}
 
 	// returns true/false. 
