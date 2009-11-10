@@ -596,7 +596,7 @@ END Adodb;
 		} else {
 			print "<b>Error in using Cursor Variables 1</b><p>";
 		}
-		$rs->Close();
+		if ($rs) $rs->Close();
 		
 		print "<h4>Testing Stored Procedures for oci8</h4>";
 		

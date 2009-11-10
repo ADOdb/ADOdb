@@ -14,7 +14,7 @@
 /**
 	\mainpage 	
 	
-	 @version v4.991 16 Oct 2008  (c) 2000-2008 John Lim (jlim#natsoft.com). All rights reserved.
+	 @version v4.992 10 Nov 2009  (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
@@ -181,7 +181,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'v4.991 16 Oct 2008 (c) 2000-2008 John Lim (jlim#natsoft.com). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'v4.992 10 Nov 2009 (c) 2000-2009 John Lim (jlim#natsoft.com). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -2609,7 +2609,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		// undo magic quotes for "
 		$s = str_replace('\\"','"',$s);
 		
-		if ($this->replaceQuote == "\\'")  // ' already quoted, no need to change anything
+		if ($this->replaceQuote == "\\'"|| ini_get('magic_quotes_sybase'))  // ' already quoted, no need to change anything
 			return $s;
 		else {// change \' to '' for sybase/mssql
 			$s = str_replace('\\\\','\\',$s);
@@ -2643,7 +2643,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		// undo magic quotes for "
 		$s = str_replace('\\"','"',$s);
 		
-		if ($this->replaceQuote == "\\'")  // ' already quoted, no need to change anything
+		if ($this->replaceQuote == "\\'"|| ini_get('magic_quotes_sybase'))  // ' already quoted, no need to change anything
 			return "'$s'";
 		else {// change \' to '' for sybase/mssql
 			$s = str_replace('\\\\','\\',$s);
