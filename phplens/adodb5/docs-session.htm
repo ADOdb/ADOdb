@@ -21,7 +21,7 @@ font-size: 8pt;
 <body style="background-color: rgb(255, 255, 255);">
 <h1>ADODB Session 2 Management Manual</h1>
 <p>
-V5.06 16 Oct 2008  (c) 2000-2009 John Lim (jlim#natsoft.com)
+V5.10 10 Nov 2009  (c) 2000-2009 John Lim (jlim#natsoft.com)
 </p>
 <p> <font size="1">This software is dual licensed using BSD-Style and
 LGPL. This means you can use it in compiled proprietary and commercial
@@ -131,9 +131,15 @@ including adodb-cryptsession2.php instead of adodb-session2.php. </li>
  <font color="#004040">
 include_once("adodb/session/adodb-session2.php");
 $driver = 'mysql'; $host = 'localhost'; $user = 'auser'; $pwd = 'secret'; $database = 'sessiondb';
-ADOdb_Session::config($driver, $host, $user, $password, $database,$options=false);<b><br>ADOdb_session::Persist($connectMode=false);</b>
-session_start();<br> </font>
-</pre>
+ADOdb_Session::config($driver, $host, $user, $password, $database, $options=false);<b><br>ADOdb_session::Persist($connectMode=false);</b>
+session_start();<br> 
+
+# or, using DSN support so you can set other options such as port (since 5.11)
+include_once("adodb/session/adodb-session2.php");
+$dsn = 'mysql://root:pwd@localhost/mydb?persist=1&port=5654';
+ADOdb_Session::config($dsn, '', '', '');
+session_start();
+</font></pre>
 <p> The parameter to the Persist( ) method sets the connection mode. You can
   pass the following:</p>
 <table width="50%" border="1">

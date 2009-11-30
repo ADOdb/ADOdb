@@ -551,7 +551,7 @@ class ADODB_odbtp extends ADOConnection{
 		}
 	}
 	
-	function MetaIndexes_mssql($table,$primary=false)
+	function MetaIndexes_mssql($table,$primary=false, $owner = false)
 	{
 		$table = strtolower($this->qstr($table));
 

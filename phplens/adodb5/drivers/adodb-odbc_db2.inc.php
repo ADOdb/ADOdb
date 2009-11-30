@@ -134,7 +134,7 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 		return $this->GetOne($this->identitySQL);
 	}
 	
-	function RowLock($tables,$where,$col='1 as ignore')
+	function RowLock($tables,$where,$col='1 as adodbignore')
 	{
 		if ($this->_autocommit) $this->BeginTrans();
 		return $this->GetOne("select $col from $tables where $where for update");

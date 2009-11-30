@@ -330,8 +330,9 @@ class ADODB_mssqlnative extends ADOConnection {
 		
 		See http://www.swynk.com/friends/achigrik/SQL70Locks.asp
 	*/
-	function RowLock($tables,$where,$col='top 1 null as ignore') 
+	function RowLock($tables,$where,$col='1 as adodbignore') 
 	{
+		if ($col == '1 as adodbignore') $col = 'top 1 null as ignore';
 		if (!$this->transCnt) $this->BeginTrans();
 		return $this->GetOne("select $col from $tables with (ROWLOCK,HOLDLOCK) where $where");
 	}
@@ -493,7 +494,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		return ADORecordSet_array_mssql::UnixTimeStamp($v);
 	}	
 
-	function &MetaIndexes($table,$primary=false)
+	function &MetaIndexes($table,$primary=false, $owner = false)
 	{
 		$table = $this->qstr($table);
 

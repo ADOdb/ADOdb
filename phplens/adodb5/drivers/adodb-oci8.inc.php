@@ -322,7 +322,7 @@ NATSOFT.DOMAIN =
 		return 'TO_DATE('.$tss.",'RRRR-MM-DD, HH24:MI:SS')";
 	}
 	
-	function RowLock($tables,$where,$col='1 as ignore') 
+	function RowLock($tables,$where,$col='1 as adodbignore') 
 	{
 		if ($this->autoCommit) $this->BeginTrans();
 		return $this->GetOne("select $col from $tables where $where for update");
@@ -972,7 +972,7 @@ NATSOFT.DOMAIN =
 					ADOConnection::outp("<b>Bind</b>: LOB has been written to temp");
 				}
 			} else {
-				$this->_refLOBs[$numlob]['VAR'] = $var;
+				$this->_refLOBs[$numlob]['VAR'] = &$var;
 			}
 			$rez = $tmp;
 		} else {

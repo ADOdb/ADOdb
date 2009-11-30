@@ -620,7 +620,7 @@ ul
 
 <h2>ADOdb Library for PHP</h2>
 
-<p>V5.06 16 Oct 2008 (c) 2000-2009 John Lim (jlim#natsoft.com)</p>
+<p>V5.10 10 Nov 2009 (c) 2000-2009 John Lim (jlim#natsoft.com)</p>
 
 <p><span style='font-size:7.5pt'>This software is dual licensed using BSD-Style
 and LGPL. This means you can use it in compiled proprietary and commercial
@@ -6134,6 +6134,11 @@ href="http://phplens.com/lens/php-book/optimizing-debugging-php.php">Optimizing
 PHP</a>. </p>
 
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
+<p><a name=5.11></a><b>5.11 ?? 2009</b> </p>
+<p>Added DSN support to sessions2.inc.php.
+<p>adodb_date: Added support for format 'e' for TZ as in adodb_date('e')
+<p>oci8: Added missing & to refLob.
+<p>Fixes RowLock() and MetaIndexes() inconsistencies. See http://phplens.com/lens/lensforum/msgs.php?id=18236
 <p><a name=5.10></a><b>5.10 10 Nov 2009</b> </p>
 <p>Fixed memcache to properly support $rs->timeCreated.
 <p>adodb-ado.inc.php: Added BigInt support for PHP5. Will return float instead to support large numbers. Thx nasb#mail.goo.ne.jp.
@@ -6145,6 +6150,7 @@ PHP</a>. </p>
 <p>Many bug fixes to adodb-pdo_sqlite.inc.php and new datadict-sqlite.inc.php. Thx Andrei B. [andreutz#mymail.ro]
 <p>Removed usage of split (deprecated in php 5.3). Thx david#horizon-nigh.org.
 <p>Fixed RowLock() parameters to comply with PHP5 strict mode in multiple drivers.
+
 <p><a name=5.09></a><b>5.09 25 June 2009</b> </p>
 <p>Active Record: You can force column names to be quoted in INSERT and UPDATE statements, typically because you are using reserved words as column names by setting
 ADODB_Active_Record::$_quoteNames = true;
@@ -6165,10 +6171,12 @@ Also changed oci8 $conn->sysTimeStamp to use 'SYSTIMESTAMP' instead of 'SYSDATE'
 <p>Transactions now allowed in ado_access driver. Thx to  petar.petrov.georgiev#gmail.com.
 <p>Sessions2 garbage collection is now much more robust. We perform ORDER BY to prevent deadlock in adodb-sessions2.inc.php.
 <p>Fixed typo in pdo_sqlite driver.
+
 <p><a name=5.08a></a><b>5.08a 17 Apr 2009</b> </p>
 <p>Fixes wrong version number string.
 <p>Incorrect + in adodb-datadict.inc.php removed.
 <p>Fixes missing OffsetDate() function in pdo. Thx paul#mantisforge.org. 
+
 <p><a name=5.08></a><b>5.08 17 Apr 2009</b> </p>
 <p>adodb-sybase.inc.php driver. Added $conn->charSet support. Thx Luis Henrique Mulinari (luis.mulinari#gmail.com)
 <p>adodb-ado5.inc.php. Fixed some bind param issues. Thx Jirka Novak. 

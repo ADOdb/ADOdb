@@ -178,7 +178,7 @@ a different OID if a database must be reloaded. */
 		return @pg_Exec($this->_connectionID, "begin ".$this->_transmode);
 	}
 	
-	function RowLock($tables,$where,$col='1 as ignore') 
+	function RowLock($tables,$where,$col='1 as adodbignore') 
 	{
 		if (!$this->transCnt) $this->BeginTrans();
 		return $this->GetOne("select $col from $tables where $where for update");
@@ -584,7 +584,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 		
 	}
 
-	  function MetaIndexes ($table, $primary = FALSE)
+	  function MetaIndexes ($table, $primary = FALSE, $owner = false)
       {
          global $ADODB_FETCH_MODE;
                 

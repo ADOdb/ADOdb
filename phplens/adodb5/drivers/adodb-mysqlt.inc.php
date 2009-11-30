@@ -76,7 +76,7 @@ class ADODB_mysqlt extends ADODB_mysql {
 		return $ok ? true : false;
 	}
 	
-	function RowLock($tables,$where='',$col='1 as adodb_ignore') 
+	function RowLock($tables,$where='',$col='1 as adodbignore') 
 	{
 		if ($this->transCnt==0) $this->BeginTrans();
 		if ($where) $where = ' where '.$where;

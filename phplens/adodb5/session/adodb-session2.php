@@ -570,15 +570,17 @@ class ADODB_Session {
 			ADOConnection::outp( " driver=$driver user=$user db=$database ");
 		}
 		
-		if ($persist) {
-			switch($persist) {
-			default:
-			case 'P': $ok = $conn->PConnect($host, $user, $password, $database); break;
-			case 'C': $ok = $conn->Connect($host, $user, $password, $database); break;
-			case 'N': $ok = $conn->NConnect($host, $user, $password, $database); break;
+		if (empty($conn->_connectionID)) { // not dsn
+			if ($persist) {
+				switch($persist) {
+				default:
+				case 'P': $ok = $conn->PConnect($host, $user, $password, $database); break;
+				case 'C': $ok = $conn->Connect($host, $user, $password, $database); break;
+				case 'N': $ok = $conn->NConnect($host, $user, $password, $database); break;
+				}
+			} else {
+				$ok = $conn->Connect($host, $user, $password, $database);
 			}
-		} else {
-			$ok = $conn->Connect($host, $user, $password, $database);
 		}
 
 		if ($ok) $GLOBALS['ADODB_SESS_CONN'] = $conn;
@@ -755,7 +757,6 @@ class ADODB_Session {
 			$conn->StartTrans();
 			
 			$rs = $conn->Execute("SELECT COUNT(*) AS cnt FROM $table WHERE $binary sesskey = ".$conn->Param(0),array($key));
-			if ($rs) $rs->Close();
 					
 			if ($rs && reset($rs->fields) > 0) {
 				$sql = "UPDATE $table SET expiry=$expiry, sessdata=$lob_value, expireref= ".$conn->Param(0).",modified=$sysTimeStamp WHERE sesskey = ".$conn->Param('1');

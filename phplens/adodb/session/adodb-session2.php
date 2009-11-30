@@ -574,17 +574,19 @@ class ADODB_Session {
 			ADOConnection::outp( " driver=$driver user=$user db=$database ");
 		}
 		
-		if ($persist) {
-			switch($persist) {
-			default:
-			case 'P': $ok = $conn->PConnect($host, $user, $password, $database); break;
-			case 'C': $ok = $conn->Connect($host, $user, $password, $database); break;
-			case 'N': $ok = $conn->NConnect($host, $user, $password, $database); break;
+		if (empty($conn->_connectionID)) {
+			if ($persist) {
+				switch($persist) {
+				default:
+				case 'P': $ok = $conn->PConnect($host, $user, $password, $database); break;
+				case 'C': $ok = $conn->Connect($host, $user, $password, $database); break;
+				case 'N': $ok = $conn->NConnect($host, $user, $password, $database); break;
+				}
+			} else {
+				$ok = $conn->Connect($host, $user, $password, $database);
 			}
-		} else {
-			$ok = $conn->Connect($host, $user, $password, $database);
 		}
-
+		
 		if ($ok) $GLOBALS['ADODB_SESS_CONN'] =& $conn;
 		else
 			ADOConnection::outp('<p>Session: connection failed</p>', false);

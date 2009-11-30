@@ -195,7 +195,7 @@ class ADODB_mysqli extends ADOConnection {
 		return true;
 	}
 	
-	function RowLock($tables,$where='',$col='1 as adodb_ignore') 
+	function RowLock($tables,$where='',$col='1 as adodbignore') 
 	{
 		if ($this->transCnt==0) $this->BeginTrans();
 		if ($where) $where = ' where '.$where;
@@ -309,7 +309,7 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	  
-	function MetaIndexes ($table, $primary = FALSE)
+	function MetaIndexes ($table, $primary = FALSE, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
