@@ -99,7 +99,7 @@ function adodb_error_pg($errormsg)
             '/ttribute [\"\'].*[\"\'] not found|Relation [\"\'].*[\"\'] does not have attribute [\"\'].*[\"\']/i' => DB_ERROR_NOSUCHFIELD,
             '/parser: parse error at or near \"/i'   => DB_ERROR_SYNTAX,
             '/referential integrity violation/i'     => DB_ERROR_CONSTRAINT,
-			'/Relation [\"\'].*[\"\'] already exists|Cannot insert a duplicate key into (a )?unique index.*|duplicate key violates unique constraint/i'     
+			'/Relation [\"\'].*[\"\'] already exists|Cannot insert a duplicate key into (a )?unique index.*|duplicate key.*violates unique constraint/i'     
 			 	 => DB_ERROR_ALREADY_EXISTS
         );
 	reset($error_regexps);
