@@ -1728,7 +1728,7 @@ NewADOConnection($name) to create a connection object for that database. </p>
   <p class=MsoNormal><b><span style='font-size:10.0pt'>db2</span></b></p>
   </td>
   <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
-  <p class=MsoNormal><span style='font-size:10.0pt'>C</span></p>
+  <p class=MsoNormal><span style='font-size:10.0pt'>B</span></p>
   </td>
   <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
   <p class=MsoNormal><span style='font-size:10.0pt'>Uses PHP's db2-specific
@@ -6137,9 +6137,11 @@ PHP</a>. </p>
 <p><a name=5.11></a><b>5.11 ?? 2009</b> </p>
 <p>xmlschema. Changed declaration of create() to create(&$xmls) to fix compat problems.
 <p>Added DSN support to sessions2.inc.php.
+<p>db2: fixed ServerInfo().
 <p>adodb_date: Added support for format 'e' for TZ as in adodb_date('e')
 <p>oci8: Added missing & to refLob.
 <p>Fixes RowLock() and MetaIndexes() inconsistencies. See http://phplens.com/lens/lensforum/msgs.php?id=18236
+<p>Active record support for postgrseql boolean. See http://phplens.com/lens/lensforum/msgs.php?id=18246
 <p><a name=5.10></a><b>5.10 10 Nov 2009</b> </p>
 <p>Fixed memcache to properly support $rs->timeCreated.
 <p>adodb-ado.inc.php: Added BigInt support for PHP5. Will return float instead to support large numbers. Thx nasb#mail.goo.ne.jp.

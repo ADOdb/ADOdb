@@ -621,11 +621,13 @@ class ADODB_Active_Record {
 	function doquote(&$db, $val,$t)
 	{
 		switch($t) {
-		case 'D':
+		case 'L':
+			if (strpos($db->databaseType,'postgres') !== false) return $db->qstr($val);
+		case 'D':	
 		case 'T':
 			if (empty($val)) return 'null';
 		
-		case 'B':
+		case 'B':	
 		case 'N':
 		case 'C':
 		case 'X':

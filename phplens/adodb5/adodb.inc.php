@@ -4149,11 +4149,25 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				// special handling of oracle, which might not have host
 				$fakedsn = str_replace('@/','@adodb-fakehost/',$fakedsn);
 			}
+			
+			 if ((strpos($origdsn, 'sqlite')) !== FALSE) {
+             // special handling for SQLite, it only might have the path to the database file.
+             // If you try to connect to a SQLite database using a dsn like 'sqlite:///path/to/database', the 'parse_url' php function
+             // will throw you an exception with a message such as "unable to parse url"
+                list($scheme, $path) = explode('://', $origdsn);
+                $dsna['scheme'] = $scheme;
+				if ($qmark = strpos($path,'?')) {
+					$dsn['query'] = substr($path,$qmark+1);
+					$path = substr($path,0,$qmark);
+				}
+            	$dsna['path'] = '/' . urlencode($path);
+			} else
 				$dsna = @parse_url($fakedsn);
+				
 			if (!$dsna) {
 				return $false;
 			}
-				$dsna['scheme'] = substr($origdsn,0,$at);
+			$dsna['scheme'] = substr($origdsn,0,$at);
 			if ($at2 !== FALSE) {
 				$dsna['host'] = '';
 			}
