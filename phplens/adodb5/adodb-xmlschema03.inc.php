@@ -1405,7 +1405,7 @@ class adoSchema {
 	*
 	* @param object $db ADOdb database connection object.
 	*/
-	function adoSchema( &$db ) {
+	function adoSchema( $db ) {
 		// Initialize the environment
 		$this->mgq = get_magic_quotes_runtime();
 		set_magic_quotes_runtime(0);
