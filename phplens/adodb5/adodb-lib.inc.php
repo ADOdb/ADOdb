@@ -455,9 +455,13 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	
 	if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) $rewritesql .= $limitarr[0];
 		
-	$rstest = $zthis->Execute($rewritesql,$inputarr);
-	if (!$rstest) $rstest = $zthis->Execute($sql,$inputarr);
-	
+	if ($secs2cache) {
+		$rstest = $zthis->CacheExecute($secs2cache,$rewritesql,$inputarr);
+		if (!$rstest) $rstest = $zthis->CacheExecute($secs2cache,$sql,$inputarr);
+	} else {
+		$rstest = $zthis->Execute($rewritesql,$inputarr);
+		if (!$rstest) $rstest = $zthis->Execute($sql,$inputarr);
+	}
 	if ($rstest) {
 	  		$qryRecs = $rstest->RecordCount();
 		if ($qryRecs == -1) { 

@@ -345,8 +345,8 @@ class ADODB_Active_Record {
 		$tableat = $this->_tableat;
 		if (!$forceUpdate && !empty($tables[$tableat])) {
 
-			$tobj = $tables[$tableat];
-			foreach($tobj->flds as $name => $fld) {
+			$acttab = $tables[$tableat];
+			foreach($acttab->flds as $name => $fld) {
 			if ($ADODB_ACTIVE_DEFVALS && isset($fld->default_value)) 
 				$this->$name = $fld->default_value;
 			else
@@ -364,6 +364,14 @@ class ADODB_Active_Record {
 			if ($acttab->_created + $ADODB_ACTIVE_CACHESECS - (abs(rand()) % 16) > time()) { 
 				// abs(rand()) randomizes deletion, reducing contention to delete/refresh file
 				// ideally, you should cache at least 32 secs
+				
+				foreach($acttab->flds as $name => $fld) {
+					if ($ADODB_ACTIVE_DEFVALS && isset($fld->default_value)) 
+						$this->$name = $fld->default_value;
+					else
+						$this->$name = null;
+				}
+	
 				$activedb->tables[$table] = $acttab;
 				
 				//if ($db->debug) ADOConnection::outp("Reading cached active record file: $fname");

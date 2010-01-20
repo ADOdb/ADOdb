@@ -6138,6 +6138,8 @@ PHP</a>. </p>
 <p><a name=5.11></a><b>5.11 ?? 2009</b> </p>
 <p>xmlschema. Changed declaration of create() to create($xmls) to fix compat problems. Also changed constructor adoSchema() to pass in variable instead of variable reference.
 <p>Added DSN support to sessions2.inc.php.
+<p>adodb-lib.inc.php. Fixed issue with _adodb_getcount() not using $secs2cache parameter.
+<p>adodb active record. Fixed caching bug. See http://phplens.com/lens/lensforum/msgs.php?id=18288.
 <p>db2: fixed ServerInfo().
 <p>adodb_date: Added support for format 'e' for TZ as in adodb_date('e')
 <p>oci8: Added missing & to refLob.
