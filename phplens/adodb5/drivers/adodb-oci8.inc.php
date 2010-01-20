@@ -65,6 +65,11 @@ class ADODB_oci8 extends ADOConnection {
 	var $_initdate = true; // init date to YYYY-MM-DD
 	var $metaTablesSQL = "select table_name,table_type from cat where table_type in ('TABLE','VIEW') and table_name not like 'BIN\$%'"; // bin$ tables are recycle bin tables
 	var $metaColumnsSQL = "select cname,coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
+	var $metaColumnsSQL2 = "select column_name,data_type,data_length, data_scale, data_precision, 
+    case when nullable = 'Y' then 'NULL'
+    else 'NOT NULL' end as nulls,
+    data_default from all_tab_cols 
+  where owner='%s' and table_name='%s' order by column_id"; // when there is a schema
 	var $_bindInputArray = true;
 	var $hasGenID = true;
 	var $_genIDSQL = "SELECT (%s.nextval) FROM DUAL";
@@ -100,13 +105,18 @@ class ADODB_oci8 extends ADOConnection {
 	function MetaColumns($table, $normalize=true) 
 	{
 	global $ADODB_FETCH_MODE;
-	
+		
+		$schema = '';
+		$this->_findschema($table, $schema);
+
 		$false = false;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
-		
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
+		if ($schema)
+			$rs = $this->Execute(sprintf($this->metaColumnsSQL2, strtoupper($schema), strtoupper($table)));
+		else
+			$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
 		
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
