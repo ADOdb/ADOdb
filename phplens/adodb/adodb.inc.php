@@ -373,6 +373,8 @@
 	var $raiseErrorFn = false; 	/// error function to call
 	var $isoDates = false; /// accepts dates in ISO format
 	var $cacheSecs = 3600; /// cache for 1 hour
+	
+	var $bulkBind = false;
 
 	// memcache
 	var $memCache = false; /// should we use memCache instead of caching in files
@@ -950,7 +952,7 @@
 			
 			$element0 = reset($inputarr);
 			# is_object check because oci8 descriptors can be passed in
-			$array_2d = is_array($element0) && !is_object(reset($element0));
+			$array_2d = $this->bulkBind && is_array($element0) && !is_object(reset($element0));
 			//remove extra memory copy of input -mikefedyk
 			unset($element0);
 			

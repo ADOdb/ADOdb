@@ -403,6 +403,7 @@
 	var $fetchMode=false;
 	
 	var $null2null = 'null'; // in autoexecute/getinsertsql/getupdatesql, this value will be converted to a null
+	var $bulkBind = false; // enable 2D Execute array
 	 //
 	 // PRIVATE VARS
 	 //
@@ -950,7 +951,7 @@
 			
 			$element0 = reset($inputarr);
 			# is_object check because oci8 descriptors can be passed in
-			$array_2d = is_array($element0) && !is_object(reset($element0));
+			$array_2d = $this->bulkBind && is_array($element0) && !is_object(reset($element0));
 			//remove extra memory copy of input -mikefedyk
 			unset($element0);
 			
