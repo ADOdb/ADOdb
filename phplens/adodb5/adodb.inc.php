@@ -512,15 +512,15 @@
 	{
 		if ($argHostname != "") $this->host = $argHostname;
 		if ($argUsername != "") $this->user = $argUsername;
-		if ($argPassword != "") $this->password = $argPassword; // not stored for security reasons
+		if ($argPassword != "") $this->password = 'not stored'; // not stored for security reasons
 		if ($argDatabaseName != "") $this->database = $argDatabaseName;		
 		
 		$this->_isPersistentConnection = false;	
 			
 		if ($forceNew) {
-			if ($rez=$this->_nconnect($this->host, $this->user, $this->password, $this->database)) return true;
+			if ($rez=$this->_nconnect($this->host, $this->user, $argPassword, $this->database)) return true;
 		} else {
-			 if ($rez=$this->_connect($this->host, $this->user, $this->password, $this->database)) return true;
+			 if ($rez=$this->_connect($this->host, $this->user, $argPassword, $this->database)) return true;
 		}
 		if (isset($rez)) {
 			$err = $this->ErrorMsg();
@@ -578,12 +578,12 @@
 		
 		if ($argHostname != "") $this->host = $argHostname;
 		if ($argUsername != "") $this->user = $argUsername;
-		if ($argPassword != "") $this->password = $argPassword;
+		if ($argPassword != "") $this->password = 'not stored';
 		if ($argDatabaseName != "") $this->database = $argDatabaseName;		
 			
 		$this->_isPersistentConnection = true;	
 		
-		if ($rez = $this->_pconnect($this->host, $this->user, $this->password, $this->database)) return true;
+		if ($rez = $this->_pconnect($this->host, $this->user, $argPassword, $this->database)) return true;
 		if (isset($rez)) {
 			$err = $this->ErrorMsg();
 			if (empty($err)) $err = "Connection error to server '$argHostname' with user '$argUsername'";

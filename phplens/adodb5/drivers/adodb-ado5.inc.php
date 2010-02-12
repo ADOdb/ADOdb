@@ -118,7 +118,7 @@ class ADODB_ado extends ADOConnection {
 		$dbc->CursorLocation = $this->_cursor_location;
 		return  $dbc->State > 0;
 		} catch (exception $e) {
-			if ($this->debug);echo "<pre>",$argHostname,"\n",$e,"</pre>\n";
+			if ($this->debug) echo "<pre>",$argHostname,"\n",$e,"</pre>\n";
 		}
 		
 		return false;

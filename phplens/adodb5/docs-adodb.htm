@@ -6138,6 +6138,7 @@ PHP</a>. </p>
 <p><a name=5.11></a><b>5.11 ?? 2009</b> </p>
 <p>oci8: Now you can get column info of a table in a different schema, e.g. MetaColumns("schema.table") is supported.
 <p>xmlschema. Changed declaration of create() to create($xmls) to fix compat problems. Also changed constructor adoSchema() to pass in variable instead of variable reference.
+<p>Fixed ado5 exceptions to only display errors when $this->debug=true;
 <p>Added DSN support to sessions2.inc.php.
 <p>adodb-lib.inc.php. Fixed issue with _adodb_getcount() not using $secs2cache parameter.
 <p>adodb active record. Fixed caching bug. See http://phplens.com/lens/lensforum/msgs.php?id=18288.
