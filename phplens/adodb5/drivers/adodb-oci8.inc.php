@@ -108,11 +108,12 @@ class ADODB_oci8 extends ADOConnection {
 		
 		$schema = '';
 		$this->_findschema($table, $schema);
-
+		
 		$false = false;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
+
 		if ($schema)
 			$rs = $this->Execute(sprintf($this->metaColumnsSQL2, strtoupper($schema), strtoupper($table)));
 		else
@@ -124,7 +125,7 @@ class ADODB_oci8 extends ADOConnection {
 			return $false;
 		}
 		$retarr = array();
-		while (!$rs->EOF) { //print_r($rs->fields);
+		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 	   		$fld->name = $rs->fields[0];
 	   		$fld->type = $rs->fields[1];
