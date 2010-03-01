@@ -6135,12 +6135,13 @@ href="http://phplens.com/lens/php-book/optimizing-debugging-php.php">Optimizing
 PHP</a>. </p>
 
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
-<p><a name=5.11></a><b>5.11 ?? 2009</b> </p>
+<p><a name=5.11></a><b>5.11 ?? 2010</b> </p>
 <p>Datadict: altering columns did not consider the scale of the column. Now it does.
-<p>MSSQL: Fixed problem with ADODB_CASE_ASSOC causing multiple versions of column name appearing in recordset fields.
+<p>mssql: Fixed problem with ADODB_CASE_ASSOC causing multiple versions of column name appearing in recordset fields.
 <p>oci8: Added missing & to refLob.
 <p>oci8: Added obj->scale to FetchField().
 <p>oci8: Now you can get column info of a table in a different schema, e.g. MetaColumns("schema.table") is supported.
+<p>odbc_mssql: Fixed missing $metaDatabasesSQL.
 <p>xmlschema: Changed declaration of create() to create($xmls) to fix compat problems. Also changed constructor adoSchema() to pass in variable instead of variable reference.
 <p>ado5: Fixed ado5 exceptions to only display errors when $this->debug=true;
 <p>Added DSN support to sessions2.inc.php.
@@ -6154,6 +6155,7 @@ PHP</a>. </p>
 <p>By default, Execute 2D array is disabled for security reasons. Set $conn->bulkBind = true to enable. See http://phplens.com/lens/lensforum/msgs.php?id=18270. Note this breaks backward compat.
 <P>MSSQL: fixes for 5.2 compat. http://phplens.com/lens/lensforum/msgs.php?id=18325
 <p>Changed Version() to return a string instead of a float so it correctly returns 5.10 instead of 5.1.
+
 <p><a name=5.10></a><b>5.10 10 Nov 2009</b> </p>
 <p>Fixed memcache to properly support $rs->timeCreated.
 <p>adodb-ado.inc.php: Added BigInt support for PHP5. Will return float instead to support large numbers. Thx nasb#mail.goo.ne.jp.
