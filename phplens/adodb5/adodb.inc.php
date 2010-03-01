@@ -436,7 +436,9 @@
 	{
 	global $ADODB_vers;
 	
-		return (float) substr($ADODB_vers,1);
+		$ok = preg_match( '/^[Vv]([0-9\.]+)/', $ADODB_vers, $matches );
+		if (!$ok) return (float) substr($ADODB_vers,1);
+		else return $matches[1];
 	}
 	
 	/**

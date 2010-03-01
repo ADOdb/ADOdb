@@ -1409,6 +1409,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	 		$p = OCIColumnPrecision($this->_queryID, $fieldOffset);
 			$sc = OCIColumnScale($this->_queryID, $fieldOffset);
 			if ($p != 0 && $sc == 0) $fld->type = 'INT';
+			$fld->scale = $p;
 			break;
 		
 	 	case 'CLOB':
