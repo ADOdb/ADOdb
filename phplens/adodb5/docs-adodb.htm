@@ -6149,6 +6149,7 @@ PHP</a>. </p>
 <p>adodb active record. Fixed caching bug. See http://phplens.com/lens/lensforum/msgs.php?id=18288.
 <p>db2: fixed ServerInfo().
 <p>adodb_date: Added support for format 'e' for TZ as in adodb_date('e')
+<p>Active Record: If you have a field which is a string field (with numbers in) and you add preceding 0's to it the adodb library does not pick up the fact that the field has changed because of the way php's == works (dodgily). The end result is that it never gets updated into the database - fix by  Matthew Forrester (MediaEquals). [matthew.forrester#mediaequals.com]
 
 <p>Fixes RowLock() and MetaIndexes() inconsistencies. See http://phplens.com/lens/lensforum/msgs.php?id=18236
 <p>Active record support for postgrseql boolean. See http://phplens.com/lens/lensforum/msgs.php?id=18246
