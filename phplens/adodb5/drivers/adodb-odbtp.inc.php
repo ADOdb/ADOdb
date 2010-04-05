@@ -172,7 +172,10 @@ class ADODB_odbtp extends ADOConnection{
 	//if uid & pwd can be separate
     function _connect($HostOrInterface, $UserOrDSN='', $argPassword='', $argDatabase='')
 	{
-		$this->_connectionID = odbtp_connect($HostOrInterface,$UserOrDSN,$argPassword,$argDatabase);
+		if ($argPassword && stripos($UserOrDSN,'DRIVER=') !== false) {
+			$this->_connectionID = odbtp_connect($HostOrInterface,$UserOrDSN.';PWD='.$argPassword);
+		} else
+			$this->_connectionID = odbtp_connect($HostOrInterface,$UserOrDSN,$argPassword,$argDatabase);
 		if ($this->_connectionID === false) {
 			$this->_errorMsg = $this->ErrorMsg() ;
 			return false;
