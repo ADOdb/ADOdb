@@ -158,11 +158,12 @@ class ADODB_mysql extends ADOConnection {
 	
 	function GetOne($sql,$inputarr=false)
 	{
+	global $ADODB_GETONE_EOF;
 		if ($this->compat323 == false && strncasecmp($sql,'sele',4) == 0) {
 			$rs = $this->SelectLimit($sql,1,-1,$inputarr);
 			if ($rs) {
 				$rs->Close();
-				if ($rs->EOF) return null;
+				if ($rs->EOF) return $ADODB_GETONE_EOF;
 				return reset($rs->fields);
 			}
 		} else {
