@@ -4153,7 +4153,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$fakedsn = str_replace('@/','@adodb-fakehost/',$fakedsn);
 			}
 			
-			 if ((strpos($origdsn, 'sqlite')) !== FALSE) {
+			 if ((strpos($origdsn, 'sqlite')) !== FALSE && stripos($origdsn, '%2F') === FALSE) {
              // special handling for SQLite, it only might have the path to the database file.
              // If you try to connect to a SQLite database using a dsn like 'sqlite:///path/to/database', the 'parse_url' php function
              // will throw you an exception with a message such as "unable to parse url"

@@ -94,7 +94,7 @@ AND    b.name = 'sorts (memory)'",
 		"select nvl(value,0)/1024.0/1024 || 'M'  from v\$parameter where name = 'sga_target'",
 			'If sga_target is defined then data cache, shared, java and large pool size can be 0. This is because all these pools are consolidated into one sga_target.' ),
 	'PGA aggr target' => array( 'DATAC',
-		"select value from v\$parameter where name = 'pga_aggregate_target'",
+		"select nvl(value,0)/1024.0/1024 || 'M' from v\$parameter where name = 'pga_aggregate_target'",
 			'If pga_aggregate_target is defined then this is the maximum memory that can be allocated for cursor operations such as sorts, group by, joins, merges. When in doubt, set it to 20% of sga_target.' ),
 	'data cache size' => array('DATAC',
 			"select value from v\$parameter where name = 'db_cache_size'",
@@ -108,10 +108,6 @@ AND    b.name = 'sorts (memory)'",
 		'large pool buffer size' => array('CACHE',
 			"select value from v\$parameter where name='large_pool_size'",
 			'this pool is for large mem allocations (not because it is larger than shared pool), for MTS sessions, parallel queries, io buffers (large_pool_size) ' ),
-
-		'pga buffer size' => array('CACHE',			
-			"select value from v\$parameter where name='pga_aggregate_target'",
-			'program global area is private memory for sorting, and hash and bitmap merges - since oracle 9i (pga_aggregate_target)' ),
 
 		'dynamic memory usage' => array('CACHE', "select '-' from dual", '=DynMemoryUsage'),
 		
@@ -177,18 +173,11 @@ having count(*) > 100)",'These are sql statements that should be using bind vari
 		'random page cost' => array('COST',
 			"select value from v\$parameter where name = 'optimizer_index_cost_adj'",
 			'=WarnPageCost'),
-		
+	'Waits',
+		'Recent wait events' => array('WAITS','select \'Top 5 events\' from dual','=TopRecentWaits'),
+//		'Historical wait SQL' => array('WAITS','select \'Last 2 days\' from dual','=TopHistoricalWaits'), -- requires AWR license
 	'Backup',
-		'Achivelog Mode' => array('BACKUP', 'select log_mode from v$database', 'To turn on archivelog:<br>
-	<pre>
-        SQLPLUS> connect sys as sysdba;
-        SQLPLUS> shutdown immediate;
-
-        SQLPLUS> startup mount exclusive;
-        SQLPLUS> alter database archivelog;
-        SQLPLUS> archive log start;
-        SQLPLUS> alter database open;
-</pre>'),
+		'Achivelog Mode' => array('BACKUP', 'select log_mode from v$database', '=LogMode'),
 	
 		'DBID' => array('BACKUP','select dbid from v$database','Primary key of database, used for recovery with an RMAN Recovery Catalog'),
 		'Archive Log Dest' => array('BACKUP', "SELECT NVL(v1.value,v2.value) 
@@ -214,6 +203,67 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 		$this->version = $conn->ServerInfo();
 		$conn->LogSQL($savelog);	
 		$this->conn = $conn;
+	}
+	
+	function LogMode()
+	{
+		$mode = $this->conn->GetOne("select log_mode from v\$database");
+		
+		if ($mode == 'ARCHIVELOG') return 'To turn off archivelog:<br>
+	<pre><font size=-2>
+        SQLPLUS> connect sys as sysdba;
+        SQLPLUS> shutdown immediate;
+
+        SQLPLUS> startup mount exclusive;
+        SQLPLUS> alter database noarchivelog;
+        SQLPLUS> alter database open;
+</font></pre>';
+		
+		return 'To turn on archivelog:<br>
+	<pre><font size=-2>
+        SQLPLUS> connect sys as sysdba;
+        SQLPLUS> shutdown immediate;
+
+        SQLPLUS> startup mount exclusive;
+        SQLPLUS> alter database archivelog;
+        SQLPLUS> archive log start;
+        SQLPLUS> alter database open;
+</font></pre>';
+	}
+	
+	function TopRecentWaits()
+	{
+		
+		$rs = $this->conn->Execute("select * from (   
+		select event, round(100*time_waited/(select sum(time_waited) from v\$system_event where wait_class <> 'Idle'),1) \"% Wait\",
+    total_waits,time_waited, average_wait,wait_class from v\$system_event where wait_class <> 'Idle' order by 2 desc
+	) where rownum <=5");
+		
+		$ret = rs2html($rs,false,false,false,false);		
+		return "&nbsp;<p>".$ret."&nbsp;</p>";
+		
+	}
+	
+	function TopHistoricalWaits()
+	{
+		$days = 2;
+		
+		$rs = $this->conn->Execute("select * from (   SELECT
+         b.wait_class,B.NAME,
+        round(sum(wait_time+TIME_WAITED)/1000000) waitsecs,
+        parsing_schema_name,
+        C.SQL_TEXT, a.sql_id
+FROM    V\$ACTIVE_SESSION_HISTORY A
+        join V\$EVENT_NAME B  on  A.EVENT# = B.EVENT#
+       join V\$SQLAREA C  on  A.SQL_ID = C.SQL_ID
+WHERE   A.SAMPLE_TIME BETWEEN sysdate-$days and sysdate
+       and parsing_schema_name not in ('SYS','SYSMAN','DBSNMP','SYSTEM')
+GROUP BY b.wait_class,parsing_schema_name,C.SQL_TEXT, B.NAME,A.sql_id
+order by 3 desc) where rownum <=10");
+		
+		$ret = rs2html($rs,false,false,false,false);		
+		return "&nbsp;<p>".$ret."&nbsp;</p>";
+		
 	}
 	
 	function RMAN()
