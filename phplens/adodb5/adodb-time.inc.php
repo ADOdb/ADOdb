@@ -242,6 +242,9 @@ b. Implement daylight savings, which looks awfully complicated, see
 
 CHANGELOG
 
+- 13 July 2010 0.34
+Changed adodb_get_gm_diff to use DateTimeZone().
+
 - 11 Feb 2008 0.33
 * Bug in 0.32 fix for hour handling. Fixed.
 
@@ -386,7 +389,7 @@ First implementation.
 /*
 	Version Number
 */
-define('ADODB_DATE_VERSION',0.33);
+define('ADODB_DATE_VERSION',0.34);
 
 $ADODB_DATETIME_CLASS = (PHP_VERSION >= 5.2);
 
@@ -729,9 +732,15 @@ global $ADODB_DATETIME_CLASS;
 	} else {
 		if (isset($TZ)) return $TZ;
 		$y = date('Y');
-		$TZ = mktime(0,0,0,12,2,$y,0) - gmmktime(0,0,0,12,2,$y,0);
+		if (function_exists('date_default_timezone_get') && function_exists('timezone_offset_get')) {
+			$tzonename = date_default_timezone_get();
+			if ($tzonename) {
+				$tobj = new DateTimeZone($tzonename);
+				$TZ = timezone_offset_get($obj);
+			}
+		} 
+		if (empty($TZ)) $TZ = mktime(0,0,0,12,2,$y,0) - gmmktime(0,0,0,12,2,$y,0);
 	}
-	
 	return $TZ;
 }
 
