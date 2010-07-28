@@ -710,7 +710,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		if(array_key_exists($this->fieldOffset,$arrKeys) && !array_key_exists($arrKeys[$this->fieldOffset],$this->fields)) {
 			$f = false;
 		} else {
-			$f = $this->fields[ $arrKeys[$this->fieldOffset] ];
+			$f = @$this->fields[ $arrKeys[$this->fieldOffset] ];
 			if($fieldOffset == -1) $this->fieldOffset++;
 		}
 
