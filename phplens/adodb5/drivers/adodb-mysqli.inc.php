@@ -144,10 +144,13 @@ class ADODB_mysqli extends ADOConnection {
 	// do not use $ADODB_COUNTRECS
 	function GetOne($sql,$inputarr=false)
 	{
+	global $ADODB_GETONE_EOF;
+	
 		$ret = false;
 		$rs = $this->Execute($sql,$inputarr);
-		if ($rs) {	
-			if (!$rs->EOF) $ret = reset($rs->fields);
+		if ($rs) {
+			if ($rs->EOF) $ret = $ADODB_GETONE_EOF;
+			else $ret = reset($rs->fields);
 			$rs->Close();
 		}
 		return $ret;
