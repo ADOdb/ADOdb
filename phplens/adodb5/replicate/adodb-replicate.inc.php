@@ -782,7 +782,8 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			$sqlarr = explode('?',$sa['INS']);
 			$nparams = sizeof($sqlarr)-1;
 			
-			$useQmark = $dest->databaseProvider != 'oci8';
+			$useQmark = $dest && ($dest->dataProvider != 'oci8');
+	
 			while ($rs && !$rs->EOF) {
 				if ($useQmark) {
 					$sql = ''; $i = 0;
