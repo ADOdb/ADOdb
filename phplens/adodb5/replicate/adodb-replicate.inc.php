@@ -786,6 +786,7 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			while ($rs && !$rs->EOF) {
 				if ($useQmark) {
 					$sql = ''; $i = 0;
+					$arr = array_reverse($rs->fields);
 					//Use each() instead of foreach to reduce memory usage -mikefedyk
 					while(list(, $v) = each($arr)) {
 						$sql .= $sqlarr[$i];

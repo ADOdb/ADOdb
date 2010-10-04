@@ -2,13 +2,15 @@
 
 # CONFIG
 
-$BA = "LOAN"; ## -- leave $BA as empty string to copy all BA. Otherwise enter 1 BA (no need to quote BA)
-$STAGES = ""; ## $STAGES = "STGCAT1,STGCAT2"  -- leave $STAGES as empty string to run all stages. No need to quote stgcats.
+if (empty($USER)) {
+	$BA = "LOAN"; ## -- leave $BA as empty string to copy all BA. Otherwise enter 1 BA (no need to quote BA)
+	$STAGES = ""; ## $STAGES = "STGCAT1,STGCAT2"  -- leave $STAGES as empty string to run all stages. No need to quote stgcats.
 
-$HOST='192.168.0.2';
-$USER='JCOLLECT_BKRM';
-$PWD='natsoft';
-$DBASE='RAPTOR';
+	$HOST='192.168.0.2';
+	$USER='JCOLLECT_BKRM';
+	$PWD='natsoft';
+	$DBASE='RAPTOR';
+}
 # =================================== INCLUDES
 
 include_once('../adodb.inc.php');
