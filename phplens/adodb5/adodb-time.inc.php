@@ -732,13 +732,15 @@ global $ADODB_DATETIME_CLASS;
 	} else {
 		if (isset($TZ)) return $TZ;
 		$y = date('Y');
+		/*
 		if (function_exists('date_default_timezone_get') && function_exists('timezone_offset_get')) {
 			$tzonename = date_default_timezone_get();
 			if ($tzonename) {
 				$tobj = new DateTimeZone($tzonename);
-				$TZ = timezone_offset_get($tobj);
+				$TZ = -timezone_offset_get($tobj,new DateTime("now",);
 			}
 		} 
+		*/
 		if (empty($TZ)) $TZ = mktime(0,0,0,12,2,$y,0) - gmmktime(0,0,0,12,2,$y,0);
 	}
 	return $TZ;
