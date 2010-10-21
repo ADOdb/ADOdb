@@ -737,7 +737,7 @@ global $ADODB_DATETIME_CLASS;
 			$tzonename = date_default_timezone_get();
 			if ($tzonename) {
 				$tobj = new DateTimeZone($tzonename);
-				$TZ = -timezone_offset_get($tobj,new DateTime("now",);
+				$TZ = -timezone_offset_get($tobj,new DateTime("now",$tzo));
 			}
 		} 
 		*/
