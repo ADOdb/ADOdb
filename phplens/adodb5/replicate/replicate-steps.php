@@ -89,8 +89,8 @@ delete from kbstage where (1=1)$STG_BA$STG_STG;
 
 
 
-SET DEFINE OFF; -- disable & variable handling by sqlplus
-
+SET DEFINE OFF; -- disable  variable handling by sqlplus
+/
 /* Assume kbstrategy and business areas are compatible for steps and stages to be copied */
 </pre>
 
@@ -114,6 +114,9 @@ for rec in (select distinct q_type from jqueue where q_type not in (select qu_co
 	update kbqtype set qu_name=substr('MISSING.'||qu_name,1,64) where qu_code=rec.q_type;
 end loop;
 end;
+/
+
+commit;
 
 
 ALTER TABLE kbstage ENABLE all triggers;
