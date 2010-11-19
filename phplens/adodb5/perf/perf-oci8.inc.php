@@ -297,19 +297,22 @@ order by 3 desc) where rownum <=10");
 	
 	function WarnPageCost($val)
 	{
-		if ($val == 100) $s = '<font color=red><b>Too High</b>. </font>';
-		else $s = '';
+		//if ($val == 100) $s = '<font color=red><b>Too High</b>. </font>';
+		//else 
+		$s = '';
 		
-		return $s.'Recommended is 20-50 for TP, and 50 for data warehouses. Default is 100. See <a href=http://www.dba-oracle.com/oracle_tips_cost_adj.htm>optimizer_index_cost_adj</a>. ';
+		return $s.'Do not change if you are using Oracle 10g or later. 
+		Otherwise recommended is 20-50 for TP, and 50 for data warehouses. Default is 100. See <a href=http://www.dba-oracle.com/oracle_tips_cost_adj.htm>optimizer_index_cost_adj</a>. ';
 	}
 	
 	function WarnIndexCost($val)
 	{
-		if ($val == 0) $s = '<font color=red><b>Too Low</b>. </font>';
-		else $s = '';
+		//if ($val == 0) $s = '<font color=red><b>Too Low</b>. </font>';
+		//else 
+		$s = '';
 		
-		return $s.'Percentage of indexed data blocks expected in the cache.
-			Recommended is 20 (fast disk array) to 30 (slower hard disks). Default is 0.
+		return $s.'Percentage of indexed data blocks expected in the cache. Do not change if you are using Oracle 10g or later.
+			Otherwise recommended is 20 (fast disk array) to 30 (slower hard disks). Default is 0.
 			 See <a href=http://www.dba-oracle.com/oracle_tips_cbo_part1.htm>optimizer_index_caching</a>.';
 		}
 	
