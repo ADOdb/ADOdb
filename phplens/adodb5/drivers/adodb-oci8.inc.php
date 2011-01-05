@@ -795,9 +795,9 @@ NATSOFT.DOMAIN =
 		if ($inputarr) {
 			#if (!is_array($inputarr)) $inputarr = array($inputarr);
 			
-			$element0 = reset($inputarr);
-			
-			if (!$this->_bindInputArray) {
+			$element0 = reset($inputarr); 
+			# see http://phplens.com/lens/lensforum/msgs.php?id=18786
+			if ($this->_bindInputArray || $this->bulkBind) {
 			# is_object check because oci8 descriptors can be passed in
 			if (is_array($element0) && !is_object(reset($element0))) {
 				if (is_string($sql))
@@ -809,6 +809,7 @@ NATSOFT.DOMAIN =
 					$ret = $this->_Execute($stmt,$arr);
 					if (!$ret) return $ret;
 				}
+				return $ret;
 			} else {
 				$sqlarr = explode(':',$sql);
 				$sql = '';
