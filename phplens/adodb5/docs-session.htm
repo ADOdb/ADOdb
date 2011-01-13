@@ -44,7 +44,8 @@ session, as the user moves from page to page. </p>
 <p>To use session variables, call session_start() at the beginning of
 your web page, before your HTTP headers are sent. Then for every
 variable you want to keep alive for the duration of the session, call
-session_register($variable_name). By default, the session handler will
+variable you want to keep alive for the duration of the session, use $_SESSION['variablename']. 
+ By default, the session handler will
 keep track of the session by using a cookie. You can save objects or
 arrays in session variables also.
 </p>
