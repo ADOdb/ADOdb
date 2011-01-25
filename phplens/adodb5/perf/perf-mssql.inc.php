@@ -99,7 +99,7 @@ class perf_mssql extends adodb_perf{
 		$rs = $this->conn->Execute($sql);
 		//adodb_printr($rs);
 		$ADODB_FETCH_MODE = $save;
-		if ($rs) {
+		if ($rs && !$rs->EOF) {
 			$rs->MoveNext();
 			$s .= '<table bgcolor=white border=0 cellpadding="1" callspacing=0><tr><td nowrap align=center> Rows<td nowrap align=center> IO<td nowrap align=center> CPU<td align=left> &nbsp; &nbsp; Plan</tr>';
 			while (!$rs->EOF) {
