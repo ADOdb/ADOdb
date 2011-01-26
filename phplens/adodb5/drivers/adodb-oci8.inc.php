@@ -333,9 +333,9 @@ NATSOFT.DOMAIN =
 		if (empty($ts) && $ts !== 0) return 'null';
 		if ($isfld) return 'TO_DATE(substr('.$ts.",1,19),'RRRR-MM-DD, HH24:MI:SS')";
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
-		
+	
 		if (is_object($ts)) $tss = $ts->format("'Y-m-d H:i:s'");
-		else $tss = adodb_date("'Y-m-d H:i:s'",$ts);
+		else $tss = date("'Y-m-d H:i:s'",$ts);
 		
 		return 'TO_DATE('.$tss.",'RRRR-MM-DD, HH24:MI:SS')";
 	}
@@ -797,7 +797,7 @@ NATSOFT.DOMAIN =
 			
 			$element0 = reset($inputarr); 
 			# see http://phplens.com/lens/lensforum/msgs.php?id=18786
-			if ($this->_bindInputArray || $this->bulkBind) {
+			if (!$this->_bindInputArray || $this->bulkBind) {
 			# is_object check because oci8 descriptors can be passed in
 			if (is_array($element0) && !is_object(reset($element0))) {
 				if (is_string($sql))
