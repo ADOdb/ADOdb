@@ -1053,8 +1053,9 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 			ADOConnection::outp( "<br />\n($dbt): ".htmlspecialchars($sqlTxt)." &nbsp; $ss\n<br />\n",false);
 		else 
 			ADOConnection::outp( "<hr />\n($dbt): ".htmlspecialchars($sqlTxt)." &nbsp; $ss\n<hr />\n",false);
-	} else {
-		ADOConnection::outp("-----\n($dbt): ".$sqlTxt."\n-----\n",false);
+	} else  {
+		if ($ss) $ss = "\n		( $ss ) ";
+		ADOConnection::outp("-----\n($dbt): $sqlTxt$ss\n-----\n",false);
 	}
 
 	$qID = $zthis->_query($sql,$inputarr);
