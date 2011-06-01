@@ -297,22 +297,19 @@ order by 3 desc) where rownum <=10");
 	
 	function WarnPageCost($val)
 	{
-		//if ($val == 100) $s = '<font color=red><b>Too High</b>. </font>';
-		//else 
-		$s = '';
+		if ($val == 100) $s = '<font color=red><b>Too High</b>. </font>';
+		else $s = '';
 		
-		return $s.'Do not change if you are using Oracle 10g or later. 
-		Otherwise recommended is 20-50 for TP, and 50 for data warehouses. Default is 100. See <a href=http://www.dba-oracle.com/oracle_tips_cost_adj.htm>optimizer_index_cost_adj</a>. ';
+		return $s.'Recommended is 20-50 for TP, and 50 for data warehouses. Default is 100. See <a href=http://www.dba-oracle.com/oracle_tips_cost_adj.htm>optimizer_index_cost_adj</a>. ';
 	}
 	
 	function WarnIndexCost($val)
 	{
-		//if ($val == 0) $s = '<font color=red><b>Too Low</b>. </font>';
-		//else 
-		$s = '';
+		if ($val == 0) $s = '<font color=red><b>Too Low</b>. </font>';
+		else $s = '';
 		
-		return $s.'Percentage of indexed data blocks expected in the cache. Do not change if you are using Oracle 10g or later.
-			Otherwise recommended is 20 (fast disk array) to 30 (slower hard disks). Default is 0.
+		return $s.'Percentage of indexed data blocks expected in the cache.
+			Recommended is 20 (fast disk array) to 30 (slower hard disks). Default is 0.
 			 See <a href=http://www.dba-oracle.com/oracle_tips_cbo_part1.htm>optimizer_index_caching</a>.';
 		}
 	
@@ -421,7 +418,7 @@ CONNECT BY prior id=parent_id and statement_id='$id'");
 		if ($this->version['version'] < 9) return 'Oracle 9i or later required';
 		
 		 $rs = $this->conn->Execute("
-select  b.size_for_estimate as cache_mb_estimate, 
+select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate, 
 	case when b.size_factor=1 then 
    		'&lt;&lt;= Current'
 	 when a.estd_physical_read_factor-b.estd_physical_read_factor > 0.001 and b.estd_physical_read_factor<1 then
@@ -429,8 +426,8 @@ select  b.size_for_estimate as cache_mb_estimate,
 	else ' ' end as RATING, 
    b.estd_physical_read_factor \"Phys. Reads Factor\",
    round((a.estd_physical_read_factor-b.estd_physical_read_factor)/b.estd_physical_read_factor*100,2) as \"% Improve\"
-   from (select size_for_estimate,size_factor,estd_physical_read_factor,rownum  r from v\$db_cache_advice order by 1) a , 
-   (select size_for_estimate,size_factor,estd_physical_read_factor,rownum r from v\$db_cache_advice order by 1) b where a.r = b.r-1
+   from (select size_for_estimate,size_factor,estd_physical_read_factor,rownum  r,name from v\$db_cache_advice order by name,1) a , 
+   (select size_for_estimate,size_factor,estd_physical_read_factor,rownum r,name from v\$db_cache_advice order by name,1) b where a.r = b.r-1
   ");
 		if (!$rs) return false;
 		

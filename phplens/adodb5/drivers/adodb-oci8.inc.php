@@ -605,10 +605,13 @@ NATSOFT.DOMAIN =
 	{
 		// seems that oracle only supports 1 hint comment in 8i
 		if ($this->firstrows) {
+			if ($nrows > 500 && $nrows < 1000) $hint = "FIRST_ROWS($nrows)";
+			else $hint = 'FIRST_ROWS';
+			
 			if (strpos($sql,'/*+') !== false)
-				$sql = str_replace('/*+ ','/*+FIRST_ROWS ',$sql);
+				$sql = str_replace('/*+ ',"/*+$hint ",$sql);
 			else
-				$sql = preg_replace('/^[ \t\n]*select/i','SELECT /*+FIRST_ROWS*/',$sql);
+				$sql = preg_replace('/^[ \t\n]*select/i',"SELECT /*+$hint*/",$sql);
 		}
 		
 		if ($offset == -1 || ($offset < $this->selectOffsetAlg1 && 0 < $nrows && $nrows < 1000)) {
