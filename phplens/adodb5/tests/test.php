@@ -1,6 +1,6 @@
 <?php
 /* 
-V4.80 8 Mar 2006  (c) 2000-2010 John Lim (jlim#natsoft.com). All rights reserved.
+V4.80 8 Mar 2006  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -639,9 +639,12 @@ END Adodb;
 	print "<p>Testing Bulk Insert of 3 rows</p>";
 
 	$sql = "insert into ADOXYZ (id,firstname,lastname) values (".$db->Param('0').",".$db->Param('1').",".$db->Param('2').")";
+	$db->bulkBind = true;
 	$db->StartTrans();
+	$db->debug=99;
 	$db->Execute($sql,$arr);
 	$db->CompleteTrans();
+	$db->bulkBind = false;
 	$rs = $db->Execute('select * from ADOXYZ order by id');
 	if (!$rs || $rs->RecordCount() != 3) Err("Bad bulk insert");
 	
@@ -1743,6 +1746,6 @@ echo "<br>vers=",ADOConnection::Version();
 
 
 ?>
-<p><i>ADODB Database Library  (c) 2000-2010 John Lim. All rights reserved. Released under BSD and LGPL, PHP <?php echo PHP_VERSION ?>.</i></p>
+<p><i>ADODB Database Library  (c) 2000-2011 John Lim. All rights reserved. Released under BSD and LGPL, PHP <?php echo PHP_VERSION ?>.</i></p>
 </body>
 </html>

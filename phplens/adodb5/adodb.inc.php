@@ -14,7 +14,7 @@
 /**
 	\mainpage
 	
-	 @version V5.11 5 May 2010   (c) 2000-2010 John Lim (jlim#natsoft.com). All rights reserved.
+	 @version V5.12 30 June 2011   (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
@@ -177,7 +177,7 @@
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V5.11 5 May 2010  (c) 2000-2010 John Lim (jlim#natsoft.com). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V5.12 30 June 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved. Released BSD & LGPL.';
 	
 		/**
 		 * Determines whether recordset->RecordCount() is used. 
@@ -954,6 +954,7 @@
 			$element0 = reset($inputarr);
 			# is_object check because oci8 descriptors can be passed in
 			$array_2d = $this->bulkBind && is_array($element0) && !is_object(reset($element0));
+		
 			//remove extra memory copy of input -mikefedyk
 			unset($element0);
 			
@@ -961,6 +962,7 @@
 				$sqlarr = explode('?',$sql);
 				$nparams = sizeof($sqlarr)-1;
 				if (!$array_2d) $inputarr = array($inputarr);
+	
 				foreach($inputarr as $arr) {
 					$sql = ''; $i = 0;
 					//Use each() instead of foreach to reduce memory usage -mikefedyk
@@ -1002,7 +1004,7 @@
 						$stmt = $this->Prepare($sql);
 					else
 						$stmt = $sql;
-						
+					
 					foreach($inputarr as $arr) {
 						$ret = $this->_Execute($stmt,$arr);
 						if (!$ret) return $ret;

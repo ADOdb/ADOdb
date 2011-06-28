@@ -1,7 +1,7 @@
 <?php
 /*
 
-  version V5.11 5 May 2010  (c) 2000-2010 John Lim. All rights reserved.
+  version V5.12 30 June 2011  (c) 2000-2011 John Lim. All rights reserved.
 
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
@@ -799,10 +799,13 @@ NATSOFT.DOMAIN =
 			#if (!is_array($inputarr)) $inputarr = array($inputarr);
 			
 			$element0 = reset($inputarr); 
+			$array2d =  $this->bulkBind && is_array($element0) && !is_object(reset($element0));
+			
 			# see http://phplens.com/lens/lensforum/msgs.php?id=18786
-			if (!$this->_bindInputArray || $this->bulkBind) {
+			if ($array2d || !$this->_bindInputArray) {
+			
 			# is_object check because oci8 descriptors can be passed in
-			if (is_array($element0) && !is_object(reset($element0))) {
+			if ($array2d && $this->_bindInputArray) {
 				if (is_string($sql))
 					$stmt = $this->Prepare($sql);
 				else

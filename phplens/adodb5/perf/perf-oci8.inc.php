@@ -1,6 +1,6 @@
 <?php
 /* 
-V5.11 5 May 2010   (c) 2000-2010 John Lim (jlim#natsoft.com). All rights reserved.
+V5.12 30 June 2011   (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. See License.txt. 
@@ -297,7 +297,7 @@ order by 3 desc) where rownum <=10");
 	
 	function WarnPageCost($val)
 	{
-		if ($val == 100) $s = '<font color=red><b>Too High</b>. </font>';
+		if ($val == 100 && $this->version['version'] < 10) $s = '<font color=red><b>Too High</b>. </font>';
 		else $s = '';
 		
 		return $s.'Recommended is 20-50 for TP, and 50 for data warehouses. Default is 100. See <a href=http://www.dba-oracle.com/oracle_tips_cost_adj.htm>optimizer_index_cost_adj</a>. ';
@@ -305,7 +305,7 @@ order by 3 desc) where rownum <=10");
 	
 	function WarnIndexCost($val)
 	{
-		if ($val == 0) $s = '<font color=red><b>Too Low</b>. </font>';
+		if ($val == 0 && $this->version['version'] < 10) $s = '<font color=red><b>Too Low</b>. </font>';
 		else $s = '';
 		
 		return $s.'Percentage of indexed data blocks expected in the cache.
@@ -317,7 +317,7 @@ order by 3 desc) where rownum <=10");
 	{
 		if ($this->version['version'] < 9) return 'Oracle 9i or later required';
 		
-		$rs = $this->conn->Execute("select a.mb,a.targ as pga_size_pct,a.pct from 
+		$rs = $this->conn->Execute("select a.MB,a.targ as pga_size_pct as \"PGA Size Factor\",a.pct as \"Percent Improved\" from 
 	   (select round(pga_target_for_estimate/1024.0/1024.0,0) MB,
 	   	   pga_target_factor targ,estd_pga_cache_hit_percentage pct,rownum as r 
 	   	   from v\$pga_target_advice) a left join
@@ -427,7 +427,8 @@ select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
    b.estd_physical_read_factor \"Phys. Reads Factor\",
    round((a.estd_physical_read_factor-b.estd_physical_read_factor)/b.estd_physical_read_factor*100,2) as \"% Improve\"
    from (select size_for_estimate,size_factor,estd_physical_read_factor,rownum  r,name from v\$db_cache_advice order by name,1) a , 
-   (select size_for_estimate,size_factor,estd_physical_read_factor,rownum r,name from v\$db_cache_advice order by name,1) b where a.r = b.r-1
+   (select size_for_estimate,size_factor,estd_physical_read_factor,rownum r,name from v\$db_cache_advice order by name,1) b 
+   where a.r = b.r-1 and a.name = b.name
   ");
 		if (!$rs) return false;
 		
@@ -441,7 +442,7 @@ select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
 			$s .= "Ideal size of Data Cache is when %Improve gets close to zero.";
 			$s .= rs2html($rs,false,false,false,false);
 		}
-		return $s;
+		return $s.'<hr>'.$this->PGA();
 	}
 	
 	/*
