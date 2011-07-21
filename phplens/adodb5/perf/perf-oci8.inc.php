@@ -15,6 +15,7 @@ V5.12 30 June 2011   (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reser
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
+
 class perf_oci8 extends ADODB_perf{
 
 	var $noShowIxora = 15; // if the sql for suspicious sql is taking too long, then disable ixora
@@ -142,8 +143,8 @@ AND    b.name = 'sorts (memory)'",
 			"select value from v\$parameter where name='sort_area_size'",
 			'max in-mem sort_area_size (per query), uses memory in pga' ),
 
-		'pga usage at peak' => array('RATIOU',
-		'=PGA','Mb utilization at peak transactions (requires Oracle 9i+)'),
+		/*'pga usage at peak' => array('RATIOU',
+		'=PGA','Mb utilization at peak transactions (requires Oracle 9i+)'),*/
 	'Transactions',
 		'rollback segments' => array('ROLLBACK',
 			"select count(*) from sys.v_\$rollstat",
@@ -187,7 +188,7 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 	
 		'Flashback Usage' => array('BACKUP', "select nvl('-','Flashback Area not used') from v\$parameter where name=lower('DB_RECOVERY_FILE_DEST')", '=FlashUsage', 'Flashback area usage.'),
 		
-		'Control File Keep Time' => array('BACKUP', "select value from v\$parameter where name='control_file_record_keep_time'",'No of days to keep RMAN info in control file. I recommend it be set to x2 or x3 times the frequency of your full backup.'),
+		'Control File Keep Time' => array('BACKUP', "select value from v\$parameter where name='control_file_record_keep_time'",'No of days to keep RMAN info in control file.  Recommended set to x2 or x3 times the frequency of your full backup.'),
 		'Recent RMAN Jobs' => array('BACKUP', "select '-' from dual", "=RMAN"),
 		
 		//		'Control File Keep Time' => array('BACKUP', "select value from v\$parameter where name='control_file_record_keep_time'",'No of days to keep RMAN info in control file. I recommend it be set to x2 or x3 times the frequency of your full backup.'),
@@ -199,6 +200,9 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 	
 	function perf_oci8(&$conn)
 	{
+	global $gSQLBlockRows;
+	
+		$gSQLBlockRows = 1000;
 		$savelog = $conn->LogSQL(false);	
 		$this->version = $conn->ServerInfo();
 		$conn->LogSQL($savelog);	
@@ -314,23 +318,35 @@ order by 3 desc) where rownum <=10");
 		}
 	
 	function PGA()
+	{	
+		
+		//if ($this->version['version'] < 9) return 'Oracle 9i or later required';
+	}
+	function PGA_Advice()
 	{
-		if ($this->version['version'] < 9) return 'Oracle 9i or later required';
+		$t = "<h3>PGA Advice Estimate</h3>";
+		if ($this->version['version'] < 9) return $t.'Oracle 9i or later required';
 		
-		$rs = $this->conn->Execute("select a.MB,a.targ as pga_size_pct as \"PGA Size Factor\",a.pct as \"Percent Improved\" from 
-	   (select round(pga_target_for_estimate/1024.0/1024.0,0) MB,
-	   	   pga_target_factor targ,estd_pga_cache_hit_percentage pct,rownum as r 
-	   	   from v\$pga_target_advice) a left join
-	   (select round(pga_target_for_estimate/1024.0/1024.0,0) MB,
-	   	   pga_target_factor targ,estd_pga_cache_hit_percentage pct,rownum as r 
-	   	   from v\$pga_target_advice) b on 
-	  a.r = b.r+1 where 
-  		b.pct < 100");
-		if (!$rs) return "Only in 9i or later";
-		$rs->Close();
-		if ($rs->EOF) return "PGA could be too big";
+		$rs = $this->conn->Execute('select a.MB,
+			case when a.targ = 1 then \'<<= Current \' 
+			when a.targ < 1  or a.pct <= b.pct then null 
+			else 
+			\'- BETTER than Current by \'||round(a.pct/b.pct*100-100,2)||\'%\' end as "Percent Improved",
+	a.targ as  "PGA Size Factor",a.pct "% Perf"
+	from 
+       (select round(pga_target_for_estimate/1024.0/1024.0,0) MB,
+              pga_target_factor targ,estd_pga_cache_hit_percentage pct,rownum as r 
+              from v$pga_target_advice) a left join
+       (select round(pga_target_for_estimate/1024.0/1024.0,0) MB,
+              pga_target_factor targ,estd_pga_cache_hit_percentage pct,rownum as r 
+              from v$pga_target_advice) b on 
+      a.r = b.r+1 where 
+          b.pct < 100');
+		if (!$rs) return $t."Only in 9i or later";
+	//	$rs->Close();
+		if ($rs->EOF) return $t."PGA could be too big";
 		
-		return reset($rs->fields);
+		return $t.rs2html($rs,false,false,true,false);
 	}
 	
 	function Explain($sql,$partial=false) 
@@ -435,14 +451,14 @@ select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
 		/*
 		The v$db_cache_advice utility show the marginal changes in physical data block reads for different sizes of db_cache_size
 		*/
-		$s = "<h3>Data Cache Estimate</h3>";
+		$s = "<h3>Data Cache Advice Estimate</h3>";
 		if ($rs->EOF) {
 			$s .= "<p>Cache that is 50% of current size is still too big</p>";
 		} else {
-			$s .= "Ideal size of Data Cache is when %Improve gets close to zero.";
+			$s .= "Ideal size of Data Cache is when %BETTER gets close to zero.";
 			$s .= rs2html($rs,false,false,false,false);
 		}
-		return $s.'<hr>'.$this->PGA();
+		return $s.$this->PGA_Advice();
 	}
 	
 	/*
