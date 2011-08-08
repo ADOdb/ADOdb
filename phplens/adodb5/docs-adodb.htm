@@ -2023,7 +2023,7 @@ NewADOConnection($name) to create a connection object for that database. </p>
   <p class=MsoNormal><span style='font-size:10.0pt'>C</span></p>
   </td>
   <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:54.75pt'>
-  <p><span style='font-size:10.0pt'>Native mssql driver from M'soft. </span></p>
+  <p><span style='font-size:10.0pt'>Native mssql driver from M'soft. Use with PHP 5.3 or later. </span></p>
   </td>
   <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:54.75pt'>
   <p class=MsoNormal><span style='font-size:10.0pt'>?</span></p>
@@ -6135,8 +6135,12 @@ href="http://phplens.com/lens/php-book/optimizing-debugging-php.php">Optimizing
 PHP</a>. </p>
 
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
-
-<p><a name=5.12></a><b>5.12 ?? 2011</b> </p>
+<p><a name 5.13></a><b>5.13 ?? 2011</b>
+<p>mysqli: added support for persistent connections 'p:'.
+<p>mssqlnative: ADODB_FETCH_BOTH did not work properly. Fixed.
+<p>mssqlnative: return values for stored procedures where not returned! Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=18919
+<p>mssqlnative: timestamp and fetchfield bugs fixed. http ://phplens.com/lens/lensforum/msgs.php?id=18453
+<p><a name=5.12></a><b>5.12 30 June 2011</b> </p>
 <p>Postgres: Added information_schema support for postgresql.
 <p>Postgres: Use pg_unescape_bytea() in _decode.
 <p>Fix bulk binding with oci8. http://phplens.com/lens/lensforum/msgs.php?id=18786

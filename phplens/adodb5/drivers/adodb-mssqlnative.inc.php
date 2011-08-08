@@ -461,15 +461,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		} else {
 			$rez = sqlsrv_query($this->_connectionID,$sql);
 		}
-        if ($this->debug) error_log("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));//"<hr>connection: ".serialize($this->_connectionID)
-        //fix for returning true on anything besides select statements
-        if (is_array($sql)) $sql = $sql[1];
-        $sql = ltrim($sql);
-        if(stripos($sql, 'SELECT') !== 0 && $rez !== false) {
-            if ($this->debug) error_log(" isn't a select query, returning boolean true");
-            return true;
-        }
-        //end fix
+        if ($this->debug) error_log("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));
         if(!$rez) $rez = false;
 		return $rez;
 	}
@@ -486,12 +478,12 @@ class ADODB_mssqlnative extends ADOConnection {
 	// mssql uses a default date like Dec 30 2000 12:00AM
 	static function UnixDate($v)
 	{
-		return ADORecordSet_array_mssql::UnixDate($v);
+		return ADORecordSet_array_mssqlnative::UnixDate($v);
 	}
 	
 	static function UnixTimeStamp($v)
 	{
-		return ADORecordSet_array_mssql::UnixTimeStamp($v);
+		return ADORecordSet_array_mssqlnative::UnixTimeStamp($v);
 	}	
 
 	function &MetaIndexes($table,$primary=false, $owner = false)
@@ -702,7 +694,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
 		fetchField() is retrieved.	*/
 
-	function &FetchField($fieldOffset = -1) 
+	function FetchField($fieldOffset = -1) 
 	{
         if ($this->connection->debug) error_log("<hr>fetchfield: $fieldOffset, fetch array: <pre>".print_r($this->fields,true)."</pre> backtrace: ".adodb_backtrace(false));
 		if ($fieldOffset != -1) $this->fieldOffset = $fieldOffset;
@@ -710,7 +702,8 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		if(array_key_exists($this->fieldOffset,$arrKeys) && !array_key_exists($arrKeys[$this->fieldOffset],$this->fields)) {
 			$f = false;
 		} else {
-			$f = @$this->fields[ $arrKeys[$this->fieldOffset] ];
+			$f = new ADOFetchObj();
+			$f->name = $arrKeys[$this->fieldOffset];
 			if($fieldOffset == -1) $this->fieldOffset++;
 		}
 
@@ -748,7 +741,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	function _fetch($ignore_fields=false) 
 	{
         if ($this->connection->debug) error_log("_fetch()");
-		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
+		if ($this->fetchMode & ADODB_FETCH_BOTH) {
 			if ($this->fetchMode & ADODB_FETCH_NUM) {
                 if ($this->connection->debug) error_log("fetch mode: both");
 				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_BOTH);
