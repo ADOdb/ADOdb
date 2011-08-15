@@ -348,6 +348,11 @@ class ADODB_Replicate {
 	// if $this->commitRecs is set to a +ve value, then it will autocommit every $this->commitRecs records 
 	//		-- this should never be done with 7x24 db's
 	
+	Returns an array:
+		$arr[0] =  true if no error, false if error
+		$arr[1] =  number of recs processed
+		$arr[2] = number of successful inserts
+		$arr[3] = number of successful updates
 	
 	ReplicateData() params:
 	
@@ -1055,7 +1060,13 @@ END;
 		Perform Merge by copying all data modified from src to dest
 			then update src copied flag if present.
 			
-		Returns the current time of the src database before the replication
+		Returns array taken from ReplicateData:
+		
+	Returns an array:
+		$arr[0] =  true if no error, false if error
+		$arr[1] =  number of recs processed
+		$arr[2] = number of successful inserts
+		$arr[3] = number of successful updates
 		
 		$srcTable = src table 
 		$dstTable = dest table
