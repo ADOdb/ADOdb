@@ -3869,7 +3869,12 @@ include('adodb.inc.php'); </p>
 <h3><a name="adodb_auto_quote"></a>$ADODB_QUOTE_FIELDNAMES</h3>
 
 <p>Auto-quotes field names when using AutoExecute() when set to true. </p>
-
+<p>Since 5.13, if $ADODB_QUOTE_FIELDNAMES is set to:
+<ul>
+<li>'UPPER' or true: uppercase field names. This is the default.
+<li>'NATIVE' : use native case.
+<li>'LOWER': lowercase field names.
+</ul>
 <p>&nbsp;</p>
 
 <div class=MsoNormal align=center style='text-align:center'>
