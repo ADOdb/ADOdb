@@ -23,19 +23,20 @@ error_reporting(E_ALL);
 ob_start();
 include('../session/adodb-cryptsession2.php');
 
+
 $options['debug'] = 1;
-$db = 'oci8';
+$db = 'postgres';
 
 #### CONNECTION
 switch($db) {
 case 'oci8': 
 	$options['table'] = 'adodb_sessions2';
-	ADOdb_Session::config('oci8', '', 'jcollect_bkrm', 'natsoft', '',$options);
+	ADOdb_Session::config('oci8', 'mobydick', 'jdev', 'natsoft', 'mobydick',$options);
 	break;
 
 case 'postgres':
 	$options['table'] = 'sessions2';
-	ADOdb_Session::config('postgres', 'localhost', 'tester', 'test', 'test',$options);
+	ADOdb_Session::config('postgres', 'localhost', 'postgres', 'natsoft', 'northwind',$options);
 	break;
 	
 case 'mysql':

@@ -1,6 +1,6 @@
 <?php
 /* 
-V5.13 15 Aug 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
+V5.14 8 Sept 2011  (c) 2000-2011 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license. 
   Whenever there is any discrepancy between the two licenses, 
   the BSD license will take precedence. 
@@ -156,6 +156,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		} else 
 			$savem = $this->SetFetchMode(ADODB_FETCH_NUM);
 		$arrServerInfo = sqlsrv_server_info($this->_connectionID);
+		$ADODB_FETCH_MODE = $savem;
 		$arr['description'] = $arrServerInfo['SQLServerName'].' connected to '.$arrServerInfo['CurrentDatabase'];
 		$arr['version'] = $arrServerInfo['SQLServerVersion'];//ADOConnection::_findvers($arr['description']);
 		return $arr;

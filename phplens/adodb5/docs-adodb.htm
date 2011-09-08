@@ -620,7 +620,7 @@ ul
 
 <h2>ADOdb Library for PHP</h2>
 
-<p>V5.13 15 Aug 2011 (c) 2000-2011 John Lim (jlim#natsoft.com)</p>
+<p>V5.14 8 Sept 2011 (c) 2000-2011 John Lim (jlim#natsoft.com)</p>
 
 <p><span style='font-size:7.5pt'>This software is dual licensed using BSD-Style
 and LGPL. This means you can use it in compiled proprietary and commercial
@@ -6140,6 +6140,11 @@ href="http://phplens.com/lens/php-book/optimizing-debugging-php.php">Optimizing
 PHP</a>. </p>
 
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
+<p><a name=5.14><b>5.14 8 Sep 2011</b>
+<p>mysqli: fix php compilation bug. 
+<p>postgres: bind variables did not work properly. Fixed.
+<p>postgres: blob handling bug in _decode. Fixed.
+<p>
 <p><a name=5.13></a><b>5.13 15 Aug 2011</b>
 <p>Postgres: Fix in 5.12 was wrong. Uses pg_unescape_bytea() correctly now in _decode.
 <p>GetInsertSQL/GetUpdateSQL: Now $ADODB_QUOTE_FIELDNAMES allows you to define 'NATIVE', 'UPPER', 'LOWER'. If set to true, will default to 'UPPER'.
