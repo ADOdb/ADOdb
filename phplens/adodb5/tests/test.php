@@ -637,6 +637,10 @@ END Adodb;
 	);
 	//$db->debug=1;
 	print "<p>Testing Bulk Insert of 3 rows</p>";
+	
+//	$db->debug=1;
+//	$db->Execute('select * from table where val=? AND value=?', array('val'=>'http ://www.whatever.com/test?=21', 'value'=>'blabl'));
+
 
 	$sql = "insert into ADOXYZ (id,firstname,lastname) values (".$db->Param('0').",".$db->Param('1').",".$db->Param('2').")";
 	$db->bulkBind = true;
