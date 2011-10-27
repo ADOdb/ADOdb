@@ -900,9 +900,10 @@ class ADODB_Active_Record {
 				}
 			}
 
-			if (isset($this->_original[$i]) && strcmp($val,$this->_original[$i]) == 0) {
-				continue;
-			}
+			if (isset($this->_original[$i]) && strcmp($val,$this->_original[$i]) == 0) continue;
+			
+			if (is_null($this->_original[$i]) && is_null($val)) continue;
+			
 			$valarr[] = $val;
 			$pairs[] = $this->_QName($name,$db).'='.$db->Param($cnt);
 			$cnt += 1;
