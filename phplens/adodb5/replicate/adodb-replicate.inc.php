@@ -19,6 +19,7 @@ Added support for MFFA
 First release
 
 
+	Note: this code assumes that comments such as  / *    * / ar`e allowed which works with:
 	Note: this code assumes that comments such as  / *    * / are allowed which works with:
 		 mssql, postgresql, oracle, mssql
 		 

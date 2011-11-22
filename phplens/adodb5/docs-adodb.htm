@@ -6140,14 +6140,17 @@ href="http://phplens.com/lens/php-book/optimizing-debugging-php.php">Optimizing
 PHP</a>. </p>
 
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
-<p><a name=5.14><b>5.14 8 Sep 2011</b>
+<p><a name=5.15><b>5.15 ?? 2011</b>
 <p>pdo: fix ErrorMsg() to detect errors correctly. Thx Jens.
 <p>mssqlnative: added another check for $this->fields array exists.
+<p>mssqlnative: bugs in FetchField() fixed. See http://phplens.com/lens/lensforum/msgs.php?id=19024
 <p><a name=5.14><b>5.14 8 Sep 2011</b>
 <p>mysqli: fix php compilation bug. 
 <p>postgres: bind variables did not work properly. Fixed.
 <p>postgres: blob handling bug in _decode. Fixed.
 <p>ActiveRecord: if a null field was never updated, activerecord would still update the record. Fixed.
+<p>ActiveRecord: 1 char length string never quoted. Fixed.
+<p>LDAP: Connection string ldap:// and ldaps:// did not work. Fixed.
 <p><a name=5.13></a><b>5.13 15 Aug 2011</b>
 <p>Postgres: Fix in 5.12 was wrong. Uses pg_unescape_bytea() correctly now in _decode.
 <p>GetInsertSQL/GetUpdateSQL: Now $ADODB_QUOTE_FIELDNAMES allows you to define 'NATIVE', 'UPPER', 'LOWER'. If set to true, will default to 'UPPER'.

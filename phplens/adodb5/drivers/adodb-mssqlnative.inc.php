@@ -699,7 +699,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	{
         if ($this->connection->debug) error_log("<hr>fetchfield: $fieldOffset, fetch array: <pre>".print_r($this->fields,true)."</pre> backtrace: ".adodb_backtrace(false));
 		if ($fieldOffset != -1) $this->fieldOffset = $fieldOffset;
-		$arrKeys = array_keys($this->fields);
+		/*$arrKeys = array_keys($this->fields);
 		if(array_key_exists($this->fieldOffset,$arrKeys) && !array_key_exists($arrKeys[$this->fieldOffset],$this->fields)) {
 			$f = false;
 		} else {
@@ -710,7 +710,13 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 
         if (empty($f)) {
             $f = false;//PHP Notice: Only variable references should be returned by reference
-        }
+        }*/
+		$fieldMeta = @sqlsrv_field_metadata($this->_queryID);
+		$f = new ADOFieldObject();
+		$f->name = $fieldMeta[$this->fieldOffset]['Name'];
+		$f->type = $fieldMeta[$this->fieldOffset]['Type'];
+		$f->max_length = $fieldMeta[$this->fieldOffset]['Size'];
+
 		return $f;
 	}
 	

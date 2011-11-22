@@ -101,6 +101,7 @@ $rep = new ADODB_Replicate($DB,$DB);
 $rep->execute = false;
 $rep->deleteFirst = false;
 
+				// src table name, dst table name, primary key, where condition
 $rep->ReplicateData('KBSTAGE', 'KBSTAGE', array(), " where (1=1)$STG_BA$STG_STG");
 $rep->ReplicateData('KBSTEP', 'KBSTEP', array(), " where (1=1)$STP_BA$STP_STG");
 $rep->ReplicateData('KBQTYPE','KBQTYPE',array()," where qu_mode in ('STAGE','STEP')$QTY_BA$QTY_STG");
