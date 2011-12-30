@@ -1596,7 +1596,8 @@
 	}
 	
 	/**
-	* Return one row of sql statement. Recordset is disposed for you.
+	* Return one row of sql statement. Recordset is disposed for you. 
+	* Note that SelectLimit should not be called.
 	*
 	* @param sql			SQL statement
 	* @param [inputarr]		input bind array

@@ -853,7 +853,7 @@ class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
 		$themth = $ADODB_mssql_mths[$themth];
 		if ($themth <= 0) return false;
 		// h-m-s-MM-DD-YY
-		return  mktime(0,0,0,$themth,$theday,$rr[3]);
+		return  adodb_mktime(0,0,0,$themth,$theday,$rr[3]);
 	}
 	
 	static function UnixTimeStamp($v)
@@ -894,7 +894,7 @@ class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
 			break;
 		}
 		// h-m-s-MM-DD-YY
-		return  mktime($rr[4],$rr[5],0,$themth,$theday,$rr[3]);
+		return  adodb_mktime($rr[4],$rr[5],0,$themth,$theday,$rr[3]);
 	}
 }
 

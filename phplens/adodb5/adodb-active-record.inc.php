@@ -87,6 +87,8 @@ class ADODB_Active_Record {
 
 	var $foreignName; // CFR: class name when in a relationship
 
+	var $lockMode = ' for update '; // you might want to change to 
+	
 	static function UseDefaultValues($bool=null)
 	{
 	global $ADODB_ACTIVE_DEFVALS;
@@ -677,7 +679,7 @@ class ADODB_Active_Record {
 	
 	//------------------------------------------------------------ Public functions below
 	
-	function Load($where=null,$bindarr=false)
+	function Load($where=null,$bindarr=false, $lock = false)
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -689,16 +691,23 @@ class ADODB_Active_Record {
 		if ($db->fetchMode !== false) $savem = $db->SetFetchMode(false);
 		
 		$qry = "select * from ".$this->_table;
-
+		
 		if($where) {
 			$qry .= ' WHERE '.$where;
 		}
+		if ($locked) $qry .= $this->lockMode;
+		
 		$row = $db->GetRow($qry,$bindarr);
 		
 		if (isset($savem)) $db->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 		
 		return $this->Set($row);
+	}
+	
+	function LoadLocked($where=null, $bindarr=false)
+	{
+		$this->Load($where,$bindarr,true);
 	}
 	
 	# useful for multiple record inserts
