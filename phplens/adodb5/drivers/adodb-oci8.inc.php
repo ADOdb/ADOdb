@@ -298,7 +298,11 @@ NATSOFT.DOMAIN =
 	function DBDate($d,$isfld=false)
 	{
 		if (empty($d) && $d !== 0) return 'null';
-		if ($isfld) return 'TO_DATE('.$d.",'".$this->dateformat."')";
+		
+		if ($isfld) {
+			$d = _adodb_safedate($d);
+			return 'TO_DATE('.$d.",'".$this->dateformat."')";
+		}
 		
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
 		

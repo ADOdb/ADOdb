@@ -146,11 +146,12 @@ FROM `nuke_stories` `t1`, `nuke_authors` `t2`, `nuke_stories_cat` `t3`, `nuke_to
 	echo "Date=",$db->UserDate('2002-04-07'),'<br>';
 	print "<i>date1</i> (1969-02-20) = ".$db->DBDate('1969-2-20');
 	print "<br><i>date1</i> (1999-02-20) = ".$db->DBDate('1999-2-20');
-	print "<br><i>date1.1</i> 1999 = ".$db->DBDate("'1999'");
+	print "<br><i>date1.1</i> 1999 injection attack= ".$db->DBDate("'1999', ' injection attack '");
 	print "<br><i>date2</i> (1970-1-2) = ".$db->DBDate(24*3600)."<p>";
 	print "<i>ts1</i> (1999-02-20 13:40:50) = ".$db->DBTimeStamp('1999-2-20 1:40:50 pm');
 	print "<br><i>ts1.1</i> (1999-02-20 13:40:00) = ".$db->DBTimeStamp('1999-2-20 13:40');
 	print "<br><i>ts2</i> (1999-02-20) = ".$db->DBTimeStamp('1999-2-20');
+	print "<br><i>ts2</i> (1999-02-20) = ".$db->DBTimeStamp("'1999-2-20', 'injection attack'");
 	print "<br><i>ts3</i> (1970-1-2 +/- timezone) = ".$db->DBTimeStamp(24*3600);
 	print "<br> Fractional TS (1999-2-20 13:40:50.91): ".$db->DBTimeStamp($db->UnixTimeStamp('1999-2-20 13:40:50.91+1'));
 	 $dd = $db->UnixDate('1999-02-20');
