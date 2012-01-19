@@ -31,7 +31,7 @@ class ADODB_mysqli extends ADOConnection {
 	var $dataProvider = 'native';
 	var $hasInsertID = true;
 	var $hasAffectedRows = true;	
-	var $metaTablesSQL = "SHOW TABLES";	
+	var $metaTablesSQL = "SELECT TABLE_NAME, CASE WHEN TABLE_TYPE = 'VIEW' THEN 'V' ELSE 'T' END FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=SCHEMA()";	
 	var $metaColumnsSQL = "SHOW COLUMNS FROM `%s`";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $hasLimit = true;
