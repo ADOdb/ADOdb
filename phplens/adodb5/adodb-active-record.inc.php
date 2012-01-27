@@ -1,3 +1,4 @@
+
 <?php
 /*
 
@@ -695,7 +696,7 @@ class ADODB_Active_Record {
 		if($where) {
 			$qry .= ' WHERE '.$where;
 		}
-		if ($locked) $qry .= $this->lockMode;
+		if ($lock) $qry .= $this->lockMode;
 		
 		$row = $db->GetRow($qry,$bindarr);
 		

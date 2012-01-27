@@ -146,6 +146,51 @@ class ADODB_informix72 extends ADOConnection {
 		return 0;
 	}
 
+	
+	function MetaProcedures($NamePattern = false, $catalog  = null, $schemaPattern  = null)
+    {
+        // save old fetch mode
+        global $ADODB_FETCH_MODE;
+
+        $false = false;
+        $save = $ADODB_FETCH_MODE;
+        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+        if ($this->fetchMode !== FALSE) {
+               $savem = $this->SetFetchMode(FALSE);
+
+        }
+        $procedures = array ();
+
+        // get index details
+
+        $likepattern = '';
+        if ($NamePattern) {
+           $likepattern = " WHERE procname LIKE '".$NamePattern."'";
+        }
+
+        $rs = $this->Execute('SELECT procname, isproc FROM sysprocedures'.$likepattern);
+
+        if (is_object($rs)) {
+            // parse index data into array
+
+            while ($row = $rs->FetchRow()) {
+                $procedures[$row[0]] = array(
+                        'type' => ($row[1] == 'f' ? 'FUNCTION' : 'PROCEDURE'),
+                        'catalog' => '',
+                        'schema' => '',
+                        'remarks' => ''
+                    );
+            }
+	    }
+
+        // restore fetchmode
+        if (isset($savem)) {
+                $this->SetFetchMode($savem);
+        }
+        $ADODB_FETCH_MODE = $save;
+
+        return $procedures;
+    }
    
     function MetaColumns($table, $normalize=true)
 	{

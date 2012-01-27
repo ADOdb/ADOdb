@@ -2280,6 +2280,29 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			return false;
 		}
 	
+	  /**
+      * List procedures or functions in an array.
+      * @param procedureNamePattern  a procedure name pattern; must match the procedure name as it is stored in the database
+      * @param catalog a catalog name; must match the catalog name as it is stored in the database;
+      * @param schemaPattern a schema name pattern;
+      *
+      * @return array of procedures on current database.
+	  
+		 Array (
+		    [name_of_procedure] => Array
+		      (
+		      [type] => PROCEDURE or FUNCTION
+		      [catalog] => Catalog_name
+		      [schema] => Schema_name
+		      [remarks] => explanatory comment on the procedure 
+		      )
+                 )		
+      */
+     function MetaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null)
+     {
+            return false;
+     }
+
 		
 	/**
 	 * @param ttype can either be 'VIEW' or 'TABLE' or false. 
