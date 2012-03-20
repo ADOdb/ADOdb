@@ -227,7 +227,7 @@
 	function _adodb_safedateq($s)
 	{
 		$len = strlen($s);
-		if ($s[0] !== "'") $s2 = "'";
+		if ($s[0] !== "'") $s2 = "'".$s[0];
 		else $s2 = "'";
 		for($i=1; $i<$len; $i++) {
 			$ch = $s[$i];
@@ -242,7 +242,7 @@
 			$s2 .= $ch;
 		}
 		
-		return $s2;
+		return strlen($s2) == 0 ? 'null' : $s2;
 	}
 
 	

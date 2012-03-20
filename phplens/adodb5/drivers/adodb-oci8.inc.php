@@ -1015,7 +1015,7 @@ NATSOFT.DOMAIN =
 		return $rez;
 	}
 	
-	function Param($name,$type=false)
+	function Param($name,$type='C')
 	{
 		return ':'.$name;
 	}

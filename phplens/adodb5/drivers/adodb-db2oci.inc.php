@@ -163,7 +163,7 @@ class ADODB_db2oci extends ADODB_db2 {
 		parent::ADODB_db2();
 	}
 	
-	function Param($name,$type=false)
+	function Param($name,$type='C')
 	{
 		return ':'.$name;
 	}

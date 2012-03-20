@@ -34,7 +34,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 		# oci8po does not support adodb extension: adodb_movenext()
 	}
 	
-	function Param($name)
+	function Param($name,$type='C')
 	{
 		return '?';
 	}
