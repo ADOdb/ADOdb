@@ -849,19 +849,27 @@ END Adodb;
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 	
 	print "<p>CacheSelectLimit  Test...</p>";
-	$db->debug=1;
 	$rs = $db->CacheSelectLimit('select  id, firstname from  ADOXYZ order by id',2);
+	
+	if (ADODB_ASSOC_CASE == 2 || $db->dataProvider == 'oci8') {
+		$id = 'ID';
+		$fname = 'FIRSTNAME';
+	}else {
+		$id = 'id';
+		$fname = 'firstname';
+	}
+	
 	
 	if ($rs && !$rs->EOF) {
 		if (isset($rs->fields[0])) {
 			Err("ASSOC has numeric fields");
 			print_r($rs->fields);
 		}
-		if ($rs->fields['id'] != 1)  {Err("Error"); print_r($rs->fields);};
-		if (trim($rs->fields['firstname']) != 'Caroline')  {print Err("Error 2"); print_r($rs->fields);};
+		if ($rs->fields[$id] != 1)  {Err("Error"); print_r($rs->fields);};
+		if (trim($rs->fields[$fname]) != 'Caroline')  {print Err("Error 2"); print_r($rs->fields);};
 		
 		$rs->MoveNext();
-		if ($rs->fields['id'] != 2)  {Err("Error 3"); print_r($rs->fields);};
+		if ($rs->fields[$id] != 2)  {Err("Error 3"); print_r($rs->fields);};
 		$rs->MoveNext();
 		if (!$rs->EOF) {
 			Err("Error EOF");
@@ -869,16 +877,10 @@ END Adodb;
 		}
 	}
 	
-	print "<p>FETCH_MODE = ASSOC: Should get 1, Caroline</p>";
+	print "<p>FETCH_MODE = ASSOC: Should get 1, Caroline ASSOC_CASE=".ADODB_ASSOC_CASE."</p>";
 	$rs = $db->SelectLimit('select id,firstname from ADOXYZ order by id',2);
 	if ($rs && !$rs->EOF) {
-		if (ADODB_ASSOC_CASE == 2) {
-			$id = 'ID';
-			$fname = 'FIRSTNAME';
-		}else {
-			$id = 'id';
-			$fname = 'firstname';
-		}
+
 		if ($rs->fields[$id] != 1)  {Err("Error 1"); print_r($rs->fields);};
 		if (trim($rs->fields[$fname]) != 'Caroline')  {Err("Error 2"); print_r($rs->fields);};
 		$rs->MoveNext();
@@ -895,7 +897,7 @@ END Adodb;
 	print "<p>FETCH_MODE = NUM: Should get 1, Caroline</p>";
 	$rs = $db->SelectLimit('select id,firstname from ADOXYZ order by id',1);
 	if ($rs && !$rs->EOF) {
-		if (isset($rs->fields['id'])) Err("FETCH_NUM has ASSOC fields");
+		if (isset($rs->fields[$id])) Err("FETCH_NUM has ASSOC fields");
 		if ($rs->fields[0] != 1)  {Err("Error 1"); print_r($rs->fields);};
 		if (trim($rs->fields[1]) != 'Caroline')  {Err("Error 2");print_r($rs->fields);};
 		$rs->MoveNext();
@@ -909,8 +911,8 @@ END Adodb;
 	$rs = $db->SelectLimit('select id,firstname from ADOXYZ order by id',1);
 	if ($rs && !$rs->EOF) {
 		$arr = $rs->GetRowAssoc();
-		if ($arr['ID'] != 1) {Err("Error 1");print_r($arr);};
-		if (trim($arr['FIRSTNAME']) != 'Caroline') {Err("Error 2"); print_r($arr);};
+		if ($arr[$id] != 1) {Err("Error 1");print_r($arr);};
+		if (trim($arr[$fname]) != 'Caroline') {Err("Error 2"); print_r($arr);};
 		$rs->MoveNext();
 		if (!$rs->EOF) Err("Error EOF");
 
