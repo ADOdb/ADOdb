@@ -3509,6 +3509,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 		
 		foreach($this->bind as $k => $v) {
+			if (isset($this->fields[$k]) && !is_numeric($k)) return $this->fields; // is already assoc record
 			$record[$k] = $this->fields[$v];
 		}
 
