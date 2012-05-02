@@ -36,6 +36,7 @@ class ADODB_mysql extends ADOConnection {
 	var $forceNewConnect = false;
 	var $poorAffectedRows = true;
 	var $clientFlags = 0;
+	var $charSet = '';
 	var $substr = "substring";
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
 	var $compat323 = false; 		// true if compat with mysql 3.23
@@ -44,7 +45,25 @@ class ADODB_mysql extends ADOConnection {
 	{			
 		if (defined('ADODB_EXTENSION')) $this->rsPrefix .= 'ext_';
 	}
-	
+
+
+  // SetCharSet - switch the client encoding
+  function SetCharSet($charset_name)
+  {
+    if (!function_exists('mysql_set_charset'))
+    	return false;
+
+    if ($this->charSet !== $charset_name) {
+      $ok = @mysql_set_charset($charset_name,$this->_connectionID);
+      if ($ok) {
+		$this->charSet = $charset_name;
+        return true;
+      }
+	  return false;
+    }
+	return true;
+  }
+  
 	function ServerInfo()
 	{
 		$arr['description'] = ADOConnection::GetOne("select version()");

@@ -52,9 +52,13 @@ class ADODB_odbc extends ADOConnection {
 		
 		if (!function_exists('odbc_connect')) return null;
 		
-		if ($this->debug && $argDatabasename && $this->databaseType != 'vfp') {
-			ADOConnection::outp("For odbc Connect(), $argDatabasename is not used. Place dsn in 1st parameter.");
+		if (!empty($argDatabasename) && stristr($argDSN, 'Database=') === false) {
+			$argDSN = trim($argDSN);
+			$endDSN = substr($argDSN, strlen($argDSN) - 1);
+			if ($endDSN != ';') $argDSN .= ';';
+			$argDSN .= 'Database='.$argDatabasename;
 		}
+		
 		if (isset($php_errormsg)) $php_errormsg = '';
 		if ($this->curmode === false) $this->_connectionID = odbc_connect($argDSN,$argUsername,$argPassword);
 		else $this->_connectionID = odbc_connect($argDSN,$argUsername,$argPassword,$this->curmode);
