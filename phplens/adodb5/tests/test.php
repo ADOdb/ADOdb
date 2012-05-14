@@ -911,8 +911,9 @@ END Adodb;
 	$rs = $db->SelectLimit('select id,firstname from ADOXYZ order by id',1);
 	if ($rs && !$rs->EOF) {
 		$arr = $rs->GetRowAssoc();
-		if ($arr[$id] != 1) {Err("Error 1");print_r($arr);};
-		if (trim($arr[$fname]) != 'Caroline') {Err("Error 2"); print_r($arr);};
+		
+		if ($arr[strtoupper($id)] != 1) {Err("Error 1");print_r($arr);};
+		if (trim($arr[strtoupper($fname)]) != 'Caroline') {Err("Error 2"); print_r($arr);};
 		$rs->MoveNext();
 		if (!$rs->EOF) Err("Error EOF");
 

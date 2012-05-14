@@ -6149,10 +6149,11 @@ PHP</a>. </p>
 
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
 <p><a name=5.17><b>5.17</b>
-<p>Removed whitespace from adodb-active-record.inc.php.
+<p>Removed trailing whitespace from adodb-active-record.inc.php.
 <p>odbc: Added support for $database parameter in odbc Connect() function. E.g. $DB->Connect($dsn_without_db, $user, $pwd, $database). Last time
 $database had to be left blank and the $dsn was used to pass in this parameter.
-<p>oci8: Added better error handling to metaindexes().
+<p>oci8: Added better empty($rs) error handling to metaindexes().
+<p>adodb.inc.php: Changed GetRowAssoc to more generic code that will work in all scenarios.
 <p><a name=5.16><b>5.16 26 March 2012</b>
 <p>mysqli: extra mysqli_next_result() in close() removed. See http://phplens.com/lens/lensforum/msgs.php?id=19100
 <p>datadict-oci8: minor typo in create sequence trigger fixed. See http://phplens.com/lens/lensforum/msgs.php?id=18879.

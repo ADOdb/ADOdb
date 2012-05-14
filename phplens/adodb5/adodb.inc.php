@@ -3499,23 +3499,21 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
    *
    * $upper  0 = lowercase, 1 = uppercase, 2 = whatever is returned by FetchField
    */
-	function GetRowAssoc($upper=1)
+	function GetRowAssoc($upper=1) 
 	{
 		$record = array();
-	 //	if (!$this->fields) return $record;
-		
-	   	if (!$this->bind) {
+		if (!$this->bind) {
 			$this->GetAssocKeys($upper);
 		}
-		
 		foreach($this->bind as $k => $v) {
-			if (isset($this->fields[$k]) && !is_numeric($k)) return $this->fields; // is already assoc record
-			$record[$k] = $this->fields[$v];
+			if( isset( $this->fields[$v] ) ) {
+				$record[$k] = $this->fields[$v];
+			} else if (isset($this->fields[$k])) {
+				$record[$k] = $this->fields[$k];
+			}
 		}
-
 		return $record;
 	}
-	
 	
 	/**
 	 * Clean up recordset
