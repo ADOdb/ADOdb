@@ -386,6 +386,13 @@ NATSOFT.DOMAIN =
 
 		$false = false;
 		$rs = $this->Execute(sprintf("SELECT * FROM ALL_CONSTRAINTS WHERE UPPER(TABLE_NAME)='%s' AND CONSTRAINT_TYPE='P'",$table));
+		if (!is_object($rs)) {
+			if (isset($savem)) 
+				$this->SetFetchMode($savem);
+			$ADODB_FETCH_MODE = $save;
+            return $false;
+        }
+		
 		if ($row = $rs->FetchRow())
 		   $primary_key = $row[1]; //constraint_name
 
