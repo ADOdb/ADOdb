@@ -1182,12 +1182,12 @@ END Adodb;
 	$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 	$rs = $db->CacheExecute(6,"select distinct firstname,lastname from ADOXYZ");
 	print_r($rs->fields); echo $rs->fetchMode;echo "<br>";
-	echo $rs->Fields('firstname');
+	echo $rs->Fields($fname);
 	
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 	$rs = $db->CacheExecute(6,"select distinct firstname,lastname from ADOXYZ");
 	print_r($rs->fields);echo "<br>";
-	echo $rs->Fields('firstname');
+	echo $rs->Fields($fname);
 	$db->debug = false;
 	
 	$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
