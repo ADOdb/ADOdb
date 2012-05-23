@@ -315,10 +315,12 @@
 		// create temp directories
 		function createdir($hash, $debug)
 		{
+		global $ADODB_CACHE_PERMS;
+		
 			$dir = $this->getdirname($hash);
 			if ($this->notSafeMode && !file_exists($dir)) {
 				$oldu = umask(0);
-				if (!@mkdir($dir,0771)) if(!is_dir($dir) && $debug) ADOConnection::outp("Cannot create $dir");
+				if (!@mkdir($dir, empty($ADODB_CACHE_PERMS) ? 0771 : $ADODB_CACHE_PERMS)) if(!is_dir($dir) && $debug) ADOConnection::outp("Cannot create $dir");
 				umask($oldu);
 			}
 		
