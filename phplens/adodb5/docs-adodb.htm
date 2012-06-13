@@ -6152,6 +6152,8 @@ PHP</a>. </p>
 <p>adodb: Caching directory permissions now configurable using global variable
 $ADODB_CACHE_PERMS. Default value is 0771.
 <p>mysqli: changed dataProvider to 'mysql' so that MetaError and other shared functions will work.
+<p>mssqlnative: Prepare() did not work previously. Now calling Prepare() will work but the sql is not actually compiled. Unfortunately bind params are passed to sqlsrv_prepare  and not to sqlsrv_execute.
+make Prepare() and empty function, and we still execute the unprepared stmt.
 <p><a name=5.17><b>5.17 18 May 2012</b>
 <p>Active Record: Removed trailing whitespace from adodb-active-record.inc.php.
 <p>odbc: Added support for $database parameter in odbc Connect() function. E.g. $DB->Connect($dsn_without_db, $user, $pwd, $database). 
