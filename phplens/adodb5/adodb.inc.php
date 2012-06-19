@@ -1,4 +1,4 @@
-<?php 
+	<?php 
 /*
  * Set tabs to 4 for best viewing.
  * 
@@ -3160,7 +3160,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$false = false;
 			return $false;
 		}
-		$numIndex = isset($this->fields[0]);
+		$numIndex = isset($this->fields[0]) && isset($this->fields[1]);
 		$results = array();
 		
 		if (!$first2cols && ($cols > 2 || $force_array)) {

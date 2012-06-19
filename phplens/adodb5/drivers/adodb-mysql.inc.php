@@ -53,7 +53,7 @@ class ADODB_mysql extends ADOConnection {
     if (!function_exists('mysql_set_charset'))
     	return false;
 
-    if ($this->charSet !== $charset_name) {
+	if ($this->charSet !== $charset_name) {
       $ok = @mysql_set_charset($charset_name,$this->_connectionID);
       if ($ok) {
 		$this->charSet = $charset_name;
@@ -608,6 +608,8 @@ class ADODB_mysql extends ADOConnection {
 	function _close()
 	{
 		@mysql_close($this->_connectionID);
+		
+		$this->charSet = '';
 		$this->_connectionID = false;
 	}
 

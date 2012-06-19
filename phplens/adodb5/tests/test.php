@@ -1102,6 +1102,15 @@ END Adodb;
 		if (sizeof($arr) != 2) Err("Prepare failed 3");
 	}
 	print "Testing GetAssoc() ";
+	
+	
+	if ($db->dataProvider == 'mysql') {
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		$arr = $db->GetAssoc("SELECT 'adodb', '0'");
+		var_dump($arr);
+		die();
+	}
+	
 	$savecrecs = $ADODB_COUNTRECS;
 	$ADODB_COUNTRECS = false;
 	//$arr = $db->GetArray("select  lastname,firstname from ADOXYZ");

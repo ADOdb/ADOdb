@@ -2432,6 +2432,27 @@ NewADOConnection($name) to create a connection object for that database. </p>
   <p class=MsoNormal><span style='font-size:10.0pt'>Unix and Windows. </span></p>
   </td>
  </tr>
+  <tr style='mso-yfti-irow:35'>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt'>
+  <p class=MsoNormal><b><span style='font-size:10.0pt'>postgres9</span></b></p>
+  </td>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt'>
+  <p class=MsoNormal><span style='font-size:10.0pt'>A</span></p>
+  </td>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt'>
+  <p class=MsoNormal><span style='font-size:10.0pt'>PostgreSQL which supports
+  version 9 functionality.</span></p>
+  </td>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt'>
+  <p class=MsoNormal><span style='font-size:10.0pt'>Y</span></p>
+  </td>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt'>
+  <p class=MsoNormal><span style='font-size:10.0pt'>PostgreSQL client</span></p>
+  </td>
+  <td valign=top style='padding:.75pt .75pt .75pt .75pt'>
+  <p class=MsoNormal><span style='font-size:10.0pt'>Unix and Windows. </span></p>
+  </td>
+ </tr>
  <tr style='mso-yfti-irow:36'>
   <td valign=top style='padding:.75pt .75pt .75pt .75pt'>
   <p class=MsoNormal><b><span style='font-size:10.0pt'>sapdb</span></b></p>
@@ -6149,6 +6170,9 @@ PHP</a>. </p>
 
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
 <p><a name=5.18><b>5.18</b>
+<p>postgres9:  New driver to better support PostgreSQL 9. Thx Glenn Herteg and Cacti team.
+<p>sqlite3: Modified to support php 5.4. Thx Günter Weber [built.development#googlemail.com]
+<p>adodb: When fetch mode is ADODB_FETCH_ASSOC, and we execute $db->GetAssoc("select 'a','0'"); we get an error. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=19190
 <p>adodb: Caching directory permissions now configurable using global variable
 $ADODB_CACHE_PERMS. Default value is 0771.
 <p>mysqli: changed dataProvider to 'mysql' so that MetaError and other shared functions will work.
