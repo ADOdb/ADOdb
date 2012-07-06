@@ -30,8 +30,8 @@ class ADODB2_postgres extends ADODB_DataDict {
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		$is_serial = is_object($fieldobj) && $fieldobj->primary_key && $fieldobj->unique && 
-			$fieldobj->has_default && substr($fieldobj->default_value,0,8) == 'nextval(';
+		$is_serial = is_object($fieldobj) && !empty($fieldobj->primary_key) && !empty($fieldobj->unique) && 
+			!empty($fieldobj->has_default) && substr($fieldobj->default_value,0,8) == 'nextval(';
 		
 		switch (strtoupper($t)) {
 			case 'INTERVAL':
@@ -196,7 +196,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 	         // this next block doesn't work - there is no way that I can see to 
 	         // explicitly ask a column to be null using $flds
 	         else if ($set_null = preg_match('/NULL/i',$v)) {
-	            // if they didn't specify not null, see if they explicitely asked for null
+	            // if they didn't specify not nulJol, see if they explicitely asked for null
 	            $v = preg_replace('/\sNULL/i','',$v);
 	         }
 	         
@@ -213,7 +213,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 	            $sql[] = $alter . $colname . ' TYPE ' . $rest;
 	         }
 	
-	         list($colname) = explode(' ',$v);
+#	         list($colname) = explode(' ',$v);
 	         if ($not_null) {
 	            // this does not error out if the column is already not null
 	            $sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET NOT NULL';

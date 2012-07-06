@@ -192,7 +192,7 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 		'Recent RMAN Jobs' => array('BACKUP', "select '-' from dual", "=RMAN"),
 		
 		//		'Control File Keep Time' => array('BACKUP', "select value from v\$parameter where name='control_file_record_keep_time'",'No of days to keep RMAN info in control file. I recommend it be set to x2 or x3 times the frequency of your full backup.'),
-
+      'Storage', 'Tablespaces' => array('TABLESPACE', "select '-' from dual", "=TableSpace"),
 		false
 		
 	);
@@ -268,6 +268,22 @@ order by 3 desc) where rownum <=10");
 		$ret = rs2html($rs,false,false,false,false);		
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
 		
+	}
+	
+	function TableSpace()
+	{
+
+		$rs = $this->conn->Execute(
+	"select tablespace_name,round(sum(bytes)/1024/1024) as Used_MB,round(sum(maxbytes)/1024/1024) as Max_MB, round(sum(bytes)/sum(maxbytes),4) * 100 as PCT 
+	from dba_data_files
+   group by tablespace_name order by 2 desc");
+		
+		$ret = "<p><b>Tablespace</b>".rs2html($rs,false,false,false,false);
+
+		$rs = $this->conn->Execute("select * from dba_data_files order by tablespace_name, 1");
+		$ret .= "<p><b>Datafile</b>".rs2html($rs,false,false,false,false);
+		
+		return "&nbsp;<p>".$ret."&nbsp;</p>";
 	}
 	
 	function RMAN()
