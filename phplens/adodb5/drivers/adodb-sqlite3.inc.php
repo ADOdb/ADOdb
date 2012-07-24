@@ -169,10 +169,8 @@ class ADODB_sqlite3 extends ADOConnection {
 	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename) //**tochange: all the function need to be changed, just hacks for the moment
 	{
-
-		//$this->_connectionID = new SQLite3('/path/mydb'); // hack
-		if (empty($argHostname) && $argDatabasename) $argHostname = $argDatabasename; // hack
-		$this->_connectionID = new SQLite3($argDatabasename); // hack
+		if (empty($argHostname) && $argDatabasename) $argHostname = $argDatabasename; 
+		$this->_connectionID = new SQLite3($argDatabasename); 
 		$this->_createFunctions();
 		
 		return true; // hack
