@@ -2850,6 +2850,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		function FieldCount(){ return 0;}
 		function Init() {}
 		function getIterator() {return new ADODB_Iterator_empty($this);}
+		function GetAssoc() {return array();}
 	}
 	
 	//==============================================================================================	
