@@ -1385,7 +1385,8 @@ class ADORecordset_oci8 extends ADORecordSet {
 			
 			$this->_currentRow = 0;
 			@$this->_initrs();
-			$this->EOF = !$this->_fetch();
+			if ($this->_numOfFields) $this->EOF = !$this->_fetch();
+			else $this->EOF = true;
 			
 			/*
 			// based on idea by Gaetano Giunta to detect unusual oracle errors
