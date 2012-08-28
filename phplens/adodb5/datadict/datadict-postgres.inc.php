@@ -130,13 +130,14 @@ class ADODB2_postgres extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
+		$not_null = false;
 		list($lines,$pkey) = $this->_GenFields($flds);
 		$alter = 'ALTER TABLE ' . $tabname . $this->addCol . ' ';
 		foreach($lines as $v) {
 			if (($not_null = preg_match('/NOT NULL/i',$v))) {
 				$v = preg_replace('/NOT NULL/i','',$v);
 			}
-			if (preg_match('/^([^ ]+) .*DEFAULT ([^ ]+)/',$v,$matches)) {
+			if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
 				list(,$colname,$default) = $matches;
 				$sql[] = $alter . str_replace('DEFAULT '.$default,'',$v);
 				$sql[] = 'UPDATE '.$tabname.' SET '.$colname.'='.$default;
@@ -187,24 +188,36 @@ class ADODB2_postgres extends ADODB_DataDict {
 	   if ($has_alter_column) {
 	      $tabname = $this->TableName($tabname);
 	      $sql = array();
+		  $not_null = false;
 	      list($lines,$pkey) = $this->_GenFields($flds);
 	      $alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 	      foreach($lines as $v) {
-	         if ($not_null = preg_match('/NOT NULL/i',$v)) {
+	        if ($not_null = preg_match('/NOT NULL/i',$v)) {
 	            $v = preg_replace('/NOT NULL/i','',$v);
-	         }
+	        }
 	         // this next block doesn't work - there is no way that I can see to 
 	         // explicitly ask a column to be null using $flds
-	         else if ($set_null = preg_match('/NULL/i',$v)) {
+	        else if ($set_null = preg_match('/NULL/i',$v)) {
 	            // if they didn't specify not nulJol, see if they explicitely asked for null
 	            $v = preg_replace('/\sNULL/i','',$v);
-	         }
+	        }
 	         
-	         if (preg_match('/^([^ ]+) .*DEFAULT ([^ ]+)/',$v,$matches)) {
-	            list(,$colname,$default) = $matches;
-	            $v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
-	            $sql[] = $alter . $colname . ' TYPE ' . str_replace('DEFAULT '.$default,'',$v);
-	            $sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET DEFAULT ' . $default;
+			if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
+				$existing = $this->MetaColumns($tabname);
+				list(,$colname,$default) = $matches;
+				$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
+				$t = trim(str_replace('DEFAULT '.$default,'',$v));
+				// Type change from bool to int
+				if ( $existing[strtoupper($colname)]->type == 'bool' && $t == 'INTEGER' ) {
+				   $sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' DROP DEFAULT';
+				   $sql[] = $alter . $colname . ' TYPE ' . $t . ' USING (' . $colname . '::BOOL)::INT ';
+				   $sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET DEFAULT ' . $default;
+				} else {
+				   $sql[] = $alter . $colname . ' TYPE ' . $t;
+				   $sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET DEFAULT ' . $default;
+				}
+			 
+			 
 	         } 
 	         else {
 	            // drop default?

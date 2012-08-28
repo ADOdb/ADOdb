@@ -251,7 +251,7 @@ class perf_mysql extends adodb_perf{
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->conn->fetchMode !== false) $savem = $this->conn->SetFetchMode(false);
 		
-		$rs = $this->conn->Execute('show innodb status');
+		$rs = $this->conn->Execute('show engine innodb status');
 		
 		if (isset($savem)) $this->conn->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;

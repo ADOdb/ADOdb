@@ -240,7 +240,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 		if (is_bool($s)) return $s ? 'true' : 'false';
 		 
 		if (!$magic_quotes) {
-			if (ADODB_PHPVER >= 0x5200) {
+			if (ADODB_PHPVER >= 0x5200 && $this->_connectionID) {
 				return  "'".pg_escape_string($this->_connectionID,$s)."'";
 			} 
 			if (ADODB_PHPVER >= 0x4200) {
