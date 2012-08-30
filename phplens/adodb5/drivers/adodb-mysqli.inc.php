@@ -843,7 +843,7 @@ class ADODB_mysqli extends ADOConnection {
 
     if ($this->charSet !== $charset_name) {
       $if = @$this->_connectionID->set_charset($charset_name);
-      if ($if == "0" & $this->GetCharSet() == $charset_name) {
+      if ($if === true & $this->GetCharSet() == $charset_name) {
         return true;
       } else return false;
     } else return true;

@@ -6177,6 +6177,7 @@ PHP</a>. </p>
 <p>adodb: When fetch mode is ADODB_FETCH_ASSOC, and we execute $db->GetAssoc("select 'a','0'"); we get an error. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=19190
 <p>adodb: Caching directory permissions now configurable using global variable
 $ADODB_CACHE_PERMS. Default value is 0771.
+<p>mysqli: SetCharSet() did not return true (success) or false (fail) correctly. Fixed.
 <p>mysqli: changed dataProvider to 'mysql' so that MetaError and other shared functions will work.
 <p>mssqlnative: Prepare() did not work previously. Now calling Prepare() will work but the sql is not actually compiled. Unfortunately bind params are passed to sqlsrv_prepare  and not to sqlsrv_execute.
 make Prepare() and empty function, and we still execute the unprepared stmt.
