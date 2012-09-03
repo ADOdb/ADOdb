@@ -198,7 +198,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 	         // this next block doesn't work - there is no way that I can see to 
 	         // explicitly ask a column to be null using $flds
 	        else if ($set_null = preg_match('/NULL/i',$v)) {
-	            // if they didn't specify not nulJol, see if they explicitely asked for null
+	            // if they didn't specify not null, see if they explicitely asked for null
 	            $v = preg_replace('/\sNULL/i','',$v);
 	        }
 	         
@@ -240,11 +240,11 @@ class ADODB2_postgres extends ADODB_DataDict {
 #	         list($colname) = explode(' ',$v);
 	         if ($not_null) {
 	            // this does not error out if the column is already not null
-	            $sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET NOT NULL';
+				$sql[] = $alter . $colname . ' SET NOT NULL';
 	         }
 	         if ($set_null) {
 	            // this does not error out if the column is already null
-	            $sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' DROP NOT NULL';
+	            $sql[] = $alter . $colname . ' DROP NOT NULL';
 	         }
 	      }
 	      return $sql;
