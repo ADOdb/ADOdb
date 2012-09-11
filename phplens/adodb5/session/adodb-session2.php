@@ -525,7 +525,7 @@ class ADODB_Session {
 		ADODB_Session::password($password);
 		ADODB_Session::database($database);
 		
-		if ($driver == 'oci8' || $driver == 'oci8po') $options['lob'] = 'CLOB';
+		if (strncmp($driver, 'oci8', 4) == 0) $options['lob'] = 'CLOB';
 		
 		if (isset($options['table'])) ADODB_Session::table($options['table']);
 		if (isset($options['lob'])) ADODB_Session::clob($options['lob']);
@@ -742,20 +742,8 @@ class ADODB_Session {
 			
 		} else {
 			// what value shall we insert/update for lob row?
-			switch ($driver) {
-				// empty_clob or empty_lob for oracle dbs
-				case 'oracle':
-				case 'oci8':
-				case 'oci8po':
-				case 'oci805':
-					$lob_value = sprintf('empty_%s()', strtolower($clob));
-					break;
-
-				// null for all other
-				default:
-					$lob_value = 'null';
-					break;
-			}
+			if (strncmp($driver, 'oci8', 4) == 0) $lob_value = sprintf('empty_%s()', strtolower($clob));
+			else $lob_value = 'null';
 			
 			$conn->StartTrans();
 			
