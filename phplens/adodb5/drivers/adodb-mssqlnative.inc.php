@@ -702,28 +702,72 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
 		fetchField() is retrieved.	*/
 
-	function FetchField($fieldOffset = -1) 
+	function &FetchField($fieldOffset = -1) 
 	{
-        if ($this->connection->debug) error_log("<hr>fetchfield: $fieldOffset, fetch array: <pre>".print_r($this->fields,true)."</pre> backtrace: ".adodb_backtrace(false));
-		if ($fieldOffset != -1) $this->fieldOffset = $fieldOffset;
-		/*$arrKeys = array_keys($this->fields);
-		if(array_key_exists($this->fieldOffset,$arrKeys) && !array_key_exists($arrKeys[$this->fieldOffset],$this->fields)) {
-			$f = false;
-		} else {
-			$f = new ADOFetchObj();
-			$f->name = $arrKeys[$this->fieldOffset];
-			if($fieldOffset == -1) $this->fieldOffset++;
+		$_typeConversion = array(
+			-155 => 'datetimeoffset',
+			-154 => 'time',
+			-152 => 'xml',
+			-151 => 'udt',
+			-11 => 'uniqueidentifier',
+			-10 => 'ntext',
+			-9 => 'nvarchar',
+			-8 => 'nchar',
+			-7 => 'bit',
+			-6 => 'tinyint',
+			-5 => 'bigint',
+			-4 => 'image',
+			-3 => 'varbinary',
+			-2 => 'timestamp',
+			-1 => 'text',
+			1 => 'char',
+			2 => 'numeric',
+			3 => 'decimal',
+			4 => 'int',
+			5 => 'smallint',
+			6 => 'float',
+			7 => 'real',
+			12 => 'varchar',
+			91 => 'date',
+			93 => 'datetime'
+			);
+		
+		$fa = @sqlsrv_field_metadata($this->_queryID);
+		if ($fieldOffset != -1) {
+			$fa = $fa[$fieldOffset];
 		}
-
-        if (empty($f)) {
-            $f = false;//PHP Notice: Only variable references should be returned by reference
-        }*/
-		$fieldMeta = @sqlsrv_field_metadata($this->_queryID);
-		$f = new ADOFieldObject();
-		$f->name = $fieldMeta[$this->fieldOffset]['Name'];
-		$f->type = $fieldMeta[$this->fieldOffset]['Type'];
-		$f->max_length = $fieldMeta[$this->fieldOffset]['Size'];
-
+		$false = false;
+		if (empty($fa)) {
+			$f = false;//PHP Notice: Only variable references should be returned by reference
+		}
+		else
+		{
+			// Convert to an object
+			$fa = array_change_key_case($fa, CASE_LOWER);
+			$fb = array();
+			if ($fieldOffset != -1)
+			{
+				$fb = array(
+					'name' => $fa['name'],
+					'max_length' => $fa['size'],
+					'column_source' => $fa['name'],
+					'type' => $_typeConversion[$fa['type']]
+					);
+			}
+			else
+			{
+				foreach ($fa as $key => $value)
+				{
+					$fb[] = array(
+						'name' => $value['name'],
+						'max_length' => $value['size'],
+						'column_source' => $value['name'],
+						'type' => $_typeConversion[$value['type']]
+						);
+				}
+			}
+			$f = (object) $fb;
+		}
 		return $f;
 	}
 	
