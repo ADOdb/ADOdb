@@ -3514,14 +3514,14 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			} else if (isset($this->fields[$k])) {
 				$record[$k] = $this->fields[$k];
 			} else
-				$record[$k] = $this->fields[$v];
+				$record[$k] = null;
 		}
 		return $record;
 	}
 	
 	/**
 	 * Clean up recordset
-	 *
+		*
 	 * @return true or false
 	 */
 	function Close() 

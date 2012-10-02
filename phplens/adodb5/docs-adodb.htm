@@ -6173,6 +6173,10 @@ PHP</a>. </p>
 <p>sessions: changed lob handling to detect all variations of oci8 driver.
 <p>mssql_native: fixed many FetchField compat issues. See http://phplens.com/lens/lensforum/msgs.php?id=18464&x=1.
 <p>oci8quercus: new oci8 driver with support for quercus jdbc data types.
+<p>postgres9: Fixed assoc problem. See http://phplens.com/lens/lensforum/msgs.php?id=19296
+<p>odbc: Fixed MetaTables and MetaPrimaryKeys definitions in odbc driver to match adoconnection class.
+<p>adodb: GetRowAssoc will return null as required. See http://phplens.com/lens/lensforum/msgs.php?id=19289
+<p>pdo: Fixed concat recursion bug in 5.3. See http://phplens.com/lens/lensforum/msgs.php?id=19285
 <p><a name=5.18><b>5.18 3 Sep 2012</b>
 <p>datadict-postgres: Fixes bug in ALTER COL. See http://phplens.com/lens/lensforum/msgs.php?id=19202. Also fixed bugs in MetaType() checking $fieldobj properties.
 <p>GetRowAssoc did not work with null values. Bug in 5.17.

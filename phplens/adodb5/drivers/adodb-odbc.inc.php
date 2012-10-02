@@ -240,7 +240,7 @@ class ADODB_odbc extends ADOConnection {
 		return $ret;
 	}
 	
-	function MetaPrimaryKeys($table)
+	function MetaPrimaryKeys($table,$owner=false)
 	{
 	global $ADODB_FETCH_MODE;
 	
@@ -274,7 +274,7 @@ class ADODB_odbc extends ADOConnection {
 	
 	
 	
-	function MetaTables($ttype=false)
+	function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 	global $ADODB_FETCH_MODE;
 	

@@ -23,6 +23,7 @@ V4.80 8 Mar 2006  (c) 2000-2012 John Lim (jlim#natsoft.com). All rights reserved
 <input type=checkbox name="testproxy" value=1 <?php echo !empty($testproxy) ? 'checked' : '' ?>> <b>MySQL Proxy</b><br>
 <input type=checkbox name="testoracle" value=1 <?php echo !empty($testoracle) ? 'checked' : '' ?>> <b>Oracle (oci8)</b> <br>
 <input type=checkbox name="testpostgres" value=1 <?php echo !empty($testpostgres) ? 'checked' : '' ?>> <b>PostgreSQL</b><br>
+<input type=checkbox name="testpostgres9" value=1 <?php echo !empty($testpostgres9) ? 'checked' : '' ?>> <b>PostgreSQL 9</b><br>
 <input type=checkbox name="testpgodbc" value=1 <?php echo !empty($testpgodbc) ? 'checked' : '' ?>> <b>PostgreSQL ODBC</b><br>
 <td>
 <input type=checkbox name="testpdopgsql" value=1 <?php echo !empty($testpdopgsql) ? 'checked' : '' ?>> <b>PgSQL PDO</b><br>
@@ -81,6 +82,17 @@ if (!empty($testpostgres)) {
 	//ADOLoadCode("postgres");
 
 	$db = ADONewConnection('postgres');
+	print "<h1>Connecting $db->databaseType...</h1>";
+	if ($db->Connect("localhost","tester","test","northwind")) {
+		testdb($db,"create table ADOXYZ (id integer, firstname char(24), lastname varchar,created date)");
+	}else
+		print "ERROR: PostgreSQL requires a database called test on server, user tester, password test.<BR>".$db->ErrorMsg();
+}
+
+if (!empty($testpostgres9)) {
+	//ADOLoadCode("postgres");
+
+	$db = ADONewConnection('postgres9');
 	print "<h1>Connecting $db->databaseType...</h1>";
 	if ($db->Connect("localhost","tester","test","northwind")) {
 		testdb($db,"create table ADOXYZ (id integer, firstname char(24), lastname varchar,created date)");
