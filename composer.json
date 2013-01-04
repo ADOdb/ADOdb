@@ -1,0 +1,22 @@
+{
+	"name" : "adodb/adodb-php",
+	"version" : "5.12",
+	"license" : [ "LGPL-2.1", " BSD-2-Clause" ],
+	"authors" : [
+		{
+			"name": "John Lim",
+			"homepage": "http://adodb.sourceforge.net/#docs"
+		}
+	],
+
+	"support" : { "forum" : "http://phplens.com/lens/lensforum/topics.php?id=4" },
+
+	"require" : {
+		"php" : ">=5.3.2"
+	},
+
+	"autoload" : {
+		"files" : ["adodb.inc.php"]
+	}
+
+}
