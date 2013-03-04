@@ -838,7 +838,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		if(is_array($this->fields)) {
 			foreach($this->fields as $key=>$value) {
 				if (is_object($value) && method_exists($value, 'format')) {//is DateTime object
-					$this->fields[$key] = $value->format("Y-m-d\TH:i:s\Z");
+					$this->fields[$key] = $value->format("Y-m-d H:i:s");
 				}
 			}
 		}

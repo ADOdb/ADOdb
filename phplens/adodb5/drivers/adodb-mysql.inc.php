@@ -580,10 +580,15 @@ class ADODB_mysql extends ADOConnection {
 	// returns queryID or false
 	function _query($sql,$inputarr=false)
 	{
-	//global $ADODB_COUNTRECS;
-		//if($ADODB_COUNTRECS) 
-		return mysql_query($sql,$this->_connectionID);
-		//else return @mysql_unbuffered_query($sql,$this->_connectionID); // requires PHP >= 4.0.6
+	
+	return mysql_query($sql,$this->_connectionID);
+	/*
+	global $ADODB_COUNTRECS;
+		if($ADODB_COUNTRECS) 
+			return mysql_query($sql,$this->_connectionID);
+		else 
+			return @mysql_unbuffered_query($sql,$this->_connectionID); // requires PHP >= 4.0.6
+	*/
 	}
 
 	/*	Returns: the last error message from previous database operation	*/	
