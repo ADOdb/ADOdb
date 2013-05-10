@@ -623,7 +623,9 @@ NATSOFT.DOMAIN =
 				$sql = str_replace('/*+ ',"/*+$hint ",$sql);
 			else
 				$sql = preg_replace('/^[ \t\n]*select/i',"SELECT /*+$hint*/",$sql);
-		}
+			$hint = "/*+ $hint */";
+		} else
+			$hint = '';
 		
 		if ($offset == -1 || ($offset < $this->selectOffsetAlg1 && 0 < $nrows && $nrows < 1000)) {
 			if ($nrows > 0) {	
@@ -646,7 +648,7 @@ NATSOFT.DOMAIN =
 			 // Algorithm by Tomas V V Cox, from PEAR DB oci8.php
 			
 			 // Let Oracle return the name of the columns
-			$q_fields = "SELECT * FROM (".str_replace('FIRST_ROWS','notused',$sql).") WHERE NULL = NULL";
+			$q_fields = "SELECT * FROM (".$sql.") WHERE NULL = NULL";
 		
 			$false = false;
 			if (! $stmt_arr = $this->Prepare($q_fields)) {
@@ -692,12 +694,12 @@ NATSOFT.DOMAIN =
 			 $offset += 1; // in Oracle rownum starts at 1
 			
 			if ($this->databaseType == 'oci8po') {
-					 $sql = "SELECT $fields FROM".
+					 $sql = "SELECT $hint $fields FROM".
 					  "(SELECT rownum as adodb_rownum, $fields FROM".
 					  " ($sql) WHERE rownum <= ?".
 					  ") WHERE adodb_rownum >= ?";
 				} else {
-					 $sql = "SELECT $fields FROM".
+					 $sql = "SELECT $hint $fields FROM".
 					  "(SELECT rownum as adodb_rownum, $fields FROM".
 					  " ($sql) WHERE rownum <= :adodb_nrows".
 					  ") WHERE adodb_rownum >= :adodb_offset";
