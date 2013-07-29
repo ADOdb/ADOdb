@@ -1,9 +1,9 @@
 <?php
-// NOTE: The ADOdb and PEAR directories MUST be in your PHP include_path! 
+// NOTE: The ADOdb and PEAR directories MUST be in your PHP include_path!
 require_once "Auth/Auth.php";
 
-function loginFunction() { 
-?>    
+function loginFunction() {
+?>
     <form method="post" action="<?php echo $_SERVER['PHP_SELF'] ?>">
     <input type="text" name="username">
     <input type="password" name="password">

@@ -997,7 +997,7 @@ style='mso-tab-count:1'>         </span>$arr = $db-&gt;GetArray(&quot;select * f
 style='mso-tab-count:1'>         </span></pre><pre><span style='mso-tab-count:
 1'>         </span><span style='color:green'># persistent connection</span></pre>
 <pre><span
-style='mso-tab-count:1'>         </span>$dsn2 = 'mysql://root:pwd@localhost/mydb?persist'; 
+style='mso-tab-count:1'>         </span>$dsn2 = 'mysql://root:pwd@localhost/mydb?persist';
 <span
 style='mso-tab-count:1'></span></pre>
 <pre><span style='mso-tab-count:
@@ -1086,14 +1086,14 @@ CacheExecute() and CacheSelectLimit() are called and no cache-time parameter is 
 <li class=MsoNormal><i>memcache</i> which defines the memcache host, port and whether to use compression. For example:
 <pre>
 	# we have a memcache server at 10.1.1.22 using default port 11211, no compression
-	$dsn = 'mysql://user:pwd@localhost/mydb?memcache=10.1.1.22'; 
-	
+	$dsn = 'mysql://user:pwd@localhost/mydb?memcache=10.1.1.22';
+
 	# we have a memcache server 10.1.1.22 port 8888, compression=on
 	$dsn = 'mysql://user:pwd@localhost/mydb?memcache=10.1.1.22:8888:1';
-	 	
+
 	# we have a memcache servers mem1,mem2 on port 8888, compression=off
-	$dsn = 'mysql://user:pwd@localhost/mydb?memcache=mem1,mem2:8888:0'; 
-	
+	$dsn = 'mysql://user:pwd@localhost/mydb?memcache=mem1,mem2:8888:0';
+
 	# we have a memcache servers mem1,mem2 on port 8888, compression=off and cachesecs=120
 	$dsn = 'mysql://user:pwd@localhost/mydb?memcache=mem1,mem2:8888:0&cachesecs=120';
 </pre>
@@ -1745,7 +1745,7 @@ NewADOConnection($name) to create a connection object for that database. </p>
   Universal Database client.</span></p>
   </td>
  </tr>
- 
+
  <tr style='mso-yfti-irow:5;height:40.5pt'>
   <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
   <p class=MsoNormal><b><span style='font-size:10.0pt'>db2oci</span></b></p>
@@ -1767,7 +1767,7 @@ NewADOConnection($name) to create a connection object for that database. </p>
   Universal Database client.</span></p>
   </td>
  </tr>
- 
+
  <tr style='mso-yfti-irow:6;height:40.5pt'>
   <td valign=top style='padding:.75pt .75pt .75pt .75pt;height:40.5pt'>
   <p class=MsoNormal><b><span style='font-size:10.0pt'>odbc_db2</span></b></p>
@@ -6172,7 +6172,7 @@ PHP</a>. </p>
 <p><a name=5.19><b>5.19 ??? 2012</b>
 <p>
 <p>sessions: changed lob handling to detect all variations of oci8 driver.
-<p>mssql_native: fixed many FetchField compat issues. See http://phplens.com/lens/lensforum/msgs.php?id=18464&x=1. Also date format changed 
+<p>mssql_native: fixed many FetchField compat issues. See http://phplens.com/lens/lensforum/msgs.php?id=18464&x=1. Also date format changed
 to remove timezone.
 <p>oci8quercus: new oci8 driver with support for quercus jdbc data types.
 <p>postgres9: Fixed assoc problem. See http://phplens.com/lens/lensforum/msgs.php?id=19296
@@ -6196,7 +6196,7 @@ make Prepare() and empty function, and we still execute the unprepared stmt.
 <p>mysql-perf: Fixed "SHOW INNODB STATUS". Change to "SHOW ENGINE INNODB STATUS"
 <p><a name=5.17><b>5.17 18 May 2012</b>
 <p>Active Record: Removed trailing whitespace from adodb-active-record.inc.php.
-<p>odbc: Added support for $database parameter in odbc Connect() function. E.g. $DB->Connect($dsn_without_db, $user, $pwd, $database). 
+<p>odbc: Added support for $database parameter in odbc Connect() function. E.g. $DB->Connect($dsn_without_db, $user, $pwd, $database).
 Previously $database had to be left blank and the $dsn was used to pass in this parameter.
 <p>oci8: Added better empty($rs) error handling to metaindexes().
 <p>oci8: Changed to use newer oci API to support PHP 5.4.
@@ -6217,7 +6217,7 @@ Previously $database had to be left blank and the $dsn was used to pass in this 
 <p>mysql and mysqli: MetaTables() now identifies views and tables correctly.
 <p>Added function adodb_time() to adodb-time.inc.php. Generates current time in unsigned integer format.
 <p><a name=5.14><b>5.14 8 Sep 2011</b>
-<p>mysqli: fix php compilation bug. 
+<p>mysqli: fix php compilation bug.
 <p>postgres: bind variables did not work properly. Fixed.
 <p>postgres: blob handling bug in _decode. Fixed.
 <p>ActiveRecord: if a null field was never updated, activerecord would still update the record. Fixed.
@@ -6300,11 +6300,11 @@ Also changed oci8 $conn->sysTimeStamp to use 'SYSTIMESTAMP' instead of 'SYSDATE'
 <p><a name=5.08a></a><b>5.08a 17 Apr 2009</b> </p>
 <p>Fixes wrong version number string.
 <p>Incorrect + in adodb-datadict.inc.php removed.
-<p>Fixes missing OffsetDate() function in pdo. Thx paul#mantisforge.org. 
+<p>Fixes missing OffsetDate() function in pdo. Thx paul#mantisforge.org.
 
 <p><a name=5.08></a><b>5.08 17 Apr 2009</b> </p>
 <p>adodb-sybase.inc.php driver. Added $conn->charSet support. Thx Luis Henrique Mulinari (luis.mulinari#gmail.com)
-<p>adodb-ado5.inc.php. Fixed some bind param issues. Thx Jirka Novak. 
+<p>adodb-ado5.inc.php. Fixed some bind param issues. Thx Jirka Novak.
 <p>adodb-ado5.inc.php. Now has improved error handling.
 <p>Fixed typo in adodb-xmlschema03.inc.php. See XMLS_EXISTING_DATA, line 1501. Thx james johnson.
 <p>Made $inputarr optional for _query() in all drivers.

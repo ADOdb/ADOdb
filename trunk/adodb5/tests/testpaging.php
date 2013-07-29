@@ -1,11 +1,11 @@
 <?php
-/* 
+/*
 V4.80 8 Mar 2006  (c) 2000-2012 John Lim (jlim#natsoft.com). All rights reserved.
-  Released under both BSD license and Lesser GPL library license. 
-  Whenever there is any discrepancy between the two licenses, 
-  the BSD license will take precedence. 
+  Released under both BSD license and Lesser GPL library license.
+  Whenever there is any discrepancy between the two licenses,
+  the BSD license will take precedence.
   Set tabs to 4 for best viewing.
-	
+
   Latest version is available at http://adodb.sourceforge.net
 */
 
@@ -43,8 +43,8 @@ if ($driver == 'mssql') {
 if ($driver == 'oci8') {
 	$db = NewADOConnection('oci8');
 	$db->Connect('','scott','natsoft');
-	
-$sql = "select * from (select  ID, firstname as \"First Name\", lastname as \"Last Name\" from adoxyz 
+
+$sql = "select * from (select  ID, firstname as \"First Name\", lastname as \"Last Name\" from adoxyz
 	 order  by  1)";
 }
 

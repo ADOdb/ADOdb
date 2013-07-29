@@ -27,14 +27,14 @@ function FieldFilter(&$fld,$mode)
 	switch($uf) {
 		case 'SIZEFLD':
 			return 'Size';
-			
+
 		case 'GROUPFLD':
 			return 'Group';
 
-		case 'GROUP': 
+		case 'GROUP':
 			if ($mode == 'SELECT') $fld = '"Group"';
 			return 'GroupFld';
-		case 'SIZE': 
+		case 'SIZE':
 			if ($mode == 'SELECT') $fld = '"Size"';
 			return 'SizeFld';
 	}
@@ -50,7 +50,7 @@ function ParseTable(&$table, &$pkey)
 		$table = trim(substr($table,0,$at));
 		if (strlen($table) == 0) return false;
 	}
-	
+
 	$tabarr = explode(',',$table);
 	if (sizeof($tabarr) == 1) {
 		$table = $tabarr[0];
@@ -61,7 +61,7 @@ function ParseTable(&$table, &$pkey)
 		$pkey = trim($tabarr[1]);
 		if (strpos($pkey,' ') !== false) echo "Bad PKEY for $table $pkey<br>";
 	}
-	
+
 	return true;
 }
 
@@ -75,7 +75,7 @@ global $TARR;
 	$cnt = $rep->connSrc->GetOne("select count(*) from $table");
 	if (isset($TARR[$table])) echo "<h1>Table $table repeated twice</h1>";
 	$TARR[$table] = $cnt;
-	
+
 	if ($pkey) {
 		$ok = $rep->connSrc->SelectLimit("select $pkey from $table",1);
 		if (!$ok) echo "<h1>$table: $pkey does not exist</h1>";
@@ -87,7 +87,7 @@ function CreateTable($rep, $table)
 {
 ## CREATE TABLE
 	#$DB2->Execute("drop table $table");
-	
+
 	$rep->execute = true;
 	$ok = $rep->CopyTableStruct($table);
 	if ($ok) echo "Table Created<br>\n";
@@ -100,10 +100,10 @@ function CreateTable($rep, $table)
 function CopyData($rep, $table, $pkey)
 {
 	$dtable = $table;
-	
+
 	$rep->execute = true;
 	$rep->deleteFirst = true;
-	
+
 	$secs = time();
 	$rows = $rep->ReplicateData($table,$dtable,array($pkey));
 	$secs = time() - $secs;
@@ -117,15 +117,15 @@ function CopyData($rep, $table, $pkey)
 function MergeDataJohnTest($rep, $table, $pkey)
 {
 	$rep->SwapDBs();
-	
+
 	$dtable = $table;
 	$rep->oracleSequence = 'LGBSEQUENCE';
-	
+
 #	$rep->MergeSrcSetup($table, array($pkey),'UpdatedOn','CopiedFlag');
 	if (strpos($rep->connDest->databaseType,'mssql') !== false)  {  # oracle ==> mssql
 		$ignoreflds = array($pkey);
 		$ignoreflds[] = 'MSSQL_ID';
-		$set = 'MSSQL_ID=nvl($INSERT_ID,MSSQL_ID)'; 
+		$set = 'MSSQL_ID=nvl($INSERT_ID,MSSQL_ID)';
 		$pkeyarr = array(array($pkey),false,array('MSSQL_ID'));# array('MSSQL_ID', 'ORA_ID'));
 	} else {  # mssql ==> oracle
 		$ignoreflds = array($pkey);
@@ -138,7 +138,7 @@ function MergeDataJohnTest($rep, $table, $pkey)
 	#$rep->updateFirst = false;
 	$ok = $rep->Merge($table, $dtable, $pkeyarr, $ignoreflds, $set, 'UpdatedOn','CopiedFlag',array('Y','N','P','='), 'CopyDate');
 	var_dump($ok);
-	
+
 	#$rep->connSrc->Execute("update JohnTest set name='Apple' where id=4");
 }
 
@@ -161,15 +161,15 @@ JohnTest,id
 # tblRep* are tables insert or update from Juris, need last updated field also
 # The rest are lookup tables, can copy all from LGBnet
 
-$tablesOrig = 
+$tablesOrig =
 "
-SysVoltSubLevel,id 
+SysVoltSubLevel,id
 # Lookup table for Restoration Details screen
 sysefi,ID # (not identity)
 sysgenkva,ID #(not identity)
 sysrestoredby,ID  #(not identity)
 # Sel* table added on 24 Oct
-SELSGManufacturer,ID 
+SELSGManufacturer,ID
 SelABCCondSizeLV,ID
 SelABCCondSizeMV,ID
 SelArchingHornSize,ID
@@ -178,14 +178,14 @@ SelBallastType,ID
 SelBatteryType,ID #(not identity)
 SelBreakerCapacity,ID
 SelBreakerType,ID #(not identity)
-SelCBreakerManuf,ID 
+SelCBreakerManuf,ID
 SelCTRatio,ID #(not identity)
 SelCableBrand,ID
 SelCableSize,ID
 SelCableSizeLV,ID # (not identity)
 SelCapacitorSize,ID
 SelCapacitorType,ID
-SelColourCode,ID 
+SelColourCode,ID
 SelCombineSealingChamberSize,ID
 SelConductorBrand,ID
 SelConductorSize4,ID
@@ -363,7 +363,7 @@ tblInstallationType,ID_TIT
 tblInstallationCat,ID_TIC
 tblFailureCause,ID_TFC
 tblFailureMode,ID_TFM
-tblProtection,ID_TP 
+tblProtection,ID_TP
 tblComponent,ID_TC
 tblProtdetail,Id # (Id)--capital letter for I
 tblInstallation,ID_TI
@@ -390,24 +390,24 @@ $cnt = sizeof($tables);
 foreach($tables as $k => $table) {
 	$pkey = '';
 	if (!ParseTable($table, $pkey)) continue;
-	
-	####################### 
-	
+
+	#######################
+
 	$kcnt = $k+1;
 	echo "<h1>($kcnt/$cnt) $table -- $pkey</h1>\n";
 	flush();@ob_flush();
-	
+
 	CreateTable($rep,$table);
-	
-	
+
+
 	# COPY DATA
-	
-	
+
+
 	TableStats($rep, $table, $pkey);
-	
+
 	if ($table == 'JohnTest') MergeDataJohnTest($rep, $table, $pkey);
 	else CopyData($rep, $table, $pkey);
-	
+
 }
 
 

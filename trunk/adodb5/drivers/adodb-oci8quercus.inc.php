@@ -1,12 +1,12 @@
 <?php
 /*
 V5.17 17 May 2012  (c) 2000-2012 John Lim. All rights reserved.
-  Released under both BSD license and Lesser GPL library license. 
-  Whenever there is any discrepancy between the two licenses, 
+  Released under both BSD license and Lesser GPL library license.
+  Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
 
   Latest version is available at http://adodb.sourceforge.net
-  
+
   Portable version of oci8 driver, to make it more similar to other database drivers.
   The main differences are
 
@@ -14,7 +14,7 @@ V5.17 17 May 2012  (c) 2000-2012 John Lim. All rights reserved.
    2. bind variables are mapped using ? instead of :<bindvar>
 
    Should some emulation of RecordCount() be implemented?
-  
+
 */
 
 // security - hide paths
@@ -25,11 +25,11 @@ include_once(ADODB_DIR.'/drivers/adodb-oci8.inc.php');
 class ADODB_oci8quercus extends ADODB_oci8 {
 	var $databaseType = 'oci8quercus';
 	var $dataProvider = 'oci8';
-	
+
 	function ADODB_oci8quercus()
 	{
 	}
-	
+
 }
 
 /*--------------------------------------------------------------------------------------
@@ -39,17 +39,17 @@ class ADODB_oci8quercus extends ADODB_oci8 {
 class ADORecordset_oci8quercus extends ADORecordset_oci8 {
 
 	var $databaseType = 'oci8quercus';
-	
+
 	function ADORecordset_oci8quercus($queryID,$mode=false)
 	{
 		$this->ADORecordset_oci8($queryID,$mode);
 	}
-	
+
 	function _FetchField($fieldOffset = -1)
 	{
 	global $QUERCUS;
 		$fld = new ADOFieldObject;
-		
+
 		if (!empty($QUERCUS)) {
 			$fld->name = oci_field_name($this->_queryID, $fieldOffset);
 			$fld->type = oci_field_type($this->_queryID, $fieldOffset);
@@ -73,17 +73,17 @@ class ADORecordset_oci8quercus extends ADORecordset_oci8 {
 			if ($p != 0 && $sc == 0) $fld->type = 'INT';
 			$fld->scale = $p;
 			break;
-		
+
 	 	case 'CLOB':
 		case 'NCLOB':
-		case 'BLOB': 
+		case 'BLOB':
 			$fld->max_length = -1;
 			break;
 		}
-		
+
 		return $fld;
 	}
-	
+
 }
 
 

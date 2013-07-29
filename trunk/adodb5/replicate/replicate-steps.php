@@ -20,7 +20,7 @@ include_once('adodb-replicate.inc.php');
 $DB = ADONewConnection('oci8');
 $ok = $DB->Connect($HOST,$USER,$PWD,$DBASE);
 if (!$ok) return;
-	
+
 
 #$DB->debug=1;
 
@@ -55,8 +55,8 @@ echo "<pre>
 
 /******************************************************************************
 <font color=green>
- Migrate stages, steps and qtypes for the following 
- 
+ Migrate stages, steps and qtypes for the following
+
   business area: $BA
      and stages: $STAGES
 
@@ -64,12 +64,12 @@ echo "<pre>
  WARNING: DO NOT 'Ignore All Errors'.
  If any error occurs, make sure you stop and check the reason and fix it.
  Otherwise you could corrupt everything!!!
- 
+
  Connected to $USER@$DBASE $HOST;
 </font>
 *******************************************************************************/
 
--- BACKUP 
+-- BACKUP
 create table kbstage_$bkup as select * from kbstage;
 create table kbstep_$bkup as select * from kbstep;
 create table kbqtype_$bkup as select * from kbqtype;
@@ -79,7 +79,7 @@ create table kbqtype_$bkup as select * from kbqtype;
 ALTER TABLE kbstage DISABLE all triggers;
 ALTER TABLE kbstep DISABLE all triggers;
 ALTER TABLE kbqtype DISABLE all triggers;
-ALTER TABLE jqueue DISABLE CONSTRAINT QUEUE_MUST_HAVE_TYPE; 
+ALTER TABLE jqueue DISABLE CONSTRAINT QUEUE_MUST_HAVE_TYPE;
 
 
 -- NOW DELETE OLD STEPS/STAGES/QUEUES
@@ -123,13 +123,13 @@ commit;
 ALTER TABLE kbstage ENABLE all triggers;
 ALTER TABLE kbstep ENABLE all triggers;
 ALTER TABLE kbqtype ENABLE all triggers;
-ALTER TABLE jqueue ENABLE CONSTRAINT QUEUE_MUST_HAVE_TYPE; 
+ALTER TABLE jqueue ENABLE CONSTRAINT QUEUE_MUST_HAVE_TYPE;
 
 /*
 -- REMEMBER TO COMMIT
 	commit;
 	begin Juris.UpdateQCounts; end;
-	
+
 -- To check for bad queues after conversion, run this
 	select * from kbqtype where qu_name like 'MISSING%'
 */
