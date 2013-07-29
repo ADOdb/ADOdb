@@ -4782,7 +4782,7 @@ beginning of each page request. This is only supported in postgresql, mssql,
 mysql with InnoDB and oci8 currently. For example: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
-solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre>$db-&gt;SetTransactionMode(&quot;SERIALIZABLE&quot;);</pre><pre>$db-&gt;BeginTrans();</pre><pre>$db-&gt;Execute(...); $db-&gt;Execute(...);</pre><pre>$db-&gt;CommiTrans();</pre><pre><o:p>&nbsp;</o:p></pre><pre>$db-&gt;SetTransactionMode(&quot;&quot;); // restore to default</pre><pre>$db-&gt;StartTrans();</pre><pre>$db-&gt;Execute(...); $db-&gt;Execute(...);</pre><pre>$db-&gt;CompleteTrans();</pre></div>
+solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre>$db-&gt;SetTransactionMode(&quot;SERIALIZABLE&quot;);</pre><pre>$db-&gt;BeginTrans();</pre><pre>$db-&gt;Execute(...); $db-&gt;Execute(...);</pre><pre>$db-&gt;CommitTrans();</pre><pre><o:p>&nbsp;</o:p></pre><pre>$db-&gt;SetTransactionMode(&quot;&quot;); // restore to default</pre><pre>$db-&gt;StartTrans();</pre><pre>$db-&gt;Execute(...); $db-&gt;Execute(...);</pre><pre>$db-&gt;CompleteTrans();</pre></div>
 
 <p>Supported values to pass in: </p>
 
