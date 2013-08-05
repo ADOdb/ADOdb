@@ -1,0 +1,8 @@
+# IDE/Editor temporary files
+*~
+*.swp
+*.bak
+*.tmp
+.project
+.settings/
+
