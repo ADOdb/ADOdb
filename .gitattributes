@@ -9,6 +9,9 @@
 *.xml	text
 *.xsl	text
 
+# Windows-only files
+*.bat	eol=crlf
+
 # Binary files
 *.gif	binary
 
