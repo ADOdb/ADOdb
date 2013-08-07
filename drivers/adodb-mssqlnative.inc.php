@@ -240,16 +240,16 @@ class ADODB_mssqlnative extends ADOConnection {
 	function CreateSequence2008($seq='adodbseq',$start=1)
 	{
 		if($this->debug) error_log("<hr>CreateSequence($seq,$start)");
-        sqlsrv_begin_transaction($this->_connectionID);
+		sqlsrv_begin_transaction($this->_connectionID);
 		$start -= 1;
 		$this->Execute("create table $seq (id int)");//was float(53)
 		$ok = $this->Execute("insert into $seq with (tablock,holdlock) values($start)");
 		if (!$ok) {
-            if($this->debug) error_log("<hr>Error: ROLLBACK");
-            sqlsrv_rollback($this->_connectionID);
+			if($this->debug) error_log("<hr>Error: ROLLBACK");
+			sqlsrv_rollback($this->_connectionID);
 			return false;
 		}
-        sqlsrv_commit($this->_connectionID);
+		sqlsrv_commit($this->_connectionID);
 		return true;
 	}
 
@@ -273,20 +273,20 @@ class ADODB_mssqlnative extends ADOConnection {
 	function GenID2008($seq='adodbseq',$start=1)
 	{
 		if($this->debug) error_log("<hr>CreateSequence($seq,$start)");
-        sqlsrv_begin_transaction($this->_connectionID);
+		sqlsrv_begin_transaction($this->_connectionID);
 		$ok = $this->Execute("update $seq with (tablock,holdlock) set id = id + 1");
 		if (!$ok) {
 			$start -= 1;
 			$this->Execute("create table $seq (id int)");//was float(53)
 			$ok = $this->Execute("insert into $seq with (tablock,holdlock) values($start)");
 			if (!$ok) {
-                if($this->debug) error_log("<hr>Error: ROLLBACK");
-                sqlsrv_rollback($this->_connectionID);
+				if($this->debug) error_log("<hr>Error: ROLLBACK");
+				sqlsrv_rollback($this->_connectionID);
 				return false;
 			}
 		}
 		$num = $this->GetOne("select id from $seq");
-        sqlsrv_commit($this->_connectionID);
+		sqlsrv_commit($this->_connectionID);
 		return true;
 	}
 	/**
@@ -383,15 +383,15 @@ class ADODB_mssqlnative extends ADOConnection {
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
-        if ($this->debug) error_log('<hr>begin transaction');
+		if ($this->debug) error_log('<hr>begin transaction');
 		sqlsrv_begin_transaction($this->_connectionID);
-	   	return true;
+		return true;
 	}
 
 	function CommitTrans($ok=true)
 	{
 		if ($this->transOff) return true;
-        if ($this->debug) error_log('<hr>commit transaction');
+		if ($this->debug) error_log('<hr>commit transaction');
 		if (!$ok) return $this->RollbackTrans();
 		if ($this->transCnt) $this->transCnt -= 1;
 		sqlsrv_commit($this->_connectionID);
@@ -400,7 +400,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	function RollbackTrans()
 	{
 		if ($this->transOff) return true;
-        if ($this->debug) error_log('<hr>rollback transaction');
+		if ($this->debug) error_log('<hr>rollback transaction');
 		if ($this->transCnt) $this->transCnt -= 1;
 		sqlsrv_rollback($this->_connectionID);
 		return true;
@@ -441,10 +441,10 @@ class ADODB_mssqlnative extends ADOConnection {
 		$this->database = $dbName;
 		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 		if ($this->_connectionID) {
-            $rs = $this->Execute('USE '.$dbName);
-            if($rs) {
-                return true;
-            } else return false;
+			$rs = $this->Execute('USE '.$dbName);
+			if($rs) {
+				return true;
+			} else return false;
 		}
 		else return false;
 	}
@@ -468,8 +468,8 @@ class ADODB_mssqlnative extends ADOConnection {
 	{
 		if ($this->_logsql && $this->_errorCode !== false) return $this->_errorCode;
 		$err = sqlsrv_errors(SQLSRV_ERR_ALL);
-        if($err[0]) return $err[0]['code'];
-        else return -1;
+		if($err[0]) return $err[0]['code'];
+		else return -1;
 	}
 
 	// returns true or false
@@ -480,14 +480,14 @@ class ADODB_mssqlnative extends ADOConnection {
 		$connectionInfo["Database"]=$argDatabasename;
 		$connectionInfo["UID"]=$argUsername;
 		$connectionInfo["PWD"]=$argPassword;
-        if ($this->debug) error_log("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
-        //if ($this->debug) error_log("<hr>_connectionID before: ".serialize($this->_connectionID));
-        if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo))) {
-            if ($this->debug) error_log( "<hr><b>errors</b>: ".print_r( sqlsrv_errors(), true));
-            return false;
-        }
-        //if ($this->debug) error_log(" _connectionID after: ".serialize($this->_connectionID));
-        //if ($this->debug) error_log("<hr>defined functions: <pre>".var_export(get_defined_functions(),true)."</pre>");
+		if ($this->debug) error_log("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
+		//if ($this->debug) error_log("<hr>_connectionID before: ".serialize($this->_connectionID));
+		if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo))) {
+			if ($this->debug) error_log( "<hr><b>errors</b>: ".print_r( sqlsrv_errors(), true));
+			return false;
+		}
+		//if ($this->debug) error_log(" _connectionID after: ".serialize($this->_connectionID));
+		//if ($this->debug) error_log("<hr>defined functions: <pre>".var_export(get_defined_functions(),true)."</pre>");
 		return true;
 	}
 
@@ -495,7 +495,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		//return null;//not implemented. NOTE: Persistent connections have no effect if PHP is used as a CGI program. (FastCGI!)
-        return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename);
+		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename);
 	}
 
 	function Prepare($sql)
@@ -508,28 +508,28 @@ class ADODB_mssqlnative extends ADOConnection {
 	}
 
 	// returns concatenated string
-    // MSSQL requires integers to be cast as strings
-    // automatically cast every datatype to VARCHAR(255)
-    // @author David Rogers (introspectshun)
-    function Concat()
-    {
-        $s = "";
-        $arr = func_get_args();
+	// MSSQL requires integers to be cast as strings
+	// automatically cast every datatype to VARCHAR(255)
+	// @author David Rogers (introspectshun)
+	function Concat()
+	{
+		$s = "";
+		$arr = func_get_args();
 
-        // Split single record on commas, if possible
-        if (sizeof($arr) == 1) {
-            foreach ($arr as $arg) {
-                $args = explode(',', $arg);
-            }
-            $arr = $args;
-        }
+		// Split single record on commas, if possible
+		if (sizeof($arr) == 1) {
+			foreach ($arr as $arg) {
+				$args = explode(',', $arg);
+			}
+			$arr = $args;
+		}
 
-        array_walk($arr, create_function('&$v', '$v = "CAST(" . $v . " AS VARCHAR(255))";'));
-        $s = implode('+',$arr);
-        if (sizeof($arr) > 0) return "$s";
+		array_walk($arr, create_function('&$v', '$v = "CAST(" . $v . " AS VARCHAR(255))";'));
+		$s = implode('+',$arr);
+		if (sizeof($arr) > 0) return "$s";
 
 		return '';
-    }
+	}
 
 	/*
 		Unfortunately, it appears that mssql cannot handle varbinary > 255 chars
@@ -559,14 +559,14 @@ class ADODB_mssqlnative extends ADOConnection {
 	{
 		$this->_errorMsg = false;
 		if (is_array($inputarr)) {
-            $rez = sqlsrv_query($this->_connectionID,$sql,$inputarr);
+			$rez = sqlsrv_query($this->_connectionID,$sql,$inputarr);
 		} else if (is_array($sql)) {
 			// $inputarr is prepared in sqlsrv_prepare();
-            $rez = sqlsrv_execute($this->_connectionID,$sql[1]);
+			$rez = sqlsrv_execute($this->_connectionID,$sql[1]);
 		} else {
 			$rez = sqlsrv_query($this->_connectionID,$sql);
 		}
-        if ($this->debug) error_log("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));
+		if ($this->debug) error_log("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));
 
 		return $rez;
 	}
@@ -606,47 +606,47 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-        if ($this->fetchMode !== FALSE) {
-        	$savem = $this->SetFetchMode(FALSE);
-        }
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($this->fetchMode !== FALSE) {
+			$savem = $this->SetFetchMode(FALSE);
+		}
 
-        $rs = $this->Execute($sql);
-        if (isset($savem)) {
-        	$this->SetFetchMode($savem);
-        }
-        $ADODB_FETCH_MODE = $save;
+		$rs = $this->Execute($sql);
+		if (isset($savem)) {
+			$this->SetFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
 
-        if (!is_object($rs)) {
-        	return FALSE;
-        }
+		if (!is_object($rs)) {
+			return FALSE;
+		}
 
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
 			if (!$primary && $row[5]) continue;
 
-            $indexes[$row[0]]['unique'] = $row[6];
-            $indexes[$row[0]]['columns'][] = $row[1];
-    	}
-        return $indexes;
+			$indexes[$row[0]]['unique'] = $row[6];
+			$indexes[$row[0]]['columns'][] = $row[1];
+		}
+		return $indexes;
 	}
 
 	function MetaForeignKeys($table, $owner=false, $upper=false)
 	{
-    	global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$table = $this->qstr(strtoupper($table));
 
 		$sql =
-            "select object_name(constid) as constraint_name,
-	            col_name(fkeyid, fkey) as column_name,
-	            object_name(rkeyid) as referenced_table_name,
-   	            col_name(rkeyid, rkey) as referenced_column_name
-            from sysforeignkeys
-            where upper(object_name(fkeyid)) = $table
-            order by constraint_name, referenced_table_name, keyno";
+			"select object_name(constid) as constraint_name,
+				col_name(fkeyid, fkey) as column_name,
+				object_name(rkeyid) as referenced_table_name,
+				col_name(rkeyid, rkey) as referenced_column_name
+			from sysforeignkeys
+			where upper(object_name(fkeyid)) = $table
+			order by constraint_name, referenced_table_name, keyno";
 
 		$constraints =& $this->GetArray($sql);
 
@@ -673,25 +673,25 @@ class ADODB_mssqlnative extends ADOConnection {
 	//From: Fernando Moreira <FMoreira@imediata.pt>
 	function MetaDatabases()
 	{
-	    $this->SelectDB("master");
-        $rs =& $this->Execute($this->metaDatabasesSQL);
-        $rows = $rs->GetRows();
-        $ret = array();
-        for($i=0;$i<count($rows);$i++) {
-            $ret[] = $rows[$i][0];
-        }
-        $this->SelectDB($this->database);
-        if($ret)
-            return $ret;
-        else
-            return false;
+		$this->SelectDB("master");
+		$rs =& $this->Execute($this->metaDatabasesSQL);
+		$rows = $rs->GetRows();
+		$ret = array();
+		for($i=0;$i<count($rows);$i++) {
+			$ret[] = $rows[$i][0];
+		}
+		$this->SelectDB($this->database);
+		if($ret)
+			return $ret;
+		else
+			return false;
 	}
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
 	function MetaPrimaryKeys($table, $owner=false)
 	{
-    	global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 
 		$schema = '';
 		$this->_findschema($table,$schema);
@@ -716,7 +716,7 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
-	    if ($mask) {
+		if ($mask) {
 			$save = $this->metaTablesSQL;
 			$mask = $this->qstr(($mask));
 			$this->metaTablesSQL .= " AND name like $mask";
@@ -844,7 +844,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		$this->_numOfRows = -1;//not supported
 		$fieldmeta = sqlsrv_field_metadata($this->_queryID);
 		$this->_numOfFields = ($fieldmeta)? count($fieldmeta):-1;
-        # KMN # if ($this->connection->debug) error_log("(after) _numOfRows: {$this->_numOfRows} _numOfFields: {$this->_numOfFields}");
+		# KMN # if ($this->connection->debug) error_log("(after) _numOfRows: {$this->_numOfRows} _numOfFields: {$this->_numOfFields}");
 		/*
 		 * Copy the oracle method and cache the metadata at init time
 		 */
@@ -888,7 +888,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		Get column information in the Recordset object. fetchField() can be used in order to obtain information about
 		fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
 		fetchField() is retrieved.
-	    Designed By jcortinap#jc.com.mx
+		Designed By jcortinap#jc.com.mx
 	*/
 	function _FetchField($fieldOffset = -1)
 	{
@@ -1082,7 +1082,7 @@ class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
 
 		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixDate($v);
 
-    	global $ADODB_mssql_mths,$ADODB_mssql_date_order;
+		global $ADODB_mssql_mths,$ADODB_mssql_date_order;
 
 		//Dec 30 2000 12:00AM
 		if ($ADODB_mssql_date_order == 'dmy') {
@@ -1113,7 +1113,7 @@ class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
 
 		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixTimeStamp($v);
 
-	    global $ADODB_mssql_mths,$ADODB_mssql_date_order;
+		global $ADODB_mssql_mths,$ADODB_mssql_date_order;
 
 		//Dec 30 2000 12:00AM
 		 if ($ADODB_mssql_date_order == 'dmy') {
@@ -1153,17 +1153,17 @@ class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
 /*
 Code Example 1:
 
-select 	object_name(constid) as constraint_name,
-       	object_name(fkeyid) as table_name,
-        col_name(fkeyid, fkey) as column_name,
+select	object_name(constid) as constraint_name,
+		object_name(fkeyid) as table_name,
+		col_name(fkeyid, fkey) as column_name,
 	object_name(rkeyid) as referenced_table_name,
-   	col_name(rkeyid, rkey) as referenced_column_name
+	col_name(rkeyid, rkey) as referenced_column_name
 from sysforeignkeys
 where object_name(fkeyid) = x
 order by constraint_name, table_name, referenced_table_name,  keyno
 
 Code Example 2:
-select 	constraint_name,
+select	constraint_name,
 	column_name,
 	ordinal_position
 from information_schema.key_column_usage
