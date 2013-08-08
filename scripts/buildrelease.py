@@ -4,6 +4,7 @@
 '''
 
 from datetime import date
+import errno
 import getopt
 import re
 import os
@@ -218,11 +219,27 @@ def main():
     # Copy files to release dir
     release_tmp_dir = path.join(release_path, release_prefix)
     print "Copying files to '%s'" % release_path
-    shutil.copytree(
-        repo_path,
-        release_tmp_dir,
-        ignore=shutil.ignore_patterns(*exclude_list)
-    )
+    retry = True
+    while True:
+        try:
+            shutil.copytree(
+                repo_path,
+                release_tmp_dir,
+                ignore=shutil.ignore_patterns(*exclude_list)
+            )
+            break
+        except OSError, err:
+            # First try and file exists, try to delete dir
+            if retry and err.errno == errno.EEXIST:
+                print "WARNING: Directory '%s' exists, delete it and retry" % (
+                    release_tmp_dir
+                )
+                shutil.rmtree(release_tmp_dir)
+                retry = False
+                continue
+            else:
+                # We already tried to delete or some other error occured
+                raise
 
     # Create tarballs
     print "Creating release tarballs..."
