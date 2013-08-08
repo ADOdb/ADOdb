@@ -165,19 +165,18 @@ def main():
         copyright_string = "\(c\)"
         # Part 1: version number and release date
         sed_script = "s/%s\s+%s\s+(%s)/V%s  %s/; " % (
-                version_regex,
-                "[0-9].*[0-9]",         # release date
-                copyright_string,
-                version,
-                release_date
-            )
-
+            version_regex,
+            "[0-9].*[0-9]",         # release date
+            copyright_string,
+            version,
+            release_date
+        )
         # Part 2: copyright year
         sed_script += "s/(%s)\s*%s(.*Lim)/\\1 \\2-%s\\3/" % (
-                copyright_string,
-                "([0-9]+)-[0-9]+",      # copyright years
-                date.today().strftime("%Y")
-            )
+            copyright_string,
+            "([0-9]+)-[0-9]+",      # copyright years
+            date.today().strftime("%Y")
+        )
 
         # Build list of files to update
         def sed_filter(name):
