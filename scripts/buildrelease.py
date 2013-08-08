@@ -15,7 +15,7 @@ import tempfile
 
 
 # ADOdb Repository reference
-origin_repo = "/home/dregad/adodb/git"
+origin_repo = "/home/dregad/dev/adodb/git"
 release_branch = "master"
 release_prefix = "adodb"
 
@@ -37,8 +37,8 @@ tag_prefix = "v"
 version_regex = "[Vv]?[0-9]\.[0-9]+[a-z]?"
 
 # Command-line options
-options = "hfacs:"
-long_options = ["help", "fresh", "auto-suffix", "clean"]
+options = "hfks:"
+long_options = ["help", "fresh", "keep"]
 
 
 def usage():
@@ -52,7 +52,8 @@ def usage():
         -h | --help             Show this usage message
 
         -f | --fresh            Create a fresh clone of the repository
-        -c | --clean            Remove build directories when completed
+        -k | --keep             Keep build directories after completion
+                                (useful for debugging)
 ''' % (
         path.basename(__file__)
     )
@@ -73,7 +74,7 @@ def main():
         sys.exit(1)
 
     fresh_clone = False
-    cleanup = False
+    cleanup = True
 
     for opt, val in opts:
         if opt in ("-h", "--help"):
@@ -83,8 +84,8 @@ def main():
         elif opt in ("-f", "--fresh"):
             fresh_clone = True
 
-        elif opt in ("-c", "--clean"):
-            cleanup = True
+        elif opt in ("-k", "--keep"):
+            cleanup = False
 
     # Mandatory parameters
     version = args[0]
@@ -238,13 +239,21 @@ def main():
     )
 
     if cleanup:
+        print "Deleting working directories"
         shutil.rmtree(release_tmp_dir)
         if fresh_clone:
-            print "\nRemoving temporary clone."
             shutil.rmtree(repo_path)
+    else:
+        print "Working directories were kept:"
+        if fresh_clone:
+            print "- '%s' (repo clone)" % repo_path
+        print "- '%s' (release temp dir)" % release_tmp_dir
 
     # Done
-    print "\nADOdb release %s build complete." % version
+    print "\nADOdb release %s build complete, tarballs saved in '%s'." % (
+        version,
+        release_tmp_dir
+    )
 
 #end main()
 
