@@ -165,7 +165,7 @@ def main():
         copyright_string = "\(c\)"
 
         # - Part 1: version number and release date
-        sed_script = "s/%s\s+%s\s+(%s)/V%s  %s/; " % (
+        sed_script = "s/%s\s+%s\s+(%s)/V%s  %s  \\1/\n" % (
             version_regex,
             "[0-9].*[0-9]",         # release date
             copyright_string,
