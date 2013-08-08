@@ -207,7 +207,7 @@ def main():
         # Create the tag
         print "Creating release tag '%s'" % release_tag
         subprocess.call(
-            "git tag --annotate --message '%s' %s" % (
+            "git tag --sign --message '%s' %s" % (
                 "ADOdb version %s released %s" % (version, release_date),
                 release_tag
             ),
