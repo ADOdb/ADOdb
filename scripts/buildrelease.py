@@ -158,7 +158,7 @@ def main():
             print "\nERROR: branch must be aligned with upstream"
             sys.exit(4)
 
-        print "Creating release tag '%s'" % release_tag
+        print "Preparing version bump commit"
         release_date = date.today().strftime("%d %b %Y")
 
         # Build sed script to update version information in source files
@@ -196,8 +196,16 @@ def main():
             ),
             shell=True
         )
+        print "Committing"
+        subprocess.call(
+            "git commit --all --message '%s'" % (
+                "Bump version to %s" % version
+            ),
+            shell=True
+        )
 
         # Create the tag
+        print "Creating release tag '%s'" % release_tag
         subprocess.call(
             "git tag --annotate --message '%s' %s" % (
                 "ADOdb version %s released %s" % (version, release_date),
