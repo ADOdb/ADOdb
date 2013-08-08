@@ -226,6 +226,9 @@ otherwise:
 ''' % (
             release_tag
         )
+        # Make sure we don't delete the modified repo
+        if fresh_clone:
+            cleanup = False
 
     # Copy files to release dir
     release_tmp_dir = path.join(release_path, release_prefix)
