@@ -161,9 +161,10 @@ def main():
         print "Creating release tag '%s'" % release_tag
         release_date = date.today().strftime("%d %b %Y")
 
-        # Update version information in source files
+        # Build sed script to update version information in source files
         copyright_string = "\(c\)"
-        # Part 1: version number and release date
+
+        # - Part 1: version number and release date
         sed_script = "s/%s\s+%s\s+(%s)/V%s  %s/; " % (
             version_regex,
             "[0-9].*[0-9]",         # release date
@@ -171,7 +172,7 @@ def main():
             version,
             release_date
         )
-        # Part 2: copyright year
+        # - Part 2: copyright year
         sed_script += "s/(%s)\s*%s(.*Lim)/\\1 \\2-%s\\3/" % (
             copyright_string,
             "([0-9]+)-[0-9]+",      # copyright years
@@ -186,6 +187,8 @@ def main():
             for name in filter(sed_filter, files):
                 dirlist.append(path.join(root, name))
 
+        # Bump version and set release date in source files, then commit
+        print "Updating version and date in source files"
         subprocess.call(
             "sed -r -i '%s' %s " % (
                 sed_script,
