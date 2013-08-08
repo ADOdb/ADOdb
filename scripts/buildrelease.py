@@ -215,6 +215,17 @@ def main():
             ),
             shell=True
         )
+        print '''
+NOTE: you should carefully review the new commit, making sure updates
+to the files are correct and no additional changes are required.
+If everything is fine, then the commit should be pushed upstream;
+otherwise:
+ - Make the required corrections
+ - Amend the commit ('git commit --all --amend' ) or create a new one
+ - Drop the tag ('git tag --delete %s') and run this script again
+''' % (
+            release_tag
+        )
 
     # Copy files to release dir
     release_tmp_dir = path.join(release_path, release_prefix)
@@ -261,10 +272,11 @@ def main():
         if fresh_clone:
             shutil.rmtree(repo_path)
     else:
-        print "Working directories were kept:"
+        print "\nThe following working directories were kept:"
         if fresh_clone:
             print "- '%s' (repo clone)" % repo_path
         print "- '%s' (release temp dir)" % release_tmp_dir
+        print "Delete them manually when they are no longer needed."
 
     # Done
     print "\nADOdb release %s build complete, tarballs saved in '%s'." % (
