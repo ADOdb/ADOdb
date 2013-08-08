@@ -16,7 +16,7 @@ import tempfile
 
 
 # ADOdb Repository reference
-origin_repo = "/home/dregad/dev/adodb/git"
+origin_repo = "git://git.code.sf.net/p/adodb/git adodb-git"
 release_branch = "master"
 release_prefix = "adodb"
 
