@@ -701,6 +701,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 	{
 		if ($this->_numOfRows != 0 && !$this->EOF) {
 			$this->_currentRow++;
+			$this->fields = false;
 
 			if ($this->_has_stupid_odbc_fetch_api_change)
 				$rez = @odbc_fetch_into($this->_queryID,$this->fields);
@@ -722,7 +723,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 
 	function _fetch()
 	{
-
+		$this->fields = false;
 		if ($this->_has_stupid_odbc_fetch_api_change)
 			$rez = @odbc_fetch_into($this->_queryID,$this->fields);
 		else {
@@ -735,7 +736,6 @@ class ADORecordSet_odbc extends ADORecordSet {
 			}
 			return true;
 		}
-		$this->fields = false;
 		return false;
 	}
 
