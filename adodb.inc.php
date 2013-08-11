@@ -3518,10 +3518,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
    * Use associative array to get fields array for databases that do not support
    * associative arrays. Submitted by Paolo S. Asioli paolo.asioli#libero.it
    *
-   * If you don't want uppercase cols, set $ADODB_FETCH_MODE = ADODB_FETCH_ASSOC
-   * before you execute your SQL statement, and access $rs->fields['col'] directly.
-   *
-   * $upper  0 = lowercase, 1 = uppercase, 2 = whatever is returned by FetchField
+   * @param int $upper Case for the array keys, defaults to uppercase
+   *                   (see ADODB_ASSOC_CASE_xxx constants)
    */
 	function GetRowAssoc($upper=ADODB_ASSOC_CASE_UPPER)
 	{
@@ -3544,7 +3542,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	/**
 	 * Clean up recordset
-		*
+	 *
 	 * @return true or false
 	 */
 	function Close()
