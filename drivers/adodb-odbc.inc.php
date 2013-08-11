@@ -701,18 +701,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 	{
 		if ($this->_numOfRows != 0 && !$this->EOF) {
 			$this->_currentRow++;
-			$this->fields = false;
-
-			if ($this->_has_stupid_odbc_fetch_api_change)
-				$rez = @odbc_fetch_into($this->_queryID,$this->fields);
-			else {
-				$row = 0;
-				$rez = @odbc_fetch_into($this->_queryID,$row,$this->fields);
-			}
-			if ($rez) {
-				if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-					$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
-				}
+			if( $this->_fetch() ) {
 				return true;
 			}
 		}
