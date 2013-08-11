@@ -31,7 +31,11 @@ class ADODB_mysqli extends ADOConnection {
 	var $dataProvider = 'mysql';
 	var $hasInsertID = true;
 	var $hasAffectedRows = true;
-	var $metaTablesSQL = "SELECT TABLE_NAME, CASE WHEN TABLE_TYPE = 'VIEW' THEN 'V' ELSE 'T' END FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA=SCHEMA()";
+	var $metaTablesSQL = "SELECT
+			TABLE_NAME,
+			CASE WHEN TABLE_TYPE = 'VIEW' THEN 'V' ELSE 'T' END
+		FROM INFORMATION_SCHEMA.TABLES
+		WHERE TABLE_SCHEMA=";
 	var $metaColumnsSQL = "SHOW COLUMNS FROM `%s`";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $hasLimit = true;
@@ -530,16 +534,27 @@ class ADODB_mysqli extends ADOConnection {
         return $procedures;
     }
 
+	/**
+	 * Retrieves a list of tables based on given criteria
+	 *
+	 * @param string $ttype Table type = 'TABLE', 'VIEW' or false=both (default)
+	 * @param string $showSchema schema name, false = current schema (default)
+	 * @param string $mask filters the table by name
+	 *
+	 * @return array list of tables
+	 */
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
-			$this->metaTablesSQL .= " from $showSchema";
+			$this->metaTablesSQL .= $this->qstr($showSchema);
+		} else {
+			$this->metaTablesSQL .= "schema()";
 		}
 
 		if ($mask) {
 			$mask = $this->qstr($mask);
-			$this->metaTablesSQL .= " like $mask";
+			$this->metaTablesSQL .= " AND table_name LIKE $mask";
 		}
 		$ret = ADOConnection::MetaTables($ttype,$showSchema);
 
