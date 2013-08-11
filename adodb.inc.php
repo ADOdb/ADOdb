@@ -3530,13 +3530,14 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$this->GetAssocKeys($upper);
 		}
 		foreach($this->bind as $k => $v) {
-			if( isset( $this->fields[$v] ) ) {
+			if( array_key_exists( $v, $this->fields ) ) {
 				$record[$k] = $this->fields[$v];
-			} else if (isset($this->fields[$k])) {
+			} elseif( array_key_exists( $k, $this->fields ) ) {
 				$record[$k] = $this->fields[$k];
-			} else
+			} else {
 				# This should not happen... trigger error ?
 				$record[$k] = null;
+			}
 		}
 		return $record;
 	}
