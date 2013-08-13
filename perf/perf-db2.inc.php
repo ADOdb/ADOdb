@@ -90,8 +90,13 @@ class perf_db2 extends adodb_perf{
 		return $s;
 	}
 
-
-	function Tables()
+	/**
+	 *  Gets a list of tables
+	 * 
+	 * @param 	int	$throwaway	A discarded variable to match the parent method
+	 * @return	str			The formatted table list
+	 */
+	function Tables($throwaway=0)
 	{
 		$rs = $this->conn->Execute("select tabschema,tabname,card as rows,
 			npages pages_used,fpages pages_allocated, tbspace tablespace
