@@ -161,11 +161,12 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	/**
 	 * Drop a column, syntax is ALTER TABLE table DROP COLUMN column,column
 	 *
-	 * @param str	$tabname	Table Name
-	 * @param str[] $flds		One, or an array of Fields To Drop
-	 * @param str	$tableflds	Throwaway value to make the function match the parent
-	 * @param str	$tableoptions	Throway value to make the function match the parent
-	 * @return str			The SQL necessary to drop the column
+	 * @param string   $tabname      Table Name
+	 * @param string[] $flds         One, or an array of Fields To Drop
+	 * @param string   $tableflds    Throwaway value to make the function match the parent
+	 * @param string   $tableoptions Throway value to make the function match the parent
+	 *
+	 * @return string  The SQL necessary to drop the column
 	 */
 	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{

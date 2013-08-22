@@ -93,8 +93,8 @@ class perf_db2 extends adodb_perf{
 	/**
 	 *  Gets a list of tables
 	 *
-	 * @param 	int	$throwaway	A discarded variable to match the parent method
-	 * @return	str			The formatted table list
+	 * @param int $throwaway discarded variable to match the parent method
+	 * @return string The formatted table list
 	 */
 	function Tables($throwaway=0)
 	{
