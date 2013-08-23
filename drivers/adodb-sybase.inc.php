@@ -52,7 +52,7 @@ class ADODB_sybase extends ADOConnection {
 	  // might require begintrans -- committrans
 	function _affectedrows()
 	{
-	   return $this->GetOne('select @@rowcount');
+		return $this->GetOne('select @@rowcount');
 	}
 
 
@@ -124,26 +124,28 @@ class ADODB_sybase extends ADOConnection {
 		if (!function_exists('sybase_connect')) return null;
 
 		if ($this->charSet) {
- 			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword, $this->charSet);
-       	} else {
-       		$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
-       	}
+			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword, $this->charSet);
+		} else {
+			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
+		}
 
 		$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
 		return true;
 	}
+
 	// returns true or false
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (!function_exists('sybase_connect')) return null;
 
 		if ($this->charSet) {
- 			$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword, $this->charSet);
-       	} else {
-       		$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword);
-       	}
+			$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword, $this->charSet);
+		} else {
+			$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword);
+		}
+
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
 		return true;
@@ -200,84 +202,84 @@ class ADODB_sybase extends ADOConnection {
 
 
 	# Added 2003-10-05 by Chris Phillipson
-    # Used ASA SQL Reference Manual -- http://sybooks.sybase.com/onlinebooks/group-aw/awg0800e/dbrfen8/@ebt-link;pt=16756?target=%25N%15_12018_START_RESTART_N%25
-    # to convert similar Microsoft SQL*Server (mssql) API into Sybase compatible version
-    // Format date column in sql string given an input format that understands Y M D
-    function SQLDate($fmt, $col=false)
-    {
-        if (!$col) $col = $this->sysTimeStamp;
-        $s = '';
+	# Used ASA SQL Reference Manual -- http://sybooks.sybase.com/onlinebooks/group-aw/awg0800e/dbrfen8/@ebt-link;pt=16756?target=%25N%15_12018_START_RESTART_N%25
+	# to convert similar Microsoft SQL*Server (mssql) API into Sybase compatible version
+	// Format date column in sql string given an input format that understands Y M D
+	function SQLDate($fmt, $col=false)
+	{
+		if (!$col) $col = $this->sysTimeStamp;
+		$s = '';
 
-        $len = strlen($fmt);
-        for ($i=0; $i < $len; $i++) {
-            if ($s) $s .= '+';
-            $ch = $fmt[$i];
-            switch($ch) {
-            case 'Y':
-            case 'y':
-                $s .= "datename(yy,$col)";
-                break;
-            case 'M':
-                $s .= "convert(char(3),$col,0)";
-                break;
-            case 'm':
-                $s .= "str_replace(str(month($col),2),' ','0')";
-                break;
-            case 'Q':
-            case 'q':
-                $s .= "datename(qq,$col)";
-                break;
-            case 'D':
-            case 'd':
-                $s .= "str_replace(str(datepart(dd,$col),2),' ','0')";
-                break;
-            case 'h':
-                $s .= "substring(convert(char(14),$col,0),13,2)";
-                break;
+		$len = strlen($fmt);
+		for ($i=0; $i < $len; $i++) {
+			if ($s) $s .= '+';
+			$ch = $fmt[$i];
+			switch($ch) {
+			case 'Y':
+			case 'y':
+				$s .= "datename(yy,$col)";
+				break;
+			case 'M':
+				$s .= "convert(char(3),$col,0)";
+				break;
+			case 'm':
+				$s .= "str_replace(str(month($col),2),' ','0')";
+				break;
+			case 'Q':
+			case 'q':
+				$s .= "datename(qq,$col)";
+				break;
+			case 'D':
+			case 'd':
+				$s .= "str_replace(str(datepart(dd,$col),2),' ','0')";
+				break;
+			case 'h':
+				$s .= "substring(convert(char(14),$col,0),13,2)";
+				break;
 
-            case 'H':
-                $s .= "str_replace(str(datepart(hh,$col),2),' ','0')";
-                break;
+			case 'H':
+				$s .= "str_replace(str(datepart(hh,$col),2),' ','0')";
+				break;
 
-            case 'i':
-                $s .= "str_replace(str(datepart(mi,$col),2),' ','0')";
-                break;
-            case 's':
-                $s .= "str_replace(str(datepart(ss,$col),2),' ','0')";
-                break;
-            case 'a':
-            case 'A':
-                $s .= "substring(convert(char(19),$col,0),18,2)";
-                break;
+			case 'i':
+				$s .= "str_replace(str(datepart(mi,$col),2),' ','0')";
+				break;
+			case 's':
+				$s .= "str_replace(str(datepart(ss,$col),2),' ','0')";
+				break;
+			case 'a':
+			case 'A':
+				$s .= "substring(convert(char(19),$col,0),18,2)";
+				break;
 
-            default:
-                if ($ch == '\\') {
-                    $i++;
-                    $ch = substr($fmt,$i,1);
-                }
-                $s .= $this->qstr($ch);
-                break;
-            }
-        }
-        return $s;
-    }
+			default:
+				if ($ch == '\\') {
+					$i++;
+					$ch = substr($fmt,$i,1);
+				}
+				$s .= $this->qstr($ch);
+				break;
+			}
+		}
+		return $s;
+	}
 
 	# Added 2003-10-07 by Chris Phillipson
-    # Used ASA SQL Reference Manual -- http://sybooks.sybase.com/onlinebooks/group-aw/awg0800e/dbrfen8/@ebt-link;pt=5981;uf=0?target=0;window=new;showtoc=true;book=dbrfen8
-    # to convert similar Microsoft SQL*Server (mssql) API into Sybase compatible version
-    function MetaPrimaryKeys($table)
-    {
-        $sql = "SELECT c.column_name " .
-               "FROM syscolumn c, systable t " .
-               "WHERE t.table_name='$table' AND c.table_id=t.table_id " .
-               "AND t.table_type='BASE' " .
-               "AND c.pkey = 'Y' " .
-               "ORDER BY c.column_id";
+	# Used ASA SQL Reference Manual -- http://sybooks.sybase.com/onlinebooks/group-aw/awg0800e/dbrfen8/@ebt-link;pt=5981;uf=0?target=0;window=new;showtoc=true;book=dbrfen8
+	# to convert similar Microsoft SQL*Server (mssql) API into Sybase compatible version
+	function MetaPrimaryKeys($table)
+	{
+		$sql = "SELECT c.column_name " .
+			   "FROM syscolumn c, systable t " .
+			   "WHERE t.table_name='$table' AND c.table_id=t.table_id " .
+			   "AND t.table_type='BASE' " .
+			   "AND c.pkey = 'Y' " .
+			   "ORDER BY c.column_id";
 
-        $a = $this->GetCol($sql);
-        if ($a && sizeof($a)>0) return $a;
-        return false;
-    }
+		$a = $this->GetCol($sql);
+		if ($a && sizeof($a)>0) return $a;
+		return false;
+	}
 }
 
 /*--------------------------------------------------------------------------------------
