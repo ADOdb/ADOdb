@@ -129,7 +129,6 @@ class ADODB_sybase extends ADOConnection {
 			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
 		}
 
-		$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
 		return true;
