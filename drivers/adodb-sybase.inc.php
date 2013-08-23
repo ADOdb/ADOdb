@@ -39,6 +39,7 @@ class ADODB_sybase extends ADOConnection {
 	var $sysDate = 'GetDate()';
 	var $leftOuter = '*=';
 	var $rightOuter = '=*';
+	var $charSet = 'iso_1'; // knbknb 20130819
 
 	function ADODB_sybase()
 	{
@@ -125,11 +126,12 @@ class ADODB_sybase extends ADOConnection {
 
 		if ($this->charSet) {
  			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword, $this->charSet);
-       	} else {
-       		$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
-       	}
+       		} else {
+       			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
+       		}
 
-		$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
+		// this line is redundant, the if-statement block above has already handled this case
+		// $this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
 		return true;
