@@ -809,7 +809,7 @@ NATSOFT.DOMAIN =
 			if (isset($ret)) return $ret;
 		}
 		if ($inputarr) {
-			#if (!is_array($inputarr)) $inputarr = array($inputarr);
+			if (!is_array($inputarr)) $inputarr = array($inputarr);
 
 			$element0 = reset($inputarr);
 			$array2d =  $this->bulkBind && is_array($element0) && !is_object(reset($element0));
