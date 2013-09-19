@@ -199,7 +199,10 @@ class ADODB2_postgres extends ADODB_DataDict {
 				 // explicitly ask a column to be null using $flds
 				else if ($set_null = preg_match('/NULL/i',$v)) {
 					// if they didn't specify not null, see if they explicitely asked for null
-					$v = preg_replace('/\sNULL/i','',$v);
+					// Lookbehind pattern covers the case 'fieldname NULL datatype DEFAULT NULL'
+					// only the first NULL should be removed, not the one specifying
+					// the default value
+					$v = preg_replace('/(?<!DEFAULT)\sNULL/i','',$v);
 				}
 
 				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
