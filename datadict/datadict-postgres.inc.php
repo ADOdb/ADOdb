@@ -205,8 +205,12 @@ class ADODB2_postgres extends ADODB_DataDict {
 				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
 					$existing = $this->MetaColumns($tabname);
 					list(,$colname,$default) = $matches;
-					if ($this->connection) $old_coltype = $this->connection->MetaType($existing[strtoupper($colname)]);
-					else $old_coltype = $t;
+					if ($this->connection) {
+						$old_coltype = $this->connection->MetaType($existing[strtoupper($colname)]);
+					}
+					else {
+						$old_coltype = $t;
+					}
 					$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
 					$t = trim(str_replace('DEFAULT '.$default,'',$v));
 
