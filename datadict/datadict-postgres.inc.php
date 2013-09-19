@@ -182,80 +182,79 @@ class ADODB2_postgres extends ADODB_DataDict {
 
 	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
-	   // Check if alter single column datatype available - works with 8.0+
-	   $has_alter_column = 8.0 <= (float) @$this->serverInfo['version'];
+		// Check if alter single column datatype available - works with 8.0+
+		$has_alter_column = 8.0 <= (float) @$this->serverInfo['version'];
 
-	   if ($has_alter_column) {
-	      $tabname = $this->TableName($tabname);
-	      $sql = array();
-	      list($lines,$pkey) = $this->_GenFields($flds);
-		  $set_null = false;
-	      $alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
-	      foreach($lines as $v) {
-	        if ($not_null = preg_match('/NOT NULL/i',$v)) {
-	            $v = preg_replace('/NOT NULL/i','',$v);
-	        }
-	         // this next block doesn't work - there is no way that I can see to
-	         // explicitly ask a column to be null using $flds
-	        else if ($set_null = preg_match('/NULL/i',$v)) {
-	            // if they didn't specify not null, see if they explicitely asked for null
-	            $v = preg_replace('/\sNULL/i','',$v);
-	        }
-
-			if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
-				$existing = $this->MetaColumns($tabname);
-				list(,$colname,$default) = $matches;
-				if ($this->connection) $old_coltype = $this->connection->MetaType($existing[strtoupper($colname)]);
-				else $old_coltype = $t;
-				$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
-				$t = trim(str_replace('DEFAULT '.$default,'',$v));
-
-				// Type change from bool to int
-				if ( $old_coltype == 'L' && $t == 'INTEGER' ) {
-					$sql[] = $alter . $colname . ' DROP DEFAULT';
-					$sql[] = $alter . $colname . " TYPE $t USING ($colname::BOOL)::INT";
-					$sql[] = $alter . $colname . " SET DEFAULT $default";
+		if ($has_alter_column) {
+			$tabname = $this->TableName($tabname);
+			$sql = array();
+			list($lines,$pkey) = $this->_GenFields($flds);
+			$set_null = false;
+			$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
+			foreach($lines as $v) {
+				if ($not_null = preg_match('/NOT NULL/i',$v)) {
+					$v = preg_replace('/NOT NULL/i','',$v);
 				}
-				// Type change from int to bool
-				else if ( $old_coltype == 'I' && $t == 'BOOLEAN' ) {
-					$sql[] = $alter . $colname . ' DROP DEFAULT';
-					$sql[] = $alter . $colname . " TYPE $t USING CASE WHEN $colname = 0 THEN false ELSE true END";
-					$sql[] = $alter . $colname . " SET DEFAULT " . $this->connection->qstr($default);
+				 // this next block doesn't work - there is no way that I can see to
+				 // explicitly ask a column to be null using $flds
+				else if ($set_null = preg_match('/NULL/i',$v)) {
+					// if they didn't specify not null, see if they explicitely asked for null
+					$v = preg_replace('/\sNULL/i','',$v);
 				}
-				// Any other column types conversion
+
+				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
+					$existing = $this->MetaColumns($tabname);
+					list(,$colname,$default) = $matches;
+					if ($this->connection) $old_coltype = $this->connection->MetaType($existing[strtoupper($colname)]);
+					else $old_coltype = $t;
+					$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
+					$t = trim(str_replace('DEFAULT '.$default,'',$v));
+
+					// Type change from bool to int
+					if ( $old_coltype == 'L' && $t == 'INTEGER' ) {
+						$sql[] = $alter . $colname . ' DROP DEFAULT';
+						$sql[] = $alter . $colname . " TYPE $t USING ($colname::BOOL)::INT";
+						$sql[] = $alter . $colname . " SET DEFAULT $default";
+					}
+					// Type change from int to bool
+					else if ( $old_coltype == 'I' && $t == 'BOOLEAN' ) {
+						$sql[] = $alter . $colname . ' DROP DEFAULT';
+						$sql[] = $alter . $colname . " TYPE $t USING CASE WHEN $colname = 0 THEN false ELSE true END";
+						$sql[] = $alter . $colname . " SET DEFAULT " . $this->connection->qstr($default);
+					}
+					// Any other column types conversion
+					else {
+						$sql[] = $alter . $colname . " TYPE $t";
+						$sql[] = $alter . $colname . " SET DEFAULT $default";
+					}
+
+				}
 				else {
-					$sql[] = $alter . $colname . " TYPE $t";
-					$sql[] = $alter . $colname . " SET DEFAULT $default";
+					// drop default?
+					preg_match ('/^\s*(\S+)\s+(.*)$/',$v,$matches);
+					list (,$colname,$rest) = $matches;
+					$sql[] = $alter . $colname . ' TYPE ' . $rest;
 				}
 
+#				list($colname) = explode(' ',$v);
+				if ($not_null) {
+					// this does not error out if the column is already not null
+					$sql[] = $alter . $colname . ' SET NOT NULL';
+				}
+				if ($set_null) {
+					// this does not error out if the column is already null
+					$sql[] = $alter . $colname . ' DROP NOT NULL';
+				}
+			}
+			return $sql;
+		}
 
-	         }
-	         else {
-	            // drop default?
-	            preg_match ('/^\s*(\S+)\s+(.*)$/',$v,$matches);
-	            list (,$colname,$rest) = $matches;
-	            $sql[] = $alter . $colname . ' TYPE ' . $rest;
-	         }
-
-#	         list($colname) = explode(' ',$v);
-	         if ($not_null) {
-	            // this does not error out if the column is already not null
-				$sql[] = $alter . $colname . ' SET NOT NULL';
-	         }
-	         if ($set_null) {
-	            // this does not error out if the column is already null
-	            $sql[] = $alter . $colname . ' DROP NOT NULL';
-	         }
-	      }
-	      return $sql;
-	   }
-
-	   // does not have alter column
-	   if (!$tableflds) {
-	      if ($this->debug) ADOConnection::outp("AlterColumnSQL needs a complete table-definiton for PostgreSQL");
-	      return array();
-	   }
-	   return $this->_recreate_copy_table($tabname,False,$tableflds,$tableoptions);
+		// does not have alter column
+		if (!$tableflds) {
+			if ($this->debug) ADOConnection::outp("AlterColumnSQL needs a complete table-definiton for PostgreSQL");
+			return array();
+		}
+		return $this->_recreate_copy_table($tabname,False,$tableflds,$tableoptions);
 	}
 
 	/**
