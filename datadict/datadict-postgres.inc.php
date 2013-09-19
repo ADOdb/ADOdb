@@ -205,6 +205,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
 					$existing = $this->MetaColumns($tabname);
 					list(,$colname,$default) = $matches;
+					$alter .= $colname;
 					if ($this->connection) {
 						$old_coltype = $this->connection->MetaType($existing[strtoupper($colname)]);
 					}
@@ -216,20 +217,20 @@ class ADODB2_postgres extends ADODB_DataDict {
 
 					// Type change from bool to int
 					if ( $old_coltype == 'L' && $t == 'INTEGER' ) {
-						$sql[] = $alter . $colname . ' DROP DEFAULT';
-						$sql[] = $alter . $colname . " TYPE $t USING ($colname::BOOL)::INT";
-						$sql[] = $alter . $colname . " SET DEFAULT $default";
+						$sql[] = $alter . ' DROP DEFAULT';
+						$sql[] = $alter . " TYPE $t USING ($colname::BOOL)::INT";
+						$sql[] = $alter . " SET DEFAULT $default";
 					}
 					// Type change from int to bool
 					else if ( $old_coltype == 'I' && $t == 'BOOLEAN' ) {
-						$sql[] = $alter . $colname . ' DROP DEFAULT';
-						$sql[] = $alter . $colname . " TYPE $t USING CASE WHEN $colname = 0 THEN false ELSE true END";
-						$sql[] = $alter . $colname . " SET DEFAULT " . $this->connection->qstr($default);
+						$sql[] = $alter . ' DROP DEFAULT';
+						$sql[] = $alter . " TYPE $t USING CASE WHEN $colname = 0 THEN false ELSE true END";
+						$sql[] = $alter . " SET DEFAULT " . $this->connection->qstr($default);
 					}
 					// Any other column types conversion
 					else {
-						$sql[] = $alter . $colname . " TYPE $t";
-						$sql[] = $alter . $colname . " SET DEFAULT $default";
+						$sql[] = $alter . " TYPE $t";
+						$sql[] = $alter . " SET DEFAULT $default";
 					}
 
 				}
@@ -237,17 +238,18 @@ class ADODB2_postgres extends ADODB_DataDict {
 					// drop default?
 					preg_match ('/^\s*(\S+)\s+(.*)$/',$v,$matches);
 					list (,$colname,$rest) = $matches;
-					$sql[] = $alter . $colname . ' TYPE ' . $rest;
+					$alter .= $colname;
+					$sql[] = $alter . ' TYPE ' . $rest;
 				}
 
 #				list($colname) = explode(' ',$v);
 				if ($not_null) {
 					// this does not error out if the column is already not null
-					$sql[] = $alter . $colname . ' SET NOT NULL';
+					$sql[] = $alter . ' SET NOT NULL';
 				}
 				if ($set_null) {
 					// this does not error out if the column is already null
-					$sql[] = $alter . $colname . ' DROP NOT NULL';
+					$sql[] = $alter . ' DROP NOT NULL';
 				}
 			}
 			return $sql;
