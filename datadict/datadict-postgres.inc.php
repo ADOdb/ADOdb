@@ -226,9 +226,12 @@ class ADODB2_postgres extends ADODB_DataDict {
 					}
 					// Type change from int to bool
 					else if ( $old_coltype == 'I' && $t == 'BOOLEAN' ) {
+						if( strcasecmp('NULL', trim($default)) != 0 ) {
+							$default = $this->connection->qstr($default);
+						}
 						$sql[] = $alter . ' DROP DEFAULT';
 						$sql[] = $alter . " TYPE $t USING CASE WHEN $colname = 0 THEN false ELSE true END";
-						$sql[] = $alter . " SET DEFAULT " . $this->connection->qstr($default);
+						$sql[] = $alter . " SET DEFAULT $default";
 					}
 					// Any other column types conversion
 					else {
