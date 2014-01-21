@@ -64,6 +64,43 @@ def release_date(version):
     # Define release date
     return date.today().strftime(date_format)
 
+def sed_script(version):
+    ''' Builds sed script to update version information in source files
+    '''
+    copyright_string = "\(c\)"
+
+    # - Part 1: version number and release date
+    script = "s/%s\s+%s\s+(%s)/V%s  %s  \\2/\n" % (
+        _version_regex,
+        _release_date_regex,
+        copyright_string,
+        version,
+        release_date(version)
+    )
+
+    # - Part 2: copyright year
+    script += "s/(%s)\s*%s(.*Lim)/\\1 \\2-%s\\3/" % (
+        copyright_string,
+        "([0-9]+)-[0-9]+",      # copyright years
+        date.today().strftime("%Y")
+    )
+
+    return script
+
+
+def sed_filelist():
+    ''' Build list of files to update
+    '''
+    def sed_filter(name):
+        return name.lower().endswith((".php", ".htm", ".txt"))
+
+    dirlist = []
+    for root, dirs, files in os.walk(".", topdown=True):
+        for name in filter(sed_filter, files):
+            dirlist.append(path.join(root, name))
+
+    return dirlist
+
 
 def main():
     # Get command-line options
@@ -91,38 +128,12 @@ def main():
     # Mandatory parameters
     version = version_check(args[0])
 
-    # Build sed script to update version information in source files
-    copyright_string = "\(c\)"
-
-    # - Part 1: version number and release date
-    sed_script = "s/%s\s+%s\s+(%s)/V%s  %s  \\2/\n" % (
-        version_regex,
-        release_date_regex,
-        copyright_string,
-        version,
-        release_date(version)
-    )
-    # - Part 2: copyright year
-    sed_script += "s/(%s)\s*%s(.*Lim)/\\1 \\2-%s\\3/" % (
-        copyright_string,
-        "([0-9]+)-[0-9]+",      # copyright years
-        date.today().strftime("%Y")
-    )
-
-    # Build list of files to update
-    def sed_filter(name):
-        return name.lower().endswith((".php", ".htm", ".txt"))
-    dirlist = []
-    for root, dirs, files in os.walk(".", topdown=True):
-        for name in filter(sed_filter, files):
-            dirlist.append(path.join(root, name))
-
     # Bump version and set release date in source files
     print "Updating version and date in source files"
     subprocess.call(
         "sed -r -i '%s' %s " % (
-            sed_script,
-            " ".join(dirlist)
+            sed_script(version),
+            " ".join(sed_filelist())
         ),
         shell=True
     )
