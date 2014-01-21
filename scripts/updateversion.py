@@ -51,6 +51,20 @@ def version_check(version):
     return version.lstrip("Vv")
 
 
+def release_date(version):
+    ''' Returns the release date in DD-MMM-YYYY format
+        For development releases, DD-MMM will be ??-???
+    '''
+    # Development release
+    if version.endswith(version_dev):
+        date_format = "??-???-%Y"
+    else:
+        date_format = "%d-%b-%Y"
+
+    # Define release date
+    return date.today().strftime(date_format)
+
+
 def main():
     # Get command-line options
     try:
@@ -74,18 +88,8 @@ def main():
         elif opt in ("-c", "--commit"):
             do_commit = True
 
-
     # Mandatory parameters
     version = version_check(args[0])
-
-    # Development release
-    if version.endswith(version_dev):
-        date_format = "??-???-%Y"
-    else:
-        date_format = "%d-%b-%Y"
-
-    # Define release date
-    release_date = date.today().strftime(date_format)
 
     # Build sed script to update version information in source files
     copyright_string = "\(c\)"
@@ -96,7 +100,7 @@ def main():
         release_date_regex,
         copyright_string,
         version,
-        release_date
+        release_date(version)
     )
     # - Part 2: copyright year
     sed_script += "s/(%s)\s*%s(.*Lim)/\\1 \\2-%s\\3/" % (
