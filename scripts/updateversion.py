@@ -15,9 +15,9 @@ import subprocess
 import sys
 
 # ADOdb version validation regex
-version_dev = "dev"
-version_regex = "[Vv]?[0-9]\.[0-9]+([a-z]|%s)?" % version_dev
-release_date_regex = "[0-9?]+.*[0-9]+"
+_version_dev = "dev"
+_version_regex = "[Vv]?[0-9]\.[0-9]+([a-z]|%s)?" % _version_dev
+_release_date_regex = "[0-9?]+.*[0-9]+"
 
 # Command-line options
 options = "hc"
@@ -43,7 +43,7 @@ def version_check(version):
     ''' Checks that the given version is valid, exits with error if not.
         Returns the version without the "v" prefix
     '''
-    if not re.search("^%s$" % version_regex, version):
+    if not re.search("^%s$" % _version_regex, version):
         usage()
         print "ERROR: invalid version ! \n"
         sys.exit(1)
@@ -56,7 +56,7 @@ def release_date(version):
         For development releases, DD-MMM will be ??-???
     '''
     # Development release
-    if version.endswith(version_dev):
+    if version.endswith(_version_dev):
         date_format = "??-???-%Y"
     else:
         date_format = "%d-%b-%Y"
