@@ -119,14 +119,15 @@ def version_set(version, do_commit):
     if do_commit:
         # Commit changes
         print "Committing"
-        subprocess.call(
+        result = subprocess.call(
             "git commit --all --message '%s'" % (
                 "Bump version to %s" % version
             ),
             shell=True
         )
 
-        print '''
+        if result == 0:
+            print '''
 NOTE: you should carefully review the new commit, making sure updates
 to the files are correct and no additional changes are required.
 If everything is fine, then the commit can be pushed upstream;
