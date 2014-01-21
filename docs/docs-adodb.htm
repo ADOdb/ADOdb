@@ -6170,17 +6170,13 @@ PHP</a>. </p>
 
 <h2>Change Log<a name=changes></a><a name=changelog></a></h2>
 
-<p><a name=5.19><b>5.19 ??? 2013</b>
+<p><a name=5.19><b>5.19 ??? 2014</b>
 <p>
-<p>sessions: changed lob handling to detect all variations of oci8 driver.
-<p>oci8quercus: new oci8 driver with support for quercus jdbc data types.
-<p>postgres9: Fixed assoc problem. See http://phplens.com/lens/lensforum/msgs.php?id=19296
-<p>odbc: Fixed MetaTables and MetaPrimaryKeys definitions in odbc driver to match adoconnection class.
 <p>adodb: GetRowAssoc will return null as required. See http://phplens.com/lens/lensforum/msgs.php?id=19289
 <p>adodb: Fix GetRowAssoc bug introduced in 5.17, causing function to return data from previous fetch for NULL fields. See http://phplens.com/lens/lensforum/msgs.php?id=17539
-<p>oci8: GetRowAssoc now works in ADODB_FETCH_ASSOC fetch mode
-<p>pdo: Fixed concat recursion bug in 5.3. See http://phplens.com/lens/lensforum/msgs.php?id=19285
 <p>Added new ADODB_ASSOC_CASE_* constants. Thx to Damien Regad.
+<p>sessions: changed lob handling to detect all variations of oci8 driver.
+<p>ads: clear fields before fetching. See http://phplens.com/lens/lensforum/msgs.php?id=17539
 <p>mssqlnative: fixed many FetchField compat issues. See http://phplens.com/lens/lensforum/msgs.php?id=18464. Also date format changed to remove timezone.
 <p>mssqlnative: Numerous fixes and improvements by Mark Newnham <ul>
 	<li class="MsoNormal">Driver supports SQL Server 2005, 2008 and 2012</li>
@@ -6191,9 +6187,16 @@ PHP</a>. </p>
 	<li class="MsoNormal">etc.</li>
 	</ul>
 <p>mysql/mysqli: Fix ability for MetaTables to filter by table name, broken since 5.15. See http://phplens.com/lens/lensforum/msgs.php?id=19359
-<p>sybase: Removed redundant sybase_connect() call in _connect(). See Github #3
+<p>odbc: Fixed MetaTables and MetaPrimaryKeys definitions in odbc driver to match adoconnection class.
+<p>odbc: clear fields before fetching. See http://phplens.com/lens/lensforum/msgs.php?id=17539
+<p>oci8: GetRowAssoc now works in ADODB_FETCH_ASSOC fetch mode
+<p>oci8: MetaType and MetaForeignKeys argument count are now strict-standards compliant
+<p>oci8quercus: new oci8 driver with support for quercus jdbc data types.
+<p>pdo: Fixed concat recursion bug in 5.3. See http://phplens.com/lens/lensforum/msgs.php?id=19285
 <p>pgsql: Fix output of BLOB (bytea) columns with PostgreSQL >= 9.0
 <p>pgsql: Fix handling of DEFAULT NULL columns in AlterColumnSQL
+<p>postgres9: Fixed assoc problem. See http://phplens.com/lens/lensforum/msgs.php?id=19296
+<p>sybase: Removed redundant sybase_connect() call in _connect(). See Github #3
 
 <p><a name=5.18><b>5.18 3 Sep 2012</b>
 <p>datadict-postgres: Fixes bug in ALTER COL. See http://phplens.com/lens/lensforum/msgs.php?id=19202. Also fixed bugs in MetaType() checking $fieldobj properties.
