@@ -64,6 +64,7 @@ def release_date(version):
     # Define release date
     return date.today().strftime(date_format)
 
+
 def sed_script(version):
     ''' Builds sed script to update version information in source files
     '''
@@ -102,33 +103,9 @@ def sed_filelist():
     return dirlist
 
 
-def main():
-    # Get command-line options
-    try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], options, long_options)
-    except getopt.GetoptError, err:
-        print str(err)
-        usage()
-        sys.exit(2)
-
-    if len(args) < 1:
-        usage()
-        sys.exit(1)
-
-    do_commit = False
-
-    for opt, val in opts:
-        if opt in ("-h", "--help"):
-            usage()
-            sys.exit(0)
-
-        elif opt in ("-c", "--commit"):
-            do_commit = True
-
-    # Mandatory parameters
-    version = version_check(args[0])
-
-    # Bump version and set release date in source files
+def version_set(version, do_commit):
+    ''' Bump version number and set release date in source files
+    '''
     print "Updating version and date in source files"
     subprocess.call(
         "sed -r -i '%s' %s " % (
@@ -159,9 +136,39 @@ otherwise:
 '''
     else:
         print "Note: changes have been staged but not committed."
+#end version_set()
 
-    # We're done
+
+def main():
+    # Get command-line options
+    try:
+        opts, args = getopt.gnu_getopt(sys.argv[1:], options, long_options)
+    except getopt.GetoptError, err:
+        print str(err)
+        usage()
+        sys.exit(2)
+
+    if len(args) < 1:
+        usage()
+        sys.exit(1)
+
+    do_commit = False
+
+    for opt, val in opts:
+        if opt in ("-h", "--help"):
+            usage()
+            sys.exit(0)
+
+        elif opt in ("-c", "--commit"):
+            do_commit = True
+
+    # Mandatory parameters
+    version = version_check(args[0])
+
+    # Let's do it
+    version_set(version, do_commit)
 #end main()
+
 
 if __name__ == "__main__":
     main()
