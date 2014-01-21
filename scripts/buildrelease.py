@@ -3,7 +3,6 @@
     ADOdb release build script
 '''
 
-from datetime import date
 import errno
 import getopt
 import re
@@ -13,6 +12,8 @@ import shutil
 import subprocess
 import sys
 import tempfile
+
+import updateversion
 
 
 # ADOdb Repository reference
@@ -89,17 +90,11 @@ def main():
             cleanup = False
 
     # Mandatory parameters
-    version = args[0]
-    if not re.search("^%s$" % version_regex, version):
-        usage()
-        print "ERROR: invalid version ! \n"
-        sys.exit(1)
-    else:
-        version = version.lstrip("Vv")
-        global release_prefix
-        release_prefix += version.split(".")[0]
-
+    version = updateversion.version_check(args[0])
     release_path = args[1]
+
+    global release_prefix
+    release_prefix += version.split(".")[0]
 
     # Start the build
     print "Building ADOdb release %s into '%s'\n" % (
@@ -160,69 +155,26 @@ def main():
             print "\nERROR: branch must be aligned with upstream"
             sys.exit(4)
 
+        # Updating the version
         print "Preparing version bump commit"
-        release_date = date.today().strftime("%d %b %Y")
-
-        # Build sed script to update version information in source files
-        copyright_string = "\(c\)"
-
-        # - Part 1: version number and release date
-        sed_script = "s/%s\s+%s\s+(%s)/V%s  %s  \\1/\n" % (
-            version_regex,
-            "[0-9].*[0-9]",         # release date
-            copyright_string,
-            version,
-            release_date
-        )
-        # - Part 2: copyright year
-        sed_script += "s/(%s)\s*%s(.*Lim)/\\1 \\2-%s\\3/" % (
-            copyright_string,
-            "([0-9]+)-[0-9]+",      # copyright years
-            date.today().strftime("%Y")
-        )
-
-        # Build list of files to update
-        def sed_filter(name):
-            return name.lower().endswith((".php", ".htm", ".txt"))
-        dirlist = []
-        for root, dirs, files in os.walk(".", topdown=True):
-            for name in filter(sed_filter, files):
-                dirlist.append(path.join(root, name))
-
-        # Bump version and set release date in source files, then commit
-        print "Updating version and date in source files"
-        subprocess.call(
-            "sed -r -i '%s' %s " % (
-                sed_script,
-                " ".join(dirlist)
-            ),
-            shell=True
-        )
-        print "Committing"
-        subprocess.call(
-            "git commit --all --message '%s'" % (
-                "Bump version to %s" % version
-            ),
-            shell=True
-        )
+        updateversion.version_set(version, True)
 
         # Create the tag
         print "Creating release tag '%s'" % release_tag
         subprocess.call(
             "git tag --sign --message '%s' %s" % (
-                "ADOdb version %s released %s" % (version, release_date),
+                "ADOdb version %s released %s" % (
+                    version,
+                    updateversion.release_date(version)
+                ),
                 release_tag
             ),
             shell=True
         )
-        print '''
-NOTE: you should carefully review the new commit, making sure updates
-to the files are correct and no additional changes are required.
-If everything is fine, then the commit should be pushed upstream;
-otherwise:
- - Make the required corrections
- - Amend the commit ('git commit --all --amend' ) or create a new one
- - Drop the tag ('git tag --delete %s') and run this script again
+        print '''If the tag is incorrect (e.g. if you need to amend the version
+bump commit, you must then
+ - Drop the tag ('git tag --delete %1s')
+ - run this script again
 ''' % (
             release_tag
         )
