@@ -1,6 +1,6 @@
 <?php
 /*
-  (c) 2000-2007 John Lim (jlim#natsoft.com.my). All rights reserved.
+  (c) 2000-2014 John Lim (jlim#natsoft.com.my). All rights reserved.
   Portions Copyright (c) 2007-2009, iAnywhere Solutions, Inc.
   All rights reserved. All unpublished rights reserved.
 
