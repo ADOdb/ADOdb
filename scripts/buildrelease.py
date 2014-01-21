@@ -73,6 +73,7 @@ def main():
 
     if len(args) < 2:
         usage()
+        print "ERROR: please specify the version and release_path"
         sys.exit(1)
 
     fresh_clone = False

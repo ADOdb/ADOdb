@@ -150,6 +150,7 @@ def main():
 
     if len(args) < 1:
         usage()
+        print "ERROR: please specify the version"
         sys.exit(1)
 
     do_commit = False
