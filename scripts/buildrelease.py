@@ -33,11 +33,6 @@ exclude_list = (".git*",
                 # 'adodb-lite.inc.php'
                 )
 
-# ADOdb version validation regex
-version_prefix = "V"
-tag_prefix = "v"
-version_regex = "[Vv]?[0-9]\.[0-9]+[a-z]?"
-
 # Command-line options
 options = "hfks:"
 long_options = ["help", "fresh", "keep"]
@@ -136,13 +131,8 @@ def main():
             sys.exit(3)
 
     # Check existence of Tag for version in repo, create if not found
-    release_tag = tag_prefix + version
     try:
-        subprocess.check_call(
-            "git checkout --quiet " + release_tag,
-            stderr=subprocess.PIPE,
-            shell=True)
-        print "Tag '%s' already exists" % release_tag
+        updateversion.tag_check(version)
     except:
         # Checkout release branch
         subprocess.call("git checkout %s" % release_branch, shell=True)
@@ -156,29 +146,9 @@ def main():
             print "\nERROR: branch must be aligned with upstream"
             sys.exit(4)
 
-        # Updating the version
-        print "Preparing version bump commit"
-        updateversion.version_set(version, True)
+        # Update the code, create commit and tag
+        updateversion.version_set(version)
 
-        # Create the tag
-        print "Creating release tag '%s'" % release_tag
-        subprocess.call(
-            "git tag --sign --message '%s' %s" % (
-                "ADOdb version %s released %s" % (
-                    version,
-                    updateversion.release_date(version)
-                ),
-                release_tag
-            ),
-            shell=True
-        )
-        print '''If the tag is incorrect (e.g. if you need to amend the version
-bump commit, you must then
- - Drop the tag ('git tag --delete %1s')
- - run this script again
-''' % (
-            release_tag
-        )
         # Make sure we don't delete the modified repo
         if fresh_clone:
             cleanup = False

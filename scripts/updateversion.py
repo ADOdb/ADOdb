@@ -14,14 +14,18 @@ import re
 import subprocess
 import sys
 
+
 # ADOdb version validation regex
 _version_dev = "dev"
 _version_regex = "[Vv]?[0-9]\.[0-9]+([a-z]|%s)?" % _version_dev
 _release_date_regex = "[0-9?]+.*[0-9]+"
 
+_tag_prefix = "v"
+
+
 # Command-line options
-options = "hc"
-long_options = ["help", "commit"]
+options = "hct"
+long_options = ["help", "commit", "tag"]
 
 
 def usage():
@@ -31,7 +35,8 @@ def usage():
         version                 ADOdb version, format: [v]X.YY[a-z|dev]
 
     Options:
-        -c | --commit           Automatically commits the changes
+        -c | --commit           Automatically commit the changes
+        -t | --tag              Create a tag for the new release
         -h | --help             Show this usage message
 ''' % (
         path.basename(__file__)
@@ -103,9 +108,45 @@ def sed_filelist():
     return dirlist
 
 
-def version_set(version, do_commit):
+def tag_name(version):
+    return _tag_prefix + version
+
+
+def tag_check(version):
+    ''' Checks if the tag for the specified version exists in the repository
+        by attempting to check it out
+        Throws exception if not
+    '''
+    subprocess.check_call(
+        "git checkout --quiet " + tag_name(version),
+        stderr=subprocess.PIPE,
+        shell=True)
+    print "Tag '%s' already exists" % tag_name(version)
+
+
+def tag_create(version):
+    ''' Creates the tag for the specified version
+        Returns True if tag created
+    '''
+    print "Creating release tag '%s'" % tag_name(version)
+    result = subprocess.call(
+        "git tag --sign --message '%s' %s" % (
+            "ADOdb version %s released %s" % (
+                version,
+                release_date(version)
+            ),
+            tag_name(version)
+        ),
+        shell=True
+    )
+    return result == 0
+
+
+def version_set(version, do_commit=True, do_tag=True):
     ''' Bump version number and set release date in source files
     '''
+    print "Preparing version bump commit"
+
     print "Updating version and date in source files"
     subprocess.call(
         "sed -r -i '%s' %s " % (
@@ -119,22 +160,34 @@ def version_set(version, do_commit):
     if do_commit:
         # Commit changes
         print "Committing"
-        result = subprocess.call(
+        commit_ok = subprocess.call(
             "git commit --all --message '%s'" % (
                 "Bump version to %s" % version
             ),
             shell=True
         )
 
-        if result == 0:
+        if do_tag:
+            tag_ok = tag_create(version)
+        else:
+            tag_ok = False
+
+        if commit_ok == 0:
             print '''
 NOTE: you should carefully review the new commit, making sure updates
 to the files are correct and no additional changes are required.
 If everything is fine, then the commit can be pushed upstream;
 otherwise:
  - Make the required corrections
- - Amend the commit ('git commit --all --amend' ) or create a new one
-'''
+ - Amend the commit ('git commit --all --amend' ) or create a new one'''
+
+            if tag_ok:
+                print ''' - Drop the tag ('git tag --delete %s')
+ - run this script again
+''' % (
+                    tag_name(version)
+                )
+
     else:
         print "Note: changes have been staged but not committed."
 #end version_set()
@@ -155,6 +208,7 @@ def main():
         sys.exit(1)
 
     do_commit = False
+    do_tag = False
 
     for opt, val in opts:
         if opt in ("-h", "--help"):
@@ -164,11 +218,14 @@ def main():
         elif opt in ("-c", "--commit"):
             do_commit = True
 
+        elif opt in ("-t", "--tag"):
+            do_tag = True
+
     # Mandatory parameters
     version = version_check(args[0])
 
     # Let's do it
-    version_set(version, do_commit)
+    version_set(version, do_commit, do_tag)
 #end main()
 
 
