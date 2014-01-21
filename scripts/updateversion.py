@@ -20,8 +20,8 @@ version_regex = "[Vv]?[0-9]\.[0-9]+([a-z]|%s)?" % version_dev
 release_date_regex = "[0-9?]+.*[0-9]+"
 
 # Command-line options
-options = "h"
-long_options = ["help"]
+options = "hc"
+long_options = ["help", "commit"]
 
 
 def usage():
@@ -31,6 +31,7 @@ def usage():
         version                 ADOdb version, format: [v]X.YY[a-z|dev]
 
     Options:
+        -c | --commit           Automatically commits the changes
         -h | --help             Show this usage message
 ''' % (
         path.basename(__file__)
@@ -51,10 +52,16 @@ def main():
         usage()
         sys.exit(1)
 
+    do_commit = False
+
     for opt, val in opts:
         if opt in ("-h", "--help"):
             usage()
             sys.exit(0)
+
+        elif opt in ("-c", "--commit"):
+            do_commit = True
+
 
     # Mandatory parameters
     version = args[0]
@@ -109,8 +116,30 @@ def main():
         ),
         shell=True
     )
-
     print "Version set to %s" % version
+
+    if do_commit:
+        # Commit changes
+        print "Committing"
+        subprocess.call(
+            "git commit --all --message '%s'" % (
+                "Bump version to %s" % version
+            ),
+            shell=True
+        )
+
+        print '''
+NOTE: you should carefully review the new commit, making sure updates
+to the files are correct and no additional changes are required.
+If everything is fine, then the commit can be pushed upstream;
+otherwise:
+ - Make the required corrections
+ - Amend the commit ('git commit --all --amend' ) or create a new one
+'''
+    else:
+        print "Note: changes have been staged but not committed."
+
+    # We're done
 #end main()
 
 if __name__ == "__main__":
