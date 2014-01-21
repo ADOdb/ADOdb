@@ -194,7 +194,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	// the same scope. A scope is a module -- a stored procedure, trigger,
 	// function, or batch. Thus, two statements are in the same scope if
 	// they are in the same stored procedure, function, or batch.
-		return $this->GetOne($this->identitySQL);
+		return $this->lastInsertID;
 	}
 
 	function _affectedrows()
@@ -558,16 +558,31 @@ class ADODB_mssqlnative extends ADOConnection {
 	function _query($sql,$inputarr=false)
 	{
 		$this->_errorMsg = false;
-		if (is_array($inputarr)) {
-			$rez = sqlsrv_query($this->_connectionID,$sql,$inputarr);
-		} else if (is_array($sql)) {
-			// $inputarr is prepared in sqlsrv_prepare();
-			$rez = sqlsrv_execute($this->_connectionID,$sql[1]);
+		
+		if (is_array($sql)) $sql = $sql[1];
+		
+		$insert = false;
+		// handle native driver flaw for retrieving the last insert ID
+		if(preg_match('/^\W*(insert [^;]+);?$/i', $sql)) {
+			$insert = true;
+			$sql .= '; '.$this->identitySQL; // select scope_identity()
+		}
+		if($inputarr) {
+			$rez = sqlsrv_query($this->_connectionID, $sql, $inputarr);
 		} else {
 			$rez = sqlsrv_query($this->_connectionID,$sql);
 		}
+
 		if ($this->debug) error_log("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));
 
+		if(!$rez) {
+			$rez = false;
+		} else if ($insert) {
+			// retrieve the last insert ID (where applicable)
+			sqlsrv_next_result($rez);
+			sqlsrv_fetch($rez);
+			$this->lastInsertID = sqlsrv_get_field($rez, 0);
+		}
 		return $rez;
 	}
 
