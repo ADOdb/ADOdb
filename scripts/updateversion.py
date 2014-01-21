@@ -39,6 +39,18 @@ def usage():
 #end usage()
 
 
+def version_check(version):
+    ''' Checks that the given version is valid, exits with error if not.
+        Returns the version without the "v" prefix
+    '''
+    if not re.search("^%s$" % version_regex, version):
+        usage()
+        print "ERROR: invalid version ! \n"
+        sys.exit(1)
+
+    return version.lstrip("Vv")
+
+
 def main():
     # Get command-line options
     try:
@@ -64,13 +76,7 @@ def main():
 
 
     # Mandatory parameters
-    version = args[0]
-    if not re.search("^%s$" % version_regex, version):
-        usage()
-        print "ERROR: invalid version ! \n"
-        sys.exit(1)
-    else:
-        version = version.lstrip("Vv")
+    version = version_check(args[0])
 
     # Development release
     if version.endswith(version_dev):
