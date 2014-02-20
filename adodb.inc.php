@@ -821,15 +821,19 @@
 		return $this->Close();
 	}
 
-	/*
-		 Returns placeholder for parameter, eg.
-		 $DB->Param('a')
-
-		 will return ':a' for Oracle, and '?' for most other databases...
-
-		 For databases that require positioned params, eg $1, $2, $3 for postgresql,
-		 	pass in Param(false) before setting the first parameter.
-	*/
+	/**
+	 * Returns a placeholder for query parameters
+	 * e.g. $DB->Param('a') will return
+	 * - '?' for most databases
+	 * - ':a' for Oracle
+	 * - '$1', '$2', etc. for PostgreSQL
+	 * @param string $name parameter's name, false to force a reset of the
+	 *                     number to 1 (for databases that require positioned
+	 *                     params such as PostgreSQL; note that ADOdb will
+	 *                     automatically reset this when executing a query )
+	 * @param string $type (unused)
+	 * @return string query parameter placeholder
+	 */
 	function Param($name,$type='C')
 	{
 		return '?';
