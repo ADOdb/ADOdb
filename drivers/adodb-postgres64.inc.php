@@ -590,7 +590,12 @@ a different OID if a database must be reloaded. */
 
 	function Param($name,$type='C')
 	{
-		$this->_pnum += 1;
+		if ($name) {
+			$this->_pnum += 1;
+		} else {
+			// Reset param num if $name is false
+			$this->_pnum = 1;
+		}
 		return '$'.$this->_pnum;
 	}
 
