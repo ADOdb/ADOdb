@@ -77,6 +77,3 @@ global $ADODB_EXCEPTION;
 	else $errfn = 'ADODB_EXCEPTION';
 	throw new $errfn($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection);
 }
-
-
-?>

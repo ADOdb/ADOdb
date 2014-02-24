@@ -83,5 +83,3 @@
 		$c->name_first .= ' K.';
 		$c->Save();
 	}
-
-?>

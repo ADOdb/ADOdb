@@ -1204,5 +1204,3 @@ function _adodb_find_from($sql)
 	}
 }
 */
-
-?>

@@ -84,5 +84,3 @@ echo "<hr /><p>";
 echo "INSERTED: ", $val;
 echo "<hr />";
 echo "RETURNED: ", $v;
-
-?>

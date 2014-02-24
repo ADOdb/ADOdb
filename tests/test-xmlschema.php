@@ -51,4 +51,3 @@ $db2->debug=1;
 
 foreach ($sql as $s)
 $db2->Execute($s);
-?>

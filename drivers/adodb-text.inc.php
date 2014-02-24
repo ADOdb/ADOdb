@@ -385,5 +385,3 @@ class ADORecordSet_text extends ADORecordSet_array
 
 
 } // defined
-
-?>

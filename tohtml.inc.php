@@ -197,5 +197,3 @@ function arr2html(&$arr,$ztabhtml='',$zheaderarray='')
 	$s .= '</TABLE>';
 	print $s;
 }
-
-?>

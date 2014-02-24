@@ -89,5 +89,3 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 			return $retarr;
 	}
 }
-
-?>

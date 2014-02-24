@@ -285,6 +285,3 @@ class ADODB_Pager {
 			"</td></tr></table>";
 	}
 }
-
-
-?>

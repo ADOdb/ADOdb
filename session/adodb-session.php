@@ -930,5 +930,3 @@ function adodb_sess_gc($t)
 {
 	return ADODB_Session::gc($t);
 }
-
-?>

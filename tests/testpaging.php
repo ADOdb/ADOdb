@@ -83,4 +83,3 @@ $pager->showPageLinks = true;
 $pager->linksPerPage = 10;
 $pager->cache = 60;
 $pager->Render($rows=7);
-?>

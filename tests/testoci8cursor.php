@@ -106,6 +106,3 @@ include('../tohtml.inc.php');
 	$db->Parameter($stmt,$tname,'tablename');
 	$rs = $db->Execute($stmt);
 	rs2html($rs);
-
-
-?>

@@ -91,6 +91,3 @@ class ADODB2_access extends ADODB_DataDict {
 	}
 
 }
-
-
-?>

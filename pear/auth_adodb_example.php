@@ -23,5 +23,3 @@ if ($a->getAuth()) {
     echo "Success";
     // * The output of your site goes here.
 }
-
-?>

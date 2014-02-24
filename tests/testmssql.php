@@ -73,4 +73,3 @@ fclose($fd);
 print " <a href=file://$output>View Image</a>";
 //$rs = $conn->Execute('SELECT id,SUBSTRING(b1, 1, 10) FROM blobtest');
 //rs2html($rs);
-?>

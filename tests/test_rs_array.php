@@ -44,4 +44,3 @@ while (!$rs->EOF) {
 
 
 die();
-?>

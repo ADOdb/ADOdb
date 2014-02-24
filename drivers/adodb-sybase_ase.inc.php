@@ -116,4 +116,3 @@ function ADORecordset_sybase_ase($id,$mode=false)
 	}
 
 }
-?>

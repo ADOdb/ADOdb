@@ -1280,5 +1280,3 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array {
 	} // function
 
 }
-
-?>

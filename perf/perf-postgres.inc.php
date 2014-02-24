@@ -150,4 +150,3 @@ class perf_postgres extends adodb_perf{
 		return $s;
 	}
 }
-?>

@@ -84,5 +84,3 @@ global $ADODB_Last_PEAR_Error;
 
 	return $ADODB_Last_PEAR_Error;
 }
-
-?>

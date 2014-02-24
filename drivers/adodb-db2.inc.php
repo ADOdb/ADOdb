@@ -845,4 +845,3 @@ class ADORecordSet_db2 extends ADORecordSet {
 	}
 
 }
-?>

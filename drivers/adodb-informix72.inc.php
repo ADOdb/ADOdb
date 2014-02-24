@@ -515,6 +515,3 @@ function ifx_props($coltype,$collength){
 	}
 	return array($mtype,$length,$precision,$nullable);
 }
-
-
-?>

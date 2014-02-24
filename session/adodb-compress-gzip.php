@@ -89,5 +89,3 @@ class ADODB_Compress_Gzip {
 }
 
 return 1;
-
-?>

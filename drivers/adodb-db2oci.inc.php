@@ -227,4 +227,3 @@ class  ADORecordSet_db2oci extends ADORecordSet_db2 {
 }
 
 } //define
-?>

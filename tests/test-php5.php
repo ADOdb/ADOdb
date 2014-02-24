@@ -112,4 +112,3 @@ try {
 }
 
 //include_once("test-active-record.php");
-?>

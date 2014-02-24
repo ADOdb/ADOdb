@@ -226,5 +226,3 @@ select viewname,'V' from pg_views where viewname like $mask";
 	}
 
 }
-
-?>

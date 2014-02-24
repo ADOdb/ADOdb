@@ -33,4 +33,3 @@ function testdb(&$db,$createtab="create table ADOXYZ (id int, firstname char(24)
 		$lastnum = $num;
 	}
 }
-?>

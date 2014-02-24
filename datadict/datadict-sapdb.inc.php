@@ -118,5 +118,3 @@ class ADODB2_sapdb extends ADODB_DataDict {
 		return array( 'ALTER TABLE ' . $tabname . ' DROP (' . implode(', ',$flds) . ')' );
 	}
 }
-
-?>

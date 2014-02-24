@@ -195,4 +195,3 @@ adorecordset Object
  .
  .
 */
-?>

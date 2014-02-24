@@ -139,6 +139,3 @@ class ADODB2_db2 extends ADODB_DataDict {
 	}
 
 }
-
-
-?>

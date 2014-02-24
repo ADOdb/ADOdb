@@ -35,5 +35,3 @@ class ADODB_Encrypt_MD5 {
 }
 
 return 1;
-
-?>

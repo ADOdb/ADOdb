@@ -114,5 +114,3 @@ class ADODB_Compress_Bzip2 {
 }
 
 return 1;
-
-?>

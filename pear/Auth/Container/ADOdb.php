@@ -402,4 +402,3 @@ function dump( $var, $str, $vardump = false ) {
 	( !$vardump ) ? ( print_r( $var )) : ( var_dump( $var ));
 	print "</pre>";
 }
-?>

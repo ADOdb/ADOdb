@@ -58,4 +58,3 @@ class ADODB_pdo_mssql extends ADODB_pdo {
 	}
 
 }
-?>

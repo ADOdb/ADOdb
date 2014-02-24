@@ -123,4 +123,3 @@ function ActualType($meta)
 		}
 	}
 */
-?>

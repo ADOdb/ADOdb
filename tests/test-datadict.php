@@ -247,4 +247,3 @@ echo "<pre>";
 foreach($ff as $xml) echo htmlspecialchars($xml);
 echo "</pre>";
 include_once('test-xmlschema.php');
-?>

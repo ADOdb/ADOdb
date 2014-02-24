@@ -26,4 +26,3 @@ else $rs = $db->Execute('select * from products');
 
 $arr = $rs->GetArray();
 print sizeof($arr);
-?>

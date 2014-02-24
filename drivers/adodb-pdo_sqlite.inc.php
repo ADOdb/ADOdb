@@ -200,4 +200,3 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		return $ret;
    }
 }
-?>

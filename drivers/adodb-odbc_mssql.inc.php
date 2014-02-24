@@ -359,4 +359,3 @@ class  ADORecordSet_odbc_mssql extends ADORecordSet_odbc {
 		return $this->ADORecordSet_odbc($id,$mode);
 	}
 }
-?>

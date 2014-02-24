@@ -44,5 +44,3 @@ class ADODB_Encrypt_Secret {
 }
 
 return 1;
-
-?>

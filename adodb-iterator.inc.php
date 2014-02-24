@@ -22,9 +22,3 @@
 
 	Moved to adodb.inc.php to improve performance.
  */
-
-
-
-
-
-?>

@@ -782,4 +782,3 @@ class ADORecordSet_ads extends ADORecordSet {
   }
 
 }
-?>

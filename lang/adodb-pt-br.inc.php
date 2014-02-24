@@ -32,4 +32,3 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_NOSUCHDB           => 'banco de dados não encontrado',
             DB_ERROR_ACCESS_VIOLATION   => 'permissão insuficiente'
 );
-?>

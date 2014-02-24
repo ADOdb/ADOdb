@@ -14,5 +14,3 @@ $convertedDate = adodb_date("d-M-Y", $date); // converted string to UK style dat
 
 echo( "Original: $datestring<br>" );
 echo( "Converted: $convertedDate" ); //why is string returned as one day (3 not 4) less for this example??
-
-?>

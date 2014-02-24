@@ -23,4 +23,3 @@
 	print_r($e);
 	echo "<p> Date m/d/Y =",$db->UserDate($rs->fields[4],'m/d/Y');
 	}
-?>

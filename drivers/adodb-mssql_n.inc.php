@@ -168,4 +168,3 @@ class ADORecordset_mssql_n extends ADORecordset_mssql {
 		$this->ADORecordset_mssql($id,$mode);
 	}
 }
-?>

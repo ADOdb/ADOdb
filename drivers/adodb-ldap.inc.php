@@ -420,4 +420,3 @@ class ADORecordSet_ldap extends ADORecordSet{
 	}
 
 }
-?>

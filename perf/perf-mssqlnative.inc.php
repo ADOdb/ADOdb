@@ -160,5 +160,3 @@ class perf_mssqlnative extends adodb_perf{
 
 
 }
-
-?>

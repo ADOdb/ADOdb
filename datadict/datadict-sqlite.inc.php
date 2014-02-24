@@ -86,4 +86,3 @@ class ADODB2_sqlite extends ADODB_DataDict {
 	}
 
 }
-?>

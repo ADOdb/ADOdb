@@ -226,4 +226,3 @@ CREATE TABLE
 		return $sql;
 	}
 }
-?>

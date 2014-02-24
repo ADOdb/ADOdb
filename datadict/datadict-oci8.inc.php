@@ -294,4 +294,3 @@ end;
 		return  "COMMENT ON COLUMN $table.$col IS $cmt";
 	}
 }
-?>

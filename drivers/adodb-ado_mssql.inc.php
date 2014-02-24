@@ -151,4 +151,3 @@ class  ADODB_ado_mssql extends ADODB_ado {
 	        return $this->ADORecordSet_ado($id,$mode);
 	}
 }
-?>

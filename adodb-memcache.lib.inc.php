@@ -186,5 +186,3 @@ $db->CacheExecute($sql);
 			return true;
 		}
 	}
-
-?>

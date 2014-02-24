@@ -179,4 +179,3 @@ class ADODB2_mysql extends ADODB_DataDict {
 		return $sql;
 	}
 }
-?>

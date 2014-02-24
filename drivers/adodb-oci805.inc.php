@@ -56,4 +56,3 @@ class ADORecordset_oci805 extends ADORecordset_oci8 {
 		$this->ADORecordset_oci8($id,$mode);
 	}
 }
-?>

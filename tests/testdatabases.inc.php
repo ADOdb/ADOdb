@@ -462,5 +462,3 @@ if (extension_loaded('odbtp') && !empty($testmssql)) { // MS SQL Server via ODBC
 
 
 print "<h3>Tests Completed</h3>";
-
-?>

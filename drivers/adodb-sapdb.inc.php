@@ -181,4 +181,3 @@ class  ADORecordSet_sapdb extends ADORecordSet_odbc {
 }
 
 } //define
-?>

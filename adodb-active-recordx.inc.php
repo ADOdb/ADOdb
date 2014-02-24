@@ -1418,4 +1418,3 @@ function adodb_GetActiveRecordsClass(&$db, $class, $tableObj,$whereOrderBy,$bind
 
 		return $arr;
 }
-?>

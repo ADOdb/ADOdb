@@ -58,4 +58,3 @@ function RSFilter($rs,$fn)
 
 	return $rs;
 }
-?>

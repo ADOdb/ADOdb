@@ -96,4 +96,3 @@ default:
 		$rr = $DB->qstr(rand());
 		$DB->Execute("insert into {$options['table']} (sesskey,expiry,expireref,sessdata,created,modified) values ($sessk,$olddate, $rr,'',$olddate,$olddate)");
 	}
-?>

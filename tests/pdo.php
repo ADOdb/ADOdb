@@ -90,5 +90,3 @@ try {
 	echo $e;
 	echo "</pre>";
 }
-
-?>

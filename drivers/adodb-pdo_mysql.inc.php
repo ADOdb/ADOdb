@@ -179,4 +179,3 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $rs;
 	}
 }
-?>

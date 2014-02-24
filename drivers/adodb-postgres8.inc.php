@@ -8,5 +8,3 @@
 
   NOTE: The "postgres8" driver is remapped to "postgres7".
 */
-
-?>

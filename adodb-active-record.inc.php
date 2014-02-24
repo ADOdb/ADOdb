@@ -999,4 +999,3 @@ global $_ADODB_ACTIVE_DBS;
 
 	return $arr;
 }
-?>

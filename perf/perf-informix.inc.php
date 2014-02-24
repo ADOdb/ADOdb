@@ -67,4 +67,3 @@ class perf_informix extends adodb_perf{
 	}
 
 }
-?>

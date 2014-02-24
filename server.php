@@ -96,5 +96,3 @@ if ($rs){
 	$rs->Close();
 } else
 	err($conn->ErrorNo(). $sep .$conn->ErrorMsg());
-
-?>

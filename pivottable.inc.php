@@ -184,4 +184,3 @@ FROM products p ,categories c ,suppliers s  WHERE  p.CategoryID = c.CategoryID a
 GROUP BY CompanyName,QuantityPerUnit
  */
 }
-?>

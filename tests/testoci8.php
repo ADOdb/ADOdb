@@ -80,4 +80,3 @@ if (0) {
 	if ($rs->EOF) die("EOF RS");
 	rs2html($rs);
 }
-?>

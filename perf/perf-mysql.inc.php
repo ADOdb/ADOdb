@@ -312,4 +312,3 @@ class perf_mysql extends adodb_perf{
      }
     // end hack
 }
-?>

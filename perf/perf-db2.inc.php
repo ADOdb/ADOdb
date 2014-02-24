@@ -104,4 +104,3 @@ class perf_db2 extends adodb_perf{
 		return rs2html($rs,false,false,false,false);
 	}
 }
-?>

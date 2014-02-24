@@ -365,4 +365,3 @@ class  ADORecordSet_odbc_db2 extends ADORecordSet_odbc {
 }
 
 } //define
-?>

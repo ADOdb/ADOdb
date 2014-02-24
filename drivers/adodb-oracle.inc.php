@@ -339,4 +339,3 @@ class ADORecordset_oracle extends ADORecordSet {
 		}
 	}
 }
-?>

@@ -77,4 +77,3 @@ class  ADORecordSet_db2oci extends ADORecordSet_odbc {
 }
 
 } //define
-?>

@@ -134,5 +134,3 @@ class ADORecordSet_ext_mysqlt extends ADORecordSet_mysqlt {
 		return adodb_movenext($this);
 	}
 }
-
-?>

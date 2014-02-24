@@ -10,5 +10,3 @@
   remapped to "postgres7". Maintaining multiple postgres drivers is no easy
   job, so hopefully this will ensure greater consistency and fewer bugs.
 */
-
-?>

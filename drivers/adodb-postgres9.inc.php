@@ -59,4 +59,3 @@ class ADORecordSet_assoc_postgres9 extends ADORecordSet_assoc_postgres7{
 		parent::ADORecordSet_assoc_postgres7($queryID,$mode);
 	}
 }
-?>

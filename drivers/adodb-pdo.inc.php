@@ -623,5 +623,3 @@ class ADORecordSet_pdo extends ADORecordSet {
 	}
 
 }
-
-?>

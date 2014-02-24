@@ -1029,4 +1029,3 @@ class ADODB_DataDict {
 		return $sql;
 	}
 } // class
-?>

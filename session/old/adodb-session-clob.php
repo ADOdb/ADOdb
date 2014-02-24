@@ -444,5 +444,3 @@ if (0) {
 	ADOConnection::outp( "
 -- \$_SESSION['AVAR']={$_SESSION['AVAR']}</p>",false);
 }
-
-?>

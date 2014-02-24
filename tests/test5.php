@@ -44,4 +44,3 @@ if (0) {
 	@$conn->PConnect("susetikus","tester","test","test");
 	print $conn->databaseType.':'.$conn->GenID().'<br>';
 }
-?>

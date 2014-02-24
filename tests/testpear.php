@@ -31,4 +31,3 @@ while ($arr = $rs->FetchRow()) {
 }
 
 if ($cnt != 50) print "<b>Error in \$cnt = $cnt</b>";
-?>

@@ -1179,5 +1179,3 @@ END;
 		if ($fn) $fn($this, $reason, $selflds); // set $this->neverAbort to true or false as required inside $fn
 	}
 }
-
-?>

@@ -89,4 +89,3 @@ class  ADORecordSet_borland_ibase extends ADORecordSet_ibase {
 		$this->ADORecordSet_ibase($id,$mode);
 	}
 }
-?>

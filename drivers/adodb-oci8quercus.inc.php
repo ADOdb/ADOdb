@@ -85,6 +85,3 @@ class ADORecordset_oci8quercus extends ADORecordset_oci8 {
 	}
 
 }
-
-
-?>

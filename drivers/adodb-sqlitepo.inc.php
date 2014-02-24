@@ -59,4 +59,3 @@ class ADORecordset_sqlitepo extends ADORecordset_sqlite {
       return !empty($this->fields);
    }
 }
-?>
