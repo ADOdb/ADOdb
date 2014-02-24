@@ -657,8 +657,6 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 					} else
 						$fnameq = $upperfname;
 
-
-                // is_null requires php 4.0.4
                 //********************************************************//
                 if (is_null($arrFields[$upperfname])
 					|| (empty($arrFields[$upperfname]) && strlen($arrFields[$upperfname]) == 0)
