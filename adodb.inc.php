@@ -3168,7 +3168,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$false = false;
 			return $false;
 		}
-		$numIndex = isset($this->fields[0]) && isset($this->fields[1]);
+		$numIndex = is_array($this->fields) && array_key_exists(0, $this->fields);
 		$results = array();
 
 		if (!$first2cols && ($cols > 2 || $force_array)) {
