@@ -987,7 +987,7 @@
 			$ret = $fn($this,$sql,$inputarr);
 			if (isset($ret)) return $ret;
 		}
-		if ($inputarr) {
+		if ($inputarr !== false) {
 			if (!is_array($inputarr)) $inputarr = array($inputarr);
 
 			$element0 = reset($inputarr);
