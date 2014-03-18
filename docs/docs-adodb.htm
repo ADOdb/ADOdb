@@ -6191,6 +6191,9 @@ PHP</a>. </p>
 	<li class="MsoNormal">etc.</li>
 	</ul>
 <p>mssqlnative: Fix Insert ID on prepared statement, thanks to Mike Parks. See http://phplens.com/lens/lensforum/msgs.php?id=19079
+<p>mssql: timestamp format changed to 'Y-m-d\TH:i:s' (ISO 8601)
+	to make them independent from DATEFORMAT setting, as recommended on
+	<a href="http://technet.microsoft.com/en-us/library/ms180878%28v=sql.105%29.aspx#StringLiteralDateandTimeFormats">Microsoft TechNet</a>.
 <p>mysql/mysqli: Fix ability for MetaTables to filter by table name, broken since 5.15. See http://phplens.com/lens/lensforum/msgs.php?id=19359
 <p>odbc: Fixed MetaTables and MetaPrimaryKeys definitions in odbc driver to match adoconnection class.
 <p>odbc: clear fields before fetching. See http://phplens.com/lens/lensforum/msgs.php?id=17539
