@@ -5,12 +5,12 @@
 	"authors" : [
 		{
 			"name": "John Lim",
-			"homepage": "http://adodb.sourceforge.net/#docs"
 		}
 	],
 
 	"keywords" : [ "database" ],
 
+	"homepage": "http://adodb.sourceforge.net/",
 	"support" : { "forum" : "http://phplens.com/lens/lensforum/topics.php?id=4" },
 
 	"require" : {
