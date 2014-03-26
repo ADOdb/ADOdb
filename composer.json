@@ -9,6 +9,8 @@
 		}
 	],
 
+	"keywords" : [ "database" ],
+
 	"support" : { "forum" : "http://phplens.com/lens/lensforum/topics.php?id=4" },
 
 	"require" : {
