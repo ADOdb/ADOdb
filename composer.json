@@ -19,7 +19,7 @@
 	"homepage": "http://adodb.sourceforge.net/",
 	"support" : {
 		"issues" : "https://github.com/ADOdb/ADOdb/issues",
-		"source" : "https://github.com/ADOdb/ADOdb",
+		"source" : "https://github.com/ADOdb/ADOdb"
 	},
 
 	"require" : {
