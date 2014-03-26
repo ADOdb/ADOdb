@@ -5,6 +5,12 @@
 	"authors" : [
 		{
 			"name": "John Lim",
+			"email" : "jlim@natsoft.com",
+			"role": "Author"
+		},
+		{
+			"name": "Damien Regad",
+			"role": "Current maintainer"
 		}
 	],
 
