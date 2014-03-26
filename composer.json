@@ -1,6 +1,5 @@
 {
 	"name" : "adodb/adodb-php",
-	"version" : "5.12",
 	"license" : [ "LGPL-2.1", " BSD-2-Clause" ],
 	"authors" : [
 		{
