@@ -17,7 +17,10 @@
 	"keywords" : [ "database" ],
 
 	"homepage": "http://adodb.sourceforge.net/",
-	"support" : { "forum" : "http://phplens.com/lens/lensforum/topics.php?id=4" },
+	"support" : {
+		"issues" : "https://github.com/ADOdb/ADOdb/issues",
+		"source" : "https://github.com/ADOdb/ADOdb",
+	},
 
 	"require" : {
 		"php" : ">=5.3.2"
