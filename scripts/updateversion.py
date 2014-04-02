@@ -142,10 +142,49 @@ def tag_create(version):
     return result == 0
 
 
+def update_changelog(version):
+    ''' Updates the release date in the Change Log
+    '''
+    print "Updating Changelog"
+
+    # Development release
+    if version.endswith(_version_dev):
+        version_release = version[:-len(_version_dev)]
+
+        version_previous = version_release.split(".")
+        version_previous[1] = str(int(version_previous[1]) - 1)
+        version_previous = ".".join(version_previous)
+
+        print "  Inserting new section for v%s" % version_release
+        script = "/name={0}/i <p><a name={1}><b>{1} - {2}</b>\\n".format(
+            version_previous,
+            version_release,
+            release_date(version))
+
+    # Stable release
+    else:
+        print "  Updating release date for v%s" % version
+        script = "/name={0}/s/({0})[ -]+{1}/\\1 - {2}/".format(
+            version,
+            _release_date_regex,
+            release_date(version))
+
+    subprocess.call(
+        "sed -r -i '%s' %s " % (
+            script,
+            "docs/docs-adodb.htm"
+        ),
+        shell=True
+    )
+#end update_changelog
+
+
 def version_set(version, do_commit=True, do_tag=True):
     ''' Bump version number and set release date in source files
     '''
     print "Preparing version bump commit"
+
+    update_changelog(version)
 
     print "Updating version and date in source files"
     subprocess.call(
