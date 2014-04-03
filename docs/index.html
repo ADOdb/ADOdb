@@ -1,4 +1,4 @@
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<!DOCTYPE html>
 <html>
 <head>
   <style>
@@ -6,6 +6,7 @@ pre {
   background-color: #eee;
   padding: 0.75em 1.5em;
   font-size: 12px;
+  font-family: "Lucida Console", "DejaVu Sans Mono", Courier, monospace;
   border: 1px solid #ddd;
 }
   .style1 {font-family: Arial, Helvetica, sans-serif}
@@ -14,10 +15,10 @@ pre {
 }
 .style2 {font-family: Arial, Helvetica, sans-serif; color: #FFFFFF; }
   </style>
-  <title>ADOdb Database Abstraction Library for PHP (and Python) for
-MySQL, PostgreSQL, Microsoft SQL Server, Oracle, Firebird, Interbase,
-LDAP, Access, VFP, DB2 and many other databases</title>
-<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+  <title>ADOdb Database Abstraction Library for PHP</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+</head>
+
 <body>
 <table width="986" cellpadding=8 border="2" align="center" bordercolor="#999999">
   <tbody>
@@ -27,10 +28,10 @@ LDAP, Access, VFP, DB2 and many other databases</title>
         <tbody>
           <tr bgcolor="#000099">
             <td bordercolor="#FFFFFF" class="style2">
-            <h2>ADOdb Database Abstraction Library for PHP (and Python)</h2>
-            <font size="1">(c) 2000-2011 John Lim
+            <h2>ADOdb Database Abstraction Library for PHP</h2>
+            <font size="2">&copy; 2000-2014 John Lim
 (jlim#natsoft.com). All rights reserved. </font></td>
-            <td valign="top" bgcolor="#CCCCCC" class="style1"><img src="adodb.gif"></td>
+            <td align="center" valign="center" bgcolor="#CCCCCC" class="style1"><img src="adodb.gif"></td>
           </tr>
         </tbody>
       </table>
@@ -89,7 +90,7 @@ permission, provided you include license.txt in your release. Also
 dual-licensed (Lesser GPL). </li>
       </ul>
       <h3 class="style1">PHP Code Samples</h3>
-      <pre class="style1">include('/path/to/adodb.inc.php');<br>$DB = NewADOConnection('mysql');<br>$DB-&gt;Connect($server, $user, $pwd, $db);<br><br><font
+      <pre>include('/path/to/adodb.inc.php');<br>$DB = NewADOConnection('mysql');<br>$DB-&gt;Connect($server, $user, $pwd, $db);<br><br><font
  color="#006600"># M'soft style data retrieval with binds</font>
 $rs = $DB-&gt;Execute("select * from table where key=?",array($key));
 while (!$rs-&gt;EOF) {
@@ -111,7 +112,7 @@ $ok = $DB-&gt;Execute("update atable set aval = 0");
 if (!$ok) mylogerr($DB-&gt;ErrorMsg());
       </pre>
       <p class="style1">Other things you can try include: </p>
-      <pre class="style1"><font color="#006600"># Updating tables</font>
+      <pre><font color="#006600"># Updating tables</font>
 $ok = $DB-&gt;Execute("update table set col1=? where key=?",array($colval, $key));
 
 <font color="#006600"># retrieving data shortcuts</font>
@@ -142,10 +143,10 @@ etc.
       <h3 class="style1">PHP5 Support</h3>
       <span class="style1">ADOdb has full PHP5 support, including SPL and exception support. For
 example, you can do this in PHP5:
-      </span>      <pre class="style1">$rs = $DB-&gt;Execute("select * from table");<br>foreach ($rs as $row) {<br>    print_r($row);<br>}<br></pre>
+      </span>      <pre>$rs = $DB-&gt;Execute("select * from table");<br>foreach ($rs as $row) {<br>    print_r($row);<br>}<br></pre>
       <span class="style1">If you include the following adodb-exceptions.inc.php file, then ADOdb
 will throw exceptions when an error occurs:
-      </span>      <pre class="style1">include("<b>/path/to/adodb-exceptions.inc.php</b>");<br>include("/path/to/adodb.inc.php");<br>$DB = NewADOConnection('oci8');  <br>$DB-&gt;Connect("", "scott", "tiger");<br>try {<br>   $DB-&gt;Execute("select badsql from badtable");<br>} catch (exception $e) {<br>    print_r($e);<br>}<br></pre>
+      </span>      <pre>include("<b>/path/to/adodb-exceptions.inc.php</b>");<br>include("/path/to/adodb.inc.php");<br>$DB = NewADOConnection('oci8');  <br>$DB-&gt;Connect("", "scott", "tiger");<br>try {<br>   $DB-&gt;Execute("select badsql from badtable");<br>} catch (exception $e) {<br>    print_r($e);<br>}<br></pre>
       <span class="style1"><a name="download"></a>
       </span>
       <h3 class="style1">PHP Download</h3>
@@ -251,7 +252,8 @@ The
 author monitors this forum. </p>
       <p class="style1"></p>
       <hr>
-      <span class="style1">      (c) 2000-2008 John Lim. All Rights Reserved. <strong>Contact:</strong> jlim#natsoft.com <br>
+      <span class="style1">&copy; 2000-2014 John Lim. All Rights Reserved.
+        <strong>Contact:</strong> jlim#natsoft.com <br>
       </span></td>
     </tr>
   </tbody>
