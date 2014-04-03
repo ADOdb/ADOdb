@@ -1,0 +1,260 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+  <style>
+pre {
+  background-color: #eee;
+  padding: 0.75em 1.5em;
+  font-size: 12px;
+  border: 1px solid #ddd;
+}
+  .style1 {font-family: Arial, Helvetica, sans-serif}
+  body {
+	background-color: #0066FF;
+}
+.style2 {font-family: Arial, Helvetica, sans-serif; color: #FFFFFF; }
+  </style>
+  <title>ADOdb Database Abstraction Library for PHP (and Python) for
+MySQL, PostgreSQL, Microsoft SQL Server, Oracle, Firebird, Interbase,
+LDAP, Access, VFP, DB2 and many other databases</title>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1"></head>
+<body>
+<table width="986" cellpadding=8 border="2" align="center" bordercolor="#999999">
+  <tbody>
+    <tr>
+      <td bgcolor="#FFFFFF">
+      <table border="0" cellpadding=2 width="100%">
+        <tbody>
+          <tr bgcolor="#000099">
+            <td bordercolor="#FFFFFF" class="style2">
+            <h2>ADOdb Database Abstraction Library for PHP (and Python)</h2>
+            <font size="1">(c) 2000-2011 John Lim
+(jlim#natsoft.com). All rights reserved. </font></td>
+            <td valign="top" bgcolor="#CCCCCC" class="style1"><img src="adodb.gif"></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="style1"> <font size="2"><a href="#download">Download</a> &nbsp; <a
+ href="#docs">Documentation</a> &nbsp; <a
+ href="http://phplens.com/lens/lensforum/topics.php?id=4">Forums (post
+bug reports here)</a> &nbsp; <a href="http://phplens.com/adodb/change.log.html">Changelog</a>&nbsp;  <a href="adodb-faq.html">FAQ</a> </font></p>
+      <hr>
+      <p class="style1">ADOdb is a database abstraction library for PHP. There is also
+a Python version; see the <a
+ href="http://phplens.com/lens/adodb/adodb-py-docs.htm">ADOdb for
+Python docs</a>. </p>
+      <p class="style1">The PHP version currently supports an amazing number of
+databases, thanks to the wonderful ADOdb community: <i>MySQL,
+PostgreSQL, Interbase, Firebird, Informix, Oracle, MS SQL, Foxpro,
+Access, ADO, Sybase, FrontBase, DB2, SAP DB, SQLite, Netezza, LDAP, </i>and<i>
+generic ODBC, ODBTP</i>. The Sybase, Informix, FrontBase and
+PostgreSQL, Netezza, LDAP, ODBTP drivers are community contributions.
+Here is the <a href="http://phplens.com/adodb/supported.databases.html">complete
+list of drivers</a>. </p>
+      <p class="style1"> Many popular web applications such as <a
+ href="http://www.andrew.cmu.edu/%7Erdanyliw/snort/snortacid.html">ACID</a>,
+      <a href="community.zikula.org">Zikula/PostNuke</a>, <a
+ href="http://xaraya.com/">Xaraya</a>, <a
+ href="http://phpwiki.sourceforge.net/">phpWiki</a>, <a
+ href="http://www.mamboserver.com/">Mambo</a>, <a
+ href="http://phpgacl.sourceforge.net/">PHP GACL</a>, <a
+ href="http://sourceforge.net/projects/tikiwiki">TikiWiki</a>, <a
+ href="http://www.egroupware.org/">eGroupWare</a> and <a
+ href="http://phplens.com/lens/">phpLens App Server</a> are using ADOdb
+as their database abstraction layer. Some reasons why ADOdb is popular
+include: </p>
+      <ul class="style1">
+        <li>Designed for <b>speed</b>. It is probably the fastest open
+source database abstraction library available for PHP. See <a
+ href="http://phplens.com/lens/adodb/">benchmarks</a>.</li>
+        <li>Provides <b>extensive portability support</b> such as date
+and type-handling and portable schema creation. See <a
+ href="http://phplens.com/lens/adodb/tips_portable_sql.htm">portable
+sql tips</a></li>
+        <li>Support many <b>enterprise features</b> such as database
+backed sessions (with session expiry notification), SQL code
+generation, pivot tables, SELECT LIMIT emulation for all databases,
+performance monitoring.</li>
+        <li><b>Easy to learn</b>, especially if you have Window's
+programming experience, as it uses many ADO conventions.</li>
+        <li><b>Extensive QA</b>, every release is unit-tested on
+Access, MySQL, PostgreSQL, MS SQL, Oracle 11g.</li>
+        <li><b>Mature</b>, continiously developed since August 2000.
+Has a <b>large community</b> of users. </li>
+        <li>Powerful <strong>Active Record </strong>support. See <a href="http://phplens.com/lens/adodb/docs-active-record.htm">docs</a>. </li>
+        <li>Very <b>reasonable licensing</b> terms (BSD). This means
+that you can incorporate (and even compile) it into your software
+applications<b> royalty-free</b> without asking the author's
+permission, provided you include license.txt in your release. Also
+dual-licensed (Lesser GPL). </li>
+      </ul>
+      <h3 class="style1">PHP Code Samples</h3>
+      <pre class="style1">include('/path/to/adodb.inc.php');<br>$DB = NewADOConnection('mysql');<br>$DB-&gt;Connect($server, $user, $pwd, $db);<br><br><font
+ color="#006600"># M'soft style data retrieval with binds</font>
+$rs = $DB-&gt;Execute("select * from table where key=?",array($key));
+while (!$rs-&gt;EOF) {
+    print_r($rs-&gt;fields);
+    $rs-&gt;MoveNext();
+}
+
+<font color="#006600"># PEAR style data retrieval</font>
+$rs = $DB-&gt;Execute("select * from table where key=123");
+while ($array = $rs-&gt;FetchRow()) {
+    print_r($array);
+}
+
+<font color="#006600"># Alternative URI connection syntax:</font>
+$DB = NewADOConnection("<b>mysql://$user:$pwd@$server/$db?persist</b>");<br><br><font
+ color="#006600"># No need for Connect or PConnect when using URI syntax</font>
+
+$ok = $DB-&gt;Execute("update atable set aval = 0");
+if (!$ok) mylogerr($DB-&gt;ErrorMsg());
+      </pre>
+      <p class="style1">Other things you can try include: </p>
+      <pre class="style1"><font color="#006600"># Updating tables</font>
+$ok = $DB-&gt;Execute("update table set col1=? where key=?",array($colval, $key));
+
+<font color="#006600"># retrieving data shortcuts</font>
+$val = $DB-&gt;GetOne("select col from table where key='John'");
+$row = $DB-&gt;GetRow("select col from table where key='John'");
+$arr = $DB-&gt;GetAll("select col from table");
+$arr = $DB-&gt;GetAssoc("select key,col from table"); # returns associative array $key=&gt;col
+
+<font color="#006600"># Retrieve high speed cached recordsets (cached for 3600 secs)<br># Cache directory defined in  global $ADODB_CACHE_DIR. <br># CacheGetOne, CacheRow, CacheGetAll all work</font>
+$rs = $DB-&gt;CacheExecute(3600, "select orgname from users where user='JOHN'");
+      </pre>
+      <span class="style1">And there are <a
+ href="http://phplens.com/adodb/code.initialization.html">more
+connection examples</a> showing you how to connect
+to <a href="http://phplens.com/adodb/code.initialization.html#sqlite">SQLite</a>,
+      <a href="http://phplens.com/adodb/code.initialization.html#oci8">Oracle</a>,
+      <a
+ href="http://phplens.com/adodb/code.initialization.html#postgres">PostgreSQL</a>,
+      <a
+ href="http://phplens.com/adodb/code.initialization.html#odbc_mssql">Microsoft
+SQL Server</a>, <a
+ href="http://phplens.com/adodb/code.initialization.html#access">MS
+Access</a>, <a
+ href="http://phplens.com/adodb/code.initialization.html#ldap">LDAP</a>,
+      <a href="http://phplens.com/adodb/code.initialization.html#ibase">Interbase/Firebird</a>
+etc.
+      </span>      <p class="style1"></p>
+      <h3 class="style1">PHP5 Support</h3>
+      <span class="style1">ADOdb has full PHP5 support, including SPL and exception support. For
+example, you can do this in PHP5:
+      </span>      <pre class="style1">$rs = $DB-&gt;Execute("select * from table");<br>foreach ($rs as $row) {<br>    print_r($row);<br>}<br></pre>
+      <span class="style1">If you include the following adodb-exceptions.inc.php file, then ADOdb
+will throw exceptions when an error occurs:
+      </span>      <pre class="style1">include("<b>/path/to/adodb-exceptions.inc.php</b>");<br>include("/path/to/adodb.inc.php");<br>$DB = NewADOConnection('oci8');  <br>$DB-&gt;Connect("", "scott", "tiger");<br>try {<br>   $DB-&gt;Execute("select badsql from badtable");<br>} catch (exception $e) {<br>    print_r($e);<br>}<br></pre>
+      <span class="style1"><a name="download"></a>
+      </span>
+      <h3 class="style1">PHP Download</h3>
+      <p class="style1"> <a
+ href="http://sourceforge.net/project/showfiles.php?group_id=42718">Download
+from SourceForge</a><br>
+      </p>
+      <p class="style1"><i>Requirements</i>: PHP 5.0 or later. There is a version available that works with <a href="http://sourceforge.net/project/showfiles.php?group_id=42718&package_id=34890">PHP 4.1 to 5.2</a> also.</p>
+      <p class="style1"><i>Installation</i>: Unpack files into a directory. Try the
+above sample code, adjusting
+the connection parameters to suit your database server, and modify the
+sql to match your tables. </p>
+      <p class="style1"><i>Debugging</i>: Set your connection's debug property, e.g.
+$DB-&gt;debug=true; if you are having problems. It will output lots of
+useful status and
+error messages. <a name="pydownload"></a></p>
+<h4 class="style1">ADOdb Lite</h4>
+<p class="style1"><a href=http://sourceforge.net/projects/adodblite/>ADOdb Lite</a> is a separate PHP project done by a 3rd party to cut down the ADOdb library to use a smaller footprint.
+
+      <h3 class="style1">Python Downloads</h3>
+      <span class="style1">Requires Python 2.3 or later. Works fine with Psyco.
+      </span>      <p class="style1"><a
+ href="http://sourceforge.net/project/showfiles.php?group_id=42718">Download
+from SourceForge</a>
+&nbsp; <a href="http://phplens.com/lens/adodb/adodb-py-docs.htm">Python
+ADOdb Docs</a> <a name="extension"></a></p>
+      <h3 class="style1">Speed Up Your PHP Code with the ADOdb extension</h3>
+      <span class="style1"><a href="http://phplens.com/lens/dl/adodb-ext-504.zip">Adodb-ext-504.zip</a>
+provides up to 100% speedup by replacing parts of ADOdb with C code.
+ADOdb will auto-detect if this extension is installed and use it
+automatically. This extension is compatible with ADOdb 3.32 or later,
+and PHP 4.3 - 5.x.x. Source code is included. Please note that you will need to compile it yourself. Instructions included.
+      </span>      <p class="style1"><a name="docs"></a></p>
+      <h3 class="style1">PHP Documentation</h3>
+      <span class="style1"><a href="http://phplens.com/lens/adodb/docs-adodb.htm">One HTML
+Page</a> (this is always the most up-to-date)<br>
+      <a href="http://phplens.com/adodb/">Multiple HTML Pages</a><br>
+      <a href="http://phplens.com/adodb/ADOdb.Manual.chm">Windows CHM
+Format</a>
+      </span>
+      <p class="style1"><a href="http://phplens.com/lens/adodb/adodb-py-docs.htm"><b>Python</b>
+ADOdb Docs</a> </p>
+      <p class="style1"></p>
+      <h3 class="style1">Other Docs for PHP version</h3>
+      <p class="style1"><a href="http://phplens.com/lens/adodb/docs-datadict.htm">Data
+Dictionary</a> for schema creation.<br>
+      <a href="http://phplens.com/lens/adodb/docs-perf.htm">Performance
+Monitoring</a>.<br>
+      <a href="http://phplens.com/lens/adodb/docs-session.htm">Database-backed
+Session Management</a>. </p>
+      <p class="style1"> <a href="http://phplens.com/lens/adodb/tute.htm">MySQL
+Tutorial</a><br>
+      <a href="http://phplens.com/lens/adodb/docs-oracle.htm">Advanced
+Oracle Tutorial</a><br>
+      <a href="http://phplens.com/lens/adodb/tips_portable_sql.htm">Portable
+SQL Tips with ADOdb<br>
+      </a><a href="http://phplens.com/lens/adodb/docs-active-record.htm">ADOdb
+  Active Record</a>, an OOP encapsulation of a database record.</br>
+        <p class="style1">DevShed has some excellent articles by icarus about ADOdb.
+Latest version of articles at MelonFire: </p>
+      <p class="style1"> &nbsp; &nbsp; <a
+ href="http://www.melonfire.com/community/columns/trog/article.php?id=142">Part
+1 on Basics</a> and <a
+ href="http://www.melonfire.com/community/columns/trog/article.php?id=144">Part
+2 on Advanced ADOdb</a>. Original articles at <a
+ href="http://www.devshed.com/Server_Side/PHP/ADODB/">DevShed</a>.</p>
+      <p class="style1"></p>
+      <h3 class="style1">Translations</h3>
+      <p class="style1">We have PHP documentation in other languages: </p>
+      <ul class="style1">
+        <li><a
+ href="http://phplens.com/lens/adodb/ADODB-Manual-Korean.htm">Korean</a></li>
+        <li><a href="http://www.lacorona.com.mx/fortiz/adodb/">Spanish <font
+ size="2"><font size="2"><b>(Castellano)</b></font></font></a> </li>
+ <li><a href=http://www.souken.co.jp/tech/php/adodb/docs-adodb-ja.htm>Japanese</a>
+      </ul>
+      <p class="style1">and tutorials in: </p>
+      <ul class="style1">
+        <li><a href="http://www.ifin.net.tw/adodb/adodb_tutorial.htm">Chinese</a><br>
+        </li>
+        <li><a href="http://phplens.com/phpeverywhere/adodb_french">Francais</a><br>
+        </li>
+        <li><a href="http://phplens.com/phpeverywhere/adodb_german">German</a><br>
+        </li>
+        <li><a href="http://phplens.com/phpeverywhere/adodb_italian">Italian</a><br>
+        </li>
+        <li><a href="http://phplens.com/adodb/adodb_tutorial_pl.html">Polish</a><br>
+        </li>
+        <li><a href="http://detail.phpclub.net/2003-08-19.htm">Russian</a></li>
+        <li><a
+ href="http://www.lacorona.com.mx/fortiz/adodb/tute-es.htm">Spanish <font
+ size="2"><font size="2"><b>(Castellano)</b></font></font></a> </li>
+        <li><a
+ href="http://www.exzilla.net/docs/adodb/adodb-mysql-tutorial.php">Thai</a><br>
+        </li>
+      </ul>
+      <span class="style1"><a name="mail"></a>
+      </span>
+      <h3 class="style1">Mailing Lists</h3>
+      <p class="style1">For bug reports, feature requests and questions, use the <a
+ href="http://phplens.com/lens/lensforum/topics.php?id=4">ADOdb Forums</a>.
+The
+author monitors this forum. </p>
+      <p class="style1"></p>
+      <hr>
+      <span class="style1">      (c) 2000-2008 John Lim. All Rights Reserved. <strong>Contact:</strong> jlim#natsoft.com <br>
+      </span></td>
+    </tr>
+  </tbody>
+</table>
+</body>
+</html>
