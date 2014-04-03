@@ -40,13 +40,15 @@ body {
           </tr>
         </tbody>
       </table>
-      <p class="style1"> <font size="2"><a href="#download">Download</a> &nbsp; <a
- href="#docs">Documentation</a> &nbsp; <a
- href="http://phplens.com/lens/lensforum/topics.php?id=4">Forums (post
-bug reports here)</a> &nbsp; <a href="http://phplens.com/adodb/change.log.html">Changelog</a>&nbsp;  <a href="adodb-faq.html">FAQ</a> </font></p>
+      <p class="style1"> <font size="2">
+          <a href="#download">Download</a> &nbsp;
+          <a href="#docs">Documentation</a> &nbsp;
+          <a href="http://phplens.com/lens/lensforum/topics.php?id=4">Forums (post bug reports here)</a> &nbsp;
+          <a href="http://phplens.com/adodb/change.log.html">Changelog</a>&nbsp;
+          <a href="adodb-faq.html">FAQ</a> </font></p>
       <hr>
       <p class="style1">ADOdb is a database abstraction library for PHP</p>
-      <p class="style1">The PHP version currently supports an amazing number of
+      <p class="style1">It currently supports an amazing number of
 databases, thanks to the wonderful ADOdb community: <i>MySQL,
 PostgreSQL, Interbase, Firebird, Informix, Oracle, MS SQL, Foxpro,
 Access, ADO, Sybase, FrontBase, DB2, SAP DB, SQLite, Netezza, LDAP, </i>and<i>
@@ -54,18 +56,19 @@ generic ODBC, ODBTP</i>. The Sybase, Informix, FrontBase and
 PostgreSQL, Netezza, LDAP, ODBTP drivers are community contributions.
 Here is the <a href="http://phplens.com/adodb/supported.databases.html">complete
 list of drivers</a>. </p>
-      <p class="style1"> Many popular web applications such as <a
- href="http://www.andrew.cmu.edu/%7Erdanyliw/snort/snortacid.html">ACID</a>,
-      <a href="community.zikula.org">Zikula/PostNuke</a>, <a
- href="http://xaraya.com/">Xaraya</a>, <a
- href="http://phpwiki.sourceforge.net/">phpWiki</a>, <a
- href="http://www.mamboserver.com/">Mambo</a>, <a
- href="http://phpgacl.sourceforge.net/">PHP GACL</a>, <a
- href="http://sourceforge.net/projects/tikiwiki">TikiWiki</a>, <a
- href="http://www.egroupware.org/">eGroupWare</a> and <a
- href="http://phplens.com/lens/">phpLens App Server</a> are using ADOdb
-as their database abstraction layer. Some reasons why ADOdb is popular
-include: </p>
+      <p class="style1"> Many popular web applications such as
+      <a href="http://www.andrew.cmu.edu/%7Erdanyliw/snort/snortacid.html">ACID</a>,
+      <a href="community.zikula.org">Zikula/PostNuke</a>,
+      <a href="http://xaraya.com/">Xaraya</a>,
+      <a href="http://phpwiki.sourceforge.net/">phpWiki</a>,
+      <a href="http://www.mamboserver.com/">Mambo</a>,
+      <a href="http://phpgacl.sourceforge.net/">PHP GACL</a>,
+      <a href="http://sourceforge.net/projects/tikiwiki">TikiWiki</a>,
+      <a href="http://www.egroupware.org/">eGroupWare</a> and
+      <a href="http://phplens.com/lens/">phpLens App Server</a>
+      are using ADOdb as their database abstraction layer.
+
+      Some reasons why ADOdb is popular include: </p>
       <ul class="style1">
         <li>Designed for <b>speed</b>. It is probably the fastest open
 source database abstraction library available for PHP. See <a
@@ -91,7 +94,10 @@ applications<b> royalty-free</b> without asking the author's
 permission, provided you include license.txt in your release. Also
 dual-licensed (Lesser GPL). </li>
       </ul>
+
+
       <h3 class="style1">PHP Code Samples</h3>
+
       <pre>include('/path/to/adodb.inc.php');<br>$DB = NewADOConnection('mysql');<br>$DB-&gt;Connect($server, $user, $pwd, $db);<br><br><font
  color="#006600"># M'soft style data retrieval with binds</font>
 $rs = $DB-&gt;Execute("select * from table where key=?",array($key));
@@ -113,6 +119,7 @@ $DB = NewADOConnection("<b>mysql://$user:$pwd@$server/$db?persist</b>");<br><br>
 $ok = $DB-&gt;Execute("update atable set aval = 0");
 if (!$ok) mylogerr($DB-&gt;ErrorMsg());
       </pre>
+
       <p class="style1">Other things you can try include: </p>
       <pre><font color="#006600"># Updating tables</font>
 $ok = $DB-&gt;Execute("update table set col1=? where key=?",array($colval, $key));
@@ -141,7 +148,9 @@ Access</a>, <a
  href="http://phplens.com/adodb/code.initialization.html#ldap">LDAP</a>,
       <a href="http://phplens.com/adodb/code.initialization.html#ibase">Interbase/Firebird</a>
 etc.
-      </span>      <p class="style1"></p>
+      </span>
+
+
       <h3 class="style1">PHP5 Support</h3>
       <span class="style1">ADOdb has full PHP5 support, including SPL and exception support. For
 example, you can do this in PHP5:
@@ -149,12 +158,11 @@ example, you can do this in PHP5:
       <span class="style1">If you include the following adodb-exceptions.inc.php file, then ADOdb
 will throw exceptions when an error occurs:
       </span>      <pre>include("<b>/path/to/adodb-exceptions.inc.php</b>");<br>include("/path/to/adodb.inc.php");<br>$DB = NewADOConnection('oci8');  <br>$DB-&gt;Connect("", "scott", "tiger");<br>try {<br>   $DB-&gt;Execute("select badsql from badtable");<br>} catch (exception $e) {<br>    print_r($e);<br>}<br></pre>
-      <span class="style1"><a name="download"></a>
-      </span>
-      <h3 class="style1">PHP Download</h3>
-      <p class="style1"> <a
- href="http://sourceforge.net/project/showfiles.php?group_id=42718">Download
-from SourceForge</a><br>
+
+      <a name="download"></a>
+      <h3 class="style1">Download</h3>
+      <p class="style1">
+          <a href="http://sourceforge.net/project/showfiles.php?group_id=42718">Download from SourceForge</a><br>
       </p>
       <p class="style1"><i>Requirements</i>: PHP 5.0 or later. There is a version available that works with <a href="http://sourceforge.net/project/showfiles.php?group_id=42718&package_id=34890">PHP 4.1 to 5.2</a> also.</p>
       <p class="style1"><i>Installation</i>: Unpack files into a directory. Try the
@@ -178,7 +186,8 @@ Page</a> (this is always the most up-to-date)<br>
 Format</a>
       </span>
       <p class="style1"></p>
-      <h3 class="style1">Other Docs for PHP version</h3>
+
+      <h4 class="style1">Other Docs for PHP version</h4>
       <p class="style1"><a href="http://phplens.com/lens/adodb/docs-datadict.htm">Data
 Dictionary</a> for schema creation.<br>
       <a href="http://phplens.com/lens/adodb/docs-perf.htm">Performance
@@ -202,7 +211,8 @@ Latest version of articles at MelonFire: </p>
 2 on Advanced ADOdb</a>. Original articles at <a
  href="http://www.devshed.com/Server_Side/PHP/ADODB/">DevShed</a>.</p>
       <p class="style1"></p>
-      <h3 class="style1">Translations</h3>
+
+      <h4 class="style1">Translations</h4>
       <p class="style1">We have PHP documentation in other languages: </p>
       <ul class="style1">
         <li><a
