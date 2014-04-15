@@ -122,9 +122,9 @@ class ADODB_postgres64 extends ADOConnection{
 	// to know what the concequences are. The other values are correct (wheren't in 0.94)
 	// -- Freek Dijkstra
 
-	function ADODB_postgres64()
+	function __construct()
 	{
-	// changes the metaColumnsSQL, adds columns: attnum[6]
+		// changes the metaColumnsSQL, adds columns: attnum[6]
 	}
 
 	function ServerInfo()
@@ -900,7 +900,8 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 	var $_blobArr;
 	var $databaseType = "postgres64";
 	var $canSeek = true;
-	function ADORecordSet_postgres64($queryID,$mode=false)
+
+	function __construct($queryID, $mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -916,6 +917,8 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		default: $this->fetchMode = PGSQL_BOTH; break;
 		}
 		$this->adodbFetchMode = $mode;
+
+		// Parent's constructor
 		$this->ADORecordSet($queryID);
 	}
 
