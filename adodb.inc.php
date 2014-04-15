@@ -358,7 +358,7 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * Connection object. For connecting to databases, and executing queries.
 	 */
-	class ADOConnection {
+	abstract class ADOConnection {
 	//
 	// PUBLIC VARS
 	//
@@ -456,15 +456,6 @@ if (!defined('_ADODB_LAYER')) {
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
 
-
-
-	/**
-	 * Constructor
-	 */
-	function ADOConnection()
-	{
-		die('Virtual Class -- cannot instantiate');
-	}
 
 	static function Version()
 	{
