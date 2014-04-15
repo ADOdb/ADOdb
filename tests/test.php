@@ -125,11 +125,14 @@ FROM `nuke_stories` `t1`, `nuke_authors` `t2`, `nuke_stories_cat` `t3`, `nuke_to
 	$phpv = phpversion();
 	if (defined('ADODB_EXTENSION')) $ext = ' &nbsp; Extension '.ADODB_EXTENSION.' installed';
 	else $ext = '';
-	print "<h3>ADODB Version: $ADODB_vers Host: <i>$db->host</i> &nbsp; Database: <i>$db->database</i> &nbsp; PHP: $phpv $ext</h3>";
+	print "<h3>ADODB Version: $ADODB_vers";
+	print "<p>Host: <i>$db->host</i>";
+	print "<br>Database: <i>$db->database</i>";
+	print "<br>PHP: <i>$phpv $ext</i></h3>";
 
 	flush();
 
-	if (function_exists('date_default_timezone_set')) date_default_timezone_set('Asia/Kuala_Lumpur');
+	print "Current timezone: " . date_default_timezone_get() . "<p>";
 
 	$arr = $db->ServerInfo();
 	print_r($arr);

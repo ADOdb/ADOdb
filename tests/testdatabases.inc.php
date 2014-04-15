@@ -15,7 +15,7 @@ V5.19dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights res
 <input type=checkbox name="testaccess" value=1 <?php echo !empty($testaccess) ? 'checked' : '' ?>> <b>Access</b><br>
 <input type=checkbox name="testibase" value=1 <?php echo !empty($testibase) ? 'checked' : '' ?>> <b>Interbase</b><br>
 <input type=checkbox name="testmssql" value=1 <?php echo !empty($testmssql) ? 'checked' : '' ?>> <b>MSSQL</b><br>
- <input type=checkbox name="testmysql" value=1 <?php echo !empty($testmysql) ? 'checked' : '' ?>> <b>MySQL</b><br>
+<input type=checkbox name="testmysql" value=1 <?php echo !empty($testmysql) ? 'checked' : '' ?>> <b>MySQL</b><br>
 <input type=checkbox name="testmysqlodbc" value=1 <?php echo !empty($testmysqlodbc) ? 'checked' : '' ?>> <b>MySQL ODBC</b><br>
 <input type=checkbox name="testmysqli" value=1 <?php echo !empty($testmysqli) ? 'checked' : '' ?>> <b>MySQLi</b>
 <br>
@@ -78,15 +78,24 @@ function ADOLoadCode2($d)
 }
 
 flush();
+
+$pg_hostname = 'localhost';
+$pg_user = 'tester';
+$pg_password = 'test';
+$pg_database = 'northwind';
+$pg_errmsg = "ERROR: PostgreSQL requires a database called '$pg_database' "
+	. "on server '$pg_hostname', user '$pg_user', password '$pg_password'.<BR>";
+
 if (!empty($testpostgres)) {
 	//ADOLoadCode("postgres");
 
 	$db = ADONewConnection('postgres');
 	print "<h1>Connecting $db->databaseType...</h1>";
-	if ($db->Connect("localhost","tester","test","northwind")) {
+	if ($db->Connect($pg_hostname, $pg_user, $pg_password, $pg_database)) {
 		testdb($db,"create table ADOXYZ (id integer, firstname char(24), lastname varchar,created date)");
-	}else
-		print "ERROR: PostgreSQL requires a database called test on server, user tester, password test.<BR>".$db->ErrorMsg();
+	} else {
+		print $pg_errmsg . $db->ErrorMsg();
+	}
 }
 
 if (!empty($testpostgres9)) {
@@ -94,10 +103,10 @@ if (!empty($testpostgres9)) {
 
 	$db = ADONewConnection('postgres9');
 	print "<h1>Connecting $db->databaseType...</h1>";
-	if ($db->Connect("localhost","tester","test","northwind")) {
+	if ($db->Connect($pg_hostname, $pg_user, $pg_password, $pg_database)) {
 		testdb($db,"create table ADOXYZ (id integer, firstname char(24), lastname varchar,created date)");
 	}else
-		print "ERROR: PostgreSQL requires a database called test on server, user tester, password test.<BR>".$db->ErrorMsg();
+		print $pg_errmsg . $db->ErrorMsg();
 }
 
 if (!empty($testpgodbc)) {
