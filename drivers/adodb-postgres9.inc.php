@@ -19,8 +19,16 @@ class ADODB_postgres9 extends ADODB_postgres7
 {
 	var $databaseType = 'postgres9';
 
-	// Don't use OIDs, as they typically won't be there, and
-	// they're not what the application wants back, anyway.
+	/**
+	 * Retrieve last inserted ID
+	 * Don't use OIDs, since as per {@link http://php.net/function.pg-last-oid php manual }
+	 * they won't be there in Postgres 8.1
+	 * (and they're not what the application wants back, anyway).
+	 * @param string $table
+	 * @param string $column
+	 * @return int last inserted ID for given table/column, or the most recently
+	 *             returned one if $table or $column are empty
+	 */
 	function _insertid($table,$column)
 	{
 		return empty($table) || empty($column)
