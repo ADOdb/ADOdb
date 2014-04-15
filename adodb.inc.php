@@ -461,7 +461,7 @@ if (!defined('_ADODB_LAYER')) {
 	{
 	global $ADODB_vers;
 
-		$ok = preg_match( '/^[Vv]?([0-9]\.[0-9]+(dev|[a-z]))?/', $ADODB_vers, $matches );
+		$ok = preg_match( '/^[Vv]?([0-9]\.[0-9]+(dev|[a-z])?)/', $ADODB_vers, $matches );
 		if (!$ok) return (float) substr($ADODB_vers,1);
 		else return $matches[1];
 	}
