@@ -17,7 +17,7 @@ import sys
 
 # ADOdb version validation regex
 _version_dev = "dev"
-_version_regex = "[Vv]?[0-9]\.[0-9]+([a-z]|%s)?" % _version_dev
+_version_regex = "[Vv]?[0-9]\.[0-9]+(%s|[a-z])?" % _version_dev
 _release_date_regex = "[0-9?]+.*[0-9]+"
 
 _tag_prefix = "v"
