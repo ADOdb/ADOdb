@@ -32,8 +32,8 @@
 
  */
 
- if (!defined('_ADODB_LAYER')) {
- 	define('_ADODB_LAYER',1);
+if (!defined('_ADODB_LAYER')) {
+	define('_ADODB_LAYER',1);
 
 	//==============================================================================================
 	// CONSTANT DEFINITIONS
@@ -68,21 +68,20 @@
 
 	$ADODB_EXTENSION = defined('ADODB_EXTENSION');
 
-	//********************************************************//
-	/*
-	Controls $ADODB_FORCE_TYPE mode. Default is ADODB_FORCE_VALUE (3).
-	Used in GetUpdateSql and GetInsertSql functions. Thx to Niko, nuko#mbnet.fi
+	// ********************************************************
+	// Controls $ADODB_FORCE_TYPE mode. Default is ADODB_FORCE_VALUE (3).
+	// Used in GetUpdateSql and GetInsertSql functions. Thx to Niko, nuko#mbnet.fi
+	//
+	// 0 = ignore empty fields. All empty fields in array are ignored.
+	// 1 = force null. All empty, php null and string 'null' fields are changed to sql NULL values.
+	// 2 = force empty. All empty, php null and string 'null' fields are changed to sql empty '' or 0 values.
+	// 3 = force value. Value is left as it is. Php null and string 'null' are set to sql NULL values and empty fields '' are set to empty '' sql values.
 
- 		0 = ignore empty fields. All empty fields in array are ignored.
-		1 = force null. All empty, php null and string 'null' fields are changed to sql NULL values.
-		2 = force empty. All empty, php null and string 'null' fields are changed to sql empty '' or 0 values.
-		3 = force value. Value is left as it is. Php null and string 'null' are set to sql NULL values and empty fields '' are set to empty '' sql values.
-	*/
-        define('ADODB_FORCE_IGNORE',0);
-        define('ADODB_FORCE_NULL',1);
-        define('ADODB_FORCE_EMPTY',2);
-        define('ADODB_FORCE_VALUE',3);
-    //********************************************************//
+		define('ADODB_FORCE_IGNORE',0);
+		define('ADODB_FORCE_NULL',1);
+		define('ADODB_FORCE_EMPTY',2);
+		define('ADODB_FORCE_VALUE',3);
+	// ********************************************************
 
 
 	if (!$ADODB_EXTENSION || ADODB_EXTENSION < 4.0) {
@@ -100,7 +99,7 @@
 	Controls ADODB_FETCH_ASSOC field-name case. Default is 2, use native case-names.
 	This currently works only with mssql, odbc, oci8po and ibase derived drivers.
 
- 		0 = assoc lowercase field names. $rs->fields['orderid']
+		0 = assoc lowercase field names. $rs->fields['orderid']
 		1 = assoc uppercase field names. $rs->fields['ORDERID']
 		2 = use native-case field names. $rs->fields['OrderID']
 	*/
@@ -489,7 +488,7 @@
 
 	function IsConnected()
 	{
-    	return !empty($this->_connectionID);
+		return !empty($this->_connectionID);
 	}
 
 	function _findvers($str)
@@ -739,21 +738,21 @@
 	}
 
 
-   /**
-	* PEAR DB Compat - do not use internally.
-	*/
+	/**
+	 * PEAR DB Compat - do not use internally.
+	 */
 	function nextId($seq_name)
 	{
 		return $this->GenID($seq_name);
 	}
 
 	/**
-	*	 Lock a row, will escalate and lock the table if row locking not supported
-	*	will normally free the lock at the end of the transaction
-	*
-	*  @param $table	name of table to lock
-	*  @param $where	where clause to use, eg: "WHERE row=12". If left empty, will escalate to table lock
-	*/
+	 *	 Lock a row, will escalate and lock the table if row locking not supported
+	 *	will normally free the lock at the end of the transaction
+	 *
+	 *  @param $table	name of table to lock
+	 *  @param $where	where clause to use, eg: "WHERE row=12". If left empty, will escalate to table lock
+	 */
 	function RowLock($table,$where,$col='1 as adodbignore')
 	{
 		return false;
@@ -1070,9 +1069,9 @@
 			$this->_queryID = @$this->_query($sql,$inputarr);
 		}
 
-		/************************
+		// ************************
 		// OK, query executed
-		*************************/
+		// ************************
 
 		if ($this->_queryID === false) { // error handling if query fails
 			if ($this->debug == 99) adodb_backtrace(true,5);
@@ -1278,24 +1277,24 @@
 
 
 	/**
-	* Will select, getting rows from $offset (1-based), for $nrows.
-	* This simulates the MySQL "select * from table limit $offset,$nrows" , and
-	* the PostgreSQL "select * from table limit $nrows offset $offset". Note that
-	* MySQL and PostgreSQL parameter ordering is the opposite of the other.
-	* eg.
-	*  SelectLimit('select * from table',3); will return rows 1 to 3 (1-based)
-	*  SelectLimit('select * from table',3,2); will return rows 3 to 5 (1-based)
-	*
-	* Uses SELECT TOP for Microsoft databases (when $this->hasTop is set)
-	* BUG: Currently SelectLimit fails with $sql with LIMIT or TOP clause already set
-	*
-	* @param sql
-	* @param [offset]	is the row to start calculations from (1-based)
-	* @param [nrows]		is the number of rows to get
-	* @param [inputarr]	array of bind variables
-	* @param [secs2cache]		is a private parameter only used by jlim
-	* @return		the recordset ($rs->databaseType == 'array')
- 	*/
+	 * Will select, getting rows from $offset (1-based), for $nrows.
+	 * This simulates the MySQL "select * from table limit $offset,$nrows" , and
+	 * the PostgreSQL "select * from table limit $nrows offset $offset". Note that
+	 * MySQL and PostgreSQL parameter ordering is the opposite of the other.
+	 * eg.
+	 *  SelectLimit('select * from table',3); will return rows 1 to 3 (1-based)
+	 *  SelectLimit('select * from table',3,2); will return rows 3 to 5 (1-based)
+	 *
+	 * Uses SELECT TOP for Microsoft databases (when $this->hasTop is set)
+	 * BUG: Currently SelectLimit fails with $sql with LIMIT or TOP clause already set
+	 *
+	 * @param sql
+	 * @param [offset]	is the row to start calculations from (1-based)
+	 * @param [nrows]		is the number of rows to get
+	 * @param [inputarr]	array of bind variables
+	 * @param [secs2cache]		is a private parameter only used by jlim
+	 * @return		the recordset ($rs->databaseType == 'array')
+	 */
 	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		if ($this->hasTop && $nrows > 0) {
@@ -1705,23 +1704,23 @@
 
 
 	/**
-	* Will select, getting rows from $offset (1-based), for $nrows.
-	* This simulates the MySQL "select * from table limit $offset,$nrows" , and
-	* the PostgreSQL "select * from table limit $nrows offset $offset". Note that
-	* MySQL and PostgreSQL parameter ordering is the opposite of the other.
-	* eg.
-	*  CacheSelectLimit(15,'select * from table',3); will return rows 1 to 3 (1-based)
-	*  CacheSelectLimit(15,'select * from table',3,2); will return rows 3 to 5 (1-based)
-	*
-	* BUG: Currently CacheSelectLimit fails with $sql with LIMIT or TOP clause already set
-	*
-	* @param [secs2cache]	seconds to cache data, set to 0 to force query. This is optional
-	* @param sql
-	* @param [offset]	is the row to start calculations from (1-based)
-	* @param [nrows]	is the number of rows to get
-	* @param [inputarr]	array of bind variables
-	* @return		the recordset ($rs->databaseType == 'array')
- 	*/
+	 * Will select, getting rows from $offset (1-based), for $nrows.
+	 * This simulates the MySQL "select * from table limit $offset,$nrows" , and
+	 * the PostgreSQL "select * from table limit $nrows offset $offset". Note that
+	 * MySQL and PostgreSQL parameter ordering is the opposite of the other.
+	 * eg.
+	 *  CacheSelectLimit(15,'select * from table',3); will return rows 1 to 3 (1-based)
+	 *  CacheSelectLimit(15,'select * from table',3,2); will return rows 3 to 5 (1-based)
+	 *
+	 * BUG: Currently CacheSelectLimit fails with $sql with LIMIT or TOP clause already set
+	 *
+	 * @param [secs2cache]	seconds to cache data, set to 0 to force query. This is optional
+	 * @param sql
+	 * @param [offset]	is the row to start calculations from (1-based)
+	 * @param [nrows]	is the number of rows to get
+	 * @param [inputarr]	array of bind variables
+	 * @return		the recordset ($rs->databaseType == 'array')
+	 */
 	function CacheSelectLimit($secs2cache,$sql,$nrows=-1,$offset=-1,$inputarr=false)
 	{
 		if (!is_numeric($secs2cache)) {
@@ -1738,14 +1737,14 @@
 
 
 	/**
-	* Flush cached recordsets that match a particular $sql statement.
-	* If $sql == false, then we purge all files in the cache.
- 	*/
+	 * Flush cached recordsets that match a particular $sql statement.
+	 * If $sql == false, then we purge all files in the cache.
+	 */
 
 	/**
-   * Flush cached recordsets that match a particular $sql statement.
-   * If $sql == false, then we purge all files in the cache.
-    */
+	 * Flush cached recordsets that match a particular $sql statement.
+	 * If $sql == false, then we purge all files in the cache.
+	 */
 	function CacheFlush($sql=false,$inputarr=false)
 	{
 	global $ADODB_CACHE_DIR, $ADODB_CACHE;
@@ -1763,19 +1762,19 @@
 
 
 	/**
-	* Private function to generate filename for caching.
-	* Filename is generated based on:
-	*
-	*  - sql statement
-	*  - database type (oci8, ibase, ifx, etc)
-	*  - database name
-	*  - userid
-	*  - setFetchMode (adodb 4.23)
-	*
-	* When not in safe mode, we create 256 sub-directories in the cache directory ($ADODB_CACHE_DIR).
-	* Assuming that we can have 50,000 files per directory with good performance,
-	* then we can scale to 12.8 million unique cached recordsets. Wow!
- 	*/
+	 * Private function to generate filename for caching.
+	 * Filename is generated based on:
+	 *
+	 *  - sql statement
+	 *  - database type (oci8, ibase, ifx, etc)
+	 *  - database name
+	 *  - userid
+	 *  - setFetchMode (adodb 4.23)
+	 *
+	 * When not in safe mode, we create 256 sub-directories in the cache directory ($ADODB_CACHE_DIR).
+	 * Assuming that we can have 50,000 files per directory with good performance,
+	 * then we can scale to 12.8 million unique cached recordsets. Wow!
+	 */
 	function _gencachename($sql,$createdir)
 	{
 	global $ADODB_CACHE, $ADODB_CACHE_DIR;
@@ -1954,19 +1953,19 @@
 	 *		 be a simple select stmt with no groupby/orderby/limit
 	 *
 	 * "Jonathan Younger" <jyounger@unilab.com>
-  	 */
+	 */
 	function GetUpdateSQL(&$rs, $arrFields,$forceUpdate=false,$magicq=false,$force=null)
 	{
 		global $ADODB_INCLUDED_LIB;
 
-        //********************************************************//
-        //This is here to maintain compatibility
-        //with older adodb versions. Sets force type to force nulls if $forcenulls is set.
+		// ********************************************************
+		// This is here to maintain compatibility
+		// with older adodb versions. Sets force type to force nulls if $forcenulls is set.
 		if (!isset($force)) {
 				global $ADODB_FORCE_TYPE;
 			    $force = $ADODB_FORCE_TYPE;
 		}
-		//********************************************************//
+		// ********************************************************
 
 		if (empty($ADODB_INCLUDED_LIB)) include(ADODB_DIR.'/adodb-lib.inc.php');
 		return _adodb_getupdatesql($this,$rs,$arrFields,$forceUpdate,$magicq,$force);
@@ -1978,8 +1977,8 @@
 	 * that should be assigned.
 	 *
 	 * Note: This function should only be used on a recordset
-	 *	   that is run against a single table.
-  	 */
+	 *       that is run against a single table.
+	 */
 	function GetInsertSQL(&$rs, $arrFields,$magicq=false,$force=null)
 	{
 		global $ADODB_INCLUDED_LIB;
@@ -2289,28 +2288,27 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			return false;
 		}
 
-	  /**
-      * List procedures or functions in an array.
-      * @param procedureNamePattern  a procedure name pattern; must match the procedure name as it is stored in the database
-      * @param catalog a catalog name; must match the catalog name as it is stored in the database;
-      * @param schemaPattern a schema name pattern;
-      *
-      * @return array of procedures on current database.
-
-		 Array (
-		    [name_of_procedure] => Array
-		      (
-		      [type] => PROCEDURE or FUNCTION
-		      [catalog] => Catalog_name
-		      [schema] => Schema_name
-		      [remarks] => explanatory comment on the procedure
-		      )
-                 )
-      */
-     function MetaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null)
-     {
-            return false;
-     }
+	/**
+	 * List procedures or functions in an array.
+	 * @param procedureNamePattern  a procedure name pattern; must match the procedure name as it is stored in the database
+	 * @param catalog a catalog name; must match the catalog name as it is stored in the database;
+	 * @param schemaPattern a schema name pattern;
+	 *
+	 * @return array of procedures on current database.
+	 *
+	 * Array(
+	 *   [name_of_procedure] => Array(
+	 *     [type] => PROCEDURE or FUNCTION
+	 *     [catalog] => Catalog_name
+	 *     [schema] => Schema_name
+	 *     [remarks] => explanatory comment on the procedure
+	 *   )
+	 * )
+	 */
+	function MetaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null)
+	{
+		return false;
+	}
 
 
 	/**
@@ -2426,29 +2424,28 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return $false;
 	}
 
-    /**
-      * List indexes on a table as an array.
-      * @param table  table name to query
-      * @param primary true to only show primary keys. Not actually used for most databases
-	  *
-      * @return array of indexes on current table. Each element represents an index, and is itself an associative array.
-
-		 Array (
-		    [name_of_index] => Array
-		      (
-	          [unique] => true or false
-	          [columns] => Array
-	          (
-	          	[0] => firstname
-		      	[1] => lastname
-	          )
-		)
-      */
-     function MetaIndexes($table, $primary = false, $owner = false)
-     {
-	 		$false = false;
-            return $false;
-     }
+	/**
+	 * List indexes on a table as an array.
+	 * @param table  table name to query
+	 * @param primary true to only show primary keys. Not actually used for most databases
+	 *
+	 * @return array of indexes on current table. Each element represents an index, and is itself an associative array.
+	 *
+	 * Array(
+	 *   [name_of_index] => Array(
+	 *     [unique] => true or false
+	 *     [columns] => Array(
+	 *       [0] => firstname
+	 *       [1] => lastname
+	 *     )
+	 *   )
+	 * )
+	 */
+	function MetaIndexes($table, $primary = false, $owner = false)
+	{
+		$false = false;
+		return $false;
+	}
 
 	/**
 	 * List columns names in a table as an array.
@@ -2917,7 +2914,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 
-   /**
+	/**
 	 * RecordSet class that represents the dataset returned by the database.
 	 * To keep memory overhead low, this class holds only the current row in memory.
 	 * No prefetching of data is done, so the RecordCount() can return -1 ( which
@@ -2975,8 +2972,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	function getIterator()
 	{
-        return new ADODB_Iterator($this);
-    }
+		return new ADODB_Iterator($this);
+	}
 
 	/* this is experimental - i don't really know what to return... */
 	function __toString()
@@ -3518,13 +3515,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 	}
 
-  /**
-   * Use associative array to get fields array for databases that do not support
-   * associative arrays. Submitted by Paolo S. Asioli paolo.asioli#libero.it
-   *
-   * @param int $upper Case for the array keys, defaults to uppercase
-   *                   (see ADODB_ASSOC_CASE_xxx constants)
-   */
+	/**
+	 * Use associative array to get fields array for databases that do not support
+	 * associative arrays. Submitted by Paolo S. Asioli paolo.asioli#libero.it
+	 *
+	 * @param int $upper Case for the array keys, defaults to uppercase
+	 *                   (see ADODB_ASSOC_CASE_xxx constants)
+	 */
 	function GetRowAssoc($upper=ADODB_ASSOC_CASE_UPPER)
 	{
 		$record = array();
@@ -4243,17 +4240,18 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$fakedsn = str_replace('@/','@adodb-fakehost/',$fakedsn);
 			}
 
-			 if ((strpos($origdsn, 'sqlite')) !== FALSE && stripos($origdsn, '%2F') === FALSE) {
-             // special handling for SQLite, it only might have the path to the database file.
-             // If you try to connect to a SQLite database using a dsn like 'sqlite:///path/to/database', the 'parse_url' php function
-             // will throw you an exception with a message such as "unable to parse url"
-                list($scheme, $path) = explode('://', $origdsn);
-                $dsna['scheme'] = $scheme;
+			if ((strpos($origdsn, 'sqlite')) !== FALSE && stripos($origdsn, '%2F') === FALSE) {
+				// special handling for SQLite, it only might have the path to the database file.
+				// If you try to connect to a SQLite database using a dsn
+				// like 'sqlite:///path/to/database', the 'parse_url' php function
+				// will throw you an exception with a message such as "unable to parse url"
+				list($scheme, $path) = explode('://', $origdsn);
+				$dsna['scheme'] = $scheme;
 				if ($qmark = strpos($path,'?')) {
 					$dsn['query'] = substr($path,$qmark+1);
 					$path = substr($path,0,$qmark);
 				}
-            	$dsna['path'] = '/' . urlencode($path);
+				$dsna['path'] = '/' . urlencode($path);
 			} else
 				$dsna = @parse_url($fakedsn);
 

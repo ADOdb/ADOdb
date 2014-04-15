@@ -15,7 +15,8 @@ if (!defined('ADODB_DIR')) die();
 
 include_once(ADODB_DIR."/drivers/adodb-postgres7.inc.php");
 
-class ADODB_postgres9 extends ADODB_postgres7 {
+class ADODB_postgres9 extends ADODB_postgres7
+{
 	var $databaseType = 'postgres9';
 
 	function ADODB_postgres9()
@@ -38,11 +39,8 @@ class ADODB_postgres9 extends ADODB_postgres7 {
 	}
 }
 
-/*--------------------------------------------------------------------------------------
-	 Class Name: Recordset
---------------------------------------------------------------------------------------*/
-
-class ADORecordSet_postgres9 extends ADORecordSet_postgres7{
+class ADORecordSet_postgres9 extends ADORecordSet_postgres7
+{
 	var $databaseType = "postgres9";
 
 	function ADORecordSet_postgres9($queryID,$mode=false)
@@ -51,7 +49,8 @@ class ADORecordSet_postgres9 extends ADORecordSet_postgres7{
 	}
 }
 
-class ADORecordSet_assoc_postgres9 extends ADORecordSet_assoc_postgres7{
+class ADORecordSet_assoc_postgres9 extends ADORecordSet_assoc_postgres7
+{
 	var $databaseType = "postgres9";
 
 	function ADORecordSet_assoc_postgres9($queryID,$mode=false)
