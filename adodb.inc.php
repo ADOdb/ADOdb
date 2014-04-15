@@ -4179,11 +4179,18 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				if (PHP_VERSION >= 5) $db = 'ado5';
 				$class = 'ado';
 				break;
+
 			case 'ifx':
-			case 'maxsql': $class = $db = 'mysqlt'; break;
+			case 'maxsql':
+				$class = $db = 'mysqlt';
+				break;
+
+			case 'pgsql':
 			case 'postgres':
 			case 'postgres8':
-			case 'pgsql': $class = $db = 'postgres7'; break;
+				$class = $db = 'postgres7';
+				break;
+
 			default:
 				$class = $db; break;
 		}
