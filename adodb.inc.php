@@ -4187,7 +4187,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 			case 'pgsql':
 			case 'postgres':
-				$class = $db = 'postgres7';
+				$class = $db = 'postgres8';
 				break;
 
 			default:
