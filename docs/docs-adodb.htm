@@ -6202,10 +6202,12 @@ PHP</a>. </p>
 <p>oci8: Added trailing ';' on trigger creation for sequence fields, prevents occurence of ORA-24344
 <p>oci8quercus: new oci8 driver with support for quercus jdbc data types.
 <p>pdo: Fixed concat recursion bug in 5.3. See http://phplens.com/lens/lensforum/msgs.php?id=19285
+<p>pgsql: Default driver (postgres/pgsql) is now postgres8
 <p>pgsql: Fix output of BLOB (bytea) columns with PostgreSQL >= 9.0
 <p>pgsql: Fix handling of DEFAULT NULL columns in AlterColumnSQL
 <p>pgsql: Fix mapping of error message to ADOdb error codes
 <p>pgsql: Reset parameter number in Param() method when $name == false
+<p>postgres8: New class/type with correct behavior for _insertid(). See Github #8
 <p>postgres9: Fixed assoc problem. See http://phplens.com/lens/lensforum/msgs.php?id=19296
 <p>sybase: Removed redundant sybase_connect() call in _connect(). See Github #3
 <p>Added Composer support. See Github #7
