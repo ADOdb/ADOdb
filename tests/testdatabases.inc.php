@@ -79,6 +79,8 @@ function ADOLoadCode2($d)
 
 flush();
 
+// dregad 2014-04-15 added serial field to avoid error with lastval()
+$pg_test_table = "create table ADOXYZ (id integer, firstname char(24), lastname varchar,created date, ser serial)";
 $pg_hostname = 'localhost';
 $pg_user = 'tester';
 $pg_password = 'test';
@@ -92,7 +94,7 @@ if (!empty($testpostgres)) {
 	$db = ADONewConnection('postgres');
 	print "<h1>Connecting $db->databaseType...</h1>";
 	if ($db->Connect($pg_hostname, $pg_user, $pg_password, $pg_database)) {
-		testdb($db,"create table ADOXYZ (id integer, firstname char(24), lastname varchar,created date)");
+		testdb($db, $pg_test_table);
 	} else {
 		print $pg_errmsg . $db->ErrorMsg();
 	}
@@ -104,9 +106,10 @@ if (!empty($testpostgres9)) {
 	$db = ADONewConnection('postgres9');
 	print "<h1>Connecting $db->databaseType...</h1>";
 	if ($db->Connect($pg_hostname, $pg_user, $pg_password, $pg_database)) {
-		testdb($db,"create table ADOXYZ (id integer, firstname char(24), lastname varchar,created date)");
-	}else
+		testdb($db, $pg_test_table);
+	} else {
 		print $pg_errmsg . $db->ErrorMsg();
+	}
 }
 
 if (!empty($testpgodbc)) {
