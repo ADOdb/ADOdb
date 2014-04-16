@@ -1366,7 +1366,12 @@ END Adodb;
 	if (!$rs) Err("SQLDate query returned no recordset");
 	else if ($d != $rs->fields[0]) Err("SQLDate 1 failed expected: <br>act:$d <br>sql:".$rs->fields[0]);
 
-	$date = $db->SQLDate('d-m-M-Y-\QQ h:i:s A',$db->DBDate("1974-02-25"));
+	$dbdate = $db->DBDate("1974-02-25");
+	if (substr($db->dataProvider, 0, 8) == 'postgres') {
+		$dbdate .= "::TIMESTAMP";
+	}
+
+	$date = $db->SQLDate('d-m-M-Y-\QQ h:i:s A', $dbdate);
 	$sql = "SELECT $date from ADOXYZ";
 	print "<p>Test SQLDate: ".htmlspecialchars($sql)."</p>";
 	$db->debug=1;
