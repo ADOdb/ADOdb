@@ -214,7 +214,7 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	// if magic quotes disabled, use mysql_real_escape_string()
-	// From readme.htm:
+	// From docs-adodb.htm:
 	// Quotes a string to be sent to the database. The $magic_quotes_enabled
 	// parameter may look funny, but the idea is if you are quoting a
 	// string extracted from a POST/GET variable, then

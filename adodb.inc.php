@@ -2718,7 +2718,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	* $nrows rows per page. It also saves two boolean values saying if the given page is the first
 	* and/or last one of the recordset. Added by Iván Oliva to provide recordset pagination.
 	*
-	* See readme.htm#ex8 for an example of usage.
+	* See docs-adodb.htm#ex8 for an example of usage.
 	*
 	* @param sql
 	* @param nrows		is the number of rows per page to get
