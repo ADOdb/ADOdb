@@ -40,6 +40,8 @@ class ADODB_sybase extends ADOConnection {
 	var $leftOuter = '*=';
 	var $rightOuter = '=*';
 
+	var $port;
+
 	function ADODB_sybase()
 	{
 	}
@@ -123,6 +125,11 @@ class ADODB_sybase extends ADOConnection {
 	{
 		if (!function_exists('sybase_connect')) return null;
 
+		// Sybase connection on custom port
+		if ($this->port) {
+			$argHostname .= ':' . $this->port;
+		}
+
 		if ($this->charSet) {
 			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword, $this->charSet);
 		} else {
@@ -138,6 +145,11 @@ class ADODB_sybase extends ADOConnection {
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (!function_exists('sybase_connect')) return null;
+
+		// Sybase connection on custom port
+		if ($this->port) {
+			$argHostname .= ':' . $this->port;
+		}
 
 		if ($this->charSet) {
 			$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword, $this->charSet);
@@ -341,7 +353,8 @@ class ADORecordset_sybase extends ADORecordSet {
 		if ($this->fetchMode == ADODB_FETCH_NUM) {
 			$this->fields = @sybase_fetch_row($this->_queryID);
 		} else if ($this->fetchMode == ADODB_FETCH_ASSOC) {
-			$this->fields = @sybase_fetch_row($this->_queryID);
+			$this->fields = @sybase_fetch_assoc($this->_queryID);
+
 			if (is_array($this->fields)) {
 				$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
 				return true;
