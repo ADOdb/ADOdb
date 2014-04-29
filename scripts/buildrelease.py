@@ -194,6 +194,9 @@ def main():
         shell=True
     )
 
+    print "Copying README file"
+    shutil.copy(release_tmp_dir + "/README.md", release_path)
+
     if cleanup:
         print "Deleting working directories"
         shutil.rmtree(release_tmp_dir)
