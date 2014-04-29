@@ -17,13 +17,14 @@ release_branch = "master"
 release_prefix = "adodb"
 
 # Directories and files to exclude from release tarballs
-sf_dir = "{usr}@frs.sourceforge.net:" \
-         "/home/frs/project/adodb/adodb-php5-only/adodb-{ver}-for-php5/"
-rsync_cmd = 'rsync -vP --rsh ssh {src} ' + sf_dir
+sf_files = "frs.sourceforge.net:/home/frs/project/adodb" \
+           "/adodb-php5-only/adodb-{ver}-for-php5/"
+sf_doc = "web.sourceforge.net:/home/project-web/adodb/htdocs/"
+rsync_cmd = "rsync -vP --rsh ssh {opt} {src} {usr}@{dst}"
 
 # Command-line options
-options = "h"
-long_options = ["help"]
+options = "hfd"
+long_options = ["help", "files", "doc"]
 
 
 def usage():
@@ -39,6 +40,8 @@ def usage():
 
     Options:
         -h | --help             Show this usage message
+        -f | --files            Upload release files only
+        -d | --doc              Upload documentation only
 ''' % (
         path.basename(__file__)
     )
@@ -59,10 +62,19 @@ def main():
         print "ERROR: please specify the Sourceforge user and release_path"
         sys.exit(1)
 
+    upload_files = True
+    upload_doc = True
+
     for opt, val in opts:
         if opt in ("-h", "--help"):
             usage()
             sys.exit(0)
+
+        elif opt in ("-f", "--files"):
+            upload_files = False
+
+        elif opt in ("-d", "--doc"):
+            upload_doc = False
 
     # Mandatory parameters
     username = args[0]
@@ -81,17 +93,40 @@ def main():
         sys.exit(1)
     version = zipfile[5:8]
 
-    # Upload files to Sourceforge with rsync
-    print "Uploading ADOdb release files to Sourceforge..."
-    print
-    subprocess.call(
-        rsync_cmd.format(
-            usr=username,
-            src=path.join(release_path, "*"),
-            ver=version
-        ),
-        shell=True
-    )
+    # Start upload process
+    print "ADOdb release upload script"
+
+    # Upload release files
+    if upload_files:
+        target = sf_files.format(ver=version)
+        print
+        print "Uploading release files..."
+        print "  Target: " + target
+        print
+        subprocess.call(
+            rsync_cmd.format(
+                usr=username,
+                opt="--exclude=docs",
+                src=path.join(release_path, "*"),
+                dst=target
+            ),
+            shell=True
+        )
+
+    # Upload documentation
+    if upload_doc:
+        print
+        print "Uploading documentation..."
+        print
+        subprocess.call(
+            rsync_cmd.format(
+                usr=username,
+                opt="",
+                src=path.join(release_path, "docs", "*"),
+                dst=sf_doc
+            ),
+            shell=True
+        )
 
 #end main()
 
