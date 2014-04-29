@@ -218,9 +218,9 @@ def main():
         print "Delete them manually when they are no longer needed."
 
     # Done
-    print "\nADOdb release %s build complete, tarballs saved in '%s'." % (
+    print "\nADOdb release %s build complete, files saved in '%s'." % (
         version,
-        release_tmp_dir
+        release_path
     )
 
 #end main()
