@@ -17,7 +17,7 @@ import updateversion
 
 
 # ADOdb Repository reference
-origin_repo = "git://git.code.sf.net/p/adodb/git adodb-git"
+origin_repo = "git://git.code.sf.net/p/adodb/git"
 release_branch = "master"
 release_prefix = "adodb"
 
