@@ -183,10 +183,12 @@ def main():
     release_name = release_prefix + version.split(".")[1]
 
     os.chdir(release_path)
+    print "- tar"
     subprocess.call(
-        "tar czf %s.tgz %s" % (release_name, release_prefix),
+        "tar -czf %s.tar.gz %s" % (release_name, release_prefix),
         shell=True
     )
+    print "- zip"
     subprocess.call(
         "zip -rq %s.zip %s" % (release_name, release_prefix),
         shell=True
