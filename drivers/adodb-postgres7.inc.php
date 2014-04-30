@@ -21,58 +21,76 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	var $hasLimit = true;	// set to true for pgsql 6.5+ only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
 	var $ansiOuter = true;
 	var $charSet = true; //set to true for Postgres 7 and above - PG client supports encodings
-	   // Richard 3/18/2012 - Modified SQL to return SERIAL type correctly AS old driver no longer return SERIAL as data type.
-	var $metaColumnsSQL =
-						 "SELECT a.attname,
-									CASE
-											   WHEN x.sequence_name != '' THEN 'SERIAL'
-											   ELSE t.typname
-									END AS typname,
-									a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum
-						 FROM pg_class c, pg_attribute a
-						 JOIN pg_type t ON a.atttypid = t.oid
-						 LEFT JOIN
-									(SELECT c.relname as sequence_name,
-												  c1.relname as related_table,
-												  a.attname as related_column
-									FROM pg_class c
-									   JOIN pg_depend d ON d.objid = c.oid
-									   LEFT JOIN pg_class c1 ON d.refobjid = c1.oid
-									   LEFT JOIN pg_attribute a ON (d.refobjid, d.refobjsubid) = (a.attrelid, a.attnum)
-									WHERE c.relkind = 'S' AND c1.relname = '%s') x
-									ON x.related_column= a.attname
-						 WHERE c.relkind in ('r','v') AND
-									(c.relname='%s' or c.relname = lower('%s')) AND
-									a.attname not like '....%%' AND
-									a.attnum > 0 AND
-									a.attrelid = c.oid
-						 ORDER BY a.attnum";
 
-   // used when schema defined
+	// Richard 3/18/2012 - Modified SQL to return SERIAL type correctly AS old driver no longer return SERIAL as data type.
+	var $metaColumnsSQL = "
+		SELECT
+			a.attname,
+			CASE
+				WHEN x.sequence_name != ''
+				THEN 'SERIAL'
+				ELSE t.typname
+			END AS typname,
+			a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
+		FROM
+			pg_class c,
+			pg_attribute a
+		JOIN pg_type t ON a.atttypid = t.oid
+		LEFT JOIN (
+			SELECT
+				c.relname as sequence_name,
+				c1.relname as related_table,
+				a.attname as related_column
+			FROM pg_class c
+			JOIN pg_depend d ON d.objid = c.oid
+			LEFT JOIN pg_class c1 ON d.refobjid = c1.oid
+			LEFT JOIN pg_attribute a ON (d.refobjid, d.refobjsubid) = (a.attrelid, a.attnum)
+			WHERE c.relkind = 'S' AND c1.relname = '%s'
+		) x ON x.related_column= a.attname
+		WHERE
+			c.relkind in ('r','v')
+			AND (c.relname='%s' or c.relname = lower('%s'))
+			AND a.attname not like '....%%'
+			AND a.attnum > 0
+			AND a.attrelid = c.oid
+		ORDER BY
+			a.attnum";
+
+	// used when schema defined
 	var $metaColumnsSQL1 = "
-						 SELECT a.attname,
-									CASE
-											   WHEN x.sequence_name != '' THEN 'SERIAL'
-											   ELSE t.typname
-									END AS typname,
-									a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
-						 FROM pg_class c, pg_namespace n, pg_attribute a
-						 JOIN pg_type t ON a.atttypid = t.oid
-						 LEFT JOIN
-									(SELECT c.relname as sequence_name,
-												  c1.relname as related_table,
-												  a.attname as related_column
-									FROM pg_class c
-									   JOIN pg_depend d ON d.objid = c.oid
-									   LEFT JOIN pg_class c1 ON d.refobjid = c1.oid
-									   LEFT JOIN pg_attribute a ON (d.refobjid, d.refobjsubid) = (a.attrelid, a.attnum)
-									WHERE c.relkind = 'S' AND c1.relname = '%s') x
-									ON x.related_column= a.attname
-						 WHERE c.relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
-									AND c.relnamespace=n.oid and n.nspname='%s'
-									AND a.attname not like '....%%' AND a.attnum > 0
-									AND a.atttypid = t.oid AND a.attrelid = c.oid
-						 ORDER BY a.attnum";
+		SELECT
+			a.attname,
+			CASE
+				WHEN x.sequence_name != ''
+				THEN 'SERIAL'
+				ELSE t.typname
+			END AS typname,
+			a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
+		FROM
+			pg_class c,
+			pg_namespace n,
+			pg_attribute a
+		JOIN pg_type t ON a.atttypid = t.oid
+		LEFT JOIN (
+			SELECT
+				c.relname as sequence_name,
+				c1.relname as related_table,
+				a.attname as related_column
+			FROM pg_class c
+			JOIN pg_depend d ON d.objid = c.oid
+			LEFT JOIN pg_class c1 ON d.refobjid = c1.oid
+			LEFT JOIN pg_attribute a ON (d.refobjid, d.refobjsubid) = (a.attrelid, a.attnum)
+			WHERE c.relkind = 'S' AND c1.relname = '%s'
+		) x ON x.related_column= a.attname
+		WHERE
+			c.relkind in ('r','v')
+			AND (c.relname='%s' or c.relname = lower('%s'))
+			AND c.relnamespace=n.oid and n.nspname='%s'
+			AND a.attname not like '....%%'
+			AND a.attnum > 0
+			AND a.atttypid = t.oid
+			AND a.attrelid = c.oid
+		ORDER BY a.attnum";
 
 
 	function __construct()
@@ -87,19 +105,20 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 
 	// the following should be compat with postgresql 7.2,
 	// which makes obsolete the LIMIT limit,offset syntax
-	 function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
-	 {
-		 $offsetStr = ($offset >= 0) ? " OFFSET ".((integer)$offset) : '';
-		 $limitStr  = ($nrows >= 0)  ? " LIMIT ".((integer)$nrows) : '';
-		 if ($secs2cache)
-		  	$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
-		 else
-		  	$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
+	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	{
+		$offsetStr = ($offset >= 0) ? " OFFSET ".((integer)$offset) : '';
+		$limitStr  = ($nrows >= 0)  ? " LIMIT ".((integer)$nrows) : '';
+		if ($secs2cache)
+			$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
+		else
+			$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
 
 		return $rs;
-	 }
- 	/*
- 	function Prepare($sql)
+	}
+
+	/*
+	function Prepare($sql)
 	{
 		$info = $this->ServerInfo();
 		if ($info['version']>=7.3) {
@@ -118,29 +137,46 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	function MetaForeignKeys($table, $owner=false, $upper=false)
 	{
 		$sql="
-			SELECT fum.ftblname AS lookup_table, split_part(fum.rf, ')'::text, 1) AS lookup_field,
-				fum.ltable AS dep_table, split_part(fum.lf, ')'::text, 1) AS dep_field
+			SELECT
+				fum.ftblname AS lookup_table,
+				split_part(fum.rf, ')'::text, 1) AS lookup_field,
+				fum.ltable AS dep_table,
+				split_part(fum.lf, ')'::text, 1) AS dep_field
 			FROM (
-			SELECT fee.ltable, fee.ftblname, fee.consrc, split_part(fee.consrc,'('::text, 2) AS lf,
-			split_part(fee.consrc, '('::text, 3) AS rf
-			FROM (
-				SELECT foo.relname AS ltable, foo.ftblname,
-					pg_get_constraintdef(foo.oid) AS consrc
+				SELECT
+					fee.ltable,
+					fee.ftblname,
+					fee.consrc,
+					split_part(fee.consrc,'('::text, 2) AS lf,
+					split_part(fee.consrc, '('::text, 3) AS rf
 				FROM (
-					SELECT c.oid, c.conname AS name, t.relname, ft.relname AS ftblname
-					FROM pg_constraint c
-					JOIN pg_class t ON (t.oid = c.conrelid)
-					JOIN pg_class ft ON (ft.oid = c.confrelid)
-					JOIN pg_namespace nft ON (nft.oid = ft.relnamespace)
-					LEFT JOIN pg_description ds ON (ds.objoid = c.oid)
-					JOIN pg_namespace n ON (n.oid = t.relnamespace)
-					WHERE c.contype = 'f'::\"char\"
-					ORDER BY t.relname, n.nspname, c.conname, c.oid
+					SELECT
+						foo.relname AS ltable,
+						foo.ftblname,
+						pg_get_constraintdef(foo.oid) AS consrc
+					FROM (
+						SELECT
+							c.oid,
+							c.conname AS name,
+							t.relname,
+							ft.relname AS ftblname
+						FROM pg_constraint c
+						JOIN pg_class t ON (t.oid = c.conrelid)
+						JOIN pg_class ft ON (ft.oid = c.confrelid)
+						JOIN pg_namespace nft ON (nft.oid = ft.relnamespace)
+						LEFT JOIN pg_description ds ON (ds.objoid = c.oid)
+						JOIN pg_namespace n ON (n.oid = t.relnamespace)
+						WHERE c.contype = 'f'::\"char\"
+						ORDER BY t.relname, n.nspname, c.conname, c.oid
 					) foo
-				) fee) fum
-			WHERE fum.ltable='".strtolower($table)."'
-			ORDER BY fum.ftblname, fum.ltable, split_part(fum.lf, ')'::text, 1)
-			";
+				) fee
+			) fum
+			WHERE
+				fum.ltable='".strtolower($table)."'
+			ORDER BY
+				fum.ftblname,
+				fum.ltable,
+				split_part(fum.lf, ')'::text, 1)";
 		$rs = $this->Execute($sql);
 
 		if (!$rs || $rs->EOF) return false;
