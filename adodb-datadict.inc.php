@@ -515,7 +515,9 @@ class ADODB_DataDict {
 	{
 		$tabname = $this->TableName ($tabname);
 		if ($flds) {
-			list($lines,$pkey,$idxs) = $this->_GenFields($flds);
+			// Avoid use of SERIAL for existing columns, 2014-04-14
+			// by AS
+			list($lines,$pkey,$idxs) = $this->_GenFields($flds, false, false);
 			// genfields can return FALSE at times
 			if ($lines == null) $lines = array();
 			list(,$first) = each($lines);
@@ -592,7 +594,7 @@ class ADODB_DataDict {
 
 
 
-	function _GenFields($flds,$widespacing=false)
+	function _GenFields($flds,$widespacing=false,$allowSerial=true)
 	{
 		if (is_string($flds)) {
 			$padding = '     ';
@@ -681,7 +683,9 @@ class ADODB_DataDict {
 								break;
 				case 'UNSIGNED': $funsigned = true; break;
 				case 'AUTOINCREMENT':
-				case 'AUTO':	$fautoinc = true; $fnotnull = true; break;
+				case 'AUTO':	// Serial type (psql) not allowed in ALTER TABLE statements (2014-04-14 AS)
+						if ($allowSerial) $fautoinc = true;
+						$fnotnull = true; break;
 				case 'KEY':
                 // a primary key col can be non unique in itself (if key spans many cols...)
 				case 'PRIMARY':	$fprimary = $v; $fnotnull = true; /*$funiqueindex = true;*/ break;
@@ -996,7 +1000,9 @@ class ADODB_DataDict {
 
 
 		// already exists, alter table instead
-		list($lines,$pkey,$idxs) = $this->_GenFields($flds);
+		// (Avoid use of SERIAL when altering existing fields for psql,
+		// 2014-04-14 by AS)
+		list($lines,$pkey,$idxs) = $this->_GenFields($flds, false, false);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
 		$alter = 'ALTER TABLE ' . $this->TableName($tablename);
