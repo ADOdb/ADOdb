@@ -470,6 +470,21 @@ a different OID if a database must be reloaded. */
 		#return "($date+interval'$dayFraction days')";
 	}
 
+	/**
+	 * Generate the SQL to retrieve MetaColumns data
+	 * @param string $table Table name
+	 * @param string $schema Schema name (can be blank)
+	 * @return string SQL statement to execute
+	 */
+	protected function _generateMetaColumnsSQL($table, $schema)
+	{
+		if ($schema) {
+			return sprintf($this->metaColumnsSQL1, $table, $table, $schema);
+		}
+		else {
+			return sprintf($this->metaColumnsSQL, $table, $table, $schema);
+		}
+	}
 
 	// for schema support, pass in the $table param "$schema.$tabname".
 	// converts field names to lowercase, $upper is ignored
@@ -488,8 +503,7 @@ a different OID if a database must be reloaded. */
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
 
-		if ($schema) $rs = $this->Execute(sprintf($this->metaColumnsSQL1,$table,$table,$schema));
-		else $rs = $this->Execute(sprintf($this->metaColumnsSQL,$table,$table,$table));
+		$rs = $this->Execute($this->_generateMetaColumnsSQL($table, $schema));
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 

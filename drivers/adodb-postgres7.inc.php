@@ -126,7 +126,23 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		}
 		return $sql;
 	}
- 	*/
+	*/
+
+	/**
+	 * Generate the SQL to retrieve MetaColumns data
+	 * @param string $table Table name
+	 * @param string $schema Schema name (can be blank)
+	 * @return string SQL statement to execute
+	 */
+	protected function _generateMetaColumnsSQL($table, $schema)
+	{
+		if ($schema) {
+			return sprintf($this->metaColumnsSQL1, $table, $table, $table, $schema);
+		}
+		else {
+			return sprintf($this->metaColumnsSQL, $table, $table, $schema);
+		}
+	}
 
 	/**
 	 * @returns assoc array where keys are tables, and values are foreign keys
