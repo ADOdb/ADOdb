@@ -128,55 +128,36 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	}
  	*/
 
-	/*
-		I discovered that the MetaForeignKeys method no longer worked for Postgres 8.3.
-		I went ahead and modified it to work for both 8.2 and 8.3.
-		Please feel free to include this change in your next release of adodb.
-		William Kolodny [William.Kolodny#gt-t.net]
-	*/
 	function MetaForeignKeys($table, $owner=false, $upper=false)
 	{
+		# Regex isolates the 2 terms between parenthesis using subexpressions
+		$regex = '^.*\((.*)\).*\((.*)\).*$';
 		$sql="
 			SELECT
-				fum.ftblname AS lookup_table,
-				split_part(fum.rf, ')'::text, 1) AS lookup_field,
-				fum.ltable AS dep_table,
-				split_part(fum.lf, ')'::text, 1) AS dep_field
+				lookup_table,
+				regexp_replace(consrc, '$regex', '\\2') AS lookup_field,
+				dep_table,
+				regexp_replace(consrc, '$regex', '\\1') AS dep_field
 			FROM (
 				SELECT
-					fee.ltable,
-					fee.ftblname,
-					fee.consrc,
-					split_part(fee.consrc,'('::text, 2) AS lf,
-					split_part(fee.consrc, '('::text, 3) AS rf
-				FROM (
-					SELECT
-						foo.relname AS ltable,
-						foo.ftblname,
-						pg_get_constraintdef(foo.oid) AS consrc
-					FROM (
-						SELECT
-							c.oid,
-							c.conname AS name,
-							t.relname,
-							ft.relname AS ftblname
-						FROM pg_constraint c
-						JOIN pg_class t ON (t.oid = c.conrelid)
-						JOIN pg_class ft ON (ft.oid = c.confrelid)
-						JOIN pg_namespace nft ON (nft.oid = ft.relnamespace)
-						LEFT JOIN pg_description ds ON (ds.objoid = c.oid)
-						JOIN pg_namespace n ON (n.oid = t.relnamespace)
-						WHERE c.contype = 'f'::\"char\"
-						ORDER BY t.relname, n.nspname, c.conname, c.oid
-					) foo
-				) fee
-			) fum
+					pg_get_constraintdef(c.oid) AS consrc,
+					t.relname AS dep_table,
+					ft.relname AS lookup_table
+				FROM pg_constraint c
+				JOIN pg_class t ON (t.oid = c.conrelid)
+				JOIN pg_class ft ON (ft.oid = c.confrelid)
+				JOIN pg_namespace nft ON (nft.oid = ft.relnamespace)
+				LEFT JOIN pg_description ds ON (ds.objoid = c.oid)
+				JOIN pg_namespace n ON (n.oid = t.relnamespace)
+				WHERE c.contype = 'f'::\"char\"
+				ORDER BY t.relname, n.nspname, c.conname, c.oid
+				) constraints
 			WHERE
-				fum.ltable='".strtolower($table)."'
+				dep_table='".strtolower($table)."'
 			ORDER BY
-				fum.ftblname,
-				fum.ltable,
-				split_part(fum.lf, ')'::text, 1)";
+				lookup_table,
+				dep_table,
+				dep_field";
 		$rs = $this->Execute($sql);
 
 		if (!$rs || $rs->EOF) return false;
