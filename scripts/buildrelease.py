@@ -194,9 +194,6 @@ def main():
         shell=True
     )
 
-    print "Copying README file"
-    shutil.copy(path.join(release_tmp_dir, "README.md"), release_path)
-
     print "Copying documentation"
     docs = path.join(release_path, "docs")
     shutil.rmtree(docs, ignore_errors=True)
@@ -222,6 +219,7 @@ def main():
         version,
         release_path
     )
+    print "Don't forget to generate a README file with the changelog"
 
 #end main()
 
