@@ -476,7 +476,7 @@ a different OID if a database must be reloaded. */
 	// see http://phplens.com/lens/lensforum/msgs.php?id=14018 for more info
 	function MetaColumns($table,$normalize=true)
 	{
-	global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 
 		$schema = false;
 		$false = false;
