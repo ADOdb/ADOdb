@@ -1926,10 +1926,7 @@ if (!defined('_ADODB_LAYER')) {
 			$this->outp_throw("AutoExecute: Unknown mode=$mode",'AutoExecute');
 			return false;
 		}
-		$ret = false;
-		if ($sql) $ret = $this->Execute($sql);
-		if ($ret) $ret = true;
-		return $ret;
+		return $sql && $this->Execute($sql);
 	}
 
 
