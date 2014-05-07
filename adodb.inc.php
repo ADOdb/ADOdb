@@ -1901,16 +1901,19 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function AutoExecute($table, $fields_values, $mode = 'INSERT', $where = false, $forceUpdate = true, $magicq = false)
 	{
-		$sql = 'SELECT * FROM '.$table;
-		if ($where!==false) $sql .= ' WHERE '.$where;
-		else if ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) {
+		if ($where === false && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) ) {
 			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause','AutoExecute');
 			return false;
 		}
 
+		$sql = "SELECT * FROM $table";
 		$rs = $this->SelectLimit($sql,1);
 		if (!$rs) return false; // table does not exist
+
 		$rs->tableName = $table;
+		if ($where !== false) {
+			$sql .= " WHERE $where";
+		}
 		$rs->sql = $sql;
 
 		switch((string) $mode) {
