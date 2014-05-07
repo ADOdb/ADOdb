@@ -128,18 +128,18 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function ADODB_mssqlnative()
 	{
-        if ($this->debug) {
-            error_log("<pre>");
-            sqlsrv_set_error_handling( SQLSRV_ERRORS_LOG_ALL );
-            sqlsrv_log_set_severity( SQLSRV_LOG_SEVERITY_ALL );
-            sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
-            sqlsrv_configure('warnings_return_as_errors', 0);
-        } else {
-            sqlsrv_set_error_handling(0);
-            sqlsrv_log_set_severity(0);
-            sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
-            sqlsrv_configure('warnings_return_as_errors', 0);
-        }
+		if ($this->debug) {
+			ADOConnection::outp("<pre>");
+			sqlsrv_set_error_handling( SQLSRV_ERRORS_LOG_ALL );
+			sqlsrv_log_set_severity( SQLSRV_LOG_SEVERITY_ALL );
+			sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
+			sqlsrv_configure('warnings_return_as_errors', 0);
+		} else {
+			sqlsrv_set_error_handling(0);
+			sqlsrv_log_set_severity(0);
+			sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
+			sqlsrv_configure('warnings_return_as_errors', 0);
+		}
 	}
 	function ServerVersion() {
 		$data = $this->ServerInfo();
@@ -239,13 +239,13 @@ class ADODB_mssqlnative extends ADOConnection {
 	 */
 	function CreateSequence2008($seq='adodbseq',$start=1)
 	{
-		if($this->debug) error_log("<hr>CreateSequence($seq,$start)");
+		if($this->debug) ADOConnection::outp("<hr>CreateSequence($seq,$start)");
 		sqlsrv_begin_transaction($this->_connectionID);
 		$start -= 1;
 		$this->Execute("create table $seq (id int)");//was float(53)
 		$ok = $this->Execute("insert into $seq with (tablock,holdlock) values($start)");
 		if (!$ok) {
-			if($this->debug) error_log("<hr>Error: ROLLBACK");
+			if($this->debug) ADOConnection::outp("<hr>Error: ROLLBACK");
 			sqlsrv_rollback($this->_connectionID);
 			return false;
 		}
@@ -272,7 +272,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	 */
 	function GenID2008($seq='adodbseq',$start=1)
 	{
-		if($this->debug) error_log("<hr>CreateSequence($seq,$start)");
+		if($this->debug) ADOConnection::outp("<hr>CreateSequence($seq,$start)");
 		sqlsrv_begin_transaction($this->_connectionID);
 		$ok = $this->Execute("update $seq with (tablock,holdlock) set id = id + 1");
 		if (!$ok) {
@@ -280,7 +280,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			$this->Execute("create table $seq (id int)");//was float(53)
 			$ok = $this->Execute("insert into $seq with (tablock,holdlock) values($start)");
 			if (!$ok) {
-				if($this->debug) error_log("<hr>Error: ROLLBACK");
+				if($this->debug) ADOConnection::outp("<hr>Error: ROLLBACK");
 				sqlsrv_rollback($this->_connectionID);
 				return false;
 			}
@@ -383,7 +383,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
-		if ($this->debug) error_log('<hr>begin transaction');
+		if ($this->debug) ADOConnection::outp('<hr>begin transaction');
 		sqlsrv_begin_transaction($this->_connectionID);
 		return true;
 	}
@@ -391,7 +391,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	function CommitTrans($ok=true)
 	{
 		if ($this->transOff) return true;
-		if ($this->debug) error_log('<hr>commit transaction');
+		if ($this->debug) ADOConnection::outp('<hr>commit transaction');
 		if (!$ok) return $this->RollbackTrans();
 		if ($this->transCnt) $this->transCnt -= 1;
 		sqlsrv_commit($this->_connectionID);
@@ -400,7 +400,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	function RollbackTrans()
 	{
 		if ($this->transOff) return true;
-		if ($this->debug) error_log('<hr>rollback transaction');
+		if ($this->debug) ADOConnection::outp('<hr>rollback transaction');
 		if ($this->transCnt) $this->transCnt -= 1;
 		sqlsrv_rollback($this->_connectionID);
 		return true;
@@ -480,14 +480,14 @@ class ADODB_mssqlnative extends ADOConnection {
 		$connectionInfo["Database"]=$argDatabasename;
 		$connectionInfo["UID"]=$argUsername;
 		$connectionInfo["PWD"]=$argPassword;
-		if ($this->debug) error_log("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
-		//if ($this->debug) error_log("<hr>_connectionID before: ".serialize($this->_connectionID));
+		if ($this->debug) ADOConnection::outp("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
+		//if ($this->debug) ADOConnection::outp("<hr>_connectionID before: ".serialize($this->_connectionID));
 		if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo))) {
-			if ($this->debug) error_log( "<hr><b>errors</b>: ".print_r( sqlsrv_errors(), true));
+			if ($this->debug) ADOConnection::outp( "<hr><b>errors</b>: ".print_r( sqlsrv_errors(), true));
 			return false;
 		}
-		//if ($this->debug) error_log(" _connectionID after: ".serialize($this->_connectionID));
-		//if ($this->debug) error_log("<hr>defined functions: <pre>".var_export(get_defined_functions(),true)."</pre>");
+		//if ($this->debug) ADOConnection::outp(" _connectionID after: ".serialize($this->_connectionID));
+		//if ($this->debug) ADOConnection::outp("<hr>defined functions: <pre>".var_export(get_defined_functions(),true)."</pre>");
 		return true;
 	}
 
@@ -558,9 +558,9 @@ class ADODB_mssqlnative extends ADOConnection {
 	function _query($sql,$inputarr=false)
 	{
 		$this->_errorMsg = false;
-		
+
 		if (is_array($sql)) $sql = $sql[1];
-		
+
 		$insert = false;
 		// handle native driver flaw for retrieving the last insert ID
 		if(preg_match('/^\W*(insert [^;]+);?$/i', $sql)) {
@@ -573,7 +573,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			$rez = sqlsrv_query($this->_connectionID,$sql);
 		}
 
-		if ($this->debug) error_log("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));
+		if ($this->debug) ADOConnection::outp("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));
 
 		if(!$rez) {
 			$rez = false;
@@ -852,14 +852,14 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	function _initrs()
 	{
 		global $ADODB_COUNTRECS;
-		# KMN # if ($this->connection->debug) error_log("(before) ADODB_COUNTRECS: {$ADODB_COUNTRECS} _numOfRows: {$this->_numOfRows} _numOfFields: {$this->_numOfFields}");
+		# KMN # if ($this->connection->debug) ADOConnection::outp("(before) ADODB_COUNTRECS: {$ADODB_COUNTRECS} _numOfRows: {$this->_numOfRows} _numOfFields: {$this->_numOfFields}");
 		/*$retRowsAff = sqlsrv_rows_affected($this->_queryID);//"If you need to determine the number of rows a query will return before retrieving the actual results, appending a SELECT COUNT ... query would let you get that information, and then a call to next_result would move you to the "real" results."
-		error_log("rowsaff: ".serialize($retRowsAff));
+		ADOConnection::outp("rowsaff: ".serialize($retRowsAff));
 		$this->_numOfRows = ($ADODB_COUNTRECS)? $retRowsAff:-1;*/
 		$this->_numOfRows = -1;//not supported
 		$fieldmeta = sqlsrv_field_metadata($this->_queryID);
 		$this->_numOfFields = ($fieldmeta)? count($fieldmeta):-1;
-		# KMN # if ($this->connection->debug) error_log("(after) _numOfRows: {$this->_numOfRows} _numOfFields: {$this->_numOfFields}");
+		# KMN # if ($this->connection->debug) ADOConnection::outp("(after) _numOfRows: {$this->_numOfRows} _numOfFields: {$this->_numOfFields}");
 		/*
 		 * Copy the oracle method and cache the metadata at init time
 		 */
@@ -995,16 +995,16 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	// speedup
 	function MoveNext()
 	{
-		//# KMN # if ($this->connection->debug) error_log("movenext()");
-		//# KMN # if ($this->connection->debug) error_log("eof (beginning): ".$this->EOF);
+		//# KMN # if ($this->connection->debug) ADOConnection::outp("movenext()");
+		//# KMN # if ($this->connection->debug) ADOConnection::outp("eof (beginning): ".$this->EOF);
 		if ($this->EOF) return false;
 
 		$this->_currentRow++;
-		// # KMN # if ($this->connection->debug) error_log("_currentRow: ".$this->_currentRow);
+		// # KMN # if ($this->connection->debug) ADOConnection::outp("_currentRow: ".$this->_currentRow);
 
 		if ($this->_fetch()) return true;
 		$this->EOF = true;
-		//# KMN # if ($this->connection->debug) error_log("eof (end): ".$this->EOF);
+		//# KMN # if ($this->connection->debug) ADOConnection::outp("eof (end): ".$this->EOF);
 
 		return false;
 	}
@@ -1014,13 +1014,13 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	// also the date format has been changed from YYYY-mm-dd to dd MMM YYYY in 4.0.4. Idiot!
 	function _fetch($ignore_fields=false)
 	{
-		# KMN # if ($this->connection->debug) error_log("_fetch()");
+		# KMN # if ($this->connection->debug) ADOConnection::outp("_fetch()");
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 			if ($this->fetchMode & ADODB_FETCH_NUM) {
-				//# KMN # if ($this->connection->debug) error_log("fetch mode: both");
+				//# KMN # if ($this->connection->debug) ADOConnection::outp("fetch mode: both");
 				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_BOTH);
 			} else {
-				//# KMN # if ($this->connection->debug) error_log("fetch mode: assoc");
+				//# KMN # if ($this->connection->debug) ADOConnection::outp("fetch mode: assoc");
 				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_ASSOC);
 			}
 
@@ -1036,7 +1036,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 				}
 			}
 		} else {
-			//# KMN # if ($this->connection->debug) error_log("fetch mode: num");
+			//# KMN # if ($this->connection->debug) ADOConnection::outp("fetch mode: num");
 			$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_NUMERIC);
 		}
 		if(is_array($this->fields) && array_key_exists(1,$this->fields) && !array_key_exists(0,$this->fields)) {//fix fetch numeric keys since they're not 0 based
@@ -1048,7 +1048,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 					$arrFixed[$key] = $value;
 				}
 			}
-			//if($this->connection->debug) error_log("<hr>fixing non 0 based return array, old: ".print_r($this->fields,true)." new: ".print_r($arrFixed,true));
+			//if($this->connection->debug) ADOConnection::outp("<hr>fixing non 0 based return array, old: ".print_r($this->fields,true)." new: ".print_r($arrFixed,true));
 			$this->fields = $arrFixed;
 		}
 		if(is_array($this->fields)) {
@@ -1059,7 +1059,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			}
 		}
 		if($this->fields === null) $this->fields = false;
-		# KMN # if ($this->connection->debug) error_log("<hr>after _fetch, fields: <pre>".print_r($this->fields,true)." backtrace: ".adodb_backtrace(false));
+		# KMN # if ($this->connection->debug) ADOConnection::outp("<hr>after _fetch, fields: <pre>".print_r($this->fields,true)." backtrace: ".adodb_backtrace(false));
 		return $this->fields;
 	}
 
