@@ -1916,13 +1916,13 @@ if (!defined('_ADODB_LAYER')) {
 		}
 		$rs->sql = $sql;
 
-		switch((string) $mode) {
+		switch($mode) {
 		case 'UPDATE':
-		case '2':
+		case DB_AUTOQUERY_UPDATE:
 			$sql = $this->GetUpdateSQL($rs, $fields_values, $forceUpdate, $magicq);
 			break;
 		case 'INSERT':
-		case '1':
+		case DB_AUTOQUERY_INSERT:
 			$sql = $this->GetInsertSQL($rs, $fields_values, $magicq);
 			break;
 		default:
