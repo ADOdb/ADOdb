@@ -1899,18 +1899,17 @@ if (!defined('_ADODB_LAYER')) {
 
 		$forceUpdate means that even if the data has not changed, perform update.
 	 */
-	function AutoExecute($table, $fields_values, $mode = 'INSERT', $where = FALSE, $forceUpdate=true, $magicq=false)
+	function AutoExecute($table, $fields_values, $mode = 'INSERT', $where = false, $forceUpdate = true, $magicq = false)
 	{
-		$false = false;
 		$sql = 'SELECT * FROM '.$table;
-		if ($where!==FALSE) $sql .= ' WHERE '.$where;
+		if ($where!==false) $sql .= ' WHERE '.$where;
 		else if ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) {
 			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause','AutoExecute');
-			return $false;
+			return false;
 		}
 
 		$rs = $this->SelectLimit($sql,1);
-		if (!$rs) return $false; // table does not exist
+		if (!$rs) return false; // table does not exist
 		$rs->tableName = $table;
 		$rs->sql = $sql;
 
@@ -1925,7 +1924,7 @@ if (!defined('_ADODB_LAYER')) {
 			break;
 		default:
 			$this->outp_throw("AutoExecute: Unknown mode=$mode",'AutoExecute');
-			return $false;
+			return false;
 		}
 		$ret = false;
 		if ($sql) $ret = $this->Execute($sql);
