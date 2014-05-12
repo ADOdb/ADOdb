@@ -1899,38 +1899,37 @@ if (!defined('_ADODB_LAYER')) {
 
 		$forceUpdate means that even if the data has not changed, perform update.
 	 */
-	function AutoExecute($table, $fields_values, $mode = 'INSERT', $where = FALSE, $forceUpdate=true, $magicq=false)
+	function AutoExecute($table, $fields_values, $mode = 'INSERT', $where = false, $forceUpdate = true, $magicq = false)
 	{
-		$false = false;
-		$sql = 'SELECT * FROM '.$table;
-		if ($where!==FALSE) $sql .= ' WHERE '.$where;
-		else if ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) {
-			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause','AutoExecute');
-			return $false;
+		if ($where === false && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) ) {
+			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause', 'AutoExecute');
+			return false;
 		}
 
-		$rs = $this->SelectLimit($sql,1);
-		if (!$rs) return $false; // table does not exist
+		$sql = "SELECT * FROM $table";
+		$rs = $this->SelectLimit($sql, 1);
+		if (!$rs) return false; // table does not exist
+
 		$rs->tableName = $table;
+		if ($where !== false) {
+			$sql .= " WHERE $where";
+		}
 		$rs->sql = $sql;
 
-		switch((string) $mode) {
-		case 'UPDATE':
-		case '2':
-			$sql = $this->GetUpdateSQL($rs, $fields_values, $forceUpdate, $magicq);
-			break;
-		case 'INSERT':
-		case '1':
-			$sql = $this->GetInsertSQL($rs, $fields_values, $magicq);
-			break;
-		default:
-			$this->outp_throw("AutoExecute: Unknown mode=$mode",'AutoExecute');
-			return $false;
+		switch($mode) {
+			case 'UPDATE':
+			case DB_AUTOQUERY_UPDATE:
+				$sql = $this->GetUpdateSQL($rs, $fields_values, $forceUpdate, $magicq);
+				break;
+			case 'INSERT':
+			case DB_AUTOQUERY_INSERT:
+				$sql = $this->GetInsertSQL($rs, $fields_values, $magicq);
+				break;
+			default:
+				$this->outp_throw("AutoExecute: Unknown mode=$mode", 'AutoExecute');
+				return false;
 		}
-		$ret = false;
-		if ($sql) $ret = $this->Execute($sql);
-		if ($ret) $ret = true;
-		return $ret;
+		return $sql && $this->Execute($sql);
 	}
 
 
