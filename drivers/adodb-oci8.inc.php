@@ -806,31 +806,36 @@ END;
 			# see http://phplens.com/lens/lensforum/msgs.php?id=18786
 			if ($array2d || !$this->_bindInputArray) {
 
-			# is_object check because oci8 descriptors can be passed in
-			if ($array2d && $this->_bindInputArray) {
-				if (is_string($sql))
-					$stmt = $this->Prepare($sql);
-				else
-					$stmt = $sql;
+				# is_object check because oci8 descriptors can be passed in
+				if ($array2d && $this->_bindInputArray) {
+					if (is_string($sql)) {
+						$stmt = $this->Prepare($sql);
+					} else {
+						$stmt = $sql;
+					}
 
-				foreach($inputarr as $arr) {
-					$ret = $this->_Execute($stmt,$arr);
-					if (!$ret) return $ret;
-				}
-				return $ret;
-			} else {
-				$sqlarr = explode(':',$sql);
-				$sql = '';
-				$lastnomatch = -2;
-				#var_dump($sqlarr);echo "<hr>";var_dump($inputarr);echo"<hr>";
-				foreach($sqlarr as $k => $str) {
-						if ($k == 0) { $sql = $str; continue; }
+					foreach($inputarr as $arr) {
+						$ret = $this->_Execute($stmt,$arr);
+						if (!$ret) return $ret;
+					}
+					return $ret;
+				} else {
+					$sqlarr = explode(':', $sql);
+					$sql = '';
+					$lastnomatch = -2;
+					#var_dump($sqlarr);echo "<hr>";var_dump($inputarr);echo"<hr>";
+					foreach($sqlarr as $k => $str) {
+						if ($k == 0) {
+							$sql = $str;
+							continue;
+						}
 						// we need $lastnomatch because of the following datetime,
 						// eg. '10:10:01', which causes code to think that there is bind param :10 and :1
 						$ok = preg_match('/^([0-9]*)/', $str, $arr);
 
-						if (!$ok) $sql .= $str;
-						else {
+						if (!$ok) {
+							$sql .= $str;
+						} else {
 							$at = $arr[1];
 							if (isset($inputarr[$at]) || is_null($inputarr[$at])) {
 								if ((strlen($at) == strlen($str) && $k < sizeof($arr)-1)) {
@@ -846,14 +851,12 @@ END;
 							} else {
 								$sql .= ':'.$str;
 							}
-
 						}
 					}
 					$inputarr = false;
 				}
 			}
 			$ret = $this->_Execute($sql,$inputarr);
-
 
 		} else {
 			$ret = $this->_Execute($sql,false);
