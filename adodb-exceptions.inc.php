@@ -29,9 +29,9 @@ var $database = '';
 	{
 		switch($fn) {
 		case 'EXECUTE':
-			$this->sql = $p1;
+			$this->sql = is_array($p1) ? $p1[0] : $p1;
 			$this->params = $p2;
-			$s = "$dbms error: [$errno: $errmsg] in $fn(\"$p1\")\n";
+			$s = "$dbms error: [$errno: $errmsg] in $fn(\"$this->sql\")\n";
 			break;
 
 		case 'PCONNECT':
