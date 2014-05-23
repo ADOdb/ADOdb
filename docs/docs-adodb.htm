@@ -3821,10 +3821,12 @@ recordsets, only on recordsets created in the future.</p>
 
 <p>The following constants are defined:</p>
 
-<p>define('ADODB_FETCH_DEFAULT',0);<br>
-define('ADODB_FETCH_NUM',1);<br>
-define('ADODB_FETCH_ASSOC',2);<br>
-define('ADODB_FETCH_BOTH',3); </p>
+<ul>
+    <li>ADODB_FETCH_DEFAULT = 0</li>
+    <li>ADODB_FETCH_NUM = 1</li>
+    <li>ADODB_FETCH_ASSOC = 2</li>
+    <li>ADODB_FETCH_BOTH = 3</li>
+</ul>
 
 <p>An example: </p>
 
@@ -3841,11 +3843,11 @@ style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>
 fetch modes based on the $ADODB_FETCH_MODE setting when the recordset was
 created by Execute().</p>
 
-<p>If no fetch mode is predefined, the fetch mode defaults to
-ADODB_FETCH_DEFAULT. The behaviour of this default mode varies from driver to
-driver, so do not rely on ADODB_FETCH_DEFAULT. For portability, we recommend
-sticking to ADODB_FETCH_NUM or ADODB_FETCH_ASSOC. Many drivers do not support
-ADODB_FETCH_BOTH.</p>
+<p>If no fetch mode is predefined, it defaults to
+ADODB_FETCH_DEFAULT. The behaviour of this mode varies from driver to
+driver, so do for portability reasons it is discouraged to rely on
+ADODB_FETCH_DEFAULT; stick to ADODB_FETCH_NUM or ADODB_FETCH_ASSOC instead.
+Note that many drivers do not support ADODB_FETCH_BOTH.</p>
 
 <p><strong>SetFetchMode Function</strong></p>
 
@@ -3870,20 +3872,20 @@ property, or use the return value of SetFetchMode( ). </p>
 <p><a name="adodb_assoc_case"></a><strong>ADODB_ASSOC_CASE</strong></p>
 
 <p>You can control the associative fetch case for certain drivers which behave
-differently. For the sybase, oci8po, mssql, odbc and ibase drivers and all
-drivers derived from them, ADODB_ASSOC_CASE will by default generate recordsets
-where the field name keys are lower-cased. Use the constant ADODB_ASSOC_CASE to
-change the case of the keys. There are 3 possible values:</p>
+differently. For the <i>sybase, oci8, mssql, odbc and ibase</i> drivers (including
+all those derived from them). Define the ADODB_ASSOC_CASE constant as appropriate to
+change the case of the keys. The default is to use native case. Possible values are:</p>
 
-<p>0 = assoc lowercase field names. $rs-&gt;fields['orderid']<br>
-1 = assoc uppercase field names. $rs-&gt;fields['ORDERID']<br>
-2 = use native-case field names. $rs-&gt;fields['OrderID'] -- this is the
-default since ADOdb 2.90</p>
+<ul>
+    <li>ADODB_ASSOC_CASE_LOWER = 0 - $rs->fields['orderid']</li>
+    <li>ADODB_ASSOC_CASE_UPPER = 1 - $rs->fields['ORDERID']</li>
+    <li>ADODB_ASSOC_CASE_NATIVE = 2 - $rs->fields['OrderID'] (or whatever the RDBMS will return)</li>
+</ul>
 
-<p>To use it, declare it before you incldue adodb.inc.php.</p>
-
-<p>define('ADODB_ASSOC_CASE', 2); # use native-case for ADODB_FETCH_ASSOC<br>
-include('adodb.inc.php'); </p>
+<p>Example: <pre>
+include('adodb.inc.php');
+define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_LOWER);
+</pre></p>
 
 <h3><a name="force_type"></a>$ADODB_FORCE_TYPE</h3>
 
@@ -6184,6 +6186,7 @@ PHP</a>. </p>
 <p>adodb: Add mssql's DATETIME2 type to ADOConnection::MetaType(), thanks to MarcelTO. See Github #80
 <p>adodb: When flushing cache, initialize it if it is not set, thanks to Paul Haggart. See Github #57
 <p>adodb: Define DB_AUTOQUERY_* constants in main include file. See Github #49
+<p>adodb: Improve documentation of fetch mode and assoc case
 <p>datadict: oci8 strict-standards compliance. See Github #18
 <p>memcache: use include_once() to avoid issues with PHPUnit. See http://phplens.com/lens/lensforum/msgs.php?id=19489
 <p>mssqlnative: Use ADOConnection::outp instead of error_log. See Github #12

@@ -99,22 +99,39 @@ if (!defined('_ADODB_LAYER')) {
 		}
 
 
-	/*
-	Controls ADODB_FETCH_ASSOC field-name case. Default is 2, use native case-names.
-	This currently works only with mssql, odbc, oci8po and ibase derived drivers.
+	/**
+	 * Fetch mode
+	 *
+	 * Set global variable $ADODB_FETCH_MODE to one of these constants or use
+	 * the SetFetchMode() method to control how recordset fields are returned
+	 * when fetching data.
+	 *
+	 *   - NUM:     array()
+	 *   - ASSOC:   array('id' => 456, 'name' => 'john')
+	 *   - BOTH:    array(0 => 456, 'id' => 456, 1 => 'john', 'name' => 'john')
+	 *   - DEFAULT: driver-dependent
+	 */
+		define('ADODB_FETCH_DEFAULT', 0);
+		define('ADODB_FETCH_NUM', 1);
+		define('ADODB_FETCH_ASSOC', 2);
+		define('ADODB_FETCH_BOTH', 3);
 
-		0 = assoc lowercase field names. $rs->fields['orderid']
-		1 = assoc uppercase field names. $rs->fields['ORDERID']
-		2 = use native-case field names. $rs->fields['OrderID']
-	*/
+	/**
+	 * Associative array case constants
+	 *
+	 * By defining the ADODB_ASSOC_CASE constant to one of these values, it is
+	 * possible to control the case of field names (associative array's keys)
+	 * when operating in ADODB_FETCH_ASSOC fetch mode.
+	 *   - LOWER:  $rs->fields['orderid']
+	 *   - UPPER:  $rs->fields['ORDERID']
+	 *   - NATIVE: $rs->fields['OrderID'] (or whatever the RDBMS will return)
+	 * The default is to use native case-names.
+	 * NOTE: This functionality is not implemented everywhere, it currently
+	 * works only with: mssql, odbc, oci8 and ibase derived drivers
+	 */
 		define('ADODB_ASSOC_CASE_LOWER', 0);
 		define('ADODB_ASSOC_CASE_UPPER', 1);
 		define('ADODB_ASSOC_CASE_NATIVE', 2);
-
-		define('ADODB_FETCH_DEFAULT',0);
-		define('ADODB_FETCH_NUM',1);
-		define('ADODB_FETCH_ASSOC',2);
-		define('ADODB_FETCH_BOTH',3);
 
 		if (!defined('TIMESTAMP_FIRST_YEAR')) {
 			define('TIMESTAMP_FIRST_YEAR',100);
