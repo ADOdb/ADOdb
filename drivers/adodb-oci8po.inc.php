@@ -128,8 +128,8 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		if(@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode)) {
 		global $ADODB_ANSI_PADDING_OFF;
 			$this->_currentRow++;
+			$this->_updatefields();
 
-			if ($this->fetchMode & OCI_ASSOC) $this->_updatefields();
 			if (!empty($ADODB_ANSI_PADDING_OFF)) {
 				foreach($this->fields as $k => $v) {
 					if (is_string($v)) $this->fields[$k] = rtrim($v);
@@ -160,7 +160,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 			$arr = array();
 			return $arr;
 		}
-		if ($this->fetchMode & OCI_ASSOC) $this->_updatefields();
+		$this->_updatefields();
 		$results = array();
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
@@ -171,33 +171,14 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		return $results;
 	}
 
-	// Create associative array
-	function _updatefields()
-	{
-		if (ADODB_ASSOC_CASE == 2) return; // native
-
-		$arr = array();
-		$lowercase = (ADODB_ASSOC_CASE == 0);
-
-		foreach($this->fields as $k => $v) {
-			if (is_integer($k)) $arr[$k] = $v;
-			else {
-				if ($lowercase)
-					$arr[strtolower($k)] = $v;
-				else
-					$arr[strtoupper($k)] = $v;
-			}
-		}
-		$this->fields = $arr;
-	}
-
 	function _fetch()
 	{
 		global $ADODB_ANSI_PADDING_OFF;
 
 		$ret = @OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode);
 		if ($ret) {
-			if ($this->fetchMode & OCI_ASSOC) $this->_updatefields();
+			$this->_updatefields();
+
 			if (!empty($ADODB_ANSI_PADDING_OFF)) {
 				foreach($this->fields as $k => $v) {
 					if (is_string($v)) $this->fields[$k] = rtrim($v);
