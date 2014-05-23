@@ -118,19 +118,6 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		 }
 		 return $fld;
 	}
-	/*
-	function MoveNext()
-	{
-		if (@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode)) {
-			$this->_currentRow += 1;
-			return true;
-		}
-		if (!$this->EOF) {
-			$this->_currentRow += 1;
-			$this->EOF = true;
-		}
-		return false;
-	}*/
 
 	// 10% speedup to move MoveNext to child class
 	function MoveNext()

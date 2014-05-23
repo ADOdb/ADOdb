@@ -1354,8 +1354,6 @@ class ADORecordset_oci8 extends ADORecordSet {
 	var $bind=false;
 	var $_fieldobjs;
 
-	//var $_arr = false;
-
 	function ADORecordset_oci8($queryID,$mode=false)
 	{
 		if ($mode === false) {
@@ -1459,24 +1457,6 @@ class ADORecordset_oci8 extends ADORecordSet {
 	}
 
 
-/*
-	// 10% speedup to move MoveNext to child class
-	function _MoveNext()
-	{
-	//global $ADODB_EXTENSION;if ($ADODB_EXTENSION) return @adodb_movenext($this);
-
-		if ($this->EOF) return false;
-
-		$this->_currentRow++;
-		if($this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode))
-			return true;
-		$this->EOF = true;
-
-		return false;
-	}
-*/
-
-
 	function MoveNext()
 	{
 		if ($this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode)) {
@@ -1489,41 +1469,6 @@ class ADORecordset_oci8 extends ADORecordSet {
 		}
 		return false;
 	}
-
-/*
-	# does not work as first record is retrieved in _initrs(), so is not included in GetArray()
-	function GetArray($nRows = -1)
-	{
-	global $ADODB_OCI8_GETARRAY;
-
-		if (true ||  !empty($ADODB_OCI8_GETARRAY)) {
-			# does not support $ADODB_ANSI_PADDING_OFF
-
-			//OCI_RETURN_NULLS and OCI_RETURN_LOBS is set by oci_fetch_all
-			switch($this->adodbFetchMode) {
-			case ADODB_FETCH_NUM:
-
-				$ncols = @oci_fetch_all($this->_queryID, $results, 0, $nRows, oci_fetch_all_BY_ROW+OCI_NUM);
-				$results = array_merge(array($this->fields),$results);
-				return $results;
-
-			case ADODB_FETCH_ASSOC:
-				if (ADODB_ASSOC_CASE != 2 || $this->databaseType != 'oci8') break;
-
-				$ncols = @oci_fetch_all($this->_queryID, $assoc, 0, $nRows, oci_fetch_all_BY_ROW);
-				$results = array_merge(array($this->fields),$assoc);
-				return $results;
-
-			default:
-				break;
-			}
-		}
-
-		$results = ADORecordSet::GetArray($nRows);
-		return $results;
-
-	}
-*/
 
 	// Optimize SelectLimit() by using oci_fetch()
 	function GetArrayLimit($nrows,$offset=-1)
@@ -1649,20 +1594,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 class ADORecordSet_ext_oci8 extends ADORecordSet_oci8 {
 	function ADORecordSet_ext_oci8($queryID,$mode=false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		switch ($mode)
-		{
-		case ADODB_FETCH_ASSOC:$this->fetchMode = OCI_ASSOC+OCI_RETURN_NULLS+OCI_RETURN_LOBS; break;
-		case ADODB_FETCH_DEFAULT:
-		case ADODB_FETCH_BOTH:$this->fetchMode = OCI_NUM+OCI_ASSOC+OCI_RETURN_NULLS+OCI_RETURN_LOBS; break;
-		case ADODB_FETCH_NUM:
-		default: $this->fetchMode = OCI_NUM+OCI_RETURN_NULLS+OCI_RETURN_LOBS; break;
-		}
-		$this->adodbFetchMode = $mode;
-		$this->_queryID = $queryID;
+		parent::__construct($queryID, $mode);
 	}
 
 	function MoveNext()
