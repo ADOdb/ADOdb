@@ -67,13 +67,13 @@ class ADODB2_sqlite extends ADODB_DataDict {
 		return $suffix;
 	}
 
-	function AlterColumnSQL($tabname, $flds)
+	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		if ($this->debug) ADOConnection::outp("AlterColumnSQL not supported natively by SQLite");
 		return array();
 	}
 
-	function DropColumnSQL($tabname, $flds)
+	function DropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		if ($this->debug) ADOConnection::outp("DropColumnSQL not supported natively by SQLite");
 		return array();
