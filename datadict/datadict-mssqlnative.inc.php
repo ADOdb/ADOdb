@@ -145,7 +145,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	}
 
 	/*
-	function AlterColumnSQL($tabname, $flds)
+	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
