@@ -294,8 +294,8 @@ if (!defined('_ADODB_LAYER')) {
 
 			if (strlen($ADODB_CACHE_DIR) > 1) {
 				$rez = $this->_dirFlush($ADODB_CACHE_DIR);
-	         	if ($debug) ADOConnection::outp( "flushall: $dir<br><pre>\n". $rez."</pre>");
-	   		}
+				if ($debug) ADOConnection::outp( "flushall: $ADODB_CACHE_DIR<br><pre>\n". $rez."</pre>");
+			}
 			return $rez;
 		}
 
