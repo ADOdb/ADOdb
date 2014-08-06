@@ -245,13 +245,13 @@ based on the userid. When the user logs in, we store the id in the global sessio
 $USERID. The function name is 'NotifyFn'.
 <p>
 So we define (before session_start() is called): </p>
-<pre> <font color="#004040">
-	$ADODB_SESSION_EXPIRE_NOTIFY = array('USERID','NotifyFn');
+<pre><font color="#004040">
+	$GLOBALS['ADODB_SESSION_EXPIRE_NOTIFY'] = array('USERID', 'NotifyFn');
 </font></pre>
-And when the NotifyFn is called (when the session expires), the
+<p>And when the NotifyFn is called (when the session expires), the
 $EXPIREREF holding the user id is passed in as the first parameter, eg. NotifyFn($userid, $sesskey). The
 session key (which is the primary key of the record in the sessions
-table) is the 2nd parameter.
+table) is the 2nd parameter.</p>
 <p> Here is an example of a Notification function that deletes some
 records in the database and temporary files: </p>
 <pre><font color="#004040">
@@ -262,13 +262,13 @@ records in the database and temporary files: </p>
 
 		$ADODB_SESS_CONN-&gt;Execute("delete from shopping_cart where user=$user");
 		system("rm /work/tmpfiles/$expireref/*");
-	}</font>
-			  </pre>
+	}
+</font></pre>
 <p> NOTE 1: If you have register_globals disabled in php.ini, then you
 will have to manually set the EXPIREREF. E.g. </p>
 <pre> <font color="#004040">
-$GLOBALS['USERID'] = GetUserID();
-$ADODB_SESSION_EXPIRE_NOTIFY = array('USERID','NotifyFn');</font>
+	$GLOBALS['USERID'] = GetUserID();
+	$GLOBALS['ADODB_SESSION_EXPIRE_NOTIFY'] = array('USERID', 'NotifyFn');</font>
 </pre>
 <p> NOTE 2: If you want to change the EXPIREREF after the session
 record has been created, you will need to modify any session variable
