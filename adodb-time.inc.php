@@ -1,5 +1,5 @@
 <?php
-/**
+/*
 ADOdb Date Library, part of the ADOdb abstraction library
 Download: http://phplens.com/phpeverywhere/
 
