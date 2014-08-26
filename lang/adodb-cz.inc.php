@@ -1,10 +1,6 @@
 <?php
 
-# Czech language, encoding by ISO 8859-2 charset (Iso Latin-2)
-# For convert to MS Windows use shell command:
-#    iconv -f ISO_8859-2 -t CP1250 < adodb-cz.inc.php
-# For convert to ASCII use shell command:
-#    unaccent ISO_8859-2 < adodb-cz.inc.php
+# Czech language
 # v1.0, 19.06.2003 Kamil Jakubovic <jake@host.sk>
 
 $ADODB_LANG_ARRAY = array (
