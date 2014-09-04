@@ -49,8 +49,8 @@ class ADODB_mysqli extends ADOConnection {
 	var $poorAffectedRows = true;
 	var $clientFlags = 0;
 	var $substr = "substring";
-	var $port = false;
-	var $socket = false;
+	var $port = 3306; //Default to 3306 to fix HHVM bug
+	var $socket = ''; //Default to empty string to fix HHVM bug
 	var $_bindInputArray = false;
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
 	var $optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0));
@@ -934,6 +934,11 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		}
 		$o = @mysqli_fetch_field($this->_queryID);
 		if (!$o) return false;
+
+		//Fix for HHVM
+		if ( !isset($o->flags) ) {
+			$o->flags = 0;
+		}
 		/* Properties of an ADOFieldObject as set by MetaColumns */
 		$o->primary_key = $o->flags & MYSQLI_PRI_KEY_FLAG;
 		$o->not_null = $o->flags & MYSQLI_NOT_NULL_FLAG;
