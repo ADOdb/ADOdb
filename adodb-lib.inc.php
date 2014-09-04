@@ -16,8 +16,19 @@ $ADODB_INCLUDED_LIB = 1;
 */
 
 function adodb_strip_order_by($sql)
-{
-	$rez = preg_match('/(\sORDER\s+BY\s(?:[^)](?!limit))*)(?:\sLIMIT\s+[0-9]+)?/is', $sql, $arr);
+{	
+	/*
+	  $rez = preg_match('/(\sORDER\s+BY\s(?:[^)](?!limit))*)(?:\sLIMIT\s+[0-9]+)?/is', $sql, $arr);
+
+	  The above regex was causing sub-query with ORDER BY and LIMIT clauses to be stripped out
+	  resulting in multiple rows being returned and causing a SQL error.
+
+	  Example query that was failing was something like:
+	  SELECT name, ( SELECT id FROM tmp_table LIMIT 1 ) FROM table;
+	    or
+	  SELECT id FROM ( SELECT id FROM tmp_table LIMIT 1 ) as table;
+	*/
+	$rez = preg_match('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is',$sql,$arr);
 	if ($arr)
 		if (strpos($arr[1], '(') !== false) {
 			$at = strpos($sql, $arr[1]);
