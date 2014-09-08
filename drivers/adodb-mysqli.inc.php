@@ -49,8 +49,8 @@ class ADODB_mysqli extends ADOConnection {
 	var $poorAffectedRows = true;
 	var $clientFlags = 0;
 	var $substr = "substring";
-	var $port = false;
-	var $socket = false;
+	var $port = 3306; //Default to 3306 to fix HHVM bug
+	var $socket = ''; //Default to empty string to fix HHVM bug
 	var $_bindInputArray = false;
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
 	var $optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0));
@@ -261,10 +261,10 @@ class ADODB_mysqli extends ADOConnection {
  	// See http://www.mysql.com/doc/M/i/Miscellaneous_functions.html
 	// Reference on Last_Insert_ID on the recommended way to simulate sequences
  	var $_genIDSQL = "update %s set id=LAST_INSERT_ID(id+1);";
-	var $_genSeqSQL = "create table %s (id int not null)";
+	var $_genSeqSQL = "create table if not exists %s (id int not null)";
 	var $_genSeqCountSQL = "select count(*) from %s";
 	var $_genSeq2SQL = "insert into %s values (%s)";
-	var $_dropSeqSQL = "drop table %s";
+	var $_dropSeqSQL = "drop table if exists %s";
 
 	function CreateSequence($seqname='adodbseq',$startID=1)
 	{
@@ -940,6 +940,11 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		}
 		$o = @mysqli_fetch_field($this->_queryID);
 		if (!$o) return false;
+
+		//Fix for HHVM
+		if ( !isset($o->flags) ) {
+			$o->flags = 0;
+		}
 		/* Properties of an ADOFieldObject as set by MetaColumns */
 		$o->primary_key = $o->flags & MYSQLI_PRI_KEY_FLAG;
 		$o->not_null = $o->flags & MYSQLI_NOT_NULL_FLAG;

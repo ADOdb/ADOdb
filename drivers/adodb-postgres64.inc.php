@@ -148,7 +148,7 @@ class ADODB_postgres64 extends ADOConnection{
 		$result=pg_exec($this->_connectionID, "SELECT last_value FROM ${tablename}_${fieldname}_seq");
 		if ($result) {
 			$arr = @pg_fetch_row($result,0);
-			pg_freeresult($result);
+			pg_free_result($result);
 			if (isset($arr[0])) return $arr[0];
 		}
 		return false;
@@ -827,9 +827,9 @@ a different OID if a database must be reloaded. */
 			$rez = pg_exec($this->_connectionID,$sql);
 		}
 		// check if no data returned, then no need to create real recordset
-		if ($rez && pg_numfields($rez) <= 0) {
+		if ($rez && pg_num_fields($rez) <= 0) {
 			if (is_resource($this->_resultid) && get_resource_type($this->_resultid) === 'pgsql result') {
-				pg_freeresult($this->_resultid);
+				pg_free_result($this->_resultid);
 			}
 			$this->_resultid = $rez;
 			return true;
@@ -878,7 +878,7 @@ a different OID if a database must be reloaded. */
 	{
 		if ($this->transCnt) $this->RollbackTrans();
 		if ($this->_resultid) {
-			@pg_freeresult($this->_resultid);
+			@pg_free_result($this->_resultid);
 			$this->_resultid = false;
 		}
 		@pg_close($this->_connectionID);
@@ -981,8 +981,8 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		// offsets begin at 0
 
 		$o= new ADOFieldObject();
-		$o->name = @pg_fieldname($this->_queryID,$off);
-		$o->type = @pg_fieldtype($this->_queryID,$off);
+		$o->name = @pg_field_name($this->_queryID,$off);
+		$o->type = @pg_field_type($this->_queryID,$off);
 		$o->max_length = @pg_fieldsize($this->_queryID,$off);
 		return $o;
 	}
@@ -1046,7 +1046,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 	function _close()
 	{
-		return @pg_freeresult($this->_queryID);
+		return @pg_free_result($this->_queryID);
 	}
 
 	function MetaType($t,$len=-1,$fieldobj=false)
