@@ -58,14 +58,14 @@ class ADODB2_db2 extends ADODB_DataDict {
 		return $suffix;
 	}
 
-	function AlterColumnSQL($tabname, $flds)
+	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		if ($this->debug) ADOConnection::outp("AlterColumnSQL not supported");
 		return array();
 	}
 
 
-	function DropColumnSQL($tabname, $flds)
+	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		if ($this->debug) ADOConnection::outp("DropColumnSQL not supported");
 		return array();
