@@ -420,8 +420,8 @@ a different OID if a database must be reloaded. */
 			return $blob;
 		}
 		if (!$maxsize) $maxsize = $this->maxblobsize;
-		$realblob = @pg_loread($fd,$maxsize);
-		@pg_loclose($fd);
+		$realblob = @pg_lo_read($fd,$maxsize);
+		@pg_lo_close($fd);
 		if ($hastrans) @pg_exec($this->_connectionID,"commit");
 		return $realblob;
 	}
@@ -948,15 +948,15 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 	{
 	global $ADODB_COUNTRECS;
 		$qid = $this->_queryID;
-		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_numrows($qid):-1;
-		$this->_numOfFields = @pg_numfields($qid);
+		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($qid):-1;
+		$this->_numOfFields = @pg_num_fields($qid);
 
 		// cache types for blob decode check
-		// apparently pg_fieldtype actually performs an sql query on the database to get the type.
+		// apparently pg_field_type actually performs an sql query on the database to get the type.
 		if (empty($this->connection->noBlobs))
 		for ($i=0, $max = $this->_numOfFields; $i < $max; $i++) {
-			if (pg_fieldtype($qid,$i) == 'bytea') {
-				$this->_blobArr[$i] = pg_fieldname($qid,$i);
+			if (pg_field_type($qid,$i) == 'bytea') {
+				$this->_blobArr[$i] = pg_field_name($qid,$i);
 			}
 		}
 	}

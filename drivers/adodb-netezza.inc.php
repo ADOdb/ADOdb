@@ -162,8 +162,8 @@ class ADORecordSet_netezza extends ADORecordSet_postgres64
 	function _initrs()
 	{
 	global $ADODB_COUNTRECS;
-		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_numrows($this->_queryID):-1;
-		$this->_numOfFields = @pg_numfields($this->_queryID);
+		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($this->_queryID):-1;
+		$this->_numOfFields = @pg_num_fields($this->_queryID);
 	}
 
 }
