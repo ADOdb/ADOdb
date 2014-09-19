@@ -11,7 +11,11 @@ V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights res
 */
 
 class ADODB_pdo_mysql extends ADODB_pdo {
-	var $metaTablesSQL = "SHOW TABLES";
+	var $metaTablesSQL = "SELECT
+			TABLE_NAME,
+			CASE WHEN TABLE_TYPE = 'VIEW' THEN 'V' ELSE 'T' END
+		FROM INFORMATION_SCHEMA.TABLES
+		WHERE TABLE_SCHEMA=";
 	var $metaColumnsSQL = "SHOW COLUMNS FROM `%s`";
 	var $sysDate = 'CURDATE()';
 	var $sysTimeStamp = 'NOW()';
@@ -164,6 +168,14 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 			return $retarr;
 	}
 
+	// returns true or false
+	function SelectDB($dbName)
+	{
+		$this->database = $dbName;
+		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
+		$try = $this->Execute('use '.$dbName);
+		return ($try !== false) ? true : false;
+	}
 
 	// parameters use PostgreSQL convention, not MySQL
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs=0)
@@ -177,5 +189,90 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		else
 			$rs = $this->Execute($sql." LIMIT $offsetStr$nrows",$inputarr);
 		return $rs;
+	}
+
+	function SQLDate($fmt, $col=false)
+	{
+		if (!$col) $col = $this->sysTimeStamp;
+		$s = 'DATE_FORMAT('.$col.",'";
+		$concat = false;
+		$len = strlen($fmt);
+		for ($i=0; $i < $len; $i++) {
+			$ch = $fmt[$i];
+			switch($ch) {
+
+			default:
+				if ($ch == '\\') {
+					$i++;
+					$ch = substr($fmt,$i,1);
+				}
+				/** FALL THROUGH */
+			case '-':
+			case '/':
+				$s .= $ch;
+				break;
+
+			case 'Y':
+			case 'y':
+				$s .= '%Y';
+				break;
+			case 'M':
+				$s .= '%b';
+				break;
+
+			case 'm':
+				$s .= '%m';
+				break;
+			case 'D':
+			case 'd':
+				$s .= '%d';
+				break;
+
+			case 'Q':
+			case 'q':
+				$s .= "'),Quarter($col)";
+
+				if ($len > $i+1) $s .= ",DATE_FORMAT($col,'";
+				else $s .= ",('";
+				$concat = true;
+				break;
+
+			case 'H':
+				$s .= '%H';
+				break;
+
+			case 'h':
+				$s .= '%I';
+				break;
+
+			case 'i':
+				$s .= '%i';
+				break;
+
+			case 's':
+				$s .= '%s';
+				break;
+
+			case 'a':
+			case 'A':
+				$s .= '%p';
+				break;
+
+			case 'w':
+				$s .= '%w';
+				break;
+
+			 case 'W':
+				$s .= '%U';
+				break;
+
+			case 'l':
+				$s .= '%W';
+				break;
+			}
+		}
+		$s.="')";
+		if ($concat) $s = "CONCAT($s)";
+		return $s;
 	}
 }
