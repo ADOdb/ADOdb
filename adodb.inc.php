@@ -571,6 +571,9 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
+		if ( strpos($this->host, ':') > 0 && isset($this->port) ) {
+			list($this->host, $this->port) = explode(":", $this->host, 2);
+        	}
 		if ($argUsername != "") {
 			$this->user = $argUsername;
 		}
@@ -651,6 +654,9 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
+		if ( strpos($this->host, ':') > 0 && isset($this->port) ) {
+			list($this->host, $this->port) = explode(":", $this->host, 2);
+	        }
 		if ($argUsername != "") {
 			$this->user = $argUsername;
 		}
