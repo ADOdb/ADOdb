@@ -2845,6 +2845,14 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		function Init() {}
 		function getIterator() {return new ADODB_Iterator_empty($this);}
 		function GetAssoc() {return array();}
+		function GetArray() {return array();}
+		function GetAll() {return array();}
+		function GetArrayLimit() {return array();}
+		function GetRows() {return array();}
+		function GetRowAssoc() {return array();}
+		function MaxRecordCount() {return 0;}
+		function NumRows() {return 0;}
+		function NumCols() {return 0;}
 	}
 
 	//==============================================================================================
