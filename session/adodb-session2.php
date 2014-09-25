@@ -581,6 +581,8 @@ class ADODB_Session {
 			} else {
 				$ok = $conn->Connect($host, $user, $password, $database);
 			}
+		} else {
+			$ok = true; // $conn->_connectionID is set after call to ADONewConnection
 		}
 
 		if ($ok) $GLOBALS['ADODB_SESS_CONN'] = $conn;
