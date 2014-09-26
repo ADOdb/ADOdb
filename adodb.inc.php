@@ -1070,8 +1070,7 @@ if (!defined('_ADODB_LAYER')) {
 			if ($fn) {
 				$fn($this->databaseType,'EXECUTE',$this->ErrorNo(),$this->ErrorMsg(),$sql,$inputarr,$this);
 			}
-			$false = false;
-			return $false;
+			return false;
 		}
 
 		if ($this->_queryID === true) { // return simplified recordset for inserts/updates/deletes with lower overhead
@@ -1373,8 +1372,7 @@ if (!defined('_ADODB_LAYER')) {
 	function &_rs2rs(&$rs,$nrows=-1,$offset=-1,$close=true)
 	{
 		if (! $rs) {
-			$false = false;
-			return $false;
+			return false;
 		}
 		$dbtype = $rs->databaseType;
 		if (!$dbtype) {
@@ -1419,8 +1417,7 @@ if (!defined('_ADODB_LAYER')) {
 	{
 		$rs = $this->Execute($sql, $inputarr);
 		if (!$rs) {
-			$false = false;
-			return $false;
+			return false;
 		}
 		$arr = $rs->GetAssoc($force_array,$first2cols);
 		return $arr;
@@ -1434,8 +1431,7 @@ if (!defined('_ADODB_LAYER')) {
 		}
 		$rs = $this->CacheExecute($secs2cache, $sql, $inputarr);
 		if (!$rs) {
-			$false = false;
-			return $false;
+			return false;
 		}
 		$arr = $rs->GetAssoc($force_array,$first2cols);
 		return $arr;
@@ -1542,8 +1538,9 @@ if (!defined('_ADODB_LAYER')) {
 	function Transpose(&$rs,$addfieldnames=true)
 	{
 		$rs2 = $this->_rs2rs($rs);
-		$false = false;
-		if (!$rs2) return $false;
+		if (!$rs2) {
+			return false;
+		}
 
 		$rs2->_transpose($addfieldnames);
 		return $rs2;
@@ -1581,8 +1578,7 @@ if (!defined('_ADODB_LAYER')) {
 				$cls = ADODB_PEAR_Error();
 				return $cls;
 			} else {
-				$false = false;
-				return $false;
+				return false;
 			}
 		$arr = $rs->GetArray();
 		$rs->Close();
@@ -1609,8 +1605,7 @@ if (!defined('_ADODB_LAYER')) {
 				$cls = ADODB_PEAR_Error();
 				return $cls;
 			} else {
-				$false = false;
-				return $false;
+				return false;
 			}
 		$arr = $rs->GetArray();
 		$rs->Close();
@@ -1647,8 +1642,7 @@ if (!defined('_ADODB_LAYER')) {
 			return $arr;
 		}
 
-		$false = false;
-		return $false;
+		return false;
 	}
 
 	function CacheGetRow($secs2cache,$sql=false,$inputarr=false)
@@ -1661,8 +1655,7 @@ if (!defined('_ADODB_LAYER')) {
 			$rs->Close();
 			return $arr;
 		}
-		$false = false;
-		return $false;
+		return false;
 	}
 
 	/**
@@ -2316,9 +2309,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	global $ADODB_FETCH_MODE;
 
 
-		$false = false;
 		if ($mask) {
-			return $false;
+			return false;
 		}
 		if ($this->metaTablesSQL) {
 			$save = $ADODB_FETCH_MODE;
@@ -2330,7 +2322,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if (isset($savem)) $this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
 
-			if ($rs === false) return $false;
+			if ($rs === false) {
+				return false;
+			}
 			$arr = $rs->GetArray();
 			$arr2 = array();
 
@@ -2351,7 +2345,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$rs->Close();
 			return $arr2;
 		}
-		return $false;
+		return false;
 	}
 
 
@@ -2377,8 +2371,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	{
 	global $ADODB_FETCH_MODE;
 
-		$false = false;
-
 		if (!empty($this->metaColumnsSQL)) {
 
 			$schema = false;
@@ -2390,7 +2382,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$rs = $this->Execute(sprintf($this->metaColumnsSQL,($normalize)?strtoupper($table):$table));
 			if (isset($savem)) $this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
-			if ($rs === false || $rs->EOF) return $false;
+			if ($rs === false || $rs->EOF) {
+				return false;
+			}
 
 			$retarr = array();
 			while (!$rs->EOF) { //print_r($rs->fields);
@@ -2411,7 +2405,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$rs->Close();
 			return $retarr;
 		}
-		return $false;
+		return false;
 	}
 
 	/**
@@ -2433,8 +2427,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function MetaIndexes($table, $primary = false, $owner = false)
 	{
-		$false = false;
-		return $false;
+		return false;
 	}
 
 	/**
@@ -2447,8 +2440,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	{
 		$objarr = $this->MetaColumns($table);
 		if (!is_array($objarr)) {
-			$false = false;
-			return $false;
+			return false;
 		}
 		$arr = array();
 		if ($numIndexes) {
@@ -3160,8 +3152,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		$cols = $this->_numOfFields;
 		if ($cols < 2) {
-			$false = false;
-			return $false;
+			return false;
 		}
 		$numIndex = is_array($this->fields) && array_key_exists(0, $this->fields);
 		$results = array();
@@ -3343,8 +3334,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	function FetchRow()
 	{
 		if ($this->EOF) {
-			$false = false;
-			return $false;
+			return false;
 		}
 		$arr = $this->fields;
 		$this->_currentRow++;
@@ -3634,8 +3624,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	{
 		// must be defined by child class
 
-		$false = false;
-		return $false;
+		return false;
 	}
 
 	/**
@@ -4235,7 +4224,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		if (!defined('ADODB_ASSOC_CASE')) define('ADODB_ASSOC_CASE',2);
 		$errorfn = (defined('ADODB_ERROR_HANDLER')) ? ADODB_ERROR_HANDLER : false;
-		$false = false;
 		if (($at = strpos($db,'://')) !== FALSE) {
 			$origdsn = $db;
 			$fakedsn = 'fake'.substr($origdsn,$at);
@@ -4260,7 +4248,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$dsna = @parse_url($fakedsn);
 
 			if (!$dsna) {
-				return $false;
+				return false;
 			}
 			$dsna['scheme'] = substr($origdsn,0,$at);
 			if ($at2 !== FALSE) {
@@ -4281,7 +4269,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			}
 
 			$db = @$dsna['scheme'];
-			if (!$db) return $false;
+			if (!$db) {
+				return false;
+			}
 			$dsna['host'] = isset($dsna['host']) ? rawurldecode($dsna['host']) : '';
 			$dsna['user'] = isset($dsna['user']) ? rawurldecode($dsna['user']) : '';
 			$dsna['pass'] = isset($dsna['pass']) ? rawurldecode($dsna['pass']) : '';
@@ -4327,13 +4317,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				} else
 					 ADOConnection::outp( "<p>ADONewConnection: Unable to load database driver '$db'</p>",false);
 
-				return $false;
+				return false;
 			}
 
 			$cls = 'ADODB_'.$db;
 			if (!class_exists($cls)) {
 				adodb_backtrace();
-				return $false;
+				return false;
 			}
 
 			$obj = new $cls();
@@ -4388,7 +4378,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				else
 					$ok = $obj->NConnect($dsna['host'], $dsna['user'], $dsna['pass'], $dsna['path']);
 
-				if (!$ok) return $false;
+				if (!$ok) {
+					return false;
+				}
 			}
 		}
 		return $obj;
@@ -4431,13 +4423,16 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	function NewPerfMonitor(&$conn)
 	{
-		$false = false;
 		$drivername = _adodb_getdriver($conn->dataProvider,$conn->databaseType,true);
-		if (!$drivername || $drivername == 'generic') return $false;
+		if (!$drivername || $drivername == 'generic') {
+			return false;
+		}
 		include_once(ADODB_DIR.'/adodb-perf.inc.php');
 		@include_once(ADODB_DIR."/perf/perf-$drivername.inc.php");
 		$class = "Perf_$drivername";
-		if (!class_exists($class)) return $false;
+		if (!class_exists($class)) {
+			return false;
+		}
 		$perf = new $class($conn);
 
 		return $perf;
@@ -4445,7 +4440,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	function NewDataDictionary(&$conn,$drivername=false)
 	{
-		$false = false;
 		if (!$drivername) $drivername = _adodb_getdriver($conn->dataProvider,$conn->databaseType);
 
 		include_once(ADODB_DIR.'/adodb-lib.inc.php');
@@ -4454,7 +4448,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		if (!file_exists($path)) {
 			ADOConnection::outp("Dictionary driver '$path' not available");
-			return $false;
+			return false;
 		}
 		include_once($path);
 		$class = "ADODB2_$drivername";
