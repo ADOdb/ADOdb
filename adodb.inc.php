@@ -268,7 +268,7 @@ if (!defined('_ADODB_LAYER')) {
 
 		function ADODB_Cache_File()
 		{
-		global $ADODB_INCLUDED_CSV;
+			global $ADODB_INCLUDED_CSV;
 			if (empty($ADODB_INCLUDED_CSV)) include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
 		}
 
@@ -288,9 +288,9 @@ if (!defined('_ADODB_LAYER')) {
 		// flush all items in cache
 		function flushall($debug=false)
 		{
-		global $ADODB_CACHE_DIR;
+			global $ADODB_CACHE_DIR;
 
-		$rez = false;
+			$rez = false;
 
 			if (strlen($ADODB_CACHE_DIR) > 1) {
 				$rez = $this->_dirFlush($ADODB_CACHE_DIR);
@@ -309,7 +309,7 @@ if (!defined('_ADODB_LAYER')) {
 
 		function getdirname($hash)
 		{
-		global $ADODB_CACHE_DIR;
+			global $ADODB_CACHE_DIR;
 			if (!isset($this->notSafeMode)) $this->notSafeMode = !ini_get('safe_mode');
 			return ($this->notSafeMode) ? $ADODB_CACHE_DIR.'/'.substr($hash,0,2) : $ADODB_CACHE_DIR;
 		}
@@ -317,7 +317,7 @@ if (!defined('_ADODB_LAYER')) {
 		// create temp directories
 		function createdir($hash, $debug)
 		{
-		global $ADODB_CACHE_PERMS;
+			global $ADODB_CACHE_PERMS;
 
 			$dir = $this->getdirname($hash);
 			if ($this->notSafeMode && !file_exists($dir)) {
@@ -459,7 +459,7 @@ if (!defined('_ADODB_LAYER')) {
 
 	static function Version()
 	{
-	global $ADODB_vers;
+		global $ADODB_vers;
 
 		$ok = preg_match( '/^[Vv]?([0-9]\.[0-9]+(dev|[a-z])?)/', $ADODB_vers, $matches );
 		if (!$ok) return (float) substr($ADODB_vers,1);
@@ -494,7 +494,7 @@ if (!defined('_ADODB_LAYER')) {
 	*/
 	static function outp($msg,$newline=true)
 	{
-	global $ADODB_FLUSH,$ADODB_OUTP;
+		global $ADODB_FLUSH,$ADODB_OUTP;
 
 		if (defined('ADODB_OUTP')) {
 			$fn = ADODB_OUTP;
@@ -640,10 +640,10 @@ if (!defined('_ADODB_LAYER')) {
 	// create cache class. Code is backward compat with old memcache implementation
 	function _CreateCache()
 	{
-	global $ADODB_CACHE, $ADODB_CACHE_CLASS;
+		global $ADODB_CACHE, $ADODB_CACHE_CLASS;
 
 		if ($this->memCache) {
-		global $ADODB_INCLUDED_MEMCACHE;
+			global $ADODB_INCLUDED_MEMCACHE;
 
 			if (empty($ADODB_INCLUDED_MEMCACHE)) include(ADODB_DIR.'/adodb-memcache.lib.inc.php');
 				$ADODB_CACHE = new ADODB_Cache_MemCache($this);
@@ -774,7 +774,7 @@ if (!defined('_ADODB_LAYER')) {
 		$this->fetchMode = $mode;
 
 		if ($old === false) {
-		global $ADODB_FETCH_MODE;
+			global $ADODB_FETCH_MODE;
 			return $ADODB_FETCH_MODE;
 		}
 		return $old;
@@ -1088,7 +1088,7 @@ if (!defined('_ADODB_LAYER')) {
 		if (is_array($sql)) $rs->sql = $sql[0];
 		else $rs->sql = $sql;
 		if ($rs->_numOfRows <= 0) {
-		global $ADODB_COUNTRECS;
+			global $ADODB_COUNTRECS;
 			if ($ADODB_COUNTRECS) {
 				if (!$rs->EOF) {
 					$rs = $this->_rs2rs($rs,-1,-1,!is_array($sql));
@@ -1446,7 +1446,8 @@ if (!defined('_ADODB_LAYER')) {
 	*/
 	function GetOne($sql,$inputarr=false)
 	{
-	global $ADODB_COUNTRECS,$ADODB_GETONE_EOF;
+		global $ADODB_COUNTRECS,$ADODB_GETONE_EOF;
+
 		$crecs = $ADODB_COUNTRECS;
 		$ADODB_COUNTRECS = false;
 
@@ -1477,7 +1478,8 @@ if (!defined('_ADODB_LAYER')) {
 
 	function CacheGetOne($secs2cache,$sql=false,$inputarr=false)
 	{
-	global $ADODB_GETONE_EOF;
+		global $ADODB_GETONE_EOF;
+
 		$ret = false;
 		$rs = $this->CacheExecute($secs2cache,$sql,$inputarr);
 		if ($rs) {
@@ -1567,7 +1569,7 @@ if (!defined('_ADODB_LAYER')) {
 	*/
 	function GetArray($sql,$inputarr=false)
 	{
-	global $ADODB_COUNTRECS;
+		global $ADODB_COUNTRECS;
 
 		$savec = $ADODB_COUNTRECS;
 		$ADODB_COUNTRECS = false;
@@ -1593,7 +1595,7 @@ if (!defined('_ADODB_LAYER')) {
 
 	function CacheGetArray($secs2cache,$sql=false,$inputarr=false)
 	{
-	global $ADODB_COUNTRECS;
+		global $ADODB_COUNTRECS;
 
 		$savec = $ADODB_COUNTRECS;
 		$ADODB_COUNTRECS = false;
@@ -1628,7 +1630,8 @@ if (!defined('_ADODB_LAYER')) {
 	*/
 	function GetRow($sql,$inputarr=false)
 	{
-	global $ADODB_COUNTRECS;
+		global $ADODB_COUNTRECS;
+
 		$crecs = $ADODB_COUNTRECS;
 		$ADODB_COUNTRECS = false;
 
@@ -1731,7 +1734,7 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function CacheFlush($sql=false,$inputarr=false)
 	{
-	global $ADODB_CACHE_DIR, $ADODB_CACHE;
+		global $ADODB_CACHE_DIR, $ADODB_CACHE;
 
 		if (empty($ADODB_CACHE)) return false;
 
@@ -1761,10 +1764,10 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function _gencachename($sql,$createdir)
 	{
-	global $ADODB_CACHE, $ADODB_CACHE_DIR;
+		global $ADODB_CACHE, $ADODB_CACHE_DIR;
 
 		if ($this->fetchMode === false) {
-		global $ADODB_FETCH_MODE;
+			global $ADODB_FETCH_MODE;
 			$mode = $ADODB_FETCH_MODE;
 		} else {
 			$mode = $this->fetchMode;
@@ -1789,7 +1792,7 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function CacheExecute($secs2cache,$sql=false,$inputarr=false)
 	{
-	global $ADODB_CACHE;
+		global $ADODB_CACHE;
 
 		if (empty($ADODB_CACHE)) $this->_CreateCache();
 
@@ -1945,8 +1948,8 @@ if (!defined('_ADODB_LAYER')) {
 		// This is here to maintain compatibility
 		// with older adodb versions. Sets force type to force nulls if $forcenulls is set.
 		if (!isset($force)) {
-				global $ADODB_FORCE_TYPE;
-			    $force = $ADODB_FORCE_TYPE;
+			global $ADODB_FORCE_TYPE;
+			$force = $ADODB_FORCE_TYPE;
 		}
 		// ********************************************************
 
@@ -1968,7 +1971,6 @@ if (!defined('_ADODB_LAYER')) {
 		if (!isset($force)) {
 			global $ADODB_FORCE_TYPE;
 			$force = $ADODB_FORCE_TYPE;
-
 		}
 		if (empty($ADODB_INCLUDED_LIB)) include(ADODB_DIR.'/adodb-lib.inc.php');
 		return _adodb_getinsertsql($this,$rs,$arrFields,$magicq,$force);
@@ -2139,7 +2141,7 @@ if (!defined('_ADODB_LAYER')) {
 			$extra=array(),
 			$relations=array())
 	{
-	global $_ADODB_ACTIVE_DBS;
+		global $_ADODB_ACTIVE_DBS;
 		## reduce overhead of adodb.inc.php -- moved to adodb-active-record.inc.php
 		## if adodb-active-recordx is loaded -- should be no issue as they will probably use Find()
 		if (!isset($_ADODB_ACTIVE_DBS))include_once(ADODB_DIR.'/adodb-active-record.inc.php');
@@ -2253,7 +2255,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 		function MetaDatabases()
 		{
-		global $ADODB_FETCH_MODE;
+			global $ADODB_FETCH_MODE;
 
 			if ($this->metaDatabasesSQL) {
 				$save = $ADODB_FETCH_MODE;
@@ -2306,8 +2308,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
-	global $ADODB_FETCH_MODE;
-
+		global $ADODB_FETCH_MODE;
 
 		if ($mask) {
 			return false;
@@ -2369,7 +2370,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function MetaColumns($table,$normalize=true)
 	{
-	global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 
 		if (!empty($this->metaColumnsSQL)) {
 
@@ -3059,7 +3060,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function GetArray($nRows = -1)
 	{
-	global $ADODB_EXTENSION; if ($ADODB_EXTENSION) {
+		global $ADODB_EXTENSION; if ($ADODB_EXTENSION) {
 		$results = adodb_getall($this,$nRows);
 		return $results;
 	}
@@ -3148,7 +3149,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function GetAssoc($force_array = false, $first2cols = false)
 	{
-	global $ADODB_EXTENSION;
+		global $ADODB_EXTENSION;
 
 		$cols = $this->_numOfFields;
 		if ($cols < 2) {
@@ -3963,7 +3964,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		 */
 		function ADORecordSet_array($fakeid=1)
 		{
-		global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
+			global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
 
 			// fetch() on EOF does not delete $this->fields
 			$this->compat = !empty($ADODB_COMPAT_FETCH);
@@ -3973,7 +3974,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		function _transpose($addfieldnames=true)
 		{
-		global $ADODB_INCLUDED_LIB;
+			global $ADODB_INCLUDED_LIB;
 
 			if (empty($ADODB_INCLUDED_LIB)) include(ADODB_DIR.'/adodb-lib.inc.php');
 			$hdr = true;
@@ -4166,7 +4167,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function ADOLoadCode($dbType)
 	{
-	global $ADODB_LASTDB;
+		global $ADODB_LASTDB;
 
 		if (!$dbType) return false;
 		$db = strtolower($dbType);
@@ -4220,7 +4221,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function ADONewConnection($db='')
 	{
-	GLOBAL $ADODB_NEWCONNECTION, $ADODB_LASTDB;
+		global $ADODB_NEWCONNECTION, $ADODB_LASTDB;
 
 		if (!defined('ADODB_ASSOC_CASE')) define('ADODB_ASSOC_CASE',2);
 		$errorfn = (defined('ADODB_ERROR_HANDLER')) ? ADODB_ERROR_HANDLER : false;
