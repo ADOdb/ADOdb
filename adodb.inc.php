@@ -2037,6 +2037,7 @@ if (!defined('_ADODB_LAYER')) {
 	function SetCharSet($charset)
 	{
 		$this->charSet = $charset;
+		return TRUE;
 	}
 
 	function IfNull( $field, $ifNull )
