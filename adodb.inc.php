@@ -4702,84 +4702,82 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return $drivername;
 	}
 
-	function NewPerfMonitor(&$conn) {
-		$drivername = _adodb_getdriver($conn->dataProvider,$conn->databaseType,true);
-		if (!$drivername || $drivername == 'generic') {
-			return false;
-		}
-		include_once(ADODB_DIR.'/adodb-perf.inc.php');
-		@include_once(ADODB_DIR."/perf/perf-$drivername.inc.php");
-		$class = "Perf_$drivername";
-		if (!class_exists($class)) {
-			return false;
-		}
-		$perf = new $class($conn);
-
-		return $perf;
+function NewPerfMonitor(&$conn) {
+	$drivername = _adodb_getdriver($conn->dataProvider,$conn->databaseType,true);
+	if (!$drivername || $drivername == 'generic') {
+		return false;
 	}
-
-	function NewDataDictionary(&$conn,$drivername=false) {
-		if (!$drivername) {
-			$drivername = _adodb_getdriver($conn->dataProvider,$conn->databaseType);
-		}
-
-		include_once(ADODB_DIR.'/adodb-lib.inc.php');
-		include_once(ADODB_DIR.'/adodb-datadict.inc.php');
-		$path = ADODB_DIR."/datadict/datadict-$drivername.inc.php";
-
-		if (!file_exists($path)) {
-			ADOConnection::outp("Dictionary driver '$path' not available");
-			return false;
-		}
-		include_once($path);
-		$class = "ADODB2_$drivername";
-		$dict = new $class();
-		$dict->dataProvider = $conn->dataProvider;
-		$dict->connection = $conn;
-		$dict->upperName = strtoupper($drivername);
-		$dict->quote = $conn->nameQuote;
-		if (!empty($conn->_connectionID)) {
-			$dict->serverInfo = $conn->ServerInfo();
-		}
-
-		return $dict;
+	include_once(ADODB_DIR.'/adodb-perf.inc.php');
+	@include_once(ADODB_DIR."/perf/perf-$drivername.inc.php");
+	$class = "Perf_$drivername";
+	if (!class_exists($class)) {
+		return false;
 	}
+	$perf = new $class($conn);
 
-
-
-	/*
-		Perform a print_r, with pre tags for better formatting.
-	*/
-	function adodb_pr($var,$as_string=false) {
-		if ($as_string) {
-			ob_start();
-		}
-
-		if (isset($_SERVER['HTTP_USER_AGENT'])) {
-			echo " <pre>\n";print_r($var);echo "</pre>\n";
-		} else {
-			print_r($var);
-		}
-
-		if ($as_string) {
-			$s = ob_get_contents();
-			ob_end_clean();
-			return $s;
-		}
-	}
-
-	/*
-		Perform a stack-crawl and pretty print it.
-
-		@param printOrArr  Pass in a boolean to indicate print, or an $exception->trace array (assumes that print is true then).
-		@param levels Number of levels to display
-	*/
-	function adodb_backtrace($printOrArr=true,$levels=9999,$ishtml=null) {
-		global $ADODB_INCLUDED_LIB;
-		if (empty($ADODB_INCLUDED_LIB)) {
-			include(ADODB_DIR.'/adodb-lib.inc.php');
-		}
-		return _adodb_backtrace($printOrArr,$levels,0,$ishtml);
-	}
-
+	return $perf;
 }
+
+function NewDataDictionary(&$conn,$drivername=false) {
+	if (!$drivername) {
+		$drivername = _adodb_getdriver($conn->dataProvider,$conn->databaseType);
+	}
+
+	include_once(ADODB_DIR.'/adodb-lib.inc.php');
+	include_once(ADODB_DIR.'/adodb-datadict.inc.php');
+	$path = ADODB_DIR."/datadict/datadict-$drivername.inc.php";
+
+	if (!file_exists($path)) {
+		ADOConnection::outp("Dictionary driver '$path' not available");
+		return false;
+	}
+	include_once($path);
+	$class = "ADODB2_$drivername";
+	$dict = new $class();
+	$dict->dataProvider = $conn->dataProvider;
+	$dict->connection = $conn;
+	$dict->upperName = strtoupper($drivername);
+	$dict->quote = $conn->nameQuote;
+	if (!empty($conn->_connectionID)) {
+		$dict->serverInfo = $conn->ServerInfo();
+	}
+
+	return $dict;
+}
+
+
+
+/*
+	Perform a print_r, with pre tags for better formatting.
+*/
+function adodb_pr($var,$as_string=false) {
+	if ($as_string) {
+		ob_start();
+	}
+
+	if (isset($_SERVER['HTTP_USER_AGENT'])) {
+		echo " <pre>\n";print_r($var);echo "</pre>\n";
+	} else {
+		print_r($var);
+	}
+
+	if ($as_string) {
+		$s = ob_get_contents();
+		ob_end_clean();
+		return $s;
+	}
+}
+
+/*
+	Perform a stack-crawl and pretty print it.
+	@param printOrArr  Pass in a boolean to indicate print, or an $exception->trace array (assumes that print is true then).
+	@param levels Number of levels to display
+*/
+function adodb_backtrace($printOrArr=true,$levels=9999,$ishtml=null) {
+	global $ADODB_INCLUDED_LIB;
+	if (empty($ADODB_INCLUDED_LIB)) {
+		include(ADODB_DIR.'/adodb-lib.inc.php');
+	}
+	return _adodb_backtrace($printOrArr,$levels,0,$ishtml);
+}
+
