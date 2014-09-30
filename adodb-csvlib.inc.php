@@ -292,7 +292,7 @@ $ADODB_INCLUDED_CSV = 1;
 				// the tricky moment
 				@unlink($filename);
 				if (!@rename($tmpname,$filename)) {
-					unlink($tmpname);
+					@unlink($tmpname);
 					$ok = 0;
 				}
 				if (!$ok) {
