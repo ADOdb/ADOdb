@@ -85,6 +85,7 @@ class ADODB_pdo extends ADOConnection {
 
 	var $dsnType = '';
 	var $stmt = false;
+	var $_driver;
 
 	function ADODB_pdo()
 	{
