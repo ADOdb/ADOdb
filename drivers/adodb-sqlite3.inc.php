@@ -391,7 +391,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	function FetchField($fieldOffset = -1)
 	{
 		$fld = new ADOFieldObject;
-		$fld->name->columnName($this->_queryID, $fieldOffset);
+		$fld->name = $this->_queryID->columnName($fieldOffset);
 		$fld->type = 'VARCHAR';
 		$fld->max_length = -1;
 		return $fld;
