@@ -373,7 +373,11 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 
    function _seek($row)
    {
-   		return sqlite3_seek($this->_queryID, $row);//**tochange but sqlite3 seems not to implement seek!
+		// sqlite3 does not implement seek
+		if ($this->debug) {
+			ADOConnection::outp("SQLite3 does not implement seek");
+		}
+		return false;
    }
 
 	function _fetch($ignore_fields=false)
