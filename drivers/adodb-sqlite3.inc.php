@@ -18,9 +18,7 @@ V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights res
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
-// class ADODB_sqlite extends ADOConnection { **change
 class ADODB_sqlite3 extends ADOConnection {
-	//var $databaseType = "sqlite"; **change
 	var $databaseType = "sqlite3";
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $concat_operator='||';
@@ -33,25 +31,14 @@ class ADODB_sqlite3 extends ADOConnection {
 	var $sysTimeStamp = "adodb_date('Y-m-d H:i:s')";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 
-	//function ADODB_sqlite3() **change
 	function ADODB_sqlite3()
 	{
 	}
-
-/*
-  function __get($name)
-  {
-  	switch($name) {
-	case 'sysDate': return "'".date($this->fmtDate)."'";
-	case 'sysTimeStamp' : return "'".date($this->sysTimeStamp)."'";
-	}
-  }*/
 
 	function ServerInfo()
 	{
 		$arr['version'] = $this->_connectionID->version(); //**tochange
 		$arr['description'] = 'SQLite 3'; //**tochange
-		//$arr['encoding'] = sqlite_libencoding();//**tochange
 		return $arr;
 	}
 
@@ -127,14 +114,12 @@ class ADODB_sqlite3 extends ADOConnection {
 
 	function _insertid()
 	{
-		//return sqlite_last_insert_rowid($this->_connectionID)->; //**change
 		return $this->_connectionID->lastInsertRowID();
 	}
 
 	function _affectedrows()
 	{
 		return $this->_connectionID->changes();
-       //return sqlite3_changes($this->_connectionID); //**tochange
     }
 
 	function ErrorMsg()
@@ -158,10 +143,7 @@ class ADODB_sqlite3 extends ADOConnection {
 
 	function _createFunctions()
 	{
-		//@sqlite3_create_function($this->_connectionID, 'adodb_date', 'adodb_date', 1); *change
 		$this->_connectionID->createFunction('adodb_date', 'adodb_date', 1);
-
-		//@sqlite3_create_function($this->_connectionID, 'adodb_date2', 'adodb_date2', 2);**change
 		$this->_connectionID->createFunction('adodb_date2', 'adodb_date2', 2);
 	}
 
@@ -174,15 +156,6 @@ class ADODB_sqlite3 extends ADOConnection {
 		$this->_createFunctions();
 
 		return true; // hack
-		/*
-		if (!function_exists('sqlite_open')) return null;
-		if (empty($argHostname) && $argDatabasename) $argHostname = $argDatabasename;
-
-		$this->_connectionID = sqlite_open($argHostname);
-		if ($this->_connectionID === false) return false;
-		$this->_createFunctions();
-		return true;
-		*/
 	}
 
 	// returns true or false
@@ -200,10 +173,8 @@ class ADODB_sqlite3 extends ADOConnection {
 	// returns query ID if successful, otherwise false
 	function _query($sql,$inputarr=false)
 	{
-		//$rez = sqlite_query($sql,$this->_connectionID);//**change
 		$rez = $this->_connectionID->query($sql);
 		if (!$rez) {
-			//$this->_errorNo = sqlite3_last_error($this->_connectionID);**change
 			$this->_connectionID->lastErrorCode();
 		}
 
@@ -278,7 +249,6 @@ class ADODB_sqlite3 extends ADOConnection {
 	// returns true or false
 	function _close()
 	{
-		//return @sqlite3_close($this->_connectionID);**change
 		return $this->_connectionID->close();
 	}
 
@@ -334,14 +304,11 @@ class ADODB_sqlite3 extends ADOConnection {
 		 Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-//class ADORecordset_sqlite extends ADORecordSet {**change
 class ADORecordset_sqlite3 extends ADORecordSet {
 
-	//var $databaseType = "sqlite";**change
 	var $databaseType = "sqlite3";
 	var $bind = false;
 
-	//function ADORecordset_sqlite($queryID,$mode=false)**change
 	function ADORecordset_sqlite3($queryID,$mode=false)
 	{
 
@@ -350,11 +317,8 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 			$mode = $ADODB_FETCH_MODE;
 		}
 		switch($mode) {
-		//case ADODB_FETCH_NUM: $this->fetchMode = SQLITE_NUM; break;**change
 		case ADODB_FETCH_NUM: $this->fetchMode = SQLITE3_NUM; break;
-		//case ADODB_FETCH_ASSOC: $this->fetchMode = SQLITE_ASSOC; break;**change
 		case ADODB_FETCH_ASSOC: $this->fetchMode = SQLITE3_ASSOC; break;
-		//default: $this->fetchMode = SQLITE_BOTH; break;**change
 		default: $this->fetchMode = SQLITE3_BOTH; break;
 		}
 		$this->adodbFetchMode = $mode;
@@ -380,7 +344,6 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	function FetchField($fieldOffset = -1)
 	{
 		$fld = new ADOFieldObject;
-		//$fld->name = sqlite3_field_name($this->_queryID, $fieldOffset);**change
 		$fld->name->columnName($this->_queryID, $fieldOffset);
 		$fld->type = 'VARCHAR';
 		$fld->max_length = -1;
@@ -389,16 +352,13 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 
    function _initrs()
    {
-		//$this->_numOfRows = @sqlite_num_rows($this->_queryID); **tochange but sqlite3 doesn't implement this!
 		$this->_numOfRows = 1;
-		//$this->_numOfFields = @sqlite3_num_fields($this->_queryID);**change
 		$this->_numOfFields = $this->_queryID->numColumns();
 
    }
 
 	function Fields($colname)
 	{
-		//if ($this->fetchMode != SQLITE_NUM) return $this->fields[$colname];**change
 		if ($this->fetchMode != SQLITE3_NUM) return $this->fields[$colname];
 		if (!$this->bind) {
 			$this->bind = array();
@@ -418,7 +378,6 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 
 	function _fetch($ignore_fields=false)
 	{
-		//$this->fields = @sqlite3_fetch_array($this->_queryID,$this->fetchMode);**change
 		$this->fields = $this->_queryID->fetchArray($this->fetchMode);
 		return !empty($this->fields);
 	}
