@@ -37,8 +37,9 @@ class ADODB_sqlite3 extends ADOConnection {
 
 	function ServerInfo()
 	{
-		$arr['version'] = $this->_connectionID->version(); //**tochange
-		$arr['description'] = 'SQLite 3'; //**tochange
+		$version = SQLite3::version();
+		$arr['version'] = $version['versionString'];
+		$arr['description'] = 'SQLite 3';
 		return $arr;
 	}
 
