@@ -438,12 +438,12 @@ class ADODB_pdo_base extends ADODB_pdo {
 		return $ret;
 	}
 
-	function MetaTables()
+	function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		return false;
 	}
 
-	function MetaColumns()
+	function MetaColumns($table,$normalize=true)
 	{
 		return false;
 	}
