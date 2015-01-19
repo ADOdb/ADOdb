@@ -190,8 +190,8 @@ class ADODB2_postgres extends ADODB_DataDict {
 			$sql = array();
 			list($lines,$pkey) = $this->_GenFields($flds);
 			$set_null = false;
-			$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 			foreach($lines as $v) {
+				$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 				if ($not_null = preg_match('/NOT NULL/i',$v)) {
 					$v = preg_replace('/NOT NULL/i','',$v);
 				}
