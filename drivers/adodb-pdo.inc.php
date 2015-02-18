@@ -129,7 +129,18 @@ class ADODB_pdo extends ADOConnection {
 		$this->dsnType = substr($argDSN,0,$at);
 
 		if ($argDatabasename) {
-			$argDSN .= ';dbname='.$argDatabasename;
+			switch($this->dsnType){
+			case 'sqlsrv':
+				$argDSN .= ';database='.$argDatabasename;
+				break;
+			case 'oci':
+			case 'mysql':
+			case 'pgsql':
+            		case 'mssql':
+			case 'sqlite':
+			default:
+				$argDSN .= ';dbname='.$argDatabasename;
+			}
 		}
 		try {
 			$this->_connectionID = new PDO($argDSN, $argUsername, $argPassword);
@@ -160,6 +171,7 @@ class ADODB_pdo extends ADOConnection {
 			case 'pgsql':
 			case 'mssql':
 			case 'sqlite':
+			case 'sqlsrv':
 				include_once(ADODB_DIR.'/drivers/adodb-pdo_'.$this->dsnType.'.inc.php');
 				break;
 			}
