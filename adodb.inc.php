@@ -478,6 +478,7 @@ if (!defined('_ADODB_LAYER')) {
 	var $_affected = false;
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
+    var $_lastReplaceSql = '';
 
 
 	static function Version() {
@@ -703,7 +704,7 @@ if (!defined('_ADODB_LAYER')) {
 			global $ADODB_INCLUDED_MEMCACHE;
 
 			if (empty($ADODB_INCLUDED_MEMCACHE)) {
-				include(ADODB_DIR.'/adodb-memcache.lib.inc.php');
+				include_once(ADODB_DIR.'/adodb-memcache.lib.inc.php');
 			}
 			$ADODB_CACHE = new ADODB_Cache_MemCache($this);
 		} else {
