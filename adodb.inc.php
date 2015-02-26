@@ -478,6 +478,7 @@ if (!defined('_ADODB_LAYER')) {
 	var $_affected = false;
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
+    var $_lastReplaceSql = '';
 
 
 	static function Version() {
