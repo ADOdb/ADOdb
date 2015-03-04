@@ -213,16 +213,18 @@ class ADODB_mysqli extends ADOConnection {
 		return !empty($rs);
 	}
 
-	// if magic quotes disabled, use mysql_real_escape_string()
-	// From docs-adodb.htm:
-	// Quotes a string to be sent to the database. The $magic_quotes_enabled
-	// parameter may look funny, but the idea is if you are quoting a
-	// string extracted from a POST/GET variable, then
-	// pass get_magic_quotes_gpc() as the second parameter. This will
-	// ensure that the variable is not quoted twice, once by qstr and once
-	// by the magic_quotes_gpc.
-	//
-	//Eg. $s = $db->qstr(_GET['name'],get_magic_quotes_gpc());
+	/**
+	 * Quotes a string to be sent to the database
+	 * When there is no active connection,
+	 * @param string $s The string to quote
+	 * @param boolean $magic_quotes If false, use mysqli_real_escape_string()
+	 *     if you are quoting a string extracted from a POST/GET variable,
+	 *     then pass get_magic_quotes_gpc() as the second parameter. This will
+	 *     ensure that the variable is not quoted twice, once by qstr() and
+	 *     once by the magic_quotes_gpc.
+	 *     Eg. $s = $db->qstr(_GET['name'],get_magic_quotes_gpc());
+	 * @return string Quoted string
+	 */
 	function qstr($s, $magic_quotes = false)
 	{
 		if (is_null($s)) return 'NULL';
@@ -231,10 +233,10 @@ class ADODB_mysqli extends ADOConnection {
 				return "'" . mysqli_real_escape_string($this->_connectionID, $s) . "'";
 			}
 
-		if ($this->replaceQuote[0] == '\\') {
-			$s = adodb_str_replace(array('\\',"\0"),array('\\\\',"\\\0"),$s);
-		}
-		return "'".str_replace("'",$this->replaceQuote,$s)."'";
+			if ($this->replaceQuote[0] == '\\') {
+				$s = adodb_str_replace(array('\\',"\0"), array('\\\\',"\\\0") ,$s);
+			}
+			return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 		}
 		// undo magic quotes for "
 		$s = str_replace('\\"','"',$s);
