@@ -779,7 +779,7 @@ other databases.</p>
 using ADOdb for true portability and scalability. See adodb-session.php for
 more information.</p>
 
-<p>Also read <a href="http://phplens.com/lens/adodb/tips_portable_sql.htm">tips_portable_sql.htm</a>
+<p>Also read <a href="http://adodb.sourceforge.net/tips_portable_sql.htm">tips_portable_sql.htm</a>
 for tips on writing portable SQL.</p>
 
 <h2>Unique Features of ADOdb<a name=features></a></h2>
@@ -822,9 +822,7 @@ for tips on writing portable SQL.</p>
 
 <h2>How People are using ADOdb<a name=users></a></h2>
 
-<p class=MsoNormal>Here are some examples of how people are using ADOdb (for a
-much longer list, visit <a
-href="http://phplens.com/phpeverywhere/adodb-cool-apps">adodb-cool-apps</a>): </p>
+<p class=MsoNormal>Here are some examples of how people are using ADOdb</p>
 
 <ul type=disc>
  <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
@@ -866,9 +864,13 @@ href="http://phplens.com/phpeverywhere/adodb-cool-apps">adodb-cool-apps</a>): </
 
 <h2>Feature Requests and Bug Reports<a name=bugs></a></h2>
 
-<p>Feature requests and bug reports can be emailed to <a
-href="mailto:jlim#natsoft.com">jlim#natsoft.com</a> or posted to the ADOdb Help
-forums at <a href="http://phplens.com/lens/lensforum/topics.php?id=4">http://phplens.com/lens/lensforum/topics.php?id=4</a>.</p>
+<p>Feature requests and bug reports should be submitted on 
+<a href="https://github.com/ADOdb/ADOdb/issues">Github</a>.
+</p>
+
+<p>Bug fixes and enhancements can be submitted as 
+<a href="https://github.com/ADOdb/ADOdb/pulls">Pull Requests</a>.
+</p>
 
 <h2>Installation Guide<a name=install></a></h2>
 
@@ -4308,10 +4310,10 @@ PHP code (works only under Unix): <br>
 <code><span style='font-size:10.0pt'>&nbsp; system(&quot;rm -f `find
 &quot;.$ADODB_CACHE_DIR.&quot; -name adodb_*.cache`&quot;);</span></code></p>
 
-<p>For general cleanup of all expired files, you should use <a
-href="http://www.adminschoice.com/docs/crontab.htm">crontab</a> on Unix,
-or at.exe on Windows, and a shell script similar to the following:<span
-style='font-family:"Courier New"'><br>
+<p>For general cleanup of all expired files, you should use
+<a href="http://www.adminschoice.com/crontab-quick-reference">crontab</a> on Unix,
+or at.exe on Windows, and a shell script similar to the following:
+<span style='font-family:"Courier New"'><br>
 #------------------------------------------------------ <br>
 # This particular example deletes files in the TMPPATH <br>
 # directory with the string &quot;.cache&quot; in their name that <br>

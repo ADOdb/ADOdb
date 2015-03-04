@@ -224,7 +224,7 @@ class adodb_perf {
 	var $cliFormat = "%32s => %s \r\n";
 	var $sql1 = 'sql1';  // used for casting sql1 to text for mssql
 	var $explain = true;
-	var $helpurl = "<a href=http://phplens.com/adodb/reference.functions.fnexecute.and.fncacheexecute.properties.html#logsql>LogSQL help</a>";
+	var $helpurl = '<a href="http://adodb.sourceforge.net/docs-adodb.htm#logsql">LogSQL help</a>';
 	var $createTableSQL = false;
 	var $maxLength = 2000;
 
