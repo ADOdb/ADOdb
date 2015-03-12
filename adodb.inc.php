@@ -86,17 +86,13 @@ if (!defined('_ADODB_LAYER')) {
 	// ********************************************************
 
 
-
-
-		define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
+		if (!defined('ADODB_BAD_RS')) define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
 
 	// allow [ ] @ ` " and . in table names
-		define('ADODB_TABLE_REGEX','([]0-9a-z_\:\"\`\.\@\[-]*)');
+		if (!defined('ADODB_TABLE_REGEX')) define('ADODB_TABLE_REGEX','([]0-9a-z_\:\"\`\.\@\[-]*)');
 
 	// prefetching used by oracle
-		if (!defined('ADODB_PREFETCH_ROWS')) {
-			define('ADODB_PREFETCH_ROWS',10);
-		}
+		if (!defined('ADODB_PREFETCH_ROWS')) define('ADODB_PREFETCH_ROWS',10);
 
 
 	/*
@@ -111,23 +107,24 @@ if (!defined('_ADODB_LAYER')) {
 		define('ADODB_ASSOC_CASE_UPPER', 1);
 		define('ADODB_ASSOC_CASE_NATIVE', 2);
 
-		define('ADODB_FETCH_DEFAULT',0);
-		define('ADODB_FETCH_NUM',1);
-		define('ADODB_FETCH_ASSOC',2);
-		define('ADODB_FETCH_BOTH',3);
+		if (!defined('ADODB_FETCH_DEFAULT')) define('ADODB_FETCH_DEFAULT',0);
+		if (!defined('ADODB_FETCH_NUM')) define('ADODB_FETCH_NUM',1);
+		if (!defined('ADODB_FETCH_ASSOC')) define('ADODB_FETCH_ASSOC',2);
+		if (!defined('ADODB_FETCH_BOTH')) define('ADODB_FETCH_BOTH',3);
 
-		if (!defined('TIMESTAMP_FIRST_YEAR')) {
-			define('TIMESTAMP_FIRST_YEAR',100);
-		}
+		if (!defined('TIMESTAMP_FIRST_YEAR')) define('TIMESTAMP_FIRST_YEAR',100);
 
+		if (!defined('ADODB_PHPVER')) {
 		// PHP's version scheme makes converting to numbers difficult - workaround
-		$_adodb_ver = (float) PHP_VERSION;
-		if ($_adodb_ver >= 5.2) {
-			define('ADODB_PHPVER',0x5200);
-		} else if ($_adodb_ver >= 5.0) {
-			define('ADODB_PHPVER',0x5000);
-		} else
-			die("PHP5 or later required. You are running ".PHP_VERSION);
+			$_adodb_ver = (float) PHP_VERSION;
+			if ($_adodb_ver >= 5.2) {
+				define('ADODB_PHPVER',0x5200);
+			} else if ($_adodb_ver >= 5.0) {
+				define('ADODB_PHPVER',0x5000);
+			} else {
+				die("PHP5 or later required. You are running ".PHP_VERSION);
+			}
+		}
 	}
 
 
@@ -1122,8 +1119,13 @@ if (!defined('_ADODB_LAYER')) {
 		return $ret;
 	}
 
+	//Strips keyword used to help generate SELECT COUNT(*) queries from SQL if it exists.
+	function adodb_strip_count_keyword( $sql ) {
+		return ADODB_str_replace( '_ADODB_COUNT', '', $sql );
+	}
 
 	function _Execute($sql,$inputarr=false) {
+		$sql = $this->adodb_strip_count_keyword( $sql );
 		if ($this->debug) {
 			global $ADODB_INCLUDED_LIB;
 			if (empty($ADODB_INCLUDED_LIB)) {
@@ -3632,6 +3634,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if ($this->_numOfRows != -1) {
 				$rowNumber = $this->_numOfRows-2;
 			}
+		}
+
+		if ($rowNumber < 0) {
+			$this->EOF = true;
+			return false;
 		}
 
 		if ($this->canSeek) {
