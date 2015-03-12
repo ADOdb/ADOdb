@@ -86,17 +86,13 @@ if (!defined('_ADODB_LAYER')) {
 	// ********************************************************
 
 
-
-
-		define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
+		if (!defined('ADODB_BAD_RS')) define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
 
 	// allow [ ] @ ` " and . in table names
-		define('ADODB_TABLE_REGEX','([]0-9a-z_\:\"\`\.\@\[-]*)');
+		if (!defined('ADODB_TABLE_REGEX')) define('ADODB_TABLE_REGEX','([]0-9a-z_\:\"\`\.\@\[-]*)');
 
 	// prefetching used by oracle
-		if (!defined('ADODB_PREFETCH_ROWS')) {
-			define('ADODB_PREFETCH_ROWS',10);
-		}
+		if (!defined('ADODB_PREFETCH_ROWS')) define('ADODB_PREFETCH_ROWS',10);
 
 
 	/*
@@ -111,23 +107,24 @@ if (!defined('_ADODB_LAYER')) {
 		define('ADODB_ASSOC_CASE_UPPER', 1);
 		define('ADODB_ASSOC_CASE_NATIVE', 2);
 
-		define('ADODB_FETCH_DEFAULT',0);
-		define('ADODB_FETCH_NUM',1);
-		define('ADODB_FETCH_ASSOC',2);
-		define('ADODB_FETCH_BOTH',3);
+		if (!defined('ADODB_FETCH_DEFAULT')) define('ADODB_FETCH_DEFAULT',0);
+		if (!defined('ADODB_FETCH_NUM')) define('ADODB_FETCH_NUM',1);
+		if (!defined('ADODB_FETCH_ASSOC')) define('ADODB_FETCH_ASSOC',2);
+		if (!defined('ADODB_FETCH_BOTH')) define('ADODB_FETCH_BOTH',3);
 
-		if (!defined('TIMESTAMP_FIRST_YEAR')) {
-			define('TIMESTAMP_FIRST_YEAR',100);
-		}
+		if (!defined('TIMESTAMP_FIRST_YEAR')) define('TIMESTAMP_FIRST_YEAR',100);
 
+		if (!defined('ADODB_PHPVER')) {
 		// PHP's version scheme makes converting to numbers difficult - workaround
-		$_adodb_ver = (float) PHP_VERSION;
-		if ($_adodb_ver >= 5.2) {
-			define('ADODB_PHPVER',0x5200);
-		} else if ($_adodb_ver >= 5.0) {
-			define('ADODB_PHPVER',0x5000);
-		} else
-			die("PHP5 or later required. You are running ".PHP_VERSION);
+			$_adodb_ver = (float) PHP_VERSION;
+			if ($_adodb_ver >= 5.2) {
+				define('ADODB_PHPVER',0x5200);
+			} else if ($_adodb_ver >= 5.0) {
+				define('ADODB_PHPVER',0x5000);
+			} else {
+				die("PHP5 or later required. You are running ".PHP_VERSION);
+			}
+		}
 	}
 
 
