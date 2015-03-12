@@ -145,7 +145,7 @@ class ADODB_postgres64 extends ADOConnection{
 	// get the last id - never tested
 	function pg_insert_id($tablename,$fieldname)
 	{
-		$result=pg_exec($this->_connectionID, 'SELECT last_value FROM ${tablename}_${fieldname}_seq');
+		$result=pg_query($this->_connectionID, 'SELECT last_value FROM ${tablename}_${fieldname}_seq');
 		if ($result) {
 			$arr = @pg_fetch_row($result,0);
 			pg_free_result($result);
@@ -354,7 +354,7 @@ a different OID if a database must be reloaded. */
 	*/
 	function UpdateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
 	{
-		pg_exec ($this->_connectionID, 'begin');
+		pg_query($this->_connectionID, 'begin');
 
 		$fd = fopen($path,'r');
 		$contents = fread($fd,filesize($path));
@@ -366,7 +366,7 @@ a different OID if a database must be reloaded. */
 		pg_lo_close($handle);
 
 		// $oid = pg_lo_import ($path);
-		pg_exec($this->_connectionID, 'commit');
+		pg_query($this->_connectionID, 'commit');
 		$rs = ADOConnection::UpdateBlob($table,$column,$oid,$where,$blobtype);
 		$rez = !empty($rs);
 		return $rez;
@@ -382,9 +382,9 @@ a different OID if a database must be reloaded. */
 	*/
 	function BlobDelete( $blob )
 	{
-		pg_exec($this->_connectionID, 'begin');
+		pg_query($this->_connectionID, 'begin');
 		$result = @pg_lo_unlink($blob);
-		pg_exec($this->_connectionID, 'commit');
+		pg_query($this->_connectionID, 'commit');
 		return( $result );
 	}
 
@@ -413,16 +413,16 @@ a different OID if a database must be reloaded. */
 	{
 		if (!$this->GuessOID($blob)) return $blob;
 
-		if ($hastrans) @pg_exec($this->_connectionID,'begin');
-		$fd = @pg_lo_open($this->_connectionID,$blob,"r");
+		if ($hastrans) @pg_query($this->_connectionID,'begin');
+		$fd = @pg_lo_open($this->_connectionID,$blob,'r');
 		if ($fd === false) {
-			if ($hastrans) @pg_exec($this->_connectionID,'commit');
+			if ($hastrans) @pg_query($this->_connectionID,'commit');
 			return $blob;
 		}
 		if (!$maxsize) $maxsize = $this->maxblobsize;
 		$realblob = @pg_lo_read($fd,$maxsize);
 		@pg_loclose($fd);
-		if ($hastrans) @pg_exec($this->_connectionID,'commit');
+		if ($hastrans) @pg_query($this->_connectionID,'commit');
 		return $realblob;
 	}
 
@@ -773,9 +773,6 @@ a different OID if a database must be reloaded. */
 
 			with plan = 1.51861286163 secs
 			no plan =   1.26903700829 secs
-
-
-
 		*/
 			$plan = 'P'.md5($sql);
 
@@ -793,7 +790,7 @@ a different OID if a database must be reloaded. */
 			else $exsql = "EXECUTE $plan";
 
 
-			$rez = @pg_exec($this->_connectionID,$exsql);
+			$rez = @pg_execute($this->_connectionID,$exsql);
 			if (!$rez) {
 			# Perhaps plan does not exist? Prepare/compile plan.
 				$params = '';
@@ -817,14 +814,14 @@ a different OID if a database must be reloaded. */
 				}
 				$s = 'PREPARE $plan ($params) AS '.substr($sql,0,strlen($sql)-2);
 				//adodb_pr($s);
-				$rez = pg_exec($this->_connectionID,$s);
+				$rez = pg_execute($this->_connectionID,$s);
 				//echo $this->ErrorMsg();
 			}
 			if ($rez)
-				$rez = pg_exec($this->_connectionID,$exsql);
+				$rez = pg_execute($this->_connectionID,$exsql);
 		} else {
 			//adodb_backtrace();
-			$rez = pg_exec($this->_connectionID,$sql);
+			$rez = pg_query($this->_connectionID,$sql);
 		}
 		// check if no data returned, then no need to create real recordset
 		if ($rez && pg_num_fields($rez) <= 0) {
