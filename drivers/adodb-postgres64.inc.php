@@ -68,8 +68,8 @@ class ADODB_postgres64 extends ADOConnection{
 		select viewname,'V' from pg_views where viewname not like 'pg\_%'";
 	//"select tablename from pg_tables where tablename not like 'pg_%' order by 1";
 	var $isoDates = true; // accepts dates in ISO format
-	var $sysDate = "CURRENT_DATE";
-	var $sysTimeStamp = "CURRENT_TIMESTAMP";
+	var $sysDate = 'CURRENT_DATE';
+	var $sysTimeStamp = 'CURRENT_TIMESTAMP';
 	var $blobEncodeType = 'C';
 	var $metaColumnsSQL = "SELECT a.attname,t.typname,a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum
 		FROM pg_class c, pg_attribute a,pg_type t
@@ -101,8 +101,8 @@ class ADODB_postgres64 extends ADOConnection{
 	var $hasMoveFirst = true;
 	var $hasGenID = true;
 	var $_genIDSQL = "SELECT NEXTVAL('%s')";
-	var $_genSeqSQL = "CREATE SEQUENCE %s START %s";
-	var $_dropSeqSQL = "DROP SEQUENCE %s";
+	var $_genSeqSQL = 'CREATE SEQUENCE %s START %s';
+	var $_dropSeqSQL = 'DROP SEQUENCE %s';
 	var $metaDefaultsSQL = "SELECT d.adnum as num, d.adsrc as def from pg_attrdef d, pg_class c where d.adrelid=c.oid and c.relname='%s' order by d.adnum";
 	var $random = 'random()';		/// random function
 	var $autoRollback = true; // apparently pgsql does not autorollback properly before php 4.3.4
@@ -139,13 +139,13 @@ class ADODB_postgres64 extends ADOConnection{
 
 	function IfNull( $field, $ifNull )
 	{
-		return " coalesce($field, $ifNull) ";
+		return ' coalesce($field, $ifNull) ';
 	}
 
 	// get the last id - never tested
 	function pg_insert_id($tablename,$fieldname)
 	{
-		$result=pg_exec($this->_connectionID, "SELECT last_value FROM ${tablename}_${fieldname}_seq");
+		$result=pg_exec($this->_connectionID, 'SELECT last_value FROM ${tablename}_${fieldname}_seq');
 		if ($result) {
 			$arr = @pg_fetch_row($result,0);
 			pg_free_result($result);
@@ -163,7 +163,7 @@ a different OID if a database must be reloaded. */
 		if (!is_resource($this->_resultid) || get_resource_type($this->_resultid) !== 'pgsql result') return false;
 		$oid = pg_getlastoid($this->_resultid);
 		// to really return the id, we need the table and column-name, else we can only return the oid != id
-		return empty($table) || empty($column) ? $oid : $this->GetOne("SELECT $column FROM $table WHERE oid=".(int)$oid);
+		return empty($table) || empty($column) ? $oid : $this->GetOne('SELECT $column FROM $table WHERE oid='.(int)$oid);
 	}
 
 // I get this error with PHP before 4.0.6 - jlim
@@ -180,13 +180,13 @@ a different OID if a database must be reloaded. */
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
-		return @pg_Exec($this->_connectionID, "begin ".$this->_transmode);
+		return @pg_Exec($this->_connectionID, 'begin '.$this->_transmode);
 	}
 
 	function RowLock($tables,$where,$col='1 as adodbignore')
 	{
 		if (!$this->transCnt) $this->BeginTrans();
-		return $this->GetOne("select $col from $tables where $where for update");
+		return $this->GetOne('select $col from $tables where $where for update');
 	}
 
 	// returns true/false.
@@ -196,7 +196,7 @@ a different OID if a database must be reloaded. */
 		if (!$ok) return $this->RollbackTrans();
 
 		$this->transCnt -= 1;
-		return @pg_Exec($this->_connectionID, "commit");
+		return @pg_Exec($this->_connectionID, 'commit');
 	}
 
 	// returns true/false
@@ -204,7 +204,7 @@ a different OID if a database must be reloaded. */
 	{
 		if ($this->transOff) return true;
 		$this->transCnt -= 1;
-		return @pg_Exec($this->_connectionID, "rollback");
+		return @pg_Exec($this->_connectionID, 'rollback');
 	}
 
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
@@ -354,7 +354,7 @@ a different OID if a database must be reloaded. */
 	*/
 	function UpdateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
 	{
-		pg_exec ($this->_connectionID, "begin");
+		pg_exec ($this->_connectionID, 'begin');
 
 		$fd = fopen($path,'r');
 		$contents = fread($fd,filesize($path));
@@ -366,7 +366,7 @@ a different OID if a database must be reloaded. */
 		pg_lo_close($handle);
 
 		// $oid = pg_lo_import ($path);
-		pg_exec($this->_connectionID, "commit");
+		pg_exec($this->_connectionID, 'commit');
 		$rs = ADOConnection::UpdateBlob($table,$column,$oid,$where,$blobtype);
 		$rez = !empty($rs);
 		return $rez;
@@ -382,9 +382,9 @@ a different OID if a database must be reloaded. */
 	*/
 	function BlobDelete( $blob )
 	{
-		pg_exec ($this->_connectionID, "begin");
+		pg_exec($this->_connectionID, 'begin');
 		$result = @pg_lo_unlink($blob);
-		pg_exec ($this->_connectionID, "commit");
+		pg_exec($this->_connectionID, 'commit');
 		return( $result );
 	}
 
@@ -413,16 +413,16 @@ a different OID if a database must be reloaded. */
 	{
 		if (!$this->GuessOID($blob)) return $blob;
 
-		if ($hastrans) @pg_exec($this->_connectionID,"begin");
+		if ($hastrans) @pg_exec($this->_connectionID,'begin');
 		$fd = @pg_lo_open($this->_connectionID,$blob,"r");
 		if ($fd === false) {
-			if ($hastrans) @pg_exec($this->_connectionID,"commit");
+			if ($hastrans) @pg_exec($this->_connectionID,'commit');
 			return $blob;
 		}
 		if (!$maxsize) $maxsize = $this->maxblobsize;
 		$realblob = @pg_lo_read($fd,$maxsize);
-		@pg_lo_close($fd);
-		if ($hastrans) @pg_exec($this->_connectionID,"commit");
+		@pg_loclose($fd);
+		if ($hastrans) @pg_exec($this->_connectionID,'commit');
 		return $realblob;
 	}
 
@@ -450,7 +450,7 @@ a different OID if a database must be reloaded. */
 	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
 		if ($blobtype == 'CLOB') {
-			return $this->Execute("UPDATE $table SET $column=" . $this->qstr($val) . " WHERE $where");
+			return $this->Execute('UPDATE $table SET $column=' . $this->qstr($val) . ' WHERE $where');
 		}
 		// do not use bind params which uses qstr(), as blobencode() already quotes data
 		return $this->Execute("UPDATE $table SET $column='".$this->BlobEncode($val)."'::bytea WHERE $where");
@@ -613,7 +613,7 @@ a different OID if a database must be reloaded. */
 		return '$'.$this->_pnum;
 	}
 
-	function MetaIndexes ($table, $primary = FALSE, $owner = false)
+	function MetaIndexes($table, $primary = FALSE, $owner = false)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -815,7 +815,7 @@ a different OID if a database must be reloaded. */
 					$sql .= $v.' $'.$i;
 					$i++;
 				}
-				$s = "PREPARE $plan ($params) AS ".substr($sql,0,strlen($sql)-2);
+				$s = 'PREPARE $plan ($params) AS '.substr($sql,0,strlen($sql)-2);
 				//adodb_pr($s);
 				$rez = pg_exec($this->_connectionID,$s);
 				//echo $this->ErrorMsg();
@@ -912,7 +912,7 @@ a different OID if a database must be reloaded. */
 
 class ADORecordSet_postgres64 extends ADORecordSet{
 	var $_blobArr;
-	var $databaseType = "postgres64";
+	var $databaseType = 'postgres64';
 	var $canSeek = true;
 
 	function __construct($queryID, $mode=false)
