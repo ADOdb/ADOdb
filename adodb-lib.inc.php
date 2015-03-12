@@ -421,8 +421,11 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		}
 	} else {
 		// now replace SELECT ... FROM with SELECT COUNT(*) FROM
-		$rewritesql = preg_replace(
-					'/^\s*SELECT\s.*\s+FROM\s/Uis','SELECT COUNT(*) FROM ',$sql);
+		if ( strpos($sql, '_ADODB_COUNT') !== FALSE ) {
+			$rewritesql = preg_replace('/^\s*?SELECT\s+_ADODB_COUNT(.*)_ADODB_COUNT\s/is','SELECT COUNT(*) ',$sql);
+		} else {
+			$rewritesql = preg_replace('/^\s*?SELECT\s.*?\s+(.*?)\s+FROM\s/is','SELECT COUNT(*) FROM ',$sql);
+		}
 		// fix by alexander zhukov, alex#unipack.ru, because count(*) and 'order by' fails
 		// with mssql, access and postgresql. Also a good speedup optimization - skips sorting!
 		// also see http://phplens.com/lens/lensforum/msgs.php?id=12752
