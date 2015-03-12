@@ -16,6 +16,7 @@ $ADODB_INCLUDED_LIB = 1;
 */
 
 function adodb_strip_order_by($sql)
+{
 	$rez = preg_match('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is', $sql, $arr);
 	if ($arr)
 		if (strpos($arr[1], '(') !== false) {
