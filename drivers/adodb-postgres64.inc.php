@@ -154,10 +154,10 @@ class ADODB_postgres64 extends ADOConnection{
 		return false;
 	}
 
-/* Warning from http://www.php.net/manual/function.pg-getlastoid.php:
-Using a OID as a unique identifier is not generally wise.
-Unless you are very careful, you might end up with a tuple having
-a different OID if a database must be reloaded. */
+	/* Warning from http://www.php.net/manual/function.pg-getlastoid.php:
+	Using a OID as a unique identifier is not generally wise.
+	Unless you are very careful, you might end up with a tuple having
+	a different OID if a database must be reloaded. */
 	function _insertid($table,$column)
 	{
 		if (!is_resource($this->_resultid) || get_resource_type($this->_resultid) !== 'pgsql result') return false;
@@ -166,8 +166,8 @@ a different OID if a database must be reloaded. */
 		return empty($table) || empty($column) ? $oid : $this->GetOne("SELECT $column FROM $table WHERE oid=".(int)$oid);
 	}
 
-// I get this error with PHP before 4.0.6 - jlim
-// Warning: This compilation does not support pg_cmdtuples() in adodb-postgres.inc.php on line 44
+	// I get this error with PHP before 4.0.6 - jlim
+	// Warning: This compilation does not support pg_cmdtuples() in adodb-postgres.inc.php on line 44
 	function _affectedrows()
 	{
 		if (!is_resource($this->_resultid) || get_resource_type($this->_resultid) !== 'pgsql result') return false;
@@ -175,12 +175,12 @@ a different OID if a database must be reloaded. */
 	}
 
 
-		// returns true/false
+	// returns true/false
 	function BeginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
-		return @pg_Exec($this->_connectionID, "begin ".$this->_transmode);
+		return pg_query($this->_connectionID, 'begin '.$this->_transmode);
 	}
 
 	function RowLock($tables,$where,$col='1 as adodbignore')
@@ -196,7 +196,7 @@ a different OID if a database must be reloaded. */
 		if (!$ok) return $this->RollbackTrans();
 
 		$this->transCnt -= 1;
-		return @pg_Exec($this->_connectionID, "commit");
+		return pg_query($this->_connectionID, 'commit');
 	}
 
 	// returns true/false
@@ -204,7 +204,7 @@ a different OID if a database must be reloaded. */
 	{
 		if ($this->transOff) return true;
 		$this->transCnt -= 1;
-		return @pg_Exec($this->_connectionID, "rollback");
+		return pg_query($this->_connectionID, 'rollback');
 	}
 
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
@@ -413,16 +413,16 @@ a different OID if a database must be reloaded. */
 	{
 		if (!$this->GuessOID($blob)) return $blob;
 
-		if ($hastrans) @pg_exec($this->_connectionID,"begin");
-		$fd = @pg_lo_open($this->_connectionID,$blob,"r");
+		if ($hastrans) pg_query($this->_connectionID,'begin');
+		$fd = @pg_lo_open($this->_connectionID,$blob,'r');
 		if ($fd === false) {
-			if ($hastrans) @pg_exec($this->_connectionID,"commit");
+			if ($hastrans) pg_query($this->_connectionID,'commit');
 			return $blob;
 		}
 		if (!$maxsize) $maxsize = $this->maxblobsize;
 		$realblob = @pg_lo_read($fd,$maxsize);
-		@pg_lo_close($fd);
-		if ($hastrans) @pg_exec($this->_connectionID,"commit");
+		@pg_loclose($fd);
+		if ($hastrans) pg_query($this->_connectionID,'commit');
 		return $realblob;
 	}
 
