@@ -415,7 +415,7 @@ class ADODB_postgres64 extends ADOConnection{
 	{
 		if (!$this->GuessOID($blob)) return $blob;
 
-		if ($hastrans) @pg_query($this->_connectionID,'begin');
+		if ($hastrans) pg_query($this->_connectionID,'begin');
 		$fd = @pg_lo_open($this->_connectionID,$blob,'r');
 		if ($fd === false) {
 			if ($hastrans) pg_query($this->_connectionID,'commit');
