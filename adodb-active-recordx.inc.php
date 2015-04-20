@@ -1171,7 +1171,7 @@ class ADODB_Active_Record {
 				}
 			}
 
-			if (isset($this->_original[$i]) && $val == $this->_original[$i]) {
+			if (isset($this->_original[$i]) && $val === $this->_original[$i]) {
 				continue;
 			}
 			$valarr[] = $val;
