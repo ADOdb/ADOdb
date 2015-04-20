@@ -3736,20 +3736,40 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function GetAssocKeys($upper=ADODB_ASSOC_CASE_UPPER) {
 		$this->bind = array();
-		for ($i=0; $i < $this->_numOfFields; $i++) {
-			$o = $this->FetchField($i);
+
+		// Define case conversion function for ASSOC fetch mode
+		if($this->fetchMode & ADODB_FETCH_ASSOC) {
 			switch($upper) {
-				case ADODB_ASSOC_CASE_LOWER:
-					$key = strtolower($o->name);
-					break;
 				case ADODB_ASSOC_CASE_UPPER:
-					$key = strtoupper($o->name);
+					$fn_change_case = 'strtoupper';
+					break;
+				case ADODB_ASSOC_CASE_LOWER:
+					$fn_change_case = 'strtolower';
 					break;
 				case ADODB_ASSOC_CASE_NATIVE:
 				default:
-					$key = $o->name;
+					$fn_change_case = false;
 					break;
 			}
+		}
+
+		// Build the bind array
+		for ($i=0; $i < $this->_numOfFields; $i++) {
+			$o = $this->FetchField($i);
+
+			// Set the array's key
+			if(is_numeric($o->name)) {
+				// Just use the field ID
+				$key = $i;
+			}
+			elseif( $fn_change_case ) {
+				// Convert the key's case
+				$key = $fn_change_case($o->name);
+			}
+			else {
+				$key = $o->name;
+			}
+
 			$val = $this->fetchMode == ADODB_FETCH_ASSOC ? $o->name : $i;
 			$this->bind[$key] = $val;
 		}
