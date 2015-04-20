@@ -6207,6 +6207,16 @@ PHP</a>. </p>
 <p>Convert languages files to UTF-8, thanks to Marc-Etienne Vargenau. See Github #32.
 
 <p><a name=5.19><b>5.19 - 23-Apr-2014</b>
+
+<p><strong>NOTE:</strong>
+    This release suffers from a
+    <a href="https://github.com/ADOdb/ADOdb/issues/20">known issue with Associative Fetch Mode</a>
+    (i.e. when $ADODB_FETCH_MODE is set to ADODB_FETCH_ASSOC).
+    It causes recordsets to return empty strings (no data) when using some database drivers.
+    The problem has been reported on MSSQL, Interbase and Foxpro, but possibly
+    affects other database types as well; all drivers derived from the above are also impacted.
+</p>
+
 <p>adodb: GetRowAssoc will return null as required. See http://phplens.com/lens/lensforum/msgs.php?id=19289
 <p>adodb: Fix GetRowAssoc bug introduced in 5.17, causing function to return data from previous fetch for NULL fields. See http://phplens.com/lens/lensforum/msgs.php?id=17539
 <p>adodb: GetAssoc will return a zero-based array when 2nd column is null. See https://sourceforge.net/p/adodb/bugs/130/
