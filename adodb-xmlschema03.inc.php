@@ -2106,8 +2106,10 @@ class adoSchema {
 				. '<schema version="' . $this->schemaVersion . '">' . "\n";
 		if( is_array( $tables = $this->db->MetaTables( 'TABLES' ,false ,($prefix) ? str_replace('_','\_',$prefix).'%' : '') ) ) {
 			foreach( $tables as $table ) {
-				$schema .= $indent.'<table name="'.htmlentities( $stripprefix ? str_replace($prefix, '', $table): $table ) . '">' . "\n";
-				$schema .= $indent . '<table name="' . htmlentities( $table ) . '">' . "\n";
+				$schema .= $indent
+					. '<table name="'
+					. htmlentities( $stripprefix ? str_replace($prefix, '', $table) : $table )
+					. '">' . "\n";
 
 				// grab details from database
 				$rs = $this->db->Execute( 'SELECT * FROM ' . $table . ' WHERE -1' );
