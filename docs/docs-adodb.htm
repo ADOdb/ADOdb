@@ -864,11 +864,11 @@ for tips on writing portable SQL.</p>
 
 <h2>Feature Requests and Bug Reports<a name=bugs></a></h2>
 
-<p>Feature requests and bug reports should be submitted on 
+<p>Feature requests and bug reports should be submitted on
 <a href="https://github.com/ADOdb/ADOdb/issues">Github</a>.
 </p>
 
-<p>Bug fixes and enhancements can be submitted as 
+<p>Bug fixes and enhancements can be submitted as
 <a href="https://github.com/ADOdb/ADOdb/pulls">Pull Requests</a>.
 </p>
 
@@ -6179,6 +6179,7 @@ PHP</a>. </p>
 <p>adodb: Improve compatability of ADORecordSet_empty, thanks to Sjan Evardsson. See Github #43
 <p>adodb: fix ADODB_Session::open() failing after successful ADONewConnection() call, thanks to Sjan Evardsson. See Github #44
 <p>adodb: Only include memcache library once for PHPUnit 4.x, thanks to Alan Farquharson. See Github #74
+<p>adodb: Move() returns false when given row is &lt; 0, thanks to Mike Benoit.
 <p>datadict: oci8 strict-standards compliance. See Github #18
 <p>memcache: use include_once() to avoid issues with PHPUnit. See http://phplens.com/lens/lensforum/msgs.php?id=19489
 <p>mssqlnative: Use ADOConnection::outp instead of error_log. See Github #12
@@ -6192,6 +6193,7 @@ PHP</a>. </p>
 <p>pdo/mysql: New methods to make the driver behave more like mysql/mysqli, thanks to Andy Theuninck. see Github #40
 <p>postgres: Stop using legacy function aliases
 <p>postgres: Fix AlterColumnSQL when updating multiple columns, thanks to Jouni Ahto. See Github #72
+<p>postgres: Fix support for HHVM 3.6, thanks to Mike Benoit. See Github #87
 <p>postgres7: fix system warning in MetaColumns() with schema. See http://phplens.com/lens/lensforum/msgs.php?id=19481
 <p>sqlite3: ServerInfo() now returns driver's version
 <p>sqlite3: Fix wrong connection parameter in _connect(), thanks to diogotoscano. See Github #51
