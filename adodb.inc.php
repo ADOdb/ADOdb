@@ -126,8 +126,10 @@ if (!defined('_ADODB_LAYER')) {
 			define('ADODB_PHPVER',0x5200);
 		} else if ($_adodb_ver >= 5.0) {
 			define('ADODB_PHPVER',0x5000);
-		} else
+		} else {
 			die("PHP5 or later required. You are running ".PHP_VERSION);
+		}
+		unset($_adodb_ver);
 	}
 
 
