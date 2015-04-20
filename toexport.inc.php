@@ -74,6 +74,7 @@ function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = 
 		$fieldTypes = $rs->FieldTypesArray();
 		reset($fieldTypes);
 		$i = 0;
+		$elements = array();
 		while(list(,$o) = each($fieldTypes)) {
 
 			$v = ($o) ? $o->name : 'Field'.($i++);
