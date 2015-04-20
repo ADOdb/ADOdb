@@ -558,8 +558,11 @@ class ADODB_Active_Record {
 	// So, I find that for myTable, I want to reload an active record after saving it. -- Malcolm Cook
 	function Reload()
 	{
-		$db =& $this->DB(); if (!$db) return false;
-		$table =& $this->TableInfo();
+		$db = $this->DB();
+		if (!$db) {
+			return false;
+		}
+		$table = $this->TableInfo();
 		$where = $this->GenWhere($db, $table);
 		return($this->Load($where));
 	}
