@@ -145,7 +145,7 @@ class ADODB_postgres64 extends ADOConnection{
 	// get the last id - never tested
 	function pg_insert_id($tablename,$fieldname)
 	{
-		$result=pg_exec($this->_connectionID, "SELECT last_value FROM ${tablename}_${fieldname}_seq");
+		$result=pg_query($this->_connectionID, 'SELECT last_value FROM '. $tablename .'_'. $fieldname .'_seq');
 		if ($result) {
 			$arr = @pg_fetch_row($result,0);
 			pg_free_result($result);
@@ -154,10 +154,12 @@ class ADODB_postgres64 extends ADOConnection{
 		return false;
 	}
 
-/* Warning from http://www.php.net/manual/function.pg-getlastoid.php:
-Using a OID as a unique identifier is not generally wise.
-Unless you are very careful, you might end up with a tuple having
-a different OID if a database must be reloaded. */
+	/**
+	 * Warning from http://www.php.net/manual/function.pg-getlastoid.php:
+	 * Using a OID as a unique identifier is not generally wise.
+	 * Unless you are very careful, you might end up with a tuple having
+	 * a different OID if a database must be reloaded.
+	 */
 	function _insertid($table,$column)
 	{
 		if (!is_resource($this->_resultid) || get_resource_type($this->_resultid) !== 'pgsql result') return false;
@@ -166,21 +168,21 @@ a different OID if a database must be reloaded. */
 		return empty($table) || empty($column) ? $oid : $this->GetOne("SELECT $column FROM $table WHERE oid=".(int)$oid);
 	}
 
-// I get this error with PHP before 4.0.6 - jlim
-// Warning: This compilation does not support pg_cmdtuples() in adodb-postgres.inc.php on line 44
 	function _affectedrows()
 	{
 		if (!is_resource($this->_resultid) || get_resource_type($this->_resultid) !== 'pgsql result') return false;
-		return pg_cmdtuples($this->_resultid);
+		return pg_affected_rows($this->_resultid);
 	}
 
 
-		// returns true/false
+	/**
+	 * @return true/false
+	 */
 	function BeginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
-		return @pg_Exec($this->_connectionID, "begin ".$this->_transmode);
+		return pg_query($this->_connectionID, 'begin '.$this->_transmode);
 	}
 
 	function RowLock($tables,$where,$col='1 as adodbignore')
@@ -196,7 +198,7 @@ a different OID if a database must be reloaded. */
 		if (!$ok) return $this->RollbackTrans();
 
 		$this->transCnt -= 1;
-		return @pg_Exec($this->_connectionID, "commit");
+		return pg_query($this->_connectionID, 'commit');
 	}
 
 	// returns true/false
@@ -204,7 +206,7 @@ a different OID if a database must be reloaded. */
 	{
 		if ($this->transOff) return true;
 		$this->transCnt -= 1;
-		return @pg_Exec($this->_connectionID, "rollback");
+		return pg_query($this->_connectionID, 'rollback');
 	}
 
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
@@ -354,7 +356,7 @@ a different OID if a database must be reloaded. */
 	*/
 	function UpdateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
 	{
-		pg_exec ($this->_connectionID, "begin");
+		pg_query($this->_connectionID, 'begin');
 
 		$fd = fopen($path,'r');
 		$contents = fread($fd,filesize($path));
@@ -366,7 +368,7 @@ a different OID if a database must be reloaded. */
 		pg_lo_close($handle);
 
 		// $oid = pg_lo_import ($path);
-		pg_exec($this->_connectionID, "commit");
+		pg_query($this->_connectionID, 'commit');
 		$rs = ADOConnection::UpdateBlob($table,$column,$oid,$where,$blobtype);
 		$rez = !empty($rs);
 		return $rez;
@@ -382,9 +384,9 @@ a different OID if a database must be reloaded. */
 	*/
 	function BlobDelete( $blob )
 	{
-		pg_exec ($this->_connectionID, "begin");
+		pg_query($this->_connectionID, 'begin');
 		$result = @pg_lo_unlink($blob);
-		pg_exec ($this->_connectionID, "commit");
+		pg_query($this->_connectionID, 'commit');
 		return( $result );
 	}
 
@@ -413,16 +415,16 @@ a different OID if a database must be reloaded. */
 	{
 		if (!$this->GuessOID($blob)) return $blob;
 
-		if ($hastrans) @pg_exec($this->_connectionID,"begin");
-		$fd = @pg_lo_open($this->_connectionID,$blob,"r");
+		if ($hastrans) pg_query($this->_connectionID,'begin');
+		$fd = @pg_lo_open($this->_connectionID,$blob,'r');
 		if ($fd === false) {
-			if ($hastrans) @pg_exec($this->_connectionID,"commit");
+			if ($hastrans) pg_query($this->_connectionID,'commit');
 			return $blob;
 		}
 		if (!$maxsize) $maxsize = $this->maxblobsize;
 		$realblob = @pg_lo_read($fd,$maxsize);
-		@pg_lo_close($fd);
-		if ($hastrans) @pg_exec($this->_connectionID,"commit");
+		@pg_loclose($fd);
+		if ($hastrans) pg_query($this->_connectionID,'commit');
 		return $realblob;
 	}
 
@@ -773,9 +775,6 @@ a different OID if a database must be reloaded. */
 
 			with plan = 1.51861286163 secs
 			no plan =   1.26903700829 secs
-
-
-
 		*/
 			$plan = 'P'.md5($sql);
 
@@ -793,7 +792,7 @@ a different OID if a database must be reloaded. */
 			else $exsql = "EXECUTE $plan";
 
 
-			$rez = @pg_exec($this->_connectionID,$exsql);
+			$rez = @pg_execute($this->_connectionID,$exsql);
 			if (!$rez) {
 			# Perhaps plan does not exist? Prepare/compile plan.
 				$params = '';
@@ -817,14 +816,14 @@ a different OID if a database must be reloaded. */
 				}
 				$s = "PREPARE $plan ($params) AS ".substr($sql,0,strlen($sql)-2);
 				//adodb_pr($s);
-				$rez = pg_exec($this->_connectionID,$s);
+				$rez = pg_execute($this->_connectionID,$s);
 				//echo $this->ErrorMsg();
 			}
 			if ($rez)
-				$rez = pg_exec($this->_connectionID,$exsql);
+				$rez = pg_execute($this->_connectionID,$exsql);
 		} else {
 			//adodb_backtrace();
-			$rez = pg_exec($this->_connectionID,$sql);
+			$rez = pg_query($this->_connectionID,$sql);
 		}
 		// check if no data returned, then no need to create real recordset
 		if ($rez && pg_num_fields($rez) <= 0) {
