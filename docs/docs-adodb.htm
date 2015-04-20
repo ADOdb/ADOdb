@@ -4577,9 +4577,6 @@ UPDATE based on $mode (see below). </p>
      DB_AUTOQUERY_UPDATE </li>
 </ul>
 
-<p>You have to define the constants DB_AUTOQUERY_UPDATE and DB_AUTOQUERY_INSERT
-yourself or include adodb-pear.inc.php. </p>
-
 <p>The $where clause is required if $mode == 'UPDATE'. If $forceUpdate=false
 then we will query the database first and check if the field value returned by
 the query matches the current field value; only if they differ do we update

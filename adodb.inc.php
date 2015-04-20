@@ -120,6 +120,14 @@ if (!defined('_ADODB_LAYER')) {
 			define('TIMESTAMP_FIRST_YEAR',100);
 		}
 
+		/**
+		 * AutoExecute constants
+		 * (moved from adodb-pear.inc.php since they are only used in here)
+		 */
+		define('DB_AUTOQUERY_INSERT', 1);
+		define('DB_AUTOQUERY_UPDATE', 2);
+
+
 		// PHP's version scheme makes converting to numbers difficult - workaround
 		$_adodb_ver = (float) PHP_VERSION;
 		if ($_adodb_ver >= 5.2) {
