@@ -1847,8 +1847,9 @@ if (!defined('_ADODB_LAYER')) {
 	function CacheFlush($sql=false,$inputarr=false) {
 		global $ADODB_CACHE_DIR, $ADODB_CACHE;
 
+		# Create cache if it does not exist
 		if (empty($ADODB_CACHE)) {
-			return false;
+			$this->_CreateCache();
 		}
 
 		if (!$sql) {
