@@ -6179,8 +6179,11 @@ PHP</a>. </p>
 <p>adodb: Move() returns false when given row is &lt; 0, thanks to Mike Benoit.
 <p>adodb: Add support for pagination with complex queries, thanks to Mike Benoit. See Github #88
 <p>adodb: Parse port out of hostname if specified in connection parameters, thanks to Andy Theuninck. See Github #63
+<p>adodb: Fix inability to set values from 0 to null (and vice versa) with Active Record, thanks to Louis Johnson. See Github #71
 <p>adodb: Fix PHP strict warning in ADODB_Active_Record::Reload(), thanks to Boštjan Žokš. See Github #75
 <p>adodb: Add mssql's DATETIME2 type to ADOConnection::MetaType(), thanks to MarcelTO. See Github #80
+<p>adodb: When flushing cache, initialize it if it is not set, thanks to Paul Haggart. See Github #57
+<p>adodb: Define DB_AUTOQUERY_* constants in main include file. See Github #49
 <p>datadict: oci8 strict-standards compliance. See Github #18
 <p>memcache: use include_once() to avoid issues with PHPUnit. See http://phplens.com/lens/lensforum/msgs.php?id=19489
 <p>mssqlnative: Use ADOConnection::outp instead of error_log. See Github #12
@@ -6189,7 +6192,7 @@ PHP</a>. </p>
 <p>mysql: workaround for HHVM behavior, thanks to MikeB
 <p>mysqli: Fix qstr() when called without an active connection. See Github #11
 <p>oci8: Fix broken quoting of table name in AddColumnSQL and AlterColumnSQL, thanks to Andreas Fernandez. see Github #67
-<p>pdo: Added missing property. see Github #56
+<p>pdo: Added missing property (fixes PHP notices). see Github #56
 <p>pdo: Align method signatures with parent class, thanks to Andy Theuninck. see Github #62
 <p>pdo: new sqlsrv driver, thanks to MarcelTO. See Github #81
 <p>pdo/mysql: New methods to make the driver behave more like mysql/mysqli, thanks to Andy Theuninck. see Github #40
