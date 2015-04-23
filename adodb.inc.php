@@ -3735,6 +3735,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *                   (see ADODB_ASSOC_CASE_xxx constants)
 	 */
 	function GetAssocKeys($upper=ADODB_ASSOC_CASE_UPPER) {
+		if ($this->bind) {
+			return;
+		}
 		$this->bind = array();
 
 		// Define case conversion function for ASSOC fetch mode
@@ -3784,9 +3787,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function GetRowAssoc($upper=ADODB_ASSOC_CASE_UPPER) {
 		$record = array();
-		if (!$this->bind) {
-			$this->GetAssocKeys($upper);
-		}
+		$this->GetAssocKeys($upper);
+
 		foreach($this->bind as $k => $v) {
 			if( array_key_exists( $v, $this->fields ) ) {
 				$record[$k] = $this->fields[$v];
