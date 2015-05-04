@@ -86,45 +86,75 @@ if (!defined('_ADODB_LAYER')) {
 	// ********************************************************
 
 
-		if (!defined('ADODB_BAD_RS')) define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
+
+
+		define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
 
 	// allow [ ] @ ` " and . in table names
-		if (!defined('ADODB_TABLE_REGEX')) define('ADODB_TABLE_REGEX','([]0-9a-z_\:\"\`\.\@\[-]*)');
+		define('ADODB_TABLE_REGEX','([]0-9a-z_\:\"\`\.\@\[-]*)');
 
 	// prefetching used by oracle
-		if (!defined('ADODB_PREFETCH_ROWS')) define('ADODB_PREFETCH_ROWS',10);
+		if (!defined('ADODB_PREFETCH_ROWS')) {
+			define('ADODB_PREFETCH_ROWS',10);
+		}
 
 
-	/*
-	Controls ADODB_FETCH_ASSOC field-name case. Default is 2, use native case-names.
-	This currently works only with mssql, odbc, oci8po and ibase derived drivers.
+	/**
+	 * Fetch mode
+	 *
+	 * Set global variable $ADODB_FETCH_MODE to one of these constants or use
+	 * the SetFetchMode() method to control how recordset fields are returned
+	 * when fetching data.
+	 *
+	 *   - NUM:     array()
+	 *   - ASSOC:   array('id' => 456, 'name' => 'john')
+	 *   - BOTH:    array(0 => 456, 'id' => 456, 1 => 'john', 'name' => 'john')
+	 *   - DEFAULT: driver-dependent
+	 */
+		define('ADODB_FETCH_DEFAULT', 0);
+		define('ADODB_FETCH_NUM', 1);
+		define('ADODB_FETCH_ASSOC', 2);
+		define('ADODB_FETCH_BOTH', 3);
 
-		0 = assoc lowercase field names. $rs->fields['orderid']
-		1 = assoc uppercase field names. $rs->fields['ORDERID']
-		2 = use native-case field names. $rs->fields['OrderID']
-	*/
+	/**
+	 * Associative array case constants
+	 *
+	 * By defining the ADODB_ASSOC_CASE constant to one of these values, it is
+	 * possible to control the case of field names (associative array's keys)
+	 * when operating in ADODB_FETCH_ASSOC fetch mode.
+	 *   - LOWER:  $rs->fields['orderid']
+	 *   - UPPER:  $rs->fields['ORDERID']
+	 *   - NATIVE: $rs->fields['OrderID'] (or whatever the RDBMS will return)
+	 * The default is to use native case-names.
+	 * NOTE: This functionality is not implemented everywhere, it currently
+	 * works only with: mssql, odbc, oci8 and ibase derived drivers
+	 */
 		define('ADODB_ASSOC_CASE_LOWER', 0);
 		define('ADODB_ASSOC_CASE_UPPER', 1);
 		define('ADODB_ASSOC_CASE_NATIVE', 2);
 
-		if (!defined('ADODB_FETCH_DEFAULT')) define('ADODB_FETCH_DEFAULT',0);
-		if (!defined('ADODB_FETCH_NUM')) define('ADODB_FETCH_NUM',1);
-		if (!defined('ADODB_FETCH_ASSOC')) define('ADODB_FETCH_ASSOC',2);
-		if (!defined('ADODB_FETCH_BOTH')) define('ADODB_FETCH_BOTH',3);
-
-		if (!defined('TIMESTAMP_FIRST_YEAR')) define('TIMESTAMP_FIRST_YEAR',100);
-
-		if (!defined('ADODB_PHPVER')) {
-		// PHP's version scheme makes converting to numbers difficult - workaround
-			$_adodb_ver = (float) PHP_VERSION;
-			if ($_adodb_ver >= 5.2) {
-				define('ADODB_PHPVER',0x5200);
-			} else if ($_adodb_ver >= 5.0) {
-				define('ADODB_PHPVER',0x5000);
-			} else {
-				die("PHP5 or later required. You are running ".PHP_VERSION);
-			}
+		if (!defined('TIMESTAMP_FIRST_YEAR')) {
+			define('TIMESTAMP_FIRST_YEAR',100);
 		}
+
+		/**
+		 * AutoExecute constants
+		 * (moved from adodb-pear.inc.php since they are only used in here)
+		 */
+		define('DB_AUTOQUERY_INSERT', 1);
+		define('DB_AUTOQUERY_UPDATE', 2);
+
+
+		// PHP's version scheme makes converting to numbers difficult - workaround
+		$_adodb_ver = (float) PHP_VERSION;
+		if ($_adodb_ver >= 5.2) {
+			define('ADODB_PHPVER',0x5200);
+		} else if ($_adodb_ver >= 5.0) {
+			define('ADODB_PHPVER',0x5000);
+		} else {
+			die("PHP5 or later required. You are running ".PHP_VERSION);
+		}
+		unset($_adodb_ver);
 	}
 
 
@@ -568,6 +598,9 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
+		if ( strpos($this->host, ':') > 0 && isset($this->port) ) {
+			list($this->host, $this->port) = explode(":", $this->host, 2);
+        	}
 		if ($argUsername != "") {
 			$this->user = $argUsername;
 		}
@@ -648,6 +681,9 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
+		if ( strpos($this->host, ':') > 0 && isset($this->port) ) {
+			list($this->host, $this->port) = explode(":", $this->host, 2);
+	        }
 		if ($argUsername != "") {
 			$this->user = $argUsername;
 		}
@@ -1838,8 +1874,9 @@ if (!defined('_ADODB_LAYER')) {
 	function CacheFlush($sql=false,$inputarr=false) {
 		global $ADODB_CACHE_DIR, $ADODB_CACHE;
 
+		# Create cache if it does not exist
 		if (empty($ADODB_CACHE)) {
-			return false;
+			$this->_CreateCache();
 		}
 
 		if (!$sql) {
@@ -4022,6 +4059,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			'TIME' => 'T',
 			'TIMESTAMP' => 'T',
 			'DATETIME' => 'T',
+			'DATETIME2' => 'T',
 			'TIMESTAMPTZ' => 'T',
 			'T' => 'T',
 			'TIMESTAMP WITHOUT TIME ZONE' => 'T', // postgresql

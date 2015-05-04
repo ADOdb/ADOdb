@@ -105,32 +105,22 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	// lowercase field names...
 	function _FetchField($fieldOffset = -1)
 	{
-		 $fld = new ADOFieldObject;
- 		 $fieldOffset += 1;
-		 $fld->name = OCIcolumnname($this->_queryID, $fieldOffset);
-		 if (ADODB_ASSOC_CASE == 0) $fld->name = strtolower($fld->name);
-		 $fld->type = OCIcolumntype($this->_queryID, $fieldOffset);
-		 $fld->max_length = OCIcolumnsize($this->_queryID, $fieldOffset);
-		 if ($fld->type == 'NUMBER') {
-		 	//$p = OCIColumnPrecision($this->_queryID, $fieldOffset);
+		$fld = new ADOFieldObject;
+		$fieldOffset += 1;
+		$fld->name = OCIcolumnname($this->_queryID, $fieldOffset);
+		if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
+			$fld->name = strtolower($fld->name);
+		}
+		$fld->type = OCIcolumntype($this->_queryID, $fieldOffset);
+		$fld->max_length = OCIcolumnsize($this->_queryID, $fieldOffset);
+		if ($fld->type == 'NUMBER') {
 			$sc = OCIColumnScale($this->_queryID, $fieldOffset);
-			if ($sc == 0) $fld->type = 'INT';
-		 }
-		 return $fld;
+			if ($sc == 0) {
+				$fld->type = 'INT';
+			}
+		}
+		return $fld;
 	}
-	/*
-	function MoveNext()
-	{
-		if (@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode)) {
-			$this->_currentRow += 1;
-			return true;
-		}
-		if (!$this->EOF) {
-			$this->_currentRow += 1;
-			$this->EOF = true;
-		}
-		return false;
-	}*/
 
 	// 10% speedup to move MoveNext to child class
 	function MoveNext()
@@ -203,16 +193,16 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 
 	function _fetch()
 	{
-		$ret = @OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode);
-		if ($ret) {
 		global $ADODB_ANSI_PADDING_OFF;
 
-				if ($this->fetchMode & OCI_ASSOC) $this->_updatefields();
-				if (!empty($ADODB_ANSI_PADDING_OFF)) {
-					foreach($this->fields as $k => $v) {
-						if (is_string($v)) $this->fields[$k] = rtrim($v);
-					}
+		$ret = @OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode);
+		if ($ret) {
+			if ($this->fetchMode & OCI_ASSOC) $this->_updatefields();
+			if (!empty($ADODB_ANSI_PADDING_OFF)) {
+				foreach($this->fields as $k => $v) {
+					if (is_string($v)) $this->fields[$k] = rtrim($v);
 				}
+			}
 		}
 		return $ret;
 	}

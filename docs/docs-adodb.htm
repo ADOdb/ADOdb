@@ -864,11 +864,11 @@ for tips on writing portable SQL.</p>
 
 <h2>Feature Requests and Bug Reports<a name=bugs></a></h2>
 
-<p>Feature requests and bug reports should be submitted on 
+<p>Feature requests and bug reports should be submitted on
 <a href="https://github.com/ADOdb/ADOdb/issues">Github</a>.
 </p>
 
-<p>Bug fixes and enhancements can be submitted as 
+<p>Bug fixes and enhancements can be submitted as
 <a href="https://github.com/ADOdb/ADOdb/pulls">Pull Requests</a>.
 </p>
 
@@ -884,14 +884,14 @@ customize the connection settings correctly. You can debug using <i>$db-&gt;debu
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>&lt;?php<br>
-<span style='mso-tab-count:1'>†††††††† </span>include('adodb/adodb.inc.php');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db = <a href="#adonewconnection">ADONewConnection</a>($dbdriver); # eg 'mysql' or 'postgres'<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db-&gt;debug = true;<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db-&gt;<a href="#connect">Connect</a>($server, $user, $password, $database);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs = $db-&gt;<a href="#execute">Execute</a>('select * from some_small_table');<br>
-<span style='mso-tab-count:1'>†††††††† </span>print &quot;&lt;pre&gt;&quot;;<br>
-<span style='mso-tab-count:1'>†††††††† </span>print_r($rs-&gt;<a href="#getrows">GetRows</a>());<br>
-<span style='mso-tab-count:1'>†††††††† </span>print &quot;&lt;/pre&gt;&quot;;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>include('adodb/adodb.inc.php');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db = <a href="#adonewconnection">ADONewConnection</a>($dbdriver); # eg 'mysql' or 'postgres'<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;debug = true;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;<a href="#connect">Connect</a>($server, $user, $password, $database);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs = $db-&gt;<a href="#execute">Execute</a>('select * from some_small_table');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print &quot;&lt;pre&gt;&quot;;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($rs-&gt;<a href="#getrows">GetRows</a>());<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print &quot;&lt;/pre&gt;&quot;;<br>
 ?&gt;</pre></div>
 
 <h3>Minimum Install<a name=mininstall></a></h3>
@@ -982,24 +982,24 @@ format is: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$driver://$username:$password@hostname/$database?options[=value]</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$driver://$username:$password@hostname/$database?options[=value]</pre></div>
 
 <p>NewADOConnection() calls Connect() or PConnect() internally for you. If the
 connection fails, false is returned. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-tab-count:1'>†††††††† </span><span style='color:green'># non-persistent connection</span></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$dsn = 'mysql://root:pwd@localhost/mydb'; </pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db = NewADOConnection($dsn);</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>if (!$db) die(&quot;Connection failed&quot;);<span style='mso-spacerun:yes'>†† </span></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span></pre><pre><span style='mso-tab-count:
-1'>†††††††† </span><span style='color:green'># no need to call connect/pconnect!</span></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$arr = $db-&gt;GetArray(&quot;select * from table&quot;);</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span></pre><pre><span style='mso-tab-count:
-1'>†††††††† </span><span style='color:green'># persistent connection</span></pre>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='color:green'># non-persistent connection</span></pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = 'mysql://root:pwd@localhost/mydb'; </pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db = NewADOConnection($dsn);</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>if (!$db) die(&quot;Connection failed&quot;);<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span></pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='color:green'># no need to call connect/pconnect!</span></pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$arr = $db-&gt;GetArray(&quot;select * from table&quot;);</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='color:green'># persistent connection</span></pre>
 <pre><span
-style='mso-tab-count:1'>†††††††† </span>$dsn2 = 'mysql://root:pwd@localhost/mydb?persist';
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn2 = 'mysql://root:pwd@localhost/mydb?persist';
 <span
 style='mso-tab-count:1'></span></pre>
 <pre><span style='mso-tab-count:
@@ -1013,9 +1013,9 @@ rawurlencode them first: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-tab-count:1'>†††††††† </span>$pwd = rawurlencode($pwd);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$dsn = &quot;mysql://root:$pwd@localhost/mydb&quot;;</pre><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$dsn2=rawurlencode(&quot;sybase_ase&quot;).&quot;://user:pass@host/path?query&quot;;</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$pwd = rawurlencode($pwd);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = &quot;mysql://root:$pwd@localhost/mydb&quot;;</pre><pre
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn2=rawurlencode(&quot;sybase_ase&quot;).&quot;://user:pass@host/path?query&quot;;</pre></div>
 
 <p>Legal options are: </p>
 
@@ -1113,25 +1113,25 @@ straightforward, and the parameters are identical to mysql_connect:</span></p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span>$conn = &amp;ADONewConnection('mysql'); <br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;PConnect('localhost','userid','password','database');<br>
-<span style='mso-tab-count:1'>†††††††† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span></span><span style='mso-bookmark:
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = &amp;ADONewConnection('mysql'); <br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;PConnect('localhost','userid','password','database');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><span style='mso-bookmark:
 connect_ex'><span style='color:green'># or dsn </span></span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span>$dsn = 'mysql://user:pwd@localhost/mydb'; </span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>† </span># no need for Connect()</span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span></span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span></span><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = 'mysql://user:pwd@localhost/mydb'; </span></pre><pre><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>&nbsp; </span># no need for Connect()</span></pre><pre><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span></pre><pre><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><span
 style='mso-bookmark:connect_ex'><span style='color:green'># or persistent dsn</span></span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span>$dsn = 'mysql://user:pwd@localhost/mydb?persist'; </span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>† </span># no need for PConnect()</span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span></span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span></span><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = 'mysql://user:pwd@localhost/mydb?persist'; </span></pre><pre><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>&nbsp; </span># no need for PConnect()</span></pre><pre><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span></pre><pre><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></span><span
 style='mso-bookmark:connect_ex'><span style='color:green'># a more complex example:</span></span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span>$pwd = urlencode($pwd);</span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span>$flags =<span style='mso-spacerun:yes'>† </span>MYSQL_CLIENT_COMPRESS;</span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span>$dsn = &quot;mysql://user:$pwd@localhost/mydb?persist&amp;clientflags=$flags&quot;;</span></pre><pre><span
-style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>†††††††† </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>† </span># no need for PConnect()</span></pre><pre
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$pwd = urlencode($pwd);</span></pre><pre><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$flags =<span style='mso-spacerun:yes'>&nbsp; </span>MYSQL_CLIENT_COMPRESS;</span></pre><pre><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = &quot;mysql://user:$pwd@localhost/mydb?persist&amp;clientflags=$flags&quot;;</span></pre><pre><span
+style='mso-bookmark:connect_ex'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>&nbsp; </span># no need for PConnect()</span></pre><pre
 style='background:#EEEEEE'><span style='mso-bookmark:connect_ex'> </span></pre></div>
 
 <p><span style='mso-bookmark:connect_ex'>For most drivers, you can use the
@@ -1147,17 +1147,17 @@ driver specific connection string: </span></p>
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
 style='mso-bookmark:pdo'><o:p>&nbsp;</o:p></span></pre><pre><span
-style='mso-bookmark:pdo'><span style='mso-tab-count:1'>†††††††† </span>$conn =&amp; NewADConnection('pdo');</span></pre><pre><span
-style='mso-bookmark:pdo'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect('mysql:host=localhost',$user,$pwd,$mydb);</span></pre><pre><span
-style='mso-bookmark:pdo'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect('mysql:host=localhost;dbname=mydb',$user,$pwd);</span></pre><pre><span
-style='mso-bookmark:pdo'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect(&quot;mysql:host=localhost;dbname=mydb;username=$user;password=$pwd&quot;);</span></pre></div>
+style='mso-bookmark:pdo'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn =&amp; NewADConnection('pdo');</span></pre><pre><span
+style='mso-bookmark:pdo'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect('mysql:host=localhost',$user,$pwd,$mydb);</span></pre><pre><span
+style='mso-bookmark:pdo'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect('mysql:host=localhost;dbname=mydb',$user,$pwd);</span></pre><pre><span
+style='mso-bookmark:pdo'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect(&quot;mysql:host=localhost;dbname=mydb;username=$user;password=$pwd&quot;);</span></pre></div>
 
 <p><span style='mso-bookmark:pdo'>The DSN mechanism is also supported: </span></p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
 style='mso-bookmark:pdo'><o:p>&nbsp;</o:p></span></pre><pre><span
-style='mso-bookmark:pdo'><span style='mso-tab-count:1'>†††††††† </span>$conn =&amp; NewADConnection(&quot;pdo_mysql://user:pwd@localhost/mydb?persist&quot;); # persist is optional</span></pre></div>
+style='mso-bookmark:pdo'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn =&amp; NewADConnection(&quot;pdo_mysql://user:pwd@localhost/mydb?persist&quot;); # persist is optional</span></pre></div>
 
 <h4><span style='mso-bookmark:pdo'>PostgreSQL</span></h4>
 
@@ -1169,24 +1169,24 @@ style='mso-bookmark:pdo'><span style='mso-tab-count:1'>†††††††† </span>$conn =&a
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'><span style='mso-bookmark:pdo'><span
-style='mso-tab-count:1'>†††††††† </span>$conn = &amp;ADONewConnection('postgres');<span style='mso-spacerun:yes'>† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;PConnect('host=localhost port=5432 dbname=mary');</span></pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = &amp;ADONewConnection('postgres');<span style='mso-spacerun:yes'>&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;PConnect('host=localhost port=5432 dbname=mary');</span></pre></div>
 
 <p><span style='mso-bookmark:pdo'>b. the classical 4 parameters:</span></p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'><span style='mso-bookmark:pdo'><span
-style='mso-tab-count:1'>†††††††† </span>$conn-&gt;PConnect('localhost','userid','password','database');<br>
-<span style='mso-spacerun:yes'>†</span></span></pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;PConnect('localhost','userid','password','database');<br>
+<span style='mso-spacerun:yes'>&nbsp;</span></span></pre></div>
 
 <p><span style='mso-bookmark:pdo'>c. dsn: </span></p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-bookmark:pdo'><span style='mso-tab-count:1'>†††††††† </span>$dsn = 'postgres://user:pwd@localhost/mydb?persist';<span style='mso-spacerun:yes'>† </span># persist is optional</span></pre><pre
+style='mso-bookmark:pdo'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = 'postgres://user:pwd@localhost/mydb?persist';<span style='mso-spacerun:yes'>&nbsp; </span># persist is optional</span></pre><pre
 style='background:#EEEEEE'><span style='mso-bookmark:pdo'><span
-style='mso-tab-count:1'>†††††††† </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>† </span># no need for Connect/PConnect</span></pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>&nbsp; </span># no need for Connect/PConnect</span></pre></div>
 
 <span style='mso-bookmark:pdo'></span>
 
@@ -1197,23 +1197,23 @@ the driver and this example: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre>require('/path/to/adodb.inc.php');</pre><pre><o:p>&nbsp;</o:p></pre><pre>/* Make sure to set this BEFORE calling Connect() */</pre><pre>$LDAP_CONNECT_OPTIONS = Array(</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_DEREF, &quot;OPTION_VALUE&quot;=&gt;2),</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_SIZELIMIT,&quot;OPTION_VALUE&quot;=&gt;100),</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_TIMELIMIT,&quot;OPTION_VALUE&quot;=&gt;30),</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_PROTOCOL_VERSION,&quot;OPTION_VALUE&quot;=&gt;3),</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_ERROR_NUMBER,&quot;OPTION_VALUE&quot;=&gt;13),</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_REFERRALS,&quot;OPTION_VALUE&quot;=&gt;FALSE),</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_RESTART,&quot;OPTION_VALUE&quot;=&gt;FALSE)</pre><pre>);</pre><pre>$host = 'ldap.baylor.edu';</pre><pre>$ldapbase = 'ou=People,o=<st1:place
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_DEREF, &quot;OPTION_VALUE&quot;=&gt;2),</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_SIZELIMIT,&quot;OPTION_VALUE&quot;=&gt;100),</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_TIMELIMIT,&quot;OPTION_VALUE&quot;=&gt;30),</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_PROTOCOL_VERSION,&quot;OPTION_VALUE&quot;=&gt;3),</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_ERROR_NUMBER,&quot;OPTION_VALUE&quot;=&gt;13),</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_REFERRALS,&quot;OPTION_VALUE&quot;=&gt;FALSE),</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>Array (&quot;OPTION_NAME&quot;=&gt;LDAP_OPT_RESTART,&quot;OPTION_VALUE&quot;=&gt;FALSE)</pre><pre>);</pre><pre>$host = 'ldap.baylor.edu';</pre><pre>$ldapbase = 'ou=People,o=<st1:place
 w:st="on"><st1:PlaceName w:st="on">Baylor</st1:PlaceName> <st1:PlaceType w:st="on">University</st1:PlaceType></st1:place>,c=US';</pre><pre><o:p>&nbsp;</o:p></pre><pre>$ldap = NewADOConnection( 'ldap' );</pre><pre>$ldap-&gt;Connect( $host, $user_name='', $password='', $ldapbase );</pre><pre><o:p>&nbsp;</o:p></pre><pre>echo &quot;&lt;pre&gt;&quot;;</pre><pre><o:p>&nbsp;</o:p></pre><pre>print_r( $ldap-&gt;ServerInfo() );</pre><pre>$ldap-&gt;SetFetchMode(ADODB_FETCH_ASSOC);</pre><pre>$userName = 'eldridge';</pre><pre>$filter=&quot;(|(CN=$userName*)(sn=$userName*)(givenname=$userName*)(uid=$userName*))&quot;;</pre><pre><o:p>&nbsp;</o:p></pre><pre>$rs = $ldap-&gt;Execute( $filter );</pre><pre>if ($rs)</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>while ($arr = $rs-&gt;FetchRow()) {</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span><span style='mso-spacerun:yes'>†††† </span>print_r($arr);<span
-style='mso-tab-count:1'>†††††† </span></pre><pre><span style='mso-tab-count:
-1'>†††††††† </span>}</pre><pre><o:p>&nbsp;</o:p></pre><pre>$rs = $ldap-&gt;Execute( $filter );</pre><pre>if ($rs) </pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>while (!$rs-&gt;EOF) {</pre><pre> <span
-style='mso-tab-count:2'>††††††††††††††† </span>print_r($rs-&gt;fields);<span
-style='mso-tab-count:1'>†††† </span></pre><pre><span style='mso-tab-count:2'>†††††††††††††††† </span>$rs-&gt;MoveNext();</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>} </pre><pre><span style='mso-tab-count:
-1'>†††††††† </span></pre><pre>print_r( $ldap-&gt;GetArray( $filter ) );</pre><pre>print_r( $ldap-&gt;GetRow( $filter ) );</pre><pre><o:p>&nbsp;</o:p></pre><pre>$ldap-&gt;Close();</pre><pre>echo &quot;&lt;/pre&gt;&quot;;</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>while ($arr = $rs-&gt;FetchRow()) {</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($arr);<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>}</pre><pre><o:p>&nbsp;</o:p></pre><pre>$rs = $ldap-&gt;Execute( $filter );</pre><pre>if ($rs) </pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>while (!$rs-&gt;EOF) {</pre><pre> <span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($rs-&gt;fields);<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs-&gt;MoveNext();</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>} </pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre>print_r( $ldap-&gt;GetArray( $filter ) );</pre><pre>print_r( $ldap-&gt;GetRow( $filter ) );</pre><pre><o:p>&nbsp;</o:p></pre><pre>$ldap-&gt;Close();</pre><pre>echo &quot;&lt;/pre&gt;&quot;;</pre></div>
 
 <p>Using DSN: </p>
 
@@ -1227,15 +1227,15 @@ w:st="on"><st1:PlaceName w:st="on">Baylor</st1:PlaceName> <st1:PlaceType w:st="o
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$conn = &amp;ADONewConnection('ibase'); <br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;PConnect('localhost:c:\ibase\employee.gdb','sysdba','masterkey');</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = &amp;ADONewConnection('ibase'); <br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;PConnect('localhost:c:\ibase\employee.gdb','sysdba','masterkey');</pre></div>
 
 <p>Or dsn: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$dsn = 'firebird://user:pwd@localhost/mydb?persist&amp;dialect=3';<span style='mso-spacerun:yes'>† </span># persist is optional<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>† </span># no need for Connect/PConnect</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = 'firebird://user:pwd@localhost/mydb?persist&amp;dialect=3';<span style='mso-spacerun:yes'>&nbsp; </span># persist is optional<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>&nbsp; </span># no need for Connect/PConnect</pre></div>
 
 <h4>SQLite</h4>
 
@@ -1243,16 +1243,16 @@ style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$dsn = 
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-tab-count:1'>†††††††† </span>$conn = &amp;ADONewConnection('sqlite');</pre><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;PConnect('c:\path\to\sqlite.db'); # sqlite will create if does not exist</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = &amp;ADONewConnection('sqlite');</pre><pre
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;PConnect('c:\path\to\sqlite.db'); # sqlite will create if does not exist</pre></div>
 
 <p>Or dsn: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-tab-count:1'>†††††††† </span>$path = urlencode('c:\path\to\sqlite.db');</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$dsn = &quot;sqlite://$path/?persist&quot;;<span style='mso-spacerun:yes'>† </span># persist is optional</pre><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>† </span># no need for Connect/PConnect</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$path = urlencode('c:\path\to\sqlite.db');</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = &quot;sqlite://$path/?persist&quot;;<span style='mso-spacerun:yes'>&nbsp; </span># persist is optional</pre><pre
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>&nbsp; </span># no need for Connect/PConnect</pre></div>
 
 <h4>Oracle (oci8)</h4>
 
@@ -1263,71 +1263,71 @@ newer versions of the Oracle, eg. 9i and 10g.</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect(false, 'scott', 'tiger');</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect(false, 'scott', 'tiger');</pre></div>
 
 <p>b. TNS Name defined in tnsnames.ora (or ONAMES or HOSTNAMES), eg. 'myTNS'</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;PConnect(false, 'scott', 'tiger', 'myTNS');</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;PConnect(false, 'scott', 'tiger', 'myTNS');</pre></div>
 
 <p>or</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†</span><span
-style='mso-tab-count:1'>††††††† </span>$conn-&gt;PConnect('myTNS', 'scott', 'tiger');</pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;</span><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;PConnect('myTNS', 'scott', 'tiger');</pre></div>
 
 <p>c. Host Address and SID</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span># with adodb 5.06 or 4.991 and later</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', &quot;SID=$SID&quot;);</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span></pre><pre><span style='mso-tab-count:
-1'>†††††††† </span># OR with all versions of ADOdb</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$conn-&gt;connectSID = true;</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', $SID);</pre><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span></pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># with adodb 5.06 or 4.991 and later</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', &quot;SID=$SID&quot;);</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># OR with all versions of ADOdb</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;connectSID = true;</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', $SID);</pre><pre
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre></div>
 
 <p>d. Host Address and Service Name</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', 'servicename');</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect('192.168.0.1', 'scott', 'tiger', 'servicename');</pre></div>
 
 <p>e. Oracle connection string: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$cstr = &quot;(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))<br>
-<span style='mso-tab-count:3'>††††††††††††††††††††††††† </span>(CONNECT_DATA=(SID=$sid)))&quot;;<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect($cstr, 'scott', 'tiger');</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$cstr = &quot;(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=$host)(PORT=$port))<br>
+<span style='mso-tab-count:3'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>(CONNECT_DATA=(SID=$sid)))&quot;;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect($cstr, 'scott', 'tiger');</pre></div>
 
 <p>f. ADOdb dsn: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$dsn = 'oci8://user:pwd@tnsname/?persist';<span style='mso-spacerun:yes'>† </span># persist is optional<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>† </span># no need for Connect/PConnect<br>
-<span style='mso-tab-count:1'>†††††††† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span>$dsn = 'oci8://user:pwd@host/sid';<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn = ADONewConnection($dsn);<br>
-<span style='mso-tab-count:1'>†††††††† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span>$dsn = 'oci8://user:pwd@/';<span style='mso-spacerun:yes'>†† </span># oracle on local machine<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn = ADONewConnection($dsn);</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = 'oci8://user:pwd@tnsname/?persist';<span style='mso-spacerun:yes'>&nbsp; </span># persist is optional<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = ADONewConnection($dsn);<span style='mso-spacerun:yes'>&nbsp; </span># no need for Connect/PConnect<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = 'oci8://user:pwd@host/sid';<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = ADONewConnection($dsn);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = 'oci8://user:pwd@/';<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># oracle on local machine<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn = ADONewConnection($dsn);</pre></div>
 
 <p>You can also set the charSet for Oracle 9.2 and later, supported since PHP
 4.3.2, ADOdb 4.54: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;charSet = 'we8iso8859p1';<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect(...);<br>
-<span style='mso-tab-count:1'>†††††††† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span># or<br>
-<span style='mso-tab-count:1'>†††††††† </span>$dsn = 'oci8://user:pwd@tnsname/?charset=WE8MSWIN1252';<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db = ADONewConnection($dsn);</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;charSet = 'we8iso8859p1';<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect(...);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># or<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = 'oci8://user:pwd@tnsname/?charset=WE8MSWIN1252';<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db = ADONewConnection($dsn);</pre></div>
 
 <h4><a name=dsnless></a>DSN-less ODBC ( Access, MSSQL and DB2 examples)</h4>
 
@@ -1339,37 +1339,37 @@ later. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db =&amp; ADONewConnection('access');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$dsn = <strong><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db =&amp; ADONewConnection('access');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = <strong><span
 style='font-family:"Courier New"'>&quot;Driver={Microsoft Access Driver (*.mdb)};Dbq=d:\\northwind.mdb;Uid=Admin;Pwd=;&quot;;</span></strong></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db-&gt;Connect($dsn);</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Connect($dsn);</pre></div>
 
 <p class=MsoNormal>For Microsoft SQL Server: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$db =&amp; ADONewConnection('odbc_mssql');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$dsn = <strong><span
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db =&amp; ADONewConnection('odbc_mssql');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = <strong><span
 style='font-family:"Courier New"'>&quot;Driver={SQL Server};Server=localhost;Database=northwind;&quot;</span></strong>;<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db-&gt;Connect($dsn,'userid','password');</pre></div>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Connect($dsn,'userid','password');</pre></div>
 
 <p class=MsoNormal>or if you prefer to use the mssql extension (which is
 limited to mssql 6.5 functionality): </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$db =&amp; ADONewConnection('mssql');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db-&gt;Execute('localhost', 'userid', 'password', 'northwind');</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db =&amp; ADONewConnection('mssql');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Execute('localhost', 'userid', 'password', 'northwind');</pre></div>
 
 <p class=MsoNormal>For DB2: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$dbms = 'db2'; # or 'odbc_db2' if db2 extension not available</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db =&amp; ADONewConnection($dbms);</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$dsn = &quot;driver={IBM db2 odbc DRIVER};Database=sample;hostname=localhost;port=50000;protocol=TCPIP;&quot;.</pre><pre><span
-style='mso-tab-count:4'>†††††††††††††††††††††††††††††††††† </span>&quot;uid=root; pwd=secret&quot;;<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db-&gt;Connect($dsn);<br>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dbms = 'db2'; # or 'odbc_db2' if db2 extension not available</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db =&amp; ADONewConnection($dbms);</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$dsn = &quot;driver={IBM db2 odbc DRIVER};Database=sample;hostname=localhost;port=50000;protocol=TCPIP;&quot;.</pre><pre><span
+style='mso-tab-count:4'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&quot;uid=root; pwd=secret&quot;;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Connect($dsn);<br>
 		  # or connect and set schema
 		  $db-&gt;Connect($dsn,null,null,$schema);</pre>
 </div>
@@ -1383,17 +1383,17 @@ Microsoft's <st1:City w:st="on"><st1:place w:st="on">ADO</st1:place></st1:City>:
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre>&lt;?php<br>
-<span style='mso-tab-count:1'>†††††††† </span>include('adodb.inc.php'); <br>
-<span style='mso-tab-count:1'>†††††††† </span>$db = &amp;ADONewConnection(&quot;ado_mssql&quot;);<br>
-<span style='mso-tab-count:1'>†††††††† </span>print &quot;&lt;h1&gt;Connecting DSN-less $db-&gt;databaseType...&lt;/h1&gt;&quot;;<br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span><b>$myDSN=&quot;PROVIDER=MSDASQL;DRIVER={SQL Server};&quot;<br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>. &quot;SERVER=flipper;DATABASE=ai;UID=sa;PWD=;&quot;<span style='mso-spacerun:yes'>† </span>;</b></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db-&gt;Connect($myDSN);</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span></pre><pre><span style='mso-tab-count:
-1'>†††††††† </span>$rs = $db-&gt;Execute(&quot;select * from table&quot;);</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$arr = $rs-&gt;GetArray();</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>print_r($arr);</pre><pre>?&gt;</pre></div>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>include('adodb.inc.php'); <br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db = &amp;ADONewConnection(&quot;ado_mssql&quot;);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print &quot;&lt;h1&gt;Connecting DSN-less $db-&gt;databaseType...&lt;/h1&gt;&quot;;<br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>$myDSN=&quot;PROVIDER=MSDASQL;DRIVER={SQL Server};&quot;<br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>. &quot;SERVER=flipper;DATABASE=ai;UID=sa;PWD=;&quot;<span style='mso-spacerun:yes'>&nbsp; </span>;</b></pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Connect($myDSN);</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs = $db-&gt;Execute(&quot;select * from table&quot;);</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$arr = $rs-&gt;GetArray();</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($arr);</pre><pre>?&gt;</pre></div>
 
 <h2><a name=speed></a>High Speed ADOdb - tuning tips</h2>
 
@@ -1456,8 +1456,8 @@ Turck MMCache, Zend Accelerator or ionCube.</p>
   mso-border-alt:solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;
   background:#EEEEEE'><pre style='background:#EEEEEE'>$rs =&amp; $rs-&gt;Execute($sql);<br>
 while (!$rs-&gt;EOF) {<br>
-  <span style='mso-tab-count:1'>†††††††† </span>var_dump($rs-&gt;fields);<br>
-  <span style='mso-tab-count:1'>†††††††† </span>$rs-&gt;MoveNext();<br>
+  <span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>var_dump($rs-&gt;fields);<br>
+  <span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs-&gt;MoveNext();<br>
 }</pre></div>
   </td>
   <td style='padding:.75pt .75pt .75pt .75pt'>
@@ -1517,31 +1517,31 @@ as the recordset classes. </p>
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>class hack_mysql extends adodb_mysql {<br>
 var $rsPrefix = 'hack_rs_';<br>
-<span style='mso-spacerun:yes'>† </span>/* Your mods here */<br>
+<span style='mso-spacerun:yes'>&nbsp; </span>/* Your mods here */<br>
 }<br>
 <br>
 class hack_rs_mysql extends ADORecordSet_mysql {<br>
-<span style='mso-tab-count:1'>†††††††† </span><span style='mso-spacerun:yes'>†</span>/* Your mods here */<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp;</span>/* Your mods here */<br>
 }<br>
 <br>
 class hack_postgres7 extends adodb_postgres7 {<br>
 var $rsPrefix = 'hack_rs_';<br>
-<span style='mso-spacerun:yes'>† </span>/* Your mods here */<br>
+<span style='mso-spacerun:yes'>&nbsp; </span>/* Your mods here */<br>
 }<br>
 <br>
 class hack_rs_postgres7 extends ADORecordSet_postgres7 {<br>
-<span style='mso-spacerun:yes'>†</span>/* Your mods here */<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>/* Your mods here */<br>
 }<br>
 <br>
 $ADODB_NEWCONNECTION = 'hack_factory';<br>
 <br>
 function&amp; hack_factory($driver)<br>
 {<br>
-<span style='mso-tab-count:1'>†††††††† </span>if ($driver !== 'mysql' &amp;&amp; $driver !== 'postgres7') return false;<br>
-<span style='mso-tab-count:1'>†††††††† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span>$driver = 'hack_'.$driver;<br>
-<span style='mso-tab-count:1'>†††††††† </span>$obj = new $driver();<br>
-<span style='mso-tab-count:1'>†††††††† </span>return $obj;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>if ($driver !== 'mysql' &amp;&amp; $driver !== 'postgres7') return false;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$driver = 'hack_'.$driver;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$obj = new $driver();<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>return $obj;<br>
 }<br>
 <br>
 include_once('adodb.inc.php');</pre></div>
@@ -1572,11 +1572,11 @@ available: </p>
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE;
 margin-left:36.0pt;margin-right:0cm'><pre style='background:#EEEEEE'><span
-style='mso-tab-count:1'>† </span>$ADODB_FETCH_MODE = ADODB_FETCH_NUM;<br>
-<span style='mso-tab-count:1'>† </span>$rs = $db-&gt;Execute($sql);<br>
-<span style='mso-tab-count:1'>† </span>foreach($rs as $k =&gt; $row) {<br>
-<span style='mso-tab-count:2'>†††††††††† </span>echo &quot;r1=&quot;.$row[0].&quot; r2=&quot;.$row[1].&quot;&lt;br&gt;&quot;;<br>
-<span style='mso-tab-count:1'>† </span>}</pre></div>
+style='mso-tab-count:1'>&nbsp; </span>$ADODB_FETCH_MODE = ADODB_FETCH_NUM;<br>
+<span style='mso-tab-count:1'>&nbsp; </span>$rs = $db-&gt;Execute($sql);<br>
+<span style='mso-tab-count:1'>&nbsp; </span>foreach($rs as $k =&gt; $row) {<br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>echo &quot;r1=&quot;.$row[0].&quot; r2=&quot;.$row[1].&quot;&lt;br&gt;&quot;;<br>
+<span style='mso-tab-count:1'>&nbsp; </span>}</pre></div>
 
 <ul type=disc>
  <li class=MsoNormal style='mso-margin-top-alt:auto;mso-margin-bottom-alt:auto;
@@ -1588,16 +1588,16 @@ style='mso-tab-count:1'>† </span>$ADODB_FETCH_MODE = ADODB_FETCH_NUM;<br>
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE;
 margin-left:36.0pt;margin-right:0cm'><pre style='background:#EEEEEE'><span
-style='mso-tab-count:1'>† </span><b>include(&quot;../adodb-exceptions.inc.php&quot;);</b> <br>
-<span style='mso-tab-count:1'>† </span>include(&quot;../adodb.inc.php&quot;);<span
-style='mso-tab-count:1'>†††††† </span> <br>
-<span style='mso-tab-count:1'>† </span>try { <br>
-<span style='mso-tab-count:2'>†††††††††† </span>$db = NewADOConnection(&quot;oci8&quot;); <br>
-<span style='mso-tab-count:2'>†††††††††† </span>$db-&gt;Connect('','scott','bad-password'); <br>
-<span style='mso-tab-count:1'>† </span>} catch (exception $e) { <br>
-<span style='mso-tab-count:2'>†††††††††† </span>var_dump($e); <br>
-<span style='mso-tab-count:2'>†††††††††† </span>adodb_backtrace($e-&gt;gettrace());<br>
-<span style='mso-tab-count:1'>† </span>} </pre></div>
+style='mso-tab-count:1'>&nbsp; </span><b>include(&quot;../adodb-exceptions.inc.php&quot;);</b> <br>
+<span style='mso-tab-count:1'>&nbsp; </span>include(&quot;../adodb.inc.php&quot;);<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span> <br>
+<span style='mso-tab-count:1'>&nbsp; </span>try { <br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db = NewADOConnection(&quot;oci8&quot;); <br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Connect('','scott','bad-password'); <br>
+<span style='mso-tab-count:1'>&nbsp; </span>} catch (exception $e) { <br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>var_dump($e); <br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>adodb_backtrace($e-&gt;gettrace());<br>
+<span style='mso-tab-count:1'>&nbsp; </span>} </pre></div>
 
 <p style='margin-left:36.0pt'>Note that reaching EOF is <b>not</b> considered
 an error nor an exception. </p>
@@ -2632,19 +2632,19 @@ which allows us to limit the number of rows shown. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre>&lt;?<br>
-<b>include</b>('adodb.inc.php');<span style='mso-tab-count:1'> </span><span style='mso-spacerun:yes'>†† </span># load code common to ADOdb<br>
+<b>include</b>('adodb.inc.php');<span style='mso-tab-count:1'> </span><span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># load code common to ADOdb<br>
 $<span style='color:#660000'>conn</span> = &amp;ADONewConnection('access');<span
-style='mso-tab-count:1'>††††††† </span># create a connection<br>
-$<span style='color:#660000'>conn</span>-&gt;PConnect('northwind');<span style='mso-spacerun:yes'>†† </span># connect to MS-Access, northwind DSN<br>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># create a connection<br>
+$<span style='color:#660000'>conn</span>-&gt;PConnect('northwind');<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># connect to MS-Access, northwind DSN<br>
 $<span style='color:#660000'>recordSet</span> = &amp;$<span style='color:#660000'>conn</span>-&gt;Execute('select * from products');<br>
 if (!$<span style='color:#660000'>recordSet</span>) <br>
-<span style='mso-tab-count:1'>†††††††† </span>print $<span style='color:#660000'>conn</span>-&gt;ErrorMsg();<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print $<span style='color:#660000'>conn</span>-&gt;ErrorMsg();<br>
 else<br>
 <b>while</b> (!$<span style='color:#660000'>recordSet</span>-&gt;EOF) {<br>
-<span style='mso-tab-count:1'>†††††††† </span><b>print</b> $<span
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>print</b> $<span
 style='color:#660000'>recordSet</span>-&gt;fields[0].' '.$<span
 style='color:#660000'>recordSet</span>-&gt;fields[1].'&lt;BR&gt;';<br>
-<span style='mso-tab-count:1'>†††††††† </span>$<span style='color:#660000'>recordSet</span>-&gt;MoveNext();<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$<span style='color:#660000'>recordSet</span>-&gt;MoveNext();<br>
 }</pre><pre><o:p>&nbsp;</o:p></pre><pre>$<span style='color:#660000'>recordSet</span>-&gt;Close(); # optional<br>
 $<span style='color:#660000'>conn</span>-&gt;Close(); # optional<br
 style='mso-special-character:line-break'>
@@ -2668,12 +2668,12 @@ created in Execute() or SelectLimit(). </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db-&gt;SetFetchMode(ADODB_FETCH_NUM);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs1 = $db-&gt;Execute('select * from table');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db-&gt;SetFetchMode(ADODB_FETCH_ASSOC);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs2 = $db-&gt;Execute('select * from table');<br>
-<span style='mso-tab-count:1'>†††††††† </span>print_r($rs1-&gt;fields); # shows <i>array([0]=&gt;'v0',[1] =&gt;'v1')</i></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>print_r($rs2-&gt;fields); # shows <i>array(['col1']=&gt;'v0',['col2'] =&gt;'v1')</i></pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;SetFetchMode(ADODB_FETCH_NUM);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs1 = $db-&gt;Execute('select * from table');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;SetFetchMode(ADODB_FETCH_ASSOC);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs2 = $db-&gt;Execute('select * from table');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($rs1-&gt;fields); # shows <i>array([0]=&gt;'v0',[1] =&gt;'v1')</i></pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($rs2-&gt;fields); # shows <i>array(['col1']=&gt;'v0',['col2'] =&gt;'v1')</i></pre></div>
 
 <p>To get the number of rows in the select statement, you can use <span
 style='font-family:"Courier New"'>$recordSet-&gt;<a href="#recordcount">RecordCount</a>()</span>.
@@ -2687,35 +2687,35 @@ date or timestamp, reformat the date to <st1:country-region w:st="on"><st1:place
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre>&lt;?<br>
-<b>include</b>('adodb.inc.php');<span style='mso-tab-count:1'> </span><span style='mso-spacerun:yes'>†† </span># load code common to ADOdb<br>
+<b>include</b>('adodb.inc.php');<span style='mso-tab-count:1'> </span><span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># load code common to ADOdb<br>
 $<span style='color:#660000'>conn</span> = &amp;ADONewConnection('access');<span
-style='mso-tab-count:1'>††††††† </span># create a connection<br>
-$<span style='color:#660000'>conn</span>-&gt;PConnect('northwind');<span style='mso-spacerun:yes'>†† </span># connect to MS-Access, northwind dsn<br>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># create a connection<br>
+$<span style='color:#660000'>conn</span>-&gt;PConnect('northwind');<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># connect to MS-Access, northwind dsn<br>
 $<span style='color:#660000'>recordSet</span> = &amp;$<span style='color:#660000'>conn</span>-&gt;Execute('select CustomerID,OrderDate from Orders');<br>
 if (!$<span style='color:#660000'>recordSet</span>) <br>
-<span style='mso-tab-count:1'>†††††††† </span>print $<span style='color:#660000'>conn</span>-&gt;ErrorMsg();<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print $<span style='color:#660000'>conn</span>-&gt;ErrorMsg();<br>
 else<br>
 <b>while</b> (!$<span style='color:#660000'>recordSet</span>-&gt;EOF) {<br>
-<span style='mso-tab-count:1'>†††††††† </span>$<span style='color:#660000'>fld</span> = <b><span
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$<span style='color:#660000'>fld</span> = <b><span
 style='color:#336600'>$</span></b><span style='color:#660000'>recordSet</span><b><span
 style='color:#336600'>-&gt;FetchField</span></b><span style='color:#006600'>(</span>1<span
-style='color:#006600'>);</span></pre><pre><span style='mso-tab-count:1'>†††††††† </span>$<span
+style='color:#006600'>);</span></pre><pre><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$<span
 style='color:#660000'>type</span> = <b><span style='color:#336600'>$</span></b><span
 style='color:#660000'>recordSet</span><b><span style='color:#336600'>-&gt;MetaType</span></b>($fld-&gt;type);<br>
 <br>
-<span style='mso-tab-count:1'>†††††††† </span><b>if</b> ( $<span
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>if</b> ( $<span
 style='color:#660000'>type</span> == 'D' || $<span style='color:#660000'>type</span> == 'T') <br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span><b>print</b> $<span
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>print</b> $<span
 style='color:#660000'>recordSet</span>-&gt;fields[0].' '.<br>
-<span style='mso-tab-count:3'>††††††††††††††††††††††††† </span><b><span
+<span style='mso-tab-count:3'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b><span
 style='color:#336600'>$</span></b><span style='color:#660000'>recordSet</span><b><span
 style='color:#336600'>-&gt;UserDate</span></b>($<span style='color:#660000'>recordSet</span>-&gt;fields[1],'<b>m/d/Y</b>').'&lt;BR&gt;';<br>
-<span style='mso-tab-count:1'>†††††††† </span><b>else </b></pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><b>print</b> $<span
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>else </b></pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>print</b> $<span
 style='color:#660000'>recordSet</span>-&gt;fields[0].' '.$<span
 style='color:#660000'>recordSet</span>-&gt;fields[1].'&lt;BR&gt;';<br>
 <br>
-<span style='mso-tab-count:1'>†††††††† </span>$<span style='color:#660000'>recordSet</span>-&gt;MoveNext();<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$<span style='color:#660000'>recordSet</span>-&gt;MoveNext();<br>
 }</pre><pre>$<span style='color:#660000'>recordSet</span>-&gt;Close(); # optional<br>
 $<span style='color:#660000'>conn</span>-&gt;Close(); # optional<br
 style='mso-special-character:line-break'>
@@ -2788,11 +2788,11 @@ the word <i>John's</i>.</p>
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>&lt;?<br>
-<b>include</b>('adodb.inc.php');<span style='mso-tab-count:1'> </span><span style='mso-spacerun:yes'>†† </span># load code common to ADOdb<br>
+<b>include</b>('adodb.inc.php');<span style='mso-tab-count:1'> </span><span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># load code common to ADOdb<br>
 $<span style='color:#660000'>conn</span> = &amp;ADONewConnection('access');<span
-style='mso-tab-count:1'>††††††† </span># create a connection<br>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># create a connection<br>
 <br>
-$<span style='color:#660000'>conn</span>-&gt;PConnect('northwind');<span style='mso-spacerun:yes'>†† </span># connect to MS-Access, northwind dsn<br>
+$<span style='color:#660000'>conn</span>-&gt;PConnect('northwind');<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># connect to MS-Access, northwind dsn<br>
 $<span style='color:#660000'>shipto</span> = <b><span style='color:#006600'>$conn-&gt;qstr</span></b>(&quot;<i>John's Old Shoppe</i>&quot;);<br>
 <br>
 $<span style='color:#660000'>sql</span> = &quot;insert into orders (customerID,EmployeeID,OrderDate,ShipName) &quot;;<br>
@@ -2803,7 +2803,7 @@ style='color:#660000'>shipto</span>)&quot;;<br>
 <br>
 <b>if</b> ($<span style='color:#660000'>conn</span>-&gt;Execute($<span
 style='color:#660000'>sql</span>) <b><span style='color:#336600'>=== false</span></b>) {<br>
-<span style='mso-tab-count:1'>†††††††† </span><b>print</b> 'error inserting: '.<b><span
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>print</b> 'error inserting: '.<b><span
 style='color:#336600'>$conn-&gt;ErrorMsg()</span></b>.'&lt;BR&gt;';<br>
 }<br>
 ?&gt;</pre></div>
@@ -2827,10 +2827,10 @@ saved.</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre>&lt;?<br>
-<b>include</b>('adodb.inc.php');<span style='mso-tab-count:1'> </span><span style='mso-spacerun:yes'>†† </span># load code common to ADOdb<br>
+<b>include</b>('adodb.inc.php');<span style='mso-tab-count:1'> </span><span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># load code common to ADOdb<br>
 $<span style='color:#663300'>conn</span> = &amp;ADONewConnection('access');<span
-style='mso-tab-count:1'>††††††† </span># create a connection<br>
-$<span style='color:#663300'>conn</span>-&gt;PConnect('northwind');<span style='mso-spacerun:yes'>†† </span># connect to MS-Access, northwind dsn<br>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># create a connection<br>
+$<span style='color:#663300'>conn</span>-&gt;PConnect('northwind');<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># connect to MS-Access, northwind dsn<br>
 $<span style='color:#663300'>shipto</span> = <b>$conn-&gt;qstr</b>(&quot;John's Old Shoppe&quot;);<br>
 $<span style='color:#663300'>sql</span> = &quot;insert into orders (customerID,EmployeeID,OrderDate,ShipName) &quot;;<br>
 $<span style='color:#663300'>sql</span> .= &quot;values ('ANATR',2,&quot;.$<span
@@ -2858,7 +2858,7 @@ and the value to send back to the server is in the 2nd column.</p>
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>&lt;?<br>
 <b>include</b>('adodb.inc.php'); # load code common to ADOdb<br>
-$<span style='color:#663300'>conn</span> = &amp;ADONewConnection('mysql');<span style='mso-spacerun:yes'>† </span># create a connection<br>
+$<span style='color:#663300'>conn</span> = &amp;ADONewConnection('mysql');<span style='mso-spacerun:yes'>&nbsp; </span># create a connection<br>
 $<span style='color:#663300'>conn</span>-&gt;PConnect('localhost','userid','','agora');# connect to MySQL, agora db<br>
 $<span style='color:#663300'>sql</span> = 'select CustomerName, CustomerID from customers';<br>
 $<span style='color:#663300'>rs</span> = $<span style='color:#663300'>conn</span>-&gt;Execute($sql);<br>
@@ -2879,8 +2879,8 @@ key being the first column: <a href="#getassoc1">GetAssoc</a>().</p>
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>&lt;?<br>
 <b>include</b>('adodb.inc.php');<span style='mso-tab-count:1'> </span> # load code common to ADOdb<br>
-$<span style='color:#663300'>conn1</span> = &amp;ADONewConnection('mysql');<span style='mso-spacerun:yes'>† </span># create a mysql connection<br>
-$<span style='color:#663300'>conn2</span> = &amp;ADONewConnection('oracle');<span style='mso-spacerun:yes'>† </span># create a oracle connection<br>
+$<span style='color:#663300'>conn1</span> = &amp;ADONewConnection('mysql');<span style='mso-spacerun:yes'>&nbsp; </span># create a mysql connection<br>
+$<span style='color:#663300'>conn2</span> = &amp;ADONewConnection('oracle');<span style='mso-spacerun:yes'>&nbsp; </span># create a oracle connection<br>
 <br>
 $conn1-&gt;PConnect($server, $userid, $password, $database);<br>
 $conn2-&gt;PConnect(false, $ora_userid, $ora_pwd, $oraname);<br>
@@ -2897,12 +2897,12 @@ which simplifies things by providing an advanced wrapper for GetInsertSQL() and
 GetUpdateSQL(). For example, an INSERT can be carried out with: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
-solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span style='mso-spacerun:yes'>††† </span>$record[&quot;firstname&quot;] = &quot;Bob&quot;; </pre><pre><span style='mso-spacerun:yes'>††††</span>$record[&quot;lastname&quot;] = &quot;Smith&quot;; </pre><pre><span style='mso-spacerun:yes'>††††</span>$record[&quot;created&quot;] = time(); </pre><pre><span style='mso-spacerun:yes'>††††</span>$insertSQL = $conn-&gt;AutoExecute($rs, $record, 'INSERT'); </pre></div>
+solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>$record[&quot;firstname&quot;] = &quot;Bob&quot;; </pre><pre><span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;</span>$record[&quot;lastname&quot;] = &quot;Smith&quot;; </pre><pre><span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;</span>$record[&quot;created&quot;] = time(); </pre><pre><span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;</span>$insertSQL = $conn-&gt;AutoExecute($rs, $record, 'INSERT'); </pre></div>
 
 <p class=MsoNormal>and an UPDATE with: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
-solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span style='mso-spacerun:yes'>††† </span>$record[&quot;firstname&quot;] = &quot;Caroline&quot;; </pre><pre><span style='mso-spacerun:yes'>††††</span>$record[&quot;lastname&quot;] = &quot;Smith&quot;; # Update Caroline's lastname from Miranda to Smith </pre><pre><span style='mso-spacerun:yes'>††††</span>$insertSQL = $conn-&gt;AutoExecute($rs, $record, 'UPDATE', 'id = 1'); </pre></div>
+solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>$record[&quot;firstname&quot;] = &quot;Caroline&quot;; </pre><pre><span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;</span>$record[&quot;lastname&quot;] = &quot;Smith&quot;; # Update Caroline's lastname from Miranda to Smith </pre><pre><span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;</span>$insertSQL = $conn-&gt;AutoExecute($rs, $record, 'UPDATE', 'id = 1'); </pre></div>
 
 <p>The rest of this section is out-of-date: </p>
 
@@ -2935,7 +2935,7 @@ include('tohtml.inc.php');<br>
 $sql = &quot;SELECT * FROM ADOXYZ WHERE id = -1&quot;; <br>
 # Select an empty record from the database<br>
 <br>
-$conn = &amp;ADONewConnection(&quot;mysql&quot;);<span style='mso-spacerun:yes'>† </span># create a connection<br>
+$conn = &amp;ADONewConnection(&quot;mysql&quot;);<span style='mso-spacerun:yes'>&nbsp; </span># create a connection<br>
 $conn-&gt;debug=1;<br>
 $conn-&gt;PConnect(&quot;localhost&quot;, &quot;admin&quot;, &quot;&quot;, &quot;test&quot;); # connect to MySQL, testdb<br>
 $rs = $conn-&gt;Execute($sql); # Execute the query and get the empty recordset<br>
@@ -2993,7 +2993,7 @@ style='background:#EEEEEE'>0 = ignore empty fields. All empty fields in array ar
 1 = force null. All empty, php null and string 'null' fields are changed to sql NULL values.<br>
 2 = force empty. All empty, php null and string 'null' fields are changed to sql empty '' or 0 values.<br>
 3 = force value. Value is left as it is. Php null and string 'null' are set to sql NULL values and <br>
-<span style='mso-spacerun:yes'>††† </span>empty fields '' are set to empty '' sql values.<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>empty fields '' are set to empty '' sql values.<br>
 <br>
 define('ADODB_FORCE_IGNORE',0);<br>
 define('ADODB_FORCE_NULL',1);<br>
@@ -3151,8 +3151,8 @@ databases): </p>
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>$sql = 'select id as &quot;ID&quot;, firstname as &quot;First Name&quot;, <br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>lastname as &quot;Last Name&quot;, created as &quot;Date Created&quot; <br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>from adoxyz';</pre></div>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>lastname as &quot;Last Name&quot;, created as &quot;Date Created&quot; <br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>from adoxyz';</pre></div>
 
 <p>The above code can be found in the <i>adodb/tests/testpaging.php</i> example
 included with this release, and the class ADODB_Pager in <i>adodb/adodb-pager.inc.php</i>.
@@ -3163,7 +3163,7 @@ interesting colors. </p>
 <p>You can also allow display of html by setting $pager-&gt;htmlSpecialChars =
 false. </p>
 
-<p>Some of the code used here was contributed by Iv·n Oliva and Cornel G. </p>
+<p>Some of the code used here was contributed by Iv√°n Oliva and Cornel G. </p>
 
 <h3><a name=ex9></a>Example 9: Exporting in CSV or Tab-Delimited Format</h3>
 
@@ -3190,8 +3190,8 @@ font-family:"Courier New"'>print '&lt;hr&gt;';<br>
 <br>
 $rs-&gt;MoveFirst(); # note, some databases do not support MoveFirst<br>
 print <b>rs2tab</b>($rs,<i>false</i>); # return a string, tab-delimited<br>
-<span style='mso-tab-count:6'>††††††††††††††††††††††††††††††††††††††††††††††††††† </span><span
-style='mso-spacerun:yes'>†</span># false == suppress field names in first line<o:p></o:p></span></p>
+<span style='mso-tab-count:6'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
+style='mso-spacerun:yes'>&nbsp;</span># false == suppress field names in first line<o:p></o:p></span></p>
 
 <pre style='background:#EEEEEE'>print '&lt;hr&gt;';<br>
 $rs-&gt;MoveFirst();<br>
@@ -3201,8 +3201,8 @@ print &quot;&lt;/pre&gt;&quot;;<br>
 $rs-&gt;MoveFirst();<br>
 $fp = fopen($path, &quot;w&quot;);<br>
 if ($fp) {<br>
-<span style='mso-spacerun:yes'>† </span><b>rs2csvfile</b>($rs, $fp); # write to file (there is also an rs2tabfile function)<br>
-<span style='mso-spacerun:yes'>† </span>fclose($fp);<br>
+<span style='mso-spacerun:yes'>&nbsp; </span><b>rs2csvfile</b>($rs, $fp); # write to file (there is also an rs2tabfile function)<br>
+<span style='mso-spacerun:yes'>&nbsp; </span>fclose($fp);<br>
 }</pre></div>
 
 <p>Carriage-returns or newlines are converted to spaces. Field names are
@@ -3227,9 +3227,9 @@ include_once('adodb/adodb.inc.php');<br>
 // ucwords() every element in the recordset<br>
 function do_ucwords(&amp;$arr,$rs)<br>
 {<br>
-<span style='mso-tab-count:1'>†††††††† </span>foreach($arr as $k =&gt; $v) {<br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>$arr[$k] = ucwords($v);<br>
-<span style='mso-tab-count:1'>†††††††† </span>}<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>foreach($arr as $k =&gt; $v) {<br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$arr[$k] = ucwords($v);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>}<br>
 }<br>
 <br>
 $db = NewADOConnection('mysql');<br>
@@ -3293,9 +3293,9 @@ is executed. In contrast, BeginTrans/CommitTrans/RollbackTrans is NOT nestable.
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre>$conn-&gt;<strong><span
 style='font-family:"Courier New"'>StartTrans</span></strong>();<br>
 $conn-&gt;Execute($sql);<br>
-<span style='mso-spacerun:yes'>† </span>$conn-&gt;<strong><span
-style='font-family:"Courier New"'>StartTrans</span></strong>();<span style='mso-spacerun:yes'>††† </span><span
-style='color:#006600'># ignored</span></pre><pre><span style='mso-spacerun:yes'>† </span>if (!CheckRecords()) $conn-&gt;FailTrans();</pre><pre><span style='mso-spacerun:yes'>† </span>$conn-&gt;<strong><span
+<span style='mso-spacerun:yes'>&nbsp; </span>$conn-&gt;<strong><span
+style='font-family:"Courier New"'>StartTrans</span></strong>();<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span><span
+style='color:#006600'># ignored</span></pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>if (!CheckRecords()) $conn-&gt;FailTrans();</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>$conn-&gt;<strong><span
 style='font-family:"Courier New"'>CompleteTrans</span></strong>(); <span
 style='color:#006600'># ignored</span></pre><pre>$conn-&gt;Execute($Sql2);</pre><pre
 style='background:#EEEEEE'>$conn-&gt;<strong><span style='font-family:"Courier New"'>CompleteTrans</span></strong>();</pre></div>
@@ -3309,15 +3309,15 @@ and you can now catch exceptions on errors as they occur. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span><b>include(&quot;../adodb-exceptions.inc.php&quot;);</b> <br>
-<span style='mso-tab-count:1'>†††††††† </span>include(&quot;../adodb.inc.php&quot;);<span
-style='mso-tab-count:1'>†††††† </span> <br>
-<span style='mso-tab-count:1'>†††††††† </span>try { <br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>$db = NewADOConnection(&quot;oci8://scott:bad-password@mytns/&quot;); <br>
-<span style='mso-tab-count:1'>†††††††† </span>} catch (exception $e) { <br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>var_dump($e); <br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>adodb_backtrace($e-&gt;gettrace());<br>
-<span style='mso-tab-count:1'>†††††††† </span>} </pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>include(&quot;../adodb-exceptions.inc.php&quot;);</b> <br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>include(&quot;../adodb.inc.php&quot;);<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span> <br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>try { <br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db = NewADOConnection(&quot;oci8://scott:bad-password@mytns/&quot;); <br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>} catch (exception $e) { <br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>var_dump($e); <br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>adodb_backtrace($e-&gt;gettrace());<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>} </pre></div>
 
 <p>ADOdb also provides two custom handlers which you can modify for your needs.
 The first one is in the <b>adodb-errorhandler.inc.php</b> file. This makes use
@@ -3368,7 +3368,7 @@ include('adodb-errorhandler.inc.php');</b></pre><pre>include('adodb.inc.php');</
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>(2001-10-28 14:20:38) mysql error: [1146: Table 'northwind.productsz' doesn't exist] in<br>
-<span style='mso-spacerun:yes'>†</span>EXECUTE(&quot;select * from productsz&quot;)</pre></div>
+<span style='mso-spacerun:yes'>&nbsp;</span>EXECUTE(&quot;select * from productsz&quot;)</pre></div>
 
 <h3>PEAR_ERROR</h3>
 
@@ -3379,8 +3379,8 @@ PEAR_Error object created can be retrieved using ADODB_Pear_Error(). </p>
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre>&lt;?php<br>
 <b>include('adodb-errorpear.inc.php');</b></pre><pre>include('adodb.inc.php');</pre><pre>include('tohtml.inc.php');</pre><pre>$c = NewADOConnection('mysql');</pre><pre>$c-&gt;PConnect('localhost','root','','northwind');</pre><pre>$rs=$c-&gt;Execute('select * from productsz'); #invalid table productsz');</pre><pre>if ($rs) rs2html($rs);</pre><pre>else {</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span><b>$e = ADODB_Pear_Error();<br>
-<span style='mso-tab-count:1'>†††††††† </span>echo '&lt;p&gt;',$e-&gt;message,'&lt;/p&gt;';</b></pre><pre>}</pre><pre>?&gt;</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>$e = ADODB_Pear_Error();<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>echo '&lt;p&gt;',$e-&gt;message,'&lt;/p&gt;';</b></pre><pre>}</pre><pre>?&gt;</pre></div>
 
 <p>You can use a PEAR_Error derived class by defining the constant
 ADODB_PEAR_ERROR_CLASS before the adodb-errorpear.inc.php file is included. For
@@ -3421,19 +3421,19 @@ string of the form:</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†† </span>$username = 'root';<br>
-<span style='mso-spacerun:yes'>†† </span>$password = '';<br>
-<span style='mso-spacerun:yes'>†† </span>$hostname = 'localhost';<br>
-<span style='mso-spacerun:yes'>†† </span>$databasename = 'xphplens';<br>
-<span style='mso-spacerun:yes'>†† </span>$driver = 'mysql';<br>
-<span style='mso-spacerun:yes'>†† </span>$dsn = &quot;$driver://$username:$password@$hostname/$databasename&quot;<br>
-<span style='mso-spacerun:yes'>†† </span>$db = NewADOConnection(); <br>
-<span style='mso-spacerun:yes'>†† </span># DB::Connect($dsn) also works if you include 'adodb/adodb-pear.inc.php' at the top<br>
-<span style='mso-spacerun:yes'>†† </span>$rs = $db-&gt;query('select firstname,lastname from adoxyz');<br>
-<span style='mso-spacerun:yes'>†† </span>$cnt = 0;<br>
-<span style='mso-spacerun:yes'>†† </span>while ($arr = $rs-&gt;fetchRow()) {<br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>print_r($arr); print &quot;&lt;br&gt;&quot;;<br>
-<span style='mso-spacerun:yes'>†† </span>}</pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$username = 'root';<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$password = '';<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$hostname = 'localhost';<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$databasename = 'xphplens';<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$driver = 'mysql';<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$dsn = &quot;$driver://$username:$password@$hostname/$databasename&quot;<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$db = NewADOConnection(); <br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># DB::Connect($dsn) also works if you include 'adodb/adodb-pear.inc.php' at the top<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$rs = $db-&gt;query('select firstname,lastname from adoxyz');<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$cnt = 0;<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>while ($arr = $rs-&gt;fetchRow()) {<br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($arr); print &quot;&lt;br&gt;&quot;;<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>}</pre></div>
 
 <p><a href="#dsnsupport">More info and connection examples</a> on the DSN
 format. </p>
@@ -3443,25 +3443,25 @@ format. </p>
 <p class=MsoNormal>We support DSN's (see above), and the following functions: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
-solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><b><span style='mso-spacerun:yes'>†</span>DB_Common</b></pre><pre> <span
-style='mso-tab-count:1'>††††††† </span>query - returns PEAR_Error on error</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>limitQuery - return PEAR_Error on error</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>prepare - does not return PEAR_Error on error</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>execute - does not return PEAR_Error on error</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>setFetchMode - supports ASSOC and ORDERED</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>errorNative</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>quote</pre><pre><span style='mso-tab-count:
-1'>†††††††† </span>nextID</pre><pre><span style='mso-tab-count:1'>†††††††† </span>disconnect</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span></pre><pre><span style='mso-tab-count:
-1'>†††††††† </span>getOne</pre><pre><span style='mso-tab-count:1'>†††††††† </span>getAssoc</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>getRow</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>getCol</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span></pre><pre><b> DB_Result</b></pre><pre> <span
-style='mso-tab-count:1'>††††††† </span>numRows - returns -1 if not supported</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>numCols</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>fetchInto - does not support passing of fetchmode</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>fetchRows - does not support passing of fetchmode</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>free</pre></div>
+solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><b><span style='mso-spacerun:yes'>&nbsp;</span>DB_Common</b></pre><pre> <span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>query - returns PEAR_Error on error</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>limitQuery - return PEAR_Error on error</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>prepare - does not return PEAR_Error on error</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>execute - does not return PEAR_Error on error</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>setFetchMode - supports ASSOC and ORDERED</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>errorNative</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>quote</pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>nextID</pre><pre><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>disconnect</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>getOne</pre><pre><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>getAssoc</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>getRow</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>getCol</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><b> DB_Result</b></pre><pre> <span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>numRows - returns -1 if not supported</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>numCols</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>fetchInto - does not support passing of fetchmode</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>fetchRows - does not support passing of fetchmode</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>free</pre></div>
 
 <h2><a name=caching></a>Caching of Recordsets</h2>
 
@@ -3476,7 +3476,7 @@ parameter, $secs2cache. </p>
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'><b>include</b>('adodb.inc.php'); # load code common to ADOdb<br>
 $ADODB_CACHE_DIR = '/usr/ADODB_cache';<br>
-$<span style='color:#663300'>conn</span> = &amp;ADONewConnection('mysql');<span style='mso-spacerun:yes'>† </span># create a connection<br>
+$<span style='color:#663300'>conn</span> = &amp;ADONewConnection('mysql');<span style='mso-spacerun:yes'>&nbsp; </span># create a connection<br>
 $<span style='color:#663300'>conn</span>-&gt;PConnect('localhost','userid','','agora');# connect to MySQL, agora db<br>
 $<span style='color:#663300'>sql</span> = 'select CustomerName, CustomerID from customers';<br>
 $<span style='color:#663300'>rs</span> = $<span style='color:#663300'>conn</span>-&gt;CacheExecute(15,$sql);</pre></div>
@@ -3495,11 +3495,11 @@ $connection-&gt;cacheSecs parameter, which defaults to 60 minutes. The following
 are equivalent: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
-solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span style='mso-spacerun:yes'>† </span># (1)</pre><pre><span style='mso-spacerun:yes'>† </span>$rs = $db-&gt;SelectLimit(30, 'select * from table', 10);</pre><pre><span style='mso-spacerun:yes'>† </span></pre><pre><span style='mso-spacerun:yes'>††</span># (2)</pre><pre><span style='mso-spacerun:yes'>† </span>$db-&gt;cacheSsecs = 30;</pre><pre><span style='mso-spacerun:yes'>† </span>$rs = $db-&gt;SelectLimit('select * from table', 10);</pre><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>† </span></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect(...);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;cacheSecs = 3600*24; # cache 24 hours<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs = $conn-&gt;CacheExecute('select * from table');</pre></div>
+solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span style='mso-spacerun:yes'>&nbsp; </span># (1)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>$rs = $db-&gt;SelectLimit(30, 'select * from table', 10);</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span></pre><pre><span style='mso-spacerun:yes'>&nbsp;&nbsp;</span># (2)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>$db-&gt;cacheSsecs = 30;</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>$rs = $db-&gt;SelectLimit('select * from table', 10);</pre><pre
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp; </span></pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect(...);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;cacheSecs = 3600*24; # cache 24 hours<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs = $conn-&gt;CacheExecute('select * from table');</pre></div>
 
 <p>Please note that magic_quotes_runtime should be turned off. Do not change
 $ADODB_FETCH_MODE (or SetFetchMode) as the cached recordset will use the
@@ -3554,13 +3554,13 @@ style='mso-bookmark:cacheapi'>$ADODB_CACHE_CLASS = 'MyCacheClass';</span></pre><
 style='mso-bookmark:cacheapi'><o:p>&nbsp;</o:p></span></pre><pre><span
 style='mso-bookmark:cacheapi'>class MyCacheClass extends ADODB_Cache_File</span></pre><pre><span
 style='mso-bookmark:cacheapi'>{</span></pre><pre><span style='mso-bookmark:
-cacheapi'><span style='mso-tab-count:1'>†††††††† </span>var $createdir = false; // do not set this to true unless you use temp directories in cache path</span></pre><pre><span
-style='mso-bookmark:cacheapi'><span style='mso-tab-count:1'>†††††††† </span>function writecache($filename, $contents,$debug=false){...}</span></pre><pre><span
-style='mso-bookmark:cacheapi'><span style='mso-tab-count:1'>†††††††† </span>function &amp;readcache($filename, &amp;$err, $secs2cache, $rsClass){ ...}</span></pre><pre><span
-style='mso-bookmark:cacheapi'><span style='mso-tab-count:1'>†††††††† </span> :</span></pre><pre><span
+cacheapi'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>var $createdir = false; // do not set this to true unless you use temp directories in cache path</span></pre><pre><span
+style='mso-bookmark:cacheapi'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>function writecache($filename, $contents,$debug=false){...}</span></pre><pre><span
+style='mso-bookmark:cacheapi'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>function &amp;readcache($filename, &amp;$err, $secs2cache, $rsClass){ ...}</span></pre><pre><span
+style='mso-bookmark:cacheapi'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span> :</span></pre><pre><span
 style='mso-bookmark:cacheapi'>}</span></pre><pre><span style='mso-bookmark:
 cacheapi'><o:p>&nbsp;</o:p></span></pre><pre><span style='mso-bookmark:cacheapi'>$DB = NewADOConnection($driver);</span></pre><pre><span
-style='mso-bookmark:cacheapi'>$DB-&gt;Connect(...);<span style='mso-spacerun:yes'>† </span>## MyCacheClass created here and stored in $ADODB_CACHE global variable.</span></pre><pre><span
+style='mso-bookmark:cacheapi'>$DB-&gt;Connect(...);<span style='mso-spacerun:yes'>&nbsp; </span>## MyCacheClass created here and stored in $ADODB_CACHE global variable.</span></pre><pre><span
 style='mso-bookmark:cacheapi'><o:p>&nbsp;</o:p></span></pre><pre><span
 style='mso-bookmark:cacheapi'>$data = $rs-&gt;CacheGetOne($sql); ## MyCacheClass is used here for caching...</span></pre></div>
 
@@ -3692,13 +3692,13 @@ style='background:#EEEEEE'># Query the main &quot;product&quot; table<br>
 # and define the joins to link to lookup tables <br>
 # &quot;categories&quot; and &quot;suppliers&quot;<br>
 #<br>
-<span style='mso-spacerun:yes'>†</span>include &quot;adodb/pivottable.inc.php&quot;;<br>
-<span style='mso-spacerun:yes'>†</span>$sql = PivotTableSQL(<br>
-<span style='mso-spacerun:yes'>†</span><span style='mso-tab-count:1'>††††††† </span>$gDB,<span style='mso-spacerun:yes'>††††††††††††††††††††††††††††††††††††† </span># adodb connection<br>
-<span style='mso-spacerun:yes'>†</span><span style='mso-tab-count:1'>††††††† </span>'products p ,categories c ,suppliers s',<span style='mso-spacerun:yes'>†† </span># tables<br>
-<span style='mso-tab-count:1'>†††††††† </span>'SupplierName',<span style='mso-spacerun:yes'>†††††††††††††††††††††††††††† </span># rows (multiple fields allowed)<br>
-<span style='mso-tab-count:1'>†††††††† </span>'CategoryName',<span style='mso-spacerun:yes'>††††††††††††††††††††††††††† </span># column to pivot on <br>
-<span style='mso-tab-count:1'>†††††††† </span>'p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID' # joins/where<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>include &quot;adodb/pivottable.inc.php&quot;;<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>$sql = PivotTableSQL(<br>
+<span style='mso-spacerun:yes'>&nbsp;</span><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$gDB,<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># adodb connection<br>
+<span style='mso-spacerun:yes'>&nbsp;</span><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'products p ,categories c ,suppliers s',<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># tables<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'SupplierName',<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># rows (multiple fields allowed)<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'CategoryName',<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># column to pivot on <br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID' # joins/where<br>
 );</pre></div>
 
 <p>This will generate the following SQL:</p>
@@ -3731,19 +3731,19 @@ using ranges. This code was revised in ADODB 2.41 and is not backward
 compatible. The second example shows this:</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
-solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span style='mso-spacerun:yes'>†</span>$sql = PivotTableSQL(<br>
-<span style='mso-spacerun:yes'>†</span><span style='mso-tab-count:1'>††††††† </span>$gDB,<span style='mso-spacerun:yes'>†††††††††††††††††††††††††††††††††††††† </span># adodb connection<br>
-<span style='mso-spacerun:yes'>†</span><span style='mso-tab-count:1'>††††††† </span>'products p ,categories c ,suppliers s',<span style='mso-spacerun:yes'>††† </span># tables<br>
-<span style='mso-tab-count:1'>†††††††† </span>'SupplierName',<span style='mso-spacerun:yes'>††††††††††††††††††††††††††††† </span># rows (multiple fields allowed)</pre><pre><span style='mso-spacerun:yes'>†† </span>array(<span style='mso-spacerun:yes'>†††††††††††††††††††††† </span><span style='mso-spacerun:yes'>††††††††††††††††</span># column ranges</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>' 0 '<span style='mso-spacerun:yes'>††††† </span>=&gt; 'UnitsInStock &lt;= 0',</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>&quot;1 to 5&quot;<span style='mso-spacerun:yes'>†† </span>=&gt; '0 &lt; UnitsInStock and UnitsInStock &lt;= 5',</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>&quot;6 to 10&quot;<span style='mso-spacerun:yes'>† </span>=&gt; '5 &lt; UnitsInStock and UnitsInStock &lt;= 10',</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>&quot;11 to 15&quot; =&gt; '10 &lt; UnitsInStock and UnitsInStock &lt;= 15',</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>&quot;16+&quot;<span style='mso-spacerun:yes'>††††† </span>=&gt; '15 &lt; UnitsInStock'</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>),</pre><pre><span style='mso-tab-count:
-1'>†††††††† </span>' p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID', # joins/where</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>'UnitsInStock',<span style='mso-spacerun:yes'>†††††††††††††††††††††††††††† </span># sum this field</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>'Sum '<span style='mso-spacerun:yes'>††††††††††††††††††††††††††††††††††††† </span># sum label prefix</pre><pre>);</pre></div>
+solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span style='mso-spacerun:yes'>&nbsp;</span>$sql = PivotTableSQL(<br>
+<span style='mso-spacerun:yes'>&nbsp;</span><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$gDB,<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># adodb connection<br>
+<span style='mso-spacerun:yes'>&nbsp;</span><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'products p ,categories c ,suppliers s',<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span># tables<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'SupplierName',<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># rows (multiple fields allowed)</pre><pre><span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>array(<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span># column ranges</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>' 0 '<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>=&gt; 'UnitsInStock &lt;= 0',</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&quot;1 to 5&quot;<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>=&gt; '0 &lt; UnitsInStock and UnitsInStock &lt;= 5',</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&quot;6 to 10&quot;<span style='mso-spacerun:yes'>&nbsp; </span>=&gt; '5 &lt; UnitsInStock and UnitsInStock &lt;= 10',</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&quot;11 to 15&quot; =&gt; '10 &lt; UnitsInStock and UnitsInStock &lt;= 15',</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>&quot;16+&quot;<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>=&gt; '15 &lt; UnitsInStock'</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>),</pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>' p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID', # joins/where</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'UnitsInStock',<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># sum this field</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'Sum '<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># sum label prefix</pre><pre>);</pre></div>
 
 <p>Which generates: </p>
 
@@ -3821,31 +3821,33 @@ recordsets, only on recordsets created in the future.</p>
 
 <p>The following constants are defined:</p>
 
-<p>define('ADODB_FETCH_DEFAULT',0);<br>
-define('ADODB_FETCH_NUM',1);<br>
-define('ADODB_FETCH_ASSOC',2);<br>
-define('ADODB_FETCH_BOTH',3); </p>
+<ul>
+    <li>ADODB_FETCH_DEFAULT = 0</li>
+    <li>ADODB_FETCH_NUM = 1</li>
+    <li>ADODB_FETCH_ASSOC = 2</li>
+    <li>ADODB_FETCH_BOTH = 3</li>
+</ul>
 
 <p>An example: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-tab-count:1'>†††††††† </span>$ADODB_<b>FETCH_MODE</b> = ADODB_FETCH_NUM;<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs1 = $db-&gt;Execute('select * from table');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$ADODB_<b>FETCH_MODE</b> = ADODB_FETCH_ASSOC;<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs2 = $db-&gt;Execute('select * from table');<br>
-<span style='mso-tab-count:1'>†††††††† </span>print_r($rs1-&gt;fields); # shows <i>array([0]=&gt;'v0',[1] =&gt;'v1')</i></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>print_r($rs2-&gt;fields); # shows <i>array(['col1']=&gt;'v0',['col2'] =&gt;'v1')</i></pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$ADODB_<b>FETCH_MODE</b> = ADODB_FETCH_NUM;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs1 = $db-&gt;Execute('select * from table');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$ADODB_<b>FETCH_MODE</b> = ADODB_FETCH_ASSOC;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs2 = $db-&gt;Execute('select * from table');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($rs1-&gt;fields); # shows <i>array([0]=&gt;'v0',[1] =&gt;'v1')</i></pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($rs2-&gt;fields); # shows <i>array(['col1']=&gt;'v0',['col2'] =&gt;'v1')</i></pre></div>
 
 <p>As you can see in the above example, both recordsets store and use different
 fetch modes based on the $ADODB_FETCH_MODE setting when the recordset was
 created by Execute().</p>
 
-<p>If no fetch mode is predefined, the fetch mode defaults to
-ADODB_FETCH_DEFAULT. The behaviour of this default mode varies from driver to
-driver, so do not rely on ADODB_FETCH_DEFAULT. For portability, we recommend
-sticking to ADODB_FETCH_NUM or ADODB_FETCH_ASSOC. Many drivers do not support
-ADODB_FETCH_BOTH.</p>
+<p>If no fetch mode is predefined, it defaults to
+ADODB_FETCH_DEFAULT. The behaviour of this mode varies from driver to
+driver, so do for portability reasons it is discouraged to rely on
+ADODB_FETCH_DEFAULT; stick to ADODB_FETCH_NUM or ADODB_FETCH_ASSOC instead.
+Note that many drivers do not support ADODB_FETCH_BOTH.</p>
 
 <p><strong>SetFetchMode Function</strong></p>
 
@@ -3857,12 +3859,12 @@ fetchMode property exclusively.</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db-&gt;SetFetchMode(ADODB_FETCH_NUM);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs1 = $db-&gt;Execute('select * from table');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db-&gt;SetFetchMode(ADODB_FETCH_ASSOC);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs2 = $db-&gt;Execute('select * from table');<br>
-<span style='mso-tab-count:1'>†††††††† </span>print_r($rs1-&gt;fields); # shows <i>array([0]=&gt;'v0',[1] =&gt;'v1')</i></pre><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>print_r($rs2-&gt;fields); # shows <i>array(['col1']=&gt;'v0',['col2'] =&gt;'v1')</i></pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;SetFetchMode(ADODB_FETCH_NUM);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs1 = $db-&gt;Execute('select * from table');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;SetFetchMode(ADODB_FETCH_ASSOC);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs2 = $db-&gt;Execute('select * from table');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($rs1-&gt;fields); # shows <i>array([0]=&gt;'v0',[1] =&gt;'v1')</i></pre><pre
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($rs2-&gt;fields); # shows <i>array(['col1']=&gt;'v0',['col2'] =&gt;'v1')</i></pre></div>
 
 <p>To retrieve the previous fetch mode, you can use check the $db-&gt;fetchMode
 property, or use the return value of SetFetchMode( ). </p>
@@ -3870,20 +3872,20 @@ property, or use the return value of SetFetchMode( ). </p>
 <p><a name="adodb_assoc_case"></a><strong>ADODB_ASSOC_CASE</strong></p>
 
 <p>You can control the associative fetch case for certain drivers which behave
-differently. For the sybase, oci8po, mssql, odbc and ibase drivers and all
-drivers derived from them, ADODB_ASSOC_CASE will by default generate recordsets
-where the field name keys are lower-cased. Use the constant ADODB_ASSOC_CASE to
-change the case of the keys. There are 3 possible values:</p>
+differently. For the <i>sybase, oci8, mssql, odbc and ibase</i> drivers (including
+all those derived from them). Define the ADODB_ASSOC_CASE constant as appropriate to
+change the case of the keys. The default is to use native case. Possible values are:</p>
 
-<p>0 = assoc lowercase field names. $rs-&gt;fields['orderid']<br>
-1 = assoc uppercase field names. $rs-&gt;fields['ORDERID']<br>
-2 = use native-case field names. $rs-&gt;fields['OrderID'] -- this is the
-default since ADOdb 2.90</p>
+<ul>
+    <li>ADODB_ASSOC_CASE_LOWER = 0 - $rs->fields['orderid']</li>
+    <li>ADODB_ASSOC_CASE_UPPER = 1 - $rs->fields['ORDERID']</li>
+    <li>ADODB_ASSOC_CASE_NATIVE = 2 - $rs->fields['OrderID'] (or whatever the RDBMS will return)</li>
+</ul>
 
-<p>To use it, declare it before you incldue adodb.inc.php.</p>
-
-<p>define('ADODB_ASSOC_CASE', 2); # use native-case for ADODB_FETCH_ASSOC<br>
-include('adodb.inc.php'); </p>
+<p>Example: <pre>
+include('adodb.inc.php');
+define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_LOWER);
+</pre></p>
 
 <h3><a name="force_type"></a>$ADODB_FORCE_TYPE</h3>
 
@@ -4037,9 +4039,9 @@ tnsnames.ora. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†</span># $oraname in tnsnames.ora/ONAMES/HOSTNAMES<br>
-<span style='mso-spacerun:yes'>†</span>$conn-&gt;Connect(false, 'scott', 'tiger', $oraname); <br>
-<span style='mso-spacerun:yes'>†</span>$conn-&gt;Connect('server:1521', 'scott', 'tiger', 'ServiceName'); # bypass tnsnames.ora</pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;</span># $oraname in tnsnames.ora/ONAMES/HOSTNAMES<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>$conn-&gt;Connect(false, 'scott', 'tiger', $oraname); <br>
+<span style='mso-spacerun:yes'>&nbsp;</span>$conn-&gt;Connect('server:1521', 'scott', 'tiger', 'ServiceName'); # bypass tnsnames.ora</pre></div>
 
 <p>There are many examples of connecting to a database. See <a
 href="#connect_ex">Connection Examples</a> for many examples. </p>
@@ -4061,9 +4063,9 @@ extension is not loaded. See Connect( ) above for more info.</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†</span>$conn = &amp;NewADOConnection('mysql');<br>
-<span style='mso-spacerun:yes'>†</span>$conn-&gt;autoRollback = true; # default is false<br>
-<span style='mso-spacerun:yes'>†</span>$conn-&gt;PConnect(...); # rollback here</pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;</span>$conn = &amp;NewADOConnection('mysql');<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>$conn-&gt;autoRollback = true; # default is false<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>$conn-&gt;PConnect(...); # rollback here</pre></div>
 
 <p>Then when doing a persistent connection with PConnect( ), ADOdb will perform
 a rollback first. This is because it is documented that PHP is not guaranteed
@@ -4103,14 +4105,14 @@ Below is an Oracle example:</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†</span>$conn-&gt;Execute(&quot;SELECT * FROM TABLE WHERE COND=:val&quot;, array('val'=&gt; $val));<br>
-<span style='mso-spacerun:yes'>†</span></pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;</span>$conn-&gt;Execute(&quot;SELECT * FROM TABLE WHERE COND=:val&quot;, array('val'=&gt; $val));<br>
+<span style='mso-spacerun:yes'>&nbsp;</span></pre></div>
 
 <p>Another example, using ODBC,which uses the ? convention:</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>† </span>$conn-&gt;Execute(&quot;SELECT * FROM TABLE WHERE COND=?&quot;, array($val));</pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp; </span>$conn-&gt;Execute(&quot;SELECT * FROM TABLE WHERE COND=?&quot;, array($val));</pre></div>
 
 <p class=MsoNormal><a name=binding></a><i>Binding variables</i></p>
 
@@ -4131,7 +4133,7 @@ style='background:#EEEEEE'>$rs = $db-&gt;Execute('select * from table where val=
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>$rs = $db-&gt;Execute('select name from table where val=:key', <br>
-<span style='mso-spacerun:yes'>† </span>array('key' =&gt; 10));</pre></div>
+<span style='mso-spacerun:yes'>&nbsp; </span>array('key' =&gt; 10));</pre></div>
 
 <p class=MsoNormal><a name=bulkbind></a><i>Bulk binding</i> </p>
 
@@ -4142,10 +4144,10 @@ disabled by default due to security issues. To enable, set $conn->bulkBind = tru
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>$arr = array(<br>
-<span style='mso-tab-count:1'>†††††††† </span>array('Ahmad',32),<br>
-<span style='mso-tab-count:1'>†††††††† </span>array('Zulkifli', 24),<br>
-<span style='mso-tab-count:1'>†††††††† </span>array('Rosnah', 21)<br>
-<span style='mso-tab-count:1'>†††††††† </span>);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>array('Ahmad',32),<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>array('Zulkifli', 24),<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>array('Rosnah', 21)<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>);<br>
 $ok = $db-&gt;Execute('insert into table (name,age) values (?,?)',$arr);</pre></div>
 
 <p>This provides very high performance as the SQL statement is prepared first.
@@ -4162,21 +4164,21 @@ has not expired, the cached recordset is returned. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>† </span>include('adodb.inc.php'); <br>
-<span style='mso-spacerun:yes'>† </span>include('tohtml.inc.php');<br>
-<span style='mso-spacerun:yes'>† </span>$ADODB_<b>CACHE_DIR</b> = '/usr/local/ADOdbcache';<br>
-<span style='mso-spacerun:yes'>† </span>$conn = &amp;ADONewConnection('mysql'); <br>
-<span style='mso-spacerun:yes'>† </span>$conn-&gt;PConnect('localhost','userid','password','database');<br>
-<span style='mso-spacerun:yes'>† </span>$rs = $conn-&gt;<b>CacheExecute</b>(15, 'select * from table'); # cache 15 secs<br>
-<span style='mso-spacerun:yes'>† </span>rs2html($rs); /* recordset to html table */<span style='mso-spacerun:yes'>† </span></pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp; </span>include('adodb.inc.php'); <br>
+<span style='mso-spacerun:yes'>&nbsp; </span>include('tohtml.inc.php');<br>
+<span style='mso-spacerun:yes'>&nbsp; </span>$ADODB_<b>CACHE_DIR</b> = '/usr/local/ADOdbcache';<br>
+<span style='mso-spacerun:yes'>&nbsp; </span>$conn = &amp;ADONewConnection('mysql'); <br>
+<span style='mso-spacerun:yes'>&nbsp; </span>$conn-&gt;PConnect('localhost','userid','password','database');<br>
+<span style='mso-spacerun:yes'>&nbsp; </span>$rs = $conn-&gt;<b>CacheExecute</b>(15, 'select * from table'); # cache 15 secs<br>
+<span style='mso-spacerun:yes'>&nbsp; </span>rs2html($rs); /* recordset to html table */<span style='mso-spacerun:yes'>&nbsp; </span></pre></div>
 
 <p>Alternatively, since ADOdb 1.80, the $secs2cache parameter is optional:</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect(...);<br>
-<span style='mso-spacerun:yes'>†† </span><span style='mso-tab-count:1'>††††† </span>$conn-&gt;cacheSecs = 3600*24; // cache 24 hours<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs = $conn-&gt;CacheExecute('select * from table');</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect(...);<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;cacheSecs = 3600*24; // cache 24 hours<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs = $conn-&gt;CacheExecute('select * from table');</pre></div>
 
 <p class=MsoNormal>If $secs2cache is omitted, we use the value in
 $connection-&gt;cacheSecs (default is 3600 seconds, or 1 hour). Use
@@ -4197,46 +4199,46 @@ except oci8. Thanks to Robert Tuttle for the design. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>††† </span>$db = ADONewConnection(&quot;oci8&quot;); <br>
-<span style='mso-spacerun:yes'>††† </span>$db-&gt;Connect(&quot;foo.com:1521&quot;, &quot;uid&quot;, &quot;pwd&quot;, &quot;FOO&quot;); <br>
-<span style='mso-spacerun:yes'>††† </span>$rs = $db-&gt;ExecuteCursor(&quot;begin :cursorvar := getdata(:param1); end;&quot;, <br>
-<span style='mso-tab-count:5'>††††††††††††††††††††††††††††††††††††††††††† </span>'cursorvar',<br>
-<span style='mso-tab-count:5'>††††††††††††††††††††††††††††††††††††††††††† </span>array('param1'=&gt;10)); <br>
-<span style='mso-spacerun:yes'>††† </span># $rs is now just like any other ADOdb recordset object<br>
-<span style='mso-spacerun:yes'>††† </span>rs2html($rs);</pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>$db = ADONewConnection(&quot;oci8&quot;); <br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>$db-&gt;Connect(&quot;foo.com:1521&quot;, &quot;uid&quot;, &quot;pwd&quot;, &quot;FOO&quot;); <br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>$rs = $db-&gt;ExecuteCursor(&quot;begin :cursorvar := getdata(:param1); end;&quot;, <br>
+<span style='mso-tab-count:5'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'cursorvar',<br>
+<span style='mso-tab-count:5'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>array('param1'=&gt;10)); <br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span># $rs is now just like any other ADOdb recordset object<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp; </span>rs2html($rs);</pre></div>
 
 <p>ExecuteCursor() is a helper function that does the following internally: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$stmt = $db-&gt;Prepare(&quot;begin :cursorvar := getdata(:param1); end;&quot;, true); <br>
-<span style='mso-tab-count:1'>†††††††† </span>$db-&gt;Parameter($stmt, $cur, 'cursorvar', false, -1, OCI_B_CURSOR);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs = $db-&gt;Execute($stmt,$bindarr);</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$stmt = $db-&gt;Prepare(&quot;begin :cursorvar := getdata(:param1); end;&quot;, true); <br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Parameter($stmt, $cur, 'cursorvar', false, -1, OCI_B_CURSOR);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs = $db-&gt;Execute($stmt,$bindarr);</pre></div>
 
 <p>ExecuteCursor only accepts 1 out parameter. So if you have 2 out parameters,
 use: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$vv = 'A%';<br>
-<span style='mso-tab-count:1'>†††††††† </span>$stmt = $db-&gt;PrepareSP(&quot;BEGIN list_tabs(:crsr,:tt); END;&quot;);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db-&gt;OutParameter($stmt, $cur, 'crsr', -1, OCI_B_CURSOR);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$db-&gt;OutParameter($stmt, $vv, 'tt', 32); # return varchar(32)<br>
-<span style='mso-tab-count:1'>†††††††† </span>$arr = $db-&gt;GetArray($stmt);<br>
-<span style='mso-tab-count:1'>†††††††† </span>print_r($arr);<br>
-<span style='mso-tab-count:1'>†††††††† </span>echo &quot; val = $vv&quot;; ## outputs 'TEST'</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$vv = 'A%';<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$stmt = $db-&gt;PrepareSP(&quot;BEGIN list_tabs(:crsr,:tt); END;&quot;);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;OutParameter($stmt, $cur, 'crsr', -1, OCI_B_CURSOR);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;OutParameter($stmt, $vv, 'tt', 32); # return varchar(32)<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$arr = $db-&gt;GetArray($stmt);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print_r($arr);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>echo &quot; val = $vv&quot;; ## outputs 'TEST'</pre></div>
 
 <p class=MsoNormal>for the following PL/SQL: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>TYPE TabType IS REF CURSOR RETURN TAB%ROWTYPE;<br>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>TYPE TabType IS REF CURSOR RETURN TAB%ROWTYPE;<br>
 <br>
-<span style='mso-tab-count:1'>†††††††† </span>PROCEDURE list_tabs(tabcursor IN OUT TabType,tablenames IN OUT VARCHAR) IS<br>
-<span style='mso-tab-count:1'>†††††††† </span>BEGIN<br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>OPEN tabcursor FOR SELECT * FROM TAB WHERE tname LIKE tablenames;<br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>tablenames := 'TEST';<br>
-<span style='mso-tab-count:1'>†††††††† </span>END list_tabs;</pre></div>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>PROCEDURE list_tabs(tabcursor IN OUT TabType,tablenames IN OUT VARCHAR) IS<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>BEGIN<br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>OPEN tabcursor FOR SELECT * FROM TAB WHERE tname LIKE tablenames;<br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>tablenames := 'TEST';<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>END list_tabs;</pre></div>
 
 <p><b>SelectLimit<a name=selectlimit></a>($sql,$numrows=-1,$offset=-1,$inputarr=false)</b></p>
 
@@ -4263,15 +4265,15 @@ is an Oracle example:</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†</span>$conn-&gt;SelectLimit(&quot;SELECT * FROM TABLE WHERE COND=:val&quot;, 100,-1,array('val'=&gt; $val));<br>
-<span style='mso-spacerun:yes'>†</span></pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;</span>$conn-&gt;SelectLimit(&quot;SELECT * FROM TABLE WHERE COND=:val&quot;, 100,-1,array('val'=&gt; $val));<br>
+<span style='mso-spacerun:yes'>&nbsp;</span></pre></div>
 
 <p>The oci8po driver (oracle portable driver) uses the more standard bind
 variable of ?: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†</span>$conn-&gt;SelectLimit(&quot;SELECT * FROM TABLE WHERE COND=?&quot;, 100,-1,array('val'=&gt; $val));</pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;</span>$conn-&gt;SelectLimit(&quot;SELECT * FROM TABLE WHERE COND=?&quot;, 100,-1,array('val'=&gt; $val));</pre></div>
 
 <p>Ron Wilson reports that SelectLimit does not work with UNIONs. </p>
 
@@ -4286,9 +4288,9 @@ time in $connection-&gt;cacheSecs.</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Connect(...);<br>
-<span style='mso-spacerun:yes'>†† </span>$conn-&gt;cacheSecs = 3600*24; // cache 24 hours<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs = $conn-&gt;CacheSelectLimit('select * from table',10);</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Connect(...);<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$conn-&gt;cacheSecs = 3600*24; // cache 24 hours<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs = $conn-&gt;CacheSelectLimit('select * from table',10);</pre></div>
 
 <p><b>CacheFlush<a name=cacheflush></a>($sql=false,$inputarr=false)</b></p>
 
@@ -4303,7 +4305,7 @@ CacheSelectLimit(), set $secs2cache to -1: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db-&gt;CacheSelectLimit(-1, $sql, $nrows);</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;CacheSelectLimit(-1, $sql, $nrows);</pre></div>
 
 <p>If you want to flush all cached recordsets manually, execute the following
 PHP code (works only under Unix): <br>
@@ -4416,13 +4418,13 @@ $column in a row at $where. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span># for oracle<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, empty_blob())');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;UpdateBlob('blobtable','blobcol',$blobvalue,'id=1');<br>
-<span style='mso-tab-count:1'>†††††††† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span># non oracle databases<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;UpdateBlob('blobtable','blobcol',$blobvalue,'id=1');</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># for oracle<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, empty_blob())');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;UpdateBlob('blobtable','blobcol',$blobvalue,'id=1');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># non oracle databases<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;UpdateBlob('blobtable','blobcol',$blobvalue,'id=1');</pre></div>
 
 <p>Returns true if succesful, false otherwise. Supported by MySQL, PostgreSQL,
 Oci8, Oci8po and Interbase drivers. Other drivers might work, depending on the
@@ -4453,13 +4455,13 @@ Character Large OBjects. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span># for oracle<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Execute('INSERT INTO clobtable (id, clobcol) VALUES (1, empty_clob())');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;UpdateBlob('clobtable','clobcol',$clobvalue,'id=1');<br>
-<span style='mso-tab-count:1'>†††††††† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span># non oracle databases<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Execute('INSERT INTO clobtable (id, clobcol) VALUES (1, null)');<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;UpdateBlob('clobtable','clobcol',$clobvalue,'id=1');</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># for oracle<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Execute('INSERT INTO clobtable (id, clobcol) VALUES (1, empty_clob())');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;UpdateBlob('clobtable','clobcol',$clobvalue,'id=1');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># non oracle databases<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Execute('INSERT INTO clobtable (id, clobcol) VALUES (1, null)');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;UpdateBlob('clobtable','clobcol',$clobvalue,'id=1');</pre></div>
 
 <p><b>UpdateBlobFile<a name=updateblobfile></a>($table,$column,$path,$where,$blobtype='BLOB')</b></p>
 
@@ -4535,23 +4537,23 @@ work if you use SQL functions or operators. </p>
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'># single field primary key<br>
 $ret = $db-&gt;Replace('atable', <br>
-<span style='mso-tab-count:1'>†††††††† </span>array('id'=&gt;1000,'firstname'=&gt;'Harun','lastname'=&gt;'Al-Rashid'),<br>
-<span style='mso-tab-count:1'>†††††††† </span>'id',$autoquote = true);<span
-style='mso-tab-count:1'>† </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>array('id'=&gt;1000,'firstname'=&gt;'Harun','lastname'=&gt;'Al-Rashid'),<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'id',$autoquote = true);<span
+style='mso-tab-count:1'>&nbsp; </span><br>
 # generates UPDATE atable SET firstname='Harun',lastname='Al-Rashid' WHERE id=1000<br>
 # or INSERT INTO atable (id,firstname,lastname) VALUES (1000,'Harun','Al-Rashid')<br>
 <br>
 # compound key<br>
 $ret = $db-&gt;Replace('atable2', <br>
-<span style='mso-tab-count:1'>†††††††† </span>array('firstname'=&gt;'Harun','lastname'=&gt;'Al-Rashid', 'age' =&gt; 33, 'birthday' =&gt; 'null'),<br>
-<span style='mso-tab-count:1'>†††††††† </span>array('lastname','firstname'),<br>
-<span style='mso-tab-count:1'>†††††††† </span>$autoquote = true);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>array('firstname'=&gt;'Harun','lastname'=&gt;'Al-Rashid', 'age' =&gt; 33, 'birthday' =&gt; 'null'),<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>array('lastname','firstname'),<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$autoquote = true);<br>
 <br>
 # no auto-quoting<br>
 $ret = $db-&gt;Replace('atable2', <br>
-<span style='mso-tab-count:1'>†††††††† </span>array('firstname'=&gt;&quot;'Harun'&quot;,'lastname'=&gt;&quot;'Al-Rashid'&quot;, 'age' =&gt; 'null'),<br>
-<span style='mso-tab-count:1'>†††††††† </span>array('lastname','firstname'));<span
-style='mso-tab-count:1'>††† </span></pre></div>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>array('firstname'=&gt;&quot;'Harun'&quot;,'lastname'=&gt;&quot;'Al-Rashid'&quot;, 'age' =&gt; 'null'),<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>array('lastname','firstname'));<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp; </span></pre></div>
 
 <p><b>AutoExecute<a name=autoexecute></a>($table, $arrFields, $mode,
 $where=false, $forceUpdate=true,$magicq=false)</b></p>
@@ -4576,9 +4578,6 @@ UPDATE based on $mode (see below). </p>
      mso-list:l5 level1 lfo9;tab-stops:list 36.0pt'>'UPDATE' or 2 or
      DB_AUTOQUERY_UPDATE </li>
 </ul>
-
-<p>You have to define the constants DB_AUTOQUERY_UPDATE and DB_AUTOQUERY_INSERT
-yourself or include adodb-pear.inc.php. </p>
 
 <p>The $where clause is required if $mode == 'UPDATE'. If $forceUpdate=false
 then we will query the database first and check if the field value returned by
@@ -4924,7 +4923,7 @@ techniques, e.g. PageExecute( ) and SelectLimit( ).</p>
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>$stmt = $DB-&gt;Prepare('insert into table (col1,col2) values (?,?)');<br>
 for ($i=0; $i &lt; $max; $i++)<br>
-<span style='mso-tab-count:1'>†††††††† </span>$DB-&gt;Execute($stmt,array((string) rand(), $i));</pre></div>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$DB-&gt;Execute($stmt,array((string) rand(), $i));</pre></div>
 
 <p>Also see InParameter(), OutParameter() and PrepareSP() below. Only supported
 internally by interbase, oci8 and selected ODBC-based drivers, otherwise it is
@@ -4954,10 +4953,10 @@ length of a string. To use this property: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>† </span>$sql = <span
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp; </span>$sql = <span
 style='color:#993300'>&quot;SELECT &quot;</span>.$db-&gt;length.<span
 style='color:#993300'>&quot;(field) from table&quot;</span>;<br>
-<span style='mso-spacerun:yes'>† </span>$rs = $db-&gt;Execute($sql);</pre></div>
+<span style='mso-spacerun:yes'>&nbsp; </span>$rs = $db-&gt;Execute($sql);</pre></div>
 
 <p><b>random</b><a name=random></a></p>
 
@@ -4972,10 +4971,10 @@ a sub-string. To use this property: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>† </span>$sql = <span
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp; </span>$sql = <span
 style='color:#993300'>&quot;SELECT &quot;</span>.$db-&gt;substr.<span
 style='color:#993300'>&quot;(field, $offset, $length) from table&quot;</span>;<br>
-<span style='mso-spacerun:yes'>† </span>$rs = $db-&gt;Execute($sql);</pre></div>
+<span style='mso-spacerun:yes'>&nbsp; </span>$rs = $db-&gt;Execute($sql);</pre></div>
 
 <p>For all databases, the 1st parameter of <i>substr</i> is the field, the 2nd
 is the offset (1-based) to the beginning of the sub-string, and the 3rd is the
@@ -4993,7 +4992,7 @@ solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>$sql = <span style='color:#993300'>'insert into table (col1,col2) values ('</span>.$DB-&gt;Param('a').<span
 style='color:#993300'>','</span>.$DB-&gt;Param('b').<span style='color:#993300'>')'</span>;<br>
 <span style='color:#006600'># generates 'insert into table (col1,col2) values (?,?)'<br>
-# or<span style='mso-spacerun:yes'>††††††† </span>'insert into table (col1,col2) values (:a,:b)</span>'<br>
+# or<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'insert into table (col1,col2) values (:a,:b)</span>'<br>
 $stmt = $DB-&gt;Prepare($sql);<br>
 $stmt = $DB-&gt;Execute($stmt,array('one','two'));</pre></div>
 
@@ -5037,11 +5036,11 @@ currently. </p>
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
 style='color:green'># For oracle, Prepare and PrepareSP are identical</span></pre><pre>$stmt = $db-&gt;PrepareSP(</pre><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span><span
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span
 style='color:#993300'>&quot;declare RETVAL integer; <br>
-<span style='mso-tab-count:1'>†††††††† </span>begin<br>
-<span style='mso-tab-count:1'>†††††††† </span>:RETVAL := SP_RUNSOMETHING(:myid,:group);<br>
-<span style='mso-tab-count:1'>†††††††† </span>end;&quot;</span>);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>begin<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>:RETVAL := SP_RUNSOMETHING(:myid,:group);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>end;&quot;</span>);<br>
 $db-&gt;InParameter($stmt,$id,'myid');<br>
 $db-&gt;InParameter($stmt,$group,'group',64);<br>
 $db-&gt;OutParameter($stmt,$ret,'RETVAL');<br>
@@ -5118,10 +5117,10 @@ $stmt = $db-&gt;PrepareSP( <span style='color:#993300'>&quot;update table set va
 $db-&gt;Parameter($stmt,$id,'id');<br>
 $db-&gt;Parameter($stmt,$i, 'i');<br>
 for ($cnt=0; $cnt &lt; 1000; $cnt++) {<br>
-<span style='mso-tab-count:1'>†††††††† </span>$id = $cnt; <br>
-<span style='mso-tab-count:1'>†††††††† </span>$i = $cnt * $cnt; <span
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$id = $cnt; <br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$i = $cnt * $cnt; <span
 style='color:green'># works with oci8!</span></pre><pre style='background:#EEEEEE'><span
-style='mso-tab-count:1'>†††††††† </span>$db-&gt;Execute($stmt); <br>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Execute($stmt); <br>
 }</pre></div>
 
 <p><b>Bind<a name=bind></a>($stmt, $var, $size=4001, $type=false, $name=false)</b></p>
@@ -5153,8 +5152,8 @@ $DB-&gt;Bind($stmt, $p1);<br>
 $DB-&gt;Bind($stmt, $p2);<br>
 $DB-&gt;Bind($stmt, $p3);<br>
 for ($i = 0; $i &lt; $max; $i++) { <br>
-<span style='mso-spacerun:yes'>†† </span>$p1 = ?; $p2 = ?; $p3 = ?;<br>
-<span style='mso-spacerun:yes'>†† </span>$DB-&gt;Execute($stmt);<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$p1 = ?; $p2 = ?; $p3 = ?;<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$DB-&gt;Execute($stmt);<br>
 }</pre></div>
 
 <p>You can also use named variables:</p>
@@ -5166,8 +5165,8 @@ $DB-&gt;Bind($stmt, $p1, &quot;name0&quot;);<br>
 $DB-&gt;Bind($stmt, $p2, &quot;name1&quot;);<br>
 $DB-&gt;Bind($stmt, $p3, &quot;name2&quot;);<br>
 for ($i = 0; $i &lt; $max; $i++) { <br>
-<span style='mso-spacerun:yes'>†† </span>$p1 = ?; $p2 = ?; $p3 = ?;<br>
-<span style='mso-spacerun:yes'>†† </span>$DB-&gt;Execute($stmt);<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$p1 = ?; $p2 = ?; $p3 = ?;<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$DB-&gt;Execute($stmt);<br>
 }</pre></div>
 
 <p><b>LogSQL($enable=true)</b><a name=logsql></a></p>
@@ -5181,60 +5180,60 @@ samples of the DDL for selected databases: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><b>mysql:</b></pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span>CREATE TABLE adodb_logsql (</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>created datetime NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>sql0 varchar(250) NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>sql1 text NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>params text NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>tracer text NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>timer decimal(16,6) NOT NULL</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span>)</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span></pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><b>postgres:</b></pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span>CREATE TABLE adodb_logsql (</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>created timestamp NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>sql0 varchar(250) NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>sql1 text NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>params text NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>tracer text NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>timer decimal(16,6) NOT NULL</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span>)</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span></pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><b>mssql:</b></pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span>CREATE TABLE adodb_logsql (</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>created datetime NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>sql0 varchar(250) NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>sql1 varchar(4000) NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>params varchar(3000) NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>tracer varchar(500) NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>timer decimal(16,6) NOT NULL</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span>)</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span></pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><b>oci8:</b></pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span>CREATE TABLE adodb_logsql (</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>created date NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>sql0 varchar(250) NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>sql1 varchar(4000) NOT NULL,</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>params varchar(4000),</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>tracer varchar(4000),</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span><span style='mso-spacerun:yes'>† </span>timer decimal(16,6) NOT NULL</pre><pre><span
-style='mso-tab-count:2'>†††††††††††††††† </span>)</pre></div>
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>mysql:</b></pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>CREATE TABLE adodb_logsql (</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>created datetime NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>sql0 varchar(250) NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>sql1 text NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>params text NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>tracer text NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>timer decimal(16,6) NOT NULL</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>)</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>postgres:</b></pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>CREATE TABLE adodb_logsql (</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>created timestamp NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>sql0 varchar(250) NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>sql1 text NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>params text NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>tracer text NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>timer decimal(16,6) NOT NULL</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>)</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>mssql:</b></pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>CREATE TABLE adodb_logsql (</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>created datetime NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>sql0 varchar(250) NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>sql1 varchar(4000) NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>params varchar(3000) NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>tracer varchar(500) NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>timer decimal(16,6) NOT NULL</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>)</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><b>oci8:</b></pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>CREATE TABLE adodb_logsql (</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>created date NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>sql0 varchar(250) NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>sql1 varchar(4000) NOT NULL,</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>params varchar(4000),</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>tracer varchar(4000),</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>timer decimal(16,6) NOT NULL</pre><pre><span
+style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>)</pre></div>
 
 <p class=MsoNormal>Usage: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;LogSQL(); // turn on logging<br>
-<span style='mso-tab-count:1'>†††††††† </span><span style='mso-spacerun:yes'>† </span>:<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;Execute(...);<br>
-<span style='mso-tab-count:1'>†††††††† </span><span style='mso-spacerun:yes'>† </span>:<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn-&gt;LogSQL(false); // turn off logging<br>
-<span style='mso-tab-count:1'>†††††††† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span># output summary of SQL logging results<br>
-<span style='mso-tab-count:1'>†††††††† </span>$perf = NewPerfMonitor($conn);<br>
-<span style='mso-tab-count:1'>†††††††† </span>echo $perf-&gt;SuspiciousSQL();<br>
-<span style='mso-tab-count:1'>†††††††† </span>echo $perf-&gt;ExpensiveSQL();</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;LogSQL(); // turn on logging<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>:<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;Execute(...);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp; </span>:<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn-&gt;LogSQL(false); // turn off logging<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span># output summary of SQL logging results<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$perf = NewPerfMonitor($conn);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>echo $perf-&gt;SuspiciousSQL();<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>echo $perf-&gt;ExpensiveSQL();</pre></div>
 
 <p>One limitation of logging is that rollback also prevents SQL from being
 logged. </p>
@@ -5246,9 +5245,9 @@ An example: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>include('adodb.inc.php');<br>
-<span style='mso-tab-count:1'>†††††††† </span>include('adodb-perf.inc.php');<br>
-<span style='mso-tab-count:1'>†††††††† </span>adodb_perf::table('my_logsql_table');</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>include('adodb.inc.php');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>include('adodb-perf.inc.php');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>adodb_perf::table('my_logsql_table');</pre></div>
 
 <p class=MsoNormal>Also see <a href="docs-perf.htm">Performance Monitor</a>. </p>
 
@@ -5267,14 +5266,14 @@ non-cached queries, you can do this:</p>
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span
 style='color:#006600'># $db is the connection object</span></pre><pre>function &amp;CountExecs($db, $sql, $inputarray)</pre><pre>{</pre><pre>global $EXECS;</pre><pre><o:p>&nbsp;</o:p></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>if (!is_array(inputarray)) $EXECS++;</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span><span style='color:#006600'># handle 2-dimensional input arrays</span></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>else if (is_array(reset($inputarray))) $EXECS += sizeof($inputarray);</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>else $EXECS++;</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span></pre><pre><span style='mso-tab-count:
-1'>†††††††† </span><span style='color:#006600'># in PHP4.4 and PHP5, we need to return a value by reference</span></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$null = null;</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>return $null;</pre><pre>}</pre><pre><o:p>&nbsp;</o:p></pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>if (!is_array(inputarray)) $EXECS++;</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='color:#006600'># handle 2-dimensional input arrays</span></pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>else if (is_array(reset($inputarray))) $EXECS += sizeof($inputarray);</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>else $EXECS++;</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span></pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='color:#006600'># in PHP4.4 and PHP5, we need to return a value by reference</span></pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$null = null;</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>return $null;</pre><pre>}</pre><pre><o:p>&nbsp;</o:p></pre><pre><span
 style='color:#006600'># $db is the connection object</span></pre><pre>function CountCachedExecs($db, $secs2cache, $sql, $inputarray)</pre><pre
 style='background:#EEEEEE'>{<br>
 global $CACHED; $CACHED++;<br>
@@ -5284,8 +5283,8 @@ $db = NewADOConnection('mysql');<br>
 $db-&gt;Connect(...);<br>
 $db-&gt;<strong><span style='font-family:"Courier New"'>fnExecute</span></strong> = 'CountExecs';<br>
 $db-&gt;<strong><span style='font-family:"Courier New"'>fnCacheExecute</span></strong> = 'CountCachedExecs';<br>
-<span style='mso-spacerun:yes'>†</span>:<br>
-<span style='mso-spacerun:yes'>†</span>:<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>:<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>:<br>
 <span style='color:#006600'># After many sql statements:</span>`<br>
 printf(&quot;&lt;p&gt;Total queries=%d; total cached=%d&lt;/p&gt;&quot;,$EXECS+$CACHED, $CACHED);</pre></div>
 
@@ -5340,8 +5339,8 @@ in, it will be converted to an SQL null.</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$sql = &quot;select * from atable where created &gt; &quot;.$db-&gt;DBDate(&quot;$year-$month-$day&quot;);</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db-&gt;Execute($sql);</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$sql = &quot;select * from atable where created &gt; &quot;.$db-&gt;DBDate(&quot;$year-$month-$day&quot;);</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Execute($sql);</pre></div>
 
 <p>Note to retrieve a date column in a specific format, use <a href="#sqldate">SQLDate</a>.
 </p>
@@ -5354,10 +5353,10 @@ string. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$sql = &quot;select * from atable where created &gt; &quot;.$db-&gt;Param('0');</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>// or</pre><pre><span style='mso-tab-count:
-1'>†††††††† </span>$sql = &quot;select * from atable where created &gt; ?&quot;;</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db-&gt;Execute($sql,array($db-&gt;BindDate(&quot;$year-$month-$day&quot;));</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$sql = &quot;select * from atable where created &gt; &quot;.$db-&gt;Param('0');</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>// or</pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$sql = &quot;select * from atable where created &gt; ?&quot;;</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Execute($sql,array($db-&gt;BindDate(&quot;$year-$month-$day&quot;));</pre></div>
 
 <p><b>DBTimeStamp<a name=dbtimestamp></a>($ts)</b></p>
 
@@ -5370,8 +5369,8 @@ will be converted to an SQL null.</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$sql = &quot;select * from atable where created &gt; &quot;.$db-&gt;DBTimeStamp(&quot;$year-$month-$day $hr:$min:$secs&quot;);</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db-&gt;Execute($sql);</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$sql = &quot;select * from atable where created &gt; &quot;.$db-&gt;DBTimeStamp(&quot;$year-$month-$day $hr:$min:$secs&quot;);</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Execute($sql);</pre></div>
 
 <p><b>BindTimeStamp<a name=bindtimestamp></a>($ts)</b></p>
 
@@ -5381,10 +5380,10 @@ DBTimeStamp, which quotes the string. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$sql = &quot;select * from atable where created &gt; &quot;.$db-&gt;Param('0');</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>// or</pre><pre><span style='mso-tab-count:
-1'>†††††††† </span>$sql = &quot;select * from atable where created &gt; ?&quot;;</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>$db-&gt;Execute($sql,array($db-&gt;BindTimeStamp(&quot;$year-$month-$day $hr:$min:$secs&quot;));</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$sql = &quot;select * from atable where created &gt; &quot;.$db-&gt;Param('0');</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>// or</pre><pre><span style='mso-tab-count:
+1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$sql = &quot;select * from atable where created &gt; ?&quot;;</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$db-&gt;Execute($sql,array($db-&gt;BindTimeStamp(&quot;$year-$month-$day $hr:$min:$secs&quot;));</pre></div>
 
 <p><b>qstr<a name=qstr></a>($s,[$magic_quotes_enabled</b>=false]<b>)</b></p>
 
@@ -5427,11 +5426,11 @@ record $id in table1: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$DB-&gt;StartTrans();<br>
-<span style='mso-tab-count:1'>†††††††† </span>$DB-&gt;RowLock(&quot;table1&quot;,&quot;rowid=$id&quot;);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$DB-&gt;Execute($sql1);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$DB-&gt;Execute($sql2);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$DB-&gt;CompleteTrans();</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$DB-&gt;StartTrans();<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$DB-&gt;RowLock(&quot;table1&quot;,&quot;rowid=$id&quot;);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$DB-&gt;Execute($sql1);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$DB-&gt;Execute($sql2);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$DB-&gt;CompleteTrans();</pre></div>
 
 <p>Supported in db2, interbase, informix, mssql, oci8, postgres, sybase. </p>
 
@@ -5494,10 +5493,10 @@ solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>// In this example: dbtype = 'oci8', $db = 'mydb', $view = 'dataView', $owner = false <br>
 function ADODB_View_PrimaryKeys($dbtype,$db,$view,$owner)<br>
 {<br>
-<span style='mso-tab-count:1'>†††††††† </span>switch(strtoupper($view)) {<br>
-<span style='mso-tab-count:1'>†††††††† </span>case 'DATAVIEW': return array('DATAID');<br>
-<span style='mso-tab-count:1'>†††††††† </span>default: return false;<br>
-<span style='mso-tab-count:1'>†††††††† </span>}<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>switch(strtoupper($view)) {<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>case 'DATAVIEW': return array('DATAID');<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>default: return false;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>}<br>
 }<br>
 <br>
 $db = NewADOConnection('oci8');<br>
@@ -5529,10 +5528,10 @@ $conn-&gt;MetaForeignKeys('employee') will return </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>array(<br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>'dept_table' =&gt; array('deptkey=deptid'),<br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>'posn_table' =&gt; array('posn=positionid','poscategory=category')<br>
-<span style='mso-tab-count:1'>†††††††† </span>)</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>array(<br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'dept_table' =&gt; array('deptkey=deptid'),<br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>'posn_table' =&gt; array('posn=positionid','poscategory=category')<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>)</pre></div>
 
 <p>The optional schema or owner can be defined in $owner. If $upper is true,
 then the table names (array keys) are upper-cased. </p>
@@ -5713,8 +5712,8 @@ INSERT or the where clause of SELECT statements) use <a href="#dbdate">DBDate</a
 It uses a case-sensitive $dateFormat, which supports: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
-solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span style='mso-spacerun:yes'>†</span></pre><pre><span style='mso-spacerun:yes'>† </span>Y: 4-digit Year</pre><pre><span style='mso-spacerun:yes'>† </span>Q: Quarter (1-4)</pre><pre><span style='mso-spacerun:yes'>† </span>M: Month (Jan-Dec)</pre><pre><span style='mso-spacerun:yes'>† </span>m: Month (01-12)</pre><pre><span style='mso-spacerun:yes'>† </span>d: Day (01-31)</pre><pre><span style='mso-spacerun:yes'>† </span>H: Hour (00-23)</pre><pre><span style='mso-spacerun:yes'>† </span>h: Hour (1-12)</pre><pre><span style='mso-spacerun:yes'>† </span>i: Minute (00-59)</pre><pre><span style='mso-spacerun:yes'>† </span>s: Second (00-60)</pre><pre><span style='mso-spacerun:yes'>† </span>A: AM/PM indicator</pre><pre><span style='mso-spacerun:yes'>† </span>w: day of week (0-6 or 1-7 depending on DB)</pre><pre><span style='mso-spacerun:yes'>† </span>l: day of week (as string - lowercase L)</pre><pre><span style='mso-spacerun:yes'>† </span>W: week in year (0..53 for MySQL, 1..53 for PostgreSQL and Oracle)</pre><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>† </span></pre></div>
+solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><span style='mso-spacerun:yes'>&nbsp;</span></pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>Y: 4-digit Year</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>Q: Quarter (1-4)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>M: Month (Jan-Dec)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>m: Month (01-12)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>d: Day (01-31)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>H: Hour (00-23)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>h: Hour (1-12)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>i: Minute (00-59)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>s: Second (00-60)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>A: AM/PM indicator</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>w: day of week (0-6 or 1-7 depending on DB)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>l: day of week (as string - lowercase L)</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>W: week in year (0..53 for MySQL, 1..53 for PostgreSQL and Oracle)</pre><pre
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp; </span></pre></div>
 
 <p>All other characters are treated as strings. You can also use \ to escape
 characters. Available on selected databases, including mysql, postgresql,
@@ -5726,9 +5725,9 @@ stored in a field called postdate): </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†</span>$sqlfn = $db-&gt;SQLDate('Y-\QQ','postdate'); # get sql that formats postdate to output 2002-Q1<br>
-<span style='mso-spacerun:yes'>†</span>$sql = &quot;SELECT $sqlfn,SUM(cogs) FROM table GROUP BY $sqlfn ORDER BY 1 desc&quot;;<br>
-<span style='mso-spacerun:yes'>†</span></pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;</span>$sqlfn = $db-&gt;SQLDate('Y-\QQ','postdate'); # get sql that formats postdate to output 2002-Q1<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>$sql = &quot;SELECT $sqlfn,SUM(cogs) FROM table GROUP BY $sqlfn ORDER BY 1 desc&quot;;<br>
+<span style='mso-spacerun:yes'>&nbsp;</span></pre></div>
 
 <p><b>MoveNext<a name=movenext></a>( )</b></p>
 
@@ -5746,11 +5745,11 @@ $this-&gt;fields (at EOF), set the global variable $ADODB_COMPAT_FETCH = true.</
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>$rs = $db-&gt;Execute($sql);<br>
 if ($rs) <br>
-<span style='mso-tab-count:1'>†††††††† </span>while (!$rs-&gt;EOF) {<br>
-<span style='mso-spacerun:yes'>†</span><span style='mso-tab-count:2'>††††††††††††††† </span>ProcessArray($rs-&gt;fields);<span
-style='mso-tab-count:1'>†††††††† </span><br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>$rs-&gt;MoveNext();<br>
-<span style='mso-tab-count:1'>†††††††† </span>} </pre></div>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>while (!$rs-&gt;EOF) {<br>
+<span style='mso-spacerun:yes'>&nbsp;</span><span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>ProcessArray($rs-&gt;fields);<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs-&gt;MoveNext();<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>} </pre></div>
 
 <p><b>Move<a name=move></a>($to)</b></p>
 
@@ -5828,10 +5827,10 @@ internally moves to the next record after returning the current row. </p>
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>$rs = $db-&gt;Execute($sql);<br>
 if ($rs)<br>
-<span style='mso-tab-count:1'>†††††††† </span>while ($arr = $rs-&gt;FetchRow()) {<br>
-<span style='mso-tab-count:1'>†††††††† </span><span style='mso-spacerun:yes'>†† </span>&nbsp;&nbsp;# process $arr<span
-style='mso-tab-count:1'>†††††† </span><br>
-<span style='mso-tab-count:1'>†††††††† </span>}</pre></div>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>while ($arr = $rs-&gt;FetchRow()) {<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>&nbsp;&nbsp;# process $arr<span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>}</pre></div>
 
 <p><b>FetchInto</b><a name=fetchinto></a>(<b>&amp;$array</b>)</p>
 
@@ -5904,9 +5903,9 @@ need to SetFetchMode(ADODB_FETCH_ASSOC) or SetFetchMode(ADODB_FETCH_BOTH).</p>
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'>$rs = $db-&gt;Execute('select firstname,lastname from table');<br>
 if ($rs) {<br>
-<span style='mso-tab-count:1'>†††††††† </span>while ($o = $rs-&gt;FetchNextObject()) {<br>
-<span style='mso-tab-count:2'>†††††††††††††††† </span>print &quot;$o-&gt;FIRSTNAME, $o-&gt;LASTNAME&lt;BR&gt;&quot;;<br>
-<span style='mso-tab-count:1'>†††††††† </span>}<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>while ($o = $rs-&gt;FetchNextObject()) {<br>
+<span style='mso-tab-count:2'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>print &quot;$o-&gt;FIRSTNAME, $o-&gt;LASTNAME&lt;BR&gt;&quot;;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>}<br>
 }</pre></div>
 
 <p>There is some trade-off in speed in using FetchNextObject(). If performance
@@ -6016,10 +6015,10 @@ solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
 style='background:#EEEEEE'><b><span style='color:#336600'>&lt;?<br>
 include('tohtml.inc.php')</span></b>; # load code common to ADOdb <br>
 <b>include</b>('adodb.inc.php'); # load code common to ADOdb <br>
-$<span style='color:#663300'>conn</span> = &amp;ADONewConnection('mysql');<span style='mso-spacerun:yes'>†† </span># create a connection <br>
+$<span style='color:#663300'>conn</span> = &amp;ADONewConnection('mysql');<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span># create a connection <br>
 $<span style='color:#663300'>conn</span>-&gt;PConnect('localhost','userid','','agora');# connect to MySQL, agora db<br>
 $<span style='color:#663300'>sql</span> = 'select CustomerName, CustomerID from customers'; <br>
-$<span style='color:#663300'>rs</span><span style='mso-spacerun:yes'>†† </span>= $<span
+$<span style='color:#663300'>rs</span><span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>= $<span
 style='color:#663300'>conn</span>-&gt;Execute($sql); <br>
 <b><span style='color:#336600'>rs2html</span>($</b><b><span style='color:#663300'>rs</span>,'<i>border=2 cellpadding=3</i>',array('<i>Customer Name','Customer ID</i>'));<br>
 ?&gt;</b></pre></div>
@@ -6179,6 +6178,15 @@ PHP</a>. </p>
 <p>adodb: Improve compatability of ADORecordSet_empty, thanks to Sjan Evardsson. See Github #43
 <p>adodb: fix ADODB_Session::open() failing after successful ADONewConnection() call, thanks to Sjan Evardsson. See Github #44
 <p>adodb: Only include memcache library once for PHPUnit 4.x, thanks to Alan Farquharson. See Github #74
+<p>adodb: Move() returns false when given row is &lt; 0, thanks to Mike Benoit.
+<p>adodb: Add support for pagination with complex queries, thanks to Mike Benoit. See Github #88
+<p>adodb: Parse port out of hostname if specified in connection parameters, thanks to Andy Theuninck. See Github #63
+<p>adodb: Fix inability to set values from 0 to null (and vice versa) with Active Record, thanks to Louis Johnson. See Github #71
+<p>adodb: Fix PHP strict warning in ADODB_Active_Record::Reload(), thanks to Bo≈°tjan ≈Ωok≈°. See Github #75
+<p>adodb: Add mssql's DATETIME2 type to ADOConnection::MetaType(), thanks to MarcelTO. See Github #80
+<p>adodb: When flushing cache, initialize it if it is not set, thanks to Paul Haggart. See Github #57
+<p>adodb: Define DB_AUTOQUERY_* constants in main include file. See Github #49
+<p>adodb: Improve documentation of fetch mode and assoc case
 <p>datadict: oci8 strict-standards compliance. See Github #18
 <p>memcache: use include_once() to avoid issues with PHPUnit. See http://phplens.com/lens/lensforum/msgs.php?id=19489
 <p>mssqlnative: Use ADOConnection::outp instead of error_log. See Github #12
@@ -6187,18 +6195,31 @@ PHP</a>. </p>
 <p>mysql: workaround for HHVM behavior, thanks to MikeB
 <p>mysqli: Fix qstr() when called without an active connection. See Github #11
 <p>oci8: Fix broken quoting of table name in AddColumnSQL and AlterColumnSQL, thanks to Andreas Fernandez. see Github #67
-<p>pdo: Added missing property. see Github #56
+<p>pdo: Added missing property (fixes PHP notices). see Github #56
 <p>pdo: Align method signatures with parent class, thanks to Andy Theuninck. see Github #62
+<p>pdo: new sqlsrv driver, thanks to MarcelTO. See Github #81
 <p>pdo/mysql: New methods to make the driver behave more like mysql/mysqli, thanks to Andy Theuninck. see Github #40
 <p>postgres: Stop using legacy function aliases
 <p>postgres: Fix AlterColumnSQL when updating multiple columns, thanks to Jouni Ahto. See Github #72
+<p>postgres: Fix support for HHVM 3.6, thanks to Mike Benoit. See Github #87
 <p>postgres7: fix system warning in MetaColumns() with schema. See http://phplens.com/lens/lensforum/msgs.php?id=19481
 <p>sqlite3: ServerInfo() now returns driver's version
 <p>sqlite3: Fix wrong connection parameter in _connect(), thanks to diogotoscano. See Github #51
 <p>sqlite3: Fix FetchField, thanks to diogotoscano. See Github #53
+<p>xmlschema: Fix ExtractSchema() when given $prefix and $stripprefix parameters, thanks to peterdd. See Github #92
 <p>Convert languages files to UTF-8, thanks to Marc-Etienne Vargenau. See Github #32.
 
 <p><a name=5.19><b>5.19 - 23-Apr-2014</b>
+
+<p><strong>NOTE:</strong>
+    This release suffers from a
+    <a href="https://github.com/ADOdb/ADOdb/issues/20">known issue with Associative Fetch Mode</a>
+    (i.e. when $ADODB_FETCH_MODE is set to ADODB_FETCH_ASSOC).
+    It causes recordsets to return empty strings (no data) when using some database drivers.
+    The problem has been reported on MSSQL, Interbase and Foxpro, but possibly
+    affects other database types as well; all drivers derived from the above are also impacted.
+</p>
+
 <p>adodb: GetRowAssoc will return null as required. See http://phplens.com/lens/lensforum/msgs.php?id=19289
 <p>adodb: Fix GetRowAssoc bug introduced in 5.17, causing function to return data from previous fetch for NULL fields. See http://phplens.com/lens/lensforum/msgs.php?id=17539
 <p>adodb: GetAssoc will return a zero-based array when 2nd column is null. See https://sourceforge.net/p/adodb/bugs/130/
@@ -6245,7 +6266,7 @@ PHP</a>. </p>
 <p>datadict-postgres: Fixes bug in ALTER COL. See http://phplens.com/lens/lensforum/msgs.php?id=19202. Also fixed bugs in MetaType() checking $fieldobj properties.
 <p>GetRowAssoc did not work with null values. Bug in 5.17.
 <p>postgres9:  New driver to better support PostgreSQL 9. Thx Glenn Herteg and Cacti team.
-<p>sqlite3: Modified to support php 5.4. Thx G¸nter Weber [built.development#googlemail.com]
+<p>sqlite3: Modified to support php 5.4. Thx G√ºnter Weber [built.development#googlemail.com]
 <p>adodb: When fetch mode is ADODB_FETCH_ASSOC, and we execute $db->GetAssoc("select 'a','0'"); we get an error. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=19190
 <p>adodb: Caching directory permissions now configurable using global variable
 $ADODB_CACHE_PERMS. Default value is 0771.
@@ -6533,9 +6554,9 @@ $ADODB_CACHE: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre>include &quot;/path/to/adodb.inc.php&quot;;</pre><pre>$ADODB_CACHE_CLASS = 'MyCacheClass';</pre><pre><o:p>&nbsp;</o:p></pre><pre>class MyCacheClass extends ADODB_Cache_File</pre><pre>{</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>function writecache($filename, $contents,$debug=false){...}</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span>function &amp;readcache($filename, &amp;$err, $secs2cache, $rsClass){ ...}</pre><pre><span
-style='mso-tab-count:1'>†††††††† </span> :</pre><pre>}</pre><pre><o:p>&nbsp;</o:p></pre><pre>$DB = NewADOConnection($driver);</pre><pre>$DB-&gt;Connect(...);<span style='mso-spacerun:yes'>† </span>## MyCacheClass created here and stored in $ADODB_CACHE global variable.</pre><pre><o:p>&nbsp;</o:p></pre><pre>$data = $rs-&gt;CacheGetOne($sql); ## MyCacheClass is used here for caching...</pre></div>
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>function writecache($filename, $contents,$debug=false){...}</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>function &amp;readcache($filename, &amp;$err, $secs2cache, $rsClass){ ...}</pre><pre><span
+style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span> :</pre><pre>}</pre><pre><o:p>&nbsp;</o:p></pre><pre>$DB = NewADOConnection($driver);</pre><pre>$DB-&gt;Connect(...);<span style='mso-spacerun:yes'>&nbsp; </span>## MyCacheClass created here and stored in $ADODB_CACHE global variable.</pre><pre><o:p>&nbsp;</o:p></pre><pre>$data = $rs-&gt;CacheGetOne($sql); ## MyCacheClass is used here for caching...</pre></div>
 
 <p>Memcache supports multiple pooled hosts now. Only if none of the pooled
 servers can be contacted will a connect error be generated. Usage example
@@ -6609,7 +6630,7 @@ occurs. Use ErrorMsg()/ErrorNo() to get the error. </p>
 array() if EOF, just like GetRow and GetCol. </p>
 
 <p>Datadict now allows changing of types which are not resizable, eg. VARCHAR
-to TEXT in ChangeTableSQL. -- Mateo Tibaquir· </p>
+to TEXT in ChangeTableSQL. -- Mateo Tibaquir√° </p>
 
 <p>Added BIT data type support to adodb-ado.inc.php and adodb-ado5.inc.php. </p>
 
@@ -6721,7 +6742,7 @@ indexes using the INDEX keyword was added in ADOdb 4.94. The following example
 features mutiple indexes, including a compound index idx_ev1. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
-solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span style='mso-spacerun:yes'>† </span>event_id I(11) NOTNULL AUTOINCREMENT PRIMARY,</pre><pre><span style='mso-spacerun:yes'>† </span>event_type I(4) NOTNULL<span style='mso-spacerun:yes'>† </span><b>INDEX idx_evt</b>,</pre><pre><span style='mso-spacerun:yes'>† </span>event_start_date T DEFAULT NULL <b>INDEX id_esd</b>,</pre><pre><span style='mso-spacerun:yes'>† </span>event_end_date T DEFAULT '0000-00-00 00:00:00' <b>INDEX id_eted</b>,</pre><pre><span style='mso-spacerun:yes'>† </span>event_parent I(11) UNSIGNED NOTNULL DEFAULT 0 <b>INDEX id_evp</b>,</pre><pre><span style='mso-spacerun:yes'>† </span>event_owner I(11) DEFAULT 0 <b>INDEX idx_ev1</b>,</pre><pre><span style='mso-spacerun:yes'>† </span>event_project I(11) DEFAULT 0 <b>INDEX idx_ev1</b>,</pre><pre><span style='mso-spacerun:yes'>† </span>event_times_recuring I(11) UNSIGNED NOTNULL DEFAULT 0,</pre><pre><span style='mso-spacerun:yes'>† </span>event_icon C(20) DEFAULT 'obj/event',</pre><pre><span style='mso-spacerun:yes'>† </span>event_description X</pre></div>
+solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>event_id I(11) NOTNULL AUTOINCREMENT PRIMARY,</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>event_type I(4) NOTNULL<span style='mso-spacerun:yes'>&nbsp; </span><b>INDEX idx_evt</b>,</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>event_start_date T DEFAULT NULL <b>INDEX id_esd</b>,</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>event_end_date T DEFAULT '0000-00-00 00:00:00' <b>INDEX id_eted</b>,</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>event_parent I(11) UNSIGNED NOTNULL DEFAULT 0 <b>INDEX id_evp</b>,</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>event_owner I(11) DEFAULT 0 <b>INDEX idx_ev1</b>,</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>event_project I(11) DEFAULT 0 <b>INDEX idx_ev1</b>,</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>event_times_recuring I(11) UNSIGNED NOTNULL DEFAULT 0,</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>event_icon C(20) DEFAULT 'obj/event',</pre><pre><span style='mso-spacerun:yes'>&nbsp; </span>event_description X</pre></div>
 
 <p class=MsoNormal><br>
 + Prevents the generated SQL from including double drop-sequence statements for
@@ -7002,7 +7023,7 @@ MYSQLI_BINARY_FLAG missing. </p>
 
 <p>Postgresql not_null flag not set to false correctly. Thx Cristian MARIN. </p>
 
-<p>We now check in Replace() if key is in fieldArray. Thx SÈbastien Vanvelthem.
+<p>We now check in Replace() if key is in fieldArray. Thx S√©bastien Vanvelthem.
 </p>
 
 <p>_file_get_contents() function was missing in xmlschema. fixed. </p>
@@ -7063,7 +7084,7 @@ Cristian MARIN. </p>
 
 <p>CompleteTrans(false) did not return false. Fixed. Thx to JMF. </p>
 
-<p>AutoExecute() did not work with Oracle. Fixed. Thx JosÈ Moreira. </p>
+<p>AutoExecute() did not work with Oracle. Fixed. Thx Jos√© Moreira. </p>
 
 <p>MetaType() added to connection object. </p>
 
@@ -7121,12 +7142,12 @@ postgres and mysql. </p>
 <p>Datadict change by chris, cblin#tennaxia.com data mappings from: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
-solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre>oci8:<span style='mso-spacerun:yes'>† </span>X-&gt;varchar(4000) XL-&gt;CLOB</pre><pre>mssql: X-&gt;XL-&gt;TEXT</pre><pre>mysql: X-&gt;XL-&gt;LONGTEXT</pre><pre>fbird: X-&gt;XL-&gt;varchar(4000)</pre></div>
+solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre>oci8:<span style='mso-spacerun:yes'>&nbsp; </span>X-&gt;varchar(4000) XL-&gt;CLOB</pre><pre>mssql: X-&gt;XL-&gt;TEXT</pre><pre>mysql: X-&gt;XL-&gt;LONGTEXT</pre><pre>fbird: X-&gt;XL-&gt;varchar(4000)</pre></div>
 
 <p>to: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
-solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre>oci8:<span style='mso-spacerun:yes'>† </span>X-&gt;varchar(4000) XL-&gt;CLOB</pre><pre>mssql: X-&gt;VARCHAR(4000) XL-&gt;TEXT</pre><pre>mysql: X-&gt;TEXT<span style='mso-spacerun:yes'>††††††††† </span>XL-&gt;LONGTEXT</pre><pre>fbird: X-&gt;VARCHAR(4000) XL-&gt;VARCHAR(32000)</pre></div>
+solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre><o:p>&nbsp;</o:p></pre><pre>oci8:<span style='mso-spacerun:yes'>&nbsp; </span>X-&gt;varchar(4000) XL-&gt;CLOB</pre><pre>mssql: X-&gt;VARCHAR(4000) XL-&gt;TEXT</pre><pre>mysql: X-&gt;TEXT<span style='mso-spacerun:yes'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>XL-&gt;LONGTEXT</pre><pre>fbird: X-&gt;VARCHAR(4000) XL-&gt;VARCHAR(32000)</pre></div>
 
 <p>Added $connection-&gt;disableBlobs to postgresql to improve performance when
 no bytea is used (2-5% improvement). </p>
@@ -7340,7 +7361,7 @@ Gert-Rainer Bitterlich. </p>
 
 <p>Added unsigned detection to mysql and mysqli drivers. Thx to dan cech. </p>
 
-<p>Added hungarian language file. Thx to Hal·szv·ri G·bor. </p>
+<p>Added hungarian language file. Thx to Hal√°szv√°ri G√°bor. </p>
 
 <p>Improved fieldname-type formatting of datadict SQL generated (adding
 $widespacing parameter to _GenField). </p>
@@ -7422,7 +7443,7 @@ not working. Fixed in adodb-ado.inc.php. </p>
 
 <p>Constant ADODB_FORCE_NULLS was not working properly for many releases (for
 GetUpdateSQL). Fixed. Also GetUpdateSQL strips off ORDER BY now - thx Elieser
-Le„o. </p>
+Le√£o. </p>
 
 <p>Perf Monitor for oci8 now dynamically highlights optimizer_* params if too
 high/low. </p>
@@ -7528,13 +7549,13 @@ Added _GetSize() to datadict-mssql.inc.php. </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†† </span>$this-&gt;_transactionID = $this-&gt;_connectionID;</pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$this-&gt;_transactionID = $this-&gt;_connectionID;</pre></div>
 
 <p class=MsoNormal>to</p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†† </span>$this-&gt;_transactionID = ibase_trans($this-&gt;ibasetrans, $this-&gt;_connectionID);</pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>$this-&gt;_transactionID = ibase_trans($this-&gt;ibasetrans, $this-&gt;_connectionID);</pre></div>
 
 <p>Fixed typo in mysqi_field_seek(). Thx to Sh4dow (sh4dow#php.pl). </p>
 
@@ -7551,27 +7572,27 @@ parameters: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-tab-count:1'>†††††††† </span>$text = 'test test test';<br>
-<span style='mso-tab-count:1'>†††††††† </span>$sql = &quot;declare rs clob; begin :rs := lobinout(:sa0); end;&quot;;<br>
-<span style='mso-tab-count:1'>†††††††† </span>$stmt = $conn -&gt; PrepareSP($sql);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn -&gt; InParameter($stmt,$text,'sa0', -1, OCI_B_CLOB);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$rs = '';<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn -&gt; OutParameter($stmt,$rs,'rs', -1, OCI_B_CLOB);<br>
-<span style='mso-tab-count:1'>†††††††† </span>$conn -&gt; Execute($stmt);<br>
-<span style='mso-tab-count:1'>†††††††† </span>echo &quot;return = &quot;.$rs.&quot;&lt;br&gt;&quot;;</pre></div>
+style='background:#EEEEEE'><span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$text = 'test test test';<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$sql = &quot;declare rs clob; begin :rs := lobinout(:sa0); end;&quot;;<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$stmt = $conn -&gt; PrepareSP($sql);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn -&gt; InParameter($stmt,$text,'sa0', -1, OCI_B_CLOB);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$rs = '';<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn -&gt; OutParameter($stmt,$rs,'rs', -1, OCI_B_CLOB);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>$conn -&gt; Execute($stmt);<br>
+<span style='mso-tab-count:1'>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span>echo &quot;return = &quot;.$rs.&quot;&lt;br&gt;&quot;;</pre></div>
 
 <p class=MsoNormal>As he says, the LOBs limitations are: </p>
 
 <div style='mso-element:para-border-div;border:solid #DDDDDD 1.0pt;mso-border-alt:
 solid #DDDDDD .75pt;padding:9.0pt 18.0pt 9.0pt 18.0pt;background:#EEEEEE'><pre
-style='background:#EEEEEE'><span style='mso-spacerun:yes'>†</span>- use OCINewDescriptor before binding<br>
-<span style='mso-spacerun:yes'>†</span>- if Param is IN, uses save() before each execute. This is done automatically for you.<br>
-<span style='mso-spacerun:yes'>†</span>- if Param is OUT, uses load() after each execute. This is done automatically for you.<br>
-<span style='mso-spacerun:yes'>†</span>- when we bind $var as LOB, we create new descriptor and return it as a<br>
-<span style='mso-spacerun:yes'>† </span><span style='mso-spacerun:yes'>†</span>Bind Result, so if we want to use OUT parameters, we have to store<br>
-<span style='mso-spacerun:yes'>†† </span>somewhere &amp;$var to load() data from LOB to it.<br>
-<span style='mso-spacerun:yes'>†</span>- IN OUT params are not working now (should not be a big problem to fix it)<br>
-<span style='mso-spacerun:yes'>†</span>- now mass binding not working too (I've wrote about it before)</pre></div>
+style='background:#EEEEEE'><span style='mso-spacerun:yes'>&nbsp;</span>- use OCINewDescriptor before binding<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>- if Param is IN, uses save() before each execute. This is done automatically for you.<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>- if Param is OUT, uses load() after each execute. This is done automatically for you.<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>- when we bind $var as LOB, we create new descriptor and return it as a<br>
+<span style='mso-spacerun:yes'>&nbsp; </span><span style='mso-spacerun:yes'>&nbsp;</span>Bind Result, so if we want to use OUT parameters, we have to store<br>
+<span style='mso-spacerun:yes'>&nbsp;&nbsp; </span>somewhere &amp;$var to load() data from LOB to it.<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>- IN OUT params are not working now (should not be a big problem to fix it)<br>
+<span style='mso-spacerun:yes'>&nbsp;</span>- now mass binding not working too (I've wrote about it before)</pre></div>
 
 <p>Simplified Connect() and PConnect() error handling. </p>
 
@@ -7800,7 +7821,7 @@ params to error-handler. </p>
 <p>Datadict did not handle types like 16.0 properly in _GetSize. Fixed. </p>
 
 <p>Oci8 driver SelectLimit() bug &amp;= instead of =&amp; used. Thx to Swen
-Th¸mmler. </p>
+Th√ºmmler. </p>
 
 <p>Jesse Mullan suggested not flushing outp when output buffering enabled. Due
 to Apache 2.0 bug. Added. </p>
@@ -7940,7 +7961,7 @@ incorrect in _query. Fixed. </p>
 monitor. </p>
 
 <p>Added _varchar (varchar arrays) support for postgresql. Reported by PREVOT
-StÈphane.</p>
+St√©phane.</p>
 
 <div class=MsoNormal align=center style='text-align:center'>
 

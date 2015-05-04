@@ -2104,11 +2104,12 @@ class adoSchema {
 
 		$schema = '<?xml version="1.0"?>' . "\n"
 				. '<schema version="' . $this->schemaVersion . '">' . "\n";
-
-		if( is_array( $tables = $this->db->MetaTables( 'TABLES' , ($prefix) ? $prefix.'%' : '') ) ) {
+		if( is_array( $tables = $this->db->MetaTables( 'TABLES' ,false ,($prefix) ? str_replace('_','\_',$prefix).'%' : '') ) ) {
 			foreach( $tables as $table ) {
-				if ($stripprefix) $table = str_replace(str_replace('\\_', '_', $pfx ), '', $table);
-				$schema .= $indent . '<table name="' . htmlentities( $table ) . '">' . "\n";
+				$schema .= $indent
+					. '<table name="'
+					. htmlentities( $stripprefix ? str_replace($prefix, '', $table) : $table )
+					. '">' . "\n";
 
 				// grab details from database
 				$rs = $this->db->Execute( 'SELECT * FROM ' . $table . ' WHERE -1' );
