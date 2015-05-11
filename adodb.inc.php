@@ -125,13 +125,16 @@ if (!defined('_ADODB_LAYER')) {
 	 *   - LOWER:  $rs->fields['orderid']
 	 *   - UPPER:  $rs->fields['ORDERID']
 	 *   - NATIVE: $rs->fields['OrderID'] (or whatever the RDBMS will return)
+	 *
 	 * The default is to use native case-names.
+	 *
 	 * NOTE: This functionality is not implemented everywhere, it currently
 	 * works only with: mssql, odbc, oci8 and ibase derived drivers
 	 */
 		define('ADODB_ASSOC_CASE_LOWER', 0);
 		define('ADODB_ASSOC_CASE_UPPER', 1);
 		define('ADODB_ASSOC_CASE_NATIVE', 2);
+
 
 		if (!defined('TIMESTAMP_FIRST_YEAR')) {
 			define('TIMESTAMP_FIRST_YEAR',100);
@@ -156,11 +159,6 @@ if (!defined('_ADODB_LAYER')) {
 		}
 		unset($_adodb_ver);
 	}
-
-
-	//if (!defined('ADODB_ASSOC_CASE')) {
-	//	define('ADODB_ASSOC_CASE',2);
-	//}
 
 
 	/**
