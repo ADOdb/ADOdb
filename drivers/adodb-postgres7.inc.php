@@ -96,7 +96,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	function __construct()
 	{
 		parent::__construct();
-		if (ADODB_ASSOC_CASE !== 2) {
+		if (ADODB_ASSOC_CASE !== ADODB_ASSOC_CASE_NATIVE) {
 			$this->rsPrefix .= 'assoc_';
 		}
 		$this->_bindInputArray = PHP_VERSION >= 5.1;

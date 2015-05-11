@@ -4512,7 +4512,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		global $ADODB_NEWCONNECTION, $ADODB_LASTDB;
 
 		if (!defined('ADODB_ASSOC_CASE')) {
-			define('ADODB_ASSOC_CASE',2);
+			define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_NATIVE);
 		}
 		$errorfn = (defined('ADODB_ERROR_HANDLER')) ? ADODB_ERROR_HANDLER : false;
 		if (($at = strpos($db,'://')) !== FALSE) {

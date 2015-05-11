@@ -777,20 +777,21 @@ class ADORecordset_ibase extends ADORecordSet
 			$fld = new ADOFieldObject;
 			$ibf = ibase_field_info($this->_queryID,$fieldOffset);
 
+			$name = empty($ibf['alias']) ? $ibf['name'] : $ibf['alias'];
+
 			switch (ADODB_ASSOC_CASE) {
-			case 2: // the default
-				$fld->name = ($ibf['alias']);
-				if (empty($fld->name)) $fld->name = ($ibf['name']);
-				break;
-			case 0:
-				$fld->name = strtoupper($ibf['alias']);
-				if (empty($fld->name)) $fld->name = strtoupper($ibf['name']);
-				break;
-			case 1:
-				$fld->name = strtolower($ibf['alias']);
-				if (empty($fld->name)) $fld->name = strtolower($ibf['name']);
-				break;
+				case ADODB_ASSOC_CASE_UPPER:
+					$fld->name = strtoupper($name);
+					break;
+				case ADODB_ASSOC_CASE_LOWER:
+					$fld->name = strtolower($name);
+					break;
+				case ADODB_ASSOC_CASE_NATIVE:
+				default:
+					$fld->name = $name;
+					break;
 			}
+
 			$fld->type = $ibf['type'];
 			$fld->max_length = $ibf['length'];
 
