@@ -3734,7 +3734,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param int $upper Case for the array keys, defaults to uppercase
 	 *                   (see ADODB_ASSOC_CASE_xxx constants)
 	 */
-	function GetAssocKeys($upper=ADODB_ASSOC_CASE_UPPER) {
+	function GetAssocKeys($upper = ADODB_ASSOC_CASE) {
 		if ($this->bind) {
 			return;
 		}
@@ -3784,7 +3784,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param int $upper Case for the array keys, defaults to uppercase
 	 *                   (see ADODB_ASSOC_CASE_xxx constants)
 	 */
-	function GetRowAssoc($upper=ADODB_ASSOC_CASE_UPPER) {
+	function GetRowAssoc($upper = ADODB_ASSOC_CASE) {
 		$record = array();
 		$this->GetAssocKeys($upper);
 

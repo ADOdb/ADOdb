@@ -913,7 +913,7 @@ END Adodb;
 	print "<p>GetRowAssoc Upper: Should get 1, Caroline</p>";
 	$rs = $db->SelectLimit('select id,firstname from ADOXYZ order by id',1);
 	if ($rs && !$rs->EOF) {
-		$arr = $rs->GetRowAssoc();
+		$arr = $rs->GetRowAssoc(ADODB_ASSOC_CASE_UPPER);
 
 		if ($arr[strtoupper($id)] != 1) {Err("Error 1");print_r($arr);};
 		if (trim($arr[strtoupper($fname)]) != 'Caroline') {Err("Error 2"); print_r($arr);};
@@ -924,7 +924,7 @@ END Adodb;
 	print "<p>GetRowAssoc Lower: Should get 1, Caroline</p>";
 	$rs = $db->SelectLimit('select id,firstname from ADOXYZ order by id',1);
 	if ($rs && !$rs->EOF) {
-		$arr = $rs->GetRowAssoc(false);
+		$arr = $rs->GetRowAssoc(ADODB_ASSOC_CASE_LOWER);
 		if ($arr['id'] != 1) {Err("Error 1"); print_r($arr);};
 		if (trim($arr['firstname']) != 'Caroline') {Err("Error 2"); print_r($arr);};
 
