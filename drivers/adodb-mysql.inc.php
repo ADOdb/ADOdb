@@ -804,6 +804,7 @@ class ADORecordSet_mysql extends ADORecordSet{
 	function _fetch()
 	{
 		$this->fields = @mysql_fetch_array($this->_queryID,$this->fetchMode);
+		$this->_updatefields();
 		return is_array($this->fields);
 	}
 
