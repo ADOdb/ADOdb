@@ -753,7 +753,7 @@ class ADORecordSet_mysql extends ADORecordSet{
 		return $o;
 	}
 
-	function GetRowAssoc($upper=true)
+	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
 		if ($this->fetchMode == MYSQL_ASSOC && !$upper) $row = $this->fields;
 		else $row = ADORecordSet::GetRowAssoc($upper);
