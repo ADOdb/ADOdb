@@ -3729,6 +3729,25 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
+	 * Defines the function to use for table fields case conversion
+	 * depending on ADODB_ASSOC_CASE
+	 * @return string strtolower/strtoupper or false if no conversion needed
+	 */
+	protected function AssocCaseConvertFunction($case = ADODB_ASSOC_CASE) {
+		if($this->fetchMode & ADODB_FETCH_ASSOC) {
+			switch($case) {
+				case ADODB_ASSOC_CASE_UPPER:
+					return 'strtoupper';
+				case ADODB_ASSOC_CASE_LOWER:
+					return 'strtolower';
+				case ADODB_ASSOC_CASE_NATIVE:
+				default:
+					return false;
+			}
+		}
+	}
+
+	/**
 	 * Builds the bind array associating keys to recordset fields
 	 *
 	 * @param int $upper Case for the array keys, defaults to uppercase
@@ -3741,17 +3760,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$this->bind = array();
 
 		// Define case conversion function for ASSOC fetch mode
-		$fn_change_case = false;
-		if($this->fetchMode & ADODB_FETCH_ASSOC) {
-			switch($upper) {
-				case ADODB_ASSOC_CASE_UPPER:
-					$fn_change_case = 'strtoupper';
-					break;
-				case ADODB_ASSOC_CASE_LOWER:
-					$fn_change_case = 'strtolower';
-					break;
-			}
-		}
+		$fn_change_case = $this->AssocCaseConvertFunction($upper);
 
 		// Build the bind array
 		for ($i=0; $i < $this->_numOfFields; $i++) {

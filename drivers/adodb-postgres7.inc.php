@@ -358,22 +358,25 @@ class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 		return (is_array($this->fields));
 	}
 
-		// Create associative array
+	/**
+	 * Convert case of field names associative array, if needed
+	 * @return void
+	 */
 	function _updatefields()
 	{
-		if (ADODB_ASSOC_CASE == 2) return; // native
+		$fn_change_case = $this->AssocCaseConvertFunction();
+		if(!$fn_change_case) {
+			// No conversion needed
+			return;
+		}
 
 		$arr = array();
-		$lowercase = (ADODB_ASSOC_CASE == 0);
 
 		foreach($this->fields as $k => $v) {
-			if (is_integer($k)) $arr[$k] = $v;
-			else {
-				if ($lowercase)
-					$arr[strtolower($k)] = $v;
-				else
-					$arr[strtoupper($k)] = $v;
+			if (!is_integer($k)) {
+				$k = $fn_change_case($k);
 			}
+			$arr[$k] = $v;
 		}
 		$this->fields = $arr;
 	}
