@@ -3741,6 +3741,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$this->bind = array();
 
 		// Define case conversion function for ASSOC fetch mode
+		$fn_change_case = false;
 		if($this->fetchMode & ADODB_FETCH_ASSOC) {
 			switch($upper) {
 				case ADODB_ASSOC_CASE_UPPER:
@@ -3748,10 +3749,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 					break;
 				case ADODB_ASSOC_CASE_LOWER:
 					$fn_change_case = 'strtolower';
-					break;
-				case ADODB_ASSOC_CASE_NATIVE:
-				default:
-					$fn_change_case = false;
 					break;
 			}
 		}
