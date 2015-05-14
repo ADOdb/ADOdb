@@ -937,7 +937,9 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
-		if ($this->fetchMode == PGSQL_ASSOC && !$upper) return $this->fields;
+		if ($this->fetchMode == PGSQL_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
+			return $this->fields;
+		}
 		$row = ADORecordSet::GetRowAssoc($upper);
 		return $row;
 	}

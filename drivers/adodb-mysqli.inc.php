@@ -956,8 +956,9 @@ class ADORecordSet_mysqli extends ADORecordSet{
 
 	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
-		if ($this->fetchMode == MYSQLI_ASSOC && !$upper)
+		if ($this->fetchMode == MYSQLI_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
 			return $this->fields;
+		}
 		$row = ADORecordSet::GetRowAssoc($upper);
 		return $row;
 	}
