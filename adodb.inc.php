@@ -4195,6 +4195,34 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 	}
 
+	/**
+	 * Convert case of field names associative array, if needed
+	 * @return void
+	 */
+	protected function _updatefields()
+	{
+		if( empty($this->fields)) {
+			return;
+		}
+
+		// Determine case conversion function
+		$fn_change_case = $this->AssocCaseConvertFunction();
+		if(!$fn_change_case) {
+			// No conversion needed
+			return;
+		}
+
+		$arr = array();
+
+		// Change the case
+		foreach($this->fields as $k => $v) {
+			if (!is_integer($k)) {
+				$k = $fn_change_case($k);
+			}
+			$arr[$k] = $v;
+		}
+		$this->fields = $arr;
+	}
 
 	function _close() {}
 

@@ -1715,46 +1715,6 @@ class ADORecordset_oci8 extends ADORecordSet {
 		return false;
 	}
 
-	/**
-	 * Sets the case for the fields associative array based on value of
-	 * ADODB_ASSOC_CASE
-	 */
-	function _updatefields()
-	{
-		// No fields to update
-		if($this->fields === false) {
-			return;
-		}
-
-		// Nothing to do if fetch mode is not associative
-		if(!($this->fetchMode & OCI_ASSOC)) {
-			return;
-		}
-
-		switch(ADODB_ASSOC_CASE) {
-			case ADODB_ASSOC_CASE_UPPER:
-				$fn_change_case = 'strtoupper';
-				break;
-			case ADODB_ASSOC_CASE_LOWER:
-				$fn_change_case = 'strtolower';
-				break;
-			case ADODB_ASSOC_CASE_NATIVE:
-			default:
-				// Nothing to do
-				return;
-		}
-
-		// Change the case
-		$arr = array();
-		foreach($this->fields as $key => $val) {
-			if(!is_numeric($key)) {
-				$key = $fn_change_case($key);
-			}
-			$arr[$key] = $val;
-		}
-		$this->fields = $arr;
-	}
-
 	function _fetch()
 	{
 		$this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode);
