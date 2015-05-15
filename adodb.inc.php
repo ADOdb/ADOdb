@@ -3734,16 +3734,14 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @return string strtolower/strtoupper or false if no conversion needed
 	 */
 	protected function AssocCaseConvertFunction($case = ADODB_ASSOC_CASE) {
-		if($this->fetchMode & ADODB_FETCH_ASSOC) {
-			switch($case) {
-				case ADODB_ASSOC_CASE_UPPER:
-					return 'strtoupper';
-				case ADODB_ASSOC_CASE_LOWER:
-					return 'strtolower';
-				case ADODB_ASSOC_CASE_NATIVE:
-				default:
-					return false;
-			}
+		switch($case) {
+			case ADODB_ASSOC_CASE_UPPER:
+				return 'strtoupper';
+			case ADODB_ASSOC_CASE_LOWER:
+				return 'strtolower';
+			case ADODB_ASSOC_CASE_NATIVE:
+			default:
+				return false;
 		}
 	}
 
