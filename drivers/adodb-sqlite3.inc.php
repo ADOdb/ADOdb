@@ -193,8 +193,13 @@ class ADODB_sqlite3 extends ADOConnection {
 	function _query($sql,$inputarr=false)
 	{
 		$rez = $this->_connectionID->query($sql);
-		if (!$rez) {
-			$this->_connectionID->lastErrorCode();
+		if ($rez === false) {
+			$this->_errorNo = $this->_connectionID->lastErrorCode();
+		}
+		// If no data was returned, we don't need to create a real recordset
+		elseif ($rez->numColumns() == 0) {
+			$rez->finalize();
+			$rez = true;
 		}
 
 		return $rez;
