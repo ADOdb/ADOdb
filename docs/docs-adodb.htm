@@ -6193,6 +6193,7 @@ PHP</a>. </p>
 <p>mssqlnative: Use ADOConnection::outp instead of error_log. See Github #12
 <p>mssqlnative: fix failure on Insert_ID() if the insert statement contains a semicolon in a value string, thanks to sketule. See Github #96
 <p>mssqlnative: Fix "invalid parameter was passed to sqlsrv_configure" error, thanks to Ray Morris. See Github #103
+<p>mssqlnative: Fix insert_ID() failing if server returns more than 1 row, thanks to gitjti. See Github #41
 <p>mysql: prevent race conditions when creating/dropping sequences, thanks to MikeB. See Github #28
 <p>mysql: Fix adodb_strip_order_by() bug causing SQL error for subqueries with order/limit clause, thanks to MikeB.
 <p>mysql: workaround for HHVM behavior, thanks to MikeB

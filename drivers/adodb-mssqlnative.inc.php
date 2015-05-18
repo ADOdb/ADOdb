@@ -579,9 +579,10 @@ class ADODB_mssqlnative extends ADOConnection {
 			$rez = false;
 		} else if ($insert) {
 			// retrieve the last insert ID (where applicable)
-			sqlsrv_next_result($rez);
-			sqlsrv_fetch($rez);
-			$this->lastInsertID = sqlsrv_get_field($rez, 0);
+			while ( sqlsrv_next_result($rez) ) {
+				sqlsrv_fetch($rez);
+				$this->lastInsertID = sqlsrv_get_field($rez, 0);
+			}
 		}
 		return $rez;
 	}
