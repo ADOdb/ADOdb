@@ -133,12 +133,12 @@ class ADODB_mssqlnative extends ADOConnection {
 			sqlsrv_set_error_handling( SQLSRV_ERRORS_LOG_ALL );
 			sqlsrv_log_set_severity( SQLSRV_LOG_SEVERITY_ALL );
 			sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
-			sqlsrv_configure('warnings_return_as_errors', 0);
+			sqlsrv_configure('WarningsReturnAsErrors', 0);
 		} else {
 			sqlsrv_set_error_handling(0);
 			sqlsrv_log_set_severity(0);
 			sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
-			sqlsrv_configure('warnings_return_as_errors', 0);
+			sqlsrv_configure('WarningsReturnAsErrors', 0);
 		}
 	}
 	function ServerVersion() {
