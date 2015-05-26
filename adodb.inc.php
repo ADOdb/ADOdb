@@ -125,13 +125,16 @@ if (!defined('_ADODB_LAYER')) {
 	 *   - LOWER:  $rs->fields['orderid']
 	 *   - UPPER:  $rs->fields['ORDERID']
 	 *   - NATIVE: $rs->fields['OrderID'] (or whatever the RDBMS will return)
+	 *
 	 * The default is to use native case-names.
+	 *
 	 * NOTE: This functionality is not implemented everywhere, it currently
 	 * works only with: mssql, odbc, oci8 and ibase derived drivers
 	 */
 		define('ADODB_ASSOC_CASE_LOWER', 0);
 		define('ADODB_ASSOC_CASE_UPPER', 1);
 		define('ADODB_ASSOC_CASE_NATIVE', 2);
+
 
 		if (!defined('TIMESTAMP_FIRST_YEAR')) {
 			define('TIMESTAMP_FIRST_YEAR',100);
@@ -156,11 +159,6 @@ if (!defined('_ADODB_LAYER')) {
 		}
 		unset($_adodb_ver);
 	}
-
-
-	//if (!defined('ADODB_ASSOC_CASE')) {
-	//	define('ADODB_ASSOC_CASE',2);
-	//}
 
 
 	/**
@@ -3387,7 +3385,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if ($cols < 2) {
 			return false;
 		}
-		$numIndex = is_array($this->fields) && array_key_exists(0, $this->fields);
+
+		// Determine whether the array is associative or 0-based numeric
+		$numIndex = array_keys($this->fields) == range(0, count($this->fields) - 1);
+
 		$results = array();
 
 		if (!$first2cols && ($cols > 2 || $force_array)) {
@@ -4509,7 +4510,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		global $ADODB_NEWCONNECTION, $ADODB_LASTDB;
 
 		if (!defined('ADODB_ASSOC_CASE')) {
-			define('ADODB_ASSOC_CASE',2);
+			define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_NATIVE);
 		}
 		$errorfn = (defined('ADODB_ERROR_HANDLER')) ? ADODB_ERROR_HANDLER : false;
 		if (($at = strpos($db,'://')) !== FALSE) {

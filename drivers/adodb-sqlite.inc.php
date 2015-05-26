@@ -213,6 +213,11 @@ class ADODB_sqlite extends ADOConnection {
 		if (!$rez) {
 			$this->_errorNo = sqlite_last_error($this->_connectionID);
 		}
+		// If no data was returned, we don't need to create a real recordset
+		// Note: this code is untested, as I don't have a sqlite2 setup available
+		elseif (sqlite_num_fields($rez) == 0) {
+			$rez = true;
+		}
 
 		return $rez;
 	}

@@ -133,12 +133,12 @@ class ADODB_mssqlnative extends ADOConnection {
 			sqlsrv_set_error_handling( SQLSRV_ERRORS_LOG_ALL );
 			sqlsrv_log_set_severity( SQLSRV_LOG_SEVERITY_ALL );
 			sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
-			sqlsrv_configure('warnings_return_as_errors', 0);
+			sqlsrv_configure('WarningsReturnAsErrors', 0);
 		} else {
 			sqlsrv_set_error_handling(0);
 			sqlsrv_log_set_severity(0);
 			sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
-			sqlsrv_configure('warnings_return_as_errors', 0);
+			sqlsrv_configure('WarningsReturnAsErrors', 0);
 		}
 	}
 	function ServerVersion() {
@@ -563,7 +563,7 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		$insert = false;
 		// handle native driver flaw for retrieving the last insert ID
-		if(preg_match('/^\W*(insert [^;]+);?$/i', $sql)) {
+		if(preg_match('/^\W*insert\s(?:(?:(?:\'\')*\'[^\']+\'(?:\'\')*)|[^;\'])*;?$/i', $sql)) {
 			$insert = true;
 			$sql .= '; '.$this->identitySQL; // select scope_identity()
 		}
@@ -579,9 +579,10 @@ class ADODB_mssqlnative extends ADOConnection {
 			$rez = false;
 		} else if ($insert) {
 			// retrieve the last insert ID (where applicable)
-			sqlsrv_next_result($rez);
-			sqlsrv_fetch($rez);
-			$this->lastInsertID = sqlsrv_get_field($rez, 0);
+			while ( sqlsrv_next_result($rez) ) {
+				sqlsrv_fetch($rez);
+				$this->lastInsertID = sqlsrv_get_field($rez, 0);
+			}
 		}
 		return $rez;
 	}

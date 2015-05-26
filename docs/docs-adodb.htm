@@ -6186,10 +6186,14 @@ PHP</a>. </p>
 <p>adodb: Add mssql's DATETIME2 type to ADOConnection::MetaType(), thanks to MarcelTO. See Github #80
 <p>adodb: When flushing cache, initialize it if it is not set, thanks to Paul Haggart. See Github #57
 <p>adodb: Define DB_AUTOQUERY_* constants in main include file. See Github #49
+<p>adodb: Fix regression (introduced in 5.19) in GetAssoc() with ADODB_FETCH_ASSOC mode and '0' as data. See Github #101
 <p>adodb: Improve documentation of fetch mode and assoc case
 <p>datadict: oci8 strict-standards compliance. See Github #18
 <p>memcache: use include_once() to avoid issues with PHPUnit. See http://phplens.com/lens/lensforum/msgs.php?id=19489
 <p>mssqlnative: Use ADOConnection::outp instead of error_log. See Github #12
+<p>mssqlnative: fix failure on Insert_ID() if the insert statement contains a semicolon in a value string, thanks to sketule. See Github #96
+<p>mssqlnative: Fix "invalid parameter was passed to sqlsrv_configure" error, thanks to Ray Morris. See Github #103
+<p>mssqlnative: Fix insert_ID() failing if server returns more than 1 row, thanks to gitjti. See Github #41
 <p>mysql: prevent race conditions when creating/dropping sequences, thanks to MikeB. See Github #28
 <p>mysql: Fix adodb_strip_order_by() bug causing SQL error for subqueries with order/limit clause, thanks to MikeB.
 <p>mysql: workaround for HHVM behavior, thanks to MikeB
@@ -6206,6 +6210,7 @@ PHP</a>. </p>
 <p>sqlite3: ServerInfo() now returns driver's version
 <p>sqlite3: Fix wrong connection parameter in _connect(), thanks to diogotoscano. See Github #51
 <p>sqlite3: Fix FetchField, thanks to diogotoscano. See Github #53
+<p>sqlite3: Fix result-less SQL statements executed twice. See Github #99
 <p>xmlschema: Fix ExtractSchema() when given $prefix and $stripprefix parameters, thanks to peterdd. See Github #92
 <p>Convert languages files to UTF-8, thanks to Marc-Etienne Vargenau. See Github #32.
 
