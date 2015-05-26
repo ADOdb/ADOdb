@@ -25,12 +25,17 @@ class ADODB2_pdo
 		{
 			if($pName == "connection")
 			{
-				$tClassName = "ADODB2_".$pValue->dsnType;
+				$tClassName = NULL;
+				$tClassNamePostFix = $pValue->dsnType;
+				
+				if($tClassNamePostFix == 'oci')
+					{$tClassNamePostFix = "oci8";}
 
-				include_once(ADODB_DIR.'/datadict/datadict-'.$pValue->dsnType.'.inc.php');
+				$tClassName = "ADODB2_".$tClassNamePostFix;
+
+				include_once(ADODB_DIR.'/datadict/datadict-'.$tClassNamePostFix.'.inc.php');
 				
 				$this->gADODB_DataDict = new $tClassName();				
-				
 				
 				foreach($this->gCachedValuesBeforeConnectionSetup as $tName=>$tValue)
 					{$this->gADODB_DataDict->$tName = $tValue;}
