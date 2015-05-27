@@ -575,7 +575,7 @@ function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr
 	if ( $rsreturn->_numOfRows == $test_nrows ) {
 		//Still at least 1 more row, so we are not on last page yet... Remove the last row from the RS.
 		$rsreturn->_numOfRows = ( $rsreturn->_numOfRows - 1 );
-	} elseif ( $rsreturn->_numOfRows == 0 AND $page > 1 ) {
+	} elseif ( $rsreturn->_numOfRows == 0 && $page > 1 ) {
 		//Likely requested a page that doesn't exist, so need to find the last page and return it.
 		//Revert to original method and loop through pages until we find some data...
 		$pagecounter = $page + 1;
