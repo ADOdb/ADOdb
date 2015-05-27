@@ -127,7 +127,7 @@ class ADOdbLoadBalancer {
 			$n = 0;
 			$num = mt_rand(0, $total_weight );
 			foreach( $this->connections as $i => $connection_obj ) {
-				if ( $connection_obj->weight > 0 AND ( $type == 'slave' OR $connection_obj->type == 'master' ) ) {
+				if ( $connection_obj->weight > 0 && ( $type == 'slave' || $connection_obj->type == 'master' ) ) {
 					$n += $connection_obj->weight;
 					if ( $n >= $num) {
 						break;
@@ -142,10 +142,10 @@ class ADOdbLoadBalancer {
 		if ( $this->total_connections == 0 ) {
 			$connection_id = 0;
 		} else {
-			if ( $this->enable_sticky_sessions == TRUE AND $this->last_connection_id[$type] !== FALSE ) {
+			if ( $this->enable_sticky_sessions == TRUE && $this->last_connection_id[$type] !== FALSE ) {
 				$connection_id = $this->last_connection_id[$type];
 			} else {
-				if ( $type == 'master' AND $this->total_connections['master'] == 1 ) {
+				if ( $type == 'master' && $this->total_connections['master'] == 1 ) {
 					$connection_id = $this->connections_master[0];
 				} else {
 					$connection_id = $this->getConnectionByWeight( $type );
@@ -160,7 +160,7 @@ class ADOdbLoadBalancer {
 		if ( isset($this->connections[$connection_id]) ) {
 			$connection_obj = $this->connections[$connection_id];
 			$adodb_obj = $connection_obj->getADOdbObject();
-			if ( is_object($adodb_obj) AND $adodb_obj->_connectionID == FALSE ) {
+			if ( is_object($adodb_obj) && $adodb_obj->_connectionID == FALSE ) {
 				try {
 					if ( $connection_obj->persistent_connection == TRUE ) {
 						$connection_result = $adodb_obj->Pconnect( $connection_obj->host, $connection_obj->user, $connection_obj->password, $connection_obj->database );
@@ -199,7 +199,7 @@ class ADOdbLoadBalancer {
 			$connection_obj = $this->connections[$connection_id];
 		} catch ( Exception $e ) {
 			//Connection error, see if there are other connections to try still.
-			if ( ($type == 'master' AND $this->total_connections['master'] > 0 ) OR ( $type == 'slave' AND $this->total_connections['all'] > 0 ) ) {
+			if ( ($type == 'master' && $this->total_connections['master'] > 0 ) || ( $type == 'slave' && $this->total_connections['all'] > 0 ) ) {
 				$this->removeConnection( $connection_id );
 				return $this->getConnection( $type, $pin_connection );
 			} else {
@@ -212,7 +212,7 @@ class ADOdbLoadBalancer {
 
 		if ( $pin_connection === TRUE ) {
 			$this->pinned_connection_id = $connection_id;
-		} elseif( $pin_connection === FALSE AND $adodb_obj->transOff <= 1 ) { //UnPin connection only if we are 1 level deep in a transaction.
+		} elseif( $pin_connection === FALSE && $adodb_obj->transOff <= 1 ) { //UnPin connection only if we are 1 level deep in a transaction.
 			$this->pinned_connection_id = FALSE;
 
 			//When unpinning connection, reset last_connection_id so slave queries don't get stuck on the master.
@@ -270,9 +270,9 @@ class ADOdbLoadBalancer {
 	//Executes the same QUERY on the entire cluster of connections.
 	//Would be used for things like SET SESSION TIME ZONE calls and such.
 	public function ClusterExecute( $sql, $inputarr = FALSE, $return_all_results = FALSE, $existing_connections_only = TRUE ) {
-		if ( is_array($this->connections) AND count($this->connections) > 0 ) {
+		if ( is_array($this->connections) && count($this->connections) > 0 ) {
 			foreach( $this->connections as $key => $connection_obj ) {
-				if ( $existing_connections_only == FALSE OR ( $existing_connections_only == TRUE AND $connection_obj->getADOdbObject()->_connectionID !== FALSE ) ) {
+				if ( $existing_connections_only == FALSE || ( $existing_connections_only == TRUE && $connection_obj->getADOdbObject()->_connectionID !== FALSE ) ) {
 					$adodb_obj = $this->_getConnection( $key );
 					if ( is_object( $adodb_obj ) ) {
 						$result_arr[] = $adodb_obj->Execute( $sql, $inputarr );
@@ -280,7 +280,7 @@ class ADOdbLoadBalancer {
 				}
 			}
 
-			if ( isset($result_arr) AND $return_all_results == TRUE ) {
+			if ( isset($result_arr) && $return_all_results == TRUE ) {
 				return $result_arr;
 			} else {
 				//Loop through all results checking to see if they match, if they do return the first one
@@ -348,7 +348,7 @@ class ADOdbLoadBalancer {
 				break;
 			//case 'ignoreerrors':
 			//	//When ignoreerrors is called, PIN to the connection until its called again.
-			//	if ( !isset($args[0]) OR ( isset($args[0]) AND $args[0] == FALSE ) ) {
+			//	if ( !isset($args[0]) || ( isset($args[0]) && $args[0] == FALSE ) ) {
 			//		$pin_connection = TRUE;
 			//	} else {
 			//		$pin_connection = FALSE;
@@ -413,7 +413,7 @@ class ADOdbLoadBalancerConnection {
 	public $database = '';
 
 	function __construct( $driver, $type = 'master', $weight = 1, $persistent_connection = FALSE, $argHostname = '', $argUsername = '', $argPassword = '', $argDatabaseName = '' ) {
-		if ( $type !== 'master' AND $type !== 'slave' ) {
+		if ( $type !== 'master' && $type !== 'slave' ) {
 			return FALSE;
 		}
 
