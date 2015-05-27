@@ -737,7 +737,7 @@ class ADODB_postgres64 extends ADOConnection{
 		# PHP does not handle 'hex' properly ('x74657374' is returned as 't657374')
 		# https://bugs.php.net/bug.php?id=59831 states this is in fact not a bug,
 		# so we manually set bytea_output
-		if (version_compare($info['version'], '9.0', '>=')) {
+		if ( !empty($this->connection->noBlobs) && version_compare($info['version'], '9.0', '>=')) {
 			$this->Execute('set bytea_output=escape');
 		}
 
