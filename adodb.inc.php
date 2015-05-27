@@ -1153,13 +1153,15 @@ if (!defined('_ADODB_LAYER')) {
 		return $ret;
 	}
 
-	//Strips keyword used to help generate SELECT COUNT(*) queries from SQL if it exists.
-	function adodb_strip_count_keyword( $sql ) {
-		return ADODB_str_replace( '_ADODB_COUNT', '', $sql );
-	}
-
 	function _Execute($sql,$inputarr=false) {
-		$sql = $this->adodb_strip_count_keyword( $sql );
+		// ExecuteCursor() may send non-string queries (such as arrays),
+		// so we need to ignore those.
+		if( is_string($sql) ) {
+			// Strips keyword used to help generate SELECT COUNT(*) queries
+			// from SQL if it exists.
+			$sql = ADODB_str_replace( '_ADODB_COUNT', '', $sql );
+		}
+
 		if ($this->debug) {
 			global $ADODB_INCLUDED_LIB;
 			if (empty($ADODB_INCLUDED_LIB)) {
