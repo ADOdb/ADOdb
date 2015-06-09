@@ -4249,7 +4249,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			{return true;}
 		else if($vNumericKeysCount > $vAssociativeKeysCount)
 		{
-			if($vNumericKeysCount != range(0, $this->_numOfFields - 1))
+			if($vNumericKeys != range(0, $this->_numOfFields - 1))
 				{return false;}
 			foreach($vAssociativeSubset as $tValue)
 			{
