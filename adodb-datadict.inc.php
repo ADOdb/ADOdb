@@ -658,12 +658,15 @@ class ADODB_DataDict {
 			$funsigned = false;
 			$findex = '';
 			$funiqueindex = false;
+			$fenumops = false;
 
 			//-----------------
 			// Parse attributes
 			foreach($fld as $attr => $v) {
 				if ($attr == 2 && is_numeric($v)) $attr = 'SIZE';
-				else if (is_numeric($attr) && $attr > 1 && !is_numeric($v)) $attr = strtoupper($v);
+				//ENUM FIX
+				elseif ($attr == 2 && strtoupper($ftype) == 'ENUM') $attr = 'ENUM';
+				elseif (is_numeric($attr) && $attr > 1 && !is_numeric($v)) $attr = strtoupper($v);
 
 				switch($attr) {
 				case '0':
@@ -683,7 +686,7 @@ class ADODB_DataDict {
 				case 'AUTOINCREMENT':
 				case 'AUTO':	$fautoinc = true; $fnotnull = true; break;
 				case 'KEY':
-                // a primary key col can be non unique in itself (if key spans many cols...)
+				// a primary key col can be non unique in itself (if key spans many cols...)
 				case 'PRIMARY':	$fprimary = $v; $fnotnull = true; /*$funiqueindex = true;*/ break;
 				case 'DEF':
 				case 'DEFAULT': $fdefault = $v; break;
@@ -695,6 +698,8 @@ class ADODB_DataDict {
 				// let INDEX keyword create a 'very standard' index on column
 				case 'INDEX': $findex = $v; break;
 				case 'UNIQUE': $funiqueindex = true; break;
+				//ENUM FIX
+				case 'ENUM': $fenumops = $v; break;
 				} //switch
 			} // foreach $fld
 
@@ -715,7 +720,7 @@ class ADODB_DataDict {
 				$ftype = strtoupper($ftype);
 			}
 
-			$ftype = $this->_GetSize($ftype, $ty, $fsize, $fprec);
+			$ftype = $this->_GetSize($ftype, $ty, $fsize, $fprec, $fenumops);
 
 			if ($ty == 'X' || $ty == 'X2' || $ty == 'B') $fnotnull = false; // some blob types do not accept nulls
 
@@ -804,13 +809,18 @@ class ADODB_DataDict {
 			$ftype is the actual type
 			$ty is the type defined originally in the DDL
 	*/
-	function _GetSize($ftype, $ty, $fsize, $fprec)
+	function _GetSize($ftype, $ty, $fsize, $fprec, $enumops)
 	{
 		if (strlen($fsize) && $ty != 'X' && $ty != 'B' && strpos($ftype,'(') === false) {
 			$ftype .= "(".$fsize;
 			if (strlen($fprec)) $ftype .= ",".$fprec;
 			$ftype .= ')';
 		}
+		//ENUM FIX
+		if(strtoupper($ftype) == 'ENUM'){
+			$ftype .= "({$enumops})";
+		}
+
 		return $ftype;
 	}
 
