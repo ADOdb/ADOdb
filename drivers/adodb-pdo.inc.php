@@ -706,16 +706,15 @@ class ADORecordSet_pdo extends ADORecordSet {
 		$o->max_length = $arr['len'];
 		$o->precision = $arr['precision'];
 
-		switch(ADODB_ASSOC_CASE == 0) {
+		switch(ADODB_ASSOC_CASE) {
 			case ADODB_ASSOC_CASE_LOWER:
 				$o->name = strtolower($o->name);
 				break;
 			case ADODB_ASSOC_CASE_UPPER:
 				$o->name = strtoupper($o->name);
 				break;
-			default:
-				return $o;
 		}
+		return $o;
 	}
 
 	function _seek($row)
