@@ -479,4 +479,77 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 		}
 		return $ftype;
 	}
+	function ChangeTableSQL($pTableName, $pTableFields, $pTableOptions = false, 
+			$pIsToDropOldFields = false)
+	{
+		global $ADODB_FETCH_MODE;
+		$vADODB_FETCH_MODE_old = $ADODB_FETCH_MODE;
+		$vPreviousFetchMode = -1;
+		$vRaiseErrorFn = NULL;
+		$vCurrentTableFields = NULL;
+
+		if(((float)@$this->serverInfo['version']) < 8.0)
+		{
+			if($this->debug)
+			{
+				ADOConnection::outp("ChangeTableSQL is only supported for PostgreSQL >= 8.0 at the moment");
+			}
+			return array();
+		}	
+
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+
+		if($this->connection->fetchMode !== false)
+			{$vPreviousFetchMode = $this->connection->SetFetchMode(false);}
+
+		// check table exists
+		$vRaiseErrorFn = $this->connection->raiseErrorFn;
+		$this->connection->raiseErrorFn = '';
+		$vCurrentTableFields = $this->MetaColumns($pTableName);
+		$this->connection->raiseErrorFn = $vRaiseErrorFn;
+
+		if($vPreviousFetchMode !== -1)
+			{$this->connection->SetFetchMode($vPreviousFetchMode);}
+		$ADODB_FETCH_MODE = $vADODB_FETCH_MODE_old;
+
+		if(empty($vCurrentTableFields))
+			{return $this->CreateTableSQL($pTableName, $pTableFields, $pTableOptions);}
+		else
+		{
+			$tSQLs = array();
+			$t_GenFields_lines = NULL;
+			$tFieldsToAlter = array();
+			$tFieldsToAdd = array();
+			$tFieldsToDrop = NULL;
+			
+			list($t_GenFields_lines, $pkey, $idxs) = $this->_GenFields($pTableFields);
+			if($t_GenFields_lines == null)
+				{$t_GenFields_lines = array();}
+			
+
+			foreach($t_GenFields_lines as $tID => $tV) 
+			{
+				if(isset($vCurrentTableFields[$tID]) && is_object($vCurrentTableFields[$tID]))
+					{$tFieldsToAlter[$tID] = $pTableFields[$tID];}
+				else
+					{$tFieldsToAdd[$tID] = $pTableFields[$tID];}
+			}
+			if($pIsToDropOldFields)
+			{
+				$tFieldsToDrop = array();
+				foreach($vCurrentTableFields as $tID => $tV)
+				{
+					if(!isset($t_GenFields_lines[$tID]))
+						{$tFieldsToDrop[$tID] = $tID;}
+				}
+			}
+
+			$tSQLs = array_merge($tSQLs, $this->AddColumnSQL($pTableName, $tFieldsToAdd));
+			if($pIsToDropOldFields)
+				{$tSQLs = array_merge($tSQLs, $this->DropColumnSQL($pTableName, $tFieldsToDrop));}
+			$tSQLs = array_merge($tSQLs, $this->AlterColumnSQL($pTableName, $tFieldsToAlter));
+
+			return $tSQLs;
+		}
+	}
 }
