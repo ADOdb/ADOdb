@@ -197,22 +197,25 @@ class ADODB_DataDict {
 		return $this->connection->MetaTables();
 	}
 
+	//NOTE: THIS FUNCTION PROMISES TO QUOTE THE TABLE NAME, BUT THE PROMISE IS KEPT BY THE CORE ADODB
 	function MetaColumns($tab, $upper=true, $schema=false)
 	{
 		if (!$this->connection->IsConnected()) return array();
-		return $this->connection->MetaColumns($this->TableName($tab), $upper, $schema);
+		return $this->connection->MetaColumns($this->TableNameWithNoNameQuote($tab), $upper, $schema);
 	}
 
+	//NOTE: THIS FUNCTION PROMISES TO QUOTE THE TABLE NAME, BUT THE PROMISE IS KEPT BY THE CORE ADODB
 	function MetaPrimaryKeys($tab,$owner=false,$intkey=false)
 	{
 		if (!$this->connection->IsConnected()) return array();
-		return $this->connection->MetaPrimaryKeys($this->TableName($tab), $owner, $intkey);
+		return $this->connection->MetaPrimaryKeys($this->TableNameWithNoNameQuote($tab), $owner, $intkey);
 	}
 
+	//NOTE: THIS FUNCTION PROMISES TO QUOTE THE TABLE NAME, BUT THE PROMISE IS KEPT BY THE CORE ADODB
 	function MetaIndexes($table, $primary = false, $owner = false)
 	{
 		if (!$this->connection->IsConnected()) return array();
-		return $this->connection->MetaIndexes($this->TableName($table), $primary, $owner);
+		return $this->connection->MetaIndexes($this->TableNameWithNoNameQuote($table), $primary, $owner);
 	}
 
 	function MetaType($t,$len=-1,$fieldobj=false)
@@ -364,6 +367,28 @@ class ADODB_DataDict {
 			return $this->NameQuote($this->schema) .'.'. $this->NameQuote($name);
 		}
 		return $this->NameQuote($name);
+	}
+	
+	//PRIVATE	
+	function removeStandardAdodbDataDictNameQuotes($pName)
+	{
+		$vName = trim($pName);
+		$vMatches = NULL;
+
+		if(preg_match('/^`(.+)`$/', $vName, $vMatches))
+			{return $vMatches[1];}
+		return $vName;
+	}
+	
+	//PRIVATE
+	function TableNameWithNoNameQuote($pTableName)
+	{
+		if($this->schema)
+		{
+			return trim($this->schema).'.'.
+					$this->removeStandardAdodbDataDictNameQuotes($pTableName);
+		}
+		return $this->removeStandardAdodbDataDictNameQuotes($pTableName);
 	}
 
 	// Executes the sql array returned by GetTableSQL and GetIndexSQL
