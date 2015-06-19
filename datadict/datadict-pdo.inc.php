@@ -28,8 +28,18 @@ class ADODB2_pdo
 				$tClassName = NULL;
 				$tClassNamePostFix = $pValue->dsnType;
 				
-				if($tClassNamePostFix == 'oci')
-					{$tClassNamePostFix = "oci8";}
+				switch($tClassNamePostFix)
+				{
+					case 'oci':
+						$tClassNamePostFix = "oci8";
+						break;
+					case 'pgsql':
+						$tClassNamePostFix = "postgres";
+						break;
+					default:
+						$tClassNamePostFix = $pValue->dsnType;
+						break;
+				}
 
 				$tClassName = "ADODB2_".$tClassNamePostFix;
 
