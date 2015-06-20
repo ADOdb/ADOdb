@@ -199,4 +199,54 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		}
 		return $ret;
    }
-}
+
+    //Verbatim copy from "adodb-sqlite.inc.php"/"adodb-sqlite3.inc.php"
+	function MetaIndexes($table, $primary = FALSE, $owner=false, $owner = false)
+	{
+		$false = false;
+		// save old fetch mode
+		global $ADODB_FETCH_MODE;
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($this->fetchMode !== FALSE) {
+			$savem = $this->SetFetchMode(FALSE);
+		}
+		$SQL=sprintf("SELECT name,sql FROM sqlite_master WHERE type='index' AND tbl_name='%s'", strtolower($table));
+		$rs = $this->Execute($SQL);
+		if (!is_object($rs)) {
+			if (isset($savem)) {
+				$this->SetFetchMode($savem);
+			}
+			$ADODB_FETCH_MODE = $save;
+			return $false;
+		}
+
+		$indexes = array ();
+		while ($row = $rs->FetchRow()) {
+			if ($primary && preg_match("/primary/i",$row[1]) == 0) {
+				continue;
+			}
+			if (!isset($indexes[$row[0]])) {
+				$indexes[$row[0]] = array(
+					'unique' => preg_match("/unique/i",$row[1]),
+					'columns' => array()
+				);
+			}
+			/**
+			 * There must be a more elegant way of doing this,
+			 * the index elements appear in the SQL statement
+			 * in cols[1] between parentheses
+			 * e.g CREATE UNIQUE INDEX ware_0 ON warehouse (org,warehouse)
+			 */
+			$cols = explode("(",$row[1]);
+			$cols = explode(")",$cols[1]);
+			array_pop($cols);
+			$indexes[$row[0]]['columns'] = $cols;
+		}
+		if (isset($savem)) {
+			$this->SetFetchMode($savem);
+			$ADODB_FETCH_MODE = $save;
+		}
+		return $indexes;
+	}
+ }
