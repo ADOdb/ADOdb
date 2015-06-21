@@ -36,6 +36,9 @@ class ADODB2_pdo
 					case 'pgsql':
 						$tClassNamePostFix = "postgres";
 						break;
+					case 'sqlite':
+						$tClassNamePostFix = "generic";
+						break;
 					default:
 						$tClassNamePostFix = $pValue->dsnType;
 						break;
