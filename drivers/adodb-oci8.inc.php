@@ -1656,6 +1656,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	{
 		if ($this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode)) {
 			$this->_currentRow += 1;
+			$this->_updatefields();
 			return true;
 		}
 		if (!$this->EOF) {
@@ -1682,6 +1683,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 		if (!$this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode)) {
 			return $arr;
 		}
+		$this->_updatefields();
 		$results = array();
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
@@ -1715,7 +1717,10 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 	function _fetch()
 	{
-		return $this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode);
+		$this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode);
+		$this->_updatefields();
+
+		return $this->fields;
 	}
 
 	/**
