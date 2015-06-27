@@ -954,10 +954,11 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		return $o;
 	}
 
-	function GetRowAssoc($upper = true)
+	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
-		if ($this->fetchMode == MYSQLI_ASSOC && !$upper)
+		if ($this->fetchMode == MYSQLI_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
 			return $this->fields;
+		}
 		$row = ADORecordSet::GetRowAssoc($upper);
 		return $row;
 	}
@@ -1034,6 +1035,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	function _fetch()
 	{
 		$this->fields = mysqli_fetch_array($this->_queryID,$this->fetchMode);
+		$this->_updatefields();
 		return is_array($this->fields);
 	}
 
