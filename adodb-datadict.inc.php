@@ -198,25 +198,10 @@ class ADODB_DataDict {
 	}
 
 	//NOTE: THIS FUNCTION PROMISES TO QUOTE THE TABLE NAME, BUT THE PROMISE IS KEPT BY THE CORE ADODB
-	function MetaColumns($tab, $upper=null, $schema=false)
+	function MetaColumns($tab, $upper=true, $schema=false)
 	{
-		$vTableName = $this->removeStandardAdodbDataDictNameQuotes($tab);		
-
 		if (!$this->connection->IsConnected()) return array();
-		
-		if($upper === null)
-		{
-			$tIsToNormalize = $upper;
-
-			if(trim($tab) !== $vTableName)
-				{$tIsToNormalize = false;}
-			else
-				{$tIsToNormalize = true;}
-
-			return $this->connection->MetaColumns($vTableName, $tIsToNormalize, $schema);
-		}
-		else
-			{return $this->connection->MetaColumns($vTableName, $upper, $schema);}
+		return $this->connection->MetaColumns($this->TableNameWithNoNameQuote($tab), $upper, $schema);
 	}
 
 	//NOTE: THIS FUNCTION PROMISES TO QUOTE THE TABLE NAME, BUT THE PROMISE IS KEPT BY THE CORE ADODB
