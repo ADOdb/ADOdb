@@ -3729,29 +3729,55 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
+	 * Defines the function to use for table fields case conversion
+	 * depending on ADODB_ASSOC_CASE
+	 * @return string strtolower/strtoupper or false if no conversion needed
+	 */
+	protected function AssocCaseConvertFunction($case = ADODB_ASSOC_CASE) {
+		switch($case) {
+			case ADODB_ASSOC_CASE_UPPER:
+				return 'strtoupper';
+			case ADODB_ASSOC_CASE_LOWER:
+				return 'strtolower';
+			case ADODB_ASSOC_CASE_NATIVE:
+			default:
+				return false;
+		}
+	}
+
+	/**
 	 * Builds the bind array associating keys to recordset fields
 	 *
 	 * @param int $upper Case for the array keys, defaults to uppercase
 	 *                   (see ADODB_ASSOC_CASE_xxx constants)
 	 */
-	function GetAssocKeys($upper=ADODB_ASSOC_CASE_UPPER) {
+	function GetAssocKeys($upper = ADODB_ASSOC_CASE) {
+		if ($this->bind) {
+			return;
+		}
 		$this->bind = array();
+
+		// Define case conversion function for ASSOC fetch mode
+		$fn_change_case = $this->AssocCaseConvertFunction($upper);
+
+		// Build the bind array
 		for ($i=0; $i < $this->_numOfFields; $i++) {
 			$o = $this->FetchField($i);
-			switch($upper) {
-				case ADODB_ASSOC_CASE_LOWER:
-					$key = strtolower($o->name);
-					break;
-				case ADODB_ASSOC_CASE_UPPER:
-					$key = strtoupper($o->name);
-					break;
-				case ADODB_ASSOC_CASE_NATIVE:
-				default:
-					$key = $o->name;
-					break;
+
+			// Set the array's key
+			if(is_numeric($o->name)) {
+				// Just use the field ID
+				$key = $i;
 			}
-			$val = $this->fetchMode == ADODB_FETCH_ASSOC ? $o->name : $i;
-			$this->bind[$key] = $val;
+			elseif( $fn_change_case ) {
+				// Convert the key's case
+				$key = $fn_change_case($o->name);
+			}
+			else {
+				$key = $o->name;
+			}
+
+			$this->bind[$key] = $i;
 		}
 	}
 
@@ -3762,11 +3788,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param int $upper Case for the array keys, defaults to uppercase
 	 *                   (see ADODB_ASSOC_CASE_xxx constants)
 	 */
-	function GetRowAssoc($upper=ADODB_ASSOC_CASE_UPPER) {
+	function GetRowAssoc($upper = ADODB_ASSOC_CASE) {
 		$record = array();
-		if (!$this->bind) {
-			$this->GetAssocKeys($upper);
-		}
+		$this->GetAssocKeys($upper);
+
 		foreach($this->bind as $k => $v) {
 			if( array_key_exists( $v, $this->fields ) ) {
 				$record[$k] = $this->fields[$v];
@@ -4168,6 +4193,34 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 	}
 
+	/**
+	 * Convert case of field names associative array, if needed
+	 * @return void
+	 */
+	protected function _updatefields()
+	{
+		if( empty($this->fields)) {
+			return;
+		}
+
+		// Determine case conversion function
+		$fn_change_case = $this->AssocCaseConvertFunction();
+		if(!$fn_change_case) {
+			// No conversion needed
+			return;
+		}
+
+		$arr = array();
+
+		// Change the case
+		foreach($this->fields as $k => $v) {
+			if (!is_integer($k)) {
+				$k = $fn_change_case($k);
+			}
+			$arr[$k] = $v;
+		}
+		$this->fields = $arr;
+	}
 
 	function _close() {}
 
