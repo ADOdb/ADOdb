@@ -6200,12 +6200,13 @@ PHP</a>. </p>
 <p>mysql: Fix adodb_strip_order_by() bug causing SQL error for subqueries with order/limit clause, thanks to MikeB.
 <p>mysql: workaround for HHVM behavior, thanks to MikeB
 <p>mysqli: Fix qstr() when called without an active connection. See Github #11
-<p>oci8: Fix broken quoting of table name in AddColumnSQL and AlterColumnSQL, thanks to Andreas Fernandez. see Github #67
+<p>oci8: Fix broken quoting of table name in AddColumnSQL and AlterColumnSQL, thanks to Andreas Fernandez. See Github #67
 <p>oci8: Allow oci8 driver to use lowercase field names in assoc mode. See Github #21
+<p>oci8po: Prevent replacement of '?' within strings, thanks to Mark Newnham. See Github #132
 <p>pdo: Added missing property (fixes PHP notices). see Github #56
-<p>pdo: Align method signatures with parent class, thanks to Andy Theuninck. see Github #62
+<p>pdo: Align method signatures with parent class, thanks to Andy Theuninck. See Github #62
 <p>pdo: new sqlsrv driver, thanks to MarcelTO. See Github #81
-<p>pdo/mysql: New methods to make the driver behave more like mysql/mysqli, thanks to Andy Theuninck. see Github #40
+<p>pdo/mysql: New methods to make the driver behave more like mysql/mysqli, thanks to Andy Theuninck. See Github #40
 <p>postgres: Stop using legacy function aliases
 <p>postgres: Fix AlterColumnSQL when updating multiple columns, thanks to Jouni Ahto. See Github #72
 <p>postgres: Fix support for HHVM 3.6, thanks to Mike Benoit. See Github #87
