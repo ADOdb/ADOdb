@@ -1,13 +1,14 @@
 <?php
 /** 
-* This is the short description placeholder for the generic file docblock 
+* Storage driver for fetching login data from a database using ADOdb-PHP.
 * 
-* This is the long description placeholder for the generic file docblock 
-* Please see the ADOdb website for how to maintain adodb custom tags
+* This storage driver can use all databases which are supported
+* by the ADBdb DB abstraction layer to fetch login data.
 * 
 * @category   FIXME
-* @package    ADODB 
-* @author     John Lim 
+* @package    Auth 
+* @author Martin Jansen <mj@php.net>
+* @author Richard Tango-Lowy <richtl@arscognita.com>
 * @copyright  2014-      The ADODB project 
 * @copyright  2000-2014 John Lim 
 * @license    BSD License    (Primary) 
@@ -19,32 +20,11 @@
 * @adodb-documentor-status: FIXME
 * 
 */ 
-/*
-V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence. See License.txt.
-  Set tabs to 4 for best viewing.
-  Latest version is available at http://adodb.sourceforge.net
-	Original Authors: Martin Jansen <mj#php.net>
-	Richard Tango-Lowy <richtl#arscognita.com>
-*/
+
 require_once 'Auth/Container.php';
 require_once 'adodb.inc.php';
 require_once 'adodb-pear.inc.php';
 require_once 'adodb-errorpear.inc.php';
-/**
- * Storage driver for fetching login data from a database using ADOdb-PHP.
- *
- * This storage driver can use all databases which are supported
- * by the ADBdb DB abstraction layer to fetch login data.
- * See http://php.weblogs.com/adodb for information on ADOdb.
- * NOTE: The ADOdb directory MUST be in your PHP include_path!
- *
- * @author   Richard Tango-Lowy <richtl@arscognita.com>
- * @package  Auth
- * @version  $Revision: 1.3 $
- */
 
 /** 
 * This is the short description placeholder for the class docblock 
@@ -74,7 +54,6 @@ class Auth_Container_ADOdb extends Auth_Container
      * @var string
      */
     var $activeUser = '';
-    // {{{ Constructor
     /**
      * Constructor of the container class
      *
@@ -107,12 +86,13 @@ class Auth_Container_ADOdb extends Auth_Container
                 PEAR::raiseError('No connection parameters specified!');
             }
         } else {
-        	// Extract db_type from dsn string.
+        	/*
+			 * Extract db_type from dsn string.
+			 */
             $this->options['dsn'] = $dsn;
         }
     }
-    // }}}
-    // {{{ _connect()
+
     /**
      * Connect to database by using the given DSN string
      *
@@ -120,7 +100,7 @@ class Auth_Container_ADOdb extends Auth_Container
      * @param  string DSN string
      * @return mixed  Object on error, otherwise bool
      */
-     function _connect($dsn)
+    function _connect($dsn)
     {
         if (is_string($dsn) || is_array($dsn)) {
         	if(!$this->db) {
@@ -143,29 +123,18 @@ class Auth_Container_ADOdb extends Auth_Container
         	return true;
         }
     }
-    // }}}
-    // {{{ _prepare()
-    /**
-     * Prepare database connection
-     *
-     * This function checks if we have already opened a connection to
-     * the database. If that's not the case, a new connection is opened.
-     *
-     * @access private
-     * @return mixed True or a DB error object.
-     */
-
-    /** 
-    * This is the short description placeholder for the function docblock
-    *  
-    * This is the long description placeholder for the function docblock
-    * Please see the ADOdb website for how to maintain adodb custom tags
-    * 
+    
+	/**
+    * Prepare database connection
+    *
+    * This function checks if we have already opened a connection to
+    * the database. If that's not the case, a new connection is opened.
+    *
     * @version 5.21.0 
-    * @param   FIXME 
-    * @return  FIXME 
-    * 
-    * @adodb-visibility  FIXME
+    * @access private
+    * @return mixed True or a DB error object.
+    
+	* @adodb-visibility  private
     * @adodb-function-status FIXME
     * @adodb-api FIXME 
     */
@@ -176,32 +145,20 @@ class Auth_Container_ADOdb extends Auth_Container
     	}
         return true;
     }
-    // }}}
-    // {{{ query()
-    /**
-     * Prepare query to the database
-     *
-     * This function checks if we have already opened a connection to
-     * the database. If that's not the case, a new connection is opened.
-     * After that the query is passed to the database.
-     *
-     * @access public
-     * @param  string Query string
-     * @return mixed  a DB_result object or DB_OK on success, a DB
-     *                or PEAR error on failure
-     */
 
-    /** 
-    * This is the short description placeholder for the function docblock
-    *  
-    * This is the long description placeholder for the function docblock
-    * Please see the ADOdb website for how to maintain adodb custom tags
-    * 
-    * @version 5.21.0 
-    * @param   FIXME 
-    * @return  FIXME 
-    * 
-    * @adodb-visibility  FIXME
+    /**
+    * Prepare query to the database
+    *
+    * This function checks if we have already opened a connection to
+    * the database. If that's not the case, a new connection is opened.
+    * After that the query is passed to the database.
+    *
+	* @version 5.21.0
+    * @param  string Query string
+    * @return mixed  a DB_result object or DB_OK on success, a DB
+    *                or PEAR error on failure
+     
+    * @adodb-visibility  public
     * @adodb-function-status FIXME
     * @adodb-api FIXME 
     */
@@ -213,8 +170,7 @@ class Auth_Container_ADOdb extends Auth_Container
         }
         return $this->db->query($query);
     }
-    // }}}
-    // {{{ _setDefaults()
+
     /**
      * Set some default options
      *
@@ -223,16 +179,15 @@ class Auth_Container_ADOdb extends Auth_Container
      */
 
     /** 
-    * This is the short description placeholder for the function docblock
+    * Set some default options
     *  
     * This is the long description placeholder for the function docblock
     * Please see the ADOdb website for how to maintain adodb custom tags
     * 
     * @version 5.21.0 
-    * @param   FIXME 
-    * @return  FIXME 
+    * @return  void
     * 
-    * @adodb-visibility  FIXME
+    * @adodb-visibility  private
     * @adodb-function-status FIXME
     * @adodb-api FIXME 
     */
@@ -246,26 +201,18 @@ class Auth_Container_ADOdb extends Auth_Container
         $this->options['db_fields']   = '';
         $this->options['cryptType']   = 'md5';
     }
-    // }}}
-    // {{{ _parseOptions()
-    /**
-     * Parse options passed to the container class
-     *
-     * @access private
-     * @param  array
-     */
-
+    
     /** 
-    * This is the short description placeholder for the function docblock
+    * Parse options passed to the container class
     *  
     * This is the long description placeholder for the function docblock
     * Please see the ADOdb website for how to maintain adodb custom tags
     * 
     * @version 5.21.0 
-    * @param   FIXME 
-    * @return  FIXME 
+    * @param   mixed $array	 A key->value pair containing options to set 
+    * @return  void 
     * 
-    * @adodb-visibility  FIXME
+    * @adodb-visibility  private
     * @adodb-function-status FIXME
     * @adodb-api FIXME 
     */
@@ -276,82 +223,95 @@ class Auth_Container_ADOdb extends Auth_Container
                 $this->options[$key] = $value;
             }
         }
-        /* Include additional fields if they exist */
+        
+		/* 
+		* Include additional fields if they exist 
+		*/
         if(!empty($this->options['db_fields'])){
             if(is_array($this->options['db_fields'])){
-                $this->options['db_fields'] = join($this->options['db_fields'], ', ');
+                $this->options['db_fields'] = 
+				join($this->options['db_fields'], ', ');
             }
             $this->options['db_fields'] = ', '.$this->options['db_fields'];
         }
     }
-    // }}}
-    // {{{ fetchData()
-    /**
-     * Get user information from database
-     *
-     * This function uses the given username to fetch
-     * the corresponding login data from the database
-     * table. If an account that matches the passed username
-     * and password is found, the function returns true.
-     * Otherwise it returns false.
-     *
-     * @param   string Username
-     * @param   string Password
-     * @return  mixed  Error object or boolean
-     */
 
-    /** 
-    * This is the short description placeholder for the function docblock
-    *  
-    * This is the long description placeholder for the function docblock
-    * Please see the ADOdb website for how to maintain adodb custom tags
-    * 
-    * @version 5.21.0 
-    * @param   FIXME 
-    * @return  FIXME 
-    * 
+    /**
+    * Get user information from database
+    *
+    * This function uses the given username to fetch
+    * the corresponding login data from the database
+    * table. If an account that matches the passed username
+    * and password is found, the function returns true.
+    * Otherwise it returns false.
+    *
+	* @version 5.21.0 
+    * @param   string $username Username
+    * @param   string $password Password
+    * @return  mixed  Error object or boolean
+     
     * @adodb-visibility  FIXME
     * @adodb-function-status FIXME
     * @adodb-api FIXME 
     */
     function fetchData($username, $password)
     {
-        // Prepare for a database query
+        /*
+         * Prepare for a database query
+		 */
         $err = $this->_prepare();
         if ($err !== true) {
             return PEAR::raiseError($err->getMessage(), $err->getCode());
         }
-        // Find if db_fields contains a *, i so assume all col are selected
+        /*
+		 * Find if db_fields contains a *, i so assume all col are selected
+		 */
         if(strstr($this->options['db_fields'], '*')){
             $sql_from = "*";
         }
-        else{
-            $sql_from = $this->options['usernamecol'] . ", ".$this->options['passwordcol'].$this->options['db_fields'];
+        else {
+            $sql_from = $this->options['usernamecol'] . ", ". 
+			$this->options['passwordcol'].$this->options['db_fields'];
         }
-        $query = "SELECT ".$sql_from.
+        
+		$query = "SELECT ".$sql_from.
                 " FROM ".$this->options['table'].
-                " WHERE ".$this->options['usernamecol']." = " . $this->db->Quote($username);
-        $ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-        $rset = $this->db->Execute( $query );
-        $res = $rset->fetchRow();
-        if (DB::isError($res)) {
+                " WHERE ".$this->options['usernamecol']." = " . 
+				$this->db->Quote($username);
+        
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+        
+		$rset = $this->db->Execute( $query );
+        $res  = $rset->fetchRow();
+        
+		if (DB::isError($res)) {
             return PEAR::raiseError($res->getMessage(), $res->getCode());
         }
-        if (!is_array($res)) {
+        
+		if (!is_array($res)) {
             $this->activeUser = '';
             return false;
         }
-        if ($this->verifyPassword(trim($password, "\r\n"),
-                                  trim($res[$this->options['passwordcol']], "\r\n"),
+		
+		$tPassword    = trim($password, "\r\n");
+		$tPasswordCol = trim($res[$this->options['passwordcol']], "\r\n");
+        if ($this->verifyPassword($tPassword,
+                                  $tPasswordCol,
                                   $this->options['cryptType'])) {
-            // Store additional field values in the session
-            foreach ($res as $key => $value) {
+            /*
+            * Store additional field values in the session
+            */ 
+			foreach ($res as $key => $value) {
                 if ($key == $this->options['passwordcol'] ||
                     $key == $this->options['usernamecol']) {
                     continue;
                 }
-                // Use reference to the auth object if exists
-                // This is because the auth session variable can change so a static call to setAuthData does not make sence
+                /*
+  				 * Use reference to the auth object if exists
+                 * This is because the auth session variable 
+				 * can change so a static call to setAuthData 
+				 * does not make sense
+				 */
                 if(is_object($this->_auth_obj)){
                     $this->_auth_obj->setAuthData($key, $value);
                 } else {
@@ -363,18 +323,16 @@ class Auth_Container_ADOdb extends Auth_Container
         $this->activeUser = $res[$this->options['usernamecol']];
         return false;
     }
-    // }}}
-    // {{{ listUsers()
+   
 
     /** 
-    * This is the short description placeholder for the function docblock
+    * Returns an array of users and passwords
     *  
     * This is the long description placeholder for the function docblock
     * Please see the ADOdb website for how to maintain adodb custom tags
     * 
     * @version 5.21.0 
-    * @param   FIXME 
-    * @return  FIXME 
+    * @return  numeric array of users 
     * 
     * @adodb-visibility  FIXME
     * @adodb-function-status FIXME
@@ -387,12 +345,15 @@ class Auth_Container_ADOdb extends Auth_Container
             return PEAR::raiseError($err->getMessage(), $err->getCode());
         }
         $retVal = array();
-        // Find if db_fileds contains a *, i so assume all col are selected
+        /*
+ 	 	* Find if db_fileds contains a *, i so assume all col are selected
+		*/
         if(strstr($this->options['db_fields'], '*')){
             $sql_from = "*";
         }
         else{
-            $sql_from = $this->options['usernamecol'] . ", ".$this->options['passwordcol'].$this->options['db_fields'];
+            $sql_from = $this->options['usernamecol'] . ", ".
+			$this->options['passwordcol'].$this->options['db_fields'];
         }
         $query = sprintf("SELECT %s FROM %s",
                          $sql_from,
@@ -409,30 +370,19 @@ class Auth_Container_ADOdb extends Auth_Container
         }
         return $retVal;
     }
-    // }}}
-    // {{{ addUser()
+   
     /**
-     * Add user to the storage container
-     *
-     * @access public
-     * @param  string Username
-     * @param  string Password
-     * @param  mixed  Additional information that are stored in the DB
-     *
-     * @return mixed True on success, otherwise error object
-     */
-
-    /** 
-    * This is the short description placeholder for the function docblock
-    *  
-    * This is the long description placeholder for the function docblock
-    * Please see the ADOdb website for how to maintain adodb custom tags
+    * Add user to the storage container
+    *
+	* @version 5.21.0 
+    * @access public
+    * @param  string $username Username
+    * @param  string $password Password
+    * @param  mixed  $additional Additional information to be stored in the DB
+    *
+    * @return mixed True on success, otherwise error object
     * 
-    * @version 5.21.0 
-    * @param   FIXME 
-    * @return  FIXME 
-    * 
-    * @adodb-visibility  FIXME
+    * @adodb-visibility  public
     * @adodb-function-status FIXME
     * @adodb-api FIXME 
     */
@@ -467,28 +417,18 @@ class Auth_Container_ADOdb extends Auth_Container
           return true;
         }
     }
-    // }}}
-    // {{{ removeUser()
-    /**
-     * Remove user from the storage container
-     *
-     * @access public
-     * @param  string Username
-     *
-     * @return mixed True on success, otherwise error object
-     */
-
+   
     /** 
-    * This is the short description placeholder for the function docblock
+    * Remove user from the storage container
     *  
     * This is the long description placeholder for the function docblock
     * Please see the ADOdb website for how to maintain adodb custom tags
     * 
     * @version 5.21.0 
-    * @param   FIXME 
-    * @return  FIXME 
+    * @param  string $username Username
+    * @return mixed True on success, otherwise error object
     * 
-    * @adodb-visibility  FIXME
+    * @adodb-visibility  public
     * @adodb-function-status FIXME
     * @adodb-api FIXME 
     */
@@ -506,7 +446,6 @@ class Auth_Container_ADOdb extends Auth_Container
           return true;
         }
     }
-    // }}}
 }
 
 /** 
