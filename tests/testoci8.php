@@ -7,14 +7,14 @@
 * This is the long description placeholder for the generic file docblock 
 * Please see the ADOdb website for how to maintain adodb custom tags
 * 
+* @category   FIXME
+* @package    ADODB 
 * @author     John Lim 
 * @copyright  2014-      The ADODB project 
 * @copyright  2000-2014 John Lim 
 * @license    BSD License    (Primary) 
 * @license    Lesser GPL License    (Secondary) 
 * @version    5.21.0 
-* @package    ADODB 
-* @category   FIXME 
 * 
 * @adodb-filecheck-status: FIXME
 * @adodb-codesniffer-status: FIXME
