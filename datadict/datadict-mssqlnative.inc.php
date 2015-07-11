@@ -1,46 +1,62 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
   V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
-
   Set tabs to 4 for best viewing.
-
 */
-
 /*
 In ADOdb, named quotes for MS SQL Server use ". From the MSSQL Docs:
-
 	Note Delimiters are for identifiers only. Delimiters cannot be used for keywords,
 	whether or not they are marked as reserved in SQL Server.
-
 	Quoted identifiers are delimited by double quotation marks ("):
 	SELECT * FROM "Blanks in Table Name"
-
 	Bracketed identifiers are delimited by brackets ([ ]):
 	SELECT * FROM [Blanks In Table Name]
-
 	Quoted identifiers are valid only when the QUOTED_IDENTIFIER option is set to ON. By default,
 	the Microsoft OLE DB Provider for SQL Server and SQL Server ODBC driver set QUOTED_IDENTIFIER ON
 	when they connect.
-
 	In Transact-SQL, the option can be set at various levels using SET QUOTED_IDENTIFIER,
 	the quoted identifier option of sp_dboption, or the user options option of sp_configure.
-
 	When SET ANSI_DEFAULTS is ON, SET QUOTED_IDENTIFIER is enabled.
-
 	Syntax
-
 		SET QUOTED_IDENTIFIER { ON | OFF }
-
-
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB2_mssqlnative extends ADODB_DataDict {
 	var $databaseType = 'mssqlnative';
 	var $dropIndex = 'DROP INDEX %1$s ON %2$s';
@@ -48,79 +64,92 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	var $renameColumn = "EXEC sp_rename '%s.%s','%s'";
 	var $typeX = 'TEXT';  ## Alternatively, set it to VARCHAR(4000)
 	var $typeXL = 'TEXT';
-
 	//var $alterCol = ' ALTER COLUMN ';
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-
 		$_typeConversion = array(
 			-155 => 'D',
 			  93 => 'D',
 			-154 => 'D',
 			  -2 => 'D',
 			  91 => 'D',
-
 			  12 => 'C',
 			   1 => 'C',
 			  -9 => 'C',
 			  -8 => 'C',
-
 			  -7 => 'L',
 			  -6 => 'I2',
 			  -5 => 'I8',
 			 -11 => 'I',
 			   4 => 'I',
 			   5 => 'I4',
-
 			  -1 => 'X',
 			 -10 => 'X',
-
 			   2 => 'N',
 			   3 => 'N',
 			   6 => 'N',
 			   7 => 'N',
-
 			-152 => 'X',
 			-151 => 'X',
 			  -4 => 'X',
 			  -3 => 'X'
 			);
-
 		return $_typeConversion($t);
-
 	}
 
-	function ActualType($meta)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ActualType($meta)
 	{
 		$DATE_TYPE = 'DATETIME';
-
 		switch(strtoupper($meta)) {
-
 		case 'C': return 'VARCHAR';
 		case 'XL': return (isset($this)) ? $this->typeXL : 'TEXT';
 		case 'X': return (isset($this)) ? $this->typeX : 'TEXT'; ## could be varchar(8000), but we want compat with oracle
 		case 'C2': return 'NVARCHAR';
 		case 'X2': return 'NTEXT';
-
 		case 'B': return 'IMAGE';
-
 		case 'D': return $DATE_TYPE;
 		case 'T': return 'TIME';
 		case 'L': return 'BIT';
-
 		case 'R':
 		case 'I': return 'INT';
 		case 'I1': return 'TINYINT';
 		case 'I2': return 'SMALLINT';
 		case 'I4': return 'INT';
 		case 'I8': return 'BIGINT';
-
 		case 'F': return 'REAL';
 		case 'N': return 'NUMERIC';
 		default:
@@ -129,8 +158,21 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		}
 	}
 
-
-	function AddColumnSQL($tabname, $flds)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName ($tabname);
 		$f = array();
@@ -143,9 +185,23 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		$sql[] = $s;
 		return $sql;
 	}
-
 	/*
-	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
@@ -153,11 +209,9 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		foreach($lines as $v) {
 			$sql[] = "ALTER TABLE $tabname $this->alterCol $v";
 		}
-
 		return $sql;
 	}
 	*/
-
 	/**
 	 * Drop a column, syntax is ALTER TABLE table DROP COLUMN column,column
 	 *
@@ -168,7 +222,22 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	 *
 	 * @return string  The SQL necessary to drop the column
 	 */
-	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
 		if (!is_array($flds))
@@ -183,9 +252,23 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		$sql[] = $s;
 		return $sql;
 	}
-
 	// return string must begin with space
-	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
@@ -195,20 +278,16 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		if ($fconstraint) $suffix .= ' '.$fconstraint;
 		return $suffix;
 	}
-
 	/*
 CREATE TABLE
     [ database_name.[ owner ] . | owner. ] table_name
     ( { < column_definition >
         | column_name AS computed_column_expression
         | < table_constraint > ::= [ CONSTRAINT constraint_name ] }
-
             | [ { PRIMARY KEY | UNIQUE } [ ,...n ]
     )
-
 [ ON { filegroup | DEFAULT } ]
 [ TEXTIMAGE_ON { filegroup | DEFAULT } ]
-
 < column_definition > ::= { column_name data_type }
     [ COLLATE < collation_name > ]
     [ [ DEFAULT constant_expression ]
@@ -216,7 +295,6 @@ CREATE TABLE
     ]
     [ ROWGUIDCOL]
     [ < column_constraint > ] [ ...n ]
-
 < column_constraint > ::= [ CONSTRAINT constraint_name ]
     { [ NULL | NOT NULL ]
         | [ { PRIMARY KEY | UNIQUE }
@@ -233,7 +311,6 @@ CREATE TABLE
         | CHECK [ NOT FOR REPLICATION ]
         ( logical_expression )
     }
-
 < table_constraint > ::= [ CONSTRAINT constraint_name ]
     { [ { PRIMARY KEY | UNIQUE }
         [ CLUSTERED | NONCLUSTERED ]
@@ -250,10 +327,7 @@ CREATE TABLE
     | CHECK [ NOT FOR REPLICATION ]
         ( search_conditions )
     }
-
-
 	*/
-
 	/*
 	CREATE [ UNIQUE ] [ CLUSTERED | NONCLUSTERED ] INDEX index_name
     ON { table | view } ( column [ ASC | DESC ] [ ,...n ] )
@@ -268,38 +342,58 @@ CREATE TABLE
 		    SORT_IN_TEMPDB
 		}
 */
-	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
-
 		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
 			$sql[] = sprintf ($this->dropIndex, $idxname, $tabname);
 			if ( isset($idxoptions['DROP']) )
 				return $sql;
 		}
-
 		if ( empty ($flds) ) {
 			return $sql;
 		}
-
 		$unique = isset($idxoptions['UNIQUE']) ? ' UNIQUE' : '';
 		$clustered = isset($idxoptions['CLUSTERED']) ? ' CLUSTERED' : '';
-
 		if ( is_array($flds) )
 			$flds = implode(', ',$flds);
 		$s = 'CREATE' . $unique . $clustered . ' INDEX ' . $idxname . ' ON ' . $tabname . ' (' . $flds . ')';
-
 		if ( isset($idxoptions[$this->upperName]) )
 			$s .= $idxoptions[$this->upperName];
-
-
 		$sql[] = $s;
-
 		return $sql;
 	}
 
-
-	function _GetSize($ftype, $ty, $fsize, $fprec)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _GetSize($ftype, $ty, $fsize, $fprec)
 	{
 		switch ($ftype) {
 		case 'INT':
@@ -310,6 +404,5 @@ CREATE TABLE
 		}
     	if ($ty == 'T') return $ftype;
     	return parent::_GetSize($ftype, $ty, $fsize, $fprec);
-
 	}
 }

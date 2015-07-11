@@ -1,4 +1,24 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
   V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
@@ -6,25 +26,17 @@
   the BSD license will take precedence.
   Set tabs to 8.
  */
-
-
 error_reporting(E_ALL);
-
 $path = dirname(__FILE__);
-
 include("$path/../adodb-exceptions.inc.php");
 include("$path/../adodb.inc.php");
-
 echo "<h3>PHP ".PHP_VERSION."</h3>\n";
 try {
-
 $dbt = 'oci8po';
-
 try {
 switch($dbt) {
 case 'oci8po':
 	$db = NewADOConnection("oci8po");
-
 	$db->Connect('localhost','scott','natsoft','sherkhan');
 	break;
 default:
@@ -32,7 +44,6 @@ case 'mysql':
 	$db = NewADOConnection("mysql");
 	$db->Connect('localhost','root','','northwind');
 	break;
-
 case 'mysqli':
 	$db = NewADOConnection("mysqli://root:@localhost/northwind");
 	//$db->Connect('localhost','root','','test');
@@ -43,14 +54,11 @@ case 'mysqli':
 	adodb_pr($e);
 	die();
 }
-
 $db->debug=1;
-
 $cnt = $db->GetOne("select count(*) from adoxyz where ?<id and id<?",array(10,20));
 $stmt = $db->Prepare("select * from adoxyz where ?<id and id<?");
 if (!$stmt) echo $db->ErrorMsg(),"\n";
 $rs = $db->Execute($stmt,array(10,20));
-
 echo  "<hr /> Foreach Iterator Test (rand=".rand().")<hr />";
 $i = 0;
 foreach($rs as $v) {
@@ -60,44 +68,31 @@ foreach($rs as $v) {
 	else echo "passed<br>";
 	flush();
 }
-
 $rs = new ADORecordSet_empty();
 foreach($rs as $v) {
 	echo "<p>empty ";var_dump($v);
 }
-
-
 if ($i != $cnt) die("actual cnt is $i, cnt should be $cnt\n");
 else echo "Count $i is correct<br>";
-
 $rs = $db->Execute("select bad from badder");
-
 } catch (exception $e) {
 	adodb_pr($e);
 	echo "<h3>adodb_backtrace:</h3>\n";
 	$e = adodb_backtrace($e->gettrace());
 }
-
 $rs = $db->Execute("select distinct id, firstname,lastname from adoxyz order by id");
 echo "Result=\n",$rs,"</p>";
-
 echo "<h3>Active Record</h3>";
-
 	include_once("../adodb-active-record.inc.php");
 	ADOdb_Active_Record::SetDatabaseAdapter($db);
-
 try {
 	class City extends ADOdb_Active_Record{};
 	$a = new City();
-
 } catch(exception $e){
 	echo $e->getMessage();
 }
-
 try {
-
 	$a = new City();
-
 	echo "<p>Successfully created City()<br>";
 	#var_dump($a->GetPrimaryKeys());
 	$a->city = 'Kuala Lumpur';
@@ -110,5 +105,4 @@ try {
 } catch(exception $e){
 	echo $e->getMessage();
 }
-
 //include_once("test-active-record.php");

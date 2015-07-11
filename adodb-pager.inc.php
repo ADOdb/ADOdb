@@ -1,25 +1,50 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 	V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
 	  Released under both BSD license and Lesser GPL library license.
 	  Whenever there is any discrepancy between the two licenses,
 	  the BSD license will take precedence.
 	  Set tabs to 4 for best viewing.
-
   	This class provides recordset pagination with
 	First/Prev/Next/Last links.
-
 	Feel free to modify this class for your own use as
 	it is very basic. To learn how to use it, see the
 	example in adodb/tests/testpaging.php.
-
 	"Pablo Costa" <pablo@cbsp.com.br> implemented Render_PageLinks().
-
 	Please note, this class is entirely unsupported,
 	and no free support requests except for bug reports
 	will be entertained by the author.
+*/
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
 */
 class ADODB_Pager {
 	var $id; 	// unique id for pager (defaults to 'adodb')
@@ -30,9 +55,7 @@ class ADODB_Pager {
 	var $rows;		// number of rows per page
     var $linksPerPage=10; // number of links per page in navigation bar
     var $showPageLinks;
-
 	var $gridAttributes = 'width=100% border=1 bgcolor=white';
-
 	// Localize text strings here
 	var $first = '<code>|&lt;</code>';
 	var $prev = '<code>&lt;&lt;</code>';
@@ -45,7 +68,6 @@ class ADODB_Pager {
 	var $page = 'Page';
 	var $linkSelectedColor = 'red';
 	var $cache = 0;  #secs to cache with CachePageExecute()
-
 	//----------------------------------------------
 	// constructor
 	//
@@ -55,79 +77,312 @@ class ADODB_Pager {
 	//		if you have multiple on 1 page.
 	//		$id should be only be [a-z0-9]*
 	//
-	function ADODB_Pager(&$db,$sql,$id = 'adodb', $showPageLinks = false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADODB_Pager(&$db,$sql,$id = 'adodb', $showPageLinks = false)
 	{
 	global $PHP_SELF;
-
 		$curr_page = $id.'_curr_page';
 		if (!empty($PHP_SELF)) $PHP_SELF = htmlspecialchars($_SERVER['PHP_SELF']); // htmlspecialchars() to prevent XSS attacks
-
 		$this->sql = $sql;
 		$this->id = $id;
 		$this->db = $db;
 		$this->showPageLinks = $showPageLinks;
-
 		$next_page = $id.'_next_page';
-
 		if (isset($_GET[$next_page])) {
 			$_SESSION[$curr_page] = (integer) $_GET[$next_page];
 		}
 		if (empty($_SESSION[$curr_page])) $_SESSION[$curr_page] = 1; ## at first page
-
 		$this->curr_page = $_SESSION[$curr_page];
-
 	}
-
 	//---------------------------
 	// Display link to first page
-	function Render_First($anchor=true)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Render_First($anchor=true)
 	{
 	global $PHP_SELF;
 		if ($anchor) {
 	?>
-		<a href="<?php echo $PHP_SELF,'?',$this->id;?>_next_page=1"><?php echo $this->first;?></a> &nbsp;
+		<a href="<?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
+ echo $PHP_SELF,'?',$this->id;?>_next_page=1"><?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
+ echo $this->first;?></a> &nbsp;
 	<?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 		} else {
 			print "$this->first &nbsp; ";
 		}
 	}
-
 	//--------------------------
 	// Display link to next page
-	function render_next($anchor=true)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function render_next($anchor=true)
 	{
 	global $PHP_SELF;
-
 		if ($anchor) {
 		?>
-		<a href="<?php echo $PHP_SELF,'?',$this->id,'_next_page=',$this->rs->AbsolutePage() + 1 ?>"><?php echo $this->next;?></a> &nbsp;
+		<a href="<?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
+ echo $PHP_SELF,'?',$this->id,'_next_page=',$this->rs->AbsolutePage() + 1 ?>"><?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
+ echo $this->next;?></a> &nbsp;
 		<?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 		} else {
 			print "$this->next &nbsp; ";
 		}
 	}
-
 	//------------------
 	// Link to last page
 	//
 	// for better performance with large recordsets, you can set
 	// $this->db->pageExecuteCountRows = false, which disables
 	// last page counting.
-	function render_last($anchor=true)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function render_last($anchor=true)
 	{
 	global $PHP_SELF;
-
 		if (!$this->db->pageExecuteCountRows) return;
-
 		if ($anchor) {
 		?>
-			<a href="<?php echo $PHP_SELF,'?',$this->id,'_next_page=',$this->rs->LastPageNo() ?>"><?php echo $this->last;?></a> &nbsp;
+			<a href="<?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
+ echo $PHP_SELF,'?',$this->id,'_next_page=',$this->rs->LastPageNo() ?>"><?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
+ echo $this->last;?></a> &nbsp;
 		<?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 		} else {
 			print "$this->last &nbsp; ";
 		}
 	}
-
 	//---------------------------------------------------
 	// original code by "Pablo Costa" <pablo@cbsp.com.br>
         function render_pagelinks()
@@ -146,43 +401,130 @@ class ADODB_Pager {
             $end = $start+$linksperpage-1;
 			$link = $this->id . "_next_page";
             if($end > $pages) $end = $pages;
-
-
 			if ($this->startLinks && $start > 1) {
 				$pos = $start - 1;
 				$numbers .= "<a href=$PHP_SELF?$link=$pos>$this->startLinks</a>  ";
             }
-
 			for($i=$start; $i <= $end; $i++) {
                 if ($this->rs->AbsolutePage() == $i)
                     $numbers .= "<font color=$this->linkSelectedColor><b>$i</b></font>  ";
                 else
                      $numbers .= "<a href=$PHP_SELF?$link=$i>$i</a>  ";
-
             }
 			if ($this->moreLinks && $end < $pages)
 				$numbers .= "<a href=$PHP_SELF?$link=$i>$this->moreLinks</a>  ";
             print $numbers . ' &nbsp; ';
         }
 	// Link to previous page
-	function render_prev($anchor=true)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function render_prev($anchor=true)
 	{
 	global $PHP_SELF;
 		if ($anchor) {
 	?>
-		<a href="<?php echo $PHP_SELF,'?',$this->id,'_next_page=',$this->rs->AbsolutePage() - 1 ?>"><?php echo $this->prev;?></a> &nbsp;
+		<a href="<?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
+ echo $PHP_SELF,'?',$this->id,'_next_page=',$this->rs->AbsolutePage() - 1 ?>"><?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
+ echo $this->prev;?></a> &nbsp;
 	<?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 		} else {
 			print "$this->prev &nbsp; ";
 		}
 	}
-
 	//--------------------------------------------------------
 	// Simply rendering of grid. You should override this for
 	// better control over the format of the grid
 	//
 	// We use output buffering to keep code clean and readable.
-	function RenderGrid()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RenderGrid()
 	{
 	global $gSQLBlockRows; // used by rs2html to indicate how many rows to display
 		include_once(ADODB_DIR.'/tohtml.inc.php');
@@ -193,12 +535,26 @@ class ADODB_Pager {
 		ob_end_clean();
 		return $s;
 	}
-
 	//-------------------------------------------------------
 	// Navigation bar
 	//
 	// we use output buffering to keep the code easy to read.
-	function RenderNav()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RenderNav()
 	{
 		ob_start();
 		if (!$this->rs->AtFirstPage()) {
@@ -222,10 +578,24 @@ class ADODB_Pager {
 		ob_end_clean();
 		return $s;
 	}
-
 	//-------------------
 	// This is the footer
-	function RenderPageCount()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RenderPageCount()
 	{
 		if (!$this->db->pageExecuteCountRows) return '';
 		$lastPage = $this->rs->LastPageNo();
@@ -233,17 +603,28 @@ class ADODB_Pager {
 		if ($this->curr_page > $lastPage) $this->curr_page = 1;
 		return "<font size=-1>$this->page ".$this->curr_page."/".$lastPage."</font>";
 	}
-
 	//-----------------------------------
 	// Call this class to draw everything.
-	function Render($rows=10)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Render($rows=10)
 	{
 	global $ADODB_COUNTRECS;
-
 		$this->rows = $rows;
-
 		if ($this->db->dataProvider == 'informix') $this->db->cursorType = IFX_SCROLL;
-
 		$savec = $ADODB_COUNTRECS;
 		if ($this->db->pageExecuteCountRows) $ADODB_COUNTRECS = true;
 		if ($this->cache)
@@ -251,30 +632,39 @@ class ADODB_Pager {
 		else
 			$rs = $this->db->PageExecute($this->sql,$rows,$this->curr_page);
 		$ADODB_COUNTRECS = $savec;
-
 		$this->rs = $rs;
 		if (!$rs) {
 			print "<h3>Query failed: $this->sql</h3>";
 			return;
 		}
-
 		if (!$rs->EOF && (!$rs->AtFirstPage() || !$rs->AtLastPage()))
 			$header = $this->RenderNav();
 		else
 			$header = "&nbsp;";
-
 		$grid = $this->RenderGrid();
 		$footer = $this->RenderPageCount();
-
 		$this->RenderLayout($header,$grid,$footer);
-
 		$rs->Close();
 		$this->rs = false;
 	}
-
 	//------------------------------------------------------
 	// override this to control overall layout and formating
-	function RenderLayout($header,$grid,$footer,$attributes='border=1 bgcolor=beige')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RenderLayout($header,$grid,$footer,$attributes='border=1 bgcolor=beige')
 	{
 		echo "<table ".$attributes."><tr><td>",
 				$header,

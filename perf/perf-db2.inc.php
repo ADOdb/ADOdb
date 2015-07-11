@@ -1,23 +1,49 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
-
   Latest version is available at http://adodb.sourceforge.net
-
   Library for basic performance monitoring and tuning
-
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
 // Simple guide to configuring db2: so-so http://www.devx.com/gethelpon/10MinuteSolution/16575
-
 // SELECT * FROM TABLE(SNAPSHOT_APPL('SAMPLE', -1)) as t
+
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class perf_db2 extends adodb_perf{
 	var $createTableSQL = "CREATE TABLE adodb_logsql (
 		  created TIMESTAMP NOT NULL,
@@ -27,7 +53,6 @@ class perf_db2 extends adodb_perf{
 		  tracer varchar(500) NOT NULL,
 		  timer decimal(16,6) NOT NULL
 		)";
-
 	var $settings = array(
 	'Ratios',
 		'data cache hit ratio' => array('RATIO',
@@ -36,7 +61,6 @@ class perf_db2 extends adodb_perf{
 				else 100*(1-sum(POOL_DATA_P_READS+POOL_INDEX_P_READS)/sum(POOL_DATA_L_READS+POOL_INDEX_L_READS)) end
 				FROM TABLE(SNAPSHOT_APPL('',-2)) as t",
 			'=WarnCacheRatio'),
-
 	'Data Cache',
 		'data cache buffers' => array('DATAC',
 		'select sum(npages) from SYSCAT.BUFFERPOOLS',
@@ -51,17 +75,43 @@ class perf_db2 extends adodb_perf{
 		'current connections' => array('SESS',
 			"SELECT count(*) FROM TABLE(SNAPSHOT_APPL_INFO('',-2)) as t",
 			''),
-
 		false
 	);
 
-
-	function perf_db2(&$conn)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function perf_db2(&$conn)
 	{
 		$this->conn = $conn;
 	}
 
-	function Explain($sql,$partial=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Explain($sql,$partial=false)
 	{
 		$save = $this->conn->LogSQL(false);
 		if ($partial) {
@@ -85,18 +135,31 @@ class perf_db2 extends adodb_perf{
 		$s = ob_get_contents();
 		ob_end_clean();
 		$this->conn->LogSQL($save);
-
 		$s .= $this->Tracer($sql);
 		return $s;
 	}
-
 	/**
 	 *  Gets a list of tables
 	 *
 	 * @param int $throwaway discarded variable to match the parent method
 	 * @return string The formatted table list
 	 */
-	function Tables($throwaway=0)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Tables($throwaway=0)
 	{
 		$rs = $this->conn->Execute("select tabschema,tabname,card as rows,
 			npages pages_used,fpages pages_allocated, tbspace tablespace

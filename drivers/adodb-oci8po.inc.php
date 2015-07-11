@@ -1,45 +1,111 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim. All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
-
   Latest version is available at http://adodb.sourceforge.net
-
   Portable version of oci8 driver, to make it more similar to other database drivers.
   The main differences are
-
    1. that the OCI_ASSOC names are in lowercase instead of uppercase.
    2. bind variables are mapped using ? instead of :<bindvar>
-
    Should some emulation of RecordCount() be implemented?
-
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
 include_once(ADODB_DIR.'/drivers/adodb-oci8.inc.php');
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_oci8po extends ADODB_oci8 {
 	var $databaseType = 'oci8po';
 	var $dataProvider = 'oci8';
 	var $metaColumnsSQL = "select lower(cname),coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
 	var $metaTablesSQL = "select lower(table_name),table_type from cat where table_type in ('TABLE','VIEW')";
 
-	function ADODB_oci8po()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADODB_oci8po()
 	{
 		$this->_hasOCIFetchStatement = ADODB_PHPVER >= 0x4200;
 		# oci8po does not support adodb extension: adodb_movenext()
 	}
 
-	function Param($name,$type='C')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Param($name,$type='C')
 	{
 		return '?';
 	}
 
-	function Prepare($sql,$cursor=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Prepare($sql,$cursor=false)
 	{
 		$sqlarr = explode('?',$sql);
 		$sql = $sqlarr[0];
@@ -49,13 +115,41 @@ class ADODB_oci8po extends ADODB_oci8 {
 		return ADODB_oci8::Prepare($sql,$cursor);
 	}
 
-	function Execute($sql,$inputarr=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Execute($sql,$inputarr=false)
 	{
 		return ADOConnection::Execute($sql,$inputarr);
 	}
-
 	// emulate handling of parameters ? ?, replacing with :bind0 :bind1
-	function _query($sql,$inputarr=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _query($sql,$inputarr=false)
 	{
 		if (is_array($inputarr)) {
 			$i = 0;
@@ -71,38 +165,70 @@ class ADODB_oci8po extends ADODB_oci8 {
 					$qmReplace = str_replace('?', '-QUESTIONMARK-', $qmMatch);
 					$sql = str_replace($qmMatch, $qmReplace, $sql);
 				}
-
 				$sqlarr = explode('?',$sql);
 				$sql = $sqlarr[0];
-
 				foreach($inputarr as $k => $v) {
 					$sql .=  ":$k" . $sqlarr[++$i];
 				}
-
 				$sql = str_replace('-QUESTIONMARK-', '?', $sql);
 			}
 		}
 		return ADODB_oci8::_query($sql,$inputarr);
 	}
 }
-
 /*--------------------------------------------------------------------------------------
 		 Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordset_oci8po extends ADORecordset_oci8 {
-
 	var $databaseType = 'oci8po';
 
-	function ADORecordset_oci8po($queryID,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordset_oci8po($queryID,$mode=false)
 	{
 		$this->ADORecordset_oci8($queryID,$mode);
 	}
 
-	function Fields($colname)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Fields($colname)
 	{
 		if ($this->fetchMode & OCI_ASSOC) return $this->fields[$colname];
-
 		if (!$this->bind) {
 			$this->bind = array();
 			for ($i=0; $i < $this->_numOfFields; $i++) {
@@ -112,9 +238,23 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		}
 		 return $this->fields[$this->bind[strtoupper($colname)]];
 	}
-
 	// lowercase field names...
-	function _FetchField($fieldOffset = -1)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _FetchField($fieldOffset = -1)
 	{
 		$fld = new ADOFieldObject;
 		$fieldOffset += 1;
@@ -132,15 +272,28 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		}
 		return $fld;
 	}
-
 	// 10% speedup to move MoveNext to child class
-	function MoveNext()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MoveNext()
 	{
 		if(@OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode)) {
 		global $ADODB_ANSI_PADDING_OFF;
 			$this->_currentRow++;
 			$this->_updatefields();
-
 			if (!empty($ADODB_ANSI_PADDING_OFF)) {
 				foreach($this->fields as $k => $v) {
 					if (is_string($v)) $this->fields[$k] = rtrim($v);
@@ -154,9 +307,23 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		}
 		return false;
 	}
-
 	/* Optimize SelectLimit() by using OCIFetch() instead of OCIFetchInto() */
-	function GetArrayLimit($nrows,$offset=-1)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GetArrayLimit($nrows,$offset=-1)
 	{
 		if ($offset <= 0) {
 			$arr = $this->GetArray($nrows);
@@ -178,18 +345,29 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 			$results[$cnt++] = $this->fields;
 			$this->MoveNext();
 		}
-
 		return $results;
 	}
 
-	function _fetch()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _fetch()
 	{
 		global $ADODB_ANSI_PADDING_OFF;
-
 		$ret = @OCIfetchinto($this->_queryID,$this->fields,$this->fetchMode);
 		if ($ret) {
 			$this->_updatefields();
-
 			if (!empty($ADODB_ANSI_PADDING_OFF)) {
 				foreach($this->fields as $k => $v) {
 					if (is_string($v)) $this->fields[$k] = rtrim($v);
@@ -198,5 +376,4 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		}
 		return $ret;
 	}
-
 }

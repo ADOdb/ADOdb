@@ -1,36 +1,108 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 include_once('../adodb.inc.php');
 include_once('adodb-replicate.inc.php');
-
 set_time_limit(0);
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function IndexFilter($dtable, $idxname,$flds,$options)
 {
 	if (strlen($idxname) > 28) $idxname = substr($idxname,0,24).rand(1000,9999);
 	return $idxname;
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function SelFilter($table, &$arr, $delfirst)
 {
 	return true;
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function updatefilter($table, $fld, $val)
 {
 	return "nvl($fld, $val)";
 }
 
-
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function FieldFilter(&$fld,$mode)
 {
 	$uf = strtoupper($fld);
 	switch($uf) {
 		case 'SIZEFLD':
 			return 'Size';
-
 		case 'GROUPFLD':
 			return 'Group';
-
 		case 'GROUP':
 			if ($mode == 'SELECT') $fld = '"Group"';
 			return 'GroupFld';
@@ -41,6 +113,20 @@ function FieldFilter(&$fld,$mode)
 	return $fld;
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function ParseTable(&$table, &$pkey)
 {
 	$table = trim($table);
@@ -50,7 +136,6 @@ function ParseTable(&$table, &$pkey)
 		$table = trim(substr($table,0,$at));
 		if (strlen($table) == 0) return false;
 	}
-
 	$tabarr = explode(',',$table);
 	if (sizeof($tabarr) == 1) {
 		$table = $tabarr[0];
@@ -61,21 +146,31 @@ function ParseTable(&$table, &$pkey)
 		$pkey = trim($tabarr[1]);
 		if (strpos($pkey,' ') !== false) echo "Bad PKEY for $table $pkey<br>";
 	}
-
 	return true;
 }
-
 global $TARR;
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function TableStats($rep, $table, $pkey)
 {
 global $TARR;
-
 	if (empty($TARR)) $TARR = array();
 	$cnt = $rep->connSrc->GetOne("select count(*) from $table");
 	if (isset($TARR[$table])) echo "<h1>Table $table repeated twice</h1>";
 	$TARR[$table] = $cnt;
-
 	if ($pkey) {
 		$ok = $rep->connSrc->SelectLimit("select $pkey from $table",1);
 		if (!$ok) echo "<h1>$table: $pkey does not exist</h1>";
@@ -83,11 +178,24 @@ global $TARR;
 		echo "<h1>$table: no primary key</h1>";
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function CreateTable($rep, $table)
 {
 ## CREATE TABLE
 	#$DB2->Execute("drop table $table");
-
 	$rep->execute = true;
 	$ok = $rep->CopyTableStruct($table);
 	if ($ok) echo "Table Created<br>\n";
@@ -97,13 +205,25 @@ function CreateTable($rep, $table)
 	flush();@ob_flush();
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function CopyData($rep, $table, $pkey)
 {
 	$dtable = $table;
-
 	$rep->execute = true;
 	$rep->deleteFirst = true;
-
 	$secs = time();
 	$rows = $rep->ReplicateData($table,$dtable,array($pkey));
 	$secs = time() - $secs;
@@ -114,13 +234,25 @@ function CopyData($rep, $table, $pkey)
 	flush();@ob_flush();
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function MergeDataJohnTest($rep, $table, $pkey)
 {
 	$rep->SwapDBs();
-
 	$dtable = $table;
 	$rep->oracleSequence = 'LGBSEQUENCE';
-
 #	$rep->MergeSrcSetup($table, array($pkey),'UpdatedOn','CopiedFlag');
 	if (strpos($rep->connDest->databaseType,'mssql') !== false)  {  # oracle ==> mssql
 		$ignoreflds = array($pkey);
@@ -138,29 +270,22 @@ function MergeDataJohnTest($rep, $table, $pkey)
 	#$rep->updateFirst = false;
 	$ok = $rep->Merge($table, $dtable, $pkeyarr, $ignoreflds, $set, 'UpdatedOn','CopiedFlag',array('Y','N','P','='), 'CopyDate');
 	var_dump($ok);
-
 	#$rep->connSrc->Execute("update JohnTest set name='Apple' where id=4");
 }
-
 $DB = ADONewConnection('odbtp');
 #$ok = $DB->Connect('localhost','root','','northwind');
 $ok = $DB->Connect('192.168.0.1','DRIVER={SQL Server};SERVER=(local);UID=sa;PWD=natsoft;DATABASE=OIR;','','');
 $DB->_bindInputArray = false;
-
 $DB2 = ADONewConnection('oci8');
 $ok2 = $DB2->Connect('192.168.0.2','tnb','natsoft','RAPTOR','');
-
 if (!$ok || !$ok2) die("Failed connection DB=$ok DB2=$ok2<br>");
-
 $tables =
 "
 JohnTest,id
 ";
-
 # net* are ERMS, need last updated field from LGBnet
 # tblRep* are tables insert or update from Juris, need last updated field also
 # The rest are lookup tables, can copy all from LGBnet
-
 $tablesOrig =
 "
 SysVoltSubLevel,id
@@ -317,7 +442,6 @@ SysListVolt,ID
 sysVoltLevel,ID_SVL
 sysRestoration,ID_SRE
 sysRepairMethod,ID_SRM # (not identity)
-
 sysInterruptionType,ID_SIN
 netTransformer,Idx # identity, FunctLocation Pri
 #
@@ -369,53 +493,35 @@ tblProtdetail,Id # (Id)--capital letter for I
 tblInstallation,ID_TI
 #
 ";
-
-
 $tables = explode("\n",$tables);
-
 $rep = new ADODB_Replicate($DB,$DB2);
 $rep->fieldFilter = 'FieldFilter';
 $rep->selFilter = 'SELFILTER';
 $rep->indexFilter = 'IndexFilter';
-
 if (1) {
 	$rep->debug = 1;
 	$DB->debug=1;
 	$DB2->debug=1;
 }
-
 #	$rep->SwapDBs();
-
 $cnt = sizeof($tables);
 foreach($tables as $k => $table) {
 	$pkey = '';
 	if (!ParseTable($table, $pkey)) continue;
-
 	#######################
-
 	$kcnt = $k+1;
 	echo "<h1>($kcnt/$cnt) $table -- $pkey</h1>\n";
 	flush();@ob_flush();
-
 	CreateTable($rep,$table);
-
-
 	# COPY DATA
-
-
 	TableStats($rep, $table, $pkey);
-
 	if ($table == 'JohnTest') MergeDataJohnTest($rep, $table, $pkey);
 	else CopyData($rep, $table, $pkey);
-
 }
-
-
 if (!empty($TARR)) {
 	ksort($TARR);
 	adodb_pr($TARR);
 	asort($TARR);
 	adodb_pr($TARR);
 }
-
 echo "<hr>",date('H:i:s'),": Done</hr>";

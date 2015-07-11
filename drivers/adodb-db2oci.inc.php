@@ -1,26 +1,56 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
 Set tabs to 4 for best viewing.
-
   Latest version is available at http://adodb.sourceforge.net
-
   Microsoft Visual FoxPro data driver. Requires ODBC. Works only on MS Windows.
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 include(ADODB_DIR."/drivers/adodb-db2.inc.php");
-
-
 if (!defined('ADODB_DB2OCI')){
 define('ADODB_DB2OCI',1);
-
 /*
 // regex code for smart remapping of :0, :1 bind vars to ? ?
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function _colontrack($p)
 {
 global $_COLONARR,$_COLONSZ;
@@ -29,33 +59,54 @@ global $_COLONARR,$_COLONSZ;
 	$_COLONARR[] = $v;
 	return '?';
 }
-
 // smart remapping of :0, :1 bind vars to ? ?
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function _colonscope($sql,$arr)
 {
 global $_COLONARR,$_COLONSZ;
-
 	$_COLONARR = array();
 	$_COLONSZ = sizeof($arr);
-
 	$sql2 = preg_replace("/(:[0-9]+)/e","_colontrack('\\1')",$sql);
-
 	if (empty($_COLONARR)) return array($sql,$arr);
-
 	foreach($_COLONARR as $k => $v) {
 		$arr2[] = $arr[$v];
 	}
-
 	return array($sql2,$arr2);
 }
 */
-
 /*
 	Smart remapping of :0, :1 bind vars to ? ?
-
 	Handles colons in comments -- and / * * / and in quoted strings.
 */
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function _colonparser($sql,$arr)
 {
 	$lensql = strlen($sql);
@@ -67,36 +118,28 @@ function _colonparser($sql,$arr)
 	$sql2 = '';
 	$arr2 = array();
 	$nprev = 0;
-
-
 	while (strlen($ch)) {
-
 		switch($ch) {
 		case '/':
 			if ($state == 'NORM' && $ch2 == '*') {
 				$state = 'COMMENT';
-
 				$at += 1;
 				$ch = $ch2;
 				$ch2 = $at < $lensql ? $sql[$at] : '';
 			}
 			break;
-
 		case '*':
 			if ($state == 'COMMENT' && $ch2 == '/') {
 				$state = 'NORM';
-
 				$at += 1;
 				$ch = $ch2;
 				$ch2 = $at < $lensql ? $sql[$at] : '';
 			}
 			break;
-
 		case "\n":
 		case "\r":
 			if ($state == 'COMMENT2') $state = 'NORM';
 			break;
-
 		case "'":
 			do {
 				$at += 1;
@@ -104,10 +147,8 @@ function _colonparser($sql,$arr)
 				$ch2 = $at < $lensql ? $sql[$at] : '';
 			} while ($ch !== "'");
 			break;
-
 		case ':':
 			if ($state == 'COMMENT' || $state == 'COMMENT2') break;
-
 			//echo "$at=$ch $ch2, ";
 			if ('0' <= $ch2 && $ch2 <= '9') {
 				$n = '';
@@ -127,7 +168,6 @@ function _colonparser($sql,$arr)
 				}
 			}
 			break;
-
 		case '-':
 			if ($state == 'NORM') {
 				if ($ch2 == '-') $state = 'COMMENT2';
@@ -137,54 +177,98 @@ function _colonparser($sql,$arr)
 			}
 			break;
 		}
-
 		$at += 1;
 		$ch = $ch2;
 		$ch2 = $at < $lensql ? $sql[$at] : '';
 	}
-
 	if ($nprev == 0) {
 		$sql2 = $sql;
 	} else {
 		$sql2 .= substr($sql,$nprev);
 	}
-
 	return array($sql2,$arr2);
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_db2oci extends ADODB_db2 {
 	var $databaseType = "db2oci";
 	var $sysTimeStamp = 'sysdate';
 	var $sysDate = 'trunc(sysdate)';
 	var $_bindInputArray = true;
 
-	function ADODB_db2oci()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADODB_db2oci()
 	{
 		parent::ADODB_db2();
 	}
 
-	function Param($name,$type='C')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Param($name,$type='C')
 	{
 		return ':'.$name;
 	}
 
-
-	function MetaTables($ttype=false,$schema=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaTables($ttype=false,$schema=false)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$qid = db2_tables($this->_connectionID);
-
 		$rs = new ADORecordSet_db2($qid);
-
 		$ADODB_FETCH_MODE = $savem;
 		if (!$rs) {
 			$false = false;
 			return $false;
 		}
-
 		$arr = $rs->GetArray();
 		$rs->Close();
 		$arr2 = array();
@@ -208,22 +292,57 @@ class ADODB_db2oci extends ADODB_db2 {
 		return $arr2;
 	}
 
-	function _Execute($sql, $inputarr=false	)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _Execute($sql, $inputarr=false	)
 	{
 		if ($inputarr) list($sql,$inputarr) = _colonparser($sql, $inputarr);
 		return parent::_Execute($sql, $inputarr);
 	}
 };
 
-
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class  ADORecordSet_db2oci extends ADORecordSet_db2 {
-
 	var $databaseType = "db2oci";
 
-	function ADORecordSet_db2oci($id,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_db2oci($id,$mode=false)
 	{
 		return $this->ADORecordSet_db2($id,$mode);
 	}
 }
-
 } //define

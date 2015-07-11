@@ -1,4 +1,24 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
  * @version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
@@ -10,10 +30,7 @@
  * The following code is adapted from the PEAR DB error handling code.
  * Portions (c)1997-2002 The PHP Group.
  */
-
-
 if (!defined("DB_ERROR")) define("DB_ERROR",-1);
-
 if (!defined("DB_ERROR_SYNTAX")) {
 	define("DB_ERROR_SYNTAX",              -2);
 	define("DB_ERROR_CONSTRAINT",          -3);
@@ -46,10 +63,23 @@ if (!defined("DB_ERROR_SYNTAX")) {
 	define("DB_ERROR_SERIALIZATION_FAILURE", -29);
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_errormsg($value)
 {
 global $ADODB_LANG,$ADODB_LANG_ARRAY;
-
 	if (empty($ADODB_LANG)) $ADODB_LANG = 'en';
 	if (isset($ADODB_LANG_ARRAY['LANG']) && $ADODB_LANG_ARRAY['LANG'] == $ADODB_LANG) ;
 	else {
@@ -58,27 +88,34 @@ global $ADODB_LANG,$ADODB_LANG_ARRAY;
 	return isset($ADODB_LANG_ARRAY[$value]) ? $ADODB_LANG_ARRAY[$value] : $ADODB_LANG_ARRAY[DB_ERROR];
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_error($provider,$dbType,$errno)
 {
 	//var_dump($errno);
 	if (is_numeric($errno) && $errno == 0) return 0;
 	switch($provider) {
 	case 'mysql': $map = adodb_error_mysql(); break;
-
 	case 'oracle':
 	case 'oci8': $map = adodb_error_oci8(); break;
-
 	case 'ibase': $map = adodb_error_ibase(); break;
-
 	case 'odbc': $map = adodb_error_odbc(); break;
-
 	case 'mssql':
 	case 'sybase': $map = adodb_error_mssql(); break;
-
 	case 'informix': $map = adodb_error_ifx(); break;
-
 	case 'postgres': return adodb_error_pg($errno); break;
-
 	case 'sqlite': return $map = adodb_error_sqlite(); break;
 	default:
 		return DB_ERROR;
@@ -88,9 +125,22 @@ function adodb_error($provider,$dbType,$errno)
 	if (isset($map[$errno])) return $map[$errno];
 	return DB_ERROR;
 }
-
 //**************************************************************************************
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_error_pg($errormsg)
 {
 	if (is_numeric($errormsg)) return (integer) $errormsg;
@@ -118,6 +168,20 @@ function adodb_error_pg($errormsg)
 	return DB_ERROR;
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_error_odbc()
 {
 static $MAP = array(
@@ -149,6 +213,20 @@ static $MAP = array(
 		return $MAP;
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_error_ibase()
 {
 static $MAP = array(
@@ -175,10 +253,23 @@ static $MAP = array(
             -923 => DB_ERROR_CONNECT_FAILED,
             -924 => DB_ERROR_CONNECT_FAILED
         );
-
 		return $MAP;
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_error_ifx()
 {
 static $MAP = array(
@@ -193,10 +284,23 @@ static $MAP = array(
             '-1210'   => DB_ERROR_INVALID_DATE,
             '-1212'   => DB_ERROR_INVALID_DATE
        );
-
 	   return $MAP;
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_error_oci8()
 {
 static $MAP = array(
@@ -212,29 +316,68 @@ static $MAP = array(
             2291 => DB_ERROR_CONSTRAINT,
             2449 => DB_ERROR_CONSTRAINT
         );
-
 	return $MAP;
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_error_mssql()
 {
 static $MAP = array(
 		  208 => DB_ERROR_NOSUCHTABLE,
           2601 => DB_ERROR_ALREADY_EXISTS
        );
-
 	return $MAP;
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_error_sqlite()
 {
 static $MAP = array(
 		  1 => DB_ERROR_SYNTAX
        );
-
 	return $MAP;
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_error_mysql()
 {
 static $MAP = array(
@@ -258,6 +401,5 @@ static $MAP = array(
 		    2002 => DB_ERROR_CONNECT_FAILED,
 			2005 => DB_ERROR_CONNECT_FAILED
        );
-
 	return $MAP;
 }

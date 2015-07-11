@@ -1,20 +1,46 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
   V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
-
   Set tabs to 4 for best viewing.
-
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB2_oci8 extends ADODB_DataDict {
-
 	var $databaseType = 'oci8';
 	var $seqField = false;
 	var $seqPrefix = 'SEQ_';
@@ -24,7 +50,21 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	var $typeX = 'VARCHAR(4000)';
 	var $typeXL = 'CLOB';
 
-	function MetaType($t, $len=-1, $fieldobj=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaType($t, $len=-1, $fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -39,53 +79,41 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		case 'BINARY':
 			if (isset($this) && $len <= $this->blobSize) return 'C';
 			return 'X';
-
 		case 'NCHAR':
 		case 'NVARCHAR2':
 		case 'NVARCHAR':
 			if (isset($this) && $len <= $this->blobSize) return 'C2';
 			return 'X2';
-
 		case 'NCLOB':
 		case 'CLOB':
 			return 'XL';
-
 		case 'LONG RAW':
 		case 'LONG VARBINARY':
 		case 'BLOB':
 			return 'B';
-
 		case 'TIMESTAMP':
 			return 'TS';
-
 		case 'DATE':
 			return 'T';
-
 		case 'INT':
 		case 'SMALLINT':
 		case 'INTEGER':
 			return 'I';
-
 		default:
 			return 'N';
 		}
 	}
-
  	function ActualType($meta)
 	{
 		switch($meta) {
 		case 'C': return 'VARCHAR';
 		case 'X': return $this->typeX;
 		case 'XL': return $this->typeXL;
-
 		case 'C2': return 'NVARCHAR2';
 		case 'X2': return 'NVARCHAR2(4000)';
-
 		case 'B': return 'BLOB';
-
 		case 'TS':
 				return 'TIMESTAMP';
-
 		case 'D':
 		case 'T': return 'DATE';
 		case 'L': return 'NUMBER(1)';
@@ -93,7 +121,6 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		case 'I2': return 'NUMBER(5)';
 		case 'I':
 		case 'I4': return 'NUMBER(10)';
-
 		case 'I8': return 'NUMBER(20)';
 		case 'F': return 'NUMBER';
 		case 'N': return 'NUMBER';
@@ -103,18 +130,45 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		}
 	}
 
-	function CreateDatabase($dbname, $options=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CreateDatabase($dbname, $options=false)
 	{
 		$options = $this->_Options($options);
 		$password = isset($options['PASSWORD']) ? $options['PASSWORD'] : 'tiger';
 		$tablespace = isset($options["TABLESPACE"]) ? " DEFAULT TABLESPACE ".$options["TABLESPACE"] : '';
 		$sql[] = "CREATE USER ".$dbname." IDENTIFIED BY ".$password.$tablespace;
 		$sql[] = "GRANT CREATE SESSION, CREATE TABLE,UNLIMITED TABLESPACE,CREATE SEQUENCE TO $dbname";
-
 		return $sql;
 	}
 
-	function AddColumnSQL($tabname, $flds)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName($tabname);
 		$f = array();
@@ -123,13 +177,26 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		foreach($lines as $v) {
 			$f[] = "\n $v";
 		}
-
 		$s .= implode(', ',$f).')';
 		$sql[] = $s;
 		return $sql;
 	}
 
-	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->TableName($tabname);
 		$f = array();
@@ -143,11 +210,24 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		return $sql;
 	}
 
-	function DropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		if (!is_array($flds)) $flds = explode(',',$flds);
 		foreach ($flds as $k => $v) $flds[$k] = $this->NameQuote($v);
-
 		$sql = array();
 		$s = "ALTER TABLE $tabname DROP(";
 		$s .= implode(', ',$flds).') CASCADE CONSTRAINTS';
@@ -155,7 +235,21 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		return $sql;
 	}
 
-	function _DropAutoIncrement($t)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _DropAutoIncrement($t)
 	{
 		if (strpos($t,'.') !== false) {
 			$tarr = explode('.',$t);
@@ -163,26 +257,35 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		}
 		return "drop sequence seq_".$t;
 	}
-
 	// return string must begin with space
-	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{
 		$suffix = '';
-
 		if ($fdefault == "''" && $fnotnull) {// this is null in oracle
 			$fnotnull = false;
 			if ($this->debug) ADOConnection::outp("NOT NULL and DEFAULT='' illegal in Oracle");
 		}
-
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
 		if ($fnotnull) $suffix .= ' NOT NULL';
-
 		if ($fautoinc) $this->seqField = $fname;
 		if ($fconstraint) $suffix .= ' '.$fconstraint;
-
 		return $suffix;
 	}
-
 /*
 CREATE or replace TRIGGER jaddress_insert
 before insert on jaddress
@@ -191,10 +294,24 @@ begin
 select seqaddress.nextval into :new.A_ID from dual;
 end;
 */
-	function _Triggers($tabname,$tableoptions)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _Triggers($tabname,$tableoptions)
 	{
 		if (!$this->seqField) return array();
-
 		if ($this->schema) {
 			$t = strpos($tabname,'.');
 			if ($t !== false) $tab = substr($tabname,$t+1);
@@ -205,14 +322,12 @@ end;
 			$seqname = $this->seqPrefix.$tabname;
 			$trigname = $this->trigPrefix.$seqname;
 		}
-
 		if (strlen($seqname) > 30) {
 			$seqname = $this->seqPrefix.uniqid('');
 		} // end if
 		if (strlen($trigname) > 30) {
 			$trigname = $this->trigPrefix.uniqid('');
 		} // end if
-
 		if (isset($tableoptions['REPLACE'])) $sql[] = "DROP SEQUENCE $seqname";
 		$seqCache = '';
 		if (isset($tableoptions['SEQUENCE_CACHE'])){$seqCache = $tableoptions['SEQUENCE_CACHE'];}
@@ -222,11 +337,9 @@ end;
 		if (isset($tableoptions['SEQUENCE_START'])){$seqIncr = ' START WITH '.$tableoptions['SEQUENCE_START'];}
 		$sql[] = "CREATE SEQUENCE $seqname $seqStart $seqIncr $seqCache";
 		$sql[] = "CREATE OR REPLACE TRIGGER $trigname BEFORE insert ON $tabname FOR EACH ROW WHEN (NEW.$this->seqField IS NULL OR NEW.$this->seqField = 0) BEGIN select $seqname.nextval into :new.$this->seqField from dual; END;";
-
 		$this->seqField = false;
 		return $sql;
 	}
-
 	/*
 	CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name [(create_definition,...)]
 		[table_options] [select_statement]
@@ -243,22 +356,31 @@ end;
 		or CHECK (expr)
 	*/
 
-
-
-	function _IndexSQL($idxname, $tabname, $flds,$idxoptions)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _IndexSQL($idxname, $tabname, $flds,$idxoptions)
 	{
 		$sql = array();
-
 		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
 			$sql[] = sprintf ($this->dropIndex, $idxname, $tabname);
 			if ( isset($idxoptions['DROP']) )
 				return $sql;
 		}
-
 		if ( empty ($flds) ) {
 			return $sql;
 		}
-
 		if (isset($idxoptions['BITMAP'])) {
 			$unique = ' BITMAP';
 		} elseif (isset($idxoptions['UNIQUE'])) {
@@ -266,31 +388,53 @@ end;
 		} else {
 			$unique = '';
 		}
-
 		if ( is_array($flds) )
 			$flds = implode(', ',$flds);
 		$s = 'CREATE' . $unique . ' INDEX ' . $idxname . ' ON ' . $tabname . ' (' . $flds . ')';
-
 		if ( isset($idxoptions[$this->upperName]) )
 			$s .= $idxoptions[$this->upperName];
-
 		if (isset($idxoptions['oci8']))
 			$s .= $idxoptions['oci8'];
-
-
 		$sql[] = $s;
-
 		return $sql;
 	}
 
-	function GetCommentSQL($table,$col)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GetCommentSQL($table,$col)
 	{
 		$table = $this->connection->qstr($table);
 		$col = $this->connection->qstr($col);
 		return "select comments from USER_COL_COMMENTS where TABLE_NAME=$table and COLUMN_NAME=$col";
 	}
 
-	function SetCommentSQL($table,$col,$cmt)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SetCommentSQL($table,$col,$cmt)
 	{
 		$cmt = $this->connection->qstr($cmt);
 		return  "COMMENT ON COLUMN $table.$col IS $cmt";

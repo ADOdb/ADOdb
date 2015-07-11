@@ -1,27 +1,54 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
  V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
   Set tabs to 4.
-
   Postgres7 support.
   28 Feb 2001: Currently indicate that we support LIMIT
   01 Dec 2001: dannym added support for default values
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
 include_once(ADODB_DIR."/drivers/adodb-postgres64.inc.php");
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_postgres7 extends ADODB_postgres64 {
 	var $databaseType = 'postgres7';
 	var $hasLimit = true;	// set to true for pgsql 6.5+ only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
 	var $ansiOuter = true;
 	var $charSet = true; //set to true for Postgres 7 and above - PG client supports encodings
-
 	// Richard 3/18/2012 - Modified SQL to return SERIAL type correctly AS old driver no longer return SERIAL as data type.
 	var $metaColumnsSQL = "
 		SELECT
@@ -55,7 +82,6 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			AND a.attrelid = c.oid
 		ORDER BY
 			a.attnum";
-
 	// used when schema defined
 	var $metaColumnsSQL1 = "
 		SELECT
@@ -92,8 +118,21 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			AND a.attrelid = c.oid
 		ORDER BY a.attnum";
 
-
-	function __construct()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function __construct()
 	{
 		parent::__construct();
 		if (ADODB_ASSOC_CASE !== ADODB_ASSOC_CASE_NATIVE) {
@@ -101,11 +140,24 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		}
 		$this->_bindInputArray = PHP_VERSION >= 5.1;
 	}
-
-
 	// the following should be compat with postgresql 7.2,
 	// which makes obsolete the LIMIT limit,offset syntax
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$offsetStr = ($offset >= 0) ? " OFFSET ".((integer)$offset) : '';
 		$limitStr  = ($nrows >= 0)  ? " LIMIT ".((integer)$nrows) : '';
@@ -113,12 +165,25 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
 		else
 			$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
-
 		return $rs;
 	}
-
 	/*
-	function Prepare($sql)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Prepare($sql)
 	{
 		$info = $this->ServerInfo();
 		if ($info['version']>=7.3) {
@@ -127,7 +192,6 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		return $sql;
 	}
 	*/
-
 	/**
 	 * Generate the SQL to retrieve MetaColumns data
 	 * @param string $table Table name
@@ -143,11 +207,25 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			return sprintf($this->metaColumnsSQL, $table, $table, $schema);
 		}
 	}
-
 	/**
 	 * @returns assoc array where keys are tables, and values are foreign keys
 	 */
-	function MetaForeignKeys($table, $owner=false, $upper=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaForeignKeys($table, $owner=false, $upper=false)
 	{
 		# Regex isolates the 2 terms between parenthesis using subexpressions
 		$regex = '^.*\((.*)\).*\((.*)\).*$';
@@ -178,9 +256,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 				dep_table,
 				dep_field";
 		$rs = $this->Execute($sql);
-
 		if (!$rs || $rs->EOF) return false;
-
 		$a = array();
 		while (!$rs->EOF) {
 			if ($upper) {
@@ -190,13 +266,25 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			}
 			$rs->MoveNext();
 		}
-
 		return $a;
-
 	}
-
 	// from  Edward Jaramilla, improved version - works on pg 7.4
-	function _old_MetaForeignKeys($table, $owner=false, $upper=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _old_MetaForeignKeys($table, $owner=false, $upper=false)
 	{
 		$sql = 'SELECT t.tgargs as args
 		FROM
@@ -209,11 +297,8 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		c.relname = \''.strtolower($table).'\'
 		ORDER BY
 			t.tgrelid';
-
 		$rs = $this->Execute($sql);
-
 		if (!$rs || $rs->EOF) return false;
-
 		$arr = $rs->GetArray();
 		$a = array();
 		foreach($arr as $v) {
@@ -229,13 +314,26 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		return $a;
 	}
 
-	function _query($sql,$inputarr=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _query($sql,$inputarr=false)
 	{
 		if (! $this->_bindInputArray) {
 			// We don't have native support for parameterized queries, so let's emulate it at the parent
 			return ADODB_postgres64::_query($sql, $inputarr);
 		}
-
 		$this->_pnum = 0;
 		$this->_errorMsg = false;
 		// -- added Cristiano da Cunha Duarte
@@ -249,7 +347,6 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 				else $sql .= $v.' $'.$i;
 				$i++;
 			}
-
 			$rez = pg_query_params($this->_connectionID,$sql, $inputarr);
 		} else {
 			$rez = pg_query($this->_connectionID,$sql);
@@ -264,7 +361,6 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		}
 		return $rez;
 	}
-
 	// this is a set of functions for managing client encoding - very important if the encodings
 	// of your database and your output target (i.e. HTML) don't match
 	//for instance, you may have UNICODE database and server it on-site as WIN1251 etc.
@@ -272,7 +368,22 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	// the functions should work with Postgres 7.0 and above, the set of charsets supported
 	// depends on compile flags of postgres distribution - if no charsets were compiled into the server
 	// it will return 'SQL_ANSI' always
-	function GetCharSet()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GetCharSet()
 	{
 		//we will use ADO's builtin property charSet
 		$this->charSet = @pg_client_encoding($this->_connectionID);
@@ -282,9 +393,23 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			return $this->charSet;
 		}
 	}
-
 	// SetCharSet - switch the client encoding
-	function SetCharSet($charset_name)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SetCharSet($charset_name)
 	{
 		$this->GetCharSet();
 		if ($this->charSet !== $charset_name) {
@@ -294,31 +419,64 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			} else return false;
 		} else return true;
 	}
-
 }
-
 /*--------------------------------------------------------------------------------------
 	Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
-
 	var $databaseType = "postgres7";
 
-
-	function __construct($queryID, $mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function __construct($queryID, $mode=false)
 	{
 		parent::__construct($queryID, $mode);
 	}
-
 	// 10% speedup to move MoveNext to child class
-	function MoveNext()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MoveNext()
 	{
 		if (!$this->EOF) {
 			$this->_currentRow++;
 			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
 				$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-
 				if (is_array($this->fields)) {
 					if ($this->fields && isset($this->_blobArr)) $this->_fixblobs();
 					return true;
@@ -329,53 +487,95 @@ class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 		}
 		return false;
 	}
-
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
-
 	var $databaseType = "postgres7";
 
-
-	function __construct($queryID, $mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function __construct($queryID, $mode=false)
 	{
 		parent::__construct($queryID, $mode);
 	}
 
-	function _fetch()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _fetch()
 	{
 		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0) {
 			return false;
 		}
-
 		$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-
 		if ($this->fields) {
 			if (isset($this->_blobArr)) $this->_fixblobs();
 			$this->_updatefields();
 		}
-
 		return (is_array($this->fields));
 	}
 
-	function MoveNext()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MoveNext()
 	{
 		if (!$this->EOF) {
 			$this->_currentRow++;
 			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
 				$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-
 				if (is_array($this->fields)) {
 					if ($this->fields) {
 						if (isset($this->_blobArr)) $this->_fixblobs();
-
 						$this->_updatefields();
 					}
 					return true;
 				}
 			}
-
-
 			$this->fields = false;
 			$this->EOF = true;
 		}

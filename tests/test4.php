@@ -1,5 +1,24 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
  * @version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
@@ -12,37 +31,39 @@
  *
  * Test GetUpdateSQL and GetInsertSQL.
  */
-
 error_reporting(E_ALL);
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function testsql()
 {
-
-
 include('../adodb.inc.php');
 include('../tohtml.inc.php');
-
 global $ADODB_FORCE_TYPE;
-
-
 //==========================
 // This code tests an insert
-
 $sql = "
 SELECT *
 FROM ADOXYZ WHERE id = -1";
 // Select an empty record from the database
-
-
 #$conn = ADONewConnection("mssql");  // create a connection
 #$conn->PConnect("", "sa", "natsoft", "northwind"); // connect to MySQL, testdb
-
 $conn = ADONewConnection("mysql");  // create a connection
 $conn->PConnect("localhost", "root", "", "test"); // connect to MySQL, testdb
-
-
 #$conn = ADONewConnection('oci8po');
 #$conn->Connect('','scott','natsoft');
-
 if (PHP_VERSION  >= 5) {
 	$connstr = "mysql:dbname=northwind";
 	$u = 'root';$p='';
@@ -50,57 +71,40 @@ if (PHP_VERSION  >= 5) {
 	$conn->Connect($connstr, $u, $p);
 }
 //$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-
-
 $conn->debug=1;
 $conn->Execute("delete from adoxyz where lastname like 'Smi%'");
-
 $rs = $conn->Execute($sql); // Execute the query and get the empty recordset
 $record = array(); // Initialize an array to hold the record data to insert
-
 if (strpos($conn->databaseType,'mysql')===false) $record['id'] = 751;
 $record["firstname"] = 'Jann';
 $record["lastname"] = "Smitts";
 $record["created"] = time();
-
 $insertSQL = $conn->GetInsertSQL($rs, $record);
 $conn->Execute($insertSQL); // Insert the record into the database
-
 if (strpos($conn->databaseType,'mysql')===false) $record['id'] = 752;
 // Set the values for the fields in the record
 $record["firstname"] = 'anull';
 $record["lastname"] = "Smith\$@//";
 $record["created"] = time();
-
 if (isset($_GET['f'])) $ADODB_FORCE_TYPE = $_GET['f'];
-
 //$record["id"] = -1;
-
 // Pass the empty recordset and the array containing the data to insert
 // into the GetInsertSQL function. The function will process the data and return
 // a fully formatted insert sql statement.
 $insertSQL = $conn->GetInsertSQL($rs, $record);
 $conn->Execute($insertSQL); // Insert the record into the database
-
-
-
 $insertSQL2 = $conn->GetInsertSQL($table='ADOXYZ', $record);
 if ($insertSQL != $insertSQL2) echo "<p><b>Walt's new stuff failed</b>: $insertSQL2</p>";
 //==========================
 // This code tests an update
-
 $sql = "
 SELECT *
 FROM ADOXYZ WHERE lastname=".$conn->Param('var'). " ORDER BY 1";
 // Select a record to update
-
 $varr = array('var'=>$record['lastname'].'');
 $rs = $conn->Execute($sql,$varr); // Execute the query and get the existing record to update
 if (!$rs || $rs->EOF) print "<p><b>No record found!</b></p>";
-
 $record = array(); // Initialize an array to hold the record data to update
-
-
 // Set the values for the fields in the record
 $record["firstName"] = "Caroline".rand();
 //$record["lasTname"] = ""; // Update Caroline's lastname from Miranda to Smith
@@ -110,11 +114,9 @@ $record['num'] = '';
 // into the GetUpdateSQL function. The function will process the data and return
 // a fully formatted update sql statement.
 // If the data has not changed, no recordset is returned
-
 $updateSQL = $conn->GetUpdateSQL($rs, $record);
 $conn->Execute($updateSQL,$varr); // Update the record in the database
 if ($conn->Affected_Rows() != 1)print "<p><b>Error1 </b>: Rows Affected=".$conn->Affected_Rows().", should be 1</p>";
-
 $record["firstName"] = "Caroline".rand();
 $record["lasTname"] = "Smithy Jones"; // Update Caroline's lastname from Miranda to Smith
 $record["creAted"] = '2002-12-'.(rand()%30+1);
@@ -122,21 +124,16 @@ $record['num'] = 331;
 $updateSQL = $conn->GetUpdateSQL($rs, $record);
 $conn->Execute($updateSQL,$varr); // Update the record in the database
 if ($conn->Affected_Rows() != 1)print "<p><b>Error 2</b>: Rows Affected=".$conn->Affected_Rows().", should be 1</p>";
-
 $rs = $conn->Execute("select * from ADOXYZ where lastname like 'Sm%'");
 //adodb_pr($rs);
 rs2html($rs);
-
 $record["firstName"] = "Carol-new-".rand();
 $record["lasTname"] = "Smithy"; // Update Caroline's lastname from Miranda to Smith
 $record["creAted"] = '2002-12-'.(rand()%30+1);
 $record['num'] = 331;
-
 $conn->AutoExecute('ADOXYZ',$record,'UPDATE', "lastname like 'Sm%'");
 $rs = $conn->Execute("select * from ADOXYZ where lastname like 'Sm%'");
 //adodb_pr($rs);
 rs2html($rs);
 }
-
-
 testsql();

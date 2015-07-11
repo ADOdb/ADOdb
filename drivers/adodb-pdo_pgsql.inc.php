@@ -1,14 +1,43 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
   Set tabs to 8.
-
 */
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_pdo_pgsql extends ADODB_pdo {
 	var $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
     var $metaTablesSQL = "select tablename,'T' from pg_tables where tablename not like 'pg\_%'
@@ -25,7 +54,6 @@ class ADODB_pdo_pgsql extends ADODB_pdo {
 		FROM pg_class c, pg_attribute a,pg_type t
 		WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s')) and a.attname not like '....%%'
 AND a.attnum > 0 AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
-
 	// used when schema defined
 	var $metaColumnsSQL1 = "SELECT a.attname, t.typname, a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
 FROM pg_class c, pg_attribute a, pg_type t, pg_namespace n
@@ -33,11 +61,9 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
  and c.relnamespace=n.oid and n.nspname='%s'
 	and a.attname not like '....%%' AND a.attnum > 0
 	AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
-
 	// get primary key etc -- from Freek Dijkstra
 	var $metaKeySQL = "SELECT ic.relname AS index_name, a.attname AS column_name,i.indisunique AS unique_key, i.indisprimary AS primary_key
 	FROM pg_class bc, pg_class ic, pg_index i, pg_attribute a WHERE bc.oid = i.indrelid AND ic.oid = i.indexrelid AND (i.indkey[0] = a.attnum OR i.indkey[1] = a.attnum OR i.indkey[2] = a.attnum OR i.indkey[3] = a.attnum OR i.indkey[4] = a.attnum OR i.indkey[5] = a.attnum OR i.indkey[6] = a.attnum OR i.indkey[7] = a.attnum) AND a.attrelid = bc.oid AND bc.relname = '%s'";
-
 	var $hasAffectedRows = true;
 	var $hasLimit = false;	// set to true for pgsql 7 only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
 	// below suggested by Freek Dijkstra
@@ -54,22 +80,63 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 	var $random = 'random()';		/// random function
 	var $concat_operator='||';
 
-	function _init($parentDriver)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _init($parentDriver)
 	{
-
 		$parentDriver->hasTransactions = false; ## <<< BUG IN PDO pgsql driver
 		$parentDriver->hasInsertID = true;
 		$parentDriver->_nestedSQL = true;
 	}
 
-	function ServerInfo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ServerInfo()
 	{
 		$arr['description'] = ADOConnection::GetOne("select version()");
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		 $offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
 		 $limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : '';
@@ -77,11 +144,24 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 		  	$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
 		 else
 		  	$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
-
 		return $rs;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$info = $this->ServerInfo();
 		if ($info['version'] >= 7.3) {
@@ -105,31 +185,39 @@ select tablename,'T' from pg_tables where tablename like $mask
 select viewname,'V' from pg_views where viewname like $mask";
 		}
 		$ret = ADOConnection::MetaTables($ttype,$showSchema);
-
 		if ($mask) {
 			$this->metaTablesSQL = $save;
 		}
 		return $ret;
 	}
 
-	function MetaColumns($table,$normalize=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaColumns($table,$normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$schema = false;
 		$this->_findschema($table,$schema);
-
 		if ($normalize) $table = strtolower($table);
-
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
-
 		if ($schema) $rs = $this->Execute(sprintf($this->metaColumnsSQL1,$table,$table,$schema));
 		else $rs = $this->Execute(sprintf($this->metaColumnsSQL,$table,$table));
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
-
 		if ($rs === false) {
 			$false = false;
 			return $false;
@@ -139,19 +227,15 @@ select viewname,'V' from pg_views where viewname like $mask";
 			// Of course, a modified version of the metaColumnsSQL query using a
 			// LEFT JOIN would have been much more elegant, but postgres does
 			// not support OUTER JOINS. So here is the clumsy way.
-
 			$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-
 			$rskey = $this->Execute(sprintf($this->metaKeySQL,($table)));
 			// fetch all result in once for performance.
 			$keys = $rskey->GetArray();
 			if (isset($savem)) $this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
-
 			$rskey->Close();
 			unset($rskey);
 		}
-
 		$rsdefa = array();
 		if (!empty($this->metaDefaultsSQL)) {
 			$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
@@ -159,7 +243,6 @@ select viewname,'V' from pg_views where viewname like $mask";
 			$rsdef = $this->Execute($sql);
 			if (isset($savem)) $this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
-
 			if ($rsdef) {
 				while (!$rsdef->EOF) {
 					$num = $rsdef->fields['num'];
@@ -168,7 +251,6 @@ select viewname,'V' from pg_views where viewname like $mask";
 						$s = substr($s, 1);
 						$s = substr($s, 0, strlen($s) - 1);
 					}
-
 					$rsdefa[$num] = $s;
 					$rsdef->MoveNext();
 				}
@@ -177,7 +259,6 @@ select viewname,'V' from pg_views where viewname like $mask";
 			}
 			unset($rsdef);
 		}
-
 		$retarr = array();
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
@@ -196,12 +277,10 @@ select viewname,'V' from pg_views where viewname like $mask";
 			if ($fld->has_default) {
 				$fld->default_value = $rsdefa[$rs->fields[6]];
 			}
-
 			//Freek
 			if ($rs->fields[4] == $this->true) {
 				$fld->not_null = true;
 			}
-
 			// Freek
 			if (is_array($keys)) {
 				foreach($keys as $key) {
@@ -211,10 +290,8 @@ select viewname,'V' from pg_views where viewname like $mask";
 						$fld->unique = true; // What name is more compatible?
 				}
 			}
-
 			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;
 			else $retarr[($normalize) ? strtoupper($fld->name) : $fld->name] = $fld;
-
 			$rs->MoveNext();
 		}
 		$rs->Close();
@@ -222,7 +299,5 @@ select viewname,'V' from pg_views where viewname like $mask";
 			$false = false;
 			return $false;
 		} else return $retarr;
-
 	}
-
 }

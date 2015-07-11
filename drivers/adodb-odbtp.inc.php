@@ -1,4 +1,25 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
   V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
@@ -8,12 +29,20 @@
   Latest version is available at http://adodb.sourceforge.net
 */
 // Code contributed by "stefan bogdan" <sbogdan#rsb.ro>
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
 define("_ADODB_ODBTP_LAYER", 2 );
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_odbtp extends ADOConnection{
 	var $databaseType = "odbtp";
 	var $dataProvider = "odbtp";
@@ -25,7 +54,6 @@ class ADODB_odbtp extends ADOConnection{
 	var $hasInsertID = false;
 	var $hasGenID = true;
 	var $hasMoveFirst = true;
-
 	var $_genSeqSQL = "create table %s (seq_name char(30) not null unique , seq_value integer not null)";
 	var $_dropSeqSQL = "delete from adodb_seq where seq_name = '%s'";
 	var $_bindInputArray = false;
@@ -33,52 +61,149 @@ class ADODB_odbtp extends ADOConnection{
 	var $_canPrepareSP = false;
 	var $_dontPoolDBC = true;
 
-	function ADODB_odbtp()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADODB_odbtp()
 	{
 	}
 
-	function ServerInfo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ServerInfo()
 	{
 		return array('description' => @odbtp_get_attr( ODB_ATTR_DBMSNAME, $this->_connectionID),
 		             'version' => @odbtp_get_attr( ODB_ATTR_DBMSVER, $this->_connectionID));
 	}
 
-	function ErrorMsg()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ErrorMsg()
 	{
 		if ($this->_errorMsg !== false) return $this->_errorMsg;
 		if (empty($this->_connectionID)) return @odbtp_last_error();
 		return @odbtp_last_error($this->_connectionID);
 	}
 
-	function ErrorNo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ErrorNo()
 	{
 		if ($this->_errorCode !== false) return $this->_errorCode;
 		if (empty($this->_connectionID)) return @odbtp_last_error_state();
 			return @odbtp_last_error_state($this->_connectionID);
 	}
 /*
-	function DBDate($d,$isfld=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DBDate($d,$isfld=false)
 	{
 		if (empty($d) && $d !== 0) return 'null';
 		if ($isfld) return "convert(date, $d, 120)";
-
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
 		$d = adodb_date($this->fmtDate,$d);
 		return "convert(date, $d, 120)";
 	}
 
-	function DBTimeStamp($d,$isfld=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DBTimeStamp($d,$isfld=false)
 	{
 		if (empty($d) && $d !== 0) return 'null';
 		if ($isfld) return "convert(datetime, $d, 120)";
-
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
 		$d = adodb_date($this->fmtDate,$d);
 		return "convert(datetime, $d, 120)";
 	}
 */
 
-	function _insertid()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _insertid()
 	{
 	// SCOPE_IDENTITY()
 	// Returns the last IDENTITY value inserted into an IDENTITY column in
@@ -88,7 +213,21 @@ class ADODB_odbtp extends ADOConnection{
 			return $this->GetOne($this->identitySQL);
 	}
 
-	function _affectedrows()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _affectedrows()
 	{
 		if ($this->_queryID) {
 			return @odbtp_affected_rows ($this->_queryID);
@@ -96,7 +235,21 @@ class ADODB_odbtp extends ADOConnection{
 		return 0;
 	}
 
-	function CreateSequence($seqname='adodbseq',$start=1)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CreateSequence($seqname='adodbseq',$start=1)
 	{
 		//verify existence
 		$num = $this->GetOne("select seq_value from adodb_seq");
@@ -120,13 +273,41 @@ class ADODB_odbtp extends ADOConnection{
 		return $this->Execute("insert into adodb_seq values('$seqname',$start)");
 	}
 
-	function DropSequence($seqname)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DropSequence($seqname)
 	{
 		if (empty($this->_dropSeqSQL)) return false;
 		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
 	}
 
-	function GenID($seq='adodbseq',$start=1)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GenID($seq='adodbseq',$start=1)
 	{
 		$seqtab='adodb_seq';
 		if( $this->odbc_driver == ODB_DRIVER_FOXPRO) {
@@ -163,13 +344,27 @@ class ADODB_odbtp extends ADOConnection{
 	}
 		return false;
 	}
-
 	//example for $UserOrDSN
 	//for visual fox : DRIVER={Microsoft Visual FoxPro Driver};SOURCETYPE=DBF;SOURCEDB=c:\YourDbfFileDir;EXCLUSIVE=NO;
 	//for visual fox dbc: DRIVER={Microsoft Visual FoxPro Driver};SOURCETYPE=DBC;SOURCEDB=c:\YourDbcFileDir\mydb.dbc;EXCLUSIVE=NO;
 	//for access : DRIVER={Microsoft Access Driver (*.mdb)};DBQ=c:\path_to_access_db\base_test.mdb;UID=root;PWD=;
 	//for mssql : DRIVER={SQL Server};SERVER=myserver;UID=myuid;PWD=mypwd;DATABASE=OdbtpTest;
 	//if uid & pwd can be separate
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
     function _connect($HostOrInterface, $UserOrDSN='', $argPassword='', $argDatabase='')
 	{
 		if ($argPassword && stripos($UserOrDSN,'DRIVER=') !== false) {
@@ -180,9 +375,7 @@ class ADODB_odbtp extends ADOConnection{
 			$this->_errorMsg = $this->ErrorMsg() ;
 			return false;
 		}
-
 		odbtp_convert_datetime($this->_connectionID,true);
-
 		if ($this->_dontPoolDBC) {
 			if (function_exists('odbtp_dont_pool_dbc'))
 				@odbtp_dont_pool_dbc($this->_connectionID);
@@ -193,13 +386,11 @@ class ADODB_odbtp extends ADOConnection{
 		$this->odbc_driver = @odbtp_get_attr(ODB_ATTR_DRIVER, $this->_connectionID);
 		$dbms = strtolower(@odbtp_get_attr(ODB_ATTR_DBMSNAME, $this->_connectionID));
 		$this->odbc_name = $dbms;
-
 		// Account for inconsistent DBMS names
 		if( $this->odbc_driver == ODB_DRIVER_ORACLE )
 			$dbms = 'oracle';
 		else if( $this->odbc_driver == ODB_DRIVER_SYBASE )
 			$dbms = 'sybase';
-
 		// Set DBMS specific attributes
 		switch( $dbms ) {
 			case 'microsoft sql server':
@@ -244,7 +435,6 @@ class ADODB_odbtp extends ADOConnection{
 				$this->replaceQuote = "'+chr(39)+'";
 				$this->true = '.T.';
 				$this->false = '.F.';
-
 				break;
 			case 'oracle':
 				$this->databaseType = 'odbtp_oci8';
@@ -276,20 +466,46 @@ class ADODB_odbtp extends ADOConnection{
 					$this->hasTransactions = false;
 		}
         @odbtp_set_attr(ODB_ATTR_FULLCOLINFO, TRUE, $this->_connectionID );
-
 		if ($this->_useUnicodeSQL )
 			@odbtp_set_attr(ODB_ATTR_UNICODESQL, TRUE, $this->_connectionID);
-
         return true;
 	}
 
-	function _pconnect($HostOrInterface, $UserOrDSN='', $argPassword='', $argDatabase='')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _pconnect($HostOrInterface, $UserOrDSN='', $argPassword='', $argDatabase='')
 	{
 		$this->_dontPoolDBC = false;
   		return $this->_connect($HostOrInterface, $UserOrDSN, $argPassword, $argDatabase);
 	}
 
-	function SelectDB($dbName)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectDB($dbName)
 	{
 		if (!@odbtp_select_db($dbName, $this->_connectionID)) {
 			return false;
@@ -299,19 +515,29 @@ class ADODB_odbtp extends ADOConnection{
 		return true;
 	}
 
-	function MetaTables($ttype='',$showSchema=false,$mask=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaTables($ttype='',$showSchema=false,$mask=false)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false) $savefm = $this->SetFetchMode(false);
-
 		$arr = $this->GetArray("||SQLTables||||$ttype");
-
 		if (isset($savefm)) $this->SetFetchMode($savefm);
 		$ADODB_FETCH_MODE = $savem;
-
 		$arr2 = array();
 		for ($i=0; $i < sizeof($arr); $i++) {
 			if ($arr[$i][3] == 'SYSTEM TABLE' )	continue;
@@ -321,23 +547,32 @@ class ADODB_odbtp extends ADOConnection{
 		return $arr2;
 	}
 
-	function MetaColumns($table,$upper=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaColumns($table,$upper=true)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$schema = false;
 		$this->_findschema($table,$schema);
 		if ($upper) $table = strtoupper($table);
-
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false) $savefm = $this->SetFetchMode(false);
-
 		$rs = $this->Execute( "||SQLColumns||$schema|$table" );
-
 		if (isset($savefm)) $this->SetFetchMode($savefm);
 		$ADODB_FETCH_MODE = $savem;
-
 		if (!$rs || $rs->EOF) {
 			$false = false;
 			return $false;
@@ -363,19 +598,30 @@ class ADODB_odbtp extends ADOConnection{
 			$rs->MoveNext();
 		}
 		$rs->Close();
-
 		return $retarr;
 	}
 
-	function MetaPrimaryKeys($table, $owner='')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaPrimaryKeys($table, $owner='')
 	{
 	global $ADODB_FETCH_MODE;
-
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$arr = $this->GetArray("||SQLPrimaryKeys||$owner|$table");
 		$ADODB_FETCH_MODE = $savem;
-
 		//print_r($arr);
 		$arr2 = array();
 		for ($i=0; $i < sizeof($arr); $i++) {
@@ -384,15 +630,27 @@ class ADODB_odbtp extends ADOConnection{
 		return $arr2;
 	}
 
-	function MetaForeignKeys($table, $owner='', $upper=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaForeignKeys($table, $owner='', $upper=false)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$constraints = $this->GetArray("||SQLForeignKeys|||||$owner|$table");
 		$ADODB_FETCH_MODE = $savem;
-
 		$arr = false;
 		foreach($constraints as $constr) {
 			//print_r($constr);
@@ -402,9 +660,7 @@ class ADODB_odbtp extends ADOConnection{
 			$false = false;
 			return $false;
 		}
-
 		$arr2 = array();
-
 		foreach($arr as $k => $v) {
 			foreach($v as $a => $b) {
 				if ($upper) $a = strtoupper($a);
@@ -414,7 +670,21 @@ class ADODB_odbtp extends ADOConnection{
 		return $arr2;
 	}
 
-	function BeginTrans()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function BeginTrans()
 	{
 		if (!$this->hasTransactions) return false;
 		if ($this->transOff) return true;
@@ -429,7 +699,21 @@ class ADODB_odbtp extends ADOConnection{
 		return true;
 	}
 
-	function CommitTrans($ok=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CommitTrans($ok=true)
 	{
 		if ($this->transOff) return true;
 		if (!$ok) return $this->RollbackTrans();
@@ -440,7 +724,21 @@ class ADODB_odbtp extends ADOConnection{
 		return $ret;
 	}
 
-	function RollbackTrans()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RollbackTrans()
 	{
 		if ($this->transOff) return true;
 		if ($this->transCnt) $this->transCnt -= 1;
@@ -450,7 +748,21 @@ class ADODB_odbtp extends ADOConnection{
 		return $ret;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		// TOP requires ORDER BY for Visual FoxPro
 		if( $this->odbc_driver == ODB_DRIVER_FOXPRO ) {
@@ -460,13 +772,25 @@ class ADODB_odbtp extends ADOConnection{
 		return $ret;
 	}
 
-	function Prepare($sql)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Prepare($sql)
 	{
 		if (! $this->_bindInputArray) return $sql; // no binding
-
         $this->_errorMsg = false;
 		$this->_errorCode = false;
-
 		$stmt = @odbtp_prepare($sql,$this->_connectionID);
 		if (!$stmt) {
 		//	print "Prepare Error for ($sql) ".$this->ErrorMsg()."<br>";
@@ -475,38 +799,61 @@ class ADODB_odbtp extends ADOConnection{
 		return array($sql,$stmt,false);
 	}
 
-	function PrepareSP($sql)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function PrepareSP($sql)
 	{
 		if (!$this->_canPrepareSP) return $sql; // Can't prepare procedures
-
         $this->_errorMsg = false;
 		$this->_errorCode = false;
-
 		$stmt = @odbtp_prepare_proc($sql,$this->_connectionID);
 		if (!$stmt) return false;
 		return array($sql,$stmt);
 	}
-
 	/*
 	Usage:
 		$stmt = $db->PrepareSP('SP_RUNSOMETHING'); -- takes 2 params, @myid and @group
-
 		# note that the parameter does not have @ in front!
 		$db->Parameter($stmt,$id,'myid');
 		$db->Parameter($stmt,$group,'group',false,64);
 		$db->Parameter($stmt,$group,'photo',false,100000,ODB_BINARY);
 		$db->Execute($stmt);
-
 		@param $stmt Statement returned by Prepare() or PrepareSP().
 		@param $var PHP variable to bind to. Can set to null (for isNull support).
 		@param $name Name of stored procedure variable name to bind to.
 		@param [$isOutput] Indicates direction of parameter 0/false=IN  1=OUT  2= IN/OUT. This is ignored in odbtp.
 		@param [$maxLen] Holds an maximum length of the variable.
 		@param [$type] The data type of $var. Legal values depend on driver.
-
 		See odbtp_attach_param documentation at http://odbtp.sourceforge.net.
 	*/
-	function Parameter(&$stmt, &$var, $name, $isOutput=false, $maxLen=0, $type=0)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Parameter(&$stmt, &$var, $name, $isOutput=false, $maxLen=0, $type=0)
 	{
 		if ( $this->odbc_driver == ODB_DRIVER_JET ) {
 			$name = '['.$name.']';
@@ -521,18 +868,29 @@ class ADODB_odbtp extends ADOConnection{
 		}
 		return @odbtp_attach_param($stmt[1], $name, $var, $type, $maxLen);
 	}
-
 	/*
 		Insert a null into the blob field of the table first.
 		Then use UpdateBlob to store the blob.
-
 		Usage:
-
 		$conn->Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');
 		$conn->UpdateBlob('blobtable','blobcol',$blob,'id=1');
 	*/
 
-	function UpdateBlob($table,$column,$val,$where,$blobtype='image')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function UpdateBlob($table,$column,$val,$where,$blobtype='image')
 	{
 		$sql = "UPDATE $table SET $column = ? WHERE $where";
 		if( !($stmt = @odbtp_prepare($sql, $this->_connectionID)) )
@@ -544,7 +902,21 @@ class ADODB_odbtp extends ADOConnection{
 		return @odbtp_execute( $stmt ) != false;
 	}
 
-	function MetaIndexes($table,$primary=false, $owner=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaIndexes($table,$primary=false, $owner=false)
 	{
 		switch ( $this->odbc_driver) {
 			case ODB_DRIVER_MSSQL:
@@ -554,10 +926,23 @@ class ADODB_odbtp extends ADOConnection{
 		}
 	}
 
-	function MetaIndexes_mssql($table,$primary=false, $owner = false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaIndexes_mssql($table,$primary=false, $owner = false)
 	{
 		$table = strtolower($this->qstr($table));
-
 		$sql = "SELECT i.name AS ind_name, C.name AS col_name, USER_NAME(O.uid) AS Owner, c.colid, k.Keyno,
 			CASE WHEN I.indid BETWEEN 1 AND 254 AND (I.status & 2048 = 2048 OR I.Status = 16402 AND O.XType = 'V') THEN 1 ELSE 0 END AS IsPK,
 			CASE WHEN I.status & 2 = 2 THEN 1 ELSE 0 END AS IsUnique
@@ -566,35 +951,44 @@ class ADODB_odbtp extends ADOConnection{
 			INNER JOIN dbo.syscolumns c ON K.id = C.id AND K.colid = C.Colid
 			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND lower(O.Name) = $table
 			ORDER BY O.name, I.Name, K.keyno";
-
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
         if ($this->fetchMode !== FALSE) {
         	$savem = $this->SetFetchMode(FALSE);
         }
-
         $rs = $this->Execute($sql);
         if (isset($savem)) {
         	$this->SetFetchMode($savem);
         }
         $ADODB_FETCH_MODE = $save;
-
         if (!is_object($rs)) {
         	return FALSE;
         }
-
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
 			if ($primary && !$row[5]) continue;
-
             $indexes[$row[0]]['unique'] = $row[6];
             $indexes[$row[0]]['columns'][] = $row[1];
     	}
         return $indexes;
 	}
 
-	function IfNull( $field, $ifNull )
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function IfNull( $field, $ifNull )
 	{
 		switch( $this->odbc_driver ) {
 			case ODB_DRIVER_MSSQL:
@@ -605,13 +999,25 @@ class ADODB_odbtp extends ADOConnection{
 		return " CASE WHEN $field is null THEN $ifNull ELSE $field END ";
 	}
 
-	function _query($sql,$inputarr=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _query($sql,$inputarr=false)
 	{
 	global $php_errormsg;
-
         $this->_errorMsg = false;
 		$this->_errorCode = false;
-
  		if ($inputarr) {
 			if (is_array($sql)) {
 				$stmtid = $sql[1];
@@ -628,7 +1034,6 @@ class ADODB_odbtp extends ADOConnection{
 				@odbtp_input( $stmtid, $param );
 				@odbtp_set( $stmtid, $param, $inputarr[$param-1] );
 			}*/
-
 			$param = 1;
 			foreach($inputarr as $v) {
 				@odbtp_input( $stmtid, $param );
@@ -636,7 +1041,6 @@ class ADODB_odbtp extends ADOConnection{
 				$param += 1;
 				if ($param > $num_params) break;
 			}
-
 			if (!@odbtp_execute($stmtid) ) {
 				return false;
 			}
@@ -655,7 +1059,21 @@ class ADODB_odbtp extends ADOConnection{
         return $stmtid;
 	}
 
-	function _close()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _close()
 	{
 		$ret = @odbtp_close($this->_connectionID);
 		$this->_connectionID = false;
@@ -663,12 +1081,35 @@ class ADODB_odbtp extends ADOConnection{
 	}
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_odbtp extends ADORecordSet {
-
 	var $databaseType = 'odbtp';
 	var $canSeek = true;
 
-	function ADORecordSet_odbtp($queryID,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_odbtp($queryID,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -678,14 +1119,26 @@ class ADORecordSet_odbtp extends ADORecordSet {
 		$this->ADORecordSet($queryID);
 	}
 
-	function _initrs()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _initrs()
 	{
 		$this->_numOfFields = @odbtp_num_fields($this->_queryID);
 		if (!($this->_numOfRows = @odbtp_num_rows($this->_queryID)))
 			$this->_numOfRows = -1;
-
 		if (!$this->connection->_useUnicodeSQL) return;
-
 		if ($this->connection->odbc_driver == ODB_DRIVER_JET) {
 			if (!@odbtp_get_attr(ODB_ATTR_MAPCHARTOWCHAR,
 			                     $this->connection->_connectionID))
@@ -698,7 +1151,21 @@ class ADORecordSet_odbtp extends ADORecordSet {
 		}
 	}
 
-	function FetchField($fieldOffset = 0)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function FetchField($fieldOffset = 0)
 	{
 		$off=$fieldOffset; // offsets begin at 0
 		$o= new ADOFieldObject();
@@ -710,15 +1177,42 @@ class ADORecordSet_odbtp extends ADORecordSet {
 		return $o;
 	}
 
-	function _seek($row)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _seek($row)
 	{
 		return @odbtp_data_seek($this->_queryID, $row);
 	}
 
-	function fields($colname)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function fields($colname)
 	{
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) return $this->fields[$colname];
-
 		if (!$this->bind) {
 			$this->bind = array();
 			for ($i=0; $i < $this->_numOfFields; $i++) {
@@ -729,7 +1223,21 @@ class ADORecordSet_odbtp extends ADORecordSet {
 		return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-	function _fetch_odbtp($type=0)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _fetch_odbtp($type=0)
 	{
 		switch ($this->fetchMode) {
 			case ADODB_FETCH_NUM:
@@ -750,12 +1258,40 @@ class ADORecordSet_odbtp extends ADORecordSet {
 		return is_array($this->fields);
 	}
 
-	function _fetch()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _fetch()
 	{
 		return $this->_fetch_odbtp();
 	}
 
-	function MoveFirst()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MoveFirst()
 	{
 		if (!$this->_fetch_odbtp(ODB_FETCH_FIRST)) return false;
 		$this->EOF = false;
@@ -763,7 +1299,21 @@ class ADORecordSet_odbtp extends ADORecordSet {
 		return true;
     }
 
-	function MoveLast()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MoveLast()
 	{
 		if (!$this->_fetch_odbtp(ODB_FETCH_LAST)) return false;
 		$this->EOF = false;
@@ -771,7 +1321,21 @@ class ADORecordSet_odbtp extends ADORecordSet {
 		return true;
 	}
 
-	function NextRecordSet()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function NextRecordSet()
 	{
 		if (!@odbtp_next_result($this->_queryID)) return false;
 		$this->_inited = false;
@@ -781,57 +1345,186 @@ class ADORecordSet_odbtp extends ADORecordSet {
 		return true;
 	}
 
-	function _close()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _close()
 	{
 		return @odbtp_free_query($this->_queryID);
 	}
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_odbtp_mssql extends ADORecordSet_odbtp {
-
 	var $databaseType = 'odbtp_mssql';
 
-	function ADORecordSet_odbtp_mssql($id,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_odbtp_mssql($id,$mode=false)
 	{
 		return $this->ADORecordSet_odbtp($id,$mode);
 	}
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_odbtp_access extends ADORecordSet_odbtp {
-
 	var $databaseType = 'odbtp_access';
 
-	function ADORecordSet_odbtp_access($id,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_odbtp_access($id,$mode=false)
 	{
 		return $this->ADORecordSet_odbtp($id,$mode);
 	}
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_odbtp_vfp extends ADORecordSet_odbtp {
-
 	var $databaseType = 'odbtp_vfp';
 
-	function ADORecordSet_odbtp_vfp($id,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_odbtp_vfp($id,$mode=false)
 	{
 		return $this->ADORecordSet_odbtp($id,$mode);
 	}
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_odbtp_oci8 extends ADORecordSet_odbtp {
-
 	var $databaseType = 'odbtp_oci8';
 
-	function ADORecordSet_odbtp_oci8($id,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_odbtp_oci8($id,$mode=false)
 	{
 		return $this->ADORecordSet_odbtp($id,$mode);
 	}
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_odbtp_sybase extends ADORecordSet_odbtp {
-
 	var $databaseType = 'odbtp_sybase';
 
-	function ADORecordSet_odbtp_sybase($id,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_odbtp_sybase($id,$mode=false)
 	{
 		return $this->ADORecordSet_odbtp($id,$mode);
 	}

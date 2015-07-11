@@ -1,20 +1,36 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
   V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
-
   Some pretty-printing by Chris Oxenreider <oxenreid@state.net>
 */
-
 // specific code for tohtml
 GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
-
 $ADODB_ROUND=4; // rounding
 $gSQLMaxRows = 1000; // max no of rows to download
 $gSQLBlockRows=20; // max no of rows per table block
-
 // RecordSet to HTML Table
 //------------------------------------------------------------
 // Convert a recordset to a html table. Multiple tables are generated
@@ -37,17 +53,28 @@ $gSQLBlockRows=20; // max no of rows per table block
 //
 // RETURNS: number of rows displayed
 
-
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function rs2html(&$rs,$ztabhtml=false,$zheaderarray=false,$htmlspecialchars=true,$echo = true)
 {
 $s ='';$rows=0;$docnt = false;
 GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
-
 	if (!$rs) {
 		printf(ADODB_BAD_RS,'rs2html');
 		return false;
 	}
-
 	if (! $ztabhtml) $ztabhtml = "BORDER='1' WIDTH='98%'";
 	//else $docnt = true;
 	$typearr = array();
@@ -70,17 +97,13 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 	$hdr .= "\n</tr>";
 	if ($echo) print $hdr."\n\n";
 	else $html = $hdr;
-
 	// smart algorithm - handles ADODB_FETCH_MODE's correctly by probing...
 	$numoffset = isset($rs->fields[0]) ||isset($rs->fields[1]) || isset($rs->fields[2]);
 	while (!$rs->EOF) {
-
 		$s .= "<TR valign=top>\n";
-
 		for ($i=0; $i < $ncols; $i++) {
 			if ($i===0) $v=($numoffset) ? $rs->fields[0] : reset($rs->fields);
 			else $v = ($numoffset) ? $rs->fields[$i] : next($rs->fields);
-
 			$type = $typearr[$i];
 			switch($type) {
 			case 'D':
@@ -97,7 +120,6 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 				if (empty($v)) $s .= "<TD> &nbsp; </TD>\n";
 				else $s .= "	<TD>".$rs->UserTimeStamp($v,"D d, M Y, H:i:s") ."</TD>\n";
 			break;
-
 			case 'N':
 				if (abs(abs($v) - round($v,0)) < 0.00000001)
 					$v = round($v);
@@ -107,7 +129,6 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 				$vv = stripslashes((trim($v)));
 				if (strlen($vv) == 0) $vv .= '&nbsp;';
 				$s .= "	<TD align=right>".$vv ."</TD>\n";
-
 			break;
 			/*
 			case 'B':
@@ -128,50 +149,53 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 				href='$tmpname'>$t</a></td>\\n";
 				break;
 			*/
-
 			default:
 				if ($htmlspecialchars) $v = htmlspecialchars(trim($v));
 				$v = trim($v);
 				if (strlen($v) == 0) $v = '&nbsp;';
 				$s .= "	<TD>". str_replace("\n",'<br>',stripslashes($v)) ."</TD>\n";
-
 			}
 		} // for
 		$s .= "</TR>\n\n";
-
 		$rows += 1;
 		if ($rows >= $gSQLMaxRows) {
 			$rows = "<p>Truncated at $gSQLMaxRows</p>";
 			break;
 		} // switch
-
 		$rs->MoveNext();
-
 	// additional EOF check to prevent a widow header
 		if (!$rs->EOF && $rows % $gSQLBlockRows == 0) {
-
 		//if (connection_aborted()) break;// not needed as PHP aborts script, unlike ASP
 			if ($echo) print $s . "</TABLE>\n\n";
 			else $html .= $s ."</TABLE>\n\n";
 			$s = $hdr;
 		}
 	} // while
-
 	if ($echo) print $s."</TABLE>\n\n";
 	else $html .= $s."</TABLE>\n\n";
-
 	if ($docnt) if ($echo) print "<H2>".$rows." Rows</H2>";
-
 	return ($echo) ? $rows : $html;
  }
-
 // pass in 2 dimensional array
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function arr2html(&$arr,$ztabhtml='',$zheaderarray='')
 {
 	if (!$ztabhtml) $ztabhtml = 'BORDER=1';
-
 	$s = "<TABLE $ztabhtml>";//';print_r($arr);
-
 	if ($zheaderarray) {
 		$s .= '<TR>';
 		for ($i=0; $i<sizeof($zheaderarray); $i++) {
@@ -179,7 +203,6 @@ function arr2html(&$arr,$ztabhtml='',$zheaderarray='')
 		}
 		$s .= "\n</TR>";
 	}
-
 	for ($i=0; $i<sizeof($arr); $i++) {
 		$s .= '<TR>';
 		$a = $arr[$i];

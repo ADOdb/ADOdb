@@ -1,29 +1,41 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
 global $ADODB_INCLUDED_CSV;
 $ADODB_INCLUDED_CSV = 1;
-
 /*
-
   V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
-
   Latest version is available at http://adodb.sourceforge.net
-
   Library for CSV serialization. This is used by the csv/proxy driver and is the
   CacheExecute() serialization format.
-
   ==== NOTE ====
   Format documented at http://php.weblogs.com/ADODB_CSV
   ==============
 */
-
 	/**
  	 * convert a recordset into special format
 	 *
@@ -31,28 +43,38 @@ $ADODB_INCLUDED_CSV = 1;
 	 *
 	 * @return	the CSV formated data
 	 */
-	function _rs2serialize(&$rs,$conn=false,$sql='')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _rs2serialize(&$rs,$conn=false,$sql='')
 	{
 		$max = ($rs) ? $rs->FieldCount() : 0;
-
 		if ($sql) $sql = urlencode($sql);
 		// metadata setup
-
 		if ($max <= 0 || $rs->dataProvider == 'empty') { // is insert/update/delete
 			if (is_object($conn)) {
 				$sql .= ','.$conn->Affected_Rows();
 				$sql .= ','.$conn->Insert_ID();
 			} else
 				$sql .= ',,';
-
 			$text = "====-1,0,$sql\n";
 			return $text;
 		}
 		$tt = ($rs->timeCreated) ? $rs->timeCreated : time();
-
 		## changed format from ====0 to ====1
 		$line = "====1,$tt,$sql\n";
-
 		if ($rs->databaseType == 'array') {
 			$rows = $rs->_array;
 		} else {
@@ -62,12 +84,10 @@ $ADODB_INCLUDED_CSV = 1;
 				$rs->MoveNext();
 			}
 		}
-
 		for($i=0; $i < $max; $i++) {
 			$o = $rs->FetchField($i);
 			$flds[] = $o;
 		}
-
 		$savefetch = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
 		$class = $rs->connection->arrayClass;
 		$rs2 = new $class();
@@ -78,8 +98,6 @@ $ADODB_INCLUDED_CSV = 1;
 		$rs2->fetchMode = $savefetch;
 		return $line.serialize($rs2);
 	}
-
-
 /**
 * Open CSV file and convert it into Data.
 *
@@ -91,7 +109,22 @@ $ADODB_INCLUDED_CSV = 1;
 *			error occurred in sql INSERT/UPDATE/DELETE,
 *			empty recordset is returned
 */
-	function csv2rs($url,&$err,$timeout=0, $rsclass='ADORecordSet_array')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function csv2rs($url,&$err,$timeout=0, $rsclass='ADORecordSet_array')
 	{
 		$false = false;
 		$err = false;
@@ -103,7 +136,6 @@ $ADODB_INCLUDED_CSV = 1;
 		@flock($fp, LOCK_SH);
 		$arr = array();
 		$ttl = 0;
-
 		if ($meta = fgetcsv($fp, 32000, ",")) {
 			// check if error message
 			if (strncmp($meta[0],'****',4) === 0) {
@@ -114,9 +146,7 @@ $ADODB_INCLUDED_CSV = 1;
 			// check for meta data
 			// $meta[0] is -1 means return an empty recordset
 			// $meta[1] contains a time
-
 			if (strncmp($meta[0], '====',4) === 0) {
-
 				if ($meta[0] == "====-1") {
 					if (sizeof($meta) < 5) {
 						$err = "Corrupt first line for format -1";
@@ -124,12 +154,10 @@ $ADODB_INCLUDED_CSV = 1;
 						return $false;
 					}
 					fclose($fp);
-
 					if ($timeout > 0) {
 						$err = " Illegal Timeout $timeout ";
 						return $false;
 					}
-
 					$rs = new $rsclass($val=true);
 					$rs->fields = array();
 					$rs->timeCreated = $meta[1];
@@ -180,7 +208,6 @@ $ADODB_INCLUDED_CSV = 1;
 								$err = "Timeout 0";
 								return $false;
 							} // switch
-
 						} // if check flush cache
 					}// (timeout>0)
 					$ttl = $meta[1];
@@ -190,7 +217,6 @@ $ADODB_INCLUDED_CSV = 1;
 				if ($meta[0] === '====1') {
 					// slurp in the data
 					$MAXSIZE = 128000;
-
 					$text = fread($fp,$MAXSIZE);
 					if (strlen($text)) {
 						while ($txt = fread($fp,$MAXSIZE)) {
@@ -206,7 +232,6 @@ $ADODB_INCLUDED_CSV = 1;
 					}
 					return $rs;
 				}
-
 				$meta = false;
 				$meta = fgetcsv($fp, 32000, ",");
 				if (!$meta) {
@@ -215,7 +240,6 @@ $ADODB_INCLUDED_CSV = 1;
 					return $false;
 				}
 			}
-
 			// Get Column definitions
 			$flds = array();
 			foreach($meta as $o) {
@@ -236,15 +260,12 @@ $ADODB_INCLUDED_CSV = 1;
 			$err = "Recordset had unexpected EOF 2";
 			return $false;
 		}
-
 		// slurp in the data
 		$MAXSIZE = 128000;
-
 		$text = '';
 		while ($txt = fread($fp,$MAXSIZE)) {
 			$text .= $txt;
 		}
-
 		fclose($fp);
 		@$arr = unserialize($text);
 		//var_dump($arr);
@@ -258,13 +279,26 @@ $ADODB_INCLUDED_CSV = 1;
 		$rs->InitArrayFields($arr,$flds);
 		return $rs;
 	}
-
-
 	/**
 	* Save a file $filename and its $contents (normally for caching) with file locking
 	* Returns true if ok, false if fopen/fwrite error, 0 if rename error (eg. file is locked)
 	*/
-	function adodb_write_file($filename, $contents,$debug=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function adodb_write_file($filename, $contents,$debug=false)
 	{
 	# http://www.php.net/bugs.php?id=9203 Bug that flock fails on Windows
 	# So to simulate locking, we assume that rename is an atomic operation.
@@ -286,7 +320,6 @@ $ADODB_INCLUDED_CSV = 1;
 			if (fwrite($fd,$contents)) $ok = true;
 			else $ok = false;
 			fclose($fd);
-
 			if ($ok) {
 				@chmod($tmpname,0644);
 				// the tricky moment
@@ -312,6 +345,5 @@ $ADODB_INCLUDED_CSV = 1;
 			if ($debug)ADOConnection::outp( " Failed acquiring lock for $filename<br>\n");
 			$ok = false;
 		}
-
 		return $ok;
 	}

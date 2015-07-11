@@ -1,30 +1,52 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
-
   Latest version is available at http://adodb.sourceforge.net
-
   Library for basic performance monitoring and tuning
-
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
-
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class perf_oci8 extends ADODB_perf{
-
 	var $noShowIxora = 15; // if the sql for suspicious sql is taking too long, then disable ixora
-
 	var $tablesSQL = "select segment_name as \"tablename\", sum(bytes)/1024 as \"size_in_k\",tablespace_name as \"tablespace\",count(*) \"extents\" from sys.user_extents
 	   group by segment_name,tablespace_name";
-
 	var $version;
-
 	var $createTableSQL = "CREATE TABLE adodb_logsql (
 		  created date NOT NULL,
 		  sql0 varchar(250) NOT NULL,
@@ -33,7 +55,6 @@ class perf_oci8 extends ADODB_perf{
 		  tracer varchar(4000),
 		  timer decimal(16,6) NOT NULL
 		)";
-
 	var $settings = array(
 	'Ratios',
 		'data cache hit ratio' => array('RATIOH',
@@ -43,18 +64,15 @@ class perf_oci8 extends ADODB_perf{
 			      con.name = 'consistent gets' and
 			      phy.name = 'physical reads'",
 			'=WarnCacheRatio'),
-
 		'sql cache hit ratio' => array( 'RATIOH',
 			'select round(100*(sum(pins)-sum(reloads))/sum(pins),2)  from v$librarycache',
 			'increase <i>shared_pool_size</i> if too ratio low'),
-
 		'datadict cache hit ratio' => array('RATIOH',
 		"select
            round((1 - (sum(getmisses) / (sum(gets) +
    		 sum(getmisses))))*100,2)
 		from  v\$rowcache",
 		'increase <i>shared_pool_size</i> if too ratio low'),
-
 		'memory sort ratio' => array('RATIOH',
 		"SELECT ROUND((100 * b.VALUE) /DECODE ((a.VALUE + b.VALUE),
        0,1,(a.VALUE + b.VALUE)),2)
@@ -63,16 +81,12 @@ FROM   v\$sysstat a,
 WHERE  a.name = 'sorts (disk)'
 AND    b.name = 'sorts (memory)'",
 	"% of memory sorts compared to disk sorts - should be over 95%"),
-
 	'IO',
 		'data reads' => array('IO',
 		"select value from v\$sysstat where name='physical reads'"),
-
 	'data writes' => array('IO',
 		"select value from v\$sysstat where name='physical writes'"),
-
 	'Data Cache',
-
 		'data cache buffers' => array( 'DATAC',
 		"select a.value/b.value  from v\$parameter a, v\$parameter b
 			where a.name = 'db_cache_size' and b.name= 'db_block_size'",
@@ -80,7 +94,6 @@ AND    b.name = 'sorts (memory)'",
 		'data cache blocksize' => array('DATAC',
 			"select value from v\$parameter where name='db_block_size'",
 			'' ),
-
 	'Memory Pools',
 		'Mem Max Target (11g+)' => array( 'DATAC',
 		"select value from v\$parameter where name = 'memory_max_target'",
@@ -109,9 +122,7 @@ AND    b.name = 'sorts (memory)'",
 		'large pool buffer size' => array('CACHE',
 			"select value from v\$parameter where name='large_pool_size'",
 			'this pool is for large mem allocations (not because it is larger than shared pool), for MTS sessions, parallel queries, io buffers (large_pool_size) ' ),
-
 		'dynamic memory usage' => array('CACHE', "select '-' from dual", '=DynMemoryUsage'),
-
 		'Connections',
 		'current connections' => array('SESS',
 			'select count(*) from sys.v_$session where username is not null',
@@ -119,21 +130,18 @@ AND    b.name = 'sorts (memory)'",
 		'max connections' => array( 'SESS',
 			"select value from v\$parameter where name='sessions'",
 			''),
-
 	'Memory Utilization',
 		'data cache utilization ratio' => array('RATIOU',
 			"select round((1-bytes/sgasize)*100, 2)
 			from (select sum(bytes) sgasize from sys.v_\$sgastat) s, sys.v_\$sgastat f
 			where name = 'free memory' and pool = 'shared pool'",
 		'Percentage of data cache actually in use - should be over 85%'),
-
 		'shared pool utilization ratio' => array('RATIOU',
 		'select round((sga.bytes/case when p.value=0 then sga.bytes else to_number(p.value) end)*100,2)
 		from v$sgastat sga, v$parameter p
 		where sga.name = \'free memory\' and sga.pool = \'shared pool\'
 		and p.name = \'shared_pool_size\'',
 		'Percentage of shared pool actually used - too low is bad, too high is worse'),
-
 		'large pool utilization ratio' => array('RATIOU',
 			"select round((1-bytes/sgasize)*100, 2)
 			from (select sum(bytes) sgasize from sys.v_\$sgastat) s, sys.v_\$sgastat f
@@ -142,14 +150,12 @@ AND    b.name = 'sorts (memory)'",
 		'sort buffer size' => array('CACHE',
 			"select value from v\$parameter where name='sort_area_size'",
 			'max in-mem sort_area_size (per query), uses memory in pga' ),
-
 		/*'pga usage at peak' => array('RATIOU',
 		'=PGA','Mb utilization at peak transactions (requires Oracle 9i+)'),*/
 	'Transactions',
 		'rollback segments' => array('ROLLBACK',
 			"select count(*) from sys.v_\$rollstat",
 			''),
-
 		'peak transactions' => array('ROLLBACK',
 			"select max_utilization  tx_hwm
     		from sys.v_\$resource_limit
@@ -179,29 +185,35 @@ having count(*) > 100)",'These are sql statements that should be using bind vari
 //		'Historical wait SQL' => array('WAITS','select \'Last 2 days\' from dual','=TopHistoricalWaits'), -- requires AWR license
 	'Backup',
 		'Achivelog Mode' => array('BACKUP', 'select log_mode from v$database', '=LogMode'),
-
 		'DBID' => array('BACKUP','select dbid from v$database','Primary key of database, used for recovery with an RMAN Recovery Catalog'),
 		'Archive Log Dest' => array('BACKUP', "SELECT NVL(v1.value,v2.value)
 FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.name='log_archive_dest_10'", ''),
-
 		'Flashback Area' => array('BACKUP', "select nvl(value,'Flashback Area not used') from v\$parameter where name=lower('DB_RECOVERY_FILE_DEST')", 'Flashback area is a folder where all backup data and logs can be stored and managed by Oracle. If Error: message displayed, then it is not in use.'),
-
 		'Flashback Usage' => array('BACKUP', "select nvl('-','Flashback Area not used') from v\$parameter where name=lower('DB_RECOVERY_FILE_DEST')", '=FlashUsage', 'Flashback area usage.'),
-
 		'Control File Keep Time' => array('BACKUP', "select value from v\$parameter where name='control_file_record_keep_time'",'No of days to keep RMAN info in control file.  Recommended set to x2 or x3 times the frequency of your full backup.'),
 		'Recent RMAN Jobs' => array('BACKUP', "select '-' from dual", "=RMAN"),
-
 		//		'Control File Keep Time' => array('BACKUP', "select value from v\$parameter where name='control_file_record_keep_time'",'No of days to keep RMAN info in control file. I recommend it be set to x2 or x3 times the frequency of your full backup.'),
       'Storage', 'Tablespaces' => array('TABLESPACE', "select '-' from dual", "=TableSpace"),
 		false
-
 	);
 
-
-	function perf_oci8(&$conn)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function perf_oci8(&$conn)
 	{
 	global $gSQLBlockRows;
-
 		$gSQLBlockRows = 1000;
 		$savelog = $conn->LogSQL(false);
 		$this->version = $conn->ServerInfo();
@@ -209,25 +221,35 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 		$this->conn = $conn;
 	}
 
-	function LogMode()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function LogMode()
 	{
 		$mode = $this->conn->GetOne("select log_mode from v\$database");
-
 		if ($mode == 'ARCHIVELOG') return 'To turn off archivelog:<br>
 	<pre><font size=-2>
         SQLPLUS> connect sys as sysdba;
         SQLPLUS> shutdown immediate;
-
         SQLPLUS> startup mount exclusive;
         SQLPLUS> alter database noarchivelog;
         SQLPLUS> alter database open;
 </font></pre>';
-
 		return 'To turn on archivelog:<br>
 	<pre><font size=-2>
         SQLPLUS> connect sys as sysdba;
         SQLPLUS> shutdown immediate;
-
         SQLPLUS> startup mount exclusive;
         SQLPLUS> alter database archivelog;
         SQLPLUS> archive log start;
@@ -235,23 +257,47 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 </font></pre>';
 	}
 
-	function TopRecentWaits()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function TopRecentWaits()
 	{
-
 		$rs = $this->conn->Execute("select * from (
 		select event, round(100*time_waited/(select sum(time_waited) from v\$system_event where wait_class <> 'Idle'),1) \"% Wait\",
     total_waits,time_waited, average_wait,wait_class from v\$system_event where wait_class <> 'Idle' order by 2 desc
 	) where rownum <=5");
-
 		$ret = rs2html($rs,false,false,false,false);
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
-
 	}
 
-	function TopHistoricalWaits()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function TopHistoricalWaits()
 	{
 		$days = 2;
-
 		$rs = $this->conn->Execute("select * from (   SELECT
          b.wait_class,B.NAME,
         round(sum(wait_time+TIME_WAITED)/1000000) waitsecs,
@@ -264,87 +310,184 @@ WHERE   A.SAMPLE_TIME BETWEEN sysdate-$days and sysdate
        and parsing_schema_name not in ('SYS','SYSMAN','DBSNMP','SYSTEM')
 GROUP BY b.wait_class,parsing_schema_name,C.SQL_TEXT, B.NAME,A.sql_id
 order by 3 desc) where rownum <=10");
-
 		$ret = rs2html($rs,false,false,false,false);
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
-
 	}
 
-	function TableSpace()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function TableSpace()
 	{
-
 		$rs = $this->conn->Execute(
 	"select tablespace_name,round(sum(bytes)/1024/1024) as Used_MB,round(sum(maxbytes)/1024/1024) as Max_MB, round(sum(bytes)/sum(maxbytes),4) * 100 as PCT
 	from dba_data_files
    group by tablespace_name order by 2 desc");
-
 		$ret = "<p><b>Tablespace</b>".rs2html($rs,false,false,false,false);
-
 		$rs = $this->conn->Execute("select * from dba_data_files order by tablespace_name, 1");
 		$ret .= "<p><b>Datafile</b>".rs2html($rs,false,false,false,false);
-
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
 	}
 
-	function RMAN()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RMAN()
 	{
 		$rs = $this->conn->Execute("select * from (select start_time, end_time, operation, status, mbytes_processed, output_device_type
 			from V\$RMAN_STATUS order by start_time desc) where rownum <=10");
-
 		$ret = rs2html($rs,false,false,false,false);
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
-
 	}
 
-	function DynMemoryUsage()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DynMemoryUsage()
 	{
 		if (@$this->version['version'] >= 11) {
 			$rs = $this->conn->Execute("select component, current_size/1024./1024 as \"CurrSize (M)\" from  V\$MEMORY_DYNAMIC_COMPONENTS");
-
 		} else
 			$rs = $this->conn->Execute("select name, round(bytes/1024./1024,2) as \"CurrSize (M)\" from  V\$sgainfo");
-
-
 		$ret = rs2html($rs,false,false,false,false);
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
 	}
 
-	function FlashUsage()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function FlashUsage()
 	{
         $rs = $this->conn->Execute("select * from  V\$FLASH_RECOVERY_AREA_USAGE");
 		$ret = rs2html($rs,false,false,false,false);
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
 	}
 
-	function WarnPageCost($val)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function WarnPageCost($val)
 	{
 		if ($val == 100 && $this->version['version'] < 10) $s = '<font color=red><b>Too High</b>. </font>';
 		else $s = '';
-
 		return $s.'Recommended is 20-50 for TP, and 50 for data warehouses. Default is 100. See <a href=http://www.dba-oracle.com/oracle_tips_cost_adj.htm>optimizer_index_cost_adj</a>. ';
 	}
 
-	function WarnIndexCost($val)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function WarnIndexCost($val)
 	{
 		if ($val == 0 && $this->version['version'] < 10) $s = '<font color=red><b>Too Low</b>. </font>';
 		else $s = '';
-
 		return $s.'Percentage of indexed data blocks expected in the cache.
 			Recommended is 20 (fast disk array) to 30 (slower hard disks). Default is 0.
 			 See <a href=http://www.dba-oracle.com/oracle_tips_cbo_part1.htm>optimizer_index_caching</a>.';
 		}
 
-	function PGA()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function PGA()
 	{
-
 		//if ($this->version['version'] < 9) return 'Oracle 9i or later required';
 	}
 
-	function PGA_Advice()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function PGA_Advice()
 	{
 		$t = "<h3>PGA Advice Estimate</h3>";
 		if ($this->version['version'] < 9) return $t.'Oracle 9i or later required';
-
 		$rs = $this->conn->Execute('select a.MB,
 			case when a.targ = 1 then \'<<= Current \'
 			when a.targ < 1  or a.pct <= b.pct then null
@@ -363,11 +506,24 @@ order by 3 desc) where rownum <=10");
 		if (!$rs) return $t."Only in 9i or later";
 	//	$rs->Close();
 		if ($rs->EOF) return $t."PGA could be too big";
-
 		return $t.rs2html($rs,false,false,true,false);
 	}
 
-	function Explain($sql,$partial=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Explain($sql,$partial=false)
 	{
 		$savelog = $this->conn->LogSQL(false);
 		$rs = $this->conn->SelectLimit("select ID FROM PLAN_TABLE");
@@ -403,10 +559,8 @@ CREATE TABLE PLAN_TABLE (
 </pre>";
 			return false;
 		}
-
 		$rs->Close();
 	//	$this->conn->debug=1;
-
 		if ($partial) {
 			$sqlq = $this->conn->qstr($sql.'%');
 			$arr = $this->conn->GetArray("select distinct sql1 from adodb_logsql where sql1 like $sqlq");
@@ -417,12 +571,9 @@ CREATE TABLE PLAN_TABLE (
 				}
 			}
 		}
-
 		$s = "<p><b>Explain</b>: ".htmlspecialchars($sql)."</p>";
-
 		$this->conn->BeginTrans();
 		$id = "ADODB ".microtime();
-
 		$rs = $this->conn->Execute("EXPLAIN PLAN SET STATEMENT_ID='$id' FOR $sql");
 		$m = $this->conn->ErrorMsg();
 		if ($m) {
@@ -438,7 +589,6 @@ CREATE TABLE PLAN_TABLE (
 		FROM plan_table
 START WITH id = 0  and STATEMENT_ID='$id'
 CONNECT BY prior id=parent_id and statement_id='$id'");
-
 		$s .= rs2html($rs,false,false,false,false);
 		$this->conn->RollbackTrans();
 		$this->conn->LogSQL($savelog);
@@ -446,10 +596,23 @@ CONNECT BY prior id=parent_id and statement_id='$id'");
 		return $s;
 	}
 
-	function CheckMemory()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CheckMemory()
 	{
 		if ($this->version['version'] < 9) return 'Oracle 9i or later required';
-
 		 $rs = $this->conn->Execute("
 select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
 	case when b.size_factor=1 then
@@ -464,7 +627,6 @@ select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
    where a.r = b.r-1 and a.name = b.name
   ");
 		if (!$rs) return false;
-
 		/*
 		The v$db_cache_advice utility show the marginal changes in physical data block reads for different sizes of db_cache_size
 		*/
@@ -477,11 +639,25 @@ select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
 		}
 		return $s.$this->PGA_Advice();
 	}
-
 	/*
 		Generate html for suspicious/expensive sql
 	*/
-	function tohtml(&$rs,$type)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function tohtml(&$rs,$type)
 	{
 		$o1 = $rs->FetchField(0);
 		$o2 = $rs->FetchField(1);
@@ -500,7 +676,6 @@ select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
 						$prefix = '';
 						$suffix = '';
 					}
-
 					$s .=  "\n<tr><td align=right>".$carr[0].'</td><td align=right>'.$carr[1].'</td><td>'.$prefix.$sql.$suffix.'</td></tr>';
 				}
 				$sql = $rs->fields[2];
@@ -511,7 +686,6 @@ select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
 			$rs->MoveNext();
 		}
 		$rs->Close();
-
 		$carr = explode('::',$check);
 		$prefix = "<a target=".rand()." href=\"?&hidem=1&$type=1&sql=".rawurlencode($sql).'&x#explain">';
 		$suffix = '</a>';
@@ -520,14 +694,27 @@ select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
 			$suffix = '';
 		}
 		$s .=  "\n<tr><td align=right>".$carr[0].'</td><td align=right>'.$carr[1].'</td><td>'.$prefix.$sql.$suffix.'</td></tr>';
-
 		return $s."</table>\n\n";
 	}
-
 	// code thanks to Ixora.
 	// http://www.ixora.com.au/scripts/query_opt.htm
 	// requires oracle 8.1.7 or later
-	function SuspiciousSQL($numsql=10)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SuspiciousSQL($numsql=10)
 	{
 		$sql = "
 select
@@ -563,45 +750,51 @@ where
   p.address = s.address
 order by
   1 desc, s.address, p.piece";
-
   		global $ADODB_CACHE_MODE;
   		if (isset($_GET['expsixora']) && isset($_GET['sql'])) {
 				$partial = empty($_GET['part']);
 				echo "<a name=explain></a>".$this->Explain($_GET['sql'],$partial)."\n";
 		}
-
 		if (isset($_GET['sql'])) return $this->_SuspiciousSQL($numsql);
-
 		$s = '';
 		$timer = time();
 		$s .= $this->_SuspiciousSQL($numsql);
 		$timer = time() - $timer;
-
 		if ($timer > $this->noShowIxora) return $s;
 		$s .= '<p>';
-
 		$save = $ADODB_CACHE_MODE;
 		$ADODB_CACHE_MODE = ADODB_FETCH_NUM;
 		if ($this->conn->fetchMode !== false) $savem = $this->conn->SetFetchMode(false);
-
 		$savelog = $this->conn->LogSQL(false);
 		$rs = $this->conn->SelectLimit($sql);
 		$this->conn->LogSQL($savelog);
-
 		if (isset($savem)) $this->conn->SetFetchMode($savem);
 		$ADODB_CACHE_MODE = $save;
 		if ($rs) {
 			$s .= "\n<h3>Ixora Suspicious SQL</h3>";
 			$s .= $this->tohtml($rs,'expsixora');
 		}
-
 		return $s;
 	}
-
 	// code thanks to Ixora.
 	// http://www.ixora.com.au/scripts/query_opt.htm
 	// requires oracle 8.1.7 or later
-	function ExpensiveSQL($numsql = 10)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ExpensiveSQL($numsql = 10)
 	{
 		$sql = "
 select
@@ -647,34 +840,42 @@ order by
 			 $var = $this->_ExpensiveSQL($numsql);
 			 return $var;
 		}
-
 		$s = '';
 		$timer = time();
 		$s .= $this->_ExpensiveSQL($numsql);
 		$timer = time() - $timer;
 		if ($timer > $this->noShowIxora) return $s;
-
 		$s .= '<p>';
 		$save = $ADODB_CACHE_MODE;
 		$ADODB_CACHE_MODE = ADODB_FETCH_NUM;
 		if ($this->conn->fetchMode !== false) $savem = $this->conn->SetFetchMode(false);
-
 		$savelog = $this->conn->LogSQL(false);
 		$rs = $this->conn->Execute($sql);
 		$this->conn->LogSQL($savelog);
-
 		if (isset($savem)) $this->conn->SetFetchMode($savem);
 		$ADODB_CACHE_MODE = $save;
-
 		if ($rs) {
 			$s .= "\n<h3>Ixora Expensive SQL</h3>";
 			$s .= $this->tohtml($rs,'expeixora');
 		}
-
 		return $s;
 	}
 
-	function clearsql()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function clearsql()
 	{
 		$perf_table = adodb_perf::table();
 	// using the naive "delete from $perf_table where created<".$this->conn->sysTimeStamp will cause the table to lock, possibly
@@ -694,8 +895,6 @@ BEGIN
 	END LOOP;
 	commit;
 END;";
-
 		$ok = $this->conn->Execute($sql);
 	}
-
 }

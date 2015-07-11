@@ -1,4 +1,24 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
     /**
     * Helper functions to convert between ADODB recordset objects and XMLRPC values.
     * Uses John Lim's AdoDB and Edd Dumbill's phpxmlrpc libs
@@ -13,39 +33,61 @@
     *       - ADODB_FETCH_BOTH
     *       - null values
     */
-
     /**
     * Include the main libraries
     */
     require_once('xmlrpc.inc');
     if (!defined('ADODB_DIR')) require_once('adodb.inc.php');
-
     /**
     * Builds an xmlrpc struct value out of an AdoDB recordset
     */
-    function rs2xmlrpcval(&$adodbrs) {
 
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function rs2xmlrpcval(&$adodbrs) {
         $header = rs2xmlrpcval_header($adodbrs);
         $body = rs2xmlrpcval_body($adodbrs);
-
         // put it all together and build final xmlrpc struct
         $xmlrpcrs = new xmlrpcval ( array(
                 "header" => $header,
                 "body" => $body,
                 ), "struct");
-
         return $xmlrpcrs;
-
     }
-
     /**
     * Builds an xmlrpc struct value describing an AdoDB recordset
+    */
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
     */
     function rs2xmlrpcval_header($adodbrs)
     {
         $numfields = $adodbrs->FieldCount();
         $numrecords = $adodbrs->RecordCount();
-
         // build structure holding recordset information
         $fieldstruct = array();
         for ($i = 0; $i < $numfields; $i++) {
@@ -69,25 +111,36 @@
         $recordcount = new xmlrpcval ($numrecords, "int");
         $sql = new xmlrpcval ($adodbrs->sql);
         $fieldinfo = new xmlrpcval ($fieldstruct, "array");
-
         $header = new xmlrpcval ( array(
                 "fieldcount" => $fieldcount,
                 "recordcount" => $recordcount,
                 "sql" => $sql,
                 "fieldinfo" => $fieldinfo
                 ), "struct");
-
         return $header;
     }
-
     /**
     * Builds an xmlrpc struct value out of an AdoDB recordset
     * (data values only, no data definition)
     */
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
     function rs2xmlrpcval_body($adodbrs)
     {
         $numfields = $adodbrs->FieldCount();
-
         // build structure containing recordset data
         $adodbrs->MoveFirst();
         $rows = array();
@@ -106,18 +159,29 @@
                         $columns[] = new xmlrpcval ('');
                     else
                         $columns[] = xmlrpc_encode ($val);
-
             $rows[] = new xmlrpcval ($columns, "array");
-
             $adodbrs->MoveNext();
         }
         $body = new xmlrpcval ($rows, "array");
-
         return $body;
     }
-
     /**
     * Returns an xmlrpc struct value as string out of an AdoDB recordset
+    */
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
     */
     function rs2xmlrpcstring (&$adodbrs) {
         $xmlrpc = rs2xmlrpcval ($adodbrs);
@@ -126,27 +190,37 @@
         else
           return null;
     }
-
     /**
     * Given a well-formed xmlrpc struct object returns an AdoDB object
     *
     * @todo add some error checking on the input value
     */
-    function xmlrpcval2rs (&$xmlrpcval) {
 
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function xmlrpcval2rs (&$xmlrpcval) {
         $fields_array = array();
         $data_array = array();
-
         // rebuild column information
         $header = $xmlrpcval->structmem('header');
-
         $numfields = $header->structmem('fieldcount');
         $numfields = $numfields->scalarval();
         $numrecords = $header->structmem('recordcount');
         $numrecords = $numrecords->scalarval();
         $sqlstring = $header->structmem('sql');
         $sqlstring = $sqlstring->scalarval();
-
         $fieldinfo = $header->structmem('fieldinfo');
         for ($i = 0; $i < $numfields; $i++) {
             $temp = $fieldinfo->arraymem($i);
@@ -161,7 +235,6 @@
             } // while
             $fields_array[] = $fld;
         } // for
-
         // fetch recordset information into php array
         $body = $xmlrpcval->structmem('body');
         for ($i = 0; $i < $numrecords; $i++) {
@@ -172,10 +245,8 @@
                 $data_array[$i][$j] = $temp->scalarval();
             } // for j
         } // for i
-
         // finally build in-memory recordset object and return it
         $rs = new ADORecordSet_array();
         $rs->InitArrayFields($data_array,$fields_array);
         return $rs;
-
     }

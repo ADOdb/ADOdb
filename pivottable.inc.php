@@ -1,4 +1,24 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
  * @version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
@@ -8,7 +28,6 @@
  * Set tabs to 4 for best viewing.
  *
 */
-
 /*
  * Concept from daniel.lucazeau@ajornet.com.
  *
@@ -27,22 +46,17 @@
  *
  * @returns			Sql generated
  */
-
  function PivotTableSQL(&$db,$tables,$rowfields,$colfield, $where=false,
  	$aggfield = false,$sumlabel='Sum ',$aggfn ='SUM', $showcount = true)
  {
 	if ($aggfield) $hidecnt = true;
 	else $hidecnt = false;
-
 	$iif = strpos($db->databaseType,'access') !== false;
 		// note - vfp 6 still doesn' work even with IIF enabled || $db->databaseType == 'vfp';
-
 	//$hidecnt = false;
-
  	if ($where) $where = "\nWHERE $where";
 	if (!is_array($colfield)) $colarr = $db->GetCol("select distinct $colfield from $tables $where order by 1");
 	if (!$aggfield) $hidecnt = false;
-
 	$sel = "$rowfields, ";
 	if (is_array($colfield)) {
 		foreach ($colfield as $k => $v) {
@@ -86,24 +100,17 @@
 		$agg = "$aggfn($aggfield)";
 		$sel .= "\n\t$agg as \"$sumlabel$aggfield\", ";
 	}
-
 	if ($showcount)
 		$sel .= "\n\tSUM(1) as Total";
 	else
 		$sel = substr($sel,0,strlen($sel)-2);
-
-
 	// Strip aliases
 	$rowfields = preg_replace('/ AS (\w+)/i', '', $rowfields);
-
 	$sql = "SELECT $sel \nFROM $tables $where \nGROUP BY $rowfields";
-
 	return $sql;
  }
-
 /* EXAMPLES USING MS NORTHWIND DATABASE */
 if (0) {
-
 # example1
 #
 # Query the main "product" table
@@ -112,7 +119,6 @@ if (0) {
 # and define the joins to link to lookup tables
 # "categories" and "suppliers"
 #
-
  $sql = PivotTableSQL(
  	$gDB,  											# adodb connection
  	'products p ,categories c ,suppliers s',  		# tables
@@ -123,10 +129,8 @@ if (0) {
  print "<pre>$sql";
  $rs = $gDB->Execute($sql);
  rs2html($rs);
-
 /*
 Generated SQL:
-
 SELECT CompanyName,QuantityPerUnit,
 	SUM(CASE WHEN CategoryName='Beverages' THEN 1 ELSE 0 END) AS "Beverages",
 	SUM(CASE WHEN CategoryName='Condiments' THEN 1 ELSE 0 END) AS "Condiments",
@@ -141,7 +145,6 @@ FROM products p ,categories c ,suppliers s  WHERE p.CategoryID = c.CategoryID an
 GROUP BY CompanyName,QuantityPerUnit
 */
 //=====================================================================
-
 # example2
 #
 # Query the main "product" table
@@ -171,7 +174,6 @@ array(
  rs2html($rs);
  /*
  Generated SQL:
-
 SELECT CompanyName,QuantityPerUnit,
 	SUM(CASE WHEN UnitsInStock <= 0 THEN UnitsInStock ELSE 0 END) AS "Sum  0 ",
 	SUM(CASE WHEN 0 < UnitsInStock and UnitsInStock <= 5 THEN UnitsInStock ELSE 0 END) AS "Sum 1 to 5",

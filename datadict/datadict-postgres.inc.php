@@ -1,20 +1,46 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
   V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
-
   Set tabs to 4 for best viewing.
-
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB2_postgres extends ADODB_DataDict {
-
 	var $databaseType = 'postgres';
 	var $seqField = false;
 	var $seqPrefix = 'SEQ_';
@@ -23,7 +49,21 @@ class ADODB2_postgres extends ADODB_DataDict {
 	var $renameTable = 'ALTER TABLE %s RENAME TO %s'; // at least since 7.1
 	var $dropTable = 'DROP TABLE %s CASCADE';
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -32,7 +72,6 @@ class ADODB2_postgres extends ADODB_DataDict {
 		}
 		$is_serial = is_object($fieldobj) && !empty($fieldobj->primary_key) && !empty($fieldobj->unique) &&
 			!empty($fieldobj->has_default) && substr($fieldobj->default_value,0,8) == 'nextval(';
-
 		switch (strtoupper($t)) {
 			case 'INTERVAL':
 			case 'CHAR':
@@ -41,82 +80,66 @@ class ADODB2_postgres extends ADODB_DataDict {
 			case 'NAME':
 	   		case 'BPCHAR':
 				if ($len <= $this->blobSize) return 'C';
-
 			case 'TEXT':
 				return 'X';
-
 			case 'IMAGE': // user defined type
 			case 'BLOB': // user defined type
 			case 'BIT':	// This is a bit string, not a single bit, so don't return 'L'
 			case 'VARBIT':
 			case 'BYTEA':
 				return 'B';
-
 			case 'BOOL':
 			case 'BOOLEAN':
 				return 'L';
-
 			case 'DATE':
 				return 'D';
-
 			case 'TIME':
 			case 'DATETIME':
 			case 'TIMESTAMP':
 			case 'TIMESTAMPTZ':
 				return 'T';
-
 			case 'INTEGER': return !$is_serial ? 'I' : 'R';
 			case 'SMALLINT':
 			case 'INT2': return !$is_serial ? 'I2' : 'R';
 			case 'INT4': return !$is_serial ? 'I4' : 'R';
 			case 'BIGINT':
 			case 'INT8': return !$is_serial ? 'I8' : 'R';
-
 			case 'OID':
 			case 'SERIAL':
 				return 'R';
-
 			case 'FLOAT4':
 			case 'FLOAT8':
 			case 'DOUBLE PRECISION':
 			case 'REAL':
 				return 'F';
-
 			 default:
 			 	return 'N';
 		}
 	}
-
  	function ActualType($meta)
 	{
 		switch($meta) {
 		case 'C': return 'VARCHAR';
 		case 'XL':
 		case 'X': return 'TEXT';
-
 		case 'C2': return 'VARCHAR';
 		case 'X2': return 'TEXT';
-
 		case 'B': return 'BYTEA';
-
 		case 'D': return 'DATE';
 		case 'TS':
 		case 'T': return 'TIMESTAMP';
-
 		case 'L': return 'BOOLEAN';
 		case 'I': return 'INTEGER';
 		case 'I1': return 'SMALLINT';
 		case 'I2': return 'INT2';
 		case 'I4': return 'INT4';
 		case 'I8': return 'INT8';
-
 		case 'F': return 'FLOAT8';
 		case 'N': return 'NUMERIC';
 		default:
 			return $meta;
 		}
 	}
-
 	/**
 	 * Adding a new Column
 	 *
@@ -126,7 +149,22 @@ class ADODB2_postgres extends ADODB_DataDict {
 	 * @param string $flds column-names and types for the changed columns
 	 * @return array with SQL strings
 	 */
-	function AddColumnSQL($tabname, $flds)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
@@ -153,12 +191,24 @@ class ADODB2_postgres extends ADODB_DataDict {
 		return $sql;
 	}
 
-
-	function DropIndexSQL ($idxname, $tabname = NULL)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DropIndexSQL ($idxname, $tabname = NULL)
 	{
 	   return array(sprintf($this->dropIndex, $this->TableName($idxname), $this->TableName($tabname)));
 	}
-
 	/**
 	 * Change the definition of one column
 	 *
@@ -171,7 +221,22 @@ class ADODB2_postgres extends ADODB_DataDict {
 	 * @return array with SQL strings
 	 */
 	 /*
-	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		if (!$tableflds) {
 			if ($this->debug) ADOConnection::outp("AlterColumnSQL needs a complete table-definiton for PostgreSQL");
@@ -180,11 +245,24 @@ class ADODB2_postgres extends ADODB_DataDict {
 		return $this->_recreate_copy_table($tabname,False,$tableflds,$tableoptions);
 	}*/
 
-	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		// Check if alter single column datatype available - works with 8.0+
 		$has_alter_column = 8.0 <= (float) @$this->serverInfo['version'];
-
 		if ($has_alter_column) {
 			$tabname = $this->TableName($tabname);
 			$sql = array();
@@ -204,7 +282,6 @@ class ADODB2_postgres extends ADODB_DataDict {
 					// the default value
 					$v = preg_replace('/(?<!DEFAULT)\sNULL/i','',$v);
 				}
-
 				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
 					$existing = $this->MetaColumns($tabname);
 					list(,$colname,$default) = $matches;
@@ -217,7 +294,6 @@ class ADODB2_postgres extends ADODB_DataDict {
 					}
 					$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
 					$t = trim(str_replace('DEFAULT '.$default,'',$v));
-
 					// Type change from bool to int
 					if ( $old_coltype == 'L' && $t == 'INTEGER' ) {
 						$sql[] = $alter . ' DROP DEFAULT';
@@ -238,7 +314,6 @@ class ADODB2_postgres extends ADODB_DataDict {
 						$sql[] = $alter . " TYPE $t";
 						$sql[] = $alter . " SET DEFAULT $default";
 					}
-
 				}
 				else {
 					// drop default?
@@ -247,7 +322,6 @@ class ADODB2_postgres extends ADODB_DataDict {
 					$alter .= $colname;
 					$sql[] = $alter . ' TYPE ' . $rest;
 				}
-
 #				list($colname) = explode(' ',$v);
 				if ($not_null) {
 					// this does not error out if the column is already not null
@@ -260,7 +334,6 @@ class ADODB2_postgres extends ADODB_DataDict {
 			}
 			return $sql;
 		}
-
 		// does not have alter column
 		if (!$tableflds) {
 			if ($this->debug) ADOConnection::outp("AlterColumnSQL needs a complete table-definiton for PostgreSQL");
@@ -268,7 +341,6 @@ class ADODB2_postgres extends ADODB_DataDict {
 		}
 		return $this->_recreate_copy_table($tabname,False,$tableflds,$tableoptions);
 	}
-
 	/**
 	 * Drop one column
 	 *
@@ -280,7 +352,22 @@ class ADODB2_postgres extends ADODB_DataDict {
 	 * @param array/ $tableoptions options for the new table see CreateTableSQL, default ''
 	 * @return array with SQL strings
 	 */
-	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$has_drop_column = 7.3 <= (float) @$this->serverInfo['version'];
 		if (!$has_drop_column && !$tableflds) {
@@ -292,7 +379,6 @@ class ADODB2_postgres extends ADODB_DataDict {
 		}
 		return $this->_recreate_copy_table($tabname,$flds,$tableflds,$tableoptions);
 	}
-
 	/**
 	 * Save the content into a temp. table, drop and recreate the original table and copy the content back in
 	 *
@@ -305,7 +391,22 @@ class ADODB2_postgres extends ADODB_DataDict {
 	 * @param array/string $tableoptions options for the new table see CreateTableSQL, default ''
 	 * @return array with SQL strings
 	 */
-	function _recreate_copy_table($tabname,$dropflds,$tableflds,$tableoptions='')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _recreate_copy_table($tabname,$dropflds,$tableflds,$tableoptions='')
 	{
 		if ($dropflds && !is_array($dropflds)) $dropflds = explode(',',$dropflds);
 		$copyflds = array();
@@ -327,7 +428,6 @@ class ADODB2_postgres extends ADODB_DataDict {
 			}
 		}
 		$copyflds = implode(', ',$copyflds);
-
 		$tempname = $tabname.'_tmp';
 		$aSql[] = 'BEGIN';		// we use a transaction, to make sure not to loose the content of the table
 		$aSql[] = "SELECT * INTO TEMPORARY TABLE $tempname FROM $tabname";
@@ -351,18 +451,44 @@ class ADODB2_postgres extends ADODB_DataDict {
 		return $aSql;
 	}
 
-	function DropTableSQL($tabname)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DropTableSQL($tabname)
 	{
 		$sql = ADODB_DataDict::DropTableSQL($tabname);
-
 		$drop_seq = $this->_DropAutoIncrement($tabname);
 		if ($drop_seq) $sql[] = $drop_seq;
-
 		return $sql;
 	}
-
 	// return string must begin with space
-	function _CreateSuffix($fname, &$ftype, $fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _CreateSuffix($fname, &$ftype, $fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{
 		if ($fautoinc) {
 			$ftype = 'SERIAL';
@@ -374,16 +500,28 @@ class ADODB2_postgres extends ADODB_DataDict {
 		if ($fconstraint) $suffix .= ' '.$fconstraint;
 		return $suffix;
 	}
-
 	// search for a sequece for the given table (asumes the seqence-name contains the table-name!)
 	// if yes return sql to drop it
 	// this is still necessary if postgres < 7.3 or the SERIAL was created on an earlier version!!!
-	function _DropAutoIncrement($tabname)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _DropAutoIncrement($tabname)
 	{
 		$tabname = $this->connection->quote('%'.$tabname.'%');
-
 		$seq = $this->connection->GetOne("SELECT relname FROM pg_class WHERE NOT relname ~ 'pg_.*' AND relname LIKE $tabname AND relkind='S'");
-
 		// check if a tables depends on the sequenz and it therefor cant and dont need to be droped separatly
 		if (!$seq || $this->connection->GetOne("SELECT relname FROM pg_class JOIN pg_depend ON pg_class.relfilenode=pg_depend.objid WHERE relname='$seq' AND relkind='S' AND deptype='i'")) {
 			return False;
@@ -391,7 +529,21 @@ class ADODB2_postgres extends ADODB_DataDict {
 		return "DROP SEQUENCE ".$seq;
 	}
 
-	function RenameTableSQL($tabname,$newname)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RenameTableSQL($tabname,$newname)
 	{
 		if (!empty($this->schema)) {
 			$rename_from = $this->TableName($tabname);
@@ -401,10 +553,8 @@ class ADODB2_postgres extends ADODB_DataDict {
 			$this->schema = $schema_save;
 			return array (sprintf($this->renameTable, $rename_from, $rename_to));
 		}
-
 		return array (sprintf($this->renameTable, $this->TableName($tabname),$this->TableName($newname)));
 	}
-
 	/*
 	CREATE [ [ LOCAL ] { TEMPORARY | TEMP } ] TABLE table_name (
 	{ column_name data_type [ DEFAULT default_expr ] [ column_constraint [, ... ] ]
@@ -428,8 +578,6 @@ class ADODB2_postgres extends ADODB_DataDict {
 	[ MATCH FULL | MATCH PARTIAL ] [ ON DELETE action ] [ ON UPDATE action ] }
 	[ DEFERRABLE | NOT DEFERRABLE ] [ INITIALLY DEFERRED | INITIALLY IMMEDIATE ]
 	*/
-
-
 	/*
 	CREATE [ UNIQUE ] INDEX index_name ON table
 [ USING acc_method ] ( column [ ops_name ] [, ...] )
@@ -438,39 +586,60 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 [ USING acc_method ] ( func_name( column [, ... ]) [ ops_name ] )
 [ WHERE predicate ]
 	*/
-	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
-
 		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
 			$sql[] = sprintf ($this->dropIndex, $idxname, $tabname);
 			if ( isset($idxoptions['DROP']) )
 				return $sql;
 		}
-
 		if ( empty ($flds) ) {
 			return $sql;
 		}
-
 		$unique = isset($idxoptions['UNIQUE']) ? ' UNIQUE' : '';
-
 		$s = 'CREATE' . $unique . ' INDEX ' . $idxname . ' ON ' . $tabname . ' ';
-
 		if (isset($idxoptions['HASH']))
 			$s .= 'USING HASH ';
-
 		if ( isset($idxoptions[$this->upperName]) )
 			$s .= $idxoptions[$this->upperName];
-
 		if ( is_array($flds) )
 			$flds = implode(', ',$flds);
 		$s .= '(' . $flds . ')';
 		$sql[] = $s;
-
 		return $sql;
 	}
 
-	function _GetSize($ftype, $ty, $fsize, $fprec)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _GetSize($ftype, $ty, $fsize, $fprec)
 	{
 		if (strlen($fsize) && $ty != 'X' && $ty != 'B' && $ty  != 'I' && strpos($ftype,'(') === false) {
 			$ftype .= "(".$fsize;

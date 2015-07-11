@@ -1,15 +1,44 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
   Set tabs to 8.
-
 */
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_pdo_mysql extends ADODB_pdo {
-
 	var $metaTablesSQL = "SELECT
 			TABLE_NAME,
 			CASE WHEN TABLE_TYPE = 'VIEW' THEN 'V' ELSE 'T' END
@@ -24,31 +53,71 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	var $fmtTimeStamp = "'Y-m-d, H:i:s'";
 	var $nameQuote = '`';
 
-	function _init($parentDriver)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _init($parentDriver)
 	{
 		$parentDriver->hasTransactions = false;
 		#$parentDriver->_bindInputArray = false;
 		$parentDriver->hasInsertID = true;
 		$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 	}
-
 	// dayFraction is a day in floating point
-	function OffsetDate($dayFraction, $date=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function OffsetDate($dayFraction, $date=false)
 	{
 		if (!$date) {
 			$date = $this->sysDate;
 		}
-
 		$fraction = $dayFraction * 24 * 3600;
 		return $date . ' + INTERVAL ' .	$fraction . ' SECOND';
 //		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
 
-	function Concat()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Concat()
 	{
 		$s = '';
 		$arr = func_get_args();
-
 		// suggestion by andrew005#mnogo.ru
 		$s = implode(',', $arr);
 		if (strlen($s) > 0) {
@@ -57,31 +126,71 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return '';
 	}
 
-	function ServerInfo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ServerInfo()
 	{
 		$arr['description'] = ADOConnection::GetOne('select version()');
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
 
-	function MetaTables($ttype=false, $showSchema=false, $mask=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaTables($ttype=false, $showSchema=false, $mask=false)
 	{
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
 			$this->metaTablesSQL .= " from $showSchema";
 		}
-
 		if ($mask) {
 			$mask = $this->qstr($mask);
 			$this->metaTablesSQL .= " like $mask";
 		}
 		$ret = ADOConnection::MetaTables($ttype, $showSchema);
-
 		$this->metaTablesSQL = $save;
 		return $ret;
 	}
 
-	function SetTransactionMode($transaction_mode)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SetTransactionMode($transaction_mode)
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -94,7 +203,21 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		$this->Execute('SET SESSION TRANSACTION ' . $transaction_mode);
 	}
 
-	function MetaColumns($table, $normalize=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaColumns($table, $normalize=true)
 	{
 		$this->_findschema($table, $schema);
 		if ($schema) {
@@ -104,16 +227,13 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-
 		if ($this->fetchMode !== false) {
 			$savem = $this->SetFetchMode(false);
 		}
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL, $table));
-
 		if ($schema) {
 			$this->SelectDB($dbName);
 		}
-
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
 		}
@@ -122,13 +242,11 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 			$false = false;
 			return $false;
 		}
-
 		$retarr = array();
 		while (!$rs->EOF){
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
 			$type = $rs->fields[1];
-
 			// split type into type(length):
 			$fld->scale = null;
 			if (preg_match('/^(.+)\((\d+),(\d+)/', $type, $query_array)) {
@@ -153,7 +271,6 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 			$fld->auto_increment = (strpos($rs->fields[5], 'auto_increment') !== false);
 			$fld->binary = (strpos($type, 'blob') !== false);
 			$fld->unsigned = (strpos($type, 'unsigned') !== false);
-
 			if (!$fld->binary) {
 				$d = $rs->fields[4];
 				if ($d != '' && $d != 'NULL') {
@@ -163,7 +280,6 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 					$fld->has_default = false;
 				}
 			}
-
 			if ($save == ADODB_FETCH_NUM) {
 				$retarr[] = $fld;
 			} else {
@@ -171,29 +287,55 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 			}
 			$rs->MoveNext();
 		}
-
 		$rs->Close();
 		return $retarr;
 	}
-
 	// returns true or false
-	function SelectDB($dbName)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectDB($dbName)
 	{
 		$this->database = $dbName;
 		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 		$try = $this->Execute('use ' . $dbName);
 		return ($try !== false);
 	}
-
 	// parameters use PostgreSQL convention, not MySQL
-	function SelectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs=0)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs=0)
 	{
 		$offsetStr =($offset>=0) ? "$offset," : '';
 		// jason judge, see http://phplens.com/lens/lensforum/msgs.php?id=9220
 		if ($nrows < 0) {
 			$nrows = '18446744073709551615';
 		}
-
 		if ($secs) {
 			$rs = $this->CacheExecute($secs, $sql . " LIMIT $offsetStr$nrows", $inputarr);
 		} else {
@@ -202,7 +344,21 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $rs;
 	}
 
-	function SQLDate($fmt, $col=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SQLDate($fmt, $col=false)
 	{
 		if (!$col) {
 			$col = $this->sysTimeStamp;
@@ -213,7 +369,6 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		for ($i=0; $i < $len; $i++) {
 			$ch = $fmt[$i];
 			switch($ch) {
-
 				default:
 					if ($ch == '\\') {
 						$i++;
@@ -224,29 +379,23 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 				case '/':
 					$s .= $ch;
 					break;
-
 				case 'Y':
 				case 'y':
 					$s .= '%Y';
 					break;
-
 				case 'M':
 					$s .= '%b';
 					break;
-
 				case 'm':
 					$s .= '%m';
 					break;
-
 				case 'D':
 				case 'd':
 					$s .= '%d';
 					break;
-
 				case 'Q':
 				case 'q':
 					$s .= "'),Quarter($col)";
-
 					if ($len > $i+1) {
 						$s .= ",DATE_FORMAT($col,'";
 					} else {
@@ -254,36 +403,28 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 					}
 					$concat = true;
 					break;
-
 				case 'H':
 					$s .= '%H';
 					break;
-
 				case 'h':
 					$s .= '%I';
 					break;
-
 				case 'i':
 					$s .= '%i';
 					break;
-
 				case 's':
 					$s .= '%s';
 					break;
-
 				case 'a':
 				case 'A':
 					$s .= '%p';
 					break;
-
 				case 'w':
 					$s .= '%w';
 					break;
-
 				case 'W':
 					$s .= '%U';
 					break;
-
 				case 'l':
 					$s .= '%W';
 					break;

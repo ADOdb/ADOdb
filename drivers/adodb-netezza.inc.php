@@ -1,7 +1,27 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
   V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
-
   First cut at the Netezza Driver by Josh Eldridge joshuae74#hotmail.com
  Based on the previous postgres drivers.
  http://www.netezza.com/
@@ -16,9 +36,18 @@
 */
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
 include_once(ADODB_DIR.'/drivers/adodb-postgres64.inc.php');
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_netezza extends ADODB_postgres64 {
     var $databaseType = 'netezza';
 	var $dataProvider = 'netezza';
@@ -47,52 +76,67 @@ class ADODB_netezza extends ADODB_postgres64 {
 	var $autoRollback = true; // apparently pgsql does not autorollback properly before 4.3.4
 							// http://bugs.php.net/bug.php?id=25404
 
-
-	function ADODB_netezza()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADODB_netezza()
 	{
-
 	}
 
-	function MetaColumns($table,$upper=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaColumns($table,$upper=true)
 	{
-
 	// Changed this function to support Netezza which has no concept of keys
 	// could posisbly work on other things from the system table later.
-
 	global $ADODB_FETCH_MODE;
-
 		$table = strtolower($table);
-
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
-
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table,$table));
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
-
 		if ($rs === false) return false;
-
 		$retarr = array();
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
-
 			// since we're returning type and length as one string,
 			// split them out here.
-
 			if ($first = strstr($rs->fields[1], "(")) {
 			 $fld->max_length = trim($first, "()");
 			} else {
 			 $fld->max_length = -1;
 			}
-
 			if ($first = strpos($rs->fields[1], "(")) {
 			 $fld->type = substr($rs->fields[1], 0, $first);
 			} else {
 			 $fld->type = $rs->fields[1];
 			}
-
 			switch ($fld->type) {
 			 case "byteint":
 			 case "boolean":
@@ -116,30 +160,48 @@ class ADODB_netezza extends ADODB_postgres64 {
 			 $fld->max_length = 12;
 			 break;
 			}
-
 			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;
 			else $retarr[($upper) ? strtoupper($fld->name) : $fld->name] = $fld;
-
 			$rs->MoveNext();
 		}
 		$rs->Close();
 		return $retarr;
-
 	}
-
-
 }
-
 /*--------------------------------------------------------------------------------------
 	 Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_netezza extends ADORecordSet_postgres64
 {
 	var $databaseType = "netezza";
 	var $canSeek = true;
 
-	function ADORecordSet_netezza($queryID,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_netezza($queryID,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -149,7 +211,6 @@ class ADORecordSet_netezza extends ADORecordSet_postgres64
 		{
 		case ADODB_FETCH_NUM: $this->fetchMode = PGSQL_NUM; break;
 		case ADODB_FETCH_ASSOC:$this->fetchMode = PGSQL_ASSOC; break;
-
 		case ADODB_FETCH_DEFAULT:
 		case ADODB_FETCH_BOTH:
 		default: $this->fetchMode = PGSQL_BOTH; break;
@@ -157,13 +218,26 @@ class ADORecordSet_netezza extends ADORecordSet_postgres64
 		$this->adodbFetchMode = $mode;
 		$this->ADORecordSet($queryID);
 	}
-
 	// _initrs modified to disable blob handling
-	function _initrs()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _initrs()
 	{
 	global $ADODB_COUNTRECS;
 		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($this->_queryID):-1;
 		$this->_numOfFields = @pg_num_fields($this->_queryID);
 	}
-
 }

@@ -1,25 +1,40 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
   Set tabs to 4 for best viewing.
-
   Latest version is available at http://adodb.sourceforge.net
 */
-
 error_reporting(E_ALL);
-
 include_once('../adodb-pear.inc.php');
 $username = 'root';
 $password = '';
 $hostname = 'localhost';
 $databasename = 'xphplens';
 $driver = 'mysql';
-
 $dsn = "$driver://$username:$password@$hostname/$databasename";
-
 $db = DB::Connect($dsn);
 $db->setFetchMode(ADODB_FETCH_ASSOC);
 $rs = $db->Query('select firstname,lastname from adoxyz');
@@ -29,5 +44,4 @@ while ($arr = $rs->FetchRow()) {
 	print "<br>";
 	$cnt += 1;
 }
-
 if ($cnt != 50) print "<b>Error in \$cnt = $cnt</b>";

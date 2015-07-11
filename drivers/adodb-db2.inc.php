@@ -1,48 +1,65 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
   V5.20dev  ??-???-2014  (c) 2000-2012 (jlim#natsoft.com). All rights reserved.
-
   This is a version of the ADODB driver for DB2.  It uses the 'ibm_db2' PECL extension
   for PHP (http://pecl.php.net/package/ibm_db2), which in turn requires DB2 V8.2.2 or
   higher.
-
   Originally tested with PHP 5.1.1 and Apache 2.0.55 on Windows XP SP2.
   More recently tested with PHP 5.1.2 and Apache 2.0.55 on Windows XP SP2.
-
   This file was ported from "adodb-odbc.inc.php" by Larry Menard, "larry.menard#rogers.com".
   I ripped out what I believed to be a lot of redundant or obsolete code, but there are
   probably still some remnants of the ODBC support in this file; I'm relying on reviewers
   of this code to point out any other things that can be removed.
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
   define("_ADODB_DB2_LAYER", 2 );
-
 /*--------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------*/
 
-
-
-
-
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_db2 extends ADOConnection {
 	var $databaseType = "db2";
 	var $fmtDate = "'Y-m-d'";
 	var $concat_operator = '||';
-
 	var $sysTime = 'CURRENT TIME';
 	var $sysDate = 'CURRENT DATE';
 	var $sysTimeStamp = 'CURRENT TIMESTAMP';
-
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $dataProvider = "db2";
 	var $hasAffectedRows = true;
-
 	var $binmode = DB2_BINARY;
-
 	var $useFetchArray = false; // setting this to true will make array elements in FETCH_ASSOC mode case-sensitive
 								// breaking backward-compat
 	var $_bindInputArray = false;
@@ -55,22 +72,62 @@ class ADODB_db2 extends ADOConnection {
 	var $uCaseTables = true; // for meta* functions, uppercase table names
 	var $hasInsertID = true;
 
-
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
     function _insertid()
     {
         return ADOConnection::GetOne('VALUES IDENTITY_VAL_LOCAL()');
     }
 
-	function ADODB_db2()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADODB_db2()
 	{
 		$this->_haserrorfunctions = ADODB_PHPVER >= 0x4050;
 	}
-
 		// returns true or false
-	function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
 		global $php_errormsg;
-
 		if (!function_exists('db2_connect')) {
 			ADOConnection::outp("Warning: The old ODBC based DB2 driver has been renamed 'odbc_db2'. This ADOdb driver calls PHP's native db2 extension which is not installed.");
 			return null;
@@ -78,9 +135,7 @@ class ADODB_db2 extends ADOConnection {
 		// This needs to be set before the connect().
 		// Replaces the odbc_binmode() call that was in Execute()
 		ini_set('ibm_db2.binmode', $this->binmode);
-
 		if ($argDatabasename && empty($argDSN)) {
-
 			if (stripos($argDatabasename,'UID=') && stripos($argDatabasename,'PWD=')) $this->_connectionID = db2_connect($argDatabasename,null,null);
 			else $this->_connectionID = db2_connect($argDatabasename,$argUsername,$argPassword);
 		} else {
@@ -89,33 +144,39 @@ class ADODB_db2 extends ADOConnection {
 			else $this->_connectionID = db2_connect($argDSN,$argUsername,$argPassword);
 		}
 		if (isset($php_errormsg)) $php_errormsg = '';
-
 		// For db2_connect(), there is an optional 4th arg.  If present, it must be
 		// an array of valid options.  So far, we don't use them.
-
 		$this->_errorMsg = @db2_conn_errormsg();
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
-
 		if ($this->_connectionID && isset($schema)) $this->Execute("SET SCHEMA=$schema");
 		return $this->_connectionID != false;
 	}
-
 	// returns true or false
-	function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
 		global $php_errormsg;
-
 		if (!function_exists('db2_connect')) return null;
-
 		// This needs to be set before the connect().
 		// Replaces the odbc_binmode() call that was in Execute()
 		ini_set('ibm_db2.binmode', $this->binmode);
-
 		if (isset($php_errormsg)) $php_errormsg = '';
 		$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
-
 		if ($argDatabasename && empty($argDSN)) {
-
 			if (stripos($argDatabasename,'UID=') && stripos($argDatabasename,'PWD=')) $this->_connectionID = db2_pconnect($argDatabasename,null,null);
 			else $this->_connectionID = db2_pconnect($argDatabasename,$argUsername,$argPassword);
 		} else {
@@ -124,35 +185,58 @@ class ADODB_db2 extends ADOConnection {
 			else $this->_connectionID = db2_pconnect($argDSN,$argUsername,$argPassword);
 		}
 		if (isset($php_errormsg)) $php_errormsg = '';
-
 		$this->_errorMsg = @db2_conn_errormsg();
 		if ($this->_connectionID && $this->autoRollback) @db2_rollback($this->_connectionID);
 		if (isset($this->connectStmt)) $this->Execute($this->connectStmt);
-
 		if ($this->_connectionID && isset($schema)) $this->Execute("SET SCHEMA=$schema");
 		return $this->_connectionID != false;
 	}
-
 	// format and return date string in database timestamp format
-	function DBTimeStamp($ts)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DBTimeStamp($ts)
 	{
 		if (empty($ts) && $ts !== 0) return 'null';
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
 		return 'TO_DATE('.adodb_date($this->fmtTimeStamp,$ts).",'YYYY-MM-DD HH24:MI:SS')";
 	}
-
 	// Format date column in sql string given an input format that understands Y M D
-	function SQLDate($fmt, $col=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SQLDate($fmt, $col=false)
 	{
 	// use right() and replace() ?
 		if (!$col) $col = $this->sysDate;
-
 		/* use TO_CHAR() if $fmt is TO_CHAR() allowed fmt */
 		if ($fmt== 'Y-m-d H:i:s')
 			return 'TO_CHAR('.$col.", 'YYYY-MM-DD HH24:MI:SS')";
-
 		$s = '';
-
 		$len = strlen($fmt);
 		for ($i=0; $i < $len; $i++) {
 			if ($s) $s .= $this->concat_operator;
@@ -207,13 +291,24 @@ class ADODB_db2 extends ADOConnection {
 		return $s;
 	}
 
-
-	function ServerInfo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ServerInfo()
 	{
 		$row = $this->GetRow("SELECT service_level, fixpack_num FROM TABLE(sysproc.env_get_inst_info())
 			as INSTANCEINFO");
-
-
 		if ($row) {
 			$info['version'] = $row[0].':'.$row[1];
 			$info['fixpack'] = $row[1];
@@ -221,11 +316,24 @@ class ADODB_db2 extends ADOConnection {
 		} else {
 			return ADOConnection::ServerInfo();
 		}
-
 		return $info;
 	}
 
-	function CreateSequence($seqname='adodbseq',$start=1)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CreateSequence($seqname='adodbseq',$start=1)
 	{
 		if (empty($this->_genSeqSQL)) return false;
 		$ok = $this->Execute(sprintf($this->_genSeqSQL,$seqname,$start));
@@ -233,13 +341,41 @@ class ADODB_db2 extends ADOConnection {
 		return true;
 	}
 
-	function DropSequence($seqname)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DropSequence($seqname)
 	{
 		if (empty($this->_dropSeqSQL)) return false;
 		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false)
 	{
 		$nrows = (integer) $nrows;
 		if ($offset <= 0) {
@@ -254,17 +390,29 @@ class ADODB_db2 extends ADOConnection {
 			}
 			$rs = ADOConnection::SelectLimit($sql,-1,$offset,$inputArr);
 		}
-
 		return $rs;
 	}
-
 	/*
 		This algorithm is not very efficient, but works even if table locking
 		is not available.
-
 		Will return false if unable to generate an ID after $MAXLOOPS attempts.
 	*/
-	function GenID($seq='adodbseq',$start=1)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GenID($seq='adodbseq',$start=1)
 	{
 		// if you have to modify the parameter below, your database is overloaded,
 		// or you need to implement generation of id's yourself!
@@ -272,8 +420,21 @@ class ADODB_db2 extends ADOConnection {
 				return $num;
 	}
 
-
-	function ErrorMsg()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ErrorMsg()
 	{
 		if ($this->_haserrorfunctions) {
 			if ($this->_errorMsg !== false) return $this->_errorMsg;
@@ -282,18 +443,29 @@ class ADODB_db2 extends ADOConnection {
 		} else return ADOConnection::ErrorMsg();
 	}
 
-	function ErrorNo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ErrorNo()
 	{
-
 		if ($this->_haserrorfunctions) {
 			if ($this->_errorCode !== false) {
 				// bug in 4.0.6, error number can be corrupted string (should be 6 digits)
 				return (strlen($this->_errorCode)<=2) ? 0 : $this->_errorCode;
 			}
-
 			if (empty($this->_connectionID)) $e = @db2_conn_error();
 			else $e = @db2_conn_error($this->_connectionID);
-
 			 // bug in 4.0.6, error number can be corrupted string (should be 6 digits)
 			 // so we check and patch
 			if (strlen($e)<=2) return 0;
@@ -301,9 +473,21 @@ class ADODB_db2 extends ADOConnection {
 		} else return ADOConnection::ErrorNo();
 	}
 
-
-
-	function BeginTrans()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function BeginTrans()
 	{
 		if (!$this->hasTransactions) return false;
 		if ($this->transOff) return true;
@@ -312,7 +496,21 @@ class ADODB_db2 extends ADOConnection {
 		return db2_autocommit($this->_connectionID,false);
 	}
 
-	function CommitTrans($ok=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CommitTrans($ok=true)
 	{
 		if ($this->transOff) return true;
 		if (!$ok) return $this->RollbackTrans();
@@ -323,7 +521,21 @@ class ADODB_db2 extends ADOConnection {
 		return $ret;
 	}
 
-	function RollbackTrans()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RollbackTrans()
 	{
 		if ($this->transOff) return true;
 		if ($this->transCnt) $this->transCnt -= 1;
@@ -333,27 +545,36 @@ class ADODB_db2 extends ADOConnection {
 		return $ret;
 	}
 
-	function MetaPrimaryKeys($table)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaPrimaryKeys($table)
 	{
 	global $ADODB_FETCH_MODE;
-
 		if ($this->uCaseTables) $table = strtoupper($table);
 		$schema = '';
 		$this->_findschema($table,$schema);
-
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$qid = @db2_primarykeys($this->_connectionID,'',$schema,$table);
-
 		if (!$qid) {
 			$ADODB_FETCH_MODE = $savem;
 			return false;
 		}
 		$rs = new ADORecordSet_db2($qid);
 		$ADODB_FETCH_MODE = $savem;
-
 		if (!$rs) return false;
-
 		$arr = $rs->GetArray();
 		$rs->Close();
 		$arr2 = array();
@@ -363,14 +584,26 @@ class ADODB_db2 extends ADOConnection {
 		return $arr2;
 	}
 
-	function MetaForeignKeys($table, $owner = FALSE, $upper = FALSE, $asociative = FALSE )
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaForeignKeys($table, $owner = FALSE, $upper = FALSE, $asociative = FALSE )
 	{
 	global $ADODB_FETCH_MODE;
-
 		if ($this->uCaseTables) $table = strtoupper($table);
 		$schema = '';
 		$this->_findschema($table,$schema);
-
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$qid = @db2_foreign_keys($this->_connectionID,'',$schema,$table);
@@ -379,7 +612,6 @@ class ADODB_db2 extends ADOConnection {
 			return false;
 		}
 		$rs = new ADORecordSet_db2($qid);
-
 		$ADODB_FETCH_MODE = $savem;
 		/*
 		$rs->fields indices
@@ -393,7 +625,6 @@ class ADODB_db2 extends ADOConnection {
 		7 FKCOLUMN_NAME
 		*/
 		if (!$rs) return false;
-
 		$foreign_keys = array();
 		while (!$rs->EOF) {
 			if (strtoupper(trim($rs->fields[2])) == $table && (!$schema || strtoupper($rs->fields[1]) == $schema)) {
@@ -403,32 +634,39 @@ class ADODB_db2 extends ADOConnection {
 			}
 			$rs->MoveNext();
 		}
-
 		$rs->Close();
 		return $foreign_key;
 	}
 
-
-	function MetaTables($ttype=false,$schema=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaTables($ttype=false,$schema=false)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$qid = db2_tables($this->_connectionID);
-
 		$rs = new ADORecordSet_db2($qid);
-
 		$ADODB_FETCH_MODE = $savem;
 		if (!$rs) {
 			$false = false;
 			return $false;
 		}
-
 		$arr = $rs->GetArray();
 		$rs->Close();
 		$arr2 = array();
-
 		if ($ttype) {
 			$isview = strncmp($ttype,'V',1) === 0;
 		}
@@ -445,7 +683,6 @@ class ADODB_db2 extends ADOConnection {
 		}
 		return $arr2;
 	}
-
 /*
 See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2datetime_data_type_changes.asp
 / SQL data type codes /
@@ -462,19 +699,31 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 #define SQL_DATETIME		9
 #endif
 #define SQL_VARCHAR		12
-
-
 / One-parameter shortcuts for date/time data types /
 #if (DB2VER >= 0x0300)
 #define SQL_TYPE_DATE	  91
 #define SQL_TYPE_TIME	  92
 #define SQL_TYPE_TIMESTAMP 93
-
 #define SQL_UNICODE                             (-95)
 #define SQL_UNICODE_VARCHAR                     (-96)
 #define SQL_UNICODE_LONGVARCHAR                 (-97)
 */
-	function DB2Types($t)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DB2Types($t)
 	{
 		switch ((integer)$t) {
 		case 1:
@@ -488,56 +737,58 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 			return 'X';
 		case -4: //image
 			return 'B';
-
 		case 9:
 		case 91:
 			return 'D';
-
 		case 10:
 		case 11:
 		case 92:
 		case 93:
 			return 'T';
-
 		case 4:
 		case 5:
 		case -6:
 			return 'I';
-
 		case -11: // uniqidentifier
 			return 'R';
 		case -7: //bit
 			return 'L';
-
 		default:
 			return 'N';
 		}
 	}
 
-	function MetaColumns($table, $normalize=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$false = false;
 		if ($this->uCaseTables) $table = strtoupper($table);
 		$schema = '';
 		$this->_findschema($table,$schema);
-
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-
         	$colname = "%";
 	        $qid = db2_columns($this->_connectionID, "", $schema, $table, $colname);
 		if (empty($qid)) return $false;
-
 		$rs = new ADORecordSet_db2($qid);
 		$ADODB_FETCH_MODE = $savem;
-
 		if (!$rs) return $false;
 		$rs->_fetch();
-
 		$retarr = array();
-
 		/*
 		$rs->fields indices
 		0 TABLE_QUALIFIER
@@ -558,7 +809,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 				$fld = new ADOFieldObject();
 				$fld->name = $rs->fields[3];
 				$fld->type = $this->DB2Types($rs->fields[4]);
-
 				// ref: http://msdn.microsoft.com/library/default.asp?url=/archive/en-us/dnaraccgen/html/msdn_odk.asp
 				// access uses precision to store length for char/varchar
 				if ($fld->type == 'C' or $fld->type == 'X') {
@@ -578,16 +828,12 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 		}
 		$rs->Close();
 		if (empty($retarr)) $retarr = false;
-
 	      $qid = db2_primary_keys($this->_connectionID, "", $schema, $table);
 		if (empty($qid)) return $false;
-
 		$rs = new ADORecordSet_db2($qid);
 		$ADODB_FETCH_MODE = $savem;
-
 		if (!$rs) return $retarr;
 		$rs->_fetch();
-
 		/*
 		$rs->fields indices
 		0 TABLE_CAT
@@ -605,13 +851,25 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 			$rs->MoveNext();
 		}
 		$rs->Close();
-
 		if (empty($retarr)) $retarr = false;
 		return $retarr;
 	}
 
-
-	function Prepare($sql)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Prepare($sql)
 	{
 		if (! $this->_bindInputArray) return $sql; // no binding
 		$stmt = db2_prepare($this->_connectionID,$sql);
@@ -621,26 +879,37 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 		}
 		return array($sql,$stmt,false);
 	}
-
 	/* returns queryID or false */
-	function _query($sql,$inputarr=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _query($sql,$inputarr=false)
 	{
 	GLOBAL $php_errormsg;
 		if (isset($php_errormsg)) $php_errormsg = '';
 		$this->_error = '';
-
 		if ($inputarr) {
 			if (is_array($sql)) {
 				$stmtid = $sql[1];
 			} else {
 				$stmtid = db2_prepare($this->_connectionID,$sql);
-
 				if ($stmtid == false) {
 					$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
 					return false;
 				}
 			}
-
 			if (! db2_execute($stmtid,$inputarr)) {
 				if ($this->_haserrorfunctions) {
 					$this->_errorMsg = db2_stmt_errormsg();
@@ -648,7 +917,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 				}
 				return false;
 			}
-
 		} else if (is_array($sql)) {
 			$stmtid = $sql[1];
 			if (!db2_execute($stmtid)) {
@@ -660,7 +928,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 			}
 		} else
 			$stmtid = @db2_exec($this->_connectionID,$sql);
-
 		$this->_lastAffectedRows = 0;
 		if ($stmtid) {
 			if (@db2_num_fields($stmtid) == 0) {
@@ -669,7 +936,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 			} else {
 				$this->_lastAffectedRows = 0;
 			}
-
 			if ($this->_haserrorfunctions) {
 				$this->_errorMsg = '';
 				$this->_errorCode = 0;
@@ -681,65 +947,137 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 				$this->_errorCode = db2_stmt_error();
 			} else
 				$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
-
 		}
 		return $stmtid;
 	}
-
 	/*
 		Insert a null into the blob field of the table first.
 		Then use UpdateBlob to store the blob.
-
 		Usage:
-
 		$conn->Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');
 		$conn->UpdateBlob('blobtable','blobcol',$blob,'id=1');
 	*/
-	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
 		return $this->Execute("UPDATE $table SET $column=? WHERE $where",array($val)) != false;
 	}
-
 	// returns true or false
-	function _close()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _close()
 	{
 		$ret = @db2_close($this->_connectionID);
 		$this->_connectionID = false;
 		return $ret;
 	}
 
-	function _affectedrows()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _affectedrows()
 	{
 		return $this->_lastAffectedRows;
 	}
-
 }
-
 /*--------------------------------------------------------------------------------------
 	 Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_db2 extends ADORecordSet {
-
 	var $bind = false;
 	var $databaseType = "db2";
 	var $dataProvider = "db2";
 	var $useFetchArray;
 
-	function ADORecordSet_db2($id,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_db2($id,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
 			$mode = $ADODB_FETCH_MODE;
 		}
 		$this->fetchMode = $mode;
-
 		$this->_queryID = $id;
 	}
-
-
 	// returns the field object
-	function FetchField($offset = -1)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function FetchField($offset = -1)
 	{
 		$o= new ADOFieldObject();
 		$o->name = @db2_field_name($this->_queryID,$offset);
@@ -749,9 +1087,23 @@ class ADORecordSet_db2 extends ADORecordSet {
 		else if (ADODB_ASSOC_CASE == 1) $o->name = strtoupper($o->name);
 		return $o;
 	}
-
 	/* Use associative array to get fields array */
-	function Fields($colname)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Fields($colname)
 	{
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) return $this->fields[$colname];
 		if (!$this->bind) {
@@ -761,12 +1113,24 @@ class ADORecordSet_db2 extends ADORecordSet {
 				$this->bind[strtoupper($o->name)] = $i;
 			}
 		}
-
 		 return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-
-	function _initrs()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _initrs()
 	{
 	global $ADODB_COUNTRECS;
 		$this->_numOfRows = ($ADODB_COUNTRECS) ? @db2_num_rows($this->_queryID) : -1;
@@ -775,13 +1139,41 @@ class ADORecordSet_db2 extends ADORecordSet {
 		if ($this->_numOfRows == 0) $this->_numOfRows = -1;
 	}
 
-	function _seek($row)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _seek($row)
 	{
 		return false;
 	}
-
 	// speed up SelectLimit() by switching to ADODB_FETCH_NUM as ADODB_FETCH_ASSOC is emulated
-	function GetArrayLimit($nrows,$offset=-1)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GetArrayLimit($nrows,$offset=-1)
 	{
 		if ($offset <= 0) {
 			$rs = $this->GetArray($nrows);
@@ -791,27 +1183,36 @@ class ADORecordSet_db2 extends ADORecordSet {
 		$this->fetchMode = ADODB_FETCH_NUM;
 		$this->Move($offset);
 		$this->fetchMode = $savem;
-
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 			$this->fields = $this->GetRowAssoc();
 		}
-
 		$results = array();
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
 			$results[$cnt++] = $this->fields;
 			$this->MoveNext();
 		}
-
 		return $results;
 	}
 
-
-	function MoveNext()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MoveNext()
 	{
 		if ($this->_numOfRows != 0 && !$this->EOF) {
 			$this->_currentRow++;
-
 			$this->fields = @db2_fetch_array($this->_queryID);
 			if ($this->fields) {
 				if ($this->fetchMode & ADODB_FETCH_ASSOC) {
@@ -825,9 +1226,22 @@ class ADORecordSet_db2 extends ADORecordSet {
 		return false;
 	}
 
-	function _fetch()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _fetch()
 	{
-
 		$this->fields = db2_fetch_array($this->_queryID);
 		if ($this->fields) {
 			if ($this->fetchMode & ADODB_FETCH_ASSOC) {
@@ -839,9 +1253,22 @@ class ADORecordSet_db2 extends ADORecordSet {
 		return false;
 	}
 
-	function _close()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _close()
 	{
 		return @db2_free_result($this->_queryID);
 	}
-
 }

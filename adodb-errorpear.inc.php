@@ -1,4 +1,24 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
  * @version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
@@ -11,24 +31,19 @@
  *
 */
 include_once('PEAR.php');
-
 if (!defined('ADODB_ERROR_HANDLER')) define('ADODB_ERROR_HANDLER','ADODB_Error_PEAR');
-
 /*
 * Enabled the following if you want to terminate scripts when an error occurs
 */
 //PEAR::setErrorHandling (PEAR_ERROR_DIE);
-
 /*
 * Name of the PEAR_Error derived class to call.
 */
 if (!defined('ADODB_PEAR_ERROR_CLASS')) define('ADODB_PEAR_ERROR_CLASS','PEAR_Error');
-
 /*
 * Store the last PEAR_Error object here
 */
 global $ADODB_Last_PEAR_Error; $ADODB_Last_PEAR_Error = false;
-
   /**
 * Error Handler with PEAR support. This will be called with the following params
 *
@@ -39,48 +54,69 @@ global $ADODB_Last_PEAR_Error; $ADODB_Last_PEAR_Error = false;
 * @param $p1		$fn specific parameter - see below
 * @param $P2		$fn specific parameter - see below
 	*/
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function ADODB_Error_PEAR($dbms, $fn, $errno, $errmsg, $p1=false, $p2=false)
 {
 global $ADODB_Last_PEAR_Error;
-
 	if (error_reporting() == 0) return; // obey @ protocol
 	switch($fn) {
 	case 'EXECUTE':
 		$sql = $p1;
 		$inputparams = $p2;
-
 		$s = "$dbms error: [$errno: $errmsg] in $fn(\"$sql\")";
 		break;
-
 	case 'PCONNECT':
 	case 'CONNECT':
 		$host = $p1;
 		$database = $p2;
-
 		$s = "$dbms error: [$errno: $errmsg] in $fn('$host', ?, ?, '$database')";
 		break;
-
 	default:
 		$s = "$dbms error: [$errno: $errmsg] in $fn($p1, $p2)";
 		break;
 	}
-
 	$class = ADODB_PEAR_ERROR_CLASS;
 	$ADODB_Last_PEAR_Error = new $class($s, $errno,
 		$GLOBALS['_PEAR_default_error_mode'],
 		$GLOBALS['_PEAR_default_error_options'],
 		$errmsg);
-
 	//print "<p>!$s</p>";
 }
-
 /**
 * Returns last PEAR_Error object. This error might be for an error that
 * occured several sql statements ago.
 */
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function ADODB_PEAR_Error()
 {
 global $ADODB_Last_PEAR_Error;
-
 	return $ADODB_Last_PEAR_Error;
 }

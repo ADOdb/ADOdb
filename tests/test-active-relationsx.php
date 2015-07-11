@@ -1,50 +1,120 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 global $err_count;
 $err_count = 0;
 
-	function found($obj, $cond)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function found($obj, $cond)
 	{
 		$res = var_export($obj, true);
 		return (strpos($res, $cond));
 	}
 
-	function notfound($obj, $cond)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function notfound($obj, $cond)
 	{
 		return !found($obj, $cond);
 	}
 
-	function ar_assert($bool)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ar_assert($bool)
 	{
 		global $err_count;
 		if(!$bool)
 			$err_count ++;
 		return $bool;
 	}
-
 		define('WEB', true);
-	function ar_echo($txt)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ar_echo($txt)
 	{
 		if(WEB)
 			$txt = str_replace("\n", "<br />\n", $txt);
 		echo $txt;
 	}
-
 	include_once('../adodb.inc.php');
 	include_once('../adodb-active-recordx.inc.php');
-
-
 	$db = NewADOConnection('mysql://root@localhost/test');
 	$db->debug=0;
 	ADOdb_Active_Record::SetDatabaseAdapter($db);
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("Preparing database using SQL queries (creating 'people', 'children')\n");
-
 	$db->Execute("DROP TABLE `people`");
 	$db->Execute("DROP TABLE `children`");
 	$db->Execute("DROP TABLE `artists`");
 	$db->Execute("DROP TABLE `songs`");
-
 	$db->Execute("CREATE TABLE `people` (
 	                `id` int(10) unsigned NOT NULL auto_increment,
 	                `name_first` varchar(100) NOT NULL default '',
@@ -62,14 +132,12 @@ $err_count = 0;
 	                PRIMARY KEY  (`id`)
 	            ) ENGINE=MyISAM;
 	           ");
-
 	$db->Execute("CREATE TABLE `artists` (
 	                `name` varchar(100) NOT NULL default '',
 	                `artistuniqueid` int(10) unsigned NOT NULL auto_increment,
 	                PRIMARY KEY  (`artistuniqueid`)
 	            ) ENGINE=MyISAM;
 	           ");
-
 	$db->Execute("CREATE TABLE `songs` (
 	                `name` varchar(100) NOT NULL default '',
 	                `artistid` int(10) NOT NULL,
@@ -77,15 +145,12 @@ $err_count = 0;
 	                PRIMARY KEY  (`recordid`)
 	            ) ENGINE=MyISAM;
 	           ");
-
 	$db->Execute("insert into children (person_id,name_first,name_last,favorite_pet) values (1,'Jill','Lim','tortoise')");
 	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'Joan','Lim')");
 	$db->Execute("insert into children (person_id,name_first,name_last) values (1,'JAMIE','Lim')");
-
 	$db->Execute("insert into artists (artistuniqueid, name) values(1,'Elvis Costello')");
 	$db->Execute("insert into songs (recordid, name, artistid) values(1,'No Hiding Place', 1)");
 	$db->Execute("insert into songs (recordid, name, artistid) values(2,'American Gangster Time', 1)");
-
 	// This class _implicitely_ relies on the 'people' table (pluralized form of 'person')
 	class Person extends ADOdb_Active_Record
 	{
@@ -121,7 +186,6 @@ $err_count = 0;
 			parent::__construct('children', false, false, array('new' => true));
 		}
 	}
-
 	class Artist extends ADOdb_Active_Record
 	{
 		function __construct()
@@ -138,7 +202,6 @@ $err_count = 0;
 			$this->belongsTo('artist', 'artistid');
 		}
 	}
-
 	ar_echo("Inserting person in 'people' table ('John Lim, he likes lavender')\n");
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");
 	$person = new Person();
@@ -146,29 +209,24 @@ $err_count = 0;
 	$person->name_last      = 'Lim';
 	$person->favorite_color = 'lavender';
 	$person->save(); // this save will perform an INSERT successfully
-
 	$person = new Person();
 	$person->name_first		= 'Lady';
 	$person->name_last		= 'Cat';
 	$person->favorite_color	= 'green';
 	$person->save();
-
 	$child = new Child();
 	$child->name_first		= 'Fluffy';
 	$child->name_last		= 'Cat';
 	$child->favorite_pet	= 'Cat Lady';
 	$child->person_id		= $person->id;
 	$child->save();
-
 	$child = new Child();
 	$child->name_first		= 'Sun';
 	$child->name_last		= 'Cat';
 	$child->favorite_pet	= 'Cat Lady';
 	$child->person_id		= $person->id;
 	$child->save();
-
 	$err_count = 0;
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("person->Find('id=1') [Lazy Method]\n");
 	ar_echo("person is loaded but its children will be loaded on-demand later on\n");
@@ -188,7 +246,6 @@ $err_count = 0;
 	ar_echo((ar_assert(found($people, "'favorite_pet' => 'tortoise'"))) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n");
 	ar_echo((ar_assert(found($people, "'name_first' => 'Joan'"))) ? "[OK] Found Joan\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(found($people, "'name_first' => 'JAMIE'"))) ? "[OK] Found JAMIE\n" : "[!!] Find failed\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("person->Find('id=1' ... ADODB_WORK_AR) [Worker Method]\n");
 	ar_echo("person is loaded, and so are its children\n");
@@ -199,7 +256,6 @@ $err_count = 0;
 	ar_echo((ar_assert(found($people, "'favorite_pet' => 'tortoise'"))) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n");
 	ar_echo((ar_assert(found($people, "'name_first' => 'Joan'"))) ? "[OK] Found Joan\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(found($people, "'name_first' => 'JAMIE'"))) ? "[OK] Found JAMIE\n" : "[!!] Find failed\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("person->Find('id=1' ... ADODB_JOIN_AR) [Join Method]\n");
 	ar_echo("person and its children are loaded using a single query\n");
@@ -212,7 +268,6 @@ $err_count = 0;
 	ar_echo((ar_assert(found($people, "'favorite_pet' => 'tortoise'"))) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n");
 	ar_echo((ar_assert(found($people, "'name_first' => 'Joan'"))) ? "[OK] Found Joan\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(found($people, "'name_first' => 'JAMIE'"))) ? "[OK] Found JAMIE\n" : "[!!] Find failed\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("person->Load('people.id=1') [Join Method]\n");
 	ar_echo("Load() always uses the join method since it returns only one row\n");
@@ -225,7 +280,6 @@ $err_count = 0;
 	ar_echo((ar_assert(found($person, "'favorite_pet' => 'tortoise'"))) ? "[OK] Found relation: child\n" : "[!!] Missing relation: child\n");
 	ar_echo((ar_assert(found($person, "'name_first' => 'Joan'"))) ? "[OK] Found Joan\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(found($person, "'name_first' => 'JAMIE'"))) ? "[OK] Found JAMIE\n" : "[!!] Find failed\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("child->Load('children.id=1') [Join Method]\n");
 	ar_echo("We are now loading from the 'children' table, not from 'people'\n");
@@ -234,7 +288,6 @@ $err_count = 0;
 	$child->Load('children.id=1');
 	ar_echo((ar_assert(found($child, "'name_first' => 'Jill'"))) ? "[OK] Found Jill\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(found($child, "'favorite_color' => 'lavender'"))) ? "[OK] Found relation: person\n" : "[!!] Missing relation: person\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("child->Find('children.id=1' ... ADODB_WORK_AR) [Worker Method]\n");
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");
@@ -244,7 +297,6 @@ $err_count = 0;
 	ar_echo((ar_assert(found($children, "'favorite_color' => 'lavender'"))) ? "[OK] Found relation: person\n" : "[!!] Missing relation: person\n");
 	ar_echo((ar_assert(notfound($children, "'name_first' => 'Joan'"))) ? "[OK] No Joan relation\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(notfound($children, "'name_first' => 'JAMIE'"))) ? "[OK] No JAMIE relation\n" : "[!!] Find failed\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("kid->Find('children.id=1' ... ADODB_WORK_AR) [Worker Method]\n");
 	ar_echo("Where we see that kid shares relationships with child because they are stored\n");
@@ -256,7 +308,6 @@ $err_count = 0;
 	ar_echo((ar_assert(found($kids, "'favorite_color' => 'lavender'"))) ? "[OK] Found relation: person\n" : "[!!] Missing relation: person\n");
 	ar_echo((ar_assert(notfound($kids, "'name_first' => 'Joan'"))) ? "[OK] No Joan relation\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(notfound($kids, "'name_first' => 'JAMIE'"))) ? "[OK] No JAMIE relation\n" : "[!!] Find failed\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("kid->Find('children.id=1' ... ADODB_LAZY_AR) [Lazy Method]\n");
 	ar_echo("Of course, lazy loading also retrieve medata information...\n");
@@ -273,7 +324,6 @@ $err_count = 0;
 	ar_echo((ar_assert(found($kids, "'favorite_color' => 'lavender'"))) ? "[OK] Found relation: person\n" : "[!!] Missing relation: person\n");
 	ar_echo((ar_assert(notfound($kids, "'name_first' => 'Joan'"))) ? "[OK] No Joan relation\n" : "[!!] Found relation when I shouldn't\n");
 	ar_echo((ar_assert(notfound($kids, "'name_first' => 'JAMIE'"))) ? "[OK] No JAMIE relation\n" : "[!!] Found relation when I shouldn't\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("rugrat->Find('children.id=1' ... ADODB_WORK_AR) [Worker Method]\n");
 	ar_echo("In rugrat's constructor it is specified that\nit must forget any existing relation\n");
@@ -284,7 +334,6 @@ $err_count = 0;
 	ar_echo((ar_assert(notfound($rugrats, "'favorite_color' => 'lavender'"))) ? "[OK] No relation found\n" : "[!!] Found relation when I shouldn't\n");
 	ar_echo((ar_assert(notfound($rugrats, "'name_first' => 'Joan'"))) ? "[OK] No Joan relation\n" : "[!!] Found relation when I shouldn't\n");
 	ar_echo((ar_assert(notfound($rugrats, "'name_first' => 'JAMIE'"))) ? "[OK] No JAMIE relation\n" : "[!!] Found relation when I shouldn't\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("kid->Find('children.id=1' ... ADODB_WORK_AR) [Worker Method]\n");
 	ar_echo("Note how only rugrat forgot its relations - kid is fine.\n");
@@ -295,7 +344,6 @@ $err_count = 0;
 	ar_echo((ar_assert(found($kids, "'favorite_color' => 'lavender'"))) ? "[OK] I did not forget relation: person\n" : "[!!] I should not have forgotten relation: person\n");
 	ar_echo((ar_assert(notfound($kids, "'name_first' => 'Joan'"))) ? "[OK] No Joan relation\n" : "[!!] Found relation when I shouldn't\n");
 	ar_echo((ar_assert(notfound($kids, "'name_first' => 'JAMIE'"))) ? "[OK] No JAMIE relation\n" : "[!!] Found relation when I shouldn't\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("rugrat->Find('children.id=1' ... ADODB_WORK_AR) [Worker Method]\n");
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");
@@ -304,7 +352,6 @@ $err_count = 0;
 	$arugrat = $rugrats[0];
 	ar_echo((ar_assert(found($arugrat, "'name_first' => 'Jill'"))) ? "[OK] Found Jill\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(notfound($arugrat, "'favorite_color' => 'lavender'"))) ? "[OK] No relation yet\n" : "[!!] Found relation when I shouldn't\n");
-
 	ar_echo("\n-- Loading relations:\n\n");
 	$arugrat->belongsTo('person');
 	$arugrat->LoadRelations('person', 'order by id', 0, 2);
@@ -312,7 +359,6 @@ $err_count = 0;
 	ar_echo((ar_assert(found($arugrat, "'name_first' => 'Jill'"))) ? "[OK] Found Jill\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(notfound($arugrat, "'name_first' => 'Joan'"))) ? "[OK] No Joan relation\n" : "[!!] Found relation when I shouldn't\n");
 	ar_echo((ar_assert(notfound($arugrat, "'name_first' => 'JAMIE'"))) ? "[OK] No Joan relation\n" : "[!!] Found relation when I shouldn't\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("person->Find('1=1') [Lazy Method]\n");
 	ar_echo("And now for our finale...\n");
@@ -336,7 +382,6 @@ $err_count = 0;
 	ar_echo((ar_assert(found($people, "'name_first' => 'Lady'"))) ? "[OK] Found Cat Lady\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(found($people, "'name_first' => 'Fluffy'"))) ? "[OK] Found Fluffy\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(found($people, "'name_first' => 'Sun'"))) ? "[OK] Found Sun\n" : "[!!] Find failed\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("artist->Load('artistuniqueid=1') [Join Method]\n");
 	ar_echo("Yes, we are dabbling in the musical field now..\n");
@@ -345,15 +390,12 @@ $err_count = 0;
 	$artist->Load('artistuniqueid=1');
 	ar_echo((ar_assert(found($artist, "'name' => 'Elvis Costello'"))) ? "[OK] Found Elvis Costello\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(found($artist, "'name' => 'No Hiding Place'"))) ? "[OK] Found relation: song\n" : "[!!] Missing relation: song\n");
-
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("song->Load('recordid=1') [Join Method]\n");
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");
 	$song = new Song();
 	$song->Load('recordid=1');
 	ar_echo((ar_assert(found($song, "'name' => 'No Hiding Place'"))) ? "[OK] Found song\n" : "[!!] Find failed\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("artist->Find('artistuniqueid=1' ... ADODB_JOIN_AR) [Join Method]\n");
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");
@@ -361,14 +403,12 @@ $err_count = 0;
 	$artists = $artist->Find('artistuniqueid=1', false, false, array('loading' => ADODB_JOIN_AR));
 	ar_echo((ar_assert(found($artists, "'name' => 'Elvis Costello'"))) ? "[OK] Found Elvis Costello\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(found($artists, "'name' => 'No Hiding Place'"))) ? "[OK] Found relation: song\n" : "[!!] Missing relation: song\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("song->Find('recordid=1' ... ADODB_JOIN_AR) [Join Method]\n");
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");
 	$song = new Song();
 	$songs = $song->Find('recordid=1', false, false, array('loading' => ADODB_JOIN_AR));
 	ar_echo((ar_assert(found($songs, "'name' => 'No Hiding Place'"))) ? "[OK] Found song\n" : "[!!] Find failed\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("artist->Find('artistuniqueid=1' ... ADODB_WORK_AR) [Work Method]\n");
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");
@@ -376,14 +416,12 @@ $err_count = 0;
 	$artists = $artist->Find('artistuniqueid=1', false, false, array('loading' => ADODB_WORK_AR));
 	ar_echo((ar_assert(found($artists, "'name' => 'Elvis Costello'"))) ? "[OK] Found Elvis Costello\n" : "[!!] Find failed\n");
 	ar_echo((ar_assert(found($artists, "'name' => 'No Hiding Place'"))) ? "[OK] Found relation: song\n" : "[!!] Missing relation: song\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("song->Find('recordid=1' ... ADODB_JOIN_AR) [Join Method]\n");
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");
 	$song = new Song();
 	$songs = $song->Find('recordid=1', false, false, array('loading' => ADODB_WORK_AR));
 	ar_echo((ar_assert(found($songs, "'name' => 'No Hiding Place'"))) ? "[OK] Found song\n" : "[!!] Find failed\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("artist->Find('artistuniqueid=1' ... ADODB_LAZY_AR) [Lazy Method]\n");
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");
@@ -399,7 +437,6 @@ $err_count = 0;
 		}
 	}
 	ar_echo((ar_assert(found($artists, "'name' => 'No Hiding Place'"))) ? "[OK] Found relation: song\n" : "[!!] Missing relation: song\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("song->Find('recordid=1' ... ADODB_LAZY_AR) [Lazy Method]\n");
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");
@@ -412,7 +449,6 @@ $err_count = 0;
 		if($asong->artist);
 	}
 	ar_echo((ar_assert(found($songs, "'name' => 'Elvis Costello'"))) ? "[OK] Found relation: artist\n" : "[!!] Missing relation: artist\n");
-
 	ar_echo("\n\n-------------------------------------------------------------------------------------------------------------------\n");
 	ar_echo("Test suite complete. " . (($err_count > 0) ? "$err_count errors found.\n" : "Success.\n"));
 	ar_echo("-------------------------------------------------------------------------------------------------------------------\n");

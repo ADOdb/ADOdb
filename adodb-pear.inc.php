@@ -1,4 +1,24 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
  * @version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
@@ -12,10 +32,8 @@
  * The following code is modelled on PEAR DB code by Stig Bakken <ssb@fast.no>								   |
  * and Tomas V.V.Cox <cox@idecnet.com>.	Portions (c)1997-2002 The PHP Group.
  */
-
  /*
  We support:
-
  DB_Common
  ---------
  	query - returns PEAR_Error on error
@@ -27,13 +45,11 @@
 	quote
 	nextID
 	disconnect
-
 	getOne
 	getAssoc
 	getRow
 	getCol
 	getAll
-
  DB_Result
  ---------
  	numRows - returns -1 if not supported
@@ -42,51 +58,38 @@
 	fetchRows - does not support passing of fetchmode
 	free
  */
-
 define('ADODB_PEAR',dirname(__FILE__));
 include_once "PEAR.php";
 include_once ADODB_PEAR."/adodb-errorpear.inc.php";
 include_once ADODB_PEAR."/adodb.inc.php";
-
 if (!defined('DB_OK')) {
 define("DB_OK",	1);
 define("DB_ERROR",-1);
-
 /**
  * This is a special constant that tells DB the user hasn't specified
  * any particular get mode, so the default should be used.
  */
-
 define('DB_FETCHMODE_DEFAULT', 0);
-
 /**
  * Column data indexed by numbers, ordered from 0 and up
  */
-
 define('DB_FETCHMODE_ORDERED', 1);
-
 /**
  * Column data indexed by column names
  */
-
 define('DB_FETCHMODE_ASSOC', 2);
-
 /* for compatibility */
-
 define('DB_GETMODE_ORDERED', DB_FETCHMODE_ORDERED);
 define('DB_GETMODE_ASSOC',   DB_FETCHMODE_ASSOC);
-
 /**
  * these are constants for the tableInfo-function
  * they are bitwised or'ed. so if there are more constants to be defined
  * in the future, adjust DB_TABLEINFO_FULL accordingly
  */
-
 define('DB_TABLEINFO_ORDER', 1);
 define('DB_TABLEINFO_ORDERTABLE', 2);
 define('DB_TABLEINFO_FULL', 3);
 }
-
 /**
  * The main "DB" class is simply a container class with some static
  * methods for creating DB objects as well as some utility functions
@@ -94,6 +97,16 @@ define('DB_TABLEINFO_FULL', 3);
  *
  */
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class DB
 {
 	/**
@@ -105,14 +118,27 @@ class DB
 	 * error
 	 */
 
-	function factory($type)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function factory($type)
 	{
 		include_once(ADODB_DIR."/drivers/adodb-$type.inc.php");
 		$obj = NewADOConnection($type);
 		if (!is_object($obj)) $obj = new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
 		return $obj;
 	}
-
 	/**
 	 * Create a new DB object and connect to the specified database
 	 *
@@ -132,7 +158,22 @@ class DB
 	 * @see DB::parseDSN
 	 * @see DB::isError
 	 */
-	function connect($dsn, $options = false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function connect($dsn, $options = false)
 	{
 		if (is_array($dsn)) {
 			$dsninfo = $dsn;
@@ -144,7 +185,6 @@ class DB
 			case 'ifx':		$type = 'informix9'; break;
 			default: 		$type = $dsninfo["phptype"]; break;
 		}
-
 		if (is_array($options) && isset($options["debug"]) &&
 			$options["debug"] >= 2) {
 			// expose php errors with sufficient debug level
@@ -152,7 +192,6 @@ class DB
 		} else {
 			 @include_once("adodb-$type.inc.php");
 		}
-
 		@$obj = NewADOConnection($type);
 		if (!is_object($obj)) {
 			$obj = new PEAR_Error('Unknown Database Driver: '.$dsninfo['phptype'],-1);
@@ -176,27 +215,37 @@ class DB
 		} else {
 		   	$persist = false;
 		}
-
 		if (isset($dsninfo['socket'])) $dsninfo['hostspec'] .= ':'.$dsninfo['socket'];
 		else if (isset($dsninfo['port'])) $dsninfo['hostspec'] .= ':'.$dsninfo['port'];
-
 		if($persist) $ok = $obj->PConnect($dsninfo['hostspec'], $dsninfo['username'],$dsninfo['password'],$dsninfo['database']);
 		else  $ok = $obj->Connect($dsninfo['hostspec'], $dsninfo['username'],$dsninfo['password'],$dsninfo['database']);
-
 		if (!$ok) $obj = ADODB_PEAR_Error();
 		return $obj;
 	}
-
 	/**
 	 * Return the DB API version
 	 *
 	 * @return int the DB API version number
 	 */
-	function apiVersion()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function apiVersion()
 	{
 		return 2;
 	}
-
 	/**
 	 * Tell whether a result code from a DB method is an error
 	 *
@@ -204,15 +253,28 @@ class DB
 	 *
 	 * @return bool whether $value is an error
 	 */
-	function isError($value)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function isError($value)
 	{
 		if (!is_object($value)) return false;
 		$class = strtolower(get_class($value));
 		return $class == 'pear_error' || is_subclass_of($value, 'pear_error') ||
 				$class == 'db_error' || is_subclass_of($value, 'db_error');
 	}
-
-
 	/**
 	 * Tell whether a result code from a DB method is a warning.
 	 * Warnings differ from errors in that they are generated by DB,
@@ -222,7 +284,22 @@ class DB
 	 *
 	 * @return bool whether $value is a warning
 	 */
-	function isWarning($value)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function isWarning($value)
 	{
 		return false;
 		/*
@@ -230,7 +307,6 @@ class DB
 			(get_class( $value ) == "db_warning" ||
 			 is_subclass_of($value, "db_warning"));*/
 	}
-
 	/**
 	 * Parse a data source name
 	 *
@@ -263,12 +339,26 @@ class DB
 	 *
 	 * @author Tomas V.V.Cox <cox@idecnet.com>
 	 */
-	function parseDSN($dsn)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function parseDSN($dsn)
 	{
 		if (is_array($dsn)) {
 			return $dsn;
 		}
-
 		$parsed = array(
 			'phptype'  => false,
 			'dbsyntax' => false,
@@ -278,7 +368,6 @@ class DB
 			'username' => false,
 			'password' => false
 		);
-
 		// Find phptype and dbsyntax
 		if (($pos = strpos($dsn, '://')) !== false) {
 			$str = substr($dsn, 0, $pos);
@@ -287,7 +376,6 @@ class DB
 			$str = $dsn;
 			$dsn = NULL;
 		}
-
 		// Get phptype and dbsyntax
 		// $str => phptype(dbsyntax)
 		if (preg_match('|^(.+?)\((.*?)\)$|', $str, $arr)) {
@@ -297,11 +385,9 @@ class DB
 			$parsed['phptype'] = $str;
 			$parsed['dbsyntax'] = $str;
 		}
-
 		if (empty($dsn)) {
 			return $parsed;
 		}
-
 		// Get (if found): username and password
 		// $dsn => username:password@protocol+hostspec/database
 		if (($at = strpos($dsn,'@')) !== false) {
@@ -314,7 +400,6 @@ class DB
 				$parsed['username'] = urldecode($str);
 			}
 		}
-
 		// Find protocol and hostspec
 		// $dsn => protocol+hostspec/database
 		if (($pos=strpos($dsn, '/')) !== false) {
@@ -324,7 +409,6 @@ class DB
 			$str = $dsn;
 			$dsn = NULL;
 		}
-
 		// Get protocol + hostspec
 		// $str => protocol+hostspec
 		if (($pos=strpos($str, '+')) !== false) {
@@ -333,16 +417,13 @@ class DB
 		} else {
 			$parsed['hostspec'] = urldecode($str);
 		}
-
 		// Get dabase if any
 		// $dsn => database
 		if (!empty($dsn)) {
 			$parsed['database'] = $dsn;
 		}
-
 		return $parsed;
 	}
-
 	/**
 	 * Load a PHP database extension if it is not loaded already.
 	 *
@@ -354,7 +435,22 @@ class DB
 	 * @return bool true if the extension was already or successfully
 	 * loaded, false if it could not be loaded
 	 */
-	function assertExtension($name)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function assertExtension($name)
 	{
 		if (!extension_loaded($name)) {
 			$dlext = (strncmp(PHP_OS,'WIN',3) === 0) ? '.dll' : '.so';

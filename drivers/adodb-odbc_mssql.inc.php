@@ -1,25 +1,51 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
 Set tabs to 4 for best viewing.
-
   Latest version is available at http://adodb.sourceforge.net
-
   MSSQL support via ODBC. Requires ODBC. Works on Windows and Unix.
   For Unix configuration, see http://phpbuilder.com/columns/alberto20000919.php3
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
 if (!defined('_ADODB_ODBC_LAYER')) {
 	include(ADODB_DIR."/drivers/adodb-odbc.inc.php");
 }
 
-
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class  ADODB_odbc_mssql extends ADODB_odbc {
 	var $databaseType = 'odbc_mssql';
 	var $fmtDate = "'Y-m-d'";
@@ -45,14 +71,42 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	var $connectStmt = 'SET CONCAT_NULL_YIELDS_NULL OFF'; # When SET CONCAT_NULL_YIELDS_NULL is ON,
 														  # concatenating a null value with a string yields a NULL result
 
-	function ADODB_odbc_mssql()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADODB_odbc_mssql()
 	{
 		$this->ADODB_odbc();
 		//$this->curmode = SQL_CUR_USE_ODBC;
 	}
-
 	// crashes php...
-	function ServerInfo()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ServerInfo()
 	{
 	global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
@@ -65,12 +119,40 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 		return $arr;
 	}
 
-	function IfNull( $field, $ifNull )
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function IfNull( $field, $ifNull )
 	{
 		return " ISNULL($field, $ifNull) "; // if MS SQL Server
 	}
 
-	function _insertid()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _insertid()
 	{
 	// SCOPE_IDENTITY()
 	// Returns the last IDENTITY value inserted into an IDENTITY column in
@@ -80,15 +162,26 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 			return $this->GetOne($this->identitySQL);
 	}
 
-
-	function MetaForeignKeys($table, $owner=false, $upper=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaForeignKeys($table, $owner=false, $upper=false)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$table = $this->qstr(strtoupper($table));
-
 		$sql =
 "select object_name(constid) as constraint_name,
 	col_name(fkeyid, fkey) as column_name,
@@ -97,20 +190,15 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 from sysforeignkeys
 where upper(object_name(fkeyid)) = $table
 order by constraint_name, referenced_table_name, keyno";
-
 		$constraints = $this->GetArray($sql);
-
 		$ADODB_FETCH_MODE = $save;
-
 		$arr = false;
 		foreach($constraints as $constr) {
 			//print_r($constr);
 			$arr[$constr[0]][$constr[2]][] = $constr[1].'='.$constr[3];
 		}
 		if (!$arr) return false;
-
 		$arr2 = false;
-
 		foreach($arr as $k => $v) {
 			foreach($v as $a => $b) {
 				if ($upper) $a = strtoupper($a);
@@ -120,7 +208,21 @@ order by constraint_name, referenced_table_name, keyno";
 		return $arr2;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {//$this->debug=1;
 			$save = $this->metaTablesSQL;
@@ -128,16 +230,28 @@ order by constraint_name, referenced_table_name, keyno";
 			$this->metaTablesSQL .= " AND name like $mask";
 		}
 		$ret = ADOConnection::MetaTables($ttype,$showSchema);
-
 		if ($mask) {
 			$this->metaTablesSQL = $save;
 		}
 		return $ret;
 	}
 
-	function MetaColumns($table, $normalize=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaColumns($table, $normalize=true)
 	{
-
 		$this->_findschema($table,$schema);
 		if ($schema) {
 			$dbName = $this->database;
@@ -146,39 +260,30 @@ order by constraint_name, referenced_table_name, keyno";
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-
 		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
-
 		if ($schema) {
 			$this->SelectDB($dbName);
 		}
-
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 		if (!is_object($rs)) {
 			$false = false;
 			return $false;
 		}
-
 		$retarr = array();
 		while (!$rs->EOF){
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
 			$fld->type = $rs->fields[1];
-
 			$fld->not_null = (!$rs->fields[3]);
 			$fld->auto_increment = ($rs->fields[4] == 128);		// sys.syscolumns status field. 0x80 = 128 ref: http://msdn.microsoft.com/en-us/library/ms186816.aspx
-
-
 			if (isset($rs->fields[5]) && $rs->fields[5]) {
 				if ($rs->fields[5]>0) $fld->max_length = $rs->fields[5];
 				$fld->scale = $rs->fields[6];
 				if ($fld->scale>0) $fld->max_length += 1;
 			} else
 				$fld->max_length = $rs->fields[2];
-
-
 			if ($save == ADODB_FETCH_NUM) {
 				$retarr[] = $fld;
 			} else {
@@ -186,17 +291,27 @@ order by constraint_name, referenced_table_name, keyno";
 			}
 				$rs->MoveNext();
 			}
-
 			$rs->Close();
 			return $retarr;
-
 	}
 
-
-	function MetaIndexes($table,$primary=false, $owner=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaIndexes($table,$primary=false, $owner=false)
 	{
 		$table = $this->qstr($table);
-
 		$sql = "SELECT i.name AS ind_name, C.name AS col_name, USER_NAME(O.uid) AS Owner, c.colid, k.Keyno,
 			CASE WHEN I.indid BETWEEN 1 AND 254 AND (I.status & 2048 = 2048 OR I.Status = 16402 AND O.XType = 'V') THEN 1 ELSE 0 END AS IsPK,
 			CASE WHEN I.status & 2 = 2 THEN 1 ELSE 0 END AS IsUnique
@@ -205,41 +320,64 @@ order by constraint_name, referenced_table_name, keyno";
 			INNER JOIN dbo.syscolumns c ON K.id = C.id AND K.colid = C.Colid
 			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND O.Name LIKE $table
 			ORDER BY O.name, I.Name, K.keyno";
-
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
         if ($this->fetchMode !== FALSE) {
         	$savem = $this->SetFetchMode(FALSE);
         }
-
         $rs = $this->Execute($sql);
         if (isset($savem)) {
         	$this->SetFetchMode($savem);
         }
         $ADODB_FETCH_MODE = $save;
-
         if (!is_object($rs)) {
         	return FALSE;
         }
-
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
 			if (!$primary && $row[5]) continue;
-
             $indexes[$row[0]]['unique'] = $row[6];
             $indexes[$row[0]]['columns'][] = $row[1];
     	}
         return $indexes;
 	}
 
-	function _query($sql,$inputarr=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _query($sql,$inputarr=false)
 	{
 		if (is_string($sql)) $sql = str_replace('||','+',$sql);
 		return ADODB_odbc::_query($sql,$inputarr);
 	}
 
-	function SetTransactionMode( $transaction_mode )
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SetTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -249,34 +387,58 @@ order by constraint_name, referenced_table_name, keyno";
 		if (!stristr($transaction_mode,'isolation')) $transaction_mode = 'ISOLATION LEVEL '.$transaction_mode;
 		$this->Execute("SET TRANSACTION ".$transaction_mode);
 	}
-
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
-	function MetaPrimaryKeys($table)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaPrimaryKeys($table)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$schema = '';
 		$this->_findschema($table,$schema);
 		//if (!$schema) $schema = $this->database;
 		if ($schema) $schema = "and k.table_catalog like '$schema%'";
-
 		$sql = "select distinct k.column_name,ordinal_position from information_schema.key_column_usage k,
 		information_schema.table_constraints tc
 		where tc.constraint_name = k.constraint_name and tc.constraint_type =
 		'PRIMARY KEY' and k.table_name = '$table' $schema order by ordinal_position ";
-
 		$savem = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 		$a = $this->GetCol($sql);
 		$ADODB_FETCH_MODE = $savem;
-
 		if ($a && sizeof($a)>0) return $a;
 		$false = false;
 		return $false;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
@@ -284,16 +446,28 @@ order by constraint_name, referenced_table_name, keyno";
 			$rs = $this->Execute($sql,$inputarr);
 		} else
 			$rs = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
-
 		return $rs;
 	}
-
 	// Format date column in sql string given an input format that understands Y M D
-	function SQLDate($fmt, $col=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SQLDate($fmt, $col=false)
 	{
 		if (!$col) $col = $this->sysTimeStamp;
 		$s = '';
-
 		$len = strlen($fmt);
 		for ($i=0; $i < $len; $i++) {
 			if ($s) $s .= '+';
@@ -320,11 +494,9 @@ order by constraint_name, referenced_table_name, keyno";
 			case 'h':
 				$s .= "substring(convert(char(14),$col,0),13,2)";
 				break;
-
 			case 'H':
 				$s .= "replace(str(datepart(hh,$col),2),' ','0')";
 				break;
-
 			case 'i':
 				$s .= "replace(str(datepart(mi,$col),2),' ','0')";
 				break;
@@ -335,7 +507,6 @@ order by constraint_name, referenced_table_name, keyno";
 			case 'A':
 				$s .= "substring(convert(char(19),$col,0),18,2)";
 				break;
-
 			default:
 				if ($ch == '\\') {
 					$i++;
@@ -347,14 +518,36 @@ order by constraint_name, referenced_table_name, keyno";
 		}
 		return $s;
 	}
-
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class  ADORecordSet_odbc_mssql extends ADORecordSet_odbc {
-
 	var $databaseType = 'odbc_mssql';
 
-	function ADORecordSet_odbc_mssql($id,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_odbc_mssql($id,$mode=false)
 	{
 		return $this->ADORecordSet_odbc($id,$mode);
 	}

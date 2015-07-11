@@ -1,5 +1,24 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
  * @version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
@@ -20,20 +39,62 @@
  * TO STDOUT
  * rs2csvout($rs);
  */
-
 // returns a recordset as a csv string
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function rs2csv(&$rs,$addtitles=true)
 {
 	return _adodb_export($rs,',',',',false,$addtitles);
 }
-
 // writes recordset to csv file
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function rs2csvfile(&$rs,$fp,$addtitles=true)
 {
 	_adodb_export($rs,',',',',$fp,$addtitles);
 }
-
 // write recordset as csv string to stdout
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function rs2csvout(&$rs,$addtitles=true)
 {
 	$fp = fopen('php://stdout','wb');
@@ -41,18 +102,60 @@ function rs2csvout(&$rs,$addtitles=true)
 	fclose($fp);
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function rs2tab(&$rs,$addtitles=true)
 {
 	return _adodb_export($rs,"\t",',',false,$addtitles);
 }
-
 // to file pointer
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function rs2tabfile(&$rs,$fp,$addtitles=true)
 {
 	_adodb_export($rs,"\t",',',$fp,$addtitles);
 }
-
 // to stdout
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function rs2tabout(&$rs,$addtitles=true)
 {
 	$fp = fopen('php://stdout','wb');
@@ -60,6 +163,20 @@ function rs2tabout(&$rs,$addtitles=true)
 	if ($fp) fclose($fp);
 }
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = '"',$escquote = '"',$replaceNewLine = ' ')
 {
 	if (!$rs) return '';
@@ -69,31 +186,25 @@ function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = 
 	$BUFLINES = 100;
 	$escquotequote = $escquote.$quote;
 	$s = '';
-
 	if ($addtitles) {
 		$fieldTypes = $rs->FieldTypesArray();
 		reset($fieldTypes);
 		$i = 0;
 		$elements = array();
 		while(list(,$o) = each($fieldTypes)) {
-
 			$v = ($o) ? $o->name : 'Field'.($i++);
 			if ($escquote) $v = str_replace($quote,$escquotequote,$v);
 			$v = strip_tags(str_replace("\n", $replaceNewLine, str_replace("\r\n",$replaceNewLine,str_replace($sep,$sepreplace,$v))));
 			$elements[] = $v;
-
 		}
 		$s .= implode($sep, $elements).$NEWLINE;
 	}
 	$hasNumIndex = isset($rs->fields[0]);
-
 	$line = 0;
 	$max = $rs->FieldCount();
-
 	while (!$rs->EOF) {
 		$elements = array();
 		$i = 0;
-
 		if ($hasNumIndex) {
 			for ($j=0; $j < $max; $j++) {
 				$v = $rs->fields[$j];
@@ -101,7 +212,6 @@ function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = 
 				else $v = 'Object';
 				if ($escquote) $v = str_replace($quote,$escquotequote,$v);
 				$v = strip_tags(str_replace("\n", $replaceNewLine, str_replace("\r\n",$replaceNewLine,str_replace($sep,$sepreplace,$v))));
-
 				if (strpos($v,$sep) !== false || strpos($v,$quote) !== false) $elements[] = "$quote$v$quote";
 				else $elements[] = $v;
 			}
@@ -109,7 +219,6 @@ function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = 
 			foreach($rs->fields as $v) {
 				if ($escquote) $v = str_replace($quote,$escquotequote,trim($v));
 				$v = strip_tags(str_replace("\n", $replaceNewLine, str_replace("\r\n",$replaceNewLine,str_replace($sep,$sepreplace,$v))));
-
 				if (strpos($v,$sep) !== false || strpos($v,$quote) !== false) $elements[] = "$quote$v$quote";
 				else $elements[] = $v;
 			}
@@ -123,12 +232,10 @@ function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = 
 			$s = '';
 		}
 	}
-
 	if ($fp) {
 		if ($fp === true) echo $s;
 		else fwrite($fp,$s);
 		$s = '';
 	}
-
 	return $s;
 }

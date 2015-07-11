@@ -1,28 +1,68 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
   V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
-
   Set tabs to 4 for best viewing.
-
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB2_mysql extends ADODB_DataDict {
 	var $databaseType = 'mysql';
 	var $alterCol = ' MODIFY COLUMN';
 	var $alterTableAddIndex = true;
 	var $dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
-
 	var $dropIndex = 'DROP INDEX %s ON %s';
 	var $renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';	// needs column-definition!
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -30,7 +70,6 @@ class ADODB2_mysql extends ADODB_DataDict {
 			$len = $fieldobj->max_length;
 		}
 		$is_serial = is_object($fieldobj) && $fieldobj->primary_key && $fieldobj->auto_increment;
-
 		$len = -1; // mysql max_length is not accurate
 		switch (strtoupper($t)) {
 		case 'STRING':
@@ -41,12 +80,10 @@ class ADODB2_mysql extends ADODB_DataDict {
 		case 'ENUM':
 		case 'SET':
 			if ($len <= $this->blobSize) return 'C';
-
 		case 'TEXT':
 		case 'LONGTEXT':
 		case 'MEDIUMTEXT':
 			return 'X';
-
 		// php_mysql extension always returns 'blob' even if 'text'
 		// so we have to check whether binary...
 		case 'IMAGE':
@@ -54,18 +91,14 @@ class ADODB2_mysql extends ADODB_DataDict {
 		case 'BLOB':
 		case 'MEDIUMBLOB':
 			return !empty($fieldobj->binary) ? 'B' : 'X';
-
 		case 'YEAR':
 		case 'DATE': return 'D';
-
 		case 'TIME':
 		case 'DATETIME':
 		case 'TIMESTAMP': return 'T';
-
 		case 'FLOAT':
 		case 'DOUBLE':
 			return 'F';
-
 		case 'INT':
 		case 'INTEGER': return $is_serial ? 'R' : 'I';
 		case 'TINYINT': return $is_serial ? 'R' : 'I1';
@@ -76,39 +109,62 @@ class ADODB2_mysql extends ADODB_DataDict {
 		}
 	}
 
-	function ActualType($meta)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ActualType($meta)
 	{
 		switch(strtoupper($meta)) {
 		case 'C': return 'VARCHAR';
 		case 'XL':return 'LONGTEXT';
 		case 'X': return 'TEXT';
-
 		case 'C2': return 'VARCHAR';
 		case 'X2': return 'LONGTEXT';
-
 		case 'B': return 'LONGBLOB';
-
 		case 'D': return 'DATE';
 		case 'TS':
 		case 'T': return 'DATETIME';
 		case 'L': return 'TINYINT';
-
 		case 'R':
 		case 'I4':
 		case 'I': return 'INTEGER';
 		case 'I1': return 'TINYINT';
 		case 'I2': return 'SMALLINT';
 		case 'I8': return 'BIGINT';
-
 		case 'F': return 'DOUBLE';
 		case 'N': return 'NUMERIC';
 		default:
 			return $meta;
 		}
 	}
-
 	// return string must begin with space
-	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{
 		$suffix = '';
 		if ($funsigned) $suffix .= ' UNSIGNED';
@@ -118,7 +174,6 @@ class ADODB2_mysql extends ADODB_DataDict {
 		if ($fconstraint) $suffix .= ' '.$fconstraint;
 		return $suffix;
 	}
-
 	/*
 	CREATE [TEMPORARY] TABLE [IF NOT EXISTS] tbl_name [(create_definition,...)]
 		[table_options] [select_statement]
@@ -134,28 +189,37 @@ class ADODB2_mysql extends ADODB_DataDict {
 		[reference_definition]
 		or CHECK (expr)
 	*/
-
 	/*
 	CREATE [UNIQUE|FULLTEXT] INDEX index_name
 		ON tbl_name (col_name[(length)],... )
 	*/
 
-	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
-
 		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
 			if ($this->alterTableAddIndex) $sql[] = "ALTER TABLE $tabname DROP INDEX $idxname";
 			else $sql[] = sprintf($this->dropIndex, $idxname, $tabname);
-
 			if ( isset($idxoptions['DROP']) )
 				return $sql;
 		}
-
 		if ( empty ($flds) ) {
 			return $sql;
 		}
-
 		if (isset($idxoptions['FULLTEXT'])) {
 			$unique = ' FULLTEXT';
 		} elseif (isset($idxoptions['UNIQUE'])) {
@@ -163,19 +227,13 @@ class ADODB2_mysql extends ADODB_DataDict {
 		} else {
 			$unique = '';
 		}
-
 		if ( is_array($flds) ) $flds = implode(', ',$flds);
-
 		if ($this->alterTableAddIndex) $s = "ALTER TABLE $tabname ADD $unique INDEX $idxname ";
 		else $s = 'CREATE' . $unique . ' INDEX ' . $idxname . ' ON ' . $tabname;
-
 		$s .= ' (' . $flds . ')';
-
 		if ( isset($idxoptions[$this->upperName]) )
 			$s .= $idxoptions[$this->upperName];
-
 		$sql[] = $s;
-
 		return $sql;
 	}
 }

@@ -1,18 +1,46 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
  V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
-
   Latest version is available at http://adodb.sourceforge.net
-
   Thanks Diogo Toscano (diogo#scriptcase.net) for the code.
 	And also Sid Dunayer [sdunayer#interserv.com] for extensive fixes.
 */
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_pdo_sqlite extends ADODB_pdo {
 	var $metaTablesSQL   = "SELECT name FROM sqlite_master WHERE type='table'";
 	var $sysDate         = 'current_date';
@@ -29,7 +57,21 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
     var $pdoDriver       = false;
 	var $random='abs(random())';
 
-	function _init($parentDriver)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _init($parentDriver)
 	{
 		$this->pdoDriver = $parentDriver;
 		$parentDriver->_bindInputArray = true;
@@ -37,20 +79,46 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		$parentDriver->hasInsertID = true;
 	}
 
-	function ServerInfo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ServerInfo()
 	{
 		$parent = $this->pdoDriver;
 		@($ver = array_pop($parent->GetCol("SELECT sqlite_version()")));
 		@($enc = array_pop($parent->GetCol("PRAGMA encoding")));
-
 		$arr['version']     = $ver;
 		$arr['description'] = 'SQLite ';
 		$arr['encoding']    = $enc;
-
 		return $arr;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$parent = $this->pdoDriver;
 		$offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
@@ -59,11 +127,24 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	   		$rs = $parent->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
 	  	else
 	   		$rs = $parent->Execute($sql."$limitStr$offsetStr",$inputarr);
-
 		return $rs;
 	}
 
-	function GenID($seq='adodbseq',$start=1)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GenID($seq='adodbseq',$start=1)
 	{
 		$parent = $this->pdoDriver;
 		// if you have to modify the parameter below, your database is overloaded,
@@ -82,7 +163,6 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 				if (!$ok) return false;
 			}
 			$parent->Execute(sprintf($this->_genIDSQL,$seq,$num));
-
 			if ($parent->affected_rows() > 0) {
                 	        $num += 1;
                 		$parent->genID = intval($num);
@@ -95,7 +175,21 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		return false;
 	}
 
-	function CreateSequence($seqname='adodbseq',$start=1)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CreateSequence($seqname='adodbseq',$start=1)
 	{
 		$parent = $this->pdoDriver;
 		$ok = $parent->Execute(sprintf($this->_genSeqSQL,$seqname));
@@ -104,13 +198,41 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		return $parent->Execute("insert into $seqname values($start)");
 	}
 
-	function SetTransactionMode($transaction_mode)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SetTransactionMode($transaction_mode)
 	{
 		$parent = $this->pdoDriver;
 		$parent->_transmode = strtoupper($transaction_mode);
 	}
 
-	function BeginTrans()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function BeginTrans()
 	{
 		$parent = $this->pdoDriver;
 		if ($parent->transOff) return true;
@@ -119,35 +241,73 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		return $parent->Execute("BEGIN {$parent->_transmode}");
 	}
 
-	function CommitTrans($ok=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CommitTrans($ok=true)
 	{
 		$parent = $this->pdoDriver;
 		if ($parent->transOff) return true;
 		if (!$ok) return $parent->RollbackTrans();
 		if ($parent->transCnt) $parent->transCnt -= 1;
 		$parent->_autocommit = true;
-
 		$ret = $parent->Execute('COMMIT');
 		return $ret;
 	}
 
-	function RollbackTrans()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RollbackTrans()
 	{
 		$parent = $this->pdoDriver;
 		if ($parent->transOff) return true;
 		if ($parent->transCnt) $parent->transCnt -= 1;
 		$parent->_autocommit = true;
-
 		$ret = $parent->Execute('ROLLBACK');
 		return $ret;
 	}
-
-
     // mark newnham
-	function MetaColumns($tab,$normalize=true)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaColumns($tab,$normalize=true)
 	{
 	  global $ADODB_FETCH_MODE;
-
 	  $parent = $this->pdoDriver;
 	  $false = false;
 	  $save = $ADODB_FETCH_MODE;
@@ -182,18 +342,29 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	  return $arr;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$parent = $this->pdoDriver;
-
 		if ($mask) {
 			$save = $this->metaTablesSQL;
 			$mask = $this->qstr(strtoupper($mask));
 			$this->metaTablesSQL .= " AND name LIKE $mask";
 		}
-
 		$ret = $parent->GetCol($this->metaTablesSQL);
-
 		if ($mask) {
 			$this->metaTablesSQL = $save;
 		}

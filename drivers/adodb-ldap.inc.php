@@ -1,69 +1,115 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
   V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
    Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
   Set tabs to 8.
-
   Revision 1: (02/25/2005) Updated codebase to include the _inject_bind_options function. This allows
   users to access the options in the ldap_set_option function appropriately. Most importantly
   LDAP Version 3 is now supported. See the examples for more information. Also fixed some minor
   bugs that surfaced when PHP error levels were set high.
-
   Joshua Eldridge (joshuae74#hotmail.com)
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
 if (!defined('LDAP_ASSOC')) {
 	define('LDAP_ASSOC',ADODB_FETCH_ASSOC);
 	define('LDAP_NUM',ADODB_FETCH_NUM);
 	define('LDAP_BOTH',ADODB_FETCH_BOTH);
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_ldap extends ADOConnection {
 	var $databaseType = 'ldap';
 	var $dataProvider = 'ldap';
-
 	# Connection information
 	var $username = false;
 	var $password = false;
-
 	# Used during searches
 	var $filter;
 	var $dn;
 	var $version;
 	var $port = 389;
-
 	# Options configuration information
 	var $LDAP_CONNECT_OPTIONS;
-
 	# error on binding, eg. "Binding: invalid credentials"
 	var $_bind_errmsg = "Binding: %s";
 
-	function ADODB_ldap()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADODB_ldap()
 	{
 	}
-
 	// returns true or false
 
-	function _connect( $host, $username, $password, $ldapbase)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _connect( $host, $username, $password, $ldapbase)
 	{
 		global $LDAP_CONNECT_OPTIONS;
-
 		if ( !function_exists( 'ldap_connect' ) ) return null;
-
 		if (strpos($host,'ldap://') === 0 || strpos($host,'ldaps://') === 0) {
 			$this->_connectionID = @ldap_connect($host);
 		} else {
 			$conn_info = array( $host,$this->port);
-
 			if ( strstr( $host, ':' ) ) {
 				$conn_info = explode( ':', $host );
 			}
-
 			$this->_connectionID = @ldap_connect( $conn_info[0], $conn_info[1] );
 		}
 		if (!$this->_connectionID) {
@@ -75,14 +121,12 @@ class ADODB_ldap extends ADOConnection {
 		if( count( $LDAP_CONNECT_OPTIONS ) > 0 ) {
 			$this->_inject_bind_options( $LDAP_CONNECT_OPTIONS );
 		}
-
 		if ($username) {
 			$bind = @ldap_bind( $this->_connectionID, $username, $password );
 		} else {
 			$username = 'anonymous';
 			$bind = @ldap_bind( $this->_connectionID );
 		}
-
 		if (!$bind) {
 			$e = sprintf($this->_bind_errmsg,ldap_error($this->_connectionID));
 			$this->_errorMsg = $e;
@@ -93,10 +137,8 @@ class ADODB_ldap extends ADOConnection {
 		$this->database = $ldapbase;
 		return $this->_connectionID;
 	}
-
 /*
 	Valid Domain Values for LDAP Options:
-
 	LDAP_OPT_DEREF (integer)
 	LDAP_OPT_SIZELIMIT (integer)
 	LDAP_OPT_TIMELIMIT (integer)
@@ -109,11 +151,8 @@ class ADODB_ldap extends ADOConnection {
 	LDAP_OPT_MATCHED_DN (string)
 	LDAP_OPT_SERVER_CONTROLS (array)
 	LDAP_OPT_CLIENT_CONTROLS (array)
-
 	Make sure to set this BEFORE calling Connect()
-
 	Example:
-
 	$LDAP_CONNECT_OPTIONS = Array(
 		Array (
 			"OPTION_NAME"=>LDAP_OPT_DEREF,
@@ -146,49 +185,146 @@ class ADODB_ldap extends ADOConnection {
 	);
 */
 
-	function _inject_bind_options( $options ) {
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _inject_bind_options( $options ) {
 		foreach( $options as $option ) {
 			ldap_set_option( $this->_connectionID, $option["OPTION_NAME"], $option["OPTION_VALUE"] )
 				or die( "Unable to set server option: " . $option["OPTION_NAME"] );
 		}
 	}
-
 	/* returns _queryID or false */
-	function _query($sql,$inputarr=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _query($sql,$inputarr=false)
 	{
 		$rs = @ldap_search( $this->_connectionID, $this->database, $sql );
 		$this->_errorMsg = ($rs) ? '' : 'Search error on '.$sql.': '.ldap_error($this->_connectionID);
 		return $rs;
 	}
 
-	function ErrorMsg()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ErrorMsg()
 	{
 		return $this->_errorMsg;
 	}
 
-	function ErrorNo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ErrorNo()
 	{
 		return @ldap_errno($this->_connectionID);
 	}
-
 	/* closes the LDAP connection */
-	function _close()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _close()
 	{
 		@ldap_close( $this->_connectionID );
 		$this->_connectionID = false;
 	}
 
-	function SelectDB($db) {
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectDB($db) {
 		$this->database = $db;
 		return true;
 	} // SelectDB
 
-	function ServerInfo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ServerInfo()
 	{
 		if( !empty( $this->version ) ) {
 			return $this->version;
 		}
-
 		$version = array();
 		/*
 		Determines how aliases are handled during search.
@@ -212,7 +348,6 @@ class ADODB_ldap extends ADOConnection {
 			case 3:
 				$version['LDAP_OPT_DEREF'] = 'LDAP_DEREF_ALWAYS';
 		}
-
 		/*
 		A limit on the number of entries to return from a search.
 		LDAP_NO_LIMIT (0) means no limit.
@@ -222,7 +357,6 @@ class ADODB_ldap extends ADOConnection {
 		if ( $version['LDAP_OPT_SIZELIMIT'] == 0 ) {
 			$version['LDAP_OPT_SIZELIMIT'] = 'LDAP_NO_LIMIT';
 		}
-
 		/*
 		A limit on the number of seconds to spend on a search.
 		LDAP_NO_LIMIT (0) means no limit.
@@ -232,7 +366,6 @@ class ADODB_ldap extends ADOConnection {
 		if ( $version['LDAP_OPT_TIMELIMIT'] == 0 ) {
 			$version['LDAP_OPT_TIMELIMIT'] = 'LDAP_NO_LIMIT';
 		}
-
 		/*
 		Determines whether the LDAP library automatically follows referrals returned by LDAP servers or not.
 		LDAP_OPT_ON
@@ -245,7 +378,6 @@ class ADODB_ldap extends ADOConnection {
 		} else {
 			$version['LDAP_OPT_REFERRALS'] = 'LDAP_OPT_ON';
 		}
-
 		/*
 		Determines whether LDAP I/O operations are automatically restarted if they abort prematurely.
 		LDAP_OPT_ON
@@ -258,7 +390,6 @@ class ADODB_ldap extends ADOConnection {
 		} else {
 			$version['LDAP_OPT_RESTART'] = 'LDAP_OPT_ON';
 		}
-
 		/*
 		This option indicates the version of the LDAP protocol used when communicating with the primary LDAP server.
 		LDAP_VERSION2 (2)
@@ -271,28 +402,48 @@ class ADODB_ldap extends ADOConnection {
 		} else {
 			$version['LDAP_OPT_PROTOCOL_VERSION'] = 'LDAP_VERSION3';
 		}
-
 		/* The host name (or list of hosts) for the primary LDAP server. */
 		ldap_get_option( $this->_connectionID, LDAP_OPT_HOST_NAME, $version['LDAP_OPT_HOST_NAME'] );
 		ldap_get_option( $this->_connectionID, LDAP_OPT_ERROR_NUMBER, $version['LDAP_OPT_ERROR_NUMBER'] );
 		ldap_get_option( $this->_connectionID, LDAP_OPT_ERROR_STRING, $version['LDAP_OPT_ERROR_STRING'] );
 		ldap_get_option( $this->_connectionID, LDAP_OPT_MATCHED_DN, $version['LDAP_OPT_MATCHED_DN'] );
-
 		return $this->version = $version;
 	}
 }
-
 /*--------------------------------------------------------------------------------------
 	Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_ldap extends ADORecordSet{
-
 	var $databaseType = "ldap";
 	var $canSeek = false;
 	var $_entryID; /* keeps track of the entry resource identifier */
 
-	function ADORecordSet_ldap($queryID,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordSet_ldap($queryID,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -312,11 +463,24 @@ class ADORecordSet_ldap extends ADORecordSet{
 			$this->fetchMode = LDAP_BOTH;
 			break;
 		}
-
 		$this->ADORecordSet($queryID);
 	}
 
-	function _initrs()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _initrs()
 	{
 		/*
 		This could be teaked to respect the $COUNTRECS directive from ADODB
@@ -325,11 +489,25 @@ class ADORecordSet_ldap extends ADORecordSet{
 		*/
 		$this->_numOfRows = ldap_count_entries( $this->connection->_connectionID, $this->_queryID );
 	}
-
 	/*
 	Return whole recordset as a multi-dimensional associative array
 	*/
-	function GetAssoc($force_array = false, $first2cols = false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GetAssoc($force_array = false, $first2cols = false)
 	{
 		$records = $this->_numOfRows;
 		$results = array();
@@ -345,11 +523,24 @@ class ADORecordSet_ldap extends ADORecordSet{
 				}
 			}
 		}
-
 		return $results;
 	}
 
-	function GetRowAssoc()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GetRowAssoc()
 	{
 		$results = array();
 		foreach ( $this->fields as $k=>$v ) {
@@ -362,11 +553,24 @@ class ADORecordSet_ldap extends ADORecordSet{
 				}
 			}
 		}
-
 		return $results;
 	}
 
-	function GetRowNums()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GetRowNums()
 	{
 		$results = array();
 		foreach ( $this->fields as $k=>$v ) {
@@ -384,43 +588,63 @@ class ADORecordSet_ldap extends ADORecordSet{
 		return $results;
 	}
 
-	function _fetch()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _fetch()
 	{
 		if ( $this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0 ) {
 			return false;
 		}
-
 		if ( $this->_currentRow == 0 ) {
 			$this->_entryID = ldap_first_entry( $this->connection->_connectionID, $this->_queryID );
 		} else {
 			$this->_entryID = ldap_next_entry( $this->connection->_connectionID, $this->_entryID );
 		}
-
 		$this->fields = ldap_get_attributes( $this->connection->_connectionID, $this->_entryID );
 		$this->_numOfFields = $this->fields['count'];
-
 		switch ( $this->fetchMode ) {
-
 			case LDAP_ASSOC:
 				$this->fields = $this->GetRowAssoc();
 				break;
-
 			case LDAP_NUM:
 				$this->fields = array_merge($this->GetRowNums(),$this->GetRowAssoc());
 				break;
-
 			case LDAP_BOTH:
 			default:
 				$this->fields = $this->GetRowNums();
 				break;
 		}
-
 		return is_array( $this->fields );
 	}
 
-	function _close() {
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _close() {
 		@ldap_free_result( $this->_queryID );
 		$this->_queryID = false;
 	}
-
 }

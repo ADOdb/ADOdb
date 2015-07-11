@@ -1,5 +1,24 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
  * @version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
@@ -12,11 +31,19 @@
  *
  * Exception-handling code using PHP5 exceptions (try-catch-throw).
  */
-
-
 if (!defined('ADODB_ERROR_HANDLER_TYPE')) define('ADODB_ERROR_HANDLER_TYPE',E_USER_ERROR);
 define('ADODB_ERROR_HANDLER','adodb_throw');
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_Exception extends Exception {
 var $dbms;
 var $fn;
@@ -25,7 +52,21 @@ var $params = '';
 var $host = '';
 var $database = '';
 
-	function __construct($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function __construct($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
 	{
 		switch($fn) {
 		case 'EXECUTE':
@@ -33,7 +74,6 @@ var $database = '';
 			$this->params = $p2;
 			$s = "$dbms error: [$errno: $errmsg] in $fn(\"$this->sql\")\n";
 			break;
-
 		case 'PCONNECT':
 		case 'CONNECT':
 			$user = $thisConnection->user;
@@ -43,7 +83,6 @@ var $database = '';
 			$s = "$dbms error: [$errno: $errmsg] in $fn($p1, $p2)\n";
 			break;
 		}
-
 		$this->dbms = $dbms;
 		if ($thisConnection) {
 			$this->host = $thisConnection->host;
@@ -51,12 +90,10 @@ var $database = '';
 		}
 		$this->fn = $fn;
 		$this->msg = $errmsg;
-
 		if (!is_numeric($errno)) $errno = -1;
 		parent::__construct($s,$errno);
 	}
 }
-
 /**
 * Default Error Handler. This will be called with the following params
 *
@@ -68,10 +105,23 @@ var $database = '';
 * @param $P2		$fn specific parameter - see below
 */
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_throw($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
 {
 global $ADODB_EXCEPTION;
-
 	if (error_reporting() == 0) return; // obey @ protocol
 	if (is_string($ADODB_EXCEPTION)) $errfn = $ADODB_EXCEPTION;
 	else $errfn = 'ADODB_EXCEPTION';

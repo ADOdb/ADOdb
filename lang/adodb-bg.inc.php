@@ -1,9 +1,28 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 	Bulgarian language, v1.0, 25.03.2004, encoding by UTF-8 charset
 	contributed by Valentin Sheiretsky <valio#valio.eu.org>
 */
-
 $ADODB_LANG_ARRAY = array (
             'LANG'                      => 'bg',
             DB_ERROR                    => 'неизвестна грешка',

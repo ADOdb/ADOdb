@@ -1,11 +1,31 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
  V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
   Set tabs to 8.
-
   Original version derived from Alberto Cerezal (acerezalp@dbnet.es) - DBNet Informatica & Comunicaciones.
   08 Nov 2000 jlim - Minor corrections, removing mysql stuff
   09 Nov 2000 jlim - added insertid support suggested by "Christopher Kings-Lynne" <chriskl@familyhealth.com.au>
@@ -16,12 +36,9 @@
   15 Dec 2000 jlim - added changes suggested by Additional code changes by "Eric G. Werk" egw@netguide.dk.
   31 Jan 2002 jlim - finally installed postgresql. testing
   01 Mar 2001 jlim - Freek Dijkstra changes, also support for text type
-
   See http://www.varlena.com/varlena/GeneralBits/47.php
-
 	-- What indexes are on my table?
 	select * from pg_indexes where tablename = 'tablename';
-
 	-- What triggers are on my table?
 	select c.relname as "Table", t.tgname as "Trigger Name",
 	   t.tgconstrname as "Constraint Name", t.tgenabled as "Enabled",
@@ -31,7 +48,6 @@
 	where t.tgfoid = p.oid and t.tgrelid = c.oid
 	   and t.tgconstrrelid = cc.oid
 	   and c.relname = 'tablename';
-
 	-- What constraints are on my table?
 	select r.relname as "Table", c.conname as "Constraint Name",
 	   contype as "Constraint Type", conkey as "Key Columns",
@@ -39,21 +55,42 @@
 	from pg_class r, pg_constraint c
 	where r.oid = c.conrelid
 	   and relname = 'tablename';
-
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function adodb_addslashes($s)
 {
 	$len = strlen($s);
 	if ($len == 0) return "''";
 	if (strncmp($s,"'",1) === 0 && substr($s,$len-1) == "'") return $s; // already quoted
-
 	return "'".addslashes($s)."'";
 }
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_postgres64 extends ADOConnection{
 	var $databaseType = 'postgres64';
 	var $dataProvider = 'postgres';
@@ -75,7 +112,6 @@ class ADODB_postgres64 extends ADOConnection{
 		FROM pg_class c, pg_attribute a,pg_type t
 		WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s')) and a.attname not like '....%%'
 		AND a.attnum > 0 AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
-
 	// used when schema defined
 	var $metaColumnsSQL1 = "SELECT a.attname, t.typname, a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
 		FROM pg_class c, pg_attribute a, pg_type t, pg_namespace n
@@ -83,14 +119,12 @@ class ADODB_postgres64 extends ADOConnection{
 		and c.relnamespace=n.oid and n.nspname='%s'
 		and a.attname not like '....%%' AND a.attnum > 0
 		AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
-
 	// get primary key etc -- from Freek Dijkstra
 	var $metaKeySQL = "SELECT ic.relname AS index_name, a.attname AS column_name,i.indisunique AS unique_key, i.indisprimary AS primary_key
 		FROM pg_class bc, pg_class ic, pg_index i, pg_attribute a
 		WHERE bc.oid = i.indrelid AND ic.oid = i.indexrelid
 		AND (i.indkey[0] = a.attnum OR i.indkey[1] = a.attnum OR i.indkey[2] = a.attnum OR i.indkey[3] = a.attnum OR i.indkey[4] = a.attnum OR i.indkey[5] = a.attnum OR i.indkey[6] = a.attnum OR i.indkey[7] = a.attnum)
 		AND a.attrelid = bc.oid AND bc.relname = '%s'";
-
 	var $hasAffectedRows = true;
 	var $hasLimit = false;	// set to true for pgsql 7 only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
 	// below suggested by Freek Dijkstra
@@ -107,13 +141,10 @@ class ADODB_postgres64 extends ADOConnection{
 	var $random = 'random()';		/// random function
 	var $autoRollback = true; // apparently pgsql does not autorollback properly before php 4.3.4
 							// http://bugs.php.net/bug.php?id=25404
-
 	var $uniqueIisR = true;
 	var $_bindInputArray = false; // requires postgresql 7.3+ and ability to modify database
 	var $disableBlobs = false; // set to true to disable blob checking, resulting in 2-5% improvement in performance.
-
 	var $_pnum = 0;
-
 	// The last (fmtTimeStamp is not entirely correct:
 	// PostgreSQL also has support for time zones,
 	// and writes these time in this format: "2001-03-01 18:59:26+02".
@@ -122,28 +153,83 @@ class ADODB_postgres64 extends ADOConnection{
 	// to know what the concequences are. The other values are correct (wheren't in 0.94)
 	// -- Freek Dijkstra
 
-	function __construct()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function __construct()
 	{
 		// changes the metaColumnsSQL, adds columns: attnum[6]
 	}
 
-	function ServerInfo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ServerInfo()
 	{
 		if (isset($this->version)) return $this->version;
-
 		$arr['description'] = $this->GetOne("select version()");
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		$this->version = $arr;
 		return $arr;
 	}
 
-	function IfNull( $field, $ifNull )
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function IfNull( $field, $ifNull )
 	{
 		return " coalesce($field, $ifNull) ";
 	}
-
 	// get the last id - never tested
-	function pg_insert_id($tablename,$fieldname)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function pg_insert_id($tablename,$fieldname)
 	{
 		$result=pg_query($this->_connectionID, 'SELECT last_value FROM '. $tablename .'_'. $fieldname .'_seq');
 		if ($result) {
@@ -153,14 +239,28 @@ class ADODB_postgres64 extends ADOConnection{
 		}
 		return false;
 	}
-
 	/**
 	 * Warning from http://www.php.net/manual/function.pg-getlastoid.php:
 	 * Using a OID as a unique identifier is not generally wise.
 	 * Unless you are very careful, you might end up with a tuple having
 	 * a different OID if a database must be reloaded.
 	 */
-	function _insertid($table,$column)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _insertid($table,$column)
 	{
 		if (!is_resource($this->_resultid) || get_resource_type($this->_resultid) !== 'pgsql result') return false;
 		$oid = pg_getlastoid($this->_resultid);
@@ -168,48 +268,130 @@ class ADODB_postgres64 extends ADOConnection{
 		return empty($table) || empty($column) ? $oid : $this->GetOne("SELECT $column FROM $table WHERE oid=".(int)$oid);
 	}
 
-	function _affectedrows()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _affectedrows()
 	{
 		if (!is_resource($this->_resultid) || get_resource_type($this->_resultid) !== 'pgsql result') return false;
 		return pg_affected_rows($this->_resultid);
 	}
-
-
 	/**
 	 * @return true/false
 	 */
-	function BeginTrans()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function BeginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
 		return pg_query($this->_connectionID, 'begin '.$this->_transmode);
 	}
 
-	function RowLock($tables,$where,$col='1 as adodbignore')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RowLock($tables,$where,$col='1 as adodbignore')
 	{
 		if (!$this->transCnt) $this->BeginTrans();
 		return $this->GetOne("select $col from $tables where $where for update");
 	}
-
 	// returns true/false.
-	function CommitTrans($ok=true)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CommitTrans($ok=true)
 	{
 		if ($this->transOff) return true;
 		if (!$ok) return $this->RollbackTrans();
-
 		$this->transCnt -= 1;
 		return pg_query($this->_connectionID, 'commit');
 	}
-
 	// returns true/false
-	function RollbackTrans()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RollbackTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt -= 1;
 		return pg_query($this->_connectionID, 'rollback');
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$info = $this->ServerInfo();
 		if ($info['version'] >= 7.3) {
@@ -233,19 +415,30 @@ class ADODB_postgres64 extends ADOConnection{
 					select viewname,'V' from pg_views where viewname like $mask";
 		}
 		$ret = ADOConnection::MetaTables($ttype,$showSchema);
-
 		if ($mask) {
 			$this->metaTablesSQL = $save;
 		}
 		return $ret;
 	}
-
-
 	// if magic quotes disabled, use pg_escape_string()
-	function qstr($s,$magic_quotes=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function qstr($s,$magic_quotes=false)
 	{
 		if (is_bool($s)) return $s ? 'true' : 'false';
-
 		if (!$magic_quotes) {
 			if (ADODB_PHPVER >= 0x5200 && $this->_connectionID) {
 				return  "'".pg_escape_string($this->_connectionID,$s)."'";
@@ -258,20 +451,30 @@ class ADODB_postgres64 extends ADOConnection{
 			}
 			return  "'".str_replace("'",$this->replaceQuote,$s)."'";
 		}
-
 		// undo magic quotes for "
 		$s = str_replace('\\"','"',$s);
 		return "'$s'";
 	}
-
-
-
 	// Format date column in sql string given an input format that understands Y M D
-	function SQLDate($fmt, $col=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SQLDate($fmt, $col=false)
 	{
 		if (!$col) $col = $this->sysTimeStamp;
 		$s = 'TO_CHAR('.$col.",'";
-
 		$len = strlen($fmt);
 		for ($i=0; $i < $len; $i++) {
 			$ch = $fmt[$i];
@@ -284,11 +487,9 @@ class ADODB_postgres64 extends ADOConnection{
 			case 'q':
 				$s .= 'Q';
 				break;
-
 			case 'M':
 				$s .= 'Mon';
 				break;
-
 			case 'm':
 				$s .= 'MM';
 				break;
@@ -296,40 +497,31 @@ class ADODB_postgres64 extends ADOConnection{
 			case 'd':
 				$s .= 'DD';
 				break;
-
 			case 'H':
 				$s.= 'HH24';
 				break;
-
 			case 'h':
 				$s .= 'HH';
 				break;
-
 			case 'i':
 				$s .= 'MI';
 				break;
-
 			case 's':
 				$s .= 'SS';
 				break;
-
 			case 'a':
 			case 'A':
 				$s .= 'AM';
 				break;
-
 			case 'w':
 				$s .= 'D';
 				break;
-
 			case 'l':
 				$s .= 'DAY';
 				break;
-
 			case 'W':
 				$s .= 'WW';
 				break;
-
 			default:
 			// handle escape characters...
 				if ($ch == '\\') {
@@ -338,14 +530,10 @@ class ADODB_postgres64 extends ADOConnection{
 				}
 				if (strpos('-/.:;, ',$ch) !== false) $s .= $ch;
 				else $s .= '"'.$ch.'"';
-
 			}
 		}
 		return $s. "')";
 	}
-
-
-
 	/*
 	* Load a Large Object from a file
 	* - the procedure stores the object id in the table and imports the object using
@@ -354,26 +542,37 @@ class ADODB_postgres64 extends ADOConnection{
 	* contributed by Mattia Rossi mattia@technologist.com
 	* modified for safe mode by juraj chlebec
 	*/
-	function UpdateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function UpdateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
 	{
 		pg_query($this->_connectionID, 'begin');
-
 		$fd = fopen($path,'r');
 		$contents = fread($fd,filesize($path));
 		fclose($fd);
-
 		$oid = pg_lo_create($this->_connectionID);
 		$handle = pg_lo_open($this->_connectionID, $oid, 'w');
 		pg_lo_write($handle, $contents);
 		pg_lo_close($handle);
-
 		// $oid = pg_lo_import ($path);
 		pg_query($this->_connectionID, 'commit');
 		$rs = ADOConnection::UpdateBlob($table,$column,$oid,$where,$blobtype);
 		$rez = !empty($rs);
 		return $rez;
 	}
-
 	/*
 	* Deletes/Unlinks a Blob from the database, otherwise it
 	* will be left behind
@@ -382,23 +581,51 @@ class ADODB_postgres64 extends ADOConnection{
 	*
 	* contributed by Todd Rogers todd#windfox.net
 	*/
-	function BlobDelete( $blob )
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function BlobDelete( $blob )
 	{
 		pg_query($this->_connectionID, 'begin');
 		$result = @pg_lo_unlink($blob);
 		pg_query($this->_connectionID, 'commit');
 		return( $result );
 	}
-
 	/*
 		Hueristic - not guaranteed to work.
 	*/
-	function GuessOID($oid)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GuessOID($oid)
 	{
 		if (strlen($oid)>16) return false;
 		return is_numeric($oid);
 	}
-
 	/*
 	* If an OID is detected, then we use pg_lo_* to open the oid file and read the
 	* real blob from the db using the oid supplied as a parameter. If you are storing
@@ -411,10 +638,24 @@ class ADODB_postgres64 extends ADOConnection{
 	* Since adodb 4.54, this returns the blob, instead of sending it to stdout. Also
 	* added maxsize parameter, which defaults to $db->maxblobsize if not defined.
 	*/
-	function BlobDecode($blob,$maxsize=false,$hastrans=true)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function BlobDecode($blob,$maxsize=false,$hastrans=true)
 	{
 		if (!$this->GuessOID($blob)) return $blob;
-
 		if ($hastrans) pg_query($this->_connectionID,'begin');
 		$fd = @pg_lo_open($this->_connectionID,$blob,'r');
 		if ($fd === false) {
@@ -427,29 +668,54 @@ class ADODB_postgres64 extends ADOConnection{
 		if ($hastrans) pg_query($this->_connectionID,'commit');
 		return $realblob;
 	}
-
 	/*
 		See http://www.postgresql.org/idocs/index.php?datatype-binary.html
-
 		NOTE: SQL string literals (input strings) must be preceded with two backslashes
 		due to the fact that they must pass through two parsers in the PostgreSQL
 		backend.
 	*/
-	function BlobEncode($blob)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function BlobEncode($blob)
 	{
 		if (ADODB_PHPVER >= 0x5200) return pg_escape_bytea($this->_connectionID, $blob);
 		if (ADODB_PHPVER >= 0x4200) return pg_escape_bytea($blob);
-
 		/*92=backslash, 0=null, 39=single-quote*/
 		$badch = array(chr(92),chr(0),chr(39)); # \  null  '
 		$fixch = array('\\\\134','\\\\000','\\\\047');
 		return adodb_str_replace($badch,$fixch,$blob);
-
 		// note that there is a pg_escape_bytea function only for php 4.2.0 or later
 	}
-
 	// assumes bytea for blob, and varchar for clob
-	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
 		if ($blobtype == 'CLOB') {
 			return $this->Execute("UPDATE $table SET $column=" . $this->qstr($val) . " WHERE $where");
@@ -458,7 +724,21 @@ class ADODB_postgres64 extends ADOConnection{
 		return $this->Execute("UPDATE $table SET $column='".$this->BlobEncode($val)."'::bytea WHERE $where");
 	}
 
-	function OffsetDate($dayFraction,$date=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function OffsetDate($dayFraction,$date=false)
 	{
 		if (!$date) $date = $this->sysDate;
 		else if (strncmp($date,"'",1) == 0) {
@@ -466,12 +746,9 @@ class ADODB_postgres64 extends ADOConnection{
 			if (10 <= $len && $len <= 12) $date = 'date '.$date;
 			else $date = 'timestamp '.$date;
 		}
-
-
 		return "($date+interval'".($dayFraction * 1440)." minutes')";
 		#return "($date+interval'$dayFraction days')";
 	}
-
 	/**
 	 * Generate the SQL to retrieve MetaColumns data
 	 * @param string $table Table name
@@ -487,28 +764,37 @@ class ADODB_postgres64 extends ADOConnection{
 			return sprintf($this->metaColumnsSQL, $table, $table, $schema);
 		}
 	}
-
 	// for schema support, pass in the $table param "$schema.$tabname".
 	// converts field names to lowercase, $upper is ignored
 	// see http://phplens.com/lens/lensforum/msgs.php?id=14018 for more info
-	function MetaColumns($table,$normalize=true)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaColumns($table,$normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
-
 		$schema = false;
 		$false = false;
 		$this->_findschema($table,$schema);
-
 		if ($normalize) $table = strtolower($table);
-
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
-
 		$rs = $this->Execute($this->_generateMetaColumnsSQL($table, $schema));
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
-
 		if ($rs === false) {
 			return $false;
 		}
@@ -517,19 +803,15 @@ class ADODB_postgres64 extends ADOConnection{
 			// Of course, a modified version of the metaColumnsSQL query using a
 			// LEFT JOIN would have been much more elegant, but postgres does
 			// not support OUTER JOINS. So here is the clumsy way.
-
 			$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-
 			$rskey = $this->Execute(sprintf($this->metaKeySQL,($table)));
 			// fetch all result in once for performance.
 			$keys = $rskey->GetArray();
 			if (isset($savem)) $this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
-
 			$rskey->Close();
 			unset($rskey);
 		}
-
 		$rsdefa = array();
 		if (!empty($this->metaDefaultsSQL)) {
 			$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
@@ -537,7 +819,6 @@ class ADODB_postgres64 extends ADOConnection{
 			$rsdef = $this->Execute($sql);
 			if (isset($savem)) $this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
-
 			if ($rsdef) {
 				while (!$rsdef->EOF) {
 					$num = $rsdef->fields['num'];
@@ -546,7 +827,6 @@ class ADODB_postgres64 extends ADOConnection{
 						$s = substr($s, 1);
 						$s = substr($s, 0, strlen($s) - 1);
 					}
-
 					$rsdefa[$num] = $s;
 					$rsdef->MoveNext();
 				}
@@ -555,7 +835,6 @@ class ADODB_postgres64 extends ADOConnection{
 			}
 			unset($rsdef);
 		}
-
 		$retarr = array();
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
@@ -563,7 +842,6 @@ class ADODB_postgres64 extends ADOConnection{
 			$fld->type = $rs->fields[1];
 			$fld->max_length = $rs->fields[2];
 			$fld->attnum = $rs->fields[6];
-
 			if ($fld->max_length <= 0) $fld->max_length = $rs->fields[3]-4;
 			if ($fld->max_length <= 0) $fld->max_length = -1;
 			if ($fld->type == 'numeric') {
@@ -576,11 +854,8 @@ class ADODB_postgres64 extends ADOConnection{
 			if ($fld->has_default) {
 				$fld->default_value = $rsdefa[$rs->fields[6]];
 			}
-
 			//Freek
 			$fld->not_null = $rs->fields[4] == 't';
-
-
 			// Freek
 			if (is_array($keys)) {
 				foreach($keys as $key) {
@@ -590,10 +865,8 @@ class ADODB_postgres64 extends ADOConnection{
 						$fld->unique = true; // What name is more compatible?
 				}
 			}
-
 			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;
 			else $retarr[($normalize) ? strtoupper($fld->name) : $fld->name] = $fld;
-
 			$rs->MoveNext();
 		}
 		$rs->Close();
@@ -601,10 +874,23 @@ class ADODB_postgres64 extends ADOConnection{
 			return  $false;
 		else
 			return $retarr;
-
 	}
 
-	function Param($name,$type='C')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Param($name,$type='C')
 	{
 		if ($name) {
 			$this->_pnum += 1;
@@ -615,13 +901,25 @@ class ADODB_postgres64 extends ADOConnection{
 		return '$'.$this->_pnum;
 	}
 
-	function MetaIndexes ($table, $primary = FALSE, $owner = false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaIndexes ($table, $primary = FALSE, $owner = false)
 	{
 		global $ADODB_FETCH_MODE;
-
 		$schema = false;
 		$this->_findschema($table,$schema);
-
 		if ($schema) { // requires pgsql 7.3+ - pg_namespace used.
 			$sql = '
 				SELECT c.relname as "Name", i.indisunique as "Unique", i.indkey as "Columns"
@@ -641,28 +939,23 @@ class ADODB_postgres64 extends ADOConnection{
 				JOIN pg_catalog.pg_class c2 ON c2.oid=i.indrelid
 				WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
 		}
-
 		if ($primary == FALSE) {
 			$sql .= ' AND i.indisprimary=false;';
 		}
-
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== FALSE) {
 			$savem = $this->SetFetchMode(FALSE);
 		}
-
 		$rs = $this->Execute(sprintf($sql,$table,$table,$schema));
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
 		}
 		$ADODB_FETCH_MODE = $save;
-
 		if (!is_object($rs)) {
 			$false = false;
 			return $false;
 		}
-
 		$col_names = $this->MetaColumnNames($table,true,true);
 		//3rd param is use attnum,
 		// see http://sourceforge.net/tracker/index.php?func=detail&aid=1451245&group_id=42718&atid=433976
@@ -672,7 +965,6 @@ class ADODB_postgres64 extends ADOConnection{
 			foreach (explode(' ', $row[2]) as $col) {
 				$columns[] = $col_names[$col];
 			}
-
 			$indexes[$row[0]] = array(
 				'unique' => ($row[1] == 't'),
 				'columns' => $columns
@@ -680,18 +972,30 @@ class ADODB_postgres64 extends ADOConnection{
 		}
 		return $indexes;
 	}
-
 	// returns true or false
 	//
 	// examples:
 	// 	$db->Connect("host=host1 user=user1 password=secret port=4341");
 	// 	$db->Connect('host1','user1','secret');
-	function _connect($str,$user='',$pwd='',$db='',$ctype=0)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _connect($str,$user='',$pwd='',$db='',$ctype=0)
 	{
 		if (!function_exists('pg_connect')) return null;
-
 		$this->_errorMsg = false;
-
 		if ($user || $pwd || $db) {
 			$user = adodb_addslashes($user);
 			$pwd = adodb_addslashes($pwd);
@@ -708,31 +1012,25 @@ class ADODB_postgres64 extends ADOConnection{
 			if ($pwd)  $str .= " password=".$pwd;
 			if ($db)   $str .= " dbname=".$db;
 		}
-
 		//if ($user) $linea = "user=$user host=$linea password=$pwd dbname=$db port=5432";
-
 		if ($ctype === 1) { // persistent
 			$this->_connectionID = pg_pconnect($str);
 		} else {
 			if ($ctype === -1) { // nconnect, we trick pgsql ext by changing the connection str
 				static $ncnt;
-
 				if (empty($ncnt)) $ncnt = 1;
 				else $ncnt += 1;
-
 				$str .= str_repeat(' ',$ncnt);
 			}
 			$this->_connectionID = pg_connect($str);
 		}
 		if ($this->_connectionID === false) return false;
 		$this->Execute("set datestyle='ISO'");
-
 		$info = $this->ServerInfo();
 		$this->pgVersion = (float) substr($info['version'],0,3);
 		if ($this->pgVersion >= 7.1) { // good till version 999
 			$this->_nestedSQL = true;
 		}
-
 		# PostgreSQL 9.0 changed the default output for bytea from 'escape' to 'hex'
 		# PHP does not handle 'hex' properly ('x74657374' is returned as 't657374')
 		# https://bugs.php.net/bug.php?id=59831 states this is in fact not a bug,
@@ -740,44 +1038,81 @@ class ADODB_postgres64 extends ADOConnection{
 		if (version_compare($info['version'], '9.0', '>=')) {
 			$this->Execute('set bytea_output=escape');
 		}
-
 		return true;
 	}
 
-	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName)
 	{
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName,-1);
 	}
-
 	// returns true or false
 	//
 	// examples:
 	// 	$db->PConnect("host=host1 user=user1 password=secret port=4341");
 	// 	$db->PConnect('host1','user1','secret');
-	function _pconnect($str,$user='',$pwd='',$db='')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _pconnect($str,$user='',$pwd='',$db='')
 	{
 		return $this->_connect($str,$user,$pwd,$db,1);
 	}
-
-
 	// returns queryID or false
-	function _query($sql,$inputarr=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _query($sql,$inputarr=false)
 	{
 		$this->_pnum = 0;
 		$this->_errorMsg = false;
 		if ($inputarr) {
 		/*
 			It appears that PREPARE/EXECUTE is slower for many queries.
-
 			For query executed 1000 times:
 			"select id,firstname,lastname from adoxyz
 				where firstname not like ? and lastname not like ? and id = ?"
-
 			with plan = 1.51861286163 secs
 			no plan =   1.26903700829 secs
 		*/
 			$plan = 'P'.md5($sql);
-
 			$execp = '';
 			foreach($inputarr as $v) {
 				if ($execp) $execp .= ',';
@@ -787,11 +1122,8 @@ class ADODB_postgres64 extends ADOConnection{
 					$execp .= $v;
 				}
 			}
-
 			if ($execp) $exsql = "EXECUTE $plan ($execp)";
 			else $exsql = "EXECUTE $plan";
-
-
 			$rez = @pg_execute($this->_connectionID,$exsql);
 			if (!$rez) {
 			# Perhaps plan does not exist? Prepare/compile plan.
@@ -833,18 +1165,45 @@ class ADODB_postgres64 extends ADOConnection{
 			$this->_resultid = $rez;
 			return true;
 		}
-
 		return $rez;
 	}
 
-	function _errconnect()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _errconnect()
 	{
 		if (defined('DB_ERROR_CONNECT_FAILED')) return DB_ERROR_CONNECT_FAILED;
 		else return 'Database connection failed';
 	}
-
 	/*	Returns: the last error message from previous database operation	*/
-	function ErrorMsg()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ErrorMsg()
 	{
 		if ($this->_errorMsg !== false) return $this->_errorMsg;
 		if (ADODB_PHPVER >= 0x4300) {
@@ -852,7 +1211,6 @@ class ADODB_postgres64 extends ADOConnection{
 				$this->_errorMsg = @pg_result_error($this->_resultid);
 				if ($this->_errorMsg) return $this->_errorMsg;
 			}
-
 			if (!empty($this->_connectionID)) {
 				$this->_errorMsg = @pg_last_error($this->_connectionID);
 			} else $this->_errorMsg = $this->_errconnect();
@@ -863,7 +1221,21 @@ class ADODB_postgres64 extends ADOConnection{
 		return $this->_errorMsg;
 	}
 
-	function ErrorNo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ErrorNo()
 	{
 		$e = $this->ErrorMsg();
 		if (strlen($e)) {
@@ -871,9 +1243,23 @@ class ADODB_postgres64 extends ADOConnection{
 		}
 		return 0;
 	}
-
 	// returns true or false
-	function _close()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _close()
 	{
 		if ($this->transCnt) $this->RollbackTrans();
 		if ($this->_resultid) {
@@ -884,37 +1270,85 @@ class ADODB_postgres64 extends ADOConnection{
 		$this->_connectionID = false;
 		return true;
 	}
-
-
 	/*
 	* Maximum size of C field
 	*/
-	function CharMax()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CharMax()
 	{
 		return 1000000000;  // should be 1 Gb?
 	}
-
 	/*
 	* Maximum size of X field
 	*/
-	function TextMax()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function TextMax()
 	{
 		return 1000000000; // should be 1 Gb?
 	}
-
-
 }
-
 /*--------------------------------------------------------------------------------------
 	Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordSet_postgres64 extends ADORecordSet{
 	var $_blobArr;
 	var $databaseType = "postgres64";
 	var $canSeek = true;
 
-	function __construct($queryID, $mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function __construct($queryID, $mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -924,18 +1358,30 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		{
 		case ADODB_FETCH_NUM: $this->fetchMode = PGSQL_NUM; break;
 		case ADODB_FETCH_ASSOC:$this->fetchMode = PGSQL_ASSOC; break;
-
 		case ADODB_FETCH_DEFAULT:
 		case ADODB_FETCH_BOTH:
 		default: $this->fetchMode = PGSQL_BOTH; break;
 		}
 		$this->adodbFetchMode = $mode;
-
 		// Parent's constructor
 		$this->ADORecordSet($queryID);
 	}
 
-	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
 		if ($this->fetchMode == PGSQL_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
 			return $this->fields;
@@ -944,14 +1390,26 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $row;
 	}
 
-
-	function _initrs()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _initrs()
 	{
 	global $ADODB_COUNTRECS;
 		$qid = $this->_queryID;
 		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($qid):-1;
 		$this->_numOfFields = @pg_num_fields($qid);
-
 		// cache types for blob decode check
 		// apparently pg_field_type actually performs an sql query on the database to get the type.
 		if (empty($this->connection->noBlobs))
@@ -961,12 +1419,25 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			}
 		}
 	}
-
 		/* Use associative array to get fields array */
-	function Fields($colname)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Fields($colname)
 	{
 		if ($this->fetchMode != PGSQL_NUM) return @$this->fields[$colname];
-
 		if (!$this->bind) {
 			$this->bind = array();
 			for ($i=0; $i < $this->_numOfFields; $i++) {
@@ -977,10 +1448,23 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-	function FetchField($off = 0)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function FetchField($off = 0)
 	{
 		// offsets begin at 0
-
 		$o= new ADOFieldObject();
 		$o->name = @pg_field_name($this->_queryID,$off);
 		$o->type = @pg_field_type($this->_queryID,$off);
@@ -988,19 +1472,61 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $o;
 	}
 
-	function _seek($row)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _seek($row)
 	{
 		return @pg_fetch_row($this->_queryID,$row);
 	}
 
-	function _decode($blob)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _decode($blob)
 	{
 		if ($blob === NULL) return NULL;
 //		eval('$realblob="'.adodb_str_replace(array('"','$'),array('\"','\$'),$blob).'";');
 		return pg_unescape_bytea($blob);
 	}
 
-	function _fixblobs()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _fixblobs()
 	{
 		if ($this->fetchMode == PGSQL_NUM || $this->fetchMode == PGSQL_BOTH) {
 			foreach($this->_blobArr as $k => $v) {
@@ -1013,9 +1539,23 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			}
 		}
 	}
-
 	// 10% speedup to move MoveNext to child class
-	function MoveNext()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MoveNext()
 	{
 		if (!$this->EOF) {
 			$this->_currentRow++;
@@ -1032,25 +1572,63 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return false;
 	}
 
-	function _fetch()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _fetch()
 	{
-
 		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0)
 			return false;
-
 		$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-
 		if ($this->fields && isset($this->_blobArr)) $this->_fixblobs();
-
 		return (is_array($this->fields));
 	}
 
-	function _close()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _close()
 	{
 		return @pg_free_result($this->_queryID);
 	}
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -1069,32 +1647,25 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				case 'INET':
 				case 'MACADDR':
 					if ($len <= $this->blobSize) return 'C';
-
 				case 'TEXT':
 					return 'X';
-
 				case 'IMAGE': // user defined type
 				case 'BLOB': // user defined type
 				case 'BIT':	// This is a bit string, not a single bit, so don't return 'L'
 				case 'VARBIT':
 				case 'BYTEA':
 					return 'B';
-
 				case 'BOOL':
 				case 'BOOLEAN':
 					return 'L';
-
 				case 'DATE':
 					return 'D';
-
-
 				case 'TIMESTAMP WITHOUT TIME ZONE':
 				case 'TIME':
 				case 'DATETIME':
 				case 'TIMESTAMP':
 				case 'TIMESTAMPTZ':
 					return 'T';
-
 				case 'SMALLINT':
 				case 'BIGINT':
 				case 'INTEGER':
@@ -1103,14 +1674,11 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				case 'INT2':
 					if (isset($fieldobj) &&
 				empty($fieldobj->primary_key) && (!$this->connection->uniqueIisR || empty($fieldobj->unique))) return 'I';
-
 				case 'OID':
 				case 'SERIAL':
 					return 'R';
-
 				default:
 					return 'N';
 			}
 	}
-
 }

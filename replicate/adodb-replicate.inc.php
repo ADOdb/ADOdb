@@ -1,49 +1,54 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 define('ADODB_REPLICATE',1.2);
-
 include_once(ADODB_DIR.'/adodb-datadict.inc.php');
-
 /*
 1.2		9 June 2009
 Minor patches
-
 1.1		8 June 2009
 Added $lastUpdateFld to replicatedata
 Added $rep->compat. If compat set to 1.0, then $lastUpdateFld not used during MergeData.
-
 1.0		Apr 2009
 Added support for MFFA
-
 0.9 	? 2008
 First release
-
-
 	Note: this code assumes that comments such as  / *    * / ar`e allowed which works with:
 	Note: this code assumes that comments such as  / *    * / are allowed which works with:
 		 mssql, postgresql, oracle, mssql
-
 	Replication engine to
 	 	- copy table structures and data from different databases (e.g. mysql to oracle)
 		  for replication purposes
 		- generate CREATE TABLE, CREATE INDEX, INSERT ... for installation scripts
-
 	Table Structure copying includes
 		- fields and limited subset of types
 		- optional default values
 		- indexes
 		- but not constraints
-
-
 	Two modes of data copy:
-
 	ReplicateData
 		- Copy from src to dest, with update of status of copy back to src,
 		  with configurable src SELECT where clause
-
 	MergeData
 		- Copy from src to dest based on last mod date field and/or copied flag field
-
 	Default settings are
 		- do not execute, generate sql ($rep->execute = false)
 		- do not delete records in dest table first ($rep->deleteFirst = false).
@@ -55,74 +60,99 @@ First release
 		- debugging turned off ($rep->debug = false)
 */
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_Replicate {
 	var $connSrc;
 	var $connDest;
-
 	var $connSrc2 = false;
 	var $connDest2 = false;
 	var $ddSrc;
 	var $ddDest;
-
 	var $execute = false;
 	var $debug = false;
 	var $deleteFirst = false;
 	var $commitReplicate = true; // commit at end of replicatedata
 	var $commitRecs = -1; // only commit at end of ReplicateData()
-
 	var $selFilter = false;
 	var $fieldFilter = false;
 	var $indexFilter = false;
 	var $updateFilter = false;
 	var $insertFilter = false;
 	var $updateSrcFn = false;
-
 	var $limitRecs = false;
-
 	var $neverAbort = true;
 	var $copyTableDefaults = false; // turn off because functions defined as defaults will not work when copied
 	var $errHandler = false; // name of error handler function, if used.
 	var $htmlSpecialChars = true; 	// if execute false, then output with htmlspecialchars enabled.
 									// Will autoconfigure itself. No need to modify
-
 	var $trgSuffix = '_mrgTr';
 	var $idxSuffix = '_mrgidx';
 	var $trLogic = '1 = 1';
 	var $datesAreTimeStamps = false;
-
 	var $oracleSequence = false;
 	var $readUncommitted = false;  // read without obeying shared locks for fast select (mssql)
-
 	var $compat = false;
 	// connSrc2 and connDest2 are only required if the db driver
 	// does not allow updates back to src db in first connection (the select connection),
 	// so we need 2nd connection
-	function ADODB_Replicate($connSrc, $connDest, $connSrc2=false, $connDest2=false)
-	{
 
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADODB_Replicate($connSrc, $connDest, $connSrc2=false, $connDest2=false)
+	{
 		if (strpos($connSrc->databaseType,'odbtp') !== false) {
 			$connSrc->_bindInputArray = false;  # bug in odbtp, binding fails
 		}
-
 		if (strpos($connDest->databaseType,'odbtp') !== false) {
 			$connDest->_bindInputArray = false;  # bug in odbtp, binding fails
 		}
-
 		$this->connSrc = $connSrc;
 		$this->connDest = $connDest;
-
 		$this->connSrc2 = ($connSrc2) ? $connSrc2 : $connSrc;
 		$this->connDest2 = ($connDest2) ? $connDest2 : $connDest;
-
 		$this->ddSrc = NewDataDictionary($connSrc);
 		$this->ddDest = NewDataDictionary($connDest);
 		$this->htmlSpecialChars = isset($_SERVER['HTTP_HOST']);
 	}
 
-	function ExecSQL($sql)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ExecSQL($sql)
 	{
 		if (!is_array($sql)) $sql[] = $sql;
-
 		$ret = true;
 		foreach($sql as $s)
 			if (!$this->execute) echo "<pre>",$s.";\n</pre>";
@@ -132,24 +162,49 @@ class ADODB_Replicate {
 					if ($this->neverAbort) $ret = false;
 					else return false;
 			}
-
 		return $ret;
 	}
-
 	/*
 		We assume replication between $table and $desttable only works if the field names and types match for both tables.
-
 		Also $table and desttable can have different names.
 	*/
 
-	function CopyTableStruct($table,$desttable='')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CopyTableStruct($table,$desttable='')
 	{
 		$sql = $this->CopyTableStructSQL($table,$desttable);
 		if (empty($sql)) return false;
 		return $this->ExecSQL($sql);
 	}
 
-	function RunFieldFilter(&$fld, $mode = '')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RunFieldFilter(&$fld, $mode = '')
 	{
 		if ($this->fieldFilter) {
 			$fn = $this->fieldFilter;
@@ -158,7 +213,21 @@ class ADODB_Replicate {
 			return $fld;
 	}
 
-	function RunUpdateFilter($table, $fld, $val)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RunUpdateFilter($table, $fld, $val)
 	{
 		if ($this->updateFilter) {
 			$fn = $this->updateFilter;
@@ -167,7 +236,21 @@ class ADODB_Replicate {
 			return $val;
 	}
 
-	function RunInsertFilter($table, $fld, &$val)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RunInsertFilter($table, $fld, &$val)
 	{
 		if ($this->insertFilter) {
 			$fn = $this->insertFilter;
@@ -175,24 +258,35 @@ class ADODB_Replicate {
 		} else
 			return $fld;
 	}
-
 	/*
 		$mode = INS or UPD
-
 		The lastUpdateFld holds the field that counts the number of updates or the date of last mod. This ensures that
 		if the rec was modified after replicatedata retrieves the data but before we update back the src record,
 		we don't set the copiedflag='Y' yet.
 	*/
-	function RunUpdateSrcFn($srcdb, $table, $fldoffsets, $row, $where, $mode, $dest_insertid=null, $lastUpdateFld='')
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RunUpdateSrcFn($srcdb, $table, $fldoffsets, $row, $where, $mode, $dest_insertid=null, $lastUpdateFld='')
 	{
 		if (!$this->updateSrcFn) return;
-
 		$bindarr = array();
 		foreach($fldoffsets as $k) {
 			$bindarr[$k] = $row[$k];
 		}
 		$last = sizeof($row);
-
 		if ($lastUpdateFld && $row[$last-1]) {
 			$ds = $row[$last-1];
 			if (strpos($ds,':') !== false) $s = $srcdb->DBTimeStamp($ds);
@@ -205,10 +299,8 @@ class ADODB_Replicate {
 			if (sizeof($fn) == 1) $set = reset($fn);
 			else $set = @$fn[$mode];
 			if ($set) {
-
 				if (strlen($dest_insertid) == 0) $dest_insertid = 'null';
 				$set = str_replace('$INSERT_ID',$dest_insertid,$set);
-
 				$sql = "UPDATE $table SET $set $where  ";
 				$ok = $srcdb->Execute($sql,$bindarr);
 				if (!$ok) {
@@ -217,17 +309,29 @@ class ADODB_Replicate {
 				}
 			}
 		} else $fn($srcdb, $table, $row, $where, $bindarr, $mode, $dest_insertid);
-
 	}
 
-	function CopyTableStructSQL($table, $desttable='',$dropdest =false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CopyTableStructSQL($table, $desttable='',$dropdest =false)
 	{
 		if (!$desttable) {
 			$desttable = $table;
 			$prefixidx = '';
 		} else
 			$prefixidx = $desttable;
-
 		$conn = $this->connSrc;
 		$types = $conn->MetaColumns($table);
 		if (!$types) {
@@ -241,22 +345,18 @@ class ADODB_Replicate {
 		if ($this->debug) var_dump($types);
 		$sa = array();
 		$idxcols = array();
-
 		foreach($types as $name => $t) {
 			$s = '';
 			$mt = $this->ddSrc->MetaType($t->type);
 			$len = $t->max_length;
 			$fldname = $this->RunFieldFilter($t->name,'TABLE');
 			if (!$fldname) continue;
-
 			$s .= $fldname . ' '.$mt;
 			if (isset($t->scale)) $precision = '.'.$t->scale;
 			else $precision = '';
 			if ($mt == 'C' or $mt == 'X') $s .= "($len)";
 			else if ($mt == 'N' && $precision) $s .= "($len$precision)";
-
 			if ($mt == 'R') $idxcols[] = $fldname;
-
 			if ($this->copyTableDefaults) {
 				if (isset($t->default_value)) {
 					$v = $t->default_value;
@@ -264,40 +364,30 @@ class ADODB_Replicate {
 					$s .= ' DEFAULT '.$v;
 				}
 			}
-
 			$sa[] = $s;
 		}
-
 		$s = implode(",\n",$sa);
-
 		// dump adodb intermediate data dictionary format
 		if ($this->debug) echo '<pre>'.$s.'</pre>';
-
 		$sqla =  $this->ddDest->CreateTableSQL($desttable,$s);
-
 		/*
 		if ($idxcols) {
 			$idxoptions = array('UNIQUE'=>1);
 			$sqla2 = $this->ddDest->_IndexSQL($table.'_'.$fldname.'_SERIAL', $desttable, $idxcols,$idxoptions);
 			$sqla = array_merge($sqla,$sqla2);
 		}*/
-
 		$idxs = $conn->MetaIndexes($table);
 		if ($idxs)
 		foreach($idxs as $name => $iarr) {
 			$idxoptions = array();
 			$fldnames = array();
-
 			if(!empty($iarr['unique'])) {
 				$idxoptions['UNIQUE'] = 1;
 			}
-
 			foreach($iarr['columns'] as $fld) {
 				$fldnames[] = $this->RunFieldFilter($fld,'TABLE');
 			}
-
 			$idxname = $prefixidx.str_replace($table,$desttable,$name);
-
 			if (!empty($this->indexFilter)) {
 				$fn = $this->indexFilter;
 				$idxname = $fn($desttable,$idxname,$fldnames,$idxoptions);
@@ -305,21 +395,61 @@ class ADODB_Replicate {
 			$sqla2 = $this->ddDest->_IndexSQL($idxname, $desttable, $fldnames,$idxoptions);
 			$sqla = array_merge($sqla,$sqla2);
 		}
-
 		return $sqla;
 	}
 
-	function _clearcache()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _clearcache()
 	{
-
 	}
 
-	function _concat($v)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _concat($v)
 	{
 		return $this->connDest->concat("' ","chr(".ord($v).")","'");
 	}
 
-	function fixupbinary($v)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function fixupbinary($v)
 	{
 		return str_replace(
 			array("\r","\n"),
@@ -327,51 +457,54 @@ class ADODB_Replicate {
 			$v );
 	}
 
-	function SwapDBs()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SwapDBs()
 	{
 		$o = $this->connSrc;
 		$this->connSrc = $this->connDest;
 		$this->connDest = $o;
-
-
 		$o = $this->connSrc2;
 		$this->connSrc2 = $this->connDest2;
 		$this->connDest2 = $o;
-
 		$o = $this->ddSrc;
 		$this->ddSrc = $this->ddDest;
 		$this->ddDest = $o;
 	}
-
 	/*
 	// if no uniqflds defined, then all desttable recs will be deleted before insert
 	// $where clause must include the WHERE word if used
 	// if $this->commitRecs is set to a +ve value, then it will autocommit every $this->commitRecs records
 	//		-- this should never be done with 7x24 db's
-
 	Returns an array:
 		$arr[0] =  true if no error, false if error
 		$arr[1] =  number of recs processed
 		$arr[2] = number of successful inserts
 		$arr[3] = number of successful updates
-
 	ReplicateData() params:
-
 	$table = src table name
 	$desttable = dest table name, leave blank to use src table name
 	$uniqflds = array() = an array. If set, then inserts and updates will occur. eg. array('PK1', 'PK2');
 		To prevent updates to desttable (allow only to src table), add '*INSERTONLY*' or '*ONLYINSERT*' to array.
-
 		Sometimes you are replicating a src table with an autoinc primary key.
 			You sometimes create recs in the dest table. The dest table has to retrieve the
 			src table's autoinc key (stored in a 2nd field) so you can match the two tables.
-
 		To define this, and the uniqflds contains nested arrays. Copying from autoinc table to other table:
 			array(array($destpkey), array($destfld_holds_src_autoinc_pkey))
-
 		Copying from normal table to autoinc table:
 			array(array($destpkey), array(), array($srcfld_holds_dest_autoinc_pkey))
-
 	$where = where clause for SELECT from $table $where. Include the WHERE reserved word in beginning.
 		You can put ORDER BY at the end also
 	$ignoreflds = array(), list of fields to ignore. e.g. array('FLD1',FLD2');
@@ -380,58 +513,37 @@ class ADODB_Replicate {
 		array(fldname => $fldval)
 		$fldval itself can be an array or a string. If an array, then
 		$extraflds = array($fldname => array($insertval, $updateval))
-
 	Thus we have the following behaviours:
-
 	a. Delete all data in $desttable then insert from src $table
-
 		$rep->execute = true;
 		$rep->ReplicateData($table, $desttable)
-
 	b. Update $desttable if record exists (based on $uniqflds), otherwise insert.
-
 		$rep->execute = true;
 		$rep->ReplicateData($table, $desttable, $array($pkey1, $pkey2))
-
 	c. Select from src $table all data modified since a date. Then update $desttable
 		if record exists (based on $uniqflds), otherwise insert
-
 		$rep->execute = true;
 		$rep->ReplicateData($table, $desttable, array($pkey1, $pkey2), "WHERE update_datetime_fld > $LAST_REFRESH")
-
 	d. Insert all records into $desttable modified after a certain id (or time) in src $table:
-
 		$rep->execute = true;
 		$rep->ReplicateData($table, $desttable, false, "WHERE id_fld > $LAST_ID_SAVED", true);
-
-
 	For (a) to (d), returns array: array($boolean_ok_fail, $no_recs_selected_from_src_db, $no_recs_inserted, $no_recs_updated);
-
 	e. Generate sample SQL:
-
 		$rep->execute = false;
 		$rep->ReplicateData(....);
-
 		This returns $array, which contains:
-
 			$array['SEL'] = select stmt from src db
 			$array['UPD'] = update stmt to dest db
 			$array['INS'] = insert stmt to dest db
-
-
 	Error-handling
 	==============
 	Default is never abort if error occurs. You can set $rep->neverAbort = false; to force replication to abort if an error occurs.
-
-
 	Value Filtering
 	========
 	Sometimes you might need to modify/massage the data before the code works. Assume that the value used for True and False is
 	'T' and 'F' in src DB, but is 'Y' and 'N' in dest DB for field[2] in select stmt. You can do this by
-
 		$rep->filterSelect = 'filter';
 		$rep->ReplicateData(...);
-
 		function filter($table,& $fields, $deleteFirst)
 		{
 			if ($table == 'SOMETABLE') {
@@ -439,20 +551,16 @@ class ADODB_Replicate {
 				else if ($fields[2] == 'F') $fields[2] = 'N';
 			}
 		}
-
 	We pass in $deleteFirst as that determines the order of the fields (which are numeric-based):
 		TRUE: the order of fields matches the src table order
 		FALSE: the order of fields is all non-primary key fields first, followed by primary key fields. This is because it needs
 				to match the UPDATE statement, which is UPDATE $table SET f2 = ?, f3 = ? ... WHERE f1 = ?
-
 	Name Filtering
 	=========
 	Sometimes field names that are legal in one RDBMS can be illegal in another.
 	We allow you to handle this using a field filter.
 	Also if you don't want to replicate certain fields, just return false.
-
 		$rep->fieldFilter = 'ffilter';
-
 			function ffilter(&$fld,$mode)
 			{
 				$uf = strtoupper($fld);
@@ -460,56 +568,38 @@ class ADODB_Replicate {
 					case 'GROUP':
 						if ($mode == 'SELECT') $fld = '"Group"';
 						return 'GroupFld';
-
 					case 'PRIVATEFLD':  # do not replicate
 						return false;
 				}
 				return $fld;
 			}
-
-
 	UPDATE FILTERING
 	================
 	Sometimes, when we want to update
 		UPDATE table SET fld = val WHERE ....
-
 	we want to modify val. To do so, define
-
 		$rep->updateFilter = 'ufilter';
-
 		function ufilter($table, $fld, $val)
 		{
 			return "nvl($fld, $val)";
 		}
-
-
 	Sending back audit info back to src Table
 	=========================================
-
 	Use $rep->updateSrcFn. This can be an array of strings, or the name of a php function to call.
-
 	If an array of strings is defined, then it will perform an update statement...
-
 		UPDATE srctable SET $string WHERE ....
-
 	With $string set to the array you define. If a new record was inserted into desttable, then the
 	'INS' string is used ($INSERT_ID will be replaced with the real INSERT_ID, if any),
 	and if an update then use the 'UPD' string.
-
 		array(
 			'INS' => 'insertid = $INSERT_ID, copieddate=getdate(), copied = 1',
 			'UPD' => 'copieddate=getdate(), copied = 1'
 		)
-
 	If a single string array is defined, then it will be used for both insert and update.
 		array('copieddate=getdate(), copied = 1')
-
 	Note that the where clause is automatically defined by the system.
-
 	If $rep->updateSrcFn is a PHP function name, then it will be called with the following params:
-
 		$fn($srcConnection, $tableName, $row, $where, $bindarr, $mode, $dest_insertid)
-
 	$srcConnection - source db connection
 	$tableName	- source tablename
 	$row - array holding records updated into dest
@@ -517,20 +607,29 @@ class ADODB_Replicate {
 	$bindarr - array holding bind variables for where clause
 	$mode - INS or UPD
 	$dest_insertid - when mode=INS, then the insert_id is stored here.
-
-
 		oracle  mssql
 		        ---> insert
 		mssqlid	<--- insert_id
 		       ----> update with mssqlid
 			   <---- update with mssqlid
-
-
 	TODO: add src pkey and dest pkey for updates. Also sql stmt needs to be tuned, so dest pkey, src pkey
 	*/
 
-
-	function ReplicateData($table, $desttable = '',  $uniqflds = array(), $where = '',$ignore_flds = array(),
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ReplicateData($table, $desttable = '',  $uniqflds = array(), $where = '',$ignore_flds = array(),
 		$dstCopyDateFld='', $extraflds = array(), $lastUpdateFld = '')
 	{
 		if (is_array($where)) {
@@ -541,11 +640,9 @@ class ADODB_Replicate {
 		}
 		$dstCopyDateName = $dstCopyDateFld;
 		$dstCopyDateFld = strtoupper($dstCopyDateFld);
-
 		$this->_clearcache();
 		if (is_string($uniqflds) && strlen($uniqflds)) $uniqflds = array($uniqflds);
 		if (!$desttable) $desttable = $table;
-
 		$uniq = array();
 		if ($uniqflds) {
 			if (is_array(reset($uniqflds))) {
@@ -559,10 +656,8 @@ class ADODB_Replicate {
 					$srcuniqflds = $uniqflds[1];
 				else
 					$srcuniqflds = array();
-
 				if (sizeof($uniqflds)>2)
 					$srcPKDest = reset($uniqflds[2]);
-
 			} else {
 				$destuniqflds = $uniqflds;
 				$srcuniqflds = array();
@@ -579,26 +674,20 @@ class ADODB_Replicate {
 		} else {
 			$deleteFirst = true;
 		}
-
 		if ($deleteFirst) $onlyInsert = true;
-
 		if ($ignore_flds) {
 			foreach($ignore_flds as $u) {
 				$ignoreflds[strtoupper($u)] = 1;
 			}
 		} else
 			$ignoreflds = array();
-
 		$src = $this->connSrc;
 		$dest = $this->connDest;
 		$src2 = $this->connSrc2;
-
 		$dest->noNullStrings = false;
 		$src->noNullStrings = false;
 		$src2->noNullStrings = false;
-
 		if ($src === $dest) $this->execute = false;
-
 		$types = $src->MetaColumns($table);
 		if (!$types) {
 			echo "Source $table does not exist<br>\n";
@@ -622,19 +711,15 @@ class ADODB_Replicate {
 			if ($name2 && $name2[0] == '"' && $name2[strlen($name2)-1] == '"') $name22 = substr($name2,1,strlen($name2)-2);
 			elseif ($name2 && $name2[0] == '`' && $name2[strlen($name2)-1] == '`') $name22 = substr($name2,1,strlen($name2)-2);
 			else $name22 = $name2;
-
 			//else $name22 = $name2; // this causes problem for quotes strip above
-
 			if (!isset($dtypes[($name22)]) || !$name2) {
 				if ($this->debug) echo " Skipping $name ==> $name2 as not in destination $desttable<br>";
 				continue;
 			}
-
 			if ($name2 == $dstCopyDateFld) {
 				$dstCopyDateName = $t->name;
 				continue;
 			}
-
 			$fld = $t->name;
 			$fldval = $t->name;
 			$mt = $src->MetaType($t->type);
@@ -642,27 +727,19 @@ class ADODB_Replicate {
 			if ($mt == 'D') $fldval = $dest->DBDate($fldval);
 			elseif ($mt == 'T') $fldval = $dest->DBTimeStamp($fldval);
 			$ufld = strtoupper($fld);
-
 			if (isset($ignoreflds[($name2)]) && !isset($uniq[$ufld])) {
 				continue;
 			}
-
 			if ($this->debug) echo " field=$fld type=$mt fldval=$fldval<br>";
-
 			if (!isset($uniq[$ufld])) {
-
 				$selfld = $fld;
 				$fld = $this->RunFieldFilter($selfld,'SELECT');
 				$selflds[] = $selfld;
-
 				$p = $dest->Param($k);
-
 				if ($mt == 'D') $p = $dest->DBDate($p, true);
 				else if ($mt == 'T') $p = $dest->DBTimeStamp($p, true);
-
 				# UPDATES
 				$sets[] = "$fld = ".$this->RunUpdateFilter($desttable, $fld, $p);
-
 				# INSERTS
 				$insflds[] = $this->RunInsertFilter($desttable,$fld, $p); $params[] = $p;
 				$k++;
@@ -675,34 +752,26 @@ class ADODB_Replicate {
 				}
 			}
 		}
-
-
 		foreach($extraflds as $fld => $evals) {
 			if (!is_array($evals)) $evals = array($evals, $evals);
 			$insflds[] = $this->RunInsertFilter($desttable,$fld, $p); $params[] = $evals[0];
 			$sets[] = "$fld = ".$evals[1];
 		}
-
 		if ($dstCopyDateFld) {
 			$sets[] = "$dstCopyDateName = ".$dest->sysTimeStamp;
 			$insflds[] = $this->RunInsertFilter($desttable,$dstCopyDateName, $p); $params[] = $dest->sysTimeStamp;
 		}
-
-
 		if (!empty($srcPKDest)) {
 			$selflds[] = $srcPKDest;
 			$fldoffsets = array($k+1);
 		}
-
 		foreach($wheref as $uu => $fld) {
-
 			$p = $dest->Param($k);
 			$sp = $src->Param($k);
 			if (!empty($srcuniqflds)) {
 				if ($uu > 1) die("Only one primary key for srcuniqflds allowed currently");
 				$destsrckey = reset($srcuniqflds);
 				$wheres[] = reset($srcuniqflds).' = '.$p;
-
 				$insflds[] = $this->RunInsertFilter($desttable,$destsrckey, $p);
 				$params[] = $p;
 			} else {
@@ -712,25 +781,20 @@ class ADODB_Replicate {
 					$params[] = $p;
 				}
 			}
-
 			$selflds[] = $fld;
 			$srcwheres[] = $fld.' = '.$sp;
 			$fldoffsets[] = $k;
-
 			$k++;
 		}
-
 		if (!empty($srcPKDest)) {
 			$fldoffsets = array($k);
 			$srcwheres = array($fld.'='.$src->Param($k));
 			$k++;
 		}
-
 		if ($lastUpdateFld) {
 			$selflds[] = $lastUpdateFld;
 		} else
 			$selflds[] = 'null as Z55_DUMMY_LA5TUPD';
-
 		$insfldss = implode(', ', $insflds);
 		$fldss = implode(', ', $selflds);
 		$setss = implode(', ', $sets);
@@ -738,20 +802,13 @@ class ADODB_Replicate {
 		$wheress = implode(' AND ', $wheres);
 		if (isset($srcwheres))
 			$srcwheress = implode(' AND ',$srcwheres);
-
-
 		$seltable = $table;
 		if ($this->readUncommitted && strpos($src->databaseType,'mssql')) $seltable .= ' with (NOLOCK)';
-
 		$sa['SEL'] = "SELECT $fldss FROM $seltable $wheresrc";
 		$sa['INS'] = "INSERT INTO $desttable ($insfldss) VALUES ($paramss) /**INS**/";
 		$sa['UPD'] = "UPDATE $desttable SET $setss WHERE $wheress /**UPD**/";
-
-
-
 		$DB1 = "/* <font color=green> Source DB - sample sql in case you need to adapt code\n\n";
 		$DB2 = "/* <font color=green> Dest DB - sample sql in case you need to adapt code\n\n";
-
 		if (!$this->execute) echo '/*<style>
 pre {
 white-space: pre-wrap; /* css-3 */
@@ -768,28 +825,22 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			if (!$this->execute) echo $DB2,'</font>*/',$sql,"\n";
 			else $dest->Execute($sql);
 		}
-
 		global $ADODB_COUNTRECS;
 		$err = false;
 		$savemode = $src->setFetchMode(ADODB_FETCH_NUM);
 		$ADODB_COUNTRECS = false;
-
 		if (!$this->execute) {
 			echo $DB1,$sa['SEL'],"</font>\n*/\n\n";
 			echo $DB2,$sa['INS'],"</font>\n*/\n\n";
 			$suffix = ($onlyInsert) ? ' PRIMKEY=?' : '';
 			echo $DB2,$sa['UPD'],"$suffix</font>\n*/\n\n";
-
 			$rs = $src->Execute($sa['SEL']);
 			$cnt = 1;
 			$upd = 0;
 			$ins = 0;
-
 			$sqlarr = explode('?',$sa['INS']);
 			$nparams = sizeof($sqlarr)-1;
-
 			$useQmark = $dest && ($dest->dataProvider != 'oci8');
-
 			while ($rs && !$rs->EOF) {
 				if ($useQmark) {
 					$sql = ''; $i = 0;
@@ -815,10 +866,8 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 						else
 							$sql .= $v;
 						$i += 1;
-
 						if ($i == $nparams) break;
 					} // while
-
 					if (isset($sqlarr[$i])) {
 						$sql .= $sqlarr[$i];
 					}
@@ -853,13 +902,10 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 				if ($this->errHandler) $this->_doerr('SEL',array());
 				return array(0,0,0,0);
 			}
-
-
 			if ($this->commitReplicate || $commitRecs > 0) {
 				$dest->BeginTrans();
 				if ($this->updateSrcFn) $src2->BeginTrans();
 			}
-
 			if ($this->updateSrcFn && strpos($src2->databaseType,'mssql') !== false) {
 				# problem is writers interfere with readers in mssql
 				$rs = $src->_rs2rs($rs);
@@ -867,29 +913,21 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			$cnt = 0;
 			$upd = 0;
 			$ins = 0;
-
 			$sizeofrow = sizeof($selflds);
-
 			$fn = $this->selFilter;
 			$commitRecs = $this->commitRecs;
-
 			$saved = $dest->debug;
-
 			if ($this->deleteFirst) $onlyInsert = true;
 			while ($origrow = $rs->FetchRow()) {
-
 				if ($dest->debug) {flush(); @ob_flush();}
-
 				if ($fn) {
 					if (!$fn($desttable, $origrow, $deleteFirst, $this, $selflds)) continue;
 				}
 				$doinsert = true;
 				$row = array_slice($origrow,0,$sizeofrow-1);
-
 				if (!$onlyInsert) {
 					$doinsert = false;
 					$upderr = false;
-
 					if (isset($srcPKDest)) {
 						if (is_null($origrow[$sizeofrow-3])) {
 							$doinsert = true;
@@ -902,7 +940,6 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 						if ($this->errHandler) $this->_doerr('UPD',$row);
 						if (!$this->neverAbort) break;
 					}
-
 				 	if ($upderr || $dest->Affected_Rows() == 0) {
 						$doinsert = true;
 					} else {
@@ -910,13 +947,11 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 						$upd += 1;
 					}
 				}
-
 				if ($doinsert) {
 					$inserr = false;
 					if (isset($srcPKDest)) {
 						$row = array_slice($origrow,0,$sizeofrow-2);
 					}
-
 					if (! $dest->Execute($sa['INS'],$row)) {
 						$err = true;
 						$inserr = true;
@@ -930,7 +965,6 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 						} else {
 							$lastid = $dest->Insert_ID();
 						}
-
 						if (!$inserr && !empty($uniqflds)) {
 							$this->RunUpdateSrcFn($src2, $table, $fldoffsets, $origrow, $srcwheress, 'INS', $lastid,$lastUpdateFld);
 						}
@@ -938,20 +972,15 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 					}
 				}
 				$cnt += 1;
-
 				if ($commitRecs > 0 && ($cnt % $commitRecs) == 0) {
 					$dest->CommitTrans();
 					$dest->BeginTrans();
-
 					if ($this->updateSrcFn) {
 						$src2->CommitTrans();
 						$src2->BeginTrans();
 					}
 				}
-
 			} // while
-
-
 			if ($this->commitReplicate || $commitRecs > 0) {
 				if (!$this->neverAbort && $err) {
 					$dest->RollbackTrans();
@@ -968,7 +997,22 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 	}
 	// trigger support only for sql server and oracle
 	// need to add
-	function MergeSrcSetup($srcTable,  $pkeys, $srcUpdateDateFld, $srcCopyDateFld, $srcCopyFlagFld,
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MergeSrcSetup($srcTable,  $pkeys, $srcUpdateDateFld, $srcCopyDateFld, $srcCopyFlagFld,
 		$srcCopyFlagType='C(1)', $srcCopyFlagVals = array('Y','N','P','='))
 	{
 		$sqla = array();
@@ -980,30 +1024,23 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcUpdateDateFld TS DEFTIMESTAMP");
 			foreach($sqla as $sql) $src->Execute($sql);
 		}
-
 		if ($srcCopyDateFld && !isset($cols[strtoupper($srcCopyDateFld)])) {
 			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcCopyDateFld TS DEFTIMESTAMP");
 			foreach($sqla as $sql) $src->Execute($sql);
 		}
-
 		$sysdate = $src->sysTimeStamp;
 		$arrv0 = $src->qstr($srcCopyFlagVals[0]);
 		$arrv1 = $src->qstr($srcCopyFlagVals[1]);
 		$arrv2 = $src->qstr($srcCopyFlagVals[2]);
 		$arrv3 = $src->qstr($srcCopyFlagVals[3]);
-
 		if ($srcCopyFlagFld && !isset($cols[strtoupper($srcCopyFlagFld)])) {
 			$sqla = $this->ddSrc->AddColumnSQL($srcTable, "$srcCopyFlagFld  $srcCopyFlagType DEFAULT $arrv1");
 			foreach($sqla as $sql) $src->Execute($sql);
 		}
-
 		$sqla = array();
-
-
 		$name = "{$srcTable}_mrgTr";
 		if (is_array($pkeys) && strpos($src->databaseType,'mssql') !== false) {
 			$pk = reset($pkeys);
-
 			#$sqla[] = "DROP TRIGGER $name";
 			$sqltr = "
 	 TRIGGER $name
@@ -1026,10 +1063,8 @@ word-wrap: break-word; /* Internet Explorer 5.5+ */
 			$sqla[] = 'CREATE '.$sqltr; // first if does not exists
 			$sqla[] = 'ALTER '.$sqltr; // second if it already exists
 		} else if (strpos($src->databaseType,'oci') !== false) {
-
 			if (strlen($srcTable)>22) $tableidx = substr($srcTable,0,16).substr(crc32($srcTable),6);
 			else $tableidx = $srcTable;
-
 			$name = $tableidx.$this->trgSuffix;
 			$idx = $tableidx.$this->idxSuffix;
 			$sqla[] = "
@@ -1051,24 +1086,18 @@ END;
 ";
 		}
 		foreach($sqla as $sql) $src->Execute($sql);
-
 		if ($srcCopyFlagFld) $srcCopyFlagFld .= ', ';
 		$src->Execute("CREATE INDEX {$idx} on $srcTable ($srcCopyFlagFld$srcUpdateDateFld)");
 	}
-
-
 	/*
 		Perform Merge by copying all data modified from src to dest
 			then update src copied flag if present.
-
 		Returns array taken from ReplicateData:
-
 	Returns an array:
 		$arr[0] =  true if no error, false if error
 		$arr[1] =  number of recs processed
 		$arr[2] = number of successful inserts
 		$arr[3] = number of successful updates
-
 		$srcTable = src table
 		$dstTable = dest table
 		$pkeys    = primary keys array. if empty, then only inserts will occur
@@ -1084,11 +1113,23 @@ END;
 		$dstCopyDateFld = field that holds last copy date in dst table, which will be updated on Merge()
 		$defaultDestRaiseErrorFn = The adodb raiseErrorFn handler. Default is to not raise an error.
 								 	Just output error message to stdout
-
 	*/
 
-
-	function Merge($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Merge($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
 		$srcUpdateDateFld,
 		$srcCopyFlagFld,  $flagvals=array('Y','N','P','='),
 		$srcCopyDateFld = false,
@@ -1100,59 +1141,58 @@ END;
 	{
 		$src = $this->connSrc;
 		$dest = $this->connDest;
-
 		$time = $src->Time();
-
 		$delfirst = $this->deleteFirst;
 		$upd = $this->updateSrcFn;
-
 		$this->deleteFirst = false;
 		//$this->updateFirst = true;
-
 		$srcignoreflds[] = $srcUpdateDateFld;
 		$srcignoreflds[] = $srcCopyFlagFld;
 		$srcignoreflds[] = $srcCopyDateFld;
-
 		if (empty($whereClauses)) $whereClauses = '1=1';
 		$where = " WHERE ($whereClauses) and ($srcCopyFlagFld = ".$src->qstr($flagvals[1]).')';
 		if ($orderBy) $where .= ' '.$orderBy;
 		else $where .= ' ORDER BY '.$srcUpdateDateFld;
-
 		if ($setsrc) $set[] = $setsrc;
 		else $set = array();
-
 		if ($srcCopyFlagFld) $set[] = "$srcCopyFlagFld = ".$src->qstr($flagvals[2]);
 		if ($srcCopyDateFld) $set[]= "$srcCopyDateFld = ".$src->sysTimeStamp;
 		if ($set) $this->updateSrcFn = array(implode(', ',$set));
 		else $this->updateSrcFn = '';
-
-
 		$extra[$srcCopyFlagFld] = array($dest->qstr($flagvals[0]),$dest->qstr($flagvals[$copyDoneFlagIdx]));
-
 		$saveraise = $dest->raiseErrorFn;
 		$dest->raiseErrorFn = '';
-
 		if ($this->compat && $this->compat == 1.0) $srcUpdateDateFld = '';
 		$arr = $this->ReplicateData($srcTable, $dstTable, $pkeys, $where, $srcignoreflds,
 			 $dstCopyDateFld,$extra,$srcUpdateDateFld);
-
 		$dest->raiseErrorFn = $saveraise;
-
 		$this->updateSrcFn = $upd;
 		$this->deleteFirst = $delfirst;
-
 		return $arr;
 	}
 	/*
 		If doing a 2 way merge, then call
 			$rep->Merge()
 		to save without modifying the COPIEDFLAG ('=').
-
 		Then can the following to set the COPIEDFLAG to 'P' which forces the COPIEDFLAG = 'Y'
 			$rep->MergeDone()
 	*/
 
-	function MergeDone($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MergeDone($srcTable, $dstTable, $pkeys, $srcignoreflds, $setsrc,
 		$srcUpdateDateFld,
 		$srcCopyFlagFld,  $flagvals=array('Y','N','P','='),
 		$srcCopyDateFld = false,
@@ -1173,7 +1213,21 @@ END;
 		$defaultDestRaiseErrorFn);
 	}
 
-	function _doerr($reason, $selflds)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _doerr($reason, $selflds)
 	{
 		$fn = $this->errHandler;
 		if ($fn) $fn($this, $reason, $selflds); // set $this->neverAbort to true or false as required inside $fn

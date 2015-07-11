@@ -1,23 +1,49 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
-
   Latest version is available at http://adodb.sourceforge.net
-
   Library for basic performance monitoring and tuning
-
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
 /*
 	MSSQL has moved most performance info to Performance Monitor
+*/
+
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
 */
 class perf_mssqlnative extends adodb_perf{
 	var $sql1 = 'cast(sql1 as text)';
@@ -29,7 +55,6 @@ class perf_mssqlnative extends adodb_perf{
 		  tracer varchar(500) NOT NULL,
 		  timer decimal(16,6) NOT NULL
 		)";
-
 	var $settings = array(
 	'Ratios',
 		'data cache hit ratio' => array('RATIO',
@@ -46,7 +71,6 @@ class perf_mssqlnative extends adodb_perf{
 		"select cntr_value from master.dbo.sysperfinfo where counter_name = 'Page reads/sec'"),
 		'data writes' => array('IO',
 		"select cntr_value from master.dbo.sysperfinfo where counter_name = 'Page writes/sec'"),
-
 	'Data Cache',
 		'data cache size' => array('DATAC',
 		"select cntr_value*8192 from master.dbo.sysperfinfo where counter_name = 'Total Pages' and object_name='SQLServer:Buffer Manager'",
@@ -60,12 +84,24 @@ class perf_mssqlnative extends adodb_perf{
 		'max connections' => array('SESS',
 			"SELECT @@MAX_CONNECTIONS",
 			''),
-
 		false
 	);
 
-
-	function perf_mssqlnative(&$conn)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function perf_mssqlnative(&$conn)
 	{
 		if ($conn->dataProvider == 'odbc') {
 			$this->sql1 = 'sql1';
@@ -74,9 +110,22 @@ class perf_mssqlnative extends adodb_perf{
 		$this->conn =& $conn;
 	}
 
-	function Explain($sql,$partial=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Explain($sql,$partial=false)
 	{
-
 		$save = $this->conn->LogSQL(false);
 		if ($partial) {
 			$sqlq = $this->conn->qstr($sql.'%');
@@ -88,12 +137,10 @@ class perf_mssqlnative extends adodb_perf{
 				}
 			}
 		}
-
 		$s = '<p><b>Explain</b>: '.htmlspecialchars($sql).'</p>';
 		$this->conn->Execute("SET SHOWPLAN_ALL ON;");
 		$sql = str_replace('?',"''",$sql);
 		global $ADODB_FETCH_MODE;
-
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$rs =& $this->conn->Execute($sql);
@@ -107,20 +154,31 @@ class perf_mssqlnative extends adodb_perf{
 				$rs->MoveNext();
 			}
 			$s .= '</table>';
-
 			$rs->NextRecordSet();
 		}
-
 		$this->conn->Execute("SET SHOWPLAN_ALL OFF;");
 		$this->conn->LogSQL($save);
 		$s .= $this->Tracer($sql);
 		return $s;
 	}
 
-	function Tables($orderby='1')
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Tables($orderby='1')
 	{
 	global $ADODB_FETCH_MODE;
-
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		//$this->conn->debug=1;
@@ -143,20 +201,45 @@ class perf_mssqlnative extends adodb_perf{
 		return $s.'</table>';
 	}
 
-	function sp_who()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function sp_who()
 	{
 		$arr = $this->conn->GetArray('sp_who');
 		return sizeof($arr);
 	}
 
-	function HealthCheck($cli=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function HealthCheck($cli=false)
 	{
-
 		$this->conn->Execute('dbcc traceon(3604)');
 		$html =  adodb_perf::HealthCheck($cli);
 		$this->conn->Execute('dbcc traceoff(3604)');
 		return $html;
 	}
-
-
 }

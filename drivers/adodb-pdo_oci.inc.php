@@ -1,17 +1,44 @@
 <?php
-
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
   Set tabs to 8.
-
 */
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_pdo_oci extends ADODB_pdo_base {
-
 	var $concat_operator='||';
 	var $sysDate = "TRUNC(SYSDATE)";
 	var $sysTimeStamp = 'SYSDATE';
@@ -19,11 +46,24 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 	var $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
 	var $metaTablesSQL = "select table_name,table_type from cat where table_type in ('TABLE','VIEW')";
 	var $metaColumnsSQL = "select cname,coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno";
-
  	var $_initdate = true;
 	var $_hasdual = true;
 
-	function _init($parentDriver)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _init($parentDriver)
 	{
 		$parentDriver->_bindInputArray = true;
 		$parentDriver->_nestedSQL = true;
@@ -32,7 +72,21 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		}
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;
@@ -40,24 +94,34 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 			$this->metaTablesSQL .= " AND table_name like $mask";
 		}
 		$ret = ADOConnection::MetaTables($ttype,$showSchema);
-
 		if ($mask) {
 			$this->metaTablesSQL = $save;
 		}
 		return $ret;
 	}
 
-	function MetaColumns($table,$normalize=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaColumns($table,$normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$false = false;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
-
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
-
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 		if (!$rs) {
@@ -77,7 +141,6 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		   	$fld->not_null = (strncmp($rs->fields[5], 'NOT',3) === 0);
 			$fld->binary = (strpos($fld->type,'BLOB') !== false);
 			$fld->default_value = $rs->fields[6];
-
 			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;
 			else $retarr[strtoupper($fld->name)] = $fld;
 			$rs->MoveNext();

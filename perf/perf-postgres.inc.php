@@ -1,32 +1,56 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
-
   Latest version is available at http://adodb.sourceforge.net
-
   Library for basic performance monitoring and tuning
-
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-
 /*
 	Notice that PostgreSQL has no sql query cache
 */
-class perf_postgres extends adodb_perf{
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
+class perf_postgres extends adodb_perf{
 	var $tablesSQL =
 	"select a.relname as tablename,(a.relpages+CASE WHEN b.relpages is null THEN 0 ELSE b.relpages END+CASE WHEN c.relpages is null THEN 0 ELSE c.relpages END)*8 as size_in_K,a.relfilenode as \"OID\"  from pg_class a left join pg_class b
 		on b.relname = 'pg_toast_'||trim(a.relfilenode)
 		left join pg_class c on c.relname = 'pg_toast_'||trim(a.relfilenode)||'_index'
 		where a.relname in (select tablename from pg_tables where tablename not like 'pg_%')";
-
 	var $createTableSQL = "CREATE TABLE adodb_logsql (
 		  created timestamp NOT NULL,
 		  sql0 varchar(250) NOT NULL,
@@ -35,7 +59,6 @@ class perf_postgres extends adodb_perf{
 		  tracer text NOT NULL,
 		  timer decimal(16,6) NOT NULL
 		)";
-
 	var $settings = array(
 	'Ratios',
 		'statistics collector' => array('RATIO',
@@ -51,7 +74,6 @@ class perf_postgres extends adodb_perf{
 		'data writes' => array('IO',
 		'select round((sum(n_tup_ins/4.0+n_tup_upd/8.0+n_tup_del/4.0)/16)::numeric,2) from pg_stat_user_tables',
 		'Count of inserts/updates/deletes * coef'),
-
 	'Data Cache',
 		'data cache buffers' => array('DATAC',
 			"select setting from pg_settings where name='shared_buffers'",
@@ -87,25 +109,49 @@ class perf_postgres extends adodb_perf{
 		false
 	);
 
-	function perf_postgres(&$conn)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function perf_postgres(&$conn)
 	{
 		$this->conn = $conn;
 	}
-
 	var $optimizeTableLow  = 'VACUUM %s';
 	var $optimizeTableHigh = 'VACUUM ANALYZE %s';
-
 /**
  * @see adodb_perf#optimizeTable
  */
 
-	function optimizeTable($table, $mode = ADODB_OPT_LOW)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function optimizeTable($table, $mode = ADODB_OPT_LOW)
 	{
 	    if(! is_string($table)) return false;
-
 	    $conn = $this->conn;
 	    if (! $conn) return false;
-
 	    $sql = '';
 	    switch($mode) {
 	        case ADODB_OPT_LOW : $sql = $this->optimizeTableLow;  break;
@@ -117,14 +163,26 @@ class perf_postgres extends adodb_perf{
 	        }
 	    }
 	    $sql = sprintf($sql, $table);
-
 	    return $conn->Execute($sql) !== false;
 	}
 
-	function Explain($sql,$partial=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Explain($sql,$partial=false)
 	{
 		$save = $this->conn->LogSQL(false);
-
 		if ($partial) {
 			$sqlq = $this->conn->qstr($sql.'%');
 			$arr = $this->conn->GetArray("select distinct distinct sql1 from adodb_logsql where sql1 like $sqlq");

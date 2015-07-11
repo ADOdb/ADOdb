@@ -1,12 +1,30 @@
 <?php
-
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
  * @version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
  */
-
 /* Documentation on usage is at http://php.weblogs.com/adodb_csv
  *
  * Legal query string parameters:
@@ -20,14 +38,11 @@
  *
  * http://localhost/php/server.php?select+*+from+table&nrows=10&offset=2
  */
-
-
 /*
  * Define the IP address you want to accept requests from
  * as a security measure. If blank we accept anyone promisciously!
  */
 $ACCEPTIP = '127.0.0.1';
-
 /*
  * Connection parameters
  */
@@ -36,20 +51,46 @@ $host = 'localhost'; // DSN for odbc
 $uid = 'root';
 $pwd = 'garbase-it-is';
 $database = 'test';
-
 /*============================ DO NOT MODIFY BELOW HERE =================================*/
 // $sep must match csv2rs() in adodb.inc.php
 $sep = ' :::: ';
-
 include('./adodb.inc.php');
 include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
 
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function err($s)
 {
 	die('**** '.$s.' ');
 }
-
 // undo stupid magic quotes
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function undomq(&$m)
 {
 	if (get_magic_quotes_gpc()) {
@@ -57,33 +98,20 @@ function undomq(&$m)
 		$m = str_replace('\\\\','\\',$m);
 		$m = str_replace('\"','"',$m);
 		$m = str_replace('\\\'','\'',$m);
-
 	}
 	return $m;
 }
-
 ///////////////////////////////////////// DEFINITIONS
-
-
 $remote = $_SERVER["REMOTE_ADDR"];
-
-
 if (!empty($ACCEPTIP))
  if ($remote != '127.0.0.1' && $remote != $ACCEPTIP)
  	err("Unauthorised client: '$remote'");
-
-
 if (empty($_REQUEST['sql'])) err('No SQL');
-
-
 $conn = ADONewConnection($driver);
-
 if (!$conn->Connect($host,$uid,$pwd,$database)) err($conn->ErrorNo(). $sep . $conn->ErrorMsg());
 $sql = undomq($_REQUEST['sql']);
-
 if (isset($_REQUEST['fetch']))
 	$ADODB_FETCH_MODE = $_REQUEST['fetch'];
-
 if (isset($_REQUEST['nrows'])) {
 	$nrows = $_REQUEST['nrows'];
 	$offset = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : -1;

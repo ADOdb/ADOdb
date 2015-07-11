@@ -1,23 +1,50 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-driver-status: FIXME;
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /*
 V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
-
   Latest version is available at http://adodb.sourceforge.net
-
   SQLite info: http://www.hwaci.com/sw/sqlite/
-
   Install Instructions:
   ====================
   1. Place this in adodb/drivers
   2. Rename the file, remove the .txt prefix.
 */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADODB_sqlite3 extends ADOConnection {
 	var $databaseType = "sqlite3";
 	var $replaceQuote = "''"; // string to use to replace quotes
@@ -31,11 +58,39 @@ class ADODB_sqlite3 extends ADOConnection {
 	var $sysTimeStamp = "adodb_date('Y-m-d H:i:s')";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 
-	function ADODB_sqlite3()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADODB_sqlite3()
 	{
 	}
 
-	function ServerInfo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ServerInfo()
 	{
 		$version = SQLite3::version();
 		$arr['version'] = $version['versionString'];
@@ -43,7 +98,21 @@ class ADODB_sqlite3 extends ADOConnection {
 		return $arr;
 	}
 
-	function BeginTrans()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function BeginTrans()
 	{
 		if ($this->transOff) {
 			return true;
@@ -53,7 +122,21 @@ class ADODB_sqlite3 extends ADOConnection {
 		return true;
 	}
 
-	function CommitTrans($ok=true)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CommitTrans($ok=true)
 	{
 		if ($this->transOff) {
 			return true;
@@ -68,7 +151,21 @@ class ADODB_sqlite3 extends ADOConnection {
 		return !empty($ret);
 	}
 
-	function RollbackTrans()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function RollbackTrans()
 	{
 		if ($this->transOff) {
 			return true;
@@ -79,9 +176,23 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 		return !empty($ret);
 	}
-
 	// mark newnham
-	function MetaColumns($table, $normalize=true)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaColumns($table, $normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
 		$false = false;
@@ -127,23 +238,79 @@ class ADODB_sqlite3 extends ADOConnection {
 		return $arr;
 	}
 
-	function _init($parentDriver)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _init($parentDriver)
 	{
 		$parentDriver->hasTransactions = false;
 		$parentDriver->hasInsertID = true;
 	}
 
-	function _insertid()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _insertid()
 	{
 		return $this->_connectionID->lastInsertRowID();
 	}
 
-	function _affectedrows()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _affectedrows()
 	{
 		return $this->_connectionID->changes();
 	}
 
-	function ErrorMsg()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ErrorMsg()
  	{
 		if ($this->_logsql) {
 			return $this->_errorMsg;
@@ -151,46 +318,127 @@ class ADODB_sqlite3 extends ADOConnection {
 		return ($this->_errorNo) ? $this->ErrorNo() : ''; //**tochange?
 	}
 
-	function ErrorNo()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ErrorNo()
 	{
 		return $this->_connectionID->lastErrorCode(); //**tochange??
 	}
 
-	function SQLDate($fmt, $col=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SQLDate($fmt, $col=false)
 	{
 		$fmt = $this->qstr($fmt);
 		return ($col) ? "adodb_date2($fmt,$col)" : "adodb_date($fmt)";
 	}
 
-
-	function _createFunctions()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _createFunctions()
 	{
 		$this->_connectionID->createFunction('adodb_date', 'adodb_date', 1);
 		$this->_connectionID->createFunction('adodb_date2', 'adodb_date2', 2);
 	}
-
-
 	// returns true or false
-	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (empty($argHostname) && $argDatabasename) {
 			$argHostname = $argDatabasename;
 		}
 		$this->_connectionID = new SQLite3($argHostname);
 		$this->_createFunctions();
-
 		return true;
 	}
-
 	// returns true or false
-	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		// There's no permanent connect in SQLite3
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename);
 	}
-
 	// returns query ID if successful, otherwise false
-	function _query($sql,$inputarr=false)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _query($sql,$inputarr=false)
 	{
 		$rez = $this->_connectionID->query($sql);
 		if ($rez === false) {
@@ -201,11 +449,24 @@ class ADODB_sqlite3 extends ADOConnection {
 			$rez->finalize();
 			$rez = true;
 		}
-
 		return $rez;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
 		$limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : ($offset >= 0 ? ' LIMIT 999999999' : '');
@@ -214,19 +475,30 @@ class ADODB_sqlite3 extends ADOConnection {
 		} else {
 			$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
 		}
-
 		return $rs;
 	}
-
 	/*
 		This algorithm is not very efficient, but works even if table locking
 		is not available.
-
 		Will return false if unable to generate an ID after $MAXLOOPS attempts.
 	*/
 	var $_genSeqSQL = "create table %s (id integer)";
 
-	function GenID($seq='adodbseq',$start=1)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function GenID($seq='adodbseq',$start=1)
 	{
 		// if you have to modify the parameter below, your database is overloaded,
 		// or you need to implement generation of id's yourself!
@@ -244,7 +516,6 @@ class ADODB_sqlite3 extends ADOConnection {
 				}
 			}
 			$this->Execute("update $seq set id=id+1 where id=$num");
-
 			if ($this->affected_rows() > 0) {
 				$num += 1;
 				$this->genID = $num;
@@ -257,7 +528,21 @@ class ADODB_sqlite3 extends ADOConnection {
 		return false;
 	}
 
-	function CreateSequence($seqname='adodbseq',$start=1)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function CreateSequence($seqname='adodbseq',$start=1)
 	{
 		if (empty($this->_genSeqSQL)) {
 			return false;
@@ -269,23 +554,65 @@ class ADODB_sqlite3 extends ADOConnection {
 		$start -= 1;
 		return $this->Execute("insert into $seqname values($start)");
 	}
-
 	var $_dropSeqSQL = 'drop table %s';
-	function DropSequence($seqname)
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function DropSequence($seqname)
 	{
 		if (empty($this->_dropSeqSQL)) {
 			return false;
 		}
 		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
 	}
-
 	// returns true or false
-	function _close()
+
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _close()
 	{
 		return $this->_connectionID->close();
 	}
 
-	function MetaIndexes($table, $primary = FALSE, $owner=false, $owner = false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function MetaIndexes($table, $primary = FALSE, $owner=false, $owner = false)
 	{
 		$false = false;
 		// save old fetch mode
@@ -304,7 +631,6 @@ class ADODB_sqlite3 extends ADOConnection {
 			$ADODB_FETCH_MODE = $save;
 			return $false;
 		}
-
 		$indexes = array ();
 		while ($row = $rs->FetchRow()) {
 			if ($primary && preg_match("/primary/i",$row[1]) == 0) {
@@ -333,21 +659,41 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 		return $indexes;
 	}
-
 }
-
 /*--------------------------------------------------------------------------------------
 		Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
+/** 
+* This is the short description placeholder for the class docblock 
+*  
+* This is the long description placeholder for the class docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* 
+* @adodb-class-status FIXME
+*/
 class ADORecordset_sqlite3 extends ADORecordSet {
-
 	var $databaseType = "sqlite3";
 	var $bind = false;
 
-	function ADORecordset_sqlite3($queryID,$mode=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function ADORecordset_sqlite3($queryID,$mode=false)
 	{
-
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
 			$mode = $ADODB_FETCH_MODE;
@@ -364,9 +710,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 				break;
 		}
 		$this->adodbFetchMode = $mode;
-
 		$this->_queryID = $queryID;
-
 		$this->_inited = true;
 		$this->fields = array();
 		if ($queryID) {
@@ -378,12 +722,24 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 			$this->_numOfFields = 0;
 			$this->EOF = true;
 		}
-
 		return $this->_queryID;
 	}
 
-
-	function FetchField($fieldOffset = -1)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function FetchField($fieldOffset = -1)
 	{
 		$fld = new ADOFieldObject;
 		$fld->name = $this->_queryID->columnName($fieldOffset);
@@ -392,14 +748,41 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 		return $fld;
 	}
 
-	function _initrs()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _initrs()
 	{
 		$this->_numOfRows = 1;
 		$this->_numOfFields = $this->_queryID->numColumns();
-
 	}
 
-	function Fields($colname)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function Fields($colname)
 	{
 		if ($this->fetchMode != SQLITE3_NUM) {
 			return $this->fields[$colname];
@@ -411,11 +794,24 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 				$this->bind[strtoupper($o->name)] = $i;
 			}
 		}
-
 		return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-	function _seek($row)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _seek($row)
 	{
 		// sqlite3 does not implement seek
 		if ($this->debug) {
@@ -424,14 +820,41 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 		return false;
 	}
 
-	function _fetch($ignore_fields=false)
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _fetch($ignore_fields=false)
 	{
 		$this->fields = $this->_queryID->fetchArray($this->fetchMode);
 		return !empty($this->fields);
 	}
 
-	function _close()
+    /** 
+    * This is the short description placeholder for the function docblock
+    *  
+    * This is the long description placeholder for the function docblock
+    * Please see the ADOdb website for how to maintain adodb custom tags
+    * 
+    * @version 5.21.0 
+    * @param   FIXME 
+    * @return  FIXME 
+    * 
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME 
+    */
+    function _close()
 	{
 	}
-
 }

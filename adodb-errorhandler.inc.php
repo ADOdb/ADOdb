@@ -1,4 +1,24 @@
 <?php
+/** 
+* This is the short description placeholder for the generic file docblock 
+* 
+* This is the long description placeholder for the generic file docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @author     John Lim 
+* @copyright  2014-      The ADODB project 
+* @copyright  2000-2014 John Lim 
+* @license    BSD License    (Primary) 
+* @license    Lesser GPL License    (Secondary) 
+* @version    5.21.0 
+* @package    ADODB 
+* @category   FIXME 
+* 
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+* 
+*/ 
 /**
  * @version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
  * Released under both BSD license and Lesser GPL library license.
@@ -10,13 +30,9 @@
  * Latest version is available at http://php.weblogs.com
  *
 */
-
-
 // added Claudio Bustos  clbustos#entelchile.net
 if (!defined('ADODB_ERROR_HANDLER_TYPE')) define('ADODB_ERROR_HANDLER_TYPE',E_USER_ERROR);
-
 if (!defined('ADODB_ERROR_HANDLER')) define('ADODB_ERROR_HANDLER','ADODB_Error_Handler');
-
 /**
 * Default Error Handler. This will be called with the following params
 *
@@ -28,6 +44,21 @@ if (!defined('ADODB_ERROR_HANDLER')) define('ADODB_ERROR_HANDLER','ADODB_Error_H
 * @param $p2		$fn specific parameter - see below
 * @param $thisConn	$current connection object - can be false if no connection object created
 */
+
+/** 
+* This is the short description placeholder for the function docblock 
+*  
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
+* 
+* @version 5.21.0 
+* @param   FIXME 
+* @return  FIXME 
+* 
+* @adodb-visibility  FIXME
+* @adodb-function-status FIXME
+* @adodb-api FIXME 
+*/
 function ADODB_Error_Handler($dbms, $fn, $errno, $errmsg, $p1, $p2, &$thisConnection)
 {
 	if (error_reporting() == 0) return; // obey @ protocol
@@ -35,15 +66,12 @@ function ADODB_Error_Handler($dbms, $fn, $errno, $errmsg, $p1, $p2, &$thisConnec
 	case 'EXECUTE':
 		$sql = $p1;
 		$inputparams = $p2;
-
 		$s = "$dbms error: [$errno: $errmsg] in $fn(\"$sql\")\n";
 		break;
-
 	case 'PCONNECT':
 	case 'CONNECT':
 		$host = $p1;
 		$database = $p2;
-
 		$s = "$dbms error: [$errno: $errmsg] in $fn($host, '****', '****', $database)\n";
 		break;
 	default:
@@ -71,8 +99,6 @@ function ADODB_Error_Handler($dbms, $fn, $errno, $errmsg, $p1, $p2, &$thisConnec
 		else
 			error_log("($t) $s", ADODB_ERROR_LOG_TYPE);
 	}
-
-
 	//print "<p>$s</p>";
 	trigger_error($s,ADODB_ERROR_HANDLER_TYPE);
 }
