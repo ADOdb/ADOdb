@@ -1,14 +1,15 @@
+
 /** 
-* This is the short description placeholder for the generic docblock 
+* This is the short description placeholder for the function docblock 
 *  
-* This is the long description placeholder for the generic docblock 
-* Please use the following guidelines when modifying this: etc etc 
+* This is the long description placeholder for the function docblock 
+* Please see the ADOdb website for how to maintain adodb custom tags
 * 
-* @version        5.21.0 
+* @version 5.21.0 
 * @param   FIXME 
 * @return  FIXME 
 * 
 * @adodb-visibility  FIXME
 * @adodb-function-status FIXME
 * @adodb-api FIXME 
-*/ 
+*/
