@@ -248,6 +248,11 @@ class ADODB_pdo extends ADOConnection {
 		return $this->_driver->MetaColumns($table,$normalize);
 	}
 
+	function MetaIndexes($table, $primary = false, $owner = false)
+	{
+		return $this->_driver->MetaIndexes($table, $primary, $owner);
+	}
+	
 	function InParameter(&$stmt,&$var,$name,$maxLen=4000,$type=false)
 	{
 		$obj = $stmt[1];

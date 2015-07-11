@@ -176,6 +176,59 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $retarr;
 	}
 
+	//Verbatim copy from "adodb-mysql.inc.php"
+	function MetaIndexes ($table, $primary = FALSE, $owner=false)
+	{
+		// save old fetch mode
+		global $ADODB_FETCH_MODE;
+
+		$false = false;
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($this->fetchMode !== FALSE) {
+			$savem = $this->SetFetchMode(FALSE);
+		}
+
+		// get index details
+		$rs = $this->Execute(sprintf('SHOW INDEX FROM `%s`',$table));
+
+		// restore fetchmode
+		if (isset($savem)) {
+			$this->SetFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
+
+		if (!is_object($rs)) {
+			return $false;
+		}
+
+		$indexes = array ();
+
+		// parse index data into array
+		while ($row = $rs->FetchRow()) {
+			if ($primary == FALSE AND $row[2] == 'PRIMARY') {
+				continue;
+			}
+
+			if (!isset($indexes[$row[2]])) {
+				$indexes[$row[2]] = array(
+					'unique' => ($row[1] == 0),
+					'columns' => array()
+				);
+			}
+
+			$indexes[$row[2]]['columns'][$row[3] - 1] = $row[4];
+		}
+
+		// sort columns by order in the index
+		foreach ( array_keys ($indexes) as $index )
+		{
+			ksort ($indexes[$index]['columns']);
+		}
+
+		return $indexes;
+	}
+
 	// returns true or false
 	function SelectDB($dbName)
 	{

@@ -88,4 +88,83 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		else
 			return $retarr;
 	}
+
+	//VERBATIM COPY FROM "adodb-oci8.inc.php"
+	function MetaIndexes ($table, $primary = FALSE, $owner=false)
+	{
+		// save old fetch mode
+		global $ADODB_FETCH_MODE;
+
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+
+		if ($this->fetchMode !== FALSE) {
+			$savem = $this->SetFetchMode(FALSE);
+		}
+
+		// get index details
+		$table = strtoupper($table);
+
+		// get Primary index
+		$primary_key = '';
+
+		$rs = $this->Execute(sprintf("SELECT * FROM ALL_CONSTRAINTS WHERE UPPER(TABLE_NAME)='%s' AND CONSTRAINT_TYPE='P'",$table));
+		if (!is_object($rs)) {
+			if (isset($savem)) {
+				$this->SetFetchMode($savem);
+			}
+			$ADODB_FETCH_MODE = $save;
+			return false;
+		}
+
+		if ($row = $rs->FetchRow()) {
+			$primary_key = $row[1]; //constraint_name
+		}
+
+		if ($primary==TRUE && $primary_key=='') {
+			if (isset($savem)) {
+				$this->SetFetchMode($savem);
+			}
+			$ADODB_FETCH_MODE = $save;
+			return false; //There is no primary key
+		}
+
+		$rs = $this->Execute(sprintf("SELECT ALL_INDEXES.INDEX_NAME, ALL_INDEXES.UNIQUENESS, ALL_IND_COLUMNS.COLUMN_POSITION, ALL_IND_COLUMNS.COLUMN_NAME FROM ALL_INDEXES,ALL_IND_COLUMNS WHERE UPPER(ALL_INDEXES.TABLE_NAME)='%s' AND ALL_IND_COLUMNS.INDEX_NAME=ALL_INDEXES.INDEX_NAME",$table));
+
+
+		if (!is_object($rs)) {
+			if (isset($savem)) {
+				$this->SetFetchMode($savem);
+			}
+			$ADODB_FETCH_MODE = $save;
+			return false;
+		}
+
+		$indexes = array ();
+		// parse index data into array
+
+		while ($row = $rs->FetchRow()) {
+			if ($primary && $row[0] != $primary_key) {
+				continue;
+			}
+			if (!isset($indexes[$row[0]])) {
+				$indexes[$row[0]] = array(
+					'unique' => ($row[1] == 'UNIQUE'),
+					'columns' => array()
+				);
+			}
+			$indexes[$row[0]]['columns'][$row[2] - 1] = $row[3];
+		}
+
+		// sort columns by order in the index
+		foreach ( array_keys ($indexes) as $index ) {
+			ksort ($indexes[$index]['columns']);
+		}
+
+		if (isset($savem)) {
+			$this->SetFetchMode($savem);
+			$ADODB_FETCH_MODE = $save;
+		}
+		return $indexes;
+	}
 }
