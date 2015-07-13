@@ -46,6 +46,11 @@ if (!defined("DB_ERROR_SYNTAX")) {
 	define("DB_ERROR_SERIALIZATION_FAILURE", -29);
 }
 
+/**
+ * @param $value
+ *
+ * @return string
+ */
 function adodb_errormsg($value)
 {
 global $ADODB_LANG,$ADODB_LANG_ARRAY;
