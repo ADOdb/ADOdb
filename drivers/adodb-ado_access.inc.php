@@ -28,11 +28,6 @@ class  ADODB_ado_access extends ADODB_ado {
 	var $sysTimeStamp = 'NOW';
 	var $upperCase = 'ucase';
 
-	function ADODB_ado_access()
-	{
-		$this->ADODB_ado();
-	}
-
 	/*function BeginTrans() { return false;}
 
 	function CommitTrans() { return false;}
@@ -46,8 +41,8 @@ class  ADORecordSet_ado_access extends ADORecordSet_ado {
 
 	var $databaseType = "ado_access";
 
-	function ADORecordSet_ado_access($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
-		return $this->ADORecordSet_ado($id,$mode);
+		return parent::__construct($id,$mode);
 	}
 }

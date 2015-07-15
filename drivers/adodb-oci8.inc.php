@@ -101,7 +101,7 @@ END;
 
 	// var $ansiOuter = true; // if oracle9
 
-	function ADODB_oci8()
+	function __construct()
 	{
 		$this->_hasOciFetchStatement = ADODB_PHPVER >= 0x4200;
 		if (defined('ADODB_EXTENSION')) {
@@ -1534,7 +1534,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	var $bind=false;
 	var $_fieldobjs;
 
-	function ADORecordset_oci8($queryID,$mode=false)
+	function __construct($queryID,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -1800,7 +1800,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 }
 
 class ADORecordSet_ext_oci8 extends ADORecordSet_oci8 {
-	function ADORecordSet_ext_oci8($queryID,$mode=false)
+	function __construct($queryID,$mode=false)
 	{
 		parent::__construct($queryID, $mode);
 	}

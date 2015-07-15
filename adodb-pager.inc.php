@@ -55,7 +55,7 @@ class ADODB_Pager {
 	//		if you have multiple on 1 page.
 	//		$id should be only be [a-z0-9]*
 	//
-	function ADODB_Pager(&$db,$sql,$id = 'adodb', $showPageLinks = false)
+	function __construct(&$db,$sql,$id = 'adodb', $showPageLinks = false)
 	{
 	global $PHP_SELF;
 

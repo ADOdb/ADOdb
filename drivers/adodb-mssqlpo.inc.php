@@ -28,11 +28,6 @@ class ADODB_mssqlpo extends ADODB_mssql {
 	var $databaseType = "mssqlpo";
 	var $concat_operator = '||';
 
-	function ADODB_mssqlpo()
-	{
-		ADODB_mssql::ADODB_mssql();
-	}
-
 	function PrepareSP($sql, $param = true)
 	{
 		if (!$this->_has_mssql_init) {
@@ -54,8 +49,8 @@ class ADODB_mssqlpo extends ADODB_mssql {
 
 class ADORecordset_mssqlpo extends ADORecordset_mssql {
 	var $databaseType = "mssqlpo";
-	function ADORecordset_mssqlpo($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
-		$this->ADORecordset_mssql($id,$mode);
+		parent::__construct($id,$mode);
 	}
 }

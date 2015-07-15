@@ -30,9 +30,4 @@ if (!defined('_ADODB_ODBTP_LAYER')) {
 class ADODB_odbtp_unicode extends ADODB_odbtp {
 	var $databaseType = 'odbtp';
 	var $_useUnicodeSQL = true;
-
-	function ADODB_odbtp_unicode()
-	{
-		$this->ADODB_odbtp();
-	}
 }

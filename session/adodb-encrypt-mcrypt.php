@@ -69,7 +69,7 @@ class ADODB_Encrypt_MCrypt {
 
 	/**
 	 */
-	function ADODB_Encrypt_MCrypt($cipher = null, $mode = null, $source = null) {
+	function __construct($cipher = null, $mode = null, $source = null) {
 		if (!$cipher) {
 			$cipher = MCRYPT_RIJNDAEL_256;
 		}

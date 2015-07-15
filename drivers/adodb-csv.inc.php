@@ -36,7 +36,7 @@ class ADODB_csv extends ADOConnection {
 	var $hasTransactions = false;
 	var $_errorNo = false;
 
-	function ADODB_csv()
+	function __construct()
 	{
 	}
 
@@ -191,9 +191,9 @@ class ADODB_csv extends ADOConnection {
 } // class
 
 class ADORecordset_csv extends ADORecordset {
-	function ADORecordset_csv($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
-		$this->ADORecordset($id,$mode);
+		parent::__construct($id,$mode);
 	}
 
 	function _close()

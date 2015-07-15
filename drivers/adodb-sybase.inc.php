@@ -42,7 +42,7 @@ class ADODB_sybase extends ADOConnection {
 
 	var $port;
 
-	function ADODB_sybase()
+	function __construct()
 	{
 	}
 
@@ -308,7 +308,7 @@ class ADORecordset_sybase extends ADORecordSet {
 	// _mths works only in non-localised system
 	var  $_mths = array('JAN'=>1,'FEB'=>2,'MAR'=>3,'APR'=>4,'MAY'=>5,'JUN'=>6,'JUL'=>7,'AUG'=>8,'SEP'=>9,'OCT'=>10,'NOV'=>11,'DEC'=>12);
 
-	function ADORecordset_sybase($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -316,7 +316,7 @@ class ADORecordset_sybase extends ADORecordSet {
 		}
 		if (!$mode) $this->fetchMode = ADODB_FETCH_ASSOC;
 		else $this->fetchMode = $mode;
-		$this->ADORecordSet($id,$mode);
+		parent::__construct($id,$mode);
 	}
 
 	/*	Returns: an object containing field information.
@@ -389,9 +389,9 @@ class ADORecordset_sybase extends ADORecordSet {
 }
 
 class ADORecordSet_array_sybase extends ADORecordSet_array {
-	function ADORecordSet_array_sybase($id=-1)
+	function __construct($id=-1)
 	{
-		$this->ADORecordSet_array($id);
+		parent::__construct($id);
 	}
 
 		// sybase/mssql uses a default date like Dec 30 2000 12:00AM
