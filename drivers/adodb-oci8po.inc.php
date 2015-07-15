@@ -28,7 +28,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 	var $metaColumnsSQL = "select lower(cname),coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
 	var $metaTablesSQL = "select lower(table_name),table_type from cat where table_type in ('TABLE','VIEW')";
 
-	function ADODB_oci8po()
+	function __construct()
 	{
 		$this->_hasOCIFetchStatement = ADODB_PHPVER >= 0x4200;
 		# oci8po does not support adodb extension: adodb_movenext()
@@ -94,9 +94,9 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 
 	var $databaseType = 'oci8po';
 
-	function ADORecordset_oci8po($queryID,$mode=false)
+	function __construct($queryID,$mode=false)
 	{
-		$this->ADORecordset_oci8($queryID,$mode);
+		parent::__construct($queryID,$mode);
 	}
 
 	function Fields($colname)

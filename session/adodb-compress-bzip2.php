@@ -73,7 +73,7 @@ class ADODB_Compress_Bzip2 {
 
 	/**
 	 */
-	function ADODB_Compress_Bzip2($block_size = null, $work_level = null, $min_length = null) {
+	function __construct($block_size = null, $work_level = null, $min_length = null) {
 		if (!is_null($block_size)) {
 			$this->setBlockSize($block_size);
 		}

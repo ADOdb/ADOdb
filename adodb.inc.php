@@ -304,7 +304,7 @@ if (!defined('_ADODB_LAYER')) {
 
 		var $createdir = true; // requires creation of temp dirs
 
-		function ADODB_Cache_File() {
+		function __construct() {
 			global $ADODB_INCLUDED_CSV;
 			if (empty($ADODB_INCLUDED_CSV)) {
 				include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
@@ -3194,7 +3194,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param queryID	this is the queryID returned by ADOConnection->_query()
 	 *
 	 */
-	function ADORecordSet($queryID) {
+	function __construct($queryID) {
 		$this->_queryID = $queryID;
 	}
 
@@ -4293,12 +4293,12 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		/**
 		 * Constructor
 		 */
-		function ADORecordSet_array($fakeid=1) {
+		function __construct($fakeid=1) {
 			global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
 
 			// fetch() on EOF does not delete $this->fields
 			$this->compat = !empty($ADODB_COMPAT_FETCH);
-			$this->ADORecordSet($fakeid); // fake queryID
+			parent::__construct($fakeid); // fake queryID
 			$this->fetchMode = $ADODB_FETCH_MODE;
 		}
 

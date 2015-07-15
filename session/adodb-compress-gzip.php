@@ -56,7 +56,7 @@ class ADODB_Compress_Gzip {
 
 	/**
 	 */
-	function ADODB_Compress_Gzip($level = null, $min_length = null) {
+	function __construct($level = null, $min_length = null) {
 		if (!is_null($level)) {
 			$this->setLevel($level);
 		}
