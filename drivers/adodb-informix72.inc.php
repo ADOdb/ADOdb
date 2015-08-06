@@ -54,7 +54,7 @@ class ADODB_informix72 extends ADOConnection {
 	var $sysTimeStamp = 'CURRENT';
 	var $cursorType = IFX_SCROLL; // IFX_SCROLL or IFX_HOLD or 0
 
-	function ADODB_informix72()
+	function __construct()
 	{
 		// alternatively, use older method:
 		//putenv("DBDATE=Y4MD-");
@@ -391,14 +391,14 @@ class ADORecordset_informix72 extends ADORecordSet {
 	var $canSeek = true;
 	var $_fieldprops = false;
 
-	function ADORecordset_informix72($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
 			$mode = $ADODB_FETCH_MODE;
 		}
 		$this->fetchMode = $mode;
-		return $this->ADORecordSet($id);
+		return parent::__construct($id);
 	}
 
 

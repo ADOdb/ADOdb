@@ -105,7 +105,7 @@ class ADODB_mssql extends ADOConnection {
 	var $_bindInputArray = true;
 	var $forceNewConnect = false;
 
-	function ADODB_mssql()
+	function __construct()
 	{
 		$this->_has_mssql_init = (strnatcmp(PHP_VERSION,'4.1.0')>=0);
 	}
@@ -865,7 +865,7 @@ class ADORecordset_mssql extends ADORecordSet {
 	var $hasFetchAssoc; // see http://phplens.com/lens/lensforum/msgs.php?id=6083
 	// _mths works only in non-localised system
 
-	function ADORecordset_mssql($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
 		// freedts check...
 		$this->hasFetchAssoc = function_exists('mssql_fetch_assoc');
@@ -876,7 +876,7 @@ class ADORecordset_mssql extends ADORecordSet {
 
 		}
 		$this->fetchMode = $mode;
-		return $this->ADORecordSet($id,$mode);
+		return parent::__construct($id,$mode);
 	}
 
 
@@ -1068,9 +1068,9 @@ class ADORecordset_mssql extends ADORecordSet {
 
 
 class ADORecordSet_array_mssql extends ADORecordSet_array {
-	function ADORecordSet_array_mssql($id=-1,$mode=false)
+	function __construct($id=-1,$mode=false)
 	{
-		$this->ADORecordSet_array($id,$mode);
+		parent::__construct($id,$mode);
 	}
 
 		// mssql uses a default date like Dec 30 2000 12:00AM

@@ -32,8 +32,8 @@ class ADODB_informix extends ADODB_informix72 {
 class ADORecordset_informix extends ADORecordset_informix72 {
 	var $databaseType = "informix";
 
-	function ADORecordset_informix($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
-		$this->ADORecordset_informix72($id,$mode);
+		parent::__construct($id,$mode);
 	}
 }

@@ -65,7 +65,7 @@ class perf_mssqlnative extends adodb_perf{
 	);
 
 
-	function perf_mssqlnative(&$conn)
+	function __construct(&$conn)
 	{
 		if ($conn->dataProvider == 'odbc') {
 			$this->sql1 = 'sql1';

@@ -45,9 +45,9 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	var $connectStmt = 'SET CONCAT_NULL_YIELDS_NULL OFF'; # When SET CONCAT_NULL_YIELDS_NULL is ON,
 														  # concatenating a null value with a string yields a NULL result
 
-	function ADODB_odbc_mssql()
+	function __construct()
 	{
-		$this->ADODB_odbc();
+		parent::__construct();
 		//$this->curmode = SQL_CUR_USE_ODBC;
 	}
 
@@ -354,8 +354,8 @@ class  ADORecordSet_odbc_mssql extends ADORecordSet_odbc {
 
 	var $databaseType = 'odbc_mssql';
 
-	function ADORecordSet_odbc_mssql($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
-		return $this->ADORecordSet_odbc($id,$mode);
+		return parent::__construct($id,$mode);
 	}
 }

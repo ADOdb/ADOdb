@@ -48,7 +48,7 @@ $db->CacheExecute($sql);
 		var $_connected = false;
 		var $_memcache = false;
 
-		function ADODB_Cache_MemCache(&$obj)
+		function __construct(&$obj)
 		{
 			$this->hosts = $obj->memCacheHost;
 			$this->port = $obj->memCachePort;
