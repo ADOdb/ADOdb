@@ -553,17 +553,23 @@ function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr
 	$atfirstpage = false;
 	$atlastpage = false;
 
-	if (!isset($page) || $page <= 1) {	// If page number <= 1, then we are at the first page
+	if (!isset($page) || $page <= 1) {
+		// If page number <= 1, then we are at the first page
 		$page = 1;
 		$atfirstpage = true;
 	}
-	if ($nrows <= 0) $nrows = 10;	// If an invalid nrows is supplied, we assume a default value of 10 rows per page
+	if ($nrows <= 0) {
+		// If an invalid nrows is supplied, we assume a default value of 10 rows per page
+		$nrows = 10;
+	}
 
 	$pagecounteroffset = ($page * $nrows) - $nrows;
 
-	//To find out if there are more pages of rows, simply increase the limit or nrows by 1 and see if that number of records was returned.
-	//If it was, then we know there is at least one more page left, otherwise we are on the last page.
-	//Therefore allow non-Count() paging with single queries rather than three queries as was done before.
+	// To find out if there are more pages of rows, simply increase the limit or
+	// nrows by 1 and see if that number of records was returned. If it was,
+	// then we know there is at least one more page left, otherwise we are on
+	// the last page. Therefore allow non-Count() paging with single queries
+	// rather than three queries as was done before.
 	$test_nrows = $nrows + 1;
 	if ($secs2cache > 0) {
 		$rsreturn = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr);
@@ -571,42 +577,56 @@ function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr
 		$rsreturn = $zthis->SelectLimit($sql, $test_nrows, $pagecounteroffset, $inputarr, $secs2cache);
 	}
 
-	//Now check to see if the number of rows returned was the higher value we asked for or not.
+	// Now check to see if the number of rows returned was the higher value we asked for or not.
 	if ( $rsreturn->_numOfRows == $test_nrows ) {
-		//Still at least 1 more row, so we are not on last page yet... Remove the last row from the RS.
+		// Still at least 1 more row, so we are not on last page yet...
+		// Remove the last row from the RS.
 		$rsreturn->_numOfRows = ( $rsreturn->_numOfRows - 1 );
 	} elseif ( $rsreturn->_numOfRows == 0 && $page > 1 ) {
-		//Likely requested a page that doesn't exist, so need to find the last page and return it.
-		//Revert to original method and loop through pages until we find some data...
+		// Likely requested a page that doesn't exist, so need to find the last
+		// page and return it. Revert to original method and loop through pages
+		// until we find some data...
 		$pagecounter = $page + 1;
 		$pagecounteroffset = ($pagecounter * $nrows) - $nrows;
 
 		$rstest = $rsreturn;
 		if ($rstest) {
-			while ($rstest && $rstest->EOF && $pagecounter>0) {
+			while ($rstest && $rstest->EOF && $pagecounter > 0) {
 				$atlastpage = true;
 				$pagecounter--;
 				$pagecounteroffset = $nrows * ($pagecounter - 1);
 				$rstest->Close();
-				if ($secs2cache>0) $rstest = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr);
-				else $rstest = $zthis->SelectLimit($sql, $nrows, $pagecounteroffset, $inputarr, $secs2cache);
+				if ($secs2cache>0) {
+					$rstest = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr);
+				}
+				else {
+					$rstest = $zthis->SelectLimit($sql, $nrows, $pagecounteroffset, $inputarr, $secs2cache);
+				}
 			}
 			if ($rstest) $rstest->Close();
 		}
-		if ($atlastpage) {	// If we are at the last page or beyond it, we are going to retrieve it
+		if ($atlastpage) {
+			// If we are at the last page or beyond it, we are going to retrieve it
 			$page = $pagecounter;
-			if ($page == 1) $atfirstpage = true;	// We have to do this again in case the last page is the same as the first
-				//... page, that is, the recordset has only 1 page.
+			if ($page == 1) {
+				// We have to do this again in case the last page is the same as
+				// the first page, that is, the recordset has only 1 page.
+				$atfirstpage = true;
+			}
 		}
 		// We get the data we want
 		$offset = $nrows * ($page-1);
-		if ($secs2cache > 0) $rsreturn = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $offset, $inputarr);
-		else $rsreturn = $zthis->SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
+		if ($secs2cache > 0) {
+			$rsreturn = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $offset, $inputarr);
+		}
+		else {
+			$rsreturn = $zthis->SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
+		}
 	} elseif ( $rsreturn->_numOfRows < $test_nrows ) {
-		//Rows is less than what we asked for, so must be at the last page.
+		// Rows is less than what we asked for, so must be at the last page.
 		$atlastpage = true;
 	}
-	
+
 	// Before returning the RecordSet, we set the pagination properties we need
 	if ($rsreturn) {
 		$rsreturn->rowsPerPage = $nrows;
