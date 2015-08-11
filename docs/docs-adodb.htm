@@ -6192,7 +6192,9 @@ PHP</a>. </p>
 <p>adodb: Improve logic to build the assoc case bind array
 <p>adodb: Strict-standards compliance for function names. See Github #18, #142
 <p>adodb: Remove old PHP 4.x constructors for compatibility with PHP 7. See Github #139
+<p>adodb-lib: Optimize query pagination, thanks to Mike Benoit. See Github #110
 <p>memcache: use include_once() to avoid issues with PHPUnit. See http://phplens.com/lens/lensforum/msgs.php?id=19489
+<p>mssql_n: Allow use of prepared statements with driver. See Github #22
 <p>mssqlnative: Use ADOConnection::outp instead of error_log. See Github #12
 <p>mssqlnative: fix failure on Insert_ID() if the insert statement contains a semicolon in a value string, thanks to sketule. See Github #96
 <p>mssqlnative: Fix "invalid parameter was passed to sqlsrv_configure" error, thanks to Ray Morris. See Github #103
@@ -6211,6 +6213,7 @@ PHP</a>. </p>
 <p>postgres: Stop using legacy function aliases
 <p>postgres: Fix AlterColumnSQL when updating multiple columns, thanks to Jouni Ahto. See Github #72
 <p>postgres: Fix support for HHVM 3.6, thanks to Mike Benoit. See Github #87
+<p>postgres: Noblob optimization, thanks to Mike Benoit. See Github #112
 <p>postgres7: fix system warning in MetaColumns() with schema. See http://phplens.com/lens/lensforum/msgs.php?id=19481
 <p>sqlite3: ServerInfo() now returns driver's version
 <p>sqlite3: Fix wrong connection parameter in _connect(), thanks to diogotoscano. See Github #51
