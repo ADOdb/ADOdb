@@ -134,7 +134,7 @@ class ADODB_db2 extends ADOConnection {
 	}
 
 	// format and return date string in database timestamp format
-	function DBTimeStamp($ts)
+	function DBTimeStamp($ts, $isfld = false)
 	{
 		if (empty($ts) && $ts !== 0) return 'null';
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
@@ -233,13 +233,13 @@ class ADODB_db2 extends ADOConnection {
 		return true;
 	}
 
-	function DropSequence($seqname)
+	function DropSequence($seqname = 'adodbseq')
 	{
 		if (empty($this->_dropSeqSQL)) return false;
 		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false)
+	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputArr = false, $secs2cache = 0)
 	{
 		$nrows = (integer) $nrows;
 		if ($offset <= 0) {
@@ -333,7 +333,7 @@ class ADODB_db2 extends ADOConnection {
 		return $ret;
 	}
 
-	function MetaPrimaryKeys($table)
+	function MetaPrimaryKeys($table, $owner = false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -409,7 +409,7 @@ class ADODB_db2 extends ADOConnection {
 	}
 
 
-	function MetaTables($ttype=false,$schema=false)
+	function MetaTables($ttype = false, $schema = false, $mask = false)
 	{
 	global $ADODB_FETCH_MODE;
 

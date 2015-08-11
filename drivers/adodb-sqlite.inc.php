@@ -288,7 +288,7 @@ class ADODB_sqlite extends ADOConnection {
 	}
 
 	var $_dropSeqSQL = 'drop table %s';
-	function DropSequence($seqname)
+	function DropSequence($seqname = 'adodbseq')
 	{
 		if (empty($this->_dropSeqSQL)) {
 			return false;
@@ -302,7 +302,7 @@ class ADODB_sqlite extends ADOConnection {
 		return @sqlite_close($this->_connectionID);
 	}
 
-	function MetaIndexes($table, $primary = FALSE, $owner=false, $owner = false)
+	function MetaIndexes($table, $primary = FALSE, $owner = false)
 	{
 		$false = false;
 		// save old fetch mode

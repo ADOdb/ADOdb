@@ -77,7 +77,7 @@ class  ADORecordSet_vfp extends ADORecordSet_odbc {
 		return $this->ADORecordSet_odbc($id,$mode);
 	}
 
-	function MetaType($t,$len=-1)
+	function MetaType($t, $len = -1, $fieldobj = false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;

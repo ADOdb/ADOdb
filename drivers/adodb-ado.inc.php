@@ -147,7 +147,7 @@ class ADODB_ado extends ADOConnection {
 
 */
 
-	function MetaTables()
+	function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$arr= array();
 		$dbc = $this->_connectionID;

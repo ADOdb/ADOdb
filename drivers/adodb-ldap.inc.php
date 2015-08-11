@@ -349,7 +349,7 @@ class ADORecordSet_ldap extends ADORecordSet{
 		return $results;
 	}
 
-	function GetRowAssoc()
+	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
 		$results = array();
 		foreach ( $this->fields as $k=>$v ) {

@@ -36,7 +36,7 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 		$this->ADODB_odbc();
 	}
 
-	function MetaTables()
+	function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$false = false;
 		$rs = $this->Execute($this->metaTablesSQL);

@@ -58,7 +58,7 @@ class ADODB_db2oci extends ADODB_db2 {
 	}
 
 
-	function _Execute($sql, $inputarr)
+	function _Execute($sql, $inputarr = false)
 	{
 		if ($inputarr) list($sql,$inputarr) = _colonscope($sql, $inputarr);
 		return parent::_Execute($sql, $inputarr);

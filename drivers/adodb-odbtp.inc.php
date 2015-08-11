@@ -120,7 +120,7 @@ class ADODB_odbtp extends ADOConnection{
 		return $this->Execute("insert into adodb_seq values('$seqname',$start)");
 	}
 
-	function DropSequence($seqname)
+	function DropSequence($seqname = 'adodbseq')
 	{
 		if (empty($this->_dropSeqSQL)) return false;
 		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
@@ -475,7 +475,7 @@ class ADODB_odbtp extends ADOConnection{
 		return array($sql,$stmt,false);
 	}
 
-	function PrepareSP($sql)
+	function PrepareSP($sql, $param = true)
 	{
 		if (!$this->_canPrepareSP) return $sql; // Can't prepare procedures
 

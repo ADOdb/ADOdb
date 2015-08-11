@@ -79,7 +79,7 @@ class ADODB_csv extends ADOConnection {
 
 
 	// parameters use PostgreSQL convention, not MySQL
-	function SelectLimit($sql,$nrows=-1,$offset=-1)
+	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
 	{
 	global $ADODB_FETCH_MODE;
 

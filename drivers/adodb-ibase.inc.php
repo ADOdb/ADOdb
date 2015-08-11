@@ -268,14 +268,14 @@ class ADODB_ibase extends ADOConnection {
 	}
 
 
-	function CreateSequence($seqname,$startID=1)
+	function CreateSequence($seqname = 'adodbseq', $startID = 1)
 	{
 		$ok = $this->Execute(("INSERT INTO RDB\$GENERATORS (RDB\$GENERATOR_NAME) VALUES (UPPER('$seqname'))" ));
 		if (!$ok) return false;
 		return $this->Execute("SET GENERATOR $seqname TO ".($startID-1).';');
 	}
 
-	function DropSequence($seqname)
+	function DropSequence($seqname = 'adodbseq')
 	{
 		$seqname = strtoupper($seqname);
 		$this->Execute("delete from RDB\$GENERATORS where RDB\$GENERATOR_NAME='$seqname'");

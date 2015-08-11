@@ -252,7 +252,7 @@ order by constraint_name, referenced_table_name, keyno";
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
-	function MetaPrimaryKeys($table)
+	function MetaPrimaryKeys($table, $owner = false)
 	{
 	global $ADODB_FETCH_MODE;
 
