@@ -1,6 +1,10 @@
 # ADOdb old Changelog - v4.x
 
-[Current Changelog](changelog.md)
+See the [Current Changelog](changelog.md).
+Older changelogs:
+[v3.x](changelog_v3.x.md),
+[v2.x](changelog_v2.x.md).
+
 
 ## 4.990 - 11 Jul 2008
 

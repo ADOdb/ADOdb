@@ -1,7 +1,12 @@
 # ADOdb Changelog - v5.x
 
+Older changelogs:
+[v4.x](changelog_v4.x.md),
+[v3.x](changelog_v3.x.md),
+[v2.x](changelog_v2.x.md).
 
-## 5.20 - ??-???-2014
+
+## 5.20 - ??-???-2015
 
 - adodb: Fix regression introduced in v5.19, causing queries to return empty rows. See Github #20, #93, #95
 - adodb: Fix regression introduced in v5.19 in GetAssoc() with ADODB_FETCH_ASSOC mode and '0' as data. See Github #102
@@ -309,6 +314,8 @@ other database types as well; all drivers derived from the above are also impact
 
 ## 5.05 - 11 Jul 2008
 
+Released together with [v4.990](changelog_v4.x.md#4990---11-jul-2008)
+
 - Added support for multiple recordsets in mysqli , thanks to Geisel Sierote geisel#4up.com.br. See http://phplens.com/lens/lensforum/msgs.php?id=15917
 - Malcolm Cook added new Reload() function to Active Record. See http://phplens.com/lens/lensforum/msgs.php?id=17474
 - Thanks Zoltan Monori (monzol#fotoprizma.hu) for bug fixes in iterator, SelectLimit, GetRandRow, etc.
@@ -350,11 +357,15 @@ other database types as well; all drivers derived from the above are also impact
 
 ## 5.04 - 13 Feb 2008
 
+Released together with [v4.98](changelog_v4.x.md#498---13-feb-2008)
+
 - Fixed adodb_mktime problem which causes a performance bottleneck in $hrs.
 - Added mysqli support to adodb_getcount().
 - Removed MYSQLI_TYPE_CHAR from MetaType().
 
 ## 5.03 - 22 Jan 2008
+
+Released together with [v4.97](changelog_v4.x.md#497---22-jan-2008)
 
 - Active Record: $ADODB_ASSOC_CASE=1 did not work properly. Fixed.
 - Modified Fields() in recordset class to support display null fields in FetchNextObject().
@@ -369,6 +380,8 @@ other database types as well; all drivers derived from the above are also impact
 - Problem with mssql driver in php5 (for adodb 5.03) because some functions are not static. Fixed.
 
 ## 5.02 - 24 Sept 2007
+
+Released together with [v4.96](changelog_v4.x.md#496---24-sept-2007)
 
 - ADOdb perf for oci8 now has non-table-locking code when clearing the sql. Slower but better transparency. Added in 4.96a and 5.02a.
 - Fix adodb count optimisation. Preg_match did not work properly. Also rewrote the ORDER BY stripping code in _adodb_getcount(), adodb-lib.inc.php.
@@ -395,6 +408,8 @@ other database types as well; all drivers derived from the above are also impact
 - Changed parser for pgsql error messages in adodb-error.inc.php to case-insensitive regex.
 
 ## 5.01 - 17 May 2007
+
+Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 
 - CacheFlush debug outp() passed in invalid parameters. Fixed.
 - Added Thai language file for adodb. Thx Trirat Petchsingh rosskouk#gmail.com and Marcos Pont
