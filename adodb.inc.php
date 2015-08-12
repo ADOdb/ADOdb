@@ -3389,7 +3389,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 
 		// Determine whether the array is associative or 0-based numeric
-		$numIndex = array_keys($this->fields) == range(0, count($this->fields) - 1);
+		$numIndex = $this->IsCurrentRowNumeric();
 
 		$results = array();
 
@@ -4263,6 +4263,59 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return $this->_atLastPage;
 	}
 
+	/**
+	 * returns true if current row is at least numericaly indexed or false otherwise.
+	 * warning: can return true if the associative keys happens to be exactly named as the
+	 *		numeric keys. Solving this is logically impossible from just examining
+	 *		the $this->fields array.
+	 * note: can return false when the array is both associative and numerically indexed, but 
+	 *		the numericaly indexed portion is corrupt. This happens when the original array is
+	 *		created with numeric indices, then associative indices, and some of the associative
+	 *		indices are the same as the numeric indices.
+	 */
+	function IsCurrentRowNumeric()
+	{
+		$vAssociativeKeys = array();
+		$vNumericKeys = array();
+		$vAssociativeSubset = array();
+		$vNumericSubset = array();
+		$vAssociativeKeysCount = -1;
+		$vNumericKeysCount = -1;
+
+		foreach($this->fields as $tKey => $tValue)
+		{
+			if(ctype_digit(trim($tKey)))
+			{
+				$vNumericKeys[] = $tKey;
+				$vNumericSubset[$tValue] = $tValue;
+			}
+			else
+			{
+				$vAssociativeKeys[] = $tKey;
+				$vAssociativeSubset[$tValue] = $tValue;
+			}
+		}
+
+		$vAssociativeKeysCount = count($vAssociativeKeys);
+		$vNumericKeysCount = count($vNumericKeys);
+
+		if(($vNumericKeysCount === $this->_numOfFields) && 
+				($vNumericKeysCount === $vAssociativeKeysCount))
+			{return true;}
+		else if($vNumericKeysCount > $vAssociativeKeysCount)
+		{
+			if($vNumericKeys != range(0, $this->_numOfFields - 1))
+				{return false;}
+			foreach($vAssociativeSubset as $tValue)
+			{
+				if(!array_key_exists($tValue, $vNumericSubset))
+					{return false;}
+			}
+			return true;
+		}
+		else
+			{return false;}
+	}
 } // end class ADORecordSet
 
 	//==============================================================================================
