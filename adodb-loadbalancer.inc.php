@@ -300,12 +300,24 @@ class ADOdbLoadBalancer {
 		return FALSE;
 	}
 
+	public function isReadOnlyQuery( $sql ) {
+		if ( stripos( $sql, 'SELECT') === 0 && stripos( $sql, 'FOR UPDATE') === FALSE && stripos( $sql, ' INTO ') === FALSE && stripos( $sql, 'LOCK IN') === FALSE ) {
+			return TRUE;
+		}
+
+		return FALSE;
+	}
+	
 	//Use this instead of __call() as it significantly reduces the overhead of call_user_func_array().
 	public function Execute( $sql, $inputarr = FALSE ) {
 		$type = 'master';
 		$pin_connection = NULL;
 
-		if ( stripos( $sql, 'SELECT') === 0 ) {
+		//SELECT queries that can write and therefore must be run on MASTER.
+		//SELECT ... FOR UPDATE;
+		//SELECT ... INTO ...
+		//SELECT .. LOCK IN ... (MYSQL)
+		if ( $this->isReadOnlyQuery( $sql ) == TRUE ) {
 			$type = 'slave';
 		} elseif ( stripos( $sql, 'SET') === 0 ) {
 			//SET SQL statements should likely use setSessionVariable() instead,
@@ -329,12 +341,16 @@ class ADOdbLoadBalancer {
 		$method = strtolower($method);
 		switch ( $method ) {
 			//case 'execute': //This is the direct overloaded function above instead.
-			case 'selectlimit':
 			case 'getone':
 			case 'getrow':
 			case 'getall':
 			case 'getcol':
 			case 'getassoc':
+			case 'selectlimit':
+				if ( $this->isReadOnlyQuery( $args[0] ) == TRUE ) {
+					$type = 'slave';
+				}
+				break;
 			case 'cachegetone':
 			case 'cachegetrow':
 			case 'cachegetall':
