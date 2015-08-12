@@ -54,7 +54,7 @@ class ADODB_ibase extends ADOConnection {
 	var $blobEncodeType = 'C';
 	var $role = false;
 
-	function ADODB_ibase()
+	function __construct()
 	{
 		if (defined('IBASE_DEFAULT')) $this->ibasetrans = IBASE_DEFAULT;
 	}
@@ -268,14 +268,14 @@ class ADODB_ibase extends ADOConnection {
 	}
 
 
-	function CreateSequence($seqname,$startID=1)
+	function CreateSequence($seqname = 'adodbseq', $startID = 1)
 	{
 		$ok = $this->Execute(("INSERT INTO RDB\$GENERATORS (RDB\$GENERATOR_NAME) VALUES (UPPER('$seqname'))" ));
 		if (!$ok) return false;
 		return $this->Execute("SET GENERATOR $seqname TO ".($startID-1).';');
 	}
 
-	function DropSequence($seqname)
+	function DropSequence($seqname = 'adodbseq')
 	{
 		$seqname = strtoupper($seqname);
 		$this->Execute("delete from RDB\$GENERATORS where RDB\$GENERATOR_NAME='$seqname'");
@@ -759,12 +759,12 @@ class ADORecordset_ibase extends ADORecordSet
 	var $bind=false;
 	var $_cacheType;
 
-	function ADORecordset_ibase($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
 	global $ADODB_FETCH_MODE;
 
 			$this->fetchMode = ($mode === false) ? $ADODB_FETCH_MODE : $mode;
-			$this->ADORecordSet($id);
+			parent::__construct($id);
 	}
 
 	/*		Returns: an object containing field information.
@@ -852,9 +852,9 @@ class ADORecordset_ibase extends ADORecordSet
 
 		$this->fields = $f;
 		if ($this->fetchMode == ADODB_FETCH_ASSOC) {
-			$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
+			$this->fields = $this->GetRowAssoc();
 		} else if ($this->fetchMode == ADODB_FETCH_BOTH) {
-			$this->fields = array_merge($this->fields,$this->GetRowAssoc(ADODB_ASSOC_CASE));
+			$this->fields = array_merge($this->fields,$this->GetRowAssoc());
 		}
 		return true;
 	}

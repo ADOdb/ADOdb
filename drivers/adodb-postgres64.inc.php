@@ -737,7 +737,7 @@ class ADODB_postgres64 extends ADOConnection{
 		# PHP does not handle 'hex' properly ('x74657374' is returned as 't657374')
 		# https://bugs.php.net/bug.php?id=59831 states this is in fact not a bug,
 		# so we manually set bytea_output
-		if (version_compare($info['version'], '9.0', '>=')) {
+		if ( !empty($this->connection->noBlobs) && version_compare($info['version'], '9.0', '>=')) {
 			$this->Execute('set bytea_output=escape');
 		}
 
@@ -932,12 +932,14 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		$this->adodbFetchMode = $mode;
 
 		// Parent's constructor
-		$this->ADORecordSet($queryID);
+		parent::__construct($queryID);
 	}
 
-	function GetRowAssoc($upper=true)
+	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
-		if ($this->fetchMode == PGSQL_ASSOC && !$upper) return $this->fields;
+		if ($this->fetchMode == PGSQL_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
+			return $this->fields;
+		}
 		$row = ADORecordSet::GetRowAssoc($upper);
 		return $row;
 	}

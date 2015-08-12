@@ -65,7 +65,7 @@ class perf_mssql extends adodb_perf{
 	);
 
 
-	function perf_mssql(&$conn)
+	function __construct(&$conn)
 	{
 		if ($conn->dataProvider == 'odbc') {
 			$this->sql1 = 'sql1';
