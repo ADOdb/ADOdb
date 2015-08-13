@@ -6,7 +6,11 @@ V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights res
   the BSD license will take precedence.
   Set tabs to 8.
 
-  MySQL code that does not support transactions. Use mysqlt if you need transactions.
+  This driver only supports the original non-transactional MySQL driver. It
+  is deprected in PHP version 5.5 and removed in PHP version 7. It is deprecated
+  as of ADOdb version 5.20.0. Use the mysqli driver instead, which supports both
+  transactional and non-transactional updates
+  
   Requires mysql client. Works on Windows and Unix.
 
  28 Feb 2001: MetaColumns bug fix - suggested by  Freek Dijkstra (phpeverywhere@macfreek.com)
