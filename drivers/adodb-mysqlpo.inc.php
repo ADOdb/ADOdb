@@ -9,6 +9,11 @@ V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights res
 
   MySQL code that supports transactions. For MySQL 3.23 or later.
   Code from James Poon <jpoon88@yahoo.com>
+  
+  This driver extends the deprecated mysql driver, and was originally designed to be a 
+  portable driver in the same manner as oci8po and mssqlpo. Its functionality
+  is exactly duplicated in the mysqlt driver, which is itself deprecated.
+  This driver will be removed in ADOdb version 6.0.0.
 
   Requires mysql client. Works on Windows and Unix.
 */
