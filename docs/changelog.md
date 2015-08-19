@@ -30,6 +30,7 @@ Older changelogs:
 - adodb: Remove old PHP 4.x constructors for compatibility with PHP 7. See Github #139
 - adodb: Initialize charset in ADOConnection::SetCharSet. See Github #39
 - adodb: Fix incorrect handling of input array in Execute(). See Github #146
+- adodb: Release Recordset when raising exception. See Github #143
 - adodb-lib: Optimize query pagination, thanks to Mike Benoit. See Github #110
 - memcache: use include_once() to avoid issues with PHPUnit. See http://phplens.com/lens/lensforum/msgs.php?id=19489
 - mssql_n: Allow use of prepared statements with driver. See Github #22
