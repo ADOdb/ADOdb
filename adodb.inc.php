@@ -3198,6 +3198,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$this->_queryID = $queryID;
 	}
 
+	function __destruct() {
+		$this->Close();
+	}
+
 	function getIterator() {
 		return new ADODB_Iterator($this);
 	}
