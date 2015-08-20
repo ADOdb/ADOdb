@@ -2183,6 +2183,10 @@ if (!defined('_ADODB_LAYER')) {
 		return $blob;
 	}
 
+	function GetCharSet() {
+		return $this->charSet;
+	}
+
 	function SetCharSet($charset) {
 		$this->charSet = $charset;
 		return true;
@@ -2207,10 +2211,6 @@ if (!defined('_ADODB_LAYER')) {
 			$this->_affected = false;
 		}
 		return $old;
-	}
-
-	function GetCharSet() {
-		return false;
 	}
 
 	/**
