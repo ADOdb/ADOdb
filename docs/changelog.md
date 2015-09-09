@@ -28,6 +28,7 @@ Older changelogs:
 - adodb: Improve logic to build the assoc case bind array
 - adodb: Strict-standards compliance for function names. See Github #18, #142
 - adodb: Remove old PHP 4.x constructors for compatibility with PHP 7. See Github #139
+- adodb: Initialize charset in ADOConnection::SetCharSet. See Github #39
 - adodb-lib: Optimize query pagination, thanks to Mike Benoit. See Github #110
 - memcache: use include_once() to avoid issues with PHPUnit. See http://phplens.com/lens/lensforum/msgs.php?id=19489
 - mssql_n: Allow use of prepared statements with driver. See Github #22
