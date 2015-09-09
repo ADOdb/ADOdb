@@ -86,7 +86,7 @@ if (!defined('_ADODB_LAYER')) {
 	// ********************************************************
 
 
-
+	if (!$ADODB_EXTENSION || ADODB_EXTENSION < 4.0) {
 
 		define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
 
@@ -4882,3 +4882,5 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 		return _adodb_backtrace($printOrArr,$levels,0,$ishtml);
 	}
+
+}
