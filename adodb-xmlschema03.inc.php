@@ -505,7 +505,11 @@ class dbTable extends dbObject {
 	*/
 	function addTableOpt( $opt ) {
 		if(isset($this->currentPlatform)) {
-			$this->opts[$this->parent->db->databaseType] = $opt;
+			#$this->opts[$this->parent->db->databaseType] = $opt;
+			# fix for: if driver is mysqli, but 'platform' is mysql and you want mysqlspecific table create options like
+			# <opt>DEFAULT CHARSET=utf8</opt> in the xml or dbspecific:
+			# <opt platform="mysql">DEFAULT CHARSET=utf8</opt> in the xml
+			$this->opts[$this->parent->db->dataProvider] = $opt;
 		}
 		return $this->opts;
 	}
@@ -1242,6 +1246,9 @@ class dbQuerySet extends dbObject {
 					$query = $this->prefixQuery( '/^\s*((?is)INSERT\s+(INTO\s+)?)((\w+\s*,?\s*)+)(\s.*$)/', $query, $xmls->objectPrefix );
 					$query = $this->prefixQuery( '/^\s*((?is)UPDATE\s+(FROM\s+)?)((\w+\s*,?\s*)+)(\s.*$)/', $query, $xmls->objectPrefix );
 					$query = $this->prefixQuery( '/^\s*((?is)DELETE\s+(FROM\s+)?)((\w+\s*,?\s*)+)(\s.*$)/', $query, $xmls->objectPrefix );
+
+					// enable ALTER TABLE queries, just adapted from above..
+					$query = $this->prefixQuery( '/^\s*((?is)ALTER\s+(TABLE\s+)?)((\w+\s*,?\s*)+)(\s.*$)/', $query, $xmls->objectPrefix );
 
 					// SELECT statements aren't working yet
 					#$data = preg_replace( '/(?ias)(^\s*SELECT\s+.*\s+FROM)\s+(\W\s*,?\s*)+((?i)\s+WHERE.*$)/', "\1 $prefix\2 \3", $data );
