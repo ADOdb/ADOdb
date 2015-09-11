@@ -1076,32 +1076,32 @@ if (!defined('_ADODB_LAYER')) {
 			unset($element0);
 
 			if (!is_array($sql) && !$this->_bindInputArray) {
-				// Normalize any hardcoded strings in the query to single quotes
-				$sql = explode("\\\"", $sql);	// protect escaped double quotes
-				while(list(, $x) = each($sql))
-				  $sqlClean[] = str_replace('"', "'", $x);
-				$sql = implode('\\\"', $sqlClean);	// restore escaped double quotes
+        // Normalize any hardcoded strings in the query to single quotes
+        $sql = explode("\\\"", $sql); // protect escaped double quotes
+        while(list(, $x) = each($sql))
+          $sqlClean[] = str_replace('"', "'", $x);
+        $sql = implode('\\\"', $sqlClean);  // restore escaped double quotes
 
-				// Split by tokens, ignoring tokens in quotes
-				$sql = explode("'", $sql);
-				$j = 0; $prevSeg = 0;
-				while(list(, $v) = each($sql)) {
-				  if($j%2 == 0) {
-				    // if even, we're outside the quotes
-				    $exp = explode("?", $v);
-				    $sqlarr[$prevSeg] .= $exp[0];
-				    unset($exp[0]);
-				    array_merge($sqlarr, $exp);
-				    while(list(, $w) = each($exp))
-				      $sqlarr[] = $w;
-				    $prevSeg = $j + (count($exp));
-				  } else {
-				    // if odd, we're inside the quotes
-				    $sqlarr[$prevSeg] .= "'".$v."'";
-				  }
-				  $j++;
-				}
-				$sql = implode("'", $sql);	// restore original query
+        // Split by tokens, ignoring tokens in quotes
+        $sql = explode("'", $sql);
+        $j = 0; $prevSeg = 0;
+        while(list(, $v) = each($sql)) {
+          if($j%2 == 0) {
+            // if even, we're outside the quotes
+            $exp = explode("?", $v);
+            $sqlarr[$prevSeg] .= $exp[0];
+            unset($exp[0]);
+            array_merge($sqlarr, $exp);
+            while(list(, $w) = each($exp))
+              $sqlarr[] = $w;
+            $prevSeg += count($exp);
+          } else {
+            // if odd, we're inside the quotes
+            $sqlarr[$prevSeg] .= "'".$v."'";
+          }
+          $j++;
+        }
+        $sql = implode("'", $sql);  // restore original query
 
 				// Get number of parameters (tokens)
 				$nparams = sizeof($sqlarr)-1;
