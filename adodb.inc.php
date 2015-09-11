@@ -1102,6 +1102,7 @@ if (!defined('_ADODB_LAYER')) {
           $j++;
         }
         $sql = implode("'", $sql);  // restore original query
+				
 
 				// Get number of parameters (tokens)
 				$nparams = sizeof($sqlarr)-1;
