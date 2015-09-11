@@ -1076,8 +1076,21 @@ if (!defined('_ADODB_LAYER')) {
 			unset($element0);
 
 			if (!is_array($sql) && !$this->_bindInputArray) {
+				// @TODO this would consider a '?' within a string as a parameter...
 				$sqlarr = explode('?',$sql);
 				$nparams = sizeof($sqlarr)-1;
+
+				// Make sure the number of parameters provided in the input
+				// array matches what the query expects
+				if ($nparams != count($inputarr)) {
+					$this->outp_throw(
+						"Input array has " . count($inputarr) .
+						" params, does not match query: '" . htmlspecialchars($sql) . "'",
+						'Execute'
+					);
+					return false;
+				}
+
 				if (!$array_2d) {
 					$inputarr = array($inputarr);
 				}
