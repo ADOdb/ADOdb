@@ -58,6 +58,7 @@ Older changelogs:
 - sqlite3: Fix wrong connection parameter in _connect(), thanks to diogotoscano. See Github #51
 - sqlite3: Fix FetchField, thanks to diogotoscano. See Github #53
 - sqlite3: Fix result-less SQL statements executed twice. See Github #99
+- sqlite3: use -1 for _numOfRows. See Github #151
 - xmlschema: Fix ExtractSchema() when given $prefix and $stripprefix parameters, thanks to peterdd. See Github #92
 - Convert languages files to UTF-8, thanks to Marc-Etienne Vargenau. See Github #32.
 
