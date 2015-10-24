@@ -480,6 +480,10 @@ class ADODB_mssqlnative extends ADOConnection {
 		$connectionInfo["Database"]=$argDatabasename;
 		$connectionInfo["UID"]=$argUsername;
 		$connectionInfo["PWD"]=$argPassword;
+		
+		// add utf8 charset support - http://www.databaseskill.com/228701/
+		$connectionInfo["CharacterSet"]='UTF-8'; 
+		
 		if ($this->debug) ADOConnection::outp("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
 		//if ($this->debug) ADOConnection::outp("<hr>_connectionID before: ".serialize($this->_connectionID));
 		if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo))) {
