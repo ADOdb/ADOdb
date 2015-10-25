@@ -503,7 +503,32 @@ if (!defined('_ADODB_LAYER')) {
 	var $_affected = false;
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
-
+	
+	/*
+	 * Additional parameters that may be passed to drivers in the connect string
+	 * Driver must be coded to accept the parameters
+	 */
+	protected $connectionParameters = array();
+	
+	/**
+	* Adds a parameter to the connection string.
+	*
+	* These parameters are added to the connection string when connecting,
+	* if the driver is coded to use it.
+	*
+	* @param	string	$parameter	The name of the parameter to set
+	* @param	string	$value		The value of the parameter
+	*
+	* @return null
+	*
+	* @example, for mssqlnative driver ('CharacterSet','UTF-8')
+	*/
+	final public function setConnectionParameter($parameter,$value)
+	{
+		
+		$this->connectionParameters[$parameter] = $value;
+		
+	}
 
 	static function Version() {
 		global $ADODB_vers;
