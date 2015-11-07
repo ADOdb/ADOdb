@@ -81,7 +81,7 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 		return $rs;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$info = $this->ServerInfo();
 		if ($info['version'] >= 7.3) {
@@ -112,7 +112,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 		return $ret;
 	}
 
-	function MetaColumns($table,$normalize=true)
+	protected function _metaColumns($table,$normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 

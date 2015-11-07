@@ -238,12 +238,12 @@ class ADODB_pdo extends ADOConnection {
 		return $this->_driver->ServerInfo();
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		return $this->_driver->MetaTables($ttype,$showSchema,$mask);
 	}
 
-	function MetaColumns($table,$normalize=true)
+	protected function _metaColumns($table,$normalize=true)
 	{
 		return $this->_driver->MetaColumns($table,$normalize);
 	}
@@ -530,12 +530,12 @@ class ADODB_pdo_base extends ADODB_pdo {
 		return $ret;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		return false;
 	}
 
-	function MetaColumns($table,$normalize=true)
+	protected function _metaColumns($table,$normalize=true)
 	{
 		return false;
 	}

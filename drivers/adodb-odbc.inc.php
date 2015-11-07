@@ -240,7 +240,7 @@ class ADODB_odbc extends ADOConnection {
 		return $ret;
 	}
 
-	function MetaPrimaryKeys($table,$owner=false)
+	protected function _metaPrimaryKeys($table,$owner=false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -274,7 +274,7 @@ class ADODB_odbc extends ADOConnection {
 
 
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -380,7 +380,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 		}
 	}
 
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 

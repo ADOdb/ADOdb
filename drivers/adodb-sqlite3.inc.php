@@ -81,7 +81,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	}
 
 	// mark newnham
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
 		$false = false;
@@ -285,7 +285,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		return $this->_connectionID->close();
 	}
 
-	function MetaIndexes($table, $primary = FALSE, $owner = false)
+	protected function _metaIndexes($table, $primary = FALSE, $owner = false)
 	{
 		$false = false;
 		// save old fetch mode

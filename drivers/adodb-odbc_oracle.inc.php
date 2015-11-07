@@ -31,7 +31,7 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 
 	//var $_bindInputArray = false;
 
-	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	protected function _metaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$false = false;
 		$rs = $this->Execute($this->metaTablesSQL);
@@ -45,7 +45,7 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 		return $arr2;
 	}
 
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 

@@ -85,7 +85,7 @@ class ADODB_mysql extends ADOConnection {
 		return " IFNULL($field, $ifNull) "; // if MySQL
 	}
 
-	function MetaProcedures($NamePattern = false, $catalog = null, $schemaPattern = null)
+	protected function _metaProcedures($NamePattern = false, $catalog = null, $schemaPattern = null)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -151,7 +151,7 @@ class ADODB_mysql extends ADOConnection {
 	 *
 	 * @return array list of tables
 	 */
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
@@ -171,7 +171,7 @@ class ADODB_mysql extends ADOConnection {
 	}
 
 
-	function MetaIndexes ($table, $primary = FALSE, $owner=false)
+	protected function _metaIndexes ($table, $primary = FALSE, $owner=false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -490,7 +490,7 @@ class ADODB_mysql extends ADOConnection {
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename);
 	}
 
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
 		$this->_findschema($table,$schema);
 		if ($schema) {
@@ -653,7 +653,7 @@ class ADODB_mysql extends ADOConnection {
 	}
 
 	// "Innox - Juan Carlos Gonzalez" <jgonzalez#innox.com.mx>
-	function MetaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
+	protected function _metaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
 	{
 	 global $ADODB_FETCH_MODE;
 		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC || $this->fetchMode == ADODB_FETCH_ASSOC) $associative = true;

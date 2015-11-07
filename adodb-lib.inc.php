@@ -627,6 +627,7 @@ function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr
 		$atlastpage = true;
 	}
 
+
 	// Before returning the RecordSet, we set the pagination properties we need
 	if ($rsreturn) {
 		$rsreturn->rowsPerPage = $nrows;
@@ -641,13 +642,19 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 {
 	global $ADODB_QUOTE_FIELDNAMES;
 
+
 		if (!$rs) {
 			printf(ADODB_BAD_RS,'GetUpdateSQL');
 			return false;
 		}
+		
+		if ($zthis->getMetaCasing() != $zthis::METACASE_LEGACY)
+			return _adodb_metacase_getupdatesql($zthis,$rs, $arrFields,$forceUpdate,$magicq,$force);
+
 
 		$fieldUpdatedCount = 0;
 		$arrFields = _array_change_key_case($arrFields);
+
 
 		$hasnumeric = isset($rs->fields[0]);
 		$setFields = '';
@@ -681,6 +688,8 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 					// Based on the datatype of the field
 					// Format the value properly for the database
 					$type = $rs->MetaType($field->type);
+
+
 
 
 					if ($type == 'null') {
@@ -782,6 +791,189 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 	}
 }
 
+/**
+* Creates an update statement using the new metacasing standards
+*
+* @param	obj			$zthis		handle to the database provider
+* @param	mixed		$rs			A recordset for the record to be update
+* @param	string[]	$arrFields	Array of insertion keys=>values
+* @param	bool		$forceUpdate Force record even if no fields to update
+* @param	bool		$magicq
+* @param	int			$force		See documentation for $ADODB_FORCE_TYPE
+*
+* @return 	mixed		The insert statement or false if in error
+*/
+function _adodb_metacase_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq=false,$force=2)
+{
+		global $ADODB_QUOTE_FIELDNAMES;
+
+		if (!$rs) {
+			printf(ADODB_BAD_RS,'GetUpdateSQL');
+			return false;
+		}
+
+		
+		$fieldUpdatedCount = 0;
+		if ($zthis->getMetaCasing() == $zthis::METACASE_LEGACY)
+			$arrFields = _array_change_key_case($arrFields);
+		else
+			$arrFields = $zthis->getMetaCasedArray($arrFields);
+
+
+		$hasnumeric = isset($rs->fields[0]);
+		$setFields = '';
+
+		// Loop through all of the fields in the recordset
+		for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++) {
+			// Get the field from the recordset
+			$field = $rs->FetchField($i);
+
+			// If the recordset field is one
+			// of the fields passed in then process.
+			$upperfname = $zthis->getMetaCasedValue($field->name);
+			//$upperfname = strtoupper($field->name);
+			if ( adodb_key_exists($upperfname,$arrFields,$force)) {
+
+				// If the existing field value in the recordset
+				// is different from the value passed in then
+				// go ahead and append the field name and new value to
+				// the update query.
+
+				if ($hasnumeric) $val = $rs->fields[$i];
+				else if (isset($rs->fields[$upperfname])) $val = $rs->fields[$upperfname];
+				else if (isset($rs->fields[$field->name])) $val =  $rs->fields[$field->name];
+				else if (isset($rs->fields[strtolower($upperfname)])) $val =  $rs->fields[strtolower($upperfname)];
+				else $val = '';
+
+
+				if ($forceUpdate || strcmp($val, $arrFields[$upperfname])) {
+					// Set the counter for the number of fields that will be updated.
+					$fieldUpdatedCount++;
+
+					// Based on the datatype of the field
+					// Format the value properly for the database
+					$type = $rs->MetaType($field->type);
+
+
+					if ($type == 'null') {
+						$type = 'C';
+					}
+					
+					if ($zthis->getMetaCasing() == $zthis::METACASE_NATIVE)
+						/*
+						* No matter what the column name looks like, we quote it
+						*/
+						$fnameq = $zthis->nameQuote.$field->name.$zthis->nameQuote;
+					
+					else if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES)) {
+						switch ($ADODB_QUOTE_FIELDNAMES) {
+						case 'LOWER':
+							$fnameq = $zthis->nameQuote.strtolower($field->name).$zthis->nameQuote;break;
+						case 'NATIVE':
+							$fnameq = $zthis->nameQuote.$field->name.$zthis->nameQuote;break;
+						case 'UPPER':
+						default:
+							$fnameq = $zthis->nameQuote.$upperfname.$zthis->nameQuote;break;
+						}
+					} else
+						$fnameq = $upperfname;
+
+                //********************************************************//
+                if (is_null($arrFields[$upperfname])
+					|| (empty($arrFields[$upperfname]) && strlen($arrFields[$upperfname]) == 0)
+                    || $arrFields[$upperfname] === $zthis->null2null
+                    )
+                {
+                    switch ($force) {
+
+                        //case 0:
+                        //    //Ignore empty values. This is allready handled in "adodb_key_exists" function.
+                        //break;
+
+                        case 1:
+                            //Set null
+                            $setFields .= $field->name . " = null, ";
+                        break;
+
+                        case 2:
+                            //Set empty
+                            $arrFields[$upperfname] = "";
+                            $setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,$arrFields, $magicq);
+                        break;
+						default:
+                        case 3:
+                            //Set the value that was given in array, so you can give both null and empty values
+                            if (is_null($arrFields[$upperfname]) || $arrFields[$upperfname] === $zthis->null2null) {
+                                $setFields .= $field->name . " = null, ";
+                            } else {
+                                $setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,$arrFields, $magicq);
+                            }
+                        break;
+                    }
+                //********************************************************//
+                } else {
+						//we do this so each driver can customize the sql for
+						//DB specific column types.
+						//Oracle needs BLOB types to be handled with a returning clause
+						//postgres has special needs as well
+						$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,
+														  $arrFields, $magicq);
+					}
+				}
+			}
+		}
+
+		// If there were any modified fields then build the rest of the update query.
+		if ($fieldUpdatedCount > 0 || $forceUpdate) {
+					// Get the table name from the existing query.
+			if (!empty($rs->tableName)) $tableName = $rs->tableName;
+			else {
+				preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName);
+				$tableName = $tableName[1];
+			}
+			// Get the full where clause excluding the word "WHERE" from
+			// the existing query.
+			preg_match('/\sWHERE\s(.*)/is', $rs->sql, $whereClause);
+
+			$discard = false;
+			// not a good hack, improvements?
+			if ($whereClause) {
+			#var_dump($whereClause);
+				if (preg_match('/\s(ORDER\s.*)/is', $whereClause[1], $discard));
+				else if (preg_match('/\s(LIMIT\s.*)/is', $whereClause[1], $discard));
+				else if (preg_match('/\s(FOR UPDATE.*)/is', $whereClause[1], $discard));
+				else preg_match('/\s.*(\) WHERE .*)/is', $whereClause[1], $discard); # see http://sourceforge.net/tracker/index.php?func=detail&aid=1379638&group_id=42718&atid=433976
+			} else
+				$whereClause = array(false,false);
+
+			if ($discard)
+				$whereClause[1] = substr($whereClause[1], 0, strlen($whereClause[1]) - strlen($discard[1]));
+
+			
+			if ($zthis->getMetaCasing() != $zthis::METACASE_LEGACY)
+				/*
+				* Lets remove any existing quotes from the table name
+				*/
+				$tableName = preg_replace('/[\'\"]+/','',$tableName);
+	
+			if ($zthis->getMetaCasing() == $zthis::METACASE_NATIVE)
+				/*
+			     * No matter what the table name looks like, we quote it
+				 */
+				$tableName = $zthis->nameQuote.$tableName.$zthis->nameQuote;
+			
+			$sql = 'UPDATE '.$tableName.' SET '.substr($setFields, 0, -2);
+			if (strlen($whereClause[1]) > 0)
+				$sql .= ' WHERE '.$whereClause[1];
+
+			return $sql;
+
+		} else {
+			return false;
+	}
+}
+
+
 function adodb_key_exists($key, &$arr,$force=2)
 {
 	if ($force<=0) {
@@ -807,7 +999,14 @@ function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false,$force=2)
 static $cacheRS = false;
 static $cacheSig = 0;
 static $cacheCols;
+
+	
+	if ($zthis->getMetaCasing() != $zthis::METACASE_LEGACY)
+		return _adodb_metacase_getinsertsql($zthis,$rs,$arrFields,$magicq,$force);
+
 	global $ADODB_QUOTE_FIELDNAMES;
+
+
 
 	$tableName = '';
 	$values = '';
@@ -929,6 +1128,7 @@ static $cacheCols;
 	// If there were any inserted fields then build the rest of the insert query.
 	if ($fieldInsertedCount <= 0)  return false;
 
+
 	// Get the table name from the existing query.
 	if (!$tableName) {
 		if (!empty($rs->tableName)) $tableName = $rs->tableName;
@@ -938,6 +1138,7 @@ static $cacheCols;
 			return false;
 	}
 
+
 	// Strip off the comma and space on the end of both the fields
 	// and their values.
 	$fields = substr($fields, 0, -2);
@@ -946,6 +1147,241 @@ static $cacheCols;
 	// Append the fields and their values to the insert query.
 	return 'INSERT INTO '.$tableName.' ( '.$fields.' ) VALUES ( '.$values.' )';
 }
+
+/**
+* Creates an insert statement using the new metacasing standards
+*
+* @param	obj			$zthis		handle to the database provider
+* @param	mixed		$rs			Either a recordset or a table name
+* @param	string[]	$arrFields	Array of insertion keys=>values
+* @param	bool		$magicq
+* @param	int			$force		See documentation for $ADODB_FORCE_TYPE
+*
+* @return 	mixed		The insert statement or false if in error
+*/
+function _adodb_metacase_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false,$force=2)
+{
+	static $cacheRS = false;
+	static $cacheSig = 0;
+	static $cacheCols;
+
+	$tableName = '';
+	$values    = '';
+	$fields    = '';
+	$recordSet = null;
+	
+	$fieldInsertedCount = 0;
+
+	if (is_string($rs)) {
+		//ok we have a table name
+		//try and get the column info ourself.
+		$tableName = $rs;
+
+		//we need an object for the recordSet
+		//because we have to call MetaType.
+		//php can't do a $rsclass::MetaType()
+		$rsclass = $zthis->rsPrefix.$zthis->databaseType;
+		$recordSet = new $rsclass(-1,$zthis->fetchMode);
+		$recordSet->connection = $zthis;
+
+		if (is_string($cacheRS) && $cacheRS == $rs) {
+			$columns = $cacheCols;
+		} else {
+			$columns = $zthis->MetaColumns( $tableName );
+			$cacheRS = $tableName;
+			$cacheCols = $columns;
+		}
+	} else if (is_subclass_of($rs, 'adorecordset')) {
+		if (isset($rs->insertSig) && is_integer($cacheRS) && $cacheRS == $rs->insertSig) {
+			$columns = $cacheCols;
+		} else {
+			for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++)
+				$columns[] = $rs->FetchField($i);
+			$cacheRS = $cacheSig;
+			$cacheCols = $columns;
+			$rs->insertSig = $cacheSig++;
+		}
+		$recordSet = $rs;
+
+	} else {
+		printf(ADODB_BAD_RS,'GetInsertSQL');
+		return false;
+	}
+
+	// Get the table name from the existing query.
+	if (!$tableName) {
+		if (!empty($rs->tableName)) $tableName = $rs->tableName;
+		else if (preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName))
+			$tableName = $tableName[1];
+		else
+			return false;
+	}
+	
+	/*
+	* If the table name came from an existing query, It might be quoted by any
+	* of the acceptable quote characters. remove them
+	*/
+	$tableName = preg_replace('/[`\'\"]+/','',$tableName);
+	
+	$savem = $zthis->getMetaCasing();
+	$zthis->setMetaCasing($zthis::METACASE_NATIVE);
+
+	/*
+	 * @todo This seems to duplicate work done in autoexecute
+	 */
+	$tableName = $zthis->getMetaCasedTableName($tableName);
+	
+	if ($tableName === false)
+		return false;
+
+	$baseArrFields = $arrFields;
+	$arrFields     = array();
+	
+	foreach($baseArrFields as $k=>$v)
+	{
+		$key = $zthis->getMetaCasedColumnName($tableName,$k);
+		if (!$key)
+			/*
+			 * Could not match column, discard
+			 */
+			 continue;
+		$arrFields[$key] = $v;
+	}
+	
+	$columns = $zthis->getMetaCasedColumns($tableName);
+	
+	/*
+	 * If we are not forcing null values, we only care about
+	 * the columns that are in our $arrFields array. We can reduce
+	 * the loop time by matching the columns of the recordset to our
+	 * values array and only processing those.
+	 */
+	if ($force == ADODB_FORCE_IGNORE)
+		$columns = array_intersect_key($columns,$arrFields);
+	 
+	/*
+	 * Loop through all of the fields in the recordset
+	 */
+	foreach( $columns as $field ) {
+			
+		$fieldName = $field->name;
+		
+		if (adodb_key_exists($fieldName,$arrFields,$force)) 
+		{
+			$bad = false;
+			
+			/*
+			* No matter what the column name looks like, we quote it
+			*/
+			$fnameq = $zthis->nameQuote.$field->name.$zthis->nameQuote;
+			
+			$type = $recordSet->MetaType($field->type);
+			if ($type == 'null')
+				$type = 'C';
+			
+			/*
+			 * I4 becomes I
+			 */
+			$type = $type{0};
+
+            if (is_null($arrFields[$fieldName])
+                || (empty($arrFields[$fieldName]) && strlen($arrFields[$fieldName]) == 0)
+                || $arrFields[$fieldName] === $zthis->null2null
+				)
+               {
+				   /* 
+				   * We are deciding how to handle an empty field, or one
+                   * that was not provided in the input array
+                   */   
+                    switch ($force) {
+
+                        case ADODB_FORCE_IGNORE: // we must always set null if missing
+							$bad = true;
+							break;
+
+                        case ADODB_FORCE_NULL:
+                            $values  .= "null, ";
+                        break;
+
+                        case ADODB_FORCE_EMPTY:
+                            //Set empty
+                            $arrFields[$fieldName] = "";
+                            $values .= _adodb_column_sql($zthis, 'I', $type, $fieldName, $fnameq,$arrFields, $magicq);
+                        break;
+
+						/*
+						 * To be added, version 6
+						 
+						case ABODB_FORCE_NULL_AND_ZERO:
+						switch ($type)
+							{
+								case 'N':
+								case "L":
+								case "I":
+									$values .= '0, ';
+									break;
+								default:
+									$values .= 'null, ';
+									break;
+							}
+							break;
+						*/
+						default:
+                        case ADODB_FORCE_VALUE:
+                            //Set the value that was given in array, so you can give both null and empty values
+							if (is_null($arrFields[$fieldName]) || $arrFields[$fieldName] === $zthis->null2null) {
+								$values  .= "null, ";
+							} else {
+                        		$values .= _adodb_column_sql($zthis, 'I', $type, $fieldName, $fnameq, $arrFields, $magicq);
+             				}
+              			break;
+             		} // switch
+
+            /*********************************************************/
+			} else {
+				//we do this so each driver can customize the sql for
+				//DB specific column types.
+				//Oracle needs BLOB types to be handled with a returning clause
+				//postgres has special needs as well
+				$values .= _adodb_column_sql($zthis, 'I', $type, $fieldName, $fnameq,
+											   $arrFields, $magicq);
+			}
+
+			if ($bad) continue;
+			// Set the counter for the number of fields that will be inserted.
+			$fieldInsertedCount++;
+
+
+			// Get the name of the fields to insert
+			$fields .= $fnameq . ", ";
+		}
+	}
+
+	if ($fieldInsertedCount <= 0)  
+		/*
+	     * There were no fields left to insert
+		 */
+		return false;
+
+	/*
+	 * We have finished xrefing on the table name, quote it
+	 */
+	$tableName = $zthis->nameQuote.$tableName.$zthis->nameQuote;
+
+	
+	
+	// Strip off the comma and space on the end of both the fields
+	// and their values.
+	$fields = substr($fields, 0, -2);
+	$values = substr($values, 0, -2);
+
+	// Append the fields and their values to the insert query.
+
+	$sql =  'INSERT INTO '.$tableName.' ( '.$fields.' ) VALUES ( '.$values.' )';
+	//print $sql;
+	return $sql;
+}
+
 
 
 /**

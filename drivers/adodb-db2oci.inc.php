@@ -164,7 +164,7 @@ class ADODB_db2oci extends ADODB_db2 {
 	}
 
 
-	function MetaTables($ttype = false, $schema = false, $mask = false)
+	protected function _metaTables($ttype = false, $schema = false, $mask = false)
 	{
 	global $ADODB_FETCH_MODE;
 

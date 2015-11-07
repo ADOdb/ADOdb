@@ -278,7 +278,7 @@ class ADODB_sybase extends ADOConnection {
 	# Added 2003-10-07 by Chris Phillipson
 	# Used ASA SQL Reference Manual -- http://sybooks.sybase.com/onlinebooks/group-aw/awg0800e/dbrfen8/@ebt-link;pt=5981;uf=0?target=0;window=new;showtoc=true;book=dbrfen8
 	# to convert similar Microsoft SQL*Server (mssql) API into Sybase compatible version
-	function MetaPrimaryKeys($table, $owner = false)
+	protected function _metaPrimaryKeys($table, $owner = false)
 	{
 		$sql = "SELECT c.column_name " .
 			   "FROM syscolumn c, systable t " .

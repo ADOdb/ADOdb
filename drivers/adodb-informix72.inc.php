@@ -147,7 +147,7 @@ class ADODB_informix72 extends ADOConnection {
 	}
 
 
-	function MetaProcedures($NamePattern = false, $catalog  = null, $schemaPattern  = null)
+	protected function _metaProcedures($NamePattern = false, $catalog  = null, $schemaPattern  = null)
     {
         // save old fetch mode
         global $ADODB_FETCH_MODE;
@@ -192,7 +192,7 @@ class ADODB_informix72 extends ADOConnection {
         return $procedures;
     }
 
-    function MetaColumns($table, $normalize=true)
+    protected function _metaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -249,7 +249,7 @@ class ADODB_informix72 extends ADOConnection {
 		return ADOConnection::MetaColumns($table,false);
    }
 
-	 function MetaForeignKeys($table, $owner=false, $upper=false) //!Eos
+	 protected function _metaForeignKeys($table, $owner=false, $upper=false) //!Eos
 	{
 		$sql = "
 			select tr.tabname,updrule,delrule,

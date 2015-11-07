@@ -333,7 +333,7 @@ class ADODB_db2 extends ADOConnection {
 		return $ret;
 	}
 
-	function MetaPrimaryKeys($table, $owner = false)
+	protected function _metaPrimaryKeys($table, $owner = false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -363,7 +363,7 @@ class ADODB_db2 extends ADOConnection {
 		return $arr2;
 	}
 
-	function MetaForeignKeys($table, $owner = FALSE, $upper = FALSE, $asociative = FALSE )
+	protected function _metaForeignKeys($table, $owner = FALSE, $upper = FALSE, $asociative = FALSE )
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -409,7 +409,7 @@ class ADODB_db2 extends ADOConnection {
 	}
 
 
-	function MetaTables($ttype = false, $schema = false, $mask = false)
+	protected function _metaTables($ttype = false, $schema = false, $mask = false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -514,7 +514,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 		}
 	}
 
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 

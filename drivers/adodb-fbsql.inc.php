@@ -80,7 +80,7 @@ class ADODB_fbsql extends ADOConnection {
 		return true;
 	}
 
- 	function MetaColumns($table, $normalize=true)
+ 	protected function _metaColumns($table, $normalize=true)
 	{
 		if ($this->metaColumnsSQL) {
 

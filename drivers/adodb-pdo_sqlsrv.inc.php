@@ -25,12 +25,12 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 		return $returnval;
 	}
 
-	function MetaColumns($table, $normalize = true)
+	protected function _metaColumns($table, $normalize = true)
 	{
 		return false;
 	}
 
-	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	protected function _metaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		return false;
 	}

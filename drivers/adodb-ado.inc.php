@@ -147,7 +147,7 @@ class ADODB_ado extends ADOConnection {
 
 */
 
-	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	protected function _metaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$arr= array();
 		$dbc = $this->_connectionID;
@@ -169,7 +169,7 @@ class ADODB_ado extends ADOConnection {
 		return $arr;
 	}
 
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
 		$table = strtoupper($table);
 		$arr = array();

@@ -64,7 +64,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $arr;
 	}
 
-	function MetaTables($ttype=false, $showSchema=false, $mask=false)
+	protected function _metaTables($ttype=false, $showSchema=false, $mask=false)
 	{
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
@@ -94,7 +94,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		$this->Execute('SET SESSION TRANSACTION ' . $transaction_mode);
 	}
 
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
 		$this->_findschema($table, $schema);
 		if ($schema) {

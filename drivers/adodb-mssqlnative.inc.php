@@ -480,6 +480,10 @@ class ADODB_mssqlnative extends ADOConnection {
 		$connectionInfo["Database"]=$argDatabasename;
 		$connectionInfo["UID"]=$argUsername;
 		$connectionInfo["PWD"]=$argPassword;
+		
+		foreach ($this->connectionParameters as $parameter=>$value)
+		    $connectionInfo[$parameter] = $value;
+		
 		if ($this->debug) ADOConnection::outp("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
 		//if ($this->debug) ADOConnection::outp("<hr>_connectionID before: ".serialize($this->_connectionID));
 		if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo))) {
@@ -607,7 +611,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		return ADORecordSet_array_mssqlnative::UnixTimeStamp($v);
 	}
 
-	function MetaIndexes($table,$primary=false, $owner = false)
+	protected function _metaIndexes($table,$primary=false, $owner = false)
 	{
 		$table = $this->qstr($table);
 
@@ -647,7 +651,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		return $indexes;
 	}
 
-	function MetaForeignKeys($table, $owner=false, $upper=false)
+	protected function _metaForeignKeys($table, $owner=false, $upper=false)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -705,7 +709,7 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
-	function MetaPrimaryKeys($table, $owner=false)
+	protected function _metaPrimaryKeys($table, $owner=false)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -730,7 +734,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	}
 
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;
@@ -744,7 +748,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		return $ret;
 	}
-	function MetaColumns($table, $upper=true, $schema=false){
+	protected function _metaColumns($table, $upper=true, $schema=false){
 
 		# start adg
 		static $cached_columns = array();

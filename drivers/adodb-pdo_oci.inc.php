@@ -32,7 +32,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		}
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;
@@ -47,7 +47,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		return $ret;
 	}
 
-	function MetaColumns($table,$normalize=true)
+	protected function _metaColumns($table,$normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 

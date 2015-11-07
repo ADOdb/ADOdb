@@ -374,7 +374,7 @@ class ADODB_mssql extends ADOConnection {
 	}
 
 
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
 //		$arr = ADOConnection::MetaColumns($table);
 //		return $arr;
@@ -432,7 +432,7 @@ class ADODB_mssql extends ADOConnection {
 	}
 
 
-	function MetaIndexes($table,$primary=false, $owner=false)
+	protected function _metaIndexes($table,$primary=false, $owner=false)
 	{
 		$table = $this->qstr($table);
 
@@ -472,7 +472,7 @@ class ADODB_mssql extends ADOConnection {
         return $indexes;
 	}
 
-	function MetaForeignKeys($table, $owner=false, $upper=false)
+	protected function _metaForeignKeys($table, $owner=false, $upper=false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -535,7 +535,7 @@ order by constraint_name, referenced_table_name, keyno";
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
-	function MetaPrimaryKeys($table, $owner=false)
+	protected function _metaPrimaryKeys($table, $owner=false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -560,7 +560,7 @@ order by constraint_name, referenced_table_name, keyno";
 	}
 
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;

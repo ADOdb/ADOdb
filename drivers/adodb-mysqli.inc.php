@@ -312,7 +312,7 @@ class ADODB_mysqli extends ADOConnection {
 		return $this->genID;
 	}
 
-	function MetaDatabases()
+	protected function _metaDatabases()
 	{
 		$query = "SHOW DATABASES";
 		$ret = $this->Execute($query);
@@ -329,7 +329,7 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 
-	function MetaIndexes ($table, $primary = FALSE, $owner = false)
+	protected function _metaIndexes ($table, $primary = FALSE, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -358,18 +358,27 @@ class ADODB_mysqli extends ADOConnection {
 
 		// parse index data into array
 		while ($row = $rs->FetchRow()) {
-			if ($primary == FALSE AND $row[2] == 'PRIMARY') {
+			
+			$primaryIndex = strcasecmp($row[2],'PRIMARY') == 0 ? 1 : 0;
+			if ($primary == FALSE AND !$primaryIndex)
+			{
 				continue;
 			}
+			$indexName = $row[2];
+			//$indexName = $this->getMetaCasedValue($row[2]);
+			if (!isset($indexes[$indexName]))
 
-			if (!isset($indexes[$row[2]])) {
-				$indexes[$row[2]] = array(
+				$indexes[$indexName] = array(
 					'unique' => ($row[1] == 0),
+					'primary' => $primaryIndex,
 					'columns' => array()
 				);
-			}
+			
+			$columnName = $row[4];
+			//$columnName = $this->getMetaCasedValue($row[4]);
+			$indexes[$indexName]['columns'][] = $columnName;
 
-			$indexes[$row[2]]['columns'][$row[3] - 1] = $row[4];
+
 		}
 
 		// sort columns by order in the index
@@ -484,8 +493,9 @@ class ADODB_mysqli extends ADOConnection {
 //		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
 
-	function MetaProcedures($NamePattern = false, $catalog  = null, $schemaPattern  = null)
+	protected function _metaProcedures($NamePattern = false, $catalog  = null, $schemaPattern  = null)
 	{
+		
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
 
@@ -550,7 +560,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return array list of tables
 	 */
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
@@ -563,29 +573,32 @@ class ADODB_mysqli extends ADOConnection {
 			$mask = $this->qstr($mask);
 			$this->metaTablesSQL .= " AND table_name LIKE $mask";
 		}
-		$ret = ADOConnection::MetaTables($ttype,$showSchema);
+		$ret = ADOConnection::_metaTables($ttype,$showSchema);
 
 		$this->metaTablesSQL = $save;
 		return $ret;
 	}
 
 	// "Innox - Juan Carlos Gonzalez" <jgonzalez#innox.com.mx>
-	function MetaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
+	protected function _metaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
 	{
-	 global $ADODB_FETCH_MODE;
+
+		global $ADODB_FETCH_MODE;
 
 		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC || $this->fetchMode == ADODB_FETCH_ASSOC) $associative = true;
 
 		if ( !empty($owner) ) {
 			$table = "$owner.$table";
 		}
+		$table = $this->nameQuote . $table . $this->nameQuote;
+		
 		$a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
 		if ($associative) {
 			$create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
 		} else $create_sql = $a_create_table[1];
 
 		$matches = array();
-
+		
 		if (!preg_match_all("/FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) return false;
 		$foreign_keys = array();
 		$num_keys = count($matches[0]);
@@ -615,7 +628,7 @@ class ADODB_mysqli extends ADOConnection {
 		return $foreign_keys;
 	}
 
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
 		$false = false;
 		if (!$this->metaColumnsSQL)
@@ -674,11 +687,12 @@ class ADODB_mysqli extends ADOConnection {
 				}
 			}
 
-			if ($save == ADODB_FETCH_NUM) {
-				$retarr[] = $fld;
-			} else {
-				$retarr[strtoupper($fld->name)] = $fld;
-			}
+			//if ($save == ADODB_FETCH_NUM) {
+				//$retarr[] = $fld;
+			//} else {
+				//$retarr[strtoupper($fld->name)] = $fld;
+				$retarr[$fld->name] = $fld;
+			//}
 			$rs->MoveNext();
 		}
 

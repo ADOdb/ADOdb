@@ -504,7 +504,457 @@ if (!defined('_ADODB_LAYER')) {
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
 
+	/*
+	 * Additional parameters that may be passed to drivers in the connect string
+	 * Driver must be coded to accept the parameters
+	 */
+	protected $connectionParameters = array();
+	const TABLECASE_LOWER    =  0;
+    const TABLECASE_UPPER    =  1;
+    const TABLECASE_DEFAULT  =  2;
+	
+	/*
+	* This is used to re-initialize the metacache if required
+	*/
+	private $metaCacheDefaults = array('TABLES'=>false,
+									   'DATABASES'=>false,
+									   'COLUMNS'=>array(),
+									   'INDEXES'=>array(),
+									   'PRIMARYKEYS'=>array(),
+									   'FOREIGNKEYS'=>array(),
+									   'PROCEDURES'=>-1,
+									   'RECORDSETS'=>array()
+									   );
+									   
+	/*
+	* This stores the metaCache data
+	*/
+	private $metaCache          = array('TABLES'=>false,
+									   'DATABASES'=>false,
+									   'COLUMNS'=>array(),
+									   'INDEXES'=>array(),
+									   'PRIMARYKEYS'=>array(),
+									   'FOREIGNKEYS'=>array(),
+									   'PROCEDURES'=>-1,
+									   'RECORDSETS'=>array()
+									   );
+	
+	
+	/*
+	 * On first request, metaCache['TABLES'] is populated with a list of tables
+	 * in the database, in 'native' mode. We then use it for autoexecute
+	 * to get the correct table casing
+	 */
+	
+	/*
+	 * On first request, metaCache['DATABASES'] is populated with a list of 
+	 * available databases, in 'native' mode. 
+	 */
+	
+	
+	/*
+	 * On first request, metaCache['COLUMNS'] is populated with a list of columns
+	 * from the requested table in 'native' mode. We then use it for autoexecute
+	 * to get the correct column casing. The array can hold multiple tables
+	 */
+	
+	/*
+	 * On first request, metaCache['INDEXES'] is populated with a list of indexes
+	 * from the requested table in 'native' mode. The array can hold multiple tables
+	 */
+	
+	/*
+	 * On first request, metaCache['PRIMARYKEYS'] is populated with a list of primary keys
+	 * from the requested table in 'native' mode. The array can hold multiple tables
+	 */
+	
+	/*
+	 * On first request, metaCache['FOREIGNKEYS'] is populated with a list of primary keys
+	 * from the requested table in 'native' mode. The array can hold multiple tables
+	 */
+	
+	/*
+	* Controls whether the metacache is used
+	*/
+	private $metaCaching = true;
+	
+	
+	/*
+	 * Controls the casing of the table provided to the meta functions
+	 */
+	private $tableCase = 2;
+	
+	/**
+	  * Sets the table case parameter 
+	  *
+	  * @param int $caseOption
+	  * @return null
+	  */
+	final public function setTableCasing($caseOption)
+	{
+		$this->tableCase = $caseOption;
+	}
+	
+	/**
+	  * Gets the table casing parameter 
+	  *
+	  * @return int $caseOption
+	  */
+	final public function getTableCasing()
+	{
+		return $this->tableCase;
+	}
+	
+	/**
+	  * Gets a table cased parameter 
+	  *
+	  * Receives an input variable to be processed per the tableCasing
+	  * rule, and returns the same value, processed
+	  *
+	  * @param string $value
+	  *
+	  * @return string
+	  */
+	final protected function getTableCasedValue($value)
+	{
+		switch($this->tableCase)
+		{
+		case self::TABLECASE_LOWER:
+			$value = strtolower($value);
+			break;
+		case self::TABLECASE_UPPER:
+			$value = strtoupper($value);
+			break;
+		}
+		return $value;
+	}
+	
+	const METACASE_LEGACY = -1;
+	const METACASE_LOWER  =  0;
+    const METACASE_UPPER  =  1;
+    const METACASE_NATIVE =  2;	
 
+	/*
+	 * The default casing for meta return option
+	 * (legacy, which means whatever...)
+	 */
+	protected $defaultMetaCase = -1;
+	
+	/*
+	 * Controls the casing of the returned metaVariables
+	 */
+	private $metaCase = -1;
+	
+	/**
+	  * Sets the meta casing parameter 
+	  *
+	  * @param int $caseOption
+	  * @return null
+	  */
+	final public function setMetaCasing($caseOption)
+	{
+		$this->metaCase = $caseOption;
+	}
+	
+	/**
+	  * Gets the meta casing parameter 
+	  *
+	  * @return int $caseOption
+	  */
+	final public function getMetaCasing()
+	{
+		return $this->metaCase;
+	}
+	
+	/**
+	  * Gets a meta cased parameter 
+	  *
+	  * Receives an input variable to be processed per the metaCasing
+	  * rule, and returns the same value, processed
+	  *
+	  * @param string $value
+	  *
+	  * @return string
+	  */
+	final public function getMetaCasedValue($value)
+	{
+		switch($this->metaCase)
+		{
+		case self::METACASE_LOWER:
+			$value = strtolower($value);
+			break;
+		case self::METACASE_UPPER:
+		case self::METACASE_LEGACY:
+			$value = strtoupper($value);
+			break;
+		}
+		return $value;
+	}
+	
+	/**
+	  * Gets an array of meta cased keys 
+	  *
+	  * Receives an input array to be processed per the metaCasing
+	  * rule, and returns the same array, processed
+	  *
+	  * @param string $array
+	  *
+	  * @return string
+	  */
+	final public function getMetaCasedArray($array)
+	{
+		
+		$arrayKeys = array_keys($array);
+		
+		switch($this->metaCase)
+		{
+		case self::METACASE_LOWER:
+			$arrayKeys = array_map('strtolower',$arrayKeys);
+			break;
+		case self::METACASE_UPPER:
+		case self::METACASE_LEGACY:
+			$arrayKeys = array_map('strtoupper',$arrayKeys);
+			break;
+		}
+		
+		$newArray = array();
+		foreach($array as $k=>$v)
+		{
+			$newKey = array_shift($arrayKeys);
+			$newArray[$newKey] = $v;
+		}
+		
+		return $newArray;
+	}
+	
+ 	const METATABLE_NOMATCH 	 = -101;
+ 	const METATABLE_UNRESOLVABLE = -102;
+
+	const METATABLE_NOMATCH_DESCRIPTION      = 'Table name not found in database';
+ 	const METATABLE_UNRESOLVABLE_DESCRIPTION = 'Table name duplicates could not be resolved';
+	
+	/**
+	* Gets a requested table name, returns the actual name as
+	* stored in the database, or an error
+	*
+	* @param	string	$tableName
+	*
+	* @return	mixed	The database table name or an integer error
+	*/
+	 
+	final public function getMetaCasedTableName($tableName)
+	{
+		if (!$this->metaCache['TABLES'])
+		{
+			/*
+			 * Populate cache
+			 */
+			$savedMetaCasing = $this->getMetaCasing();
+			$this->setMetaCasing(SELF::METACASE_NATIVE);
+			$this->metaCache['TABLES'] = $this->metaTables();
+			$this->setMetaCasing($savedMetaCasing);
+		}
+		/*
+		 * So whats the fastest way of doing this?
+		 */
+		
+		/*
+		 * 1 exact match
+		 */
+		$keys = array_keys($this->metaCache['TABLES'],$tableName);
+		if (count($keys) == 1)
+			/*
+		     * One match, you asked for 'Accounts', got 'Accounts'
+			 */
+			return $this->metaCache['TABLES'][$keys[0]];
+		
+		$map = array_map('strtolower',$this->metaCache['TABLES']);
+		$keys = array_keys($map,strtolower($tableName));
+		if (count($keys) == 1)
+			/*
+		     * One match, you asked for 'Accounts', got 'ACCOUNTS'
+			 */
+			return $this->metaCache['TABLES'][$keys[0]];
+			
+				
+		if (count($keys) == 0)
+		{
+			/*
+		     * Invalid table name supplied
+			 */
+			$this->_errorCode = self::METATABLE_NOMATCH;
+			$this->_errorMsg  = self::METATABLE_NOMATCH_DESCRIPTION;
+			return false;
+		}
+		
+		
+		/*
+		 * Weve got a situation where the there are 2 tables with the
+		 * same name, different casing. If the provided tableName exactly
+		 * matches a database table name, return that. Else return a duplicate
+		 * Table error
+		 */
+		foreach ($keys as $index)
+		{
+			if (strcmp($tableName,$this->metaCache['TABLES'][$index]) == 0)
+				/*
+			     * found an exact match
+				 */
+				return $tableName;
+		}
+		
+		/*
+		 * We asked for 'Accounts', the choice is either 'accounts' or 'ACCOUNTS'
+		 */
+		$this->_errorCode = self::METATABLE_UNRESOLVABLE;
+		$this->_errorMsg  = self::METATABLE_UNRESOLVABLE_DESCRIPTION;
+
+		 return false;
+	}
+	
+	const METACOLUMN_NOMATCH 	 = -103;
+ 	const METACOLUMN_UNRESOLVABLE = -104;
+
+	const METACOLUMN_NOMATCH_DESCRIPTION      = 'Column name not found in table';
+ 	const METACOLUMN_UNRESOLVABLE_DESCRIPTION = 'Column name duplicates could not be resolved';
+	
+	/**
+	* Gets a requested table name, returns the actual name as
+	* stored in the database, or an error
+	*
+	* @param	string	$tableName
+	* @param	string	$columnName
+	*
+	* @return	mixed	The database table name or an integer error
+	*/
+	 
+	
+	final public function getMetaCasedColumnName($tableName,$columnName)
+	{
+		
+		
+		if (!isset($this->metaCache['COLUMNS'][$tableName]))
+		{
+			/*
+			 * Populate cache
+			 */
+			$savedMetaCasing = $this->getMetaCasing();
+			$this->setMetaCasing(SELF::METACASE_NATIVE);
+			$this->metaCache['COLUMNS'][$tableName] = $this->metaColumns($tableName);
+			$this->setMetaCasing($savedMetaCasing);
+		}
+		else
+			
+		
+		$metaColumnNames = array_keys($this->metaCache['COLUMNS'][$tableName]);
+		/*
+		 * So whats the fastest way of doing this?
+		 */
+		
+		/*
+		 * 1 exact match
+		 */
+		$keys = array_keys($metaColumnNames,$columnName);
+		
+		if (count($keys) == 1)
+			/*
+		     * One match, you asked for 'Act-no', got 'Act-no'
+			 */
+			return $metaColumnNames[$keys[0]];
+		
+		$map = array_map('strtolower',$metaColumnNames);
+		$keys = array_keys($map,strtolower($columnName));
+		if (count($keys) == 1)
+			/*
+		     * One match, you asked for 'Act-no', got 'ACT-NO',
+			 * return the value in the array, **NOT ** the value
+			 * requested
+			 */
+			return $metaColumnNames[$keys[0]];
+			
+				
+		if (count($keys) == 0)
+		{
+			/*
+		     * Invalid column name supplied
+			 */
+			$this->_errorCode = self::METACOLUMN_NOMATCH;
+			$this->_errorMsg  = self::METACOLUMN_NOMATCH_DESCRIPTION;
+			return false;
+		}
+		
+		/*
+		 * Weve got a situation where the there are 2 columns with the
+		 * same name, different casing. If the provided column Name exactly
+		 * matches a table column name, return that. Else return a duplicate
+		 * Column error
+		 */
+		foreach ($keys as $index)
+		{
+			if (strcmp($columnName,$metaColumnNames[$index]) == 0)
+				/*
+			     * found an exact match
+				 */
+				return $columnName;
+		}
+		
+		/*
+		 * We asked for 'Act-no', the choice is either 'act-no' or 'ACT-NO'
+		 */
+		$this->_errorCode = self::METACOLUMN_UNRESOLVABLE;
+		$this->_errorMsg  = self::METACOLUMN_UNRESOLVABLE_DESCRIPTION;
+
+		 return false;
+	}
+	
+	final public function getMetaCasedColumns($tableName)
+	{
+		/*
+		 * Get the correct native table name
+		 */
+		$tableName = $this->getMetaCasedTableName($tableName);
+		if ($tableName === false)
+			return false;
+		
+		if (!isset($this->metaCache['COLUMNS'][$tableName]))
+		{
+			/*
+			 * Populate cache
+			 */
+			$savedMetaCasing = $this->getMetaCasing();
+			$this->setMetaCasing(SELF::METACASE_NATIVE);
+			$this->metaCache['COLUMNS'][$tableName] = $this->metaColumns($tableName);
+			$this->cachedMetaColumnNames[$tableName] = array_keys($this->metaColumns($tableName));
+			$this->setMetaCasing($savedMetaCasing);
+		}
+		
+		return $this->metaCache['COLUMNS'][$tableName];
+	}
+	
+	
+	
+	/**
+	* Adds a parameter to the connection string.
+	*
+	* These parameters are added to the connection string when connecting,
+	* if the driver is coded to use it.
+	*
+	* @param	string	$parameter	The name of the parameter to set
+	* @param	string	$value		The value of the parameter
+	*
+	* @return null
+	*
+	* @example, for mssqlnative driver ('CharacterSet','UTF-8')
+	*/
+	final public function setConnectionParameter($parameter,$value)
+	{
+		
+		$this->connectionParameters[$parameter] = $value;
+		
+	}
+
+	
+	
 	static function Version() {
 		global $ADODB_vers;
 
@@ -1376,7 +1826,7 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * @returns an array with the primary key columns in it.
 	 */
-	function MetaPrimaryKeys($table, $owner=false) {
+	protected function _metaPrimaryKeys($table, $owner=false) {
 	// owner not used in base class - see oci8
 		$p = array();
 		$objs = $this->MetaColumns($table);
@@ -1399,7 +1849,7 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * @returns assoc array where keys are tables, and values are foreign keys
 	 */
-	function MetaForeignKeys($table, $owner=false, $upper=false) {
+	protected function _metaForeignKeys($table, $owner=false, $upper=false) {
 		return false;
 	}
 	/**
@@ -2068,6 +2518,55 @@ if (!defined('_ADODB_LAYER')) {
 			return false;
 		}
 
+		if ($where === false && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) ) {
+			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause', 'AutoExecute');
+			return false;
+		}
+
+		/*
+		* autoExecute always runs in native mode
+		*/
+		$saveMetaCasing = $this->getMetaCasing();
+		$this->setMetaCasing(self::METACASE_NATIVE);
+		
+		/*
+		* Lets remove any existing quotes from the table name
+		*/
+		$table = preg_replace('/[`\'\"]+/','',$table);
+		
+		/*
+		 * Get the exact table name as it appears in the
+		 * database
+		 */
+		$table = $this->getMetaCasedTableName($table);
+		if ($table === false)
+		{
+			$this->setMetaCasing($saveMetaCasing);
+			return false;
+		}
+			
+		/*
+		 * Re-add quotes to get the recordset
+		 */
+		$quotedTable = $this->nameQuote.$table.$this->nameQuote;
+
+		$sql = "SELECT * FROM $quotedTable";
+		
+		if (!isset($this->metaCache['RECORDSETS'][strtoupper($table)]) || !$this->metaCaching)
+		{
+			$rs = $this->SelectLimit($sql, 1);
+			if (!$rs) {
+				$this->setMetaCasing($saveMetaCasing);
+				return false; // table does not exist
+			}
+			$this->metaCache['RECORDSETS'][strtoupper($table)] = $rs;
+			
+		} else
+			$rs = $this->metaCache['RECORDSETS'][strtoupper($table)];
+		
+		$this->setMetaCasing($saveMetaCasing);
+
+		/*
 		$sql = "SELECT * FROM $table";
 		$rs = $this->SelectLimit($sql, 1);
 		if (!$rs) {
@@ -2079,6 +2578,7 @@ if (!defined('_ADODB_LAYER')) {
 			$sql .= " WHERE $where";
 		}
 		$rs->sql = $sql;
+*/
 
 		switch($mode) {
 			case 'UPDATE':
@@ -2140,6 +2640,8 @@ if (!defined('_ADODB_LAYER')) {
 			global $ADODB_FORCE_TYPE;
 			$force = $ADODB_FORCE_TYPE;
 		}
+		
+		
 		if (empty($ADODB_INCLUDED_LIB)) {
 			include(ADODB_DIR.'/adodb-lib.inc.php');
 		}
@@ -2152,7 +2654,7 @@ if (!defined('_ADODB_LAYER')) {
 	* blob handling functions that we could have implemented, but all require
 	* a very complex API. Instead we have chosen something that is extremely
 	* simple to understand and use.
-	*
+	* 
 	* Note: $blobtype supports 'BLOB' and 'CLOB', default is BLOB of course.
 	*
 	* Usage to update a $blobvalue which has a primary key blob_id=1 into a
@@ -2413,14 +2915,491 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return false;
 	}
 
+/**
+	 * List procedures or functions in an array.
+	 * @param procedureNamePattern  a procedure name pattern; must match the procedure name as it is stored in the database
+	 * @param catalog a catalog name; must match the catalog name as it is stored in the database;
+	 * @param schemaPattern a schema name pattern;
+	 *
+	 * @return array of procedures on current database.
+	 *
+	 * Array(
+	 *   [name_of_procedure] => Array(
+	 *     [type] => PROCEDURE or FUNCTION
+	 *     [catalog] => Catalog_name
+	 *     [schema] => Schema_name
+	 *     [remarks] => explanatory comment on the procedure
+	 *   )
+	 * )
+	 */
+	final public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
+		
+		
+		if ($this->metaCache['PROCEDURES'] == -1 || !$this->metaCaching)
+			$this->metaCache['PROCEDURES'] = $this->_metaProcedures();
+		
+		if (!$this->metaCache['PROCEDURES'])
+			return false;
+		
+		$metaProcedures = $this->metaCache['PROCEDURES'];
+		$mpKeys  = array_keys($metaProcedures);
+		$mpValues = array_values($metaProcedures);
+		
+		if ($procedureNamePattern)
+		{
+			$result = $this->selectLikeMatches( $mpKeys, $procedureNamePattern );
+			$result = array_flip($result);
+			$metaProcedures = array_intersect_key($metaProcedures,$result);
+			$mpKeys  = array_keys($metaProcedures);
+		}
+		
+		if ($catalog)
+		{
+			$result = $this->selectLikeMatches( $mpKeys, $catalog );
+			$result = array_flip($result);
+			$metaProcedures = array_intersect_key($metaProcedures,$result);
+			$mpKeys  = array_keys($metaProcedures);
+		}
+		
+		if ($schemaPattern)
+		{
+			$result = $this->selectLikeMatches( $mpKeys, $schemaPattern );
+			$result = array_flip($result);
+			$metaProcedures = array_intersect_key($metaProcedures,$result);
+			$mpKeys  = array_keys($metaProcedures);
+		}
+					
+		switch ($this->getMetaCasing())
+		{
+			case self::METACASE_NATIVE:
+				return $metaProcedures;
+				break;
+			case self::METACASE_UPPER:
+			case self::METACASE_LEGACY:
+				return array_change_key_case($metaProcedures,CASE_UPPER);
+				break;
+			case self::METACASE_LOWER:
+				return array_change_key_case($metaProcedures,CASE_LOWER);
+				break;
+		}
+		return false;
+		
+	}
+	
+	final public function metaTables($ttype=false,$showSchema=false,$mask=false)
+	{
+		$metaTables = false;
+		/*
+		 * We only provide cached versions of table types, all other requests
+		 * are passed through on an as needed basis
+		 */
+		if (!$ttype && !$showSchema && !$mask)
+		{
+			if ($this->metaCache['TABLES'])
+				$metaTables = $this->metaCache['TABLES'];
+		} 
+		if (!$metaTables || !$this->metaCaching)
+		{
+			$metaTables = $this->_metaTables($ttype,$showSchema,$mask);
+			if (!$ttype && !$showSchema && !$mask)
+				$this->metaCache['TABLES'] = $metaTables;
+		}
+		switch ($this->getMetaCasing())
+		{
+			case self::METACASE_NATIVE:
+				return $metaTables;
+				break;
+			case self::METACASE_UPPER:
+			case self::METACASE_LEGACY:
+				return array_map('strtoupper',$metaTables);
+				break;
+			case self::METACASE_LOWER:
+				return array_map('strtolower',$metaTables);
+				break;
+		}
+		return false;
+	}	
+	
+	final public function metaColumns($tableName,$normalize=true)
+	{
+	
+		global $ADODB_FETCH_MODE;
 
+		/*
+		 * Get the correctly cased table name
+		 */
+		$tableName = $this->getMetaCasedTableName($tableName);
+		if ($tableName === false)
+			return false;
+		
+		if (!isset($this->metaCache['COLUMNS'][$tableName]) || !$this->metaCaching)
+			$this->metaCache['COLUMNS'][$tableName] = $this->_metaColumns($tableName);
+		
+		$metaColumns = $this->metaCache['COLUMNS'][$tableName];
+		
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM)
+			return array_values($metaColumns);
+			
+		switch ($this->getMetaCasing())
+		{
+			case self::METACASE_NATIVE:
+				return $metaColumns;
+				break;
+			case self::METACASE_UPPER:
+			case self::METACASE_LEGACY:
+				return array_change_key_case($metaColumns,CASE_UPPER);
+				break;
+			case self::METACASE_LOWER:
+				return array_change_key_case($metaColumns,CASE_LOWER);
+				break;
+		}
+		return false;
+		
+	}
+	
+	final public function metaIndexes($tableName, $primary = false, $owner = false) {
+	
+		/*
+		 * Get the correctly cased table name
+		 */
+		$tableName = $this->getMetaCasedTableName($tableName);
+		if ($tableName === false)
+			return false;
+		
+		if (!isset($this->metaCache['INDEXES'][$tableName]) || !$this->metaCaching)
+			/*
+		    * We always include primary index information, we will
+			* exclude it from the array if needed
+			*/
+			$this->metaCache['INDEXES'][$tableName] = $this->_metaIndexes($tableName, true, $owner);
+		
+		$metaIndexes = $this->metaCache['INDEXES'][$tableName];
+		if ($metaIndexes === false)
+			return false;
+		
+		/*
+		* If we did not want the primary key, exclude that
+		*/
+		if (!$primary)
+		{
+			$miFilter = array_filter($metaIndexes,function($v,$k) 
+			{
+				return $v['primary'] == 0;
+			}, ARRAY_FILTER_USE_BOTH);
+			
+			if (count($miFilter) == 0)
+				return false;
+			$metaIndexes = $miFilter;
+
+		}
+	
+		/*
+		* Set the correct casing
+		*/
+		$metaCasing = $this->getMetaCasing();
+		$miKeys           = array_keys($metaIndexes);
+		$miValues         = array_values($metaIndexes);
+		
+		switch ($metaCasing)
+		{
+		case SELF::METACASE_NATIVE:
+		case SELF::METACASE_LEGACY:
+			return $metaIndexes;
+			break;
+		case SELF::METACASE_UPPER:
+			$miKeys      = array_map('strtoupper',$miKeys);
+			$metaIndexes = array_combine($miKeys,$miValues);
+			array_walk_recursive($metaIndexes,array($this,'metaIndexCallback'),$metaCasing);
+			break;
+		case SELF::METACASE_LOWER:
+			$miKeys      = array_map('strtolower',$miKeys);
+			$metaIndexes = array_combine($miKeys,$miValues);
+			array_walk_recursive($metaIndexes,array($this,'metaIndexCallback'),$metaCasing);
+			break;	
+		}
+		
+		return $metaIndexes;
+	}
+	
+	/**
+	* Switches the column names in the columns array to the correct
+	* requested casing, by callback
+	*
+	* @param	string	$item		(by reference) the value of the array
+	* @param	string	$key		the key of the array
+	* @param	int		$metaCasing	The casing to use
+	*
+	* @return null
+	*/
+	final private function metaIndexCallback(&$item,$key,$metaCasing)
+	{
+		if (is_numeric($key))
+		{
+			switch ($metaCasing)
+			{
+			case SELF::METACASE_UPPER:
+				$item = strtoupper($item);
+				break;
+			case SELF::METACASE_LOWER:
+				$item = strtolower($item);
+				break;	
+			}
+		}
+	}
+	
+	
+	
+	final public function metaColumnNames($tableName,$numericIndices=false,$usePostgresAttnum=false)
+	{
+		global $ADODB_FETCH_MODE;
+		
+		$savem 			  = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		
+		$metaColumns = $this->metaColumns($tableName);
+		
+		$ADODB_FETCH_MODE = $savem;
+		
+		$metaColumnKeys = array_keys($metaColumns);
+		if ($numericIndices)
+			return $metaColumnKeys;
+		
+		$metaColumnVals = $metaColumnKeys;
+		if ($this->getMetaCasing() == SELF::METACASE_LEGACY)
+		{
+			$metaColumnVals = array_map('strtolower',$metaColumnVals);
+			$metaColumnKeys = array_map('strtoupper',$metaColumnKeys);
+		}
+		return array_combine($metaColumnKeys,$metaColumnVals);
+	}
+		
+	final public function metaDatabases()
+	{
+		if (!$this->metaCache['DATABASES'] || !$this->metaCaching)
+			$this->metaCache['DATABASES'] = $this->_metaDatabases();
+		
+		$metaDatabases = $this->metaCache['DATABASES'];
+		
+		if (!$metaDatabases)
+			return false;
+		/*
+		* Set the correct casing
+		*/
+		$metaCasing = $this->getMetaCasing();
+		
+		switch ($metaCasing)
+		{
+		case SELF::METACASE_NATIVE:
+		case SELF::METACASE_LEGACY:
+			return $metaDatabases;
+			break;
+		case SELF::METACASE_UPPER:
+			return array_map('strtoupper',$metaDatabases);
+			break;
+		case SELF::METACASE_LOWER:
+			return array_map('strtolower',$metaDatabases);
+			break;	
+		}
+		return false;
+	}
+		
+	/**
+	 * @returns an array with the primary key columns in it.
+	 */
+	final public function metaPrimaryKeys($tableName, $owner=false)
+	{
+		
+		/*
+		 * Get the correctly cased table name
+		 */
+		$tableName = $this->getMetaCasedTableName($tableName);
+		if ($tableName === false)
+			return false;
+		
+		/*
+		* If we request an owner, we currently do not use cached values.
+        * Usage of this is obscure, oracle specific
+		*/
+		if ($owner || !$this->metaCaching)
+			return $this->_metaPrimaryKeys($tableName,$owner);
+		
+		if (!isset($this->metaCache['PRIMARYKEYS'][$tableName]))
+			/*
+		    * We always include primary index information, we will
+			* exclude it from the array if needed
+			*/
+			$this->metaCache['PRIMARYKEYS'][$tableName] = $this->_metaPrimaryKeys($tableName);
+		
+		$metaPrimaryKeys = $this->metaCache['PRIMARYKEYS'][$tableName];
+		if (!$metaPrimaryKeys)
+			return false;
+		
+		$metaCasing = $this->getMetaCasing();
+		switch ($metaCasing)
+		{
+		case SELF::METACASE_NATIVE:
+			return $metaPrimaryKeys;
+		case SELF::METACASE_UPPER:
+		case SELF::METACASE_LEGACY:
+			return array_map('strtoupper',$metaPrimaryKeys);
+			break;
+		case SELF::METACASE_LOWER:
+			return array_map('strtolower',$metaPrimaryKeys);
+			break;	
+		}
+	}
+	
+	/**
+	 * @returns assoc array where keys are tables, and values are foreign keys
+	 */
+	final public function metaForeignKeys($tableName, $owner=false, $upperCase=false,$associative=false)
+	{
+		global $ADODB_FETCH_MODE;
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC || $this->fetchMode == ADODB_FETCH_ASSOC) $associative = true;
+		/*
+		 * Get the correctly cased table name
+		 */
+		
+		$tableName = $this->getMetaCasedTableName($tableName);
+		if ($tableName === false)
+			return false;
+		
+		/*
+		* If we request an owner, we currently do not use cached values.
+        * Usage of this is obscure, oracle specific
+		*/
+		if ($owner || !$this->metaCaching)
+		{
+			return $this->_metaForeignKeys($tableName,$owner);
+		}
+		
+		if (!isset($this->metaCache['FOREIGNKEYS'][$tableName]))
+		{
+			$this->metaCache['FOREIGNKEYS'][strtoupper($tableName)] = $this->_metaForeignKeys($tableName);
+		}
+		
+		$metaForeignKeys = $this->metaCache['FOREIGNKEYS'][strtoupper($tableName)];
+		if (!$metaForeignKeys)
+			return false;
+		
+		$metaCasing = $this->getMetaCasing();
+		switch ($metaCasing)
+		{
+		case SELF::METACASE_NATIVE:
+			return $metaForeignKeys;
+			break;
+		case SELF::METACASE_UPPER:
+			array_walk_recursive($metaForeignKeys,array($this,'metaIndexCallback'),$metaCasing);
+		    $metaForeignKeys = array_change_key_case($metaForeignKeys,CASE_UPPER);
+			return $metaForeignKeys;
+			break;
+		case SELF::METACASE_LEGACY:
+			if ($upperCase)
+				return array_map('strtoupper',$metaForeignKeys);
+			return $metaForeignKeys;
+			break;
+		case SELF::METACASE_LOWER:
+			array_walk_recursive($metaForeignKeys,array($this,'metaIndexCallback'),$metaCasing);
+		    $metaForeignKeys = array_change_key_case($metaForeignKeys,CASE_LOWER);
+			return $metaForeignKeys;
+			break;	
+		}
+		
+		return false;
+	}
+	
+	final public function disableMetaCache()
+	{
+		$this->metaCaching = false;
+		$this->clearMetaCache();
+	}
+	
+	final public function enableMetaCache()
+	{
+		$this->metaCaching = true;
+	}
+	
+	final public function clearMetaCache($tableName=false)
+	{
+		if (!$tableName)
+		{
+			$this->metaCache = $this->metaCacheDefaults;
+		}
+		/*
+		 * Get the correctly cased table name
+		 */
+		$tableName = $this->getMetaCasedTableName($tableName);
+		if ($tableName === false)
+			return false;
+		
+		foreach ($this->metaCache as $key=>$data)
+			if (isset($data[$tableName]))
+				unset($this->metaCache[$key][$tableName]);
+		
+	}
+	
+	final public function getMetaCache()
+	{
+		return $this->metaCache;
+	}
+	
+	final public function buildMetaCache()
+	{
+		$this->metaDatabases();
+		$tables = $this->metaTables();
+		$this->metaProcedures();
+		foreach($tables as $t)
+		{
+			/*
+			* To maximize the performance of this, we must allow
+			* the methods to accept an array as an argument, and
+			* execute a single statement to reduce the preparation
+			* and execution of queries
+			*/
+			$this->metaColumns($t);
+			$this->metaIndexes($t);
+			$this->metaPrimaryKeys($t);
+			$this->metaForeignKeys($t);
+		}
+	}
+	
+	/**
+	* Converts an SQL match type syntax to a regular expression match
+	*
+	* Found at stackoverflow.com, kmn made this case-insensitive
+	*
+	* @author contributor@slashdot.com Peter Bailey
+	*
+	* @param string $command	Command to pass to preg_quote
+	* 
+	* @return string
+	*/
+	final private function convertLikeToRegex( $command )
+	{	
+		return "/^" . str_replace( '%', '(.*?)', preg_quote( $command ) ) .  "$/is";
+	}
+
+	/**
+	* Converts an SQL match type syntax to a regular expression match
+	*
+	* @author contributor@slashdot.com Peter Bailey
+	*
+	* @param string[] $haystack List of strings to search
+	* @param string[] $needle	Wildcard String to find
+	* 
+	* @return string
+	*/
+	final private function selectLikeMatches( $haystack, $needle )
+	{
+		return preg_grep( $this->convertLikeToRegex( $needle ), $haystack );
+	}
 	/**
 	 * return the databases that the driver can connect to.
 	 * Some databases will return an empty array.
 	 *
 	 * @return an array of database names.
 	 */
-	function MetaDatabases() {
+	protected function _metaDatabases() {
 		global $ADODB_FETCH_MODE;
 
 		if ($this->metaDatabasesSQL) {
@@ -2460,7 +3439,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *   )
 	 * )
 	 */
-	function MetaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
+	protected function _metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
 		return false;
 	}
 
@@ -2475,7 +3454,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *
 	 * @return  array of tables for current database.
 	 */
-	function MetaTables($ttype=false,$showSchema=false,$mask=false) {
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false) {
 		global $ADODB_FETCH_MODE;
 
 		if ($mask) {
@@ -2543,7 +3522,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *
 	 * @return  array of ADOFieldObjects for current table.
 	 */
-	function MetaColumns($table,$normalize=true) {
+	protected function _metaColumns($table,$normalize=true) {
 		global $ADODB_FETCH_MODE;
 
 		if (!empty($this->metaColumnsSQL)) {
@@ -2611,7 +3590,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *   )
 	 * )
 	 */
-	function MetaIndexes($table, $primary = false, $owner = false) {
+	protected function _metaIndexes($table, $primary = false, $owner = false) {
 		return false;
 	}
 
@@ -2621,7 +3600,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *
 	 * @return  array of column names for current table.
 	 */
-	function MetaColumnNames($table, $numIndexes=false,$useattnum=false /* only for postgres */) {
+	protected function _metaColumnNames($table, $numIndexes=false,$useattnum=false /* only for postgres */) {
 		$objarr = $this->MetaColumns($table);
 		if (!is_array($objarr)) {
 			return false;

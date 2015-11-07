@@ -107,7 +107,7 @@ class ADODB_ibase extends ADOConnection {
 	}
 
 
-	function MetaPrimaryKeys($table,$owner_notused=false,$internalKey=false)
+	protected function _metaPrimaryKeys($table,$owner_notused=false,$internalKey=false)
 	{
 		if ($internalKey) {
 			return array('RDB$DB_KEY');
@@ -201,7 +201,7 @@ class ADODB_ibase extends ADOConnection {
 		return $ret;
 	}
 
-	function MetaIndexes ($table, $primary = FALSE, $owner=false)
+	protected function _metaIndexes ($table, $primary = FALSE, $owner=false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -505,7 +505,7 @@ class ADODB_ibase extends ADOConnection {
 	//OPN STUFF end
 
 	// returns array of ADOFieldObjects for current table
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 

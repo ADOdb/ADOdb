@@ -109,8 +109,8 @@ END;
 		}
 	}
 
-	/*  function MetaColumns($table, $normalize=true) added by smondino@users.sourceforge.net*/
-	function MetaColumns($table, $normalize=true)
+	/*  protected function _metaColumns($table, $normalize=true) added by smondino@users.sourceforge.net*/
+	protected function _metaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -392,7 +392,7 @@ END;
 		return $this->GetOne("select $col from $tables where $where for update");
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;
@@ -408,7 +408,7 @@ END;
 	}
 
 	// Mark Newnham
-	function MetaIndexes ($table, $primary = FALSE, $owner=false)
+	protected function _metaIndexes ($table, $primary = FALSE, $owner=false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -1392,7 +1392,7 @@ END;
 		$this->_connectionID = false;
 	}
 
-	function MetaPrimaryKeys($table, $owner=false,$internalKey=false)
+	protected function _metaPrimaryKeys($table, $owner=false,$internalKey=false)
 	{
 		if ($internalKey) {
 			return array('ROWID');
@@ -1438,7 +1438,7 @@ SELECT /*+ RULE */ distinct b.column_name
 	 *
 	 * @link http://gis.mit.edu/classes/11.521/sqlnotes/referential_integrity.html
 	 */
-	function MetaForeignKeys($table, $owner=false, $upper=false)
+	protected function _metaForeignKeys($table, $owner=false, $upper=false)
 	{
 		global $ADODB_FETCH_MODE;
 

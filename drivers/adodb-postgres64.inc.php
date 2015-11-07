@@ -209,7 +209,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return pg_query($this->_connectionID, 'rollback');
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$info = $this->ServerInfo();
 		if ($info['version'] >= 7.3) {
@@ -491,7 +491,7 @@ class ADODB_postgres64 extends ADOConnection{
 	// for schema support, pass in the $table param "$schema.$tabname".
 	// converts field names to lowercase, $upper is ignored
 	// see http://phplens.com/lens/lensforum/msgs.php?id=14018 for more info
-	function MetaColumns($table,$normalize=true)
+	protected function _metaColumns($table,$normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -615,7 +615,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return '$'.$this->_pnum;
 	}
 
-	function MetaIndexes ($table, $primary = FALSE, $owner = false)
+	protected function _metaIndexes ($table, $primary = FALSE, $owner = false)
 	{
 		global $ADODB_FETCH_MODE;
 

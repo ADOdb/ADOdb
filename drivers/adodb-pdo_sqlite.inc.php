@@ -144,7 +144,7 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 
 
     // mark newnham
-	function MetaColumns($tab,$normalize=true)
+	protected function _metaColumns($tab,$normalize=true)
 	{
 	  global $ADODB_FETCH_MODE;
 
@@ -182,7 +182,7 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	  return $arr;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$parent = $this->pdoDriver;
 

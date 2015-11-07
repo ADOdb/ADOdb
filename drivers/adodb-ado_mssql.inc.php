@@ -66,7 +66,7 @@ class  ADODB_ado_mssql extends ADODB_ado {
 		return str_replace("\0", "\\\\000", $s);
 	}
 
-	function MetaColumns($table, $normalize=true)
+	protected function _metaColumns($table, $normalize=true)
 	{
         $table = strtoupper($table);
         $arr= array();

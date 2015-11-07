@@ -34,7 +34,7 @@ class perf_db2 extends adodb_perf{
 			"SELECT
 				case when sum(POOL_DATA_L_READS+POOL_INDEX_L_READS)=0 then 0
 				else 100*(1-sum(POOL_DATA_P_READS+POOL_INDEX_P_READS)/sum(POOL_DATA_L_READS+POOL_INDEX_L_READS)) end
-				FROM TABLE(SNAPSHOT_APPL('',-2)) as t",
+				FROM TABLE(SNAP_GET_APPL_V95(CAST(NULL AS VARCHAR(128)),-1)) as t",
 			'=WarnCacheRatio'),
 
 	'Data Cache',
@@ -49,14 +49,16 @@ class perf_db2 extends adodb_perf{
 			'' ),
 	'Connections',
 		'current connections' => array('SESS',
-			"SELECT count(*) FROM TABLE(SNAPSHOT_APPL_INFO('',-2)) as t",
+			"SELECT COUNT(APPL_STATUS) 
+			   FROM TABLE(SNAP_GET_APPL_INFO_V95(CAST(NULL AS VARCHAR(128)),-1)) AS t
+			   WHERE APPL_STATUS = 'CONNECTED' ",
 			''),
 
 		false
 	);
 
 
-	function __construct(&$conn)
+	function perf_db2(&$conn)
 	{
 		$this->conn = $conn;
 	}

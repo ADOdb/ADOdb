@@ -191,25 +191,25 @@ class ADODB_DataDict {
 		return false;
 	}
 
-	function MetaTables()
+	protected function _metaTables()
 	{
 		if (!$this->connection->IsConnected()) return array();
 		return $this->connection->MetaTables();
 	}
 
-	function MetaColumns($tab, $upper=true, $schema=false)
+	protected function _metaColumns($tab, $upper=true, $schema=false)
 	{
 		if (!$this->connection->IsConnected()) return array();
 		return $this->connection->MetaColumns($this->TableName($tab), $upper, $schema);
 	}
 
-	function MetaPrimaryKeys($tab,$owner=false,$intkey=false)
+	protected function _metaPrimaryKeys($tab,$owner=false,$intkey=false)
 	{
 		if (!$this->connection->IsConnected()) return array();
 		return $this->connection->MetaPrimaryKeys($this->TableName($tab), $owner, $intkey);
 	}
 
-	function MetaIndexes($table, $primary = false, $owner = false)
+	protected function _metaIndexes($table, $primary = false, $owner = false)
 	{
 		if (!$this->connection->IsConnected()) return array();
 		return $this->connection->MetaIndexes($this->TableName($table), $primary, $owner);
@@ -337,12 +337,42 @@ class ADODB_DataDict {
 
 		$name = trim($name);
 
+		
 		if ( !is_object($this->connection) ) {
 			return $name;
 		}
 
 		$quote = $this->connection->nameQuote;
-
+		
+		/*
+		 * Pre-process the value for METACASE before looking at anthing else
+		 */
+		switch($this->connection->getMetaCasing())
+		{
+		case 0:
+			/*
+			 * lower case
+			 */
+			 $name = strtolower($name);
+			break;
+		case 1:
+			/*
+			 * upper case
+			 */
+			$name = strtoupper($name);
+			break;
+		case 2:
+			/*
+			 * Native, we are going to quote it
+			 * so we don't care what else is in it
+			 */
+			return $quote . $name . $quote;
+			break;
+		default:
+			/*
+			 * Legacy, do nothing
+			 */
+		}
 		// if name is of the form `name`, quote it
 		if ( preg_match('/^`(.+)`$/', $name, $matches) ) {
 			return $quote . $matches[1] . $quote;
@@ -355,15 +385,29 @@ class ADODB_DataDict {
 			return $quote . $name . $quote;
 		}
 
+		
+		
 		return $name;
 	}
 
 	function TableName($name)
 	{
+		$mcName = $this->connection->getMetaCasedTableName($name);
+		if ($mcName)
+			$name = $mcName;
+		
+		$saveMc = $this->connection->getMetaCasing();
+		$this->connection->setMetaCasing(2);
+		
 		if ( $this->schema ) {
-			return $this->NameQuote($this->schema) .'.'. $this->NameQuote($name);
-		}
-		return $this->NameQuote($name);
+			$name = $this->NameQuote($this->schema) .'.'. $this->NameQuote($name);
+		} 
+		else
+			$name = $this->NameQuote($name);
+		
+		$this->connection->setMetaCasing($saveMc);
+		
+		return $name;
 	}
 
 	// Executes the sql array returned by GetTableSQL and GetIndexSQL
@@ -427,6 +471,9 @@ class ADODB_DataDict {
 	*/
 	function CreateIndexSQL($idxname, $tabname, $flds, $idxoptions = false)
 	{
+		$mcSave = $this->connection->getMetaCasing();
+		$this->connection->setMetaCasing(2);
+
 		if (!is_array($flds)) {
 			$flds = explode(',',$flds);
 		}
@@ -436,12 +483,22 @@ class ADODB_DataDict {
 			$flds[$key] = $this->NameQuote($fld,$allowBrackets=true);
 		}
 
-		return $this->_IndexSQL($this->NameQuote($idxname), $this->TableName($tabname), $flds, $this->_Options($idxoptions));
+		$sql = $this->_IndexSQL($this->NameQuote($idxname), $this->TableName($tabname), $flds, $this->_Options($idxoptions));
+
+		$this->connection->setMetaCasing($mcSave);
+		return $sql;
 	}
 
 	function DropIndexSQL ($idxname, $tabname = NULL)
 	{
-		return array(sprintf($this->dropIndex, $this->NameQuote($idxname), $this->TableName($tabname)));
+		$mcSave = $this->connection->getMetaCasing();
+		$this->connection->setMetaCasing(2);
+
+		$sql = array(sprintf($this->dropIndex, $this->NameQuote($idxname), $this->TableName($tabname)));
+		
+		$this->connection->setMetaCasing($mcSave);
+		return $sql;
+		
 	}
 
 	function SetSchema($schema)
@@ -537,13 +594,21 @@ class ADODB_DataDict {
 	 */
 	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
+		
+
 		$tabname = $this->TableName ($tabname);
 		if (!is_array($flds)) $flds = explode(',',$flds);
 		$sql = array();
 		$alter = 'ALTER TABLE ' . $tabname . $this->dropCol . ' ';
+
+		$mcSave = $this->connection->getMetaCasing();
+		$this->connection->setMetaCasing(2);
+
 		foreach($flds as $v) {
 			$sql[] = $alter . $this->NameQuote($v);
 		}
+
+		$this->connection->setMetaCasing($mcSave);
 		return $sql;
 	}
 
@@ -554,6 +619,7 @@ class ADODB_DataDict {
 
 	function RenameTableSQL($tabname,$newname)
 	{
+		
 		return array (sprintf($this->renameTable, $this->TableName($tabname),$this->TableName($newname)));
 	}
 
@@ -568,6 +634,7 @@ class ADODB_DataDict {
 
 		$taboptions = $this->_Options($tableoptions);
 		$tabname = $this->TableName ($tabname);
+		
 		$sql = $this->_TableSQL($tabname,$lines,$pkey,$taboptions);
 
 		// ggiunta - 2006/10/12 - KLUDGE:
@@ -618,6 +685,7 @@ class ADODB_DataDict {
 						break;
 					}
 				}
+				
 				// 'index' token without a name means single column index: name it after column
 				if (array_key_exists('INDEX', $f1) && $f1['INDEX'] == '') {
 					$f1['INDEX'] = isset($f0['NAME']) ? $f0['NAME'] : $f0[0];
@@ -636,13 +704,15 @@ class ADODB_DataDict {
 
 			}
 		}
+		
+		
 		$this->autoIncrement = false;
 		$lines = array();
 		$pkey = array();
 		$idxs = array();
 		foreach($flds as $fld) {
 			$fld = _array_change_key_case($fld);
-
+			
 			$fname = false;
 			$fdefault = false;
 			$fautoinc = false;
@@ -662,12 +732,16 @@ class ADODB_DataDict {
 			//-----------------
 			// Parse attributes
 			foreach($fld as $attr => $v) {
+				
+				
 				if ($attr == 2 && is_numeric($v)) $attr = 'SIZE';
 				else if (is_numeric($attr) && $attr > 1 && !is_numeric($v)) $attr = strtoupper($v);
 
 				switch($attr) {
 				case '0':
-				case 'NAME': 	$fname = $v; break;
+				case 'NAME': 	
+					$fname = $v ; 
+					break;
 				case '1':
 				case 'TYPE': 	$ty = $v; $ftype = $this->ActualType(strtoupper($v)); break;
 
@@ -706,8 +780,15 @@ class ADODB_DataDict {
 			}
 
 			$fid = strtoupper(preg_replace('/^`(.+)`$/', '$1', $fname));
-			$fname = $this->NameQuote($fname);
-
+			
+			$mcSave = $this->connection->getMetaCasing();
+			$this->connection->setMetaCasing(2);
+			$nqName = $this->NameQuote($fname);
+			if ($nqName)
+				$fname = $nqName;
+			$this->connection->setMetaCasing($mcSave);
+			//$fid = $fname;
+			
 			if (!strlen($ftype)) {
 				if ($this->debug) ADOConnection::outp("Undefined TYPE for field '$fname'");
 				return false;
@@ -716,7 +797,7 @@ class ADODB_DataDict {
 			}
 
 			$ftype = $this->_GetSize($ftype, $ty, $fsize, $fprec);
-
+			
 			if ($ty == 'X' || $ty == 'X2' || $ty == 'B') $fnotnull = false; // some blob types do not accept nulls
 
 			if ($fprimary) $pkey[] = $fname;
@@ -947,7 +1028,15 @@ class ADODB_DataDict {
 		// check table exists
 		$save_handler = $this->connection->raiseErrorFn;
 		$this->connection->raiseErrorFn = '';
-		$cols = $this->MetaColumns($tablename);
+		/*
+		* If the table does not exist, we accept the name we are given
+		*/
+		$mcTablename = $this->connection->getMetaCasedTableName($tablename);
+		if ($mcTablename)
+			$tablename = $mcTablename;
+		
+		
+		$cols = $this->connection->metaColumns($tablename);
 		$this->connection->raiseErrorFn = $save_handler;
 
 		if (isset($savem)) $this->connection->SetFetchMode($savem);
@@ -999,6 +1088,8 @@ class ADODB_DataDict {
 		list($lines,$pkey,$idxs) = $this->_GenFields($flds);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
+		
+		
 		$alter = 'ALTER TABLE ' . $this->TableName($tablename);
 		$sql = array();
 

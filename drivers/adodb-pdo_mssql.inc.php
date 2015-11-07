@@ -47,12 +47,12 @@ class ADODB_pdo_mssql extends ADODB_pdo {
 		$this->Execute("SET TRANSACTION ".$transaction_mode);
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	protected function _metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		return false;
 	}
 
-	function MetaColumns($table,$normalize=true)
+	protected function _metaColumns($table,$normalize=true)
 	{
 		return false;
 	}

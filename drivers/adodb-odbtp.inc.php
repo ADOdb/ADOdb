@@ -299,7 +299,7 @@ class ADODB_odbtp extends ADOConnection{
 		return true;
 	}
 
-	function MetaTables($ttype='',$showSchema=false,$mask=false)
+	protected function _metaTables($ttype='',$showSchema=false,$mask=false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -321,7 +321,7 @@ class ADODB_odbtp extends ADOConnection{
 		return $arr2;
 	}
 
-	function MetaColumns($table,$upper=true)
+	protected function _metaColumns($table,$upper=true)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -367,7 +367,7 @@ class ADODB_odbtp extends ADOConnection{
 		return $retarr;
 	}
 
-	function MetaPrimaryKeys($table, $owner='')
+	protected function _metaPrimaryKeys($table, $owner='')
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -384,7 +384,7 @@ class ADODB_odbtp extends ADOConnection{
 		return $arr2;
 	}
 
-	function MetaForeignKeys($table, $owner='', $upper=false)
+	protected function _metaForeignKeys($table, $owner='', $upper=false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -544,7 +544,7 @@ class ADODB_odbtp extends ADOConnection{
 		return @odbtp_execute( $stmt ) != false;
 	}
 
-	function MetaIndexes($table,$primary=false, $owner=false)
+	protected function _metaIndexes($table,$primary=false, $owner=false)
 	{
 		switch ( $this->odbc_driver) {
 			case ODB_DRIVER_MSSQL:
@@ -554,7 +554,7 @@ class ADODB_odbtp extends ADOConnection{
 		}
 	}
 
-	function MetaIndexes_mssql($table,$primary=false, $owner = false)
+	protected function _metaIndexes_mssql($table,$primary=false, $owner = false)
 	{
 		$table = strtolower($this->qstr($table));
 
