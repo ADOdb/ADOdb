@@ -1,15 +1,15 @@
 language: php
 php:
   - 5.3
-  - 5.4
+#  - 5.4
 #  - 5.5
-  - 5.6
+#  - 5.6
 #  - hhvm
 
 # optionally specify a list of environments, for example to test different RDBMS
 env:
 - DB=mysql
-- DB=pgsql
+#- DB=pgsql
 #- DB=mariadb
 
 script: phpunit --configuration tests/phpunit_$DB.xml --coverage-text
