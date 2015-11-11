@@ -11,3 +11,5 @@ env:
 - DB=mysql
 - DB=pgsql
 #- DB=mariadb
+
+script: phpunit --configuration tests/phpunit_$DB.xml --coverage-text
