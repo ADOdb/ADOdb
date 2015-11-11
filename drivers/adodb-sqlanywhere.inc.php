@@ -56,11 +56,6 @@ if (!defined('ADODB_SYBASE_SQLANYWHERE')){
   	var $databaseType = "sqlanywhere";
 	var $hasInsertID = true;
 
-	function ADODB_sqlanywhere()
-	{
-		$this->ADODB_odbc();
-	}
-
 	 function _insertid() {
   	   return $this->GetOne('select @@identity');
 	 }
@@ -156,9 +151,9 @@ if (!defined('ADODB_SYBASE_SQLANYWHERE')){
 
   var $databaseType = "sqlanywhere";
 
- function ADORecordSet_sqlanywhere($id,$mode=false)
+ function __construct($id,$mode=false)
  {
-  $this->ADORecordSet_odbc($id,$mode);
+  parent::__construct($id,$mode);
  }
 
 

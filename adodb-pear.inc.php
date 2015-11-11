@@ -52,10 +52,6 @@ if (!defined('DB_OK')) {
 define("DB_OK",	1);
 define("DB_ERROR",-1);
 
-// autoExecute constants
-define('DB_AUTOQUERY_INSERT', 1);
-define('DB_AUTOQUERY_UPDATE', 2);
-
 /**
  * This is a special constant that tells DB the user hasn't specified
  * any particular get mode, so the default should be used.

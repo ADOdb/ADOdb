@@ -97,7 +97,7 @@ class ADODB_Replicate {
 	// connSrc2 and connDest2 are only required if the db driver
 	// does not allow updates back to src db in first connection (the select connection),
 	// so we need 2nd connection
-	function ADODB_Replicate($connSrc, $connDest, $connSrc2=false, $connDest2=false)
+	function __construct($connSrc, $connDest, $connSrc2=false, $connDest2=false)
 	{
 
 		if (strpos($connSrc->databaseType,'odbtp') !== false) {

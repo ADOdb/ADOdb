@@ -37,7 +37,7 @@ class ADODB_ado extends ADOConnection {
 	var $poorAffectedRows = true;
 	var $charPage;
 
-	function ADODB_ado()
+	function __construct()
 	{
 		$this->_affectedRows = new VARIANT;
 	}
@@ -147,7 +147,7 @@ class ADODB_ado extends ADOConnection {
 
 */
 
-	function MetaTables()
+	function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$arr= array();
 		$dbc = $this->_connectionID;
@@ -341,14 +341,14 @@ class ADORecordSet_ado extends ADORecordSet {
 	var $canSeek = true;
   	var $hideErrors = true;
 
-	function ADORecordSet_ado($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
 			$mode = $ADODB_FETCH_MODE;
 		}
 		$this->fetchMode = $mode;
-		return $this->ADORecordSet($id,$mode);
+		return parent::__construct($id,$mode);
 	}
 
 
@@ -625,7 +625,7 @@ class ADORecordSet_ado extends ADORecordSet {
 		@$rs->MoveNext(); // @ needed for some versions of PHP!
 
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-			$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
+			$this->fields = $this->GetRowAssoc();
 		}
 		return true;
 	}

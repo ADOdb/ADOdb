@@ -126,19 +126,19 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $sequences = false;
 	var $mssql_version = '';
 
-	function ADODB_mssqlnative()
+	function __construct()
 	{
 		if ($this->debug) {
 			ADOConnection::outp("<pre>");
 			sqlsrv_set_error_handling( SQLSRV_ERRORS_LOG_ALL );
 			sqlsrv_log_set_severity( SQLSRV_LOG_SEVERITY_ALL );
 			sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
-			sqlsrv_configure('warnings_return_as_errors', 0);
+			sqlsrv_configure('WarningsReturnAsErrors', 0);
 		} else {
 			sqlsrv_set_error_handling(0);
 			sqlsrv_log_set_severity(0);
 			sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
-			sqlsrv_configure('warnings_return_as_errors', 0);
+			sqlsrv_configure('WarningsReturnAsErrors', 0);
 		}
 	}
 	function ServerVersion() {
@@ -480,6 +480,10 @@ class ADODB_mssqlnative extends ADOConnection {
 		$connectionInfo["Database"]=$argDatabasename;
 		$connectionInfo["UID"]=$argUsername;
 		$connectionInfo["PWD"]=$argPassword;
+		
+		foreach ($this->connectionParameters as $parameter=>$value)
+		    $connectionInfo[$parameter] = $value;
+		
 		if ($this->debug) ADOConnection::outp("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
 		//if ($this->debug) ADOConnection::outp("<hr>_connectionID before: ".serialize($this->_connectionID));
 		if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo))) {
@@ -563,7 +567,7 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		$insert = false;
 		// handle native driver flaw for retrieving the last insert ID
-		if(preg_match('/^\W*(insert [^;]+);?$/i', $sql)) {
+		if(preg_match('/^\W*insert\s(?:(?:(?:\'\')*\'[^\']+\'(?:\'\')*)|[^;\'])*;?$/i', $sql)) {
 			$insert = true;
 			$sql .= '; '.$this->identitySQL; // select scope_identity()
 		}
@@ -579,9 +583,10 @@ class ADODB_mssqlnative extends ADOConnection {
 			$rez = false;
 		} else if ($insert) {
 			// retrieve the last insert ID (where applicable)
-			sqlsrv_next_result($rez);
-			sqlsrv_fetch($rez);
-			$this->lastInsertID = sqlsrv_get_field($rez, 0);
+			while ( sqlsrv_next_result($rez) ) {
+				sqlsrv_fetch($rez);
+				$this->lastInsertID = sqlsrv_get_field($rez, 0);
+			}
 		}
 		return $rez;
 	}
@@ -837,7 +842,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	var $fieldOffset = 0;
 	// _mths works only in non-localised system
 
-	function ADORecordset_mssqlnative($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -845,7 +850,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 
 		}
 		$this->fetchMode = $mode;
-		return $this->ADORecordSet($id,$mode);
+		return parent::__construct($id,$mode);
 	}
 
 
@@ -1086,9 +1091,9 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 
 
 class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
-	function ADORecordSet_array_mssqlnative($id=-1,$mode=false)
+	function __construct($id=-1,$mode=false)
 	{
-		$this->ADORecordSet_array($id,$mode);
+		parent::__construct($id,$mode);
 	}
 
 		// mssql uses a default date like Dec 30 2000 12:00AM

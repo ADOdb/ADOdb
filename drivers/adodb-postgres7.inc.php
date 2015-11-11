@@ -96,7 +96,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	function __construct()
 	{
 		parent::__construct();
-		if (ADODB_ASSOC_CASE !== 2) {
+		if (ADODB_ASSOC_CASE !== ADODB_ASSOC_CASE_NATIVE) {
 			$this->rsPrefix .= 'assoc_';
 		}
 		$this->_bindInputArray = PHP_VERSION >= 5.1;
@@ -344,8 +344,9 @@ class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 
 	function _fetch()
 	{
-		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0)
+		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0) {
 			return false;
+		}
 
 		$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
 
@@ -355,26 +356,6 @@ class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 		}
 
 		return (is_array($this->fields));
-	}
-
-		// Create associative array
-	function _updatefields()
-	{
-		if (ADODB_ASSOC_CASE == 2) return; // native
-
-		$arr = array();
-		$lowercase = (ADODB_ASSOC_CASE == 0);
-
-		foreach($this->fields as $k => $v) {
-			if (is_integer($k)) $arr[$k] = $v;
-			else {
-				if ($lowercase)
-					$arr[strtolower($k)] = $v;
-				else
-					$arr[strtoupper($k)] = $v;
-			}
-		}
-		$this->fields = $arr;
 	}
 
 	function MoveNext()

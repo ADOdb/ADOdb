@@ -27,12 +27,12 @@ class ADODB_oracle extends ADOConnection {
 	var $sysTimeStamp = 'SYSDATE';
 	var $connectSID = true;
 
-	function ADODB_oracle()
+	function __construct()
 	{
 	}
 
 	// format and return date string in database date format
-	function DBDate($d)
+	function DBDate($d, $isfld = false)
 	{
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
 		if (is_object($d)) $ds = $d->format($this->fmtDate);
@@ -41,7 +41,7 @@ class ADODB_oracle extends ADOConnection {
 	}
 
 	// format and return date string in database timestamp format
-	function DBTimeStamp($ts)
+	function DBTimeStamp($ts, $isfld = false)
 	{
 
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
@@ -219,7 +219,7 @@ class ADORecordset_oracle extends ADORecordSet {
 	var $databaseType = "oracle";
 	var $bind = false;
 
-	function ADORecordset_oracle($queryID,$mode=false)
+	function __construct($queryID,$mode=false)
 	{
 
 		if ($mode === false) {
@@ -303,7 +303,7 @@ class ADORecordset_oracle extends ADORecordSet {
 		   return @ora_close($this->_queryID);
    }
 
-	function MetaType($t,$len=-1)
+	function MetaType($t, $len = -1, $fieldobj = false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;

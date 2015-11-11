@@ -52,13 +52,7 @@ class ADODB_db2oci extends ADODB_db2 {
 	var $sysTimeStamp = 'sysdate';
 	var $sysDate = 'trunc(sysdate)';
 
-	function ADODB_db2oci()
-	{
-		$this->ADODB_db2();
-	}
-
-
-	function _Execute($sql, $inputarr)
+	function _Execute($sql, $inputarr = false)
 	{
 		if ($inputarr) list($sql,$inputarr) = _colonscope($sql, $inputarr);
 		return parent::_Execute($sql, $inputarr);
@@ -70,9 +64,9 @@ class  ADORecordSet_db2oci extends ADORecordSet_odbc {
 
 	var $databaseType = "db2oci";
 
-	function ADORecordSet_db2oci($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
-		return $this->ADORecordSet_db2($id,$mode);
+		return parent::__construct($id,$mode);
 	}
 }
 

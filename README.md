@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/peterdd/ADOdb.svg?branch=master)](https://travis-ci.org/peterdd/ADOdb)
+
 ADODB Library for PHP5
 ======================
 
@@ -7,6 +9,14 @@ Released under both BSD and GNU Lesser GPL library license.
 This means you can use it in proprietary products.
 
 Home page: http://adodb.sourceforge.net/
+
+> **WARNING: known issue with Associative Fetch Mode in ADOdb v5.19**  
+> When fetching data in Associative mode (i.e. when `$ADODB_FETCH_MODE` is
+> set to *ADODB_FETCH_ASSOC*), recordsets do not return any data (empty strings)
+> when using some database drivers. The problem has been reported on MSSQL,
+> Interbase and Foxpro, but possibly affects other drivers as well; all drivers
+> derived from the above are also impacted.
+> For further details, please refer to [Issue #20](https://github.com/ADOdb/ADOdb/issues/20).
 
 
 Introduction

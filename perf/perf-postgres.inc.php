@@ -87,7 +87,7 @@ class perf_postgres extends adodb_perf{
 		false
 	);
 
-	function perf_postgres(&$conn)
+	function __construct(&$conn)
 	{
 		$this->conn = $conn;
 	}
