@@ -1052,7 +1052,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			@mysqli_next_result($this->connection->_connectionID);
 		}
 
-		mysqli_free_result($this->_queryID);
+		@mysqli_free_result($this->_queryID);
 		$this->_queryID = false;
 	}
 
