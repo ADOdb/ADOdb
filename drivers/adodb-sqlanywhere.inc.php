@@ -1,6 +1,8 @@
 <?php
 /*
-version V5.20dev  ??-???-2014  (c) 2000-2014  John Lim (jlim#natsoft.com).  All rights
+@version   V5.20dev  ??-???-2014
+@copyright (c) 2000-2013  John Lim (jlim#natsoft.com).  All rights
+@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 reserved.
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,

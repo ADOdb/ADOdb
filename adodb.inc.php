@@ -14,7 +14,9 @@
 /**
 	\mainpage
 
-	@version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+	@version   V5.20dev  ??-???-2014
+	@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+	@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
 	Released under both BSD license and Lesser GPL library license. You can choose which license
 	you prefer.
@@ -215,7 +217,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved. Released BSD & LGPL.';
+		$ADODB_vers = 'V5.20dev  ??-???-2014';
 
 		/**
 		 * Determines whether recordset->RecordCount() is used.
@@ -503,13 +505,13 @@ if (!defined('_ADODB_LAYER')) {
 	var $_affected = false;
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
-	
+
 	/*
 	 * Additional parameters that may be passed to drivers in the connect string
 	 * Driver must be coded to accept the parameters
 	 */
 	protected $connectionParameters = array();
-	
+
 	/**
 	* Adds a parameter to the connection string.
 	*
@@ -525,9 +527,9 @@ if (!defined('_ADODB_LAYER')) {
 	*/
 	final public function setConnectionParameter($parameter,$value)
 	{
-		
+
 		$this->connectionParameters[$parameter] = $value;
-		
+
 	}
 
 	static function Version() {

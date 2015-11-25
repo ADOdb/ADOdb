@@ -1,6 +1,8 @@
 <?php
-/*
-  V5.20dev  ??-???-2014  (c) 2000-2012 (jlim#natsoft.com). All rights reserved.
+/**
+  @version   V5.20dev  ??-???-2014
+  @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
   This is a version of the ADODB driver for DB2.  It uses the 'ibm_db2' PECL extension
   for PHP (http://pecl.php.net/package/ibm_db2), which in turn requires DB2 V8.2.2 or
