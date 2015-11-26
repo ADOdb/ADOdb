@@ -34,8 +34,8 @@ exclude_list = (".git*",
                 )
 
 # Command-line options
-options = "hfk"
-long_options = ["help", "fresh", "keep"]
+options = "hb:fk"
+long_options = ["help", "branch", "fresh", "keep"]
 
 
 def usage():
@@ -48,11 +48,13 @@ def usage():
     Options:
         -h | --help             Show this usage message
 
+        -b | --branch <branch>  Use specified branch (defaults to %s)
         -f | --fresh            Create a fresh clone of the repository
         -k | --keep             Keep build directories after completion
                                 (useful for debugging)
 ''' % (
-        path.basename(__file__)
+        path.basename(__file__),
+        release_branch
     )
 #end usage()
 
@@ -78,6 +80,9 @@ def main():
         if opt in ("-h", "--help"):
             usage()
             sys.exit(0)
+
+        elif opt in ("-b", "--branch"):
+            release_branch = val
 
         elif opt in ("-f", "--fresh"):
             fresh_clone = True
