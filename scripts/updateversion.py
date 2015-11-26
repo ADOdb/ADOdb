@@ -2,8 +2,7 @@
 '''
     ADOdb version update script
 
-    Updates the version number, date and copyright year in
-    all php, txt and htm files
+    Updates the version number, and release date in all php, txt and htm files
 '''
 
 from datetime import date
@@ -17,8 +16,8 @@ import sys
 
 # ADOdb version validation regex
 _version_dev = "dev"
-_version_regex = "[Vv]?[0-9]\.[0-9]+(%s|[a-z])?" % _version_dev
-_release_date_regex = "[0-9?]+.*[0-9]+"
+_version_regex = "[Vv]?[0-9]\.[0-9]+(%s|[a-z]|\.[0-9])?" % _version_dev
+_release_date_regex = "[0-9?]+-.*-[0-9]+"
 
 _tag_prefix = "v"
 
@@ -73,22 +72,13 @@ def release_date(version):
 def sed_script(version):
     ''' Builds sed script to update version information in source files
     '''
-    copyright_string = "\(c\)"
 
-    # - Part 1: version number and release date
-    script = "s/%s\s+%s\s+(%s)/V%s  %s  \\2/\n" % (
+    # Version number and release date
+    script = "s/%s\s+%s/v%s  %s/\n" % (
         _version_regex,
         _release_date_regex,
-        copyright_string,
         version,
         release_date(version)
-    )
-
-    # - Part 2: copyright year
-    script += "s/(%s)\s*%s(.*Lim)/\\1 \\2-%s\\3/" % (
-        copyright_string,
-        "([0-9]+)-[0-9]+",      # copyright years
-        date.today().strftime("%Y")
     )
 
     return script
