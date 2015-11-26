@@ -115,6 +115,7 @@ def main():
         os.chdir(repo_path)
     else:
         repo_path = subprocess.check_output('git root', shell=True).rstrip()
+        os.chdir(repo_path)
 
         # Check for any uncommitted changes
         try:
