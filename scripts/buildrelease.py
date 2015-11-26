@@ -34,7 +34,7 @@ exclude_list = (".git*",
                 )
 
 # Command-line options
-options = "hfks:"
+options = "hfk"
 long_options = ["help", "fresh", "keep"]
 
 
