@@ -18,6 +18,7 @@ import sys
 _version_dev = "dev"
 _version_regex = "[Vv]?[0-9]\.[0-9]+(%s|[a-z]|\.[0-9])?" % _version_dev
 _release_date_regex = "[0-9?]+-.*-[0-9]+"
+_changelog_file = "docs/changelog.md"
 
 _tag_prefix = "v"
 
@@ -138,6 +139,7 @@ def update_changelog(version):
     print "Updating Changelog"
 
     # Development release
+    # Insert a new section for next release before the most recent one
     if version.endswith(_version_dev):
         version_release = version[:-len(_version_dev)]
 
@@ -146,23 +148,42 @@ def update_changelog(version):
         version_previous = ".".join(version_previous)
 
         print "  Inserting new section for v%s" % version_release
-        script = "/name={0}/i <p><a name={1}><b>{1} - {2}</b>\\n".format(
-            version_previous,
+        script = "1,/^##/s/^##.*$/## %s - %s\\n\\n\\0/" % (
             version_release,
-            release_date(version))
+            release_date(version)
+            )
 
-    # Stable release
-    else:
+    # Stable release (X.Y.0 or X.Y)
+    # Replace the occurence of markdown level 2 header matching version
+    # and release date patterns
+    elif version.endswith(".0") or re.match('[Vv]?[0-9]\.[0-9]+$', version):
         print "  Updating release date for v%s" % version
-        script = "/name={0}/s/({0})[ -]+{1}/\\1 - {2}/".format(
-            version,
+        script = "1,/^##/s/^(## )%s - %s.*$/\\1%s - %s/" % (
+            _version_regex,
             _release_date_regex,
-            release_date(version))
+            version,
+            release_date(version)
+            )
+
+    # Hotfix release (X.Y.[0-9] or X.Y[a-z])
+    # Insert a new section for the hotfix release before the most recent
+    # section for version X.Y and display a warning message
+    else:
+        version_parent = re.match('[Vv]?([0-9]\.[0-9]+)', version).group(1)
+        print "  Inserting new section for hotfix release v%s" % version
+        print "  WARNING: review '%s' to ensure added section is correct" % (
+            _changelog_file
+            )
+        script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
+            version_parent,
+            version,
+            release_date(version)
+            )
 
     subprocess.call(
         "sed -r -i '%s' %s " % (
             script,
-            "docs/docs-adodb.htm"
+            _changelog_file
         ),
         shell=True
     )
