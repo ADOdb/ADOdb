@@ -8,7 +8,8 @@ This means you can use it in proprietary products.
 
 Home page: http://adodb.sourceforge.net/
 
-> **WARNING: known issue with Associative Fetch Mode in ADOdb v5.19**  
+> **WARNING: known issue with Associative Fetch Mode in ADOdb v5.19
+-- PLEASE UPGRADE TO v5.20 !**  
 > When fetching data in Associative mode (i.e. when `$ADODB_FETCH_MODE` is
 > set to *ADODB_FETCH_ASSOC*), recordsets do not return any data (empty strings)
 > when using some database drivers. The problem has been reported on MSSQL,
