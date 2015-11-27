@@ -1,6 +1,8 @@
 ADODB Library for PHP5
 ======================
 
+[![Join chat on Gitter](https://img.shields.io/gitter/room/form-data/form-data.svg)](https://gitter.im/adodb/adodb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 (c) 2000-2014 John Lim (jlim@natsoft.com)
 
 Released under both BSD and GNU Lesser GPL library license.
@@ -87,8 +89,11 @@ statement for databases described in testdatabases.inc.php. The benchmark
 tables are created in test.php.
 
 
-Feature Requests and Bug Reports
-================================
+Support
+=======
+
+To discuss with the ADOdb development team and users, connect to our
+[Gitter chatroom](https://gitter.im/adodb/adodb) using your Github credentials.
 
 Please report bugs, issues and feature requests on Github:
 
