@@ -3,7 +3,8 @@ ADODB Library for PHP5
 
 [![Join chat on Gitter](https://img.shields.io/gitter/room/form-data/form-data.svg)](https://gitter.im/adodb/adodb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-(c) 2000-2014 John Lim (jlim@natsoft.com)
+(c) 2000-2013 John Lim (jlim@natsoft.com)  
+(c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
 Released under both BSD and GNU Lesser GPL library license.
 This means you can use it in proprietary products.
