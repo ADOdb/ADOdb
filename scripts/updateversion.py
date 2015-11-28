@@ -115,6 +115,15 @@ def tag_check(version):
     print "Tag '%s' already exists" % tag_name(version)
 
 
+def tag_delete(version):
+    ''' Deletes the specified tag
+    '''
+    subprocess.check_call(
+        "git tag --delete " + tag_name(version),
+        stderr=subprocess.PIPE,
+        shell=True)
+
+
 def tag_create(version):
     ''' Creates the tag for the specified version
         Returns True if tag created
