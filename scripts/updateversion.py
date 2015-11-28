@@ -2,7 +2,7 @@
 '''
     ADOdb version update script
 
-    Updates the version number, and release date in all php, txt and htm files
+    Updates the version number, and release date in all php and html files
 '''
 
 from datetime import date
@@ -88,13 +88,15 @@ def sed_script(version):
 def sed_filelist():
     ''' Build list of files to update
     '''
-    def sed_filter(name):
-        return name.lower().endswith((".php", ".htm", ".txt"))
-
     dirlist = []
     for root, dirs, files in os.walk(".", topdown=True):
-        for name in filter(sed_filter, files):
-            dirlist.append(path.join(root, name))
+        # Filter files by extensions
+        files = [
+            f for f in files
+            if re.search(r'\.(php|html?)$', f, re.IGNORECASE)
+            ]
+        for fname in files:
+            dirlist.append(path.join(root, fname))
 
     return dirlist
 
