@@ -1,6 +1,11 @@
 #!/usr/bin/python -u
 '''
     ADOdb release build script
+
+    - Create release tag if it does not exist
+    - Copy release files to target directory
+    - Generate zip/tar balls
+    -
 '''
 
 import errno
@@ -17,7 +22,7 @@ import updateversion
 
 
 # ADOdb Repository reference
-origin_repo = "git://git.code.sf.net/p/adodb/git"
+origin_repo = "https://github.com/ADOdb/ADOdb.git"
 release_branch = "master"
 release_prefix = "adodb"
 
@@ -34,8 +39,13 @@ exclude_list = (".git*",
                 )
 
 # Command-line options
-options = "hfks:"
-long_options = ["help", "fresh", "keep"]
+options = "hb:dfk"
+long_options = ["help", "branch", "debug", "fresh", "keep"]
+
+# Global flags
+debug_mode = False
+fresh_clone = False
+cleanup = True
 
 
 def usage():
@@ -48,17 +58,56 @@ def usage():
     Options:
         -h | --help             Show this usage message
 
+        -b | --branch <branch>  Use specified branch (defaults to %s)
+        -d | --debug            Debug mode (ignores upstream: no fetch, allows
+                                build even if local branch is not in sync)
         -f | --fresh            Create a fresh clone of the repository
         -k | --keep             Keep build directories after completion
                                 (useful for debugging)
 ''' % (
-        path.basename(__file__)
+        path.basename(__file__),
+        release_branch
     )
 #end usage()
 
 
+def set_version_and_tag(version):
+    '''
+    '''
+    global release_branch, debug_mode, fresh_clone, cleanup
+
+    # Delete existing tag to force creation in debug mode
+    if debug_mode:
+        try:
+            updateversion.tag_delete(version)
+        except:
+            pass
+
+    # Checkout release branch
+    subprocess.call("git checkout %s" % release_branch, shell=True)
+
+    if not debug_mode:
+        # Make sure we're up-to-date
+        ret = subprocess.check_output(
+            "git status --branch --porcelain",
+            shell=True
+        )
+        if not re.search(release_branch + "$", ret):
+            print "\nERROR: branch must be aligned with upstream"
+            sys.exit(4)
+
+    # Update the code, create commit and tag
+    updateversion.version_set(version)
+
+    # Make sure we don't delete the modified repo
+    if fresh_clone:
+        cleanup = False
+
+
 def main():
-    # Get command-line options
+    global release_branch, debug_mode, fresh_clone, cleanup
+
+   # Get command-line options
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], options, long_options)
     except getopt.GetoptError, err:
@@ -71,13 +120,16 @@ def main():
         print "ERROR: please specify the version and release_path"
         sys.exit(1)
 
-    fresh_clone = False
-    cleanup = True
-
     for opt, val in opts:
         if opt in ("-h", "--help"):
             usage()
             sys.exit(0)
+
+        elif opt in ("-b", "--branch"):
+            release_branch = val
+
+        elif opt in ("-d", "--debug"):
+            debug_mode = True
 
         elif opt in ("-f", "--fresh"):
             fresh_clone = True
@@ -92,11 +144,16 @@ def main():
     global release_prefix
     release_prefix += version.split(".")[0]
 
+    # -------------------------------------------------------------------------
     # Start the build
+    #
     print "Building ADOdb release %s into '%s'\n" % (
         version,
         release_path
     )
+
+    if debug_mode:
+        print "DEBUG MODE: ignoring upstream repository status"
 
     if fresh_clone:
         # Create a new repo clone
@@ -110,6 +167,7 @@ def main():
         os.chdir(repo_path)
     else:
         repo_path = subprocess.check_output('git root', shell=True).rstrip()
+        os.chdir(repo_path)
 
         # Check for any uncommitted changes
         try:
@@ -123,35 +181,21 @@ def main():
             sys.exit(3)
 
         # Update the repository
-        print "Updating repository in '%s'" % os.getcwd()
-        try:
-            subprocess.check_output("git fetch", shell=True)
-        except:
-            print "ERROR: unable to fetch\n"
-            sys.exit(3)
+        if not debug_mode:
+            print "Updating repository in '%s'" % os.getcwd()
+            try:
+                subprocess.check_output("git fetch", shell=True)
+            except:
+                print "ERROR: unable to fetch\n"
+                sys.exit(3)
 
     # Check existence of Tag for version in repo, create if not found
     try:
         updateversion.tag_check(version)
+        if debug_mode:
+            set_version_and_tag(version)
     except:
-        # Checkout release branch
-        subprocess.call("git checkout %s" % release_branch, shell=True)
-
-        # Make sure we're up-to-date
-        ret = subprocess.check_output(
-            "git status --branch --porcelain",
-            shell=True
-        )
-        if not re.search(release_branch + "$", ret):
-            print "\nERROR: branch must be aligned with upstream"
-            sys.exit(4)
-
-        # Update the code, create commit and tag
-        updateversion.version_set(version)
-
-        # Make sure we don't delete the modified repo
-        if fresh_clone:
-            cleanup = False
+        set_version_and_tag(version)
 
     # Copy files to release dir
     release_tmp_dir = path.join(release_path, release_prefix)
