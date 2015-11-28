@@ -158,6 +158,15 @@ def update_changelog(version):
         version_previous[1] = str(int(version_previous[1]) - 1)
         version_previous = ".".join(version_previous)
 
+        # Check changelog file for existing section
+        script = True
+        for i, line in enumerate(open(_changelog_file)):
+            if re.search(r'^## ' + version_release, line):
+                print "  Found existing section for v%s," % version_release,
+                print "nothing to do"
+                return
+
+        # No existing section found, insert new one
         print "  Inserting new section for v%s" % version_release
         script = "1,/^##/s/^##.*$/## %s - %s\\n\\n\\0/" % (
             version_release,
