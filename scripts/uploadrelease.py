@@ -11,11 +11,6 @@ import subprocess
 import sys
 
 
-# ADOdb Repository reference
-origin_repo = "git://git.code.sf.net/p/adodb/git adodb-git"
-release_branch = "master"
-release_prefix = "adodb"
-
 # Directories and files to exclude from release tarballs
 sf_files = "frs.sourceforge.net:/home/frs/project/adodb" \
            "/adodb-php5-only/adodb-{ver}-for-php5/"
