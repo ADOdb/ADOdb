@@ -1,6 +1,11 @@
 #!/usr/bin/python -u
 '''
     ADOdb release build script
+
+    - Create release tag if it does not exist
+    - Copy release files to target directory
+    - Generate zip/tar balls
+    -
 '''
 
 import errno
