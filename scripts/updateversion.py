@@ -75,7 +75,7 @@ def sed_script(version):
     '''
 
     # Version number and release date
-    script = "s/%s\s+%s/v%s  %s/\n" % (
+    script = r"s/%s\s+(-?)\s+%s/v%s \2 %s/" % (
         _version_regex,
         _release_date_regex,
         version,
