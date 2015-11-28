@@ -6,6 +6,8 @@ Older changelogs:
 [v2.x](changelog_v2.x.md).
 
 
+## 5.21 - ??-???-2015
+
 ## 5.20.0 - 28-Nov-2015
 
 - adodb: Fix regression introduced in v5.19, causing queries to return empty rows. See Github #20, #93, #95
