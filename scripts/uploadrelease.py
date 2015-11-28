@@ -86,7 +86,7 @@ def main():
         try:
             zipfile = glob.glob('*.zip')[0]
         except IndexError:
-            print "ERROR: release zip file not found in '%s'    " % release_path
+            print "ERROR: release zip file not found in '%s'" % release_path
             sys.exit(1)
         version = zipfile[5:8]
 
