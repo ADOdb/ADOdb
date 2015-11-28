@@ -286,6 +286,7 @@ def main():
     version = version_check(args[0])
 
     # Let's do it
+    os.chdir(subprocess.check_output('git root', shell=True).rstrip())
     version_set(version, do_commit, do_tag)
 #end main()
 
