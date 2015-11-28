@@ -2,7 +2,7 @@
 '''
     ADOdb version update script
 
-    Updates the version number, and release date in all php, txt and htm files
+    Updates the version number, and release date in all php and html files
 '''
 
 from datetime import date
@@ -75,7 +75,7 @@ def sed_script(version):
     '''
 
     # Version number and release date
-    script = "s/%s\s+%s/v%s  %s/\n" % (
+    script = r"s/%s\s+(-?)\s+%s/v%s \2 %s/" % (
         _version_regex,
         _release_date_regex,
         version,
@@ -88,13 +88,15 @@ def sed_script(version):
 def sed_filelist():
     ''' Build list of files to update
     '''
-    def sed_filter(name):
-        return name.lower().endswith((".php", ".htm", ".txt"))
-
     dirlist = []
     for root, dirs, files in os.walk(".", topdown=True):
-        for name in filter(sed_filter, files):
-            dirlist.append(path.join(root, name))
+        # Filter files by extensions
+        files = [
+            f for f in files
+            if re.search(r'\.(php|html?)$', f, re.IGNORECASE)
+            ]
+        for fname in files:
+            dirlist.append(path.join(root, fname))
 
     return dirlist
 
@@ -156,6 +158,15 @@ def update_changelog(version):
         version_previous[1] = str(int(version_previous[1]) - 1)
         version_previous = ".".join(version_previous)
 
+        # Check changelog file for existing section
+        script = True
+        for i, line in enumerate(open(_changelog_file)):
+            if re.search(r'^## ' + version_release, line):
+                print "  Found existing section for v%s," % version_release,
+                print "nothing to do"
+                return
+
+        # No existing section found, insert new one
         print "  Inserting new section for v%s" % version_release
         script = "1,/^##/s/^##.*$/## %s - %s\\n\\n\\0/" % (
             version_release,
@@ -284,6 +295,7 @@ def main():
     version = version_check(args[0])
 
     # Let's do it
+    os.chdir(subprocess.check_output('git root', shell=True).rstrip())
     version_set(version, do_commit, do_tag)
 #end main()
 
