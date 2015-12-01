@@ -3433,6 +3433,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			return false;
 		}
 
+		// Empty recordset
+		if (!$this->fields) {
+			return array();
+		}
+
 		// Determine whether the array is associative or 0-based numeric
 		$numIndex = array_keys($this->fields) == range(0, count($this->fields) - 1);
 
