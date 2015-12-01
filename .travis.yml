@@ -1,7 +1,7 @@
 language: php
 php:
   - 5.3
-#  - 5.4
+  - 5.4
 #  - 5.5
 #  - 5.6
 #  - hhvm
@@ -9,7 +9,13 @@ php:
 # optionally specify a list of environments, for example to test different RDBMS
 env:
 - DB=mysql
-#- DB=pgsql
+- DB=pgsql
 #- DB=mariadb
 
-script: phpunit --configuration tests/phpunit_$DB.xml --coverage-text
+# maybe move this to the tests or bootstrap too..
+before_script:
+- if [[ "$DB" == "pgsql" ]]; then psql -c "DROP DATABASE IF EXISTS adodb_test;" -U postgres; fi
+- if [[ "$DB" == "pgsql" ]]; then psql -c "CREATE DATABASE adodb_test;" -U postgres; fi
+- if [[ "$DB" == "mysql" ]]; then mysql -e "CREATE DATABASE IF NOT EXISTS adodb_test;" -uroot; fi
+
+script: phpunit --configuration tests/phpunit/phpunit_$DB.xml --coverage-text
