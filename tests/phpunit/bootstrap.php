@@ -1,1 +1,3 @@
-<?php /* nothing at the moment */ ?>
+<?php 
+include_once(../../adodb.inc.php);
+?>
