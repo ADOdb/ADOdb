@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit bootstrap="tests/phpunit/bootstrap.php" colors="true">
+<php>
+<var name="db_dsn" value="pgsql:dbname=adodb_test;host=localhost"/>
+<var name="db_type" value="pgsql"/>
+<var name="db_dbname" value="adodb_test"/>
+<var name="db_prefix" value="adodb_"/>
+<var name="db_host" value="localhost"/>
+<var name="db_user" value="postgres"/>
+<var name="db_pass" value=""/>
+</php>
+<testsuites>
+<testsuite name="ADOdb Test Suite">
+<directory>./tests/phpunit/</directory>
+</testsuite>
+</testsuites>
+<filter>
+<whitelist>
+<directory>./</directory>
+<exclude>
+<directory>./tests</directory>
+</exclude>
+</whitelist>
+</filter>
+</phpunit>
