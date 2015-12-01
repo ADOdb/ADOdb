@@ -3,7 +3,7 @@
 <php>
 <var name="db_dsn" value="pgsql:dbname=adodb_test;host=localhost"/>
 <var name="db_type" value="pgsql"/>
-<var name="db_dbname" value="adodb_test"/>
+<var name="db_name" value="adodb_test"/>
 <var name="db_prefix" value="adodb_"/>
 <var name="db_host" value="localhost"/>
 <var name="db_user" value="postgres"/>
