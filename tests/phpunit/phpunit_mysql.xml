@@ -11,14 +11,14 @@
 </php>
 <testsuites>
 <testsuite name="ADOdb Test Suite">
-<directory>./tests/phpunit/</directory>
+<directory>./</directory>
 </testsuite>
 </testsuites>
 <filter>
 <whitelist>
-<directory>./</directory>
+<directory>../../</directory>
 <exclude>
-<directory>./tests</directory>
+<directory>../</directory>
 </exclude>
 </whitelist>
 </filter>
