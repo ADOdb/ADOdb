@@ -535,12 +535,21 @@ if (!defined('_ADODB_LAYER')) {
 	static function Version() {
 		global $ADODB_vers;
 
-		$ok = preg_match( '/^[Vv]?([0-9]\.[0-9]+(dev|[a-z])?)/', $ADODB_vers, $matches );
-		if (!$ok) {
-			return (float) substr($ADODB_vers,1);
-		} else {
-			return $matches[1];
+		// Semantic Version number matching regex
+		$regex = '^[vV]?(\d+\.\d+\.\d+'         // Version number (X.Y.Z) with optional 'V'
+			. '(?:-(?:'                         // Optional preprod version: a '-'
+			. 'dev|'                            // followed by 'dev'
+			. '(?:(?:alpha|beta|rc)(?:\.\d+))'  // or a preprod suffix and version number
+			. '))?)(?:\s|$)';                   // Whitespace or end of string
+
+		if (!preg_match("/$regex/", $ADODB_vers, $matches)) {
+			// This should normally not happen... Return whatever is between the start
+			// of the string and the first whitespace (or the end of the string).
+			self::outp("Invalid version number: '$ADODB_vers'", 'Version');
+			$regex = '^[vV]?(.*?)(?:\s|$)';
+			preg_match("/$regex/", $ADODB_vers, $matches);
 		}
+		return $matches[1];
 	}
 
 	/**
