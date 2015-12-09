@@ -253,6 +253,13 @@ class ADODB_mysqli extends ADOConnection {
 
 	function _insertid()
 	{
+		/*
+		* mysqli_insert_id does not return the last_insert_id
+		* if called after execution of a stored procedure
+		* so we execute this instead.
+		*/
+		return ADOConnection::GetOne('SELECT LAST_INSERT_ID()');
+
 		$result = @mysqli_insert_id($this->_connectionID);
 		if ($result == -1) {
 			if ($this->debug) ADOConnection::outp("mysqli_insert_id() failed : "  . $this->ErrorMsg());
