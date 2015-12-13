@@ -8,6 +8,12 @@ Older changelogs:
 
 ## 5.21 - ??-???-2015
 
+## 5.20.1 - 06-Dec-2015
+
+- adodb: Fix regression introduced in 5.20.0, causing a PHP Warning when
+  calling GetAssoc() on an empty recordset. See Github #162
+- ADOConnection::Version() now handles SemVer. See Github #164
+
 ## 5.20.0 - 28-Nov-2015
 
 - adodb: Fix regression introduced in v5.19, causing queries to return empty rows. See Github #20, #93, #95
