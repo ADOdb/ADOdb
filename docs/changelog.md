@@ -6,7 +6,9 @@ Older changelogs:
 [v2.x](changelog_v2.x.md).
 
 
-## 5.20.1 - 06-Dec-2015
+## 5.20.2 - ??-Dec-2015
+
+- mysql: MoveNext() now respects ADODB_ASSOC_CASE. #167
 
 ## 5.20.1 - 06-Dec-2015
 
