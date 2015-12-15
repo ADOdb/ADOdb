@@ -44,10 +44,6 @@ class ADODB_sybase extends ADOConnection {
 
 	var $port;
 
-	function __construct()
-	{
-	}
-
 	// might require begintrans -- committrans
 	function _insertid()
 	{
@@ -391,12 +387,8 @@ class ADORecordset_sybase extends ADORecordSet {
 }
 
 class ADORecordSet_array_sybase extends ADORecordSet_array {
-	function __construct($id=-1)
-	{
-		parent::__construct($id);
-	}
 
-		// sybase/mssql uses a default date like Dec 30 2000 12:00AM
+	// sybase/mssql uses a default date like Dec 30 2000 12:00AM
 	static function UnixDate($v)
 	{
 	global $ADODB_sybase_mths;

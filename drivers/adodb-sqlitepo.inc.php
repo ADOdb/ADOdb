@@ -35,11 +35,6 @@ class ADORecordset_sqlitepo extends ADORecordset_sqlite {
 
    var $databaseType = 'sqlitepo';
 
-   function __construct($queryID,$mode=false)
-   {
-      parent::__construct($queryID,$mode);
-   }
-
    // Modified to strip table names from returned fields
    function _fetch($ignore_fields=false)
    {

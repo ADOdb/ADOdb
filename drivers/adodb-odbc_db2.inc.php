@@ -306,11 +306,6 @@ class  ADORecordSet_odbc_db2 extends ADORecordSet_odbc {
 
 	var $databaseType = "db2";
 
-	function __construct($id,$mode=false)
-	{
-		parent::__construct($id,$mode);
-	}
-
 	function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {

@@ -51,8 +51,4 @@ class ADODB_mssqlpo extends ADODB_mssql {
 
 class ADORecordset_mssqlpo extends ADORecordset_mssql {
 	var $databaseType = "mssqlpo";
-	function __construct($id,$mode=false)
-	{
-		parent::__construct($id,$mode);
-	}
 }

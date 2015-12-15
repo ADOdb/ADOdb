@@ -50,11 +50,6 @@ class ADODB_netezza extends ADODB_postgres64 {
 							// http://bugs.php.net/bug.php?id=25404
 
 
-	function __construct()
-	{
-
-	}
-
 	function MetaColumns($table,$upper=true)
 	{
 
@@ -140,11 +135,6 @@ class ADORecordSet_netezza extends ADORecordSet_postgres64
 {
 	var $databaseType = "netezza";
 	var $canSeek = true;
-
-	function __construct($queryID,$mode=false)
-	{
-		parent::__construct($queryID,$mode);
-	}
 
 	// _initrs modified to disable blob handling
 	function _initrs()

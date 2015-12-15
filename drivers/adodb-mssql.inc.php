@@ -1070,12 +1070,8 @@ class ADORecordset_mssql extends ADORecordSet {
 
 
 class ADORecordSet_array_mssql extends ADORecordSet_array {
-	function __construct($id=-1,$mode=false)
-	{
-		parent::__construct($id,$mode);
-	}
 
-		// mssql uses a default date like Dec 30 2000 12:00AM
+	// mssql uses a default date like Dec 30 2000 12:00AM
 	static function UnixDate($v)
 	{
 

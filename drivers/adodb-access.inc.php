@@ -81,11 +81,6 @@ class  ADORecordSet_access extends ADORecordSet_odbc {
 
 	var $databaseType = "access";
 
-	function __construct($id,$mode=false)
-	{
-		return parent::__construct($id,$mode);
-	}
-
 } // class
 
 }

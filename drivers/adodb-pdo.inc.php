@@ -87,10 +87,6 @@ class ADODB_pdo extends ADOConnection {
 	var $stmt = false;
 	var $_driver;
 
-	function __construct()
-	{
-	}
-
 	function _UpdatePDO()
 	{
 		$d = $this->_driver;

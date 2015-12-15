@@ -143,8 +143,4 @@ class ADORecordSet_ado_mssql extends ADORecordSet_ado {
 
 	var $databaseType = 'ado_mssql';
 
-	function __construct($id,$mode=false)
-	{
-		return parent::__construct($id,$mode);
-	}
 }

@@ -124,11 +124,6 @@ class ADODB_postgres64 extends ADOConnection{
 	// to know what the concequences are. The other values are correct (wheren't in 0.94)
 	// -- Freek Dijkstra
 
-	function __construct()
-	{
-		// changes the metaColumnsSQL, adds columns: attnum[6]
-	}
-
 	function ServerInfo()
 	{
 		if (isset($this->version)) return $this->version;

@@ -104,8 +104,4 @@ class  ADORecordSet_odbc_oracle extends ADORecordSet_odbc {
 
 	var $databaseType = 'odbc_oracle';
 
-	function __construct($id,$mode=false)
-	{
-		return parent::__construct($id,$mode);
-	}
 }

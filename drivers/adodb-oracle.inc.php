@@ -29,10 +29,6 @@ class ADODB_oracle extends ADOConnection {
 	var $sysTimeStamp = 'SYSDATE';
 	var $connectSID = true;
 
-	function __construct()
-	{
-	}
-
 	// format and return date string in database date format
 	function DBDate($d, $isfld = false)
 	{

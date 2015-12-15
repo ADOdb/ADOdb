@@ -38,10 +38,6 @@ class ADODB_csv extends ADOConnection {
 	var $hasTransactions = false;
 	var $_errorNo = false;
 
-	function __construct()
-	{
-	}
-
 	function _insertid()
 	{
 		return $this->_insertid;
@@ -193,10 +189,6 @@ class ADODB_csv extends ADOConnection {
 } // class
 
 class ADORecordset_csv extends ADORecordset {
-	function __construct($id,$mode=false)
-	{
-		parent::__construct($id,$mode);
-	}
 
 	function _close()
 	{

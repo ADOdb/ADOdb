@@ -66,8 +66,4 @@ class  ADORecordSet_firebird extends ADORecordSet_ibase {
 
 	var $databaseType = "firebird";
 
-	function __construct($id,$mode=false)
-	{
-		parent::__construct($id,$mode);
-	}
 }

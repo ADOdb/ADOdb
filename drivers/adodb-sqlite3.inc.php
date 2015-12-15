@@ -33,10 +33,6 @@ class ADODB_sqlite3 extends ADOConnection {
 	var $sysTimeStamp = "adodb_date('Y-m-d H:i:s')";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 
-	function __construct()
-	{
-	}
-
 	function ServerInfo()
 	{
 		$version = SQLite3::version();

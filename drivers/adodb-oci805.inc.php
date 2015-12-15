@@ -48,8 +48,4 @@ class ADODB_oci805 extends ADODB_oci8 {
 
 class ADORecordset_oci805 extends ADORecordset_oci8 {
 	var $databaseType = "oci805";
-	function __construct($id,$mode=false)
-	{
-		parent::__construct($id,$mode);
-	}
 }

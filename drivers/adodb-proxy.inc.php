@@ -25,11 +25,6 @@ class ADODB_proxy extends ADODB_csv {
 
 class ADORecordset_proxy extends ADORecordset_csv {
 	var $databaseType = "proxy";
-
-	function __construct($id,$mode=false)
-	{
-		parent::__construct($id,$mode);
-	}
 }
 
 } // define
