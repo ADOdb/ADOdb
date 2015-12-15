@@ -130,11 +130,6 @@ class ADORecordSet_mysqlt extends ADORecordSet_mysql{
 
 class ADORecordSet_ext_mysqlt extends ADORecordSet_mysqlt {
 
-	function ADORecordSet_ext_mysqlt($queryID,$mode=false)
-	{
-		parent::__construct($queryID,$mode);
-	}
-
 	function MoveNext()
 	{
 		return adodb_movenext($this);

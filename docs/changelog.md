@@ -8,6 +8,7 @@ Older changelogs:
 
 ## 5.20.2 - ??-Dec-2015
 
+- adodb: Remove a couple leftover PHP 4.x constructors (PHP7 compatibility). #139
 - mysql: MoveNext() now respects ADODB_ASSOC_CASE. #167
 
 ## 5.20.1 - 06-Dec-2015
