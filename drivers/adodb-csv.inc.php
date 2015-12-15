@@ -44,12 +44,12 @@ class ADODB_csv extends ADOConnection {
 
 	function _insertid()
 	{
-			return $this->_insertid;
+		return $this->_insertid;
 	}
 
 	function _affectedrows()
 	{
-			return $this->_affectedrows;
+		return $this->_affectedrows;
 	}
 
   	function MetaDatabases()
@@ -176,7 +176,7 @@ class ADODB_csv extends ADOConnection {
 	/*	Returns: the last error message from previous database operation	*/
 	function ErrorMsg()
 	{
-			return $this->_errorMsg;
+		return $this->_errorMsg;
 	}
 
 	/*	Returns: the last error number from previous database operation	*/

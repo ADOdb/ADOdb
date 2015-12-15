@@ -43,12 +43,12 @@ class  ADODB_ado_mssql extends ADODB_ado {
 
 	function _insertid()
 	{
-	        return $this->GetOne('select SCOPE_IDENTITY()');
+			return $this->GetOne('select SCOPE_IDENTITY()');
 	}
 
 	function _affectedrows()
 	{
-	        return $this->GetOne('select @@rowcount');
+			return $this->GetOne('select @@rowcount');
 	}
 
 	function SetTransactionMode( $transaction_mode )
@@ -70,32 +70,32 @@ class  ADODB_ado_mssql extends ADODB_ado {
 
 	function MetaColumns($table, $normalize=true)
 	{
-        $table = strtoupper($table);
-        $arr= array();
-        $dbc = $this->_connectionID;
+		$table = strtoupper($table);
+		$arr= array();
+		$dbc = $this->_connectionID;
 
-        $osoptions = array();
-        $osoptions[0] = null;
-        $osoptions[1] = null;
-        $osoptions[2] = $table;
-        $osoptions[3] = null;
+		$osoptions = array();
+		$osoptions[0] = null;
+		$osoptions[1] = null;
+		$osoptions[2] = $table;
+		$osoptions[3] = null;
 
-        $adors=@$dbc->OpenSchema(4, $osoptions);//tables
+		$adors=@$dbc->OpenSchema(4, $osoptions);//tables
 
-        if ($adors){
-                while (!$adors->EOF){
-                        $fld = new ADOFieldObject();
-                        $c = $adors->Fields(3);
-                        $fld->name = $c->Value;
-                        $fld->type = 'CHAR'; // cannot discover type in ADO!
-                        $fld->max_length = -1;
-                        $arr[strtoupper($fld->name)]=$fld;
+		if ($adors){
+			while (!$adors->EOF){
+				$fld = new ADOFieldObject();
+				$c = $adors->Fields(3);
+				$fld->name = $c->Value;
+				$fld->type = 'CHAR'; // cannot discover type in ADO!
+				$fld->max_length = -1;
+				$arr[strtoupper($fld->name)]=$fld;
 
-                        $adors->MoveNext();
-                }
-                $adors->Close();
-        }
-        $false = false;
+				$adors->MoveNext();
+			}
+			$adors->Close();
+		}
+		$false = false;
 		return empty($arr) ? $false : $arr;
 	}
 
@@ -137,14 +137,14 @@ class  ADODB_ado_mssql extends ADODB_ado {
 		//return $this->GetOne("SELECT CONVERT(varchar(255), NEWID()) AS 'Char'");
 	}
 
-	} // end class
+} // end class
 
-	class  ADORecordSet_ado_mssql extends ADORecordSet_ado {
+class ADORecordSet_ado_mssql extends ADORecordSet_ado {
 
 	var $databaseType = 'ado_mssql';
 
 	function __construct($id,$mode=false)
 	{
-	        return parent::__construct($id,$mode);
+		return parent::__construct($id,$mode);
 	}
 }
