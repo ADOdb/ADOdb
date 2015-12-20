@@ -599,7 +599,9 @@ class ADODB_mssqlnative extends ADOConnection {
 		if ($this->transCnt) {
 			$this->RollbackTrans();
 		}
-		$rez = @sqlsrv_close($this->_connectionID);
+		if($this->_connectionID) {
+			$rez = sqlsrv_close($this->_connectionID);
+		}
 		$this->_connectionID = false;
 		return $rez;
 	}

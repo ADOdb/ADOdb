@@ -846,7 +846,9 @@ order by constraint_name, referenced_table_name, keyno";
 		if ($this->transCnt) {
 			$this->RollbackTrans();
 		}
-		$rez = @mssql_close($this->_connectionID);
+		if($this->_connectionID) {
+			$rez = mssql_close($this->_connectionID);
+		}
 		$this->_connectionID = false;
 		return $rez;
 	}
