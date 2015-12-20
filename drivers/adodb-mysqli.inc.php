@@ -823,7 +823,9 @@ class ADODB_mysqli extends ADOConnection {
 	// returns true or false
 	function _close()
 	{
-		@mysqli_close($this->_connectionID);
+		if($this->_connectionID) {
+			mysqli_close($this->_connectionID);
+		}
 		$this->_connectionID = false;
 	}
 
