@@ -506,6 +506,17 @@ if (!defined('_ADODB_LAYER')) {
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
 
+
+	/**
+	 * Default Constructor.
+	 * We define it even though it does not actually do anything. This avoids
+	 * getting a PHP Fatal error:  Cannot call constructor if a subclass tries
+	 * to call its parent constructor.
+	 */
+	public function __construct()
+	{
+	}
+
 	/*
 	 * Additional parameters that may be passed to drivers in the connect string
 	 * Driver must be coded to accept the parameters
