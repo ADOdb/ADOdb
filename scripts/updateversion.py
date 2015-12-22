@@ -45,6 +45,12 @@ def usage():
 #end usage()
 
 
+def version_is_dev(version):
+    ''' Returns true if version is a development release
+    '''
+    return version.endswith(_version_dev)
+
+
 def version_check(version):
     ''' Checks that the given version is valid, exits with error if not.
         Returns the version without the "v" prefix
@@ -62,7 +68,7 @@ def release_date(version):
         For development releases, DD-MMM will be ??-???
     '''
     # Development release
-    if version.endswith(_version_dev):
+    if version_is_dev(version):
         date_format = "??-???-%Y"
     else:
         date_format = "%d-%b-%Y"
@@ -152,7 +158,7 @@ def update_changelog(version):
 
     # Development release
     # Insert a new section for next release before the most recent one
-    if version.endswith(_version_dev):
+    if version_is_dev(version):
         version_release = version[:-len(_version_dev)]
 
         version_previous = version_release.split(".")
