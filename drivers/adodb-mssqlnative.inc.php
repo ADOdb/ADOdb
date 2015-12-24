@@ -161,6 +161,12 @@ class ADODB_mssqlnative extends ADOConnection {
 			 * SQL Server 2012
 			 */
 			$this->mssql_version = 11;
+		} elseif (preg_match('/^12/',$data['version'])){
+			/*
+			 * SQL Server 2014
+			 */
+			$this->mssql_version = 12;
+		
 		} else
 			die("SQL SERVER VERSION {$data['version']} NOT SUPPORTED IN mssqlnative DRIVER");
 	}
@@ -215,6 +221,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			return $this->GenID2008();
 			break;
 		case 11:
+		case 12:
 			return $this->GenID2012();
 			break;
 		}
@@ -231,6 +238,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			return $this->CreateSequence2008();
 			break;
 		case 11:
+		case 12:
 			return $this->CreateSequence2012();
 			break;
 		}
