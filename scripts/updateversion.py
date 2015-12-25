@@ -51,32 +51,39 @@ def version_is_dev(version):
     return version.endswith(_version_dev)
 
 
+def version_parse(version):
+    ''' Breakdown the version into groups (Z and -dev are optional)
+        1:(X.Y), 2:(.Z), 3:(Z), 4:(-dev)
+    '''
+    return re.match(r'^%s$' % _version_regex, version)
+
+
 def version_check(version):
     ''' Checks that the given version is valid, exits with error if not.
         Returns the SemVer-normalized version without the "v" prefix
         - add '.0' if missing patch bit
         - add '-' before dev release suffix if needed
     '''
-    vparse = re.match(r'^%s$' % _version_regex, version)
+    vparse = version_parse(version)
     if not vparse:
         usage()
         print "ERROR: invalid version ! \n"
         sys.exit(1)
 
-    version = vparse.group(1)
+    vnorm = vparse.group(1)
 
     # Add .patch version component
     if vparse.group(2):
-        version += vparse.group(2)
+        vnorm += vparse.group(2)
     else:
         # None was specified, assume a .0 release
-        version += '.0'
+        vnorm += '.0'
 
     # Normalize version number
-    if version_is_dev(vparse.group()):
-        version += '-' + _version_dev
+    if version_is_dev(version):
+        vnorm += '-' + _version_dev
 
-    return version
+    return vnorm
 
 
 def release_date(version):
