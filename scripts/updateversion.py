@@ -86,7 +86,7 @@ def version_check(version):
     return vnorm
 
 
-def release_date(version):
+def get_release_date(version):
     ''' Returns the release date in DD-MMM-YYYY format
         For development releases, DD-MMM will be ??-???
     '''
@@ -109,7 +109,7 @@ def sed_script(version):
         _version_regex,
         _release_date_regex,
         version,
-        release_date(version)
+        get_release_date(version)
     )
 
     return script
@@ -165,7 +165,7 @@ def tag_create(version):
         "git tag --sign --message '%s' %s" % (
             "ADOdb version %s released %s" % (
                 version,
-                release_date(version)
+                get_release_date(version)
             ),
             tag_name(version)
         ),
@@ -200,7 +200,7 @@ def update_changelog(version):
         print "  Inserting new section for v%s" % version_release
         script = "1,/^##/s/^##.*$/## %s - %s\\n\\n\\0/" % (
             version_release,
-            release_date(version)
+            get_release_date(version)
             )
 
     # Stable release (X.Y.0 or X.Y)
@@ -212,7 +212,7 @@ def update_changelog(version):
             _version_regex,
             _release_date_regex,
             version,
-            release_date(version)
+            get_release_date(version)
             )
 
     # Hotfix release (X.Y.[0-9] or X.Y[a-z])
@@ -227,7 +227,7 @@ def update_changelog(version):
         script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
             version_parent,
             version,
-            release_date(version)
+            get_release_date(version)
             )
 
     subprocess.call(
