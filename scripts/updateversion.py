@@ -174,60 +174,112 @@ def tag_create(version):
     return result == 0
 
 
+def section_exists(filename, version):
+    ''' Checks given file for existing section with specified version
+    '''
+    script = True
+    for i, line in enumerate(open(filename)):
+        if re.search(r'^## ' + version, line):
+            print "  Existing section for v%s found," % version,
+            return True
+    return False
+
+
+def version_get_previous(version):
+    ''' Returns the previous version number
+        Don't decrease major versions (raises exception)
+    '''
+    vprev = version.split('.')
+    item = len(vprev) - 1
+
+    while item > 0:
+        val = int(vprev[item])
+        if val > 0:
+            vprev[item] = str(val - 1)
+            break
+        else:
+            item -= 1
+
+    if item == 0:
+        raise ValueError('Refusing to decrease major version number')
+
+    return '.'.join(vprev)
+
+
 def update_changelog(version):
     ''' Updates the release date in the Change Log
     '''
     print "Updating Changelog"
 
+    release_date = get_release_date(version)
+
+    vparse = version_parse(version)
+
+    # Version number without '-dev' suffix
+    version_release = vparse.group(1) + vparse.group(2)
+    version_previous = version_get_previous(version_release)
+
     # Development release
     # Insert a new section for next release before the most recent one
     if version_is_dev(version):
-        version_release = version[:-len(_version_dev)]
-
-        version_previous = version_release.split(".")
-        version_previous[1] = str(int(version_previous[1]) - 1)
-        version_previous = ".".join(version_previous)
-
         # Check changelog file for existing section
-        script = True
-        for i, line in enumerate(open(_changelog_file)):
-            if re.search(r'^## ' + version_release, line):
-                print "  Found existing section for v%s," % version_release,
-                print "nothing to do"
-                return
+        if section_exists(_changelog_file, version_release):
+            print "nothing to do"
+            return
 
         # No existing section found, insert new one
-        print "  Inserting new section for v%s" % version_release
-        script = "1,/^##/s/^##.*$/## %s - %s\\n\\n\\0/" % (
-            version_release,
-            get_release_date(version)
-            )
+        if version_release.endswith('.0'):
+            print "  Inserting new section for v%s" % version_release
+            script = "1,/^##/s/^##.*$/## %s - %s\\n\\n\\0/" % (
+                version_release,
+                release_date
+                )
+        else:
+            print "  Inserting new section for hotfix release v%s" % version
+            script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
+                version_previous,
+                version_release,
+                release_date
+                )
 
-    # Stable release (X.Y.0 or X.Y)
-    # Replace the occurence of markdown level 2 header matching version
+    # Stable release (X.Y.0)
+    # Replace the 1st occurence of markdown level 2 header matching version
     # and release date patterns
-    elif version.endswith(".0") or re.match('[Vv]?[0-9]\.[0-9]+$', version):
+    elif version.endswith(".0"):
         print "  Updating release date for v%s" % version
-        script = "1,/^##/s/^(## )%s - %s.*$/\\1%s - %s/" % (
-            _version_regex,
+        script = r"s/^(## ){0}(\.0)? - {1}.*$/\1{2} - {3}/".format(
+            vparse.group(1),
             _release_date_regex,
             version,
-            get_release_date(version)
+            release_date
             )
 
-    # Hotfix release (X.Y.[0-9] or X.Y[a-z])
+    # Hotfix release (X.Y.[0-9])
     # Insert a new section for the hotfix release before the most recent
     # section for version X.Y and display a warning message
     else:
-        version_parent = re.match('[Vv]?([0-9]\.[0-9]+)', version).group(1)
-        print "  Inserting new section for hotfix release v%s" % version
+        if section_exists(_changelog_file, version):
+            print 'updating release date'
+            script = "s/^## {0}.*$/## {1} - {2}/".format(
+                version.replace('.', '\.'),
+                version,
+                release_date
+                )
+        elif not section_exists(_changelog_file, version_previous):
+            raise ValueError(
+                "ERROR: previous version %s does not exist in changelog" %
+                version_previous
+                )
+        else:
+            print "  Inserting new section for hotfix release v%s" % version
+            script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
+                version_previous,
+                version,
+                release_date
+                )
+
         print "  WARNING: review '%s' to ensure added section is correct" % (
             _changelog_file
-            )
-        script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
-            version_parent,
-            version,
-            get_release_date(version)
             )
 
     subprocess.call(
