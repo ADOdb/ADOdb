@@ -58,7 +58,8 @@ def usage():
     Options:
         -h | --help             Show this usage message
 
-        -b | --branch <branch>  Use specified branch (defaults to %s)
+        -b | --branch <branch>  Use specified branch (defaults to '%s' for '.0'
+                                releases, or 'hotfix/<version>' for patches)
         -d | --debug            Debug mode (ignores upstream: no fetch, allows
                                 build even if local branch is not in sync)
         -f | --fresh            Create a fresh clone of the repository
@@ -140,6 +141,10 @@ def main():
     # Mandatory parameters
     version = updateversion.version_check(args[0])
     release_path = args[1]
+
+    # Default release branch
+    if updateversion.version_is_patch(version):
+        release_branch = 'hotfix/' + version
 
     global release_prefix
     release_prefix += version.split(".")[0]
