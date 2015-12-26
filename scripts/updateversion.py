@@ -223,6 +223,12 @@ def update_changelog(version):
     version_release = vparse.group(1) + vparse.group(2)
     version_previous = version_get_previous(version_release)
 
+    if not section_exists(_changelog_file, version_previous):
+        raise ValueError(
+            "ERROR: previous version %s does not exist in changelog" %
+            version_previous
+            )
+
     # Check if version already exists in changelog
     version_exists = section_exists(_changelog_file, version_release)
     if (not version_exists
@@ -275,11 +281,6 @@ def update_changelog(version):
                 version.replace('.', '\.'),
                 version,
                 release_date
-                )
-        elif not section_exists(_changelog_file, version_previous):
-            raise ValueError(
-                "ERROR: previous version %s does not exist in changelog" %
-                version_previous
                 )
         else:
             print "  Inserting new section for hotfix release v%s" % version
