@@ -217,8 +217,6 @@ def update_changelog(version):
     '''
     print "Updating Changelog"
 
-    release_date = get_release_date(version)
-
     vparse = version_parse(version)
 
     # Version number without '-dev' suffix
@@ -227,6 +225,12 @@ def update_changelog(version):
 
     # Check if version already exists in changelog
     version_exists = section_exists(_changelog_file, version_release)
+    if (not version_exists
+            and not version_is_patch(version)
+            and not version_is_dev(version)):
+        version += '-' + _version_dev
+
+    release_date = get_release_date(version)
 
     # Development release
     # Insert a new section for next release before the most recent one
