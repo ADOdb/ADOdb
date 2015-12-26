@@ -146,12 +146,11 @@ def main():
     if updateversion.version_is_patch(version):
         release_branch = 'hotfix/' + version
 
-    global release_prefix
-    release_prefix += version.split(".")[0]
-
     # -------------------------------------------------------------------------
     # Start the build
     #
+    global release_prefix
+
     print "Building ADOdb release %s into '%s'\n" % (
         version,
         release_path
@@ -203,8 +202,9 @@ def main():
         set_version_and_tag(version)
 
     # Copy files to release dir
-    release_tmp_dir = path.join(release_path, release_prefix)
-    print "Copying files to '%s'" % release_path
+    release_files = release_prefix + version.split(".")[0]
+    release_tmp_dir = path.join(release_path, release_files)
+    print "Copying release files to '%s'" % release_tmp_dir
     retry = True
     while True:
         try:
@@ -229,17 +229,18 @@ def main():
 
     # Create tarballs
     print "Creating release tarballs..."
-    release_name = release_prefix + version.split(".")[1]
+    release_name = release_prefix + '-' + version
+    print release_prefix, version, release_name
 
     os.chdir(release_path)
     print "- tar"
     subprocess.call(
-        "tar -czf %s.tar.gz %s" % (release_name, release_prefix),
+        "tar -czf %s.tar.gz %s" % (release_name, release_files),
         shell=True
     )
     print "- zip"
     subprocess.call(
-        "zip -rq %s.zip %s" % (release_name, release_prefix),
+        "zip -rq %s.zip %s" % (release_name, release_files),
         shell=True
     )
 
