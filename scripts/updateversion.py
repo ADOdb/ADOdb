@@ -225,11 +225,14 @@ def update_changelog(version):
     version_release = vparse.group(1) + vparse.group(2)
     version_previous = version_get_previous(version_release)
 
+    # Check if version already exists in changelog
+    version_exists = section_exists(_changelog_file, version_release)
+
     # Development release
     # Insert a new section for next release before the most recent one
     if version_is_dev(version):
         # Check changelog file for existing section
-        if section_exists(_changelog_file, version_release):
+        if version_exists:
             print "nothing to do"
             return
 
@@ -264,7 +267,7 @@ def update_changelog(version):
     # Insert a new section for the hotfix release before the most recent
     # section for version X.Y and display a warning message
     else:
-        if section_exists(_changelog_file, version):
+        if version_exists:
             print 'updating release date'
             script = "s/^## {0}.*$/## {1} - {2}/".format(
                 version.replace('.', '\.'),
