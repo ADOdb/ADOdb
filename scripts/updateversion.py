@@ -243,17 +243,15 @@ def update_changelog(version):
         # No existing section found, insert new one
         if version_is_patch(version_release):
             print "  Inserting new section for hotfix release v%s" % version
-            script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
-                version_previous,
-                version_release,
-                release_date
-                )
         else:
             print "  Inserting new section for v%s" % version_release
-            script = "1,/^##/s/^##.*$/## %s - %s\\n\\n\\0/" % (
-                version_release,
-                release_date
-                )
+            # Adjust previous version number (remove patch component)
+            version_previous = version_parse(version_previous).group(1)
+        script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
+            version_previous,
+            version_release,
+            release_date
+            )
 
     # Stable release (X.Y.0)
     # Replace the 1st occurence of markdown level 2 header matching version
