@@ -88,9 +88,9 @@ def set_version_and_tag(version):
     subprocess.call("git checkout %s" % release_branch, shell=True)
 
     if not debug_mode:
-        # Make sure we're up-to-date
+        # Make sure we're up-to-date, ignore untracked files
         ret = subprocess.check_output(
-            "git status --branch --porcelain",
+            "git status --branch --porcelain --untracked-files=no",
             shell=True
         )
         if not re.search(release_branch + "$", ret):
