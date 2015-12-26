@@ -51,6 +51,12 @@ def version_is_dev(version):
     return version.endswith(_version_dev)
 
 
+def version_is_patch(version):
+    ''' Returns true if version is a patch release (i.e. X.Y.Z with Z > 0)
+    '''
+    return not version.endswith('.0')
+
+
 def version_parse(version):
     ''' Breakdown the version into groups (Z and -dev are optional)
         1:(X.Y), 2:(.Z), 3:(Z), 4:(-dev)
@@ -228,16 +234,16 @@ def update_changelog(version):
             return
 
         # No existing section found, insert new one
-        if version_release.endswith('.0'):
-            print "  Inserting new section for v%s" % version_release
-            script = "1,/^##/s/^##.*$/## %s - %s\\n\\n\\0/" % (
+        if version_is_patch(version_release):
+            print "  Inserting new section for hotfix release v%s" % version
+            script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
+                version_previous,
                 version_release,
                 release_date
                 )
         else:
-            print "  Inserting new section for hotfix release v%s" % version
-            script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
-                version_previous,
+            print "  Inserting new section for v%s" % version_release
+            script = "1,/^##/s/^##.*$/## %s - %s\\n\\n\\0/" % (
                 version_release,
                 release_date
                 )
@@ -245,7 +251,7 @@ def update_changelog(version):
     # Stable release (X.Y.0)
     # Replace the 1st occurence of markdown level 2 header matching version
     # and release date patterns
-    elif version.endswith(".0"):
+    elif not version_is_patch(version):
         print "  Updating release date for v%s" % version
         script = r"s/^(## ){0}(\.0)? - {1}.*$/\1{2} - {3}/".format(
             vparse.group(1),
