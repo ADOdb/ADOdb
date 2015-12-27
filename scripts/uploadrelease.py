@@ -71,7 +71,15 @@ def get_release_version():
         print "ERROR: release zip file not found in '%s'" % release_path
         sys.exit(1)
 
-    version = re.search("^adodb-([\d]+\.[\d]+\.[\d]+)\.zip$", zipfile).group(1)
+    try:
+        version = re.search(
+            "^adodb-([\d]+\.[\d]+\.[\d]+)\.zip$",
+            zipfile
+            ).group(1)
+    except AttributeError:
+        print "ERROR: unable to extract version number from '%s'" % zipfile
+        print "       Only 3 groups of digits separated by periods are allowed"
+        sys.exit(1)
 
     return version
 
