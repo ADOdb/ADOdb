@@ -102,6 +102,54 @@ def sourceforge_target_dir(version):
     return directory
 
 
+def process_command_line():
+    ''' Retrieve command-line options and set global variables accordingly
+    '''
+    global upload_files, upload_doc, dry_run, username, release_path
+
+    # Get command-line options
+    try:
+        opts, args = getopt.gnu_getopt(sys.argv[1:], options, long_options)
+    except getopt.GetoptError, err:
+        print str(err)
+        usage()
+        sys.exit(2)
+
+    if len(args) < 1:
+        usage()
+        print "ERROR: please specify the Sourceforge user and release_path"
+        sys.exit(1)
+
+    # Default values for flags
+    upload_files = True
+    upload_doc = True
+    dry_run = False
+
+    for opt, val in opts:
+        if opt in ("-h", "--help"):
+            usage()
+            sys.exit(0)
+
+        elif opt in ("-f", "--files"):
+            upload_doc = False
+
+        elif opt in ("-d", "--doc"):
+            upload_files = False
+
+        elif opt in ("-n", "--dry-run"):
+            dry_run = True
+
+    # Mandatory parameters
+    username = args[0]
+
+    # Change to release directory, current if not specified
+    try:
+        release_path = args[1]
+        os.chdir(release_path)
+    except IndexError:
+        release_path = os.getcwd()
+
+
 def upload_release_files():
     ''' Upload release files from source directory to SourceForge
     '''
@@ -136,48 +184,7 @@ def upload_documentation():
 
 
 def main():
-    # Get command-line options
-    try:
-        opts, args = getopt.gnu_getopt(sys.argv[1:], options, long_options)
-    except getopt.GetoptError, err:
-        print str(err)
-        usage()
-        sys.exit(2)
-
-    if len(args) < 1:
-        usage()
-        print "ERROR: please specify the Sourceforge user and release_path"
-        sys.exit(1)
-
-    global upload_files, upload_doc, dry_run, username, release_path
-
-    upload_files = True
-    upload_doc = True
-    dry_run = False
-
-    for opt, val in opts:
-        if opt in ("-h", "--help"):
-            usage()
-            sys.exit(0)
-
-        elif opt in ("-f", "--files"):
-            upload_doc = False
-
-        elif opt in ("-d", "--doc"):
-            upload_files = False
-
-        elif opt in ("-n", "--dry-run"):
-            dry_run = True
-
-    # Mandatory parameters
-    username = args[0]
-
-    # Change to release directory, current if not specified
-    try:
-        release_path = args[1]
-        os.chdir(release_path)
-    except IndexError:
-        release_path = os.getcwd()
+    process_command_line()
 
     # Start upload process
     print "ADOdb release upload script"
