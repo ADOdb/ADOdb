@@ -43,6 +43,17 @@ def usage():
 #end usage()
 
 
+def call_rsync(usr, opt, src, dst):
+    ''' Calls rsync to upload files with given parameters
+        usr = ssh username
+        opt = options
+        src = source directory
+        dst = target directory
+    '''
+    command = rsync_cmd.format(usr=usr, opt=opt, src=src, dst=dst)
+    subprocess.call(command, shell=True)
+
+
 def main():
     # Get command-line options
     try:
@@ -98,14 +109,11 @@ def main():
         print "Uploading release files..."
         print "  Target: " + target
         print
-        subprocess.call(
-            rsync_cmd.format(
-                usr=username,
-                opt="--exclude=docs",
-                src=path.join(release_path, "*"),
-                dst=target
-            ),
-            shell=True
+        call_rsync(
+            username,
+            "--exclude=docs",
+            path.join(release_path, "*"),
+            target
         )
 
     # Upload documentation
@@ -113,14 +121,11 @@ def main():
         print
         print "Uploading documentation..."
         print
-        subprocess.call(
-            rsync_cmd.format(
-                usr=username,
-                opt="",
-                src=path.join(release_path, "docs", "*"),
-                dst=sf_doc
-            ),
-            shell=True
+        call_rsync(
+            username,
+            "",
+            path.join(release_path, "docs", "*"),
+            sf_doc
         )
 
 #end main()
