@@ -7,6 +7,7 @@ import getopt
 import glob
 import os
 from os import path
+import re
 import subprocess
 import sys
 
@@ -74,7 +75,7 @@ def get_release_version():
         print "ERROR: release zip file not found in '%s'" % release_path
         sys.exit(1)
 
-    version = zipfile[5:8]
+    version = re.search("^adodb-([\d]+\.[\d]+\.[\d]+)\.zip$", zipfile).group(1)
 
     return version
 
