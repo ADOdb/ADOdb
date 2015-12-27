@@ -84,7 +84,7 @@ def main():
     if upload_files:
         # Get the version number from the zip file to upload
         try:
-            zipfile = glob.glob('*.zip')[0]
+            zipfile = glob.glob('adodb-*.zip')[0]
         except IndexError:
             print "ERROR: release zip file not found in '%s'" % release_path
             sys.exit(1)
