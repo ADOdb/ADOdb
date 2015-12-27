@@ -65,6 +65,20 @@ def call_rsync(usr, opt, src, dst):
         subprocess.call(command, shell=True)
 
 
+def get_release_version():
+    ''' Get the version number from the zip file to upload
+    '''
+    try:
+        zipfile = glob.glob('adodb-*.zip')[0]
+    except IndexError:
+        print "ERROR: release zip file not found in '%s'" % release_path
+        sys.exit(1)
+
+    version = zipfile[5:8]
+
+    return version
+
+
 def main():
     # Get command-line options
     try:
@@ -111,13 +125,7 @@ def main():
 
     # Upload release files
     if upload_files:
-        # Get the version number from the zip file to upload
-        try:
-            zipfile = glob.glob('adodb-*.zip')[0]
-        except IndexError:
-            print "ERROR: release zip file not found in '%s'" % release_path
-            sys.exit(1)
-        version = zipfile[5:8]
+        version = get_release_version()
 
         # Start upload process
         print "ADOdb release upload script"
