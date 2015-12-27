@@ -8,6 +8,12 @@ Older changelogs:
 
 ## 5.21.0 - ??-???-2015
 
+## 5.20.2 - 27-Dec-2015
+
+- adodb: Remove a couple leftover PHP 4.x constructors (PHP7 compatibility). #139
+- mysql: MoveNext() now respects ADODB_ASSOC_CASE. #167
+- mssql, mysql, informix: Avoid PHP warning when closing recordset from destructor. #170
+
 ## 5.20.1 - 06-Dec-2015
 
 - adodb: Fix regression introduced in 5.20.0, causing a PHP Warning when

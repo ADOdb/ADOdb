@@ -1060,10 +1060,13 @@ class ADORecordset_mssql extends ADORecordSet {
 
 	function _close()
 	{
-		$rez = mssql_free_result($this->_queryID);
-		$this->_queryID = false;
-		return $rez;
+		if($this->_queryID) {
+			$this->_queryID = false;
+			return mssql_free_result($this->_queryID);
+		}
+		return true;
 	}
+
 	// mssql uses a default date like Dec 30 2000 12:00AM
 	static function UnixDate($v)
 	{

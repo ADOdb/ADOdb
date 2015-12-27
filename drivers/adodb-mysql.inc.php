@@ -797,6 +797,7 @@ class ADORecordSet_mysql extends ADORecordSet{
 		//return adodb_movenext($this);
 		//if (defined('ADODB_EXTENSION')) return adodb_movenext($this);
 		if (@$this->fields = mysql_fetch_array($this->_queryID,$this->fetchMode)) {
+			$this->_updatefields();
 			$this->_currentRow += 1;
 			return true;
 		}
