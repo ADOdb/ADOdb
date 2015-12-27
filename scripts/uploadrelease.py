@@ -102,6 +102,39 @@ def sourceforge_target_dir(version):
     return directory
 
 
+def upload_release_files():
+    ''' Upload release files from source directory to SourceForge
+    '''
+    version = get_release_version()
+    target = sf_files + sourceforge_target_dir(version)
+
+    print
+    print "Uploading release files..."
+    print "  Source:", release_path
+    print "  Target: " + target
+    print
+    call_rsync(
+        username,
+        "--exclude=docs",
+        path.join(release_path, "*"),
+        target
+    )
+
+
+def upload_documentation():
+    ''' Upload documentation to Sourceforge web site
+    '''
+    print
+    print "Uploading documentation..."
+    print
+    call_rsync(
+        username,
+        "",
+        path.join(release_path, "docs", "*"),
+        sf_doc
+    )
+
+
 def main():
     # Get command-line options
     try:
@@ -149,34 +182,11 @@ def main():
     # Start upload process
     print "ADOdb release upload script"
 
-    # Upload release files
     if upload_files:
-        version = get_release_version()
+        upload_release_files()
 
-        target = sf_files + sourceforge_target_dir(version)
-        print
-        print "Uploading release files..."
-        print "  Source:", release_path
-        print "  Target: " + target
-        print
-        call_rsync(
-            username,
-            "--exclude=docs",
-            path.join(release_path, "*"),
-            target
-        )
-
-    # Upload documentation
     if upload_doc:
-        print
-        print "Uploading documentation..."
-        print
-        call_rsync(
-            username,
-            "",
-            path.join(release_path, "docs", "*"),
-            sf_doc
-        )
+        upload_documentation()
 
 #end main()
 
