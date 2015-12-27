@@ -3,6 +3,7 @@
     ADOdb release upload script
 '''
 
+from distutils.version import LooseVersion
 import getopt
 import glob
 import os
@@ -13,8 +14,7 @@ import sys
 
 
 # Directories and files to exclude from release tarballs
-sf_files = "frs.sourceforge.net:/home/frs/project/adodb" \
-           "/adodb-php5-only/adodb-{ver}-for-php5/"
+sf_files = "frs.sourceforge.net:/home/frs/project/adodb/"
 sf_doc = "web.sourceforge.net:/home/project-web/adodb/htdocs/"
 rsync_cmd = "rsync -vP --rsh ssh {opt} {src} {usr}@{dst}"
 
@@ -84,6 +84,24 @@ def get_release_version():
     return version
 
 
+def sourceforge_target_dir(version):
+    ''' Returns the sourceforge target directory
+        Base directory as defined in sf_files global variable, plus
+        - if version >= 5.21: adodb-X.Y
+        - for older versions: adodb-XYZ-for-php5
+    '''
+    # Keep only X.Y (discard patch number)
+    short_version = version.rsplit('.', 1)[0]
+
+    directory = 'adodb-php5-only/'
+    if LooseVersion(version) >= LooseVersion('5.21'):
+        directory += "adodb-" + short_version
+    else:
+        directory += "adodb-{}-for-php5".format(short_version.replace('.', ''))
+
+    return directory
+
+
 def main():
     # Get command-line options
     try:
@@ -135,7 +153,7 @@ def main():
     if upload_files:
         version = get_release_version()
 
-        target = sf_files.format(ver=version)
+        target = sf_files + sourceforge_target_dir(version)
         print
         print "Uploading release files..."
         print "  Source:", release_path
