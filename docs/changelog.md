@@ -6,6 +6,8 @@ Older changelogs:
 [v2.x](changelog_v2.x.md).
 
 
+## 5.21.0 - ??-???-2016
+
 ## 5.20.3 - 01-Jan-2016
 
 - mssql: PHP warning when closing recordset from destructor not fixed in v5.20.2. #180
