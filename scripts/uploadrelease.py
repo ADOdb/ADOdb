@@ -18,8 +18,12 @@ sf_doc = "web.sourceforge.net:/home/project-web/adodb/htdocs/"
 rsync_cmd = "rsync -vP --rsh ssh {opt} {src} {usr}@{dst}"
 
 # Command-line options
-options = "hfd"
-long_options = ["help", "files", "doc"]
+options = "hfdn"
+long_options = ["help", "files", "doc", "dry-run"]
+
+upload_files = True
+upload_doc = True
+dry_run = False
 
 
 def usage():
@@ -37,6 +41,7 @@ def usage():
         -h | --help             Show this usage message
         -f | --files            Upload release files only
         -d | --doc              Upload documentation only
+        -n | --dry-run          Do not upload the files
 ''' % (
         path.basename(__file__)
     )
@@ -50,8 +55,14 @@ def call_rsync(usr, opt, src, dst):
         src = source directory
         dst = target directory
     '''
+    global dry_run
+
     command = rsync_cmd.format(usr=usr, opt=opt, src=src, dst=dst)
-    subprocess.call(command, shell=True)
+
+    if dry_run:
+        print command
+    else:
+        subprocess.call(command, shell=True)
 
 
 def main():
@@ -68,8 +79,11 @@ def main():
         print "ERROR: please specify the Sourceforge user and release_path"
         sys.exit(1)
 
+    global upload_files, upload_doc, dry_run, username, release_path
+
     upload_files = True
     upload_doc = True
+    dry_run = False
 
     for opt, val in opts:
         if opt in ("-h", "--help"):
@@ -82,9 +96,13 @@ def main():
         elif opt in ("-d", "--doc"):
             upload_files = False
 
+        elif opt in ("-n", "--dry-run"):
+            dry_run = True
+
     # Mandatory parameters
     username = args[0]
 
+    # Change to release directory, current if not specified
     try:
         release_path = args[1]
         os.chdir(release_path)
