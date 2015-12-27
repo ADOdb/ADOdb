@@ -180,13 +180,14 @@ def tag_create(version):
     return result == 0
 
 
-def section_exists(filename, version):
+def section_exists(filename, version, print_message=True):
     ''' Checks given file for existing section with specified version
     '''
     script = True
     for i, line in enumerate(open(filename)):
         if re.search(r'^## ' + version, line):
-            print "  Existing section for v%s found," % version,
+            if print_message:
+                print "  Existing section for v%s found," % version,
             return True
     return False
 
@@ -223,7 +224,7 @@ def update_changelog(version):
     version_release = vparse.group(1) + vparse.group(2)
     version_previous = version_get_previous(version_release)
 
-    if not section_exists(_changelog_file, version_previous):
+    if not section_exists(_changelog_file, version_previous, False):
         raise ValueError(
             "ERROR: previous version %s does not exist in changelog" %
             version_previous
