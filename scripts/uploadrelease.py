@@ -22,10 +22,6 @@ rsync_cmd = "rsync -vP --rsh ssh {opt} {src} {usr}@{dst}"
 options = "hfdn"
 long_options = ["help", "files", "doc", "dry-run"]
 
-upload_files = True
-upload_doc = True
-dry_run = False
-
 
 def usage():
     print '''Usage: %s [options] username [release_path]
@@ -124,16 +120,17 @@ def main():
     except IndexError:
         release_path = os.getcwd()
 
+    # Start upload process
+    print "ADOdb release upload script"
+
     # Upload release files
     if upload_files:
         version = get_release_version()
 
-        # Start upload process
-        print "ADOdb release upload script"
-
         target = sf_files.format(ver=version)
         print
         print "Uploading release files..."
+        print "  Source:", release_path
         print "  Target: " + target
         print
         call_rsync(
