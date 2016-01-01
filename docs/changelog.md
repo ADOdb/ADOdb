@@ -7,7 +7,7 @@ Older changelogs:
 
 
 ## 5.21.0 - ??-???-2015
-
+- sqlite: _createSuffix is now compatible with parent. #178
 ## 5.20.2 - 27-Dec-2015
 
 - adodb: Remove a couple leftover PHP 4.x constructors (PHP7 compatibility). #139
