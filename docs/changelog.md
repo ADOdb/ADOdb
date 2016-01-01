@@ -6,6 +6,10 @@ Older changelogs:
 [v2.x](changelog_v2.x.md).
 
 
+## 5.20.3 - 01-Jan-2016
+
+- mssql: PHP warning when closing recordset from destructor not fixed in v5.20.2. #180
+
 ## 5.20.2 - 27-Dec-2015
 
 - adodb: Remove a couple leftover PHP 4.x constructors (PHP7 compatibility). #139
