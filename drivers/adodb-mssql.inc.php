@@ -1061,8 +1061,9 @@ class ADORecordset_mssql extends ADORecordSet {
 	function _close()
 	{
 		if($this->_queryID) {
+			$rez = mssql_free_result($this->_queryID);
 			$this->_queryID = false;
-			return mssql_free_result($this->_queryID);
+			return $rez;
 		}
 		return true;
 	}

@@ -1091,9 +1091,10 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	{
 		if($this->_queryID) {
 			$rez = sqlsrv_free_stmt($this->_queryID);
+			$this->_queryID = false;
+			return $rez;
 		}
-		$this->_queryID = false;
-		return $rez;
+		return true;
 	}
 
 	// mssql uses a default date like Dec 30 2000 12:00AM
