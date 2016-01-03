@@ -581,17 +581,25 @@ class ADODB_mysqli extends ADOConnection {
 	// "Innox - Juan Carlos Gonzalez" <jgonzalez#innox.com.mx>
 	function MetaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
 	{
-	 global $ADODB_FETCH_MODE;
+	    
+		global $ADODB_FETCH_MODE;
 
-		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC || $this->fetchMode == ADODB_FETCH_ASSOC) $associative = true;
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC 
+		|| $this->fetchMode == ADODB_FETCH_ASSOC) 
+			$associative = true;
 
+		$savem = $ADODB_FETCH_MODE;
+		$this->setFetchMode(ADODB_FETCH_ASSOC);
+		
 		if ( !empty($owner) ) {
 			$table = "$owner.$table";
 		}
+		
 		$a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
-		if ($associative) {
-			$create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
-		} else $create_sql = $a_create_table[1];
+		
+		$this->setFetchMode($savem);
+		
+		$create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
 
 		$matches = array();
 
