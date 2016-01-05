@@ -8,8 +8,14 @@ Older changelogs:
 
 ## 5.21.0 - ??-???-2016
 
+- adodb: Remove useless constructors. #171
+- adodb: Define default constructor in ADOConnection base class. #172
+- mssqlnative: support SQL Server 2014 databases. #186
+- mysqli: Insert_ID() did not return correct value after executing stored procedure. #166
+- mysqli: mysqli: method failed if $associative set true. #181
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
+- sqlite: driver did not support metaForeignKeys. #179
 
 ## 5.20.3 - 01-Jan-2016
 
@@ -18,6 +24,7 @@ Older changelogs:
 ## 5.20.2 - 27-Dec-2015
 
 - adodb: Remove a couple leftover PHP 4.x constructors (PHP7 compatibility). #139
+- db2ora: Remove deprecated preg_replace '/e' flag (PHP7 compatibility). #168
 - mysql: MoveNext() now respects ADODB_ASSOC_CASE. #167
 - mssql, mysql, informix: Avoid PHP warning when closing recordset from destructor. #170
 
