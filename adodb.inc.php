@@ -88,6 +88,15 @@ if (!defined('_ADODB_LAYER')) {
 	// ********************************************************
 
 
+	/*
+	* Defines constants for returned values from the charmax and textmax
+	* methods. If not specifically defined in the driver, methods return 
+	* the notset values
+	*/
+	define ('ADODB_STRINGMAX_NOTSET', -1);
+	define ('ADODB_STRINGMAX_NOLIMIT',-2);
+	
+	
 	if (!$ADODB_EXTENSION || ADODB_EXTENSION < 4.0) {
 
 		define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
@@ -3018,6 +3027,28 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}*/
 		$rs = $this->PageExecute($sql,$nrows,$page,$inputarr,$secs2cache);
 		return $rs;
+	}
+	
+	/*
+	* Returns the maximum size of a MetaType C field. If the method
+	* is not defined in the driver returns ADODB_STRINGMAX_NOTSET
+	*
+	* @return int
+	*/
+	function charMax()
+	{
+		return ADODB_STRINGMAX_NOTSET;
+	}
+
+	/*
+	* Returns the maximum size of a MetaType X field. If the method
+	* is not defined in the driver returns ADODB_STRINGMAX_NOTSET
+	*
+	* @return int
+	*/
+	function textMax()
+	{
+		return ADODB_STRINGMAX_NOTSET;
 	}
 
 } // end class ADOConnection
