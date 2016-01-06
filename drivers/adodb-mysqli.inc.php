@@ -974,7 +974,13 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		// $o->blob = $o->flags & MYSQLI_BLOB_FLAG; /* not returned by MetaColumns */
 		$o->unsigned = $o->flags & MYSQLI_UNSIGNED_FLAG;
 
-		return $o;
+		/*
+		* Trivial method to cast class to ADOfieldObject
+		*/
+		$a = new ADOFieldObject;
+		foreach (get_object_vars($o) as $key => $name)
+			$a->$key = $name;
+		return $a;
 	}
 
 	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
