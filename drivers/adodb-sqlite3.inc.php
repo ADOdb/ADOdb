@@ -386,7 +386,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		return $indexes;
 	}
 	
-	/*
+	/**
 	* Returns the maximum size of a MetaType C field. Because of the 
 	* database design, sqlite places no limits on the size of data inserted
 	*
@@ -397,10 +397,9 @@ class ADODB_sqlite3 extends ADOConnection {
 		return ADODB_STRINGMAX_NOLIMIT;
 	}
 
-	/*
+	/**
 	* Returns the maximum size of a MetaType X field. Because of the 
 	* database design, sqlite places no limits on the size of data inserted
-	*
 	*
 	* @return int
 	*/

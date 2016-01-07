@@ -88,11 +88,10 @@ if (!defined('_ADODB_LAYER')) {
 	// ********************************************************
 
 
-	/*
-	* Defines constants for returned values from the charmax and textmax
-	* methods. If not specifically defined in the driver, methods return 
-	* the notset values
-	*/
+	/**
+	 * Constants for returned values from the charMax and textMax methods.
+	 * If not specifically defined in the driver, methods return the NOTSET value.
+	 */
 	define ('ADODB_STRINGMAX_NOTSET', -1);
 	define ('ADODB_STRINGMAX_NOLIMIT',-2);
 	
@@ -3029,7 +3028,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return $rs;
 	}
 	
-	/*
+	/**
 	* Returns the maximum size of a MetaType C field. If the method
 	* is not defined in the driver returns ADODB_STRINGMAX_NOTSET
 	*
@@ -3040,7 +3039,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return ADODB_STRINGMAX_NOTSET;
 	}
 
-	/*
+	/**
 	* Returns the maximum size of a MetaType X field. If the method
 	* is not defined in the driver returns ADODB_STRINGMAX_NOTSET
 	*
