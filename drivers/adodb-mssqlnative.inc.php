@@ -491,9 +491,15 @@ class ADODB_mssqlnative extends ADOConnection {
 		$connectionInfo["UID"]=$argUsername;
 		$connectionInfo["PWD"]=$argPassword;
 
-		foreach ($this->connectionParameters as $parameter=>$value)
-			$connectionInfo[$parameter] = $value;
-
+		/*
+		* Now merge in the standard connection parameters setting
+		*/
+		foreach ($this->connectionParameters as $options)
+		{
+			foreach($options as $parameter=>$value)
+				$connectionInfo[$parameter] = $value;
+		}
+		
 		if ($this->debug) ADOConnection::outp("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
 		//if ($this->debug) ADOConnection::outp("<hr>_connectionID before: ".serialize($this->_connectionID));
 		if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo))) {

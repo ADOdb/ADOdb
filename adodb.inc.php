@@ -547,7 +547,7 @@ if (!defined('_ADODB_LAYER')) {
 	final public function setConnectionParameter($parameter,$value)
 	{
 
-		$this->connectionParameters[$parameter] = $value;
+		$this->connectionParameters[] = array($parameter=>$value);
 
 	}
 
