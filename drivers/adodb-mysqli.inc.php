@@ -105,7 +105,6 @@ class ADODB_mysqli extends ADOConnection {
 		read connection options from the standard mysql configuration file
 		/etc/my.cnf - "Bastien Duclaux" <bduclaux#yahoo.com>
 		*/
-		$this->optionFlags = array();
 		foreach($this->optionFlags as $arr) {
 			mysqli_options($this->_connectionID,$arr[0],$arr[1]);
 		}
