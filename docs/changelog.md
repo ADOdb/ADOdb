@@ -10,11 +10,15 @@ Older changelogs:
 
 - adodb: Remove useless constructors. #171
 - adodb: Define default constructor in ADOConnection base class. #172
+- adodb: Reimplement base methods charMax() and textMax(). #183
 - adodb: fix potential SQL injection vector in SelectLimit(). #190
 - mssqlnative: Query not returning id. #185
 - mssqlnative: support SQL Server 2014 databases. #186
+- mysql: setConnectionParameter() now allows multiple parameters with the same key value. #187
+- mysqli: Deprecate $optionFlags property in favor of standard setConnectionParameter() method. #188
 - mysqli: Insert_ID() did not return correct value after executing stored procedure. #166
-- mysqli: mysqli: method failed if $associative set true. #181
+- mysqli: method failed if $associative set true. #181
+- mysqli: return fields as ADOFieldObject objects. #175
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
 - sqlite: driver did not support metaForeignKeys. #179
