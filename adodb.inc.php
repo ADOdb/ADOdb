@@ -1486,6 +1486,9 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return		the recordset ($rs->databaseType == 'array')
 	 */
 	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0) {
+		$nrows = (int)$nrows;
+		$offset = (int)$offset;
+
 		if ($this->hasTop && $nrows > 0) {
 			// suggested by Reinhard Balling. Access requires top after distinct
 			// Informix requires first before distinct - F Riosa
@@ -1497,32 +1500,47 @@ if (!defined('_ADODB_LAYER')) {
 			}
 
 			if ($offset <= 0) {
-					// access includes ties in result
-					if ($isaccess) {
-						$sql = preg_replace(
-						'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop.' '.((integer)$nrows).' ',$sql);
+				// access includes ties in result
+				if ($isaccess) {
+					$sql = preg_replace(
+						'/(^\s*select\s+(distinctrow|distinct)?)/i',
+						'\\1 '.$this->hasTop.' '.$nrows.' ',
+						$sql
+					);
 
-						if ($secs2cache != 0) {
-							$ret = $this->CacheExecute($secs2cache, $sql,$inputarr);
-						} else {
-							$ret = $this->Execute($sql,$inputarr);
-						}
-						return $ret; // PHP5 fix
-					} else if ($ismssql){
-						$sql = preg_replace(
-						'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop.' '.((integer)$nrows).' ',$sql);
+					if ($secs2cache != 0) {
+						$ret = $this->CacheExecute($secs2cache, $sql,$inputarr);
 					} else {
-						$sql = preg_replace(
-						'/(^\s*select\s)/i','\\1 '.$this->hasTop.' '.((integer)$nrows).' ',$sql);
+						$ret = $this->Execute($sql,$inputarr);
 					}
+					return $ret; // PHP5 fix
+				} else if ($ismssql){
+					$sql = preg_replace(
+						'/(^\s*select\s+(distinctrow|distinct)?)/i',
+						'\\1 '.$this->hasTop.' '.$nrows.' ',
+						$sql
+					);
+				} else {
+					$sql = preg_replace(
+						'/(^\s*select\s)/i',
+						'\\1 '.$this->hasTop.' '.$nrows.' ',
+						$sql
+					);
+				}
 			} else {
 				$nn = $nrows + $offset;
 				if ($isaccess || $ismssql) {
 					$sql = preg_replace(
-					'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop.' '.$nn.' ',$sql);
+						'/(^\s*select\s+(distinctrow|distinct)?)/i',
+						'\\1 '.$this->hasTop.' '.$nn.' ',
+						$sql
+					);
 				} else {
 					$sql = preg_replace(
-					'/(^\s*select\s)/i','\\1 '.$this->hasTop.' '.$nn.' ',$sql);
+						'/(^\s*select\s)/i',
+						'\\1 '.$this->hasTop.' '.$nn.' ',
+						$sql
+					);
 				}
 			}
 		}
