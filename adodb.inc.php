@@ -1516,7 +1516,7 @@ if (!defined('_ADODB_LAYER')) {
 						'/(^\s*select\s)/i','\\1 '.$this->hasTop.' '.((integer)$nrows).' ',$sql);
 					}
 			} else {
-				$nn = $nrows + $offset;
+				$nn = ((integer)$nrows) + ((integer)$offset);
 				if ($isaccess || $ismssql) {
 					$sql = preg_replace(
 					'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop.' '.$nn.' ',$sql);
