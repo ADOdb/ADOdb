@@ -10,12 +10,14 @@ Older changelogs:
 
 - adodb: Remove useless constructors. #171
 - adodb: Define default constructor in ADOConnection base class. #172
+- adodb: fix potential SQL injection vector in SelectLimit(). #190
 - mssqlnative: support SQL Server 2014 databases. #186
 - mysqli: Insert_ID() did not return correct value after executing stored procedure. #166
 - mysqli: mysqli: method failed if $associative set true. #181
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
 - sqlite: driver did not support metaForeignKeys. #179
+- session: add 'httponly' flag to cookie. #190
 
 ## 5.20.3 - 01-Jan-2016
 
