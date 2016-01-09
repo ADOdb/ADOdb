@@ -1635,10 +1635,30 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	function GetAssoc($sql, $inputarr=false,$force_array = false, $first2cols = false) {
+		
+		global $ADODB_FETCH_MODE;
+		$save  = $ADODB_FETCH_MODE;
+		$savem = $this->SetFetchMode(FALSE);
+		if ($save == ADODB_FETCH_BOTH || !$save || $savem == ADODB_FETCH_BOTH)
+		{
+			/*
+		    * Method does not work in ADODB_FETCH_BOTH mode
+			*/
+			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+			$this->SetFetchMode(ADODB_FETCH_NUM);
+		}
+		
+		
 		$rs = $this->Execute($sql, $inputarr);
 		if (!$rs) {
 			return false;
 		}
+		
+		if ($savem)
+			$this->SetFetchMode($savem);
+		
+		$ADODB_FETCH_MODE = $save;
+		
 		$arr = $rs->GetAssoc($force_array,$first2cols);
 		return $arr;
 	}
