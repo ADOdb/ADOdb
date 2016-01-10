@@ -302,11 +302,9 @@ class perf_mysql extends adodb_perf{
             case ADODB_OPT_LOW : $sql = $this->optimizeTableLow; break;
             case ADODB_OPT_HIGH : $sql = $this->optimizeTableHigh; break;
             default :
-            {
                 // May dont use __FUNCTION__ constant for BC (__FUNCTION__ Added in PHP 4.3.0)
                 ADOConnection::outp( sprintf( "<p>%s: '%s' using of undefined mode '%s'</p>", __CLASS__, __FUNCTION__, $mode));
                 return false;
-            }
         }
         $sql = sprintf( $sql, $table);
 

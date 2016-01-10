@@ -113,10 +113,8 @@ class perf_postgres extends adodb_perf{
 	        case ADODB_OPT_LOW : $sql = $this->optimizeTableLow;  break;
 	        case ADODB_OPT_HIGH: $sql = $this->optimizeTableHigh; break;
 	        default            :
-	        {
 	            ADOConnection::outp(sprintf("<p>%s: '%s' using of undefined mode '%s'</p>", __CLASS__, 'optimizeTable', $mode));
 	            return false;
-	        }
 	    }
 	    $sql = sprintf($sql, $table);
 
