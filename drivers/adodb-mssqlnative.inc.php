@@ -197,11 +197,9 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function _insertid()
 	{
-	// SCOPE_IDENTITY()
-	// Returns the last IDENTITY value inserted into an IDENTITY column in
-	// the same scope. A scope is a module -- a stored procedure, trigger,
-	// function, or batch. Thus, two statements are in the same scope if
-	// they are in the same stored procedure, function, or batch.
+		$rez = sqlsrv_query($this->_connectionID,$this->identitySQL);
+		sqlsrv_fetch($rez);
+		$this->lastInsertID = sqlsrv_get_field($rez, 0);
 		return $this->lastInsertID;
 	}
 
@@ -579,14 +577,9 @@ class ADODB_mssqlnative extends ADOConnection {
 	{
 		$this->_errorMsg = false;
 
-		if (is_array($sql)) $sql = $sql[1];
+		if (is_array($sql))
+			$sql = $sql[1];
 
-		$insert = false;
-		// handle native driver flaw for retrieving the last insert ID
-		if(preg_match('/^\W*insert\s(?:(?:(?:\'\')*\'[^\']+\'(?:\'\')*)|[^;\'])*;?$/i', $sql)) {
-			$insert = true;
-			$sql .= '; '.$this->identitySQL; // select scope_identity()
-		}
 		if($inputarr) {
 			$rez = sqlsrv_query($this->_connectionID, $sql, $inputarr);
 		} else {
@@ -595,15 +588,9 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		if ($this->debug) ADOConnection::outp("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));
 
-		if(!$rez) {
+		if(!$rez)
 			$rez = false;
-		} else if ($insert) {
-			// retrieve the last insert ID (where applicable)
-			while ( sqlsrv_next_result($rez) ) {
-				sqlsrv_fetch($rez);
-				$this->lastInsertID = sqlsrv_get_field($rez, 0);
-			}
-		}
+
 		return $rez;
 	}
 

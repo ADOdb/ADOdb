@@ -11,6 +11,7 @@ Older changelogs:
 - adodb: Remove useless constructors. #171
 - adodb: Define default constructor in ADOConnection base class. #172
 - adodb: fix potential SQL injection vector in SelectLimit(). #190
+- mssqlnative: Query not returning id. #185
 - mssqlnative: support SQL Server 2014 databases. #186
 - mysqli: Insert_ID() did not return correct value after executing stored procedure. #166
 - mysqli: mysqli: method failed if $associative set true. #181
