@@ -124,7 +124,10 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $uniqueOrderBy = true;
 	var $_bindInputArray = true;
 	var $_dropSeqSQL = "drop table %s";
-	var $connectionInfo = array();
+	
+	var $connectionInfo    = array('ReturnDatesAsStrings'=>true);
+	var $cachedSchemaFlush = false;
+	
 	var $sequences = false;
 	var $mssql_version = '';
 
@@ -484,13 +487,14 @@ class ADODB_mssqlnative extends ADOConnection {
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (!function_exists('sqlsrv_connect')) return null;
-		$connectionInfo = $this->connectionInfo;
-		$connectionInfo["Database"]=$argDatabasename;
-		$connectionInfo["UID"]=$argUsername;
-		$connectionInfo["PWD"]=$argPassword;
-
+		
+		$connectionInfo 			= $this->connectionInfo;
+		$connectionInfo["Database"]	= $argDatabasename;
+		$connectionInfo["UID"]		= $argUsername;
+		$connectionInfo["PWD"]		= $argPassword;
+	
 		/*
-		* Now merge in the standard connection parameters setting
+		* Now merge in the passed connection parameters setting
 		*/
 		foreach ($this->connectionParameters as $options)
 		{
@@ -498,14 +502,13 @@ class ADODB_mssqlnative extends ADOConnection {
 				$connectionInfo[$parameter] = $value;
 		}
 		
+		
 		if ($this->debug) ADOConnection::outp("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
-		//if ($this->debug) ADOConnection::outp("<hr>_connectionID before: ".serialize($this->_connectionID));
-		if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo))) {
+		if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo)))
+		{
 			if ($this->debug) ADOConnection::outp( "<hr><b>errors</b>: ".print_r( sqlsrv_errors(), true));
 			return false;
 		}
-		//if ($this->debug) ADOConnection::outp(" _connectionID after: ".serialize($this->_connectionID));
-		//if ($this->debug) ADOConnection::outp("<hr>defined functions: <pre>".var_export(get_defined_functions(),true)."</pre>");
 		return true;
 	}
 
@@ -757,7 +760,9 @@ class ADODB_mssqlnative extends ADOConnection {
 	}
 	function MetaColumns($table, $upper=true, $schema=false){
 
-		# start adg
+		/*
+		* A simple caching mechanism, to be replaced in ADOdb V6
+		*/
 		static $cached_columns = array();
 		if ($this->cachedSchemaFlush)
 			$cached_columns = array();
@@ -765,7 +770,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		if (array_key_exists($table,$cached_columns)){
 			return $cached_columns[$table];
 		}
-		# end adg
+		
 
 		if (!$this->mssql_version)
 			$this->ServerVersion();
@@ -830,9 +835,8 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		}
 		$rs->Close();
-		# start adg
 		$cached_columns[$table] = $retarr;
-		# end adg
+		
 		return $retarr;
 	}
 
@@ -848,7 +852,68 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	var $canSeek = false;
 	var $fieldOffset = 0;
 	// _mths works only in non-localised system
-
+	
+	/*
+	 * Holds a cached version of the metadata
+	 */
+	private $fieldObjects = false;
+	
+	/*
+	 * Flags if we have retrieved the metadata
+	 */
+	private $fieldObjectsRetrieved = false;
+	
+	/*
+	* Cross-reference the objects by name for easy access
+	*/
+	private $fieldObjectsIndex = array();
+	
+	
+	/*
+	 * Cross references the dateTime objects for faster decoding
+	 */
+	private $dateTimeObjects = array();
+	
+	/*
+	 * flags that we have dateTimeObjects to handle
+	 */
+	private $hasDateTimeObjects = false;
+	
+	/*
+	 * This is cross reference between how the types are stored
+	 * in SQL Server and their english-language description
+	 */
+	private $_typeConversion = array(
+			-155 => 'datetimeoffset',
+			-154 => 'time',
+			-152 => 'xml',
+			-151 => 'udt',
+			-11  => 'uniqueidentifier',
+			-10  => 'ntext',
+			-9   => 'nvarchar',
+			-8   => 'nchar',
+			-7   => 'bit',
+			-6   => 'tinyint',
+			-5   => 'bigint',
+			-4   => 'image',
+			-3   => 'varbinary',
+			-2   => 'timestamp',
+			-1   => 'text',
+			 1   => 'char',
+			 2   => 'numeric',
+			 3   => 'decimal',
+			 4   => 'int',
+			 5   => 'smallint',
+			 6   => 'float',
+			 7   => 'real',
+			 12  => 'varchar',
+			 91  => 'date',
+			 93  => 'datetime'
+			);
+	
+	
+	
+	
 	function __construct($id,$mode=false)
 	{
 		if ($mode === false) {
@@ -863,23 +928,13 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 
 	function _initrs()
 	{
-		global $ADODB_COUNTRECS;
-		# KMN # if ($this->connection->debug) ADOConnection::outp("(before) ADODB_COUNTRECS: {$ADODB_COUNTRECS} _numOfRows: {$this->_numOfRows} _numOfFields: {$this->_numOfFields}");
-		/*$retRowsAff = sqlsrv_rows_affected($this->_queryID);//"If you need to determine the number of rows a query will return before retrieving the actual results, appending a SELECT COUNT ... query would let you get that information, and then a call to next_result would move you to the "real" results."
-		ADOConnection::outp("rowsaff: ".serialize($retRowsAff));
-		$this->_numOfRows = ($ADODB_COUNTRECS)? $retRowsAff:-1;*/
 		$this->_numOfRows = -1;//not supported
 		$fieldmeta = sqlsrv_field_metadata($this->_queryID);
 		$this->_numOfFields = ($fieldmeta)? count($fieldmeta):-1;
-		# KMN # if ($this->connection->debug) ADOConnection::outp("(after) _numOfRows: {$this->_numOfRows} _numOfFields: {$this->_numOfFields}");
 		/*
-		 * Copy the oracle method and cache the metadata at init time
+		* Cache the metadata right now
 		 */
-		if ($this->_numOfFields>0) {
-			$this->_fieldobjs = array();
-			$max = $this->_numOfFields;
-			for ($i=0;$i<$max; $i++) $this->_fieldobjs[] = $this->_FetchField($i);
-		}
+		$this->_fetchField();
 
 	}
 
@@ -911,92 +966,91 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-	/*	Returns: an object containing field information.
-		Get column information in the Recordset object. fetchField() can be used in order to obtain information about
-		fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
-		fetchField() is retrieved.
-		Designed By jcortinap#jc.com.mx
+	/**
+	* Returns: an object containing field information.
+	*
+	* Get column information in the Recordset object. fetchField() 
+	* can be used in order to obtain information about fields in a 
+	* certain query result. If the field offset isn't specified, 
+	* the next field that wasn't yet retrieved by fetchField() 
+	* is retrieved.
+	*
+	* $param int $fieldOffset (optional default=-1 for all
+	* @return mixed an ADOFieldObject, or array of objects
 	*/
-	function _FetchField($fieldOffset = -1)
+	private function _fetchField($fieldOffset = -1)
 	{
-		$_typeConversion = array(
-			-155 => 'datetimeoffset',
-			-154 => 'time',
-			-152 => 'xml',
-			-151 => 'udt',
-			-11 => 'uniqueidentifier',
-			-10 => 'ntext',
-			-9 => 'nvarchar',
-			-8 => 'nchar',
-			-7 => 'bit',
-			-6 => 'tinyint',
-			-5 => 'bigint',
-			-4 => 'image',
-			-3 => 'varbinary',
-			-2 => 'timestamp',
-			-1 => 'text',
-			1 => 'char',
-			2 => 'numeric',
-			3 => 'decimal',
-			4 => 'int',
-			5 => 'smallint',
-			6 => 'float',
-			7 => 'real',
-			12 => 'varchar',
-			91 => 'date',
-			93 => 'datetime'
-			);
+		if ($this->fieldObjectsRetrieved){
+			if ($this->fieldObjects) {
+				/*
+				 * Already got the information
+				 */
+				if ($fieldOffset == -1)
+					return $this->fieldObjects;
+				else
+					return $this->fieldObjects[$fieldOffset];
+			}
+			else 
+				/*
+			     * No metadata available
+				 */
+				return false;
+		}
 
-		$fa = @sqlsrv_field_metadata($this->_queryID);
-		if ($fieldOffset != -1) {
-			$fa = $fa[$fieldOffset];
-		}
-		$false = false;
-		if (empty($fa)) {
-			$f = false;//PHP Notice: Only variable references should be returned by reference
-		}
-		else
+		$this->fieldObjectsRetrieved = true;
+		/*
+		 * Retrieve all metadata in one go. This is always returned as a
+		 * numeric array.
+		 */
+		$fieldMetaData = sqlsrv_field_metadata($this->_queryID);
+		
+		if (!$fieldMetaData)
+			/*
+		     * Not a statement that gives us metaData
+			 */
+			return false;
+		
+		$this->_numOfFields = count($fieldMetaData);
+		foreach ($fieldMetaData as $key=>$value)
 		{
-			// Convert to an object
-			$fa = array_change_key_case($fa, CASE_LOWER);
-			$fb = array();
-			if ($fieldOffset != -1)
-			{
-				$fb = array(
-					'name' => $fa['name'],
-					'max_length' => $fa['size'],
-					'column_source' => $fa['name'],
-					'type' => $_typeConversion[$fa['type']]
-					);
-			}
-			else
-			{
-				foreach ($fa as $key => $value)
-				{
-					$fb[] = array(
-						'name' => $value['name'],
-						'max_length' => $value['size'],
-						'column_source' => $value['name'],
-						'type' => $_typeConversion[$value['type']]
-						);
-				}
-			}
-			$f = (object) $fb;
-		}
-		return $f;
-	}
 
+			$fld = new ADOFieldObject;
+			/*
+			 * Caution - keys are case-sensitive, must respect
+			 * casing of values
+			 */
+			
+			$fld->name          = $value['Name'];
+			$fld->max_length    = $value['Size'];
+			$fld->column_source = $value['Name'];
+			$fld->type          = $this->_typeConversion[$value['Type']];
+			
+			$this->fieldObjects[$key] = $fld; 
+			
+			$this->fieldObjectsIndex[$fld->name] = $key;
+			
+		}
+		if ($fieldIndex == -1)
+			return $this->fieldObjects;
+		
+		return $this->fieldObjects[$fieldIndex];
+	}
+	
 	/*
 	 * Fetchfield copies the oracle method, it loads the field information
 	 * into the _fieldobjs array once, to save multiple calls to the
 	 * sqlsrv_field_metadata function
 	 *
+	 * @param int $fieldOffset	(optional)
+	 *
+	 * @return adoFieldObject
+	 *
 	 * @author 	KM Newnham
 	 * @date 	02/20/2013
 	 */
-	function FetchField($fieldOffset = -1)
+	function fetchField($fieldOffset = -1)
 	{
-		return $this->_fieldobjs[$fieldOffset];
+		return $this->fieldObjects[$fieldOffset];
 	}
 
 	function _seek($row)
@@ -1007,71 +1061,42 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	// speedup
 	function MoveNext()
 	{
-		//# KMN # if ($this->connection->debug) ADOConnection::outp("movenext()");
-		//# KMN # if ($this->connection->debug) ADOConnection::outp("eof (beginning): ".$this->EOF);
-		if ($this->EOF) return false;
+		if ($this->EOF) 
+			return false;
 
 		$this->_currentRow++;
-		// # KMN # if ($this->connection->debug) ADOConnection::outp("_currentRow: ".$this->_currentRow);
 
-		if ($this->_fetch()) return true;
+		if ($this->_fetch()) 
+			return true;
 		$this->EOF = true;
-		//# KMN # if ($this->connection->debug) ADOConnection::outp("eof (end): ".$this->EOF);
 
 		return false;
 	}
 
-
-	// INSERT UPDATE DELETE returns false even if no error occurs in 4.0.4
-	// also the date format has been changed from YYYY-mm-dd to dd MMM YYYY in 4.0.4. Idiot!
 	function _fetch($ignore_fields=false)
 	{
-		# KMN # if ($this->connection->debug) ADOConnection::outp("_fetch()");
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-			if ($this->fetchMode & ADODB_FETCH_NUM) {
-				//# KMN # if ($this->connection->debug) ADOConnection::outp("fetch mode: both");
+			if ($this->fetchMode & ADODB_FETCH_NUM)
 				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_BOTH);
-			} else {
-				//# KMN # if ($this->connection->debug) ADOConnection::outp("fetch mode: assoc");
+			else 
 				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_ASSOC);
-			}
+			
+			if (is_array($this->fields)) 
+			{
 
-			if (is_array($this->fields)) {
-				if (ADODB_ASSOC_CASE == 0) {
-					foreach($this->fields as $k=>$v) {
-						$this->fields[strtolower($k)] = $v;
-					}
-				} else if (ADODB_ASSOC_CASE == 1) {
-					foreach($this->fields as $k=>$v) {
-						$this->fields[strtoupper($k)] = $v;
-					}
-				}
+				if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) 
+					$this->fields = array_change_key_case($this->fields,CASE_LOWER);
+				else if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER)
+					$this->fields = array_change_key_case($this->fields,CASE_UPPER);
+				
 			}
-		} else {
-			//# KMN # if ($this->connection->debug) ADOConnection::outp("fetch mode: num");
+		} 
+		else 
 			$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_NUMERIC);
-		}
-		if(is_array($this->fields) && array_key_exists(1,$this->fields) && !array_key_exists(0,$this->fields)) {//fix fetch numeric keys since they're not 0 based
-			$arrFixed = array();
-			foreach($this->fields as $key=>$value) {
-				if(is_numeric($key)) {
-					$arrFixed[$key-1] = $value;
-				} else {
-					$arrFixed[$key] = $value;
-				}
-			}
-			//if($this->connection->debug) ADOConnection::outp("<hr>fixing non 0 based return array, old: ".print_r($this->fields,true)." new: ".print_r($arrFixed,true));
-			$this->fields = $arrFixed;
-		}
-		if(is_array($this->fields)) {
-			foreach($this->fields as $key=>$value) {
-				if (is_object($value) && method_exists($value, 'format')) {//is DateTime object
-					$this->fields[$key] = $value->format("Y-m-d\TH:i:s\Z");
-				}
-			}
-		}
-		if($this->fields === null) $this->fields = false;
-		# KMN # if ($this->connection->debug) ADOConnection::outp("<hr>after _fetch, fields: <pre>".print_r($this->fields,true)." backtrace: ".adodb_backtrace(false));
+		
+		if (!$this->fields)
+			return false;
+			
 		return $this->fields;
 	}
 
