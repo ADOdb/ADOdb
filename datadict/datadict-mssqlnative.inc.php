@@ -301,7 +301,7 @@ CREATE TABLE
 	}
 
 
-	function _GetSize($ftype, $ty, $fsize, $fprec)
+	function _GetSize($ftype, $ty, $fsize, $fprec,$options=false)
 	{
 		switch ($ftype) {
 		case 'INT':
@@ -311,7 +311,7 @@ CREATE TABLE
 			return $ftype;
 		}
     	if ($ty == 'T') return $ftype;
-    	return parent::_GetSize($ftype, $ty, $fsize, $fprec);
+    	return parent::_GetSize($ftype, $ty, $fsize, $fprec, $options);
 
 	}
 }
