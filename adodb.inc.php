@@ -95,6 +95,13 @@ if (!defined('_ADODB_LAYER')) {
 	define ('ADODB_STRINGMAX_NOTSET', -1);
 	define ('ADODB_STRINGMAX_NOLIMIT',-2);
 	
+	/*
+	* Defines the the default meta type returned
+	* when ADOdb encounters a type that it is not
+	* defined in the metaTypes.
+	*/
+	if (!defined('ADODB_DEFAULT_METATYPE'))
+		define ('ADODB_DEFAULT_METATYPE','N');
 	
 	if (!$ADODB_EXTENSION || ADODB_EXTENSION < 4.0) {
 
@@ -4183,6 +4190,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$len = $fieldobj->max_length;
 		}
 
+
 		// changed in 2.32 to hashing instead of switch stmt for speed...
 		static $typeMap = array(
 			'VARCHAR' => 'C',
@@ -4289,9 +4297,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			"SQLBOOL" => 'L'
 		);
 
+
 		$tmap = false;
 		$t = strtoupper($t);
-		$tmap = (isset($typeMap[$t])) ? $typeMap[$t] : 'N';
+		$tmap = (isset($typeMap[$t])) ? $typeMap[$t] : ADODB_DEFAULT_METATYPE;
 		switch ($tmap) {
 			case 'C':
 				// is the char field is too long, return as text field...

@@ -911,7 +911,7 @@ class ADORecordset_ibase extends ADORecordSet
 		case 'INT':
 		case 'SHORT':
 		case 'INTEGER': return 'I';
-		default: return 'N';
+		default: return ADODB_DEFAULT_METATYPE;
 		}
 	}
 

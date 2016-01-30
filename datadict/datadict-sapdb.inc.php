@@ -71,7 +71,7 @@ class ADODB2_sapdb extends ADODB_DataDict {
 			'FLOAT'		=> 'F',
 			'FIXED'		=> 'N',
 		);
-		$type = isset($maxdb_type2adodb[$t]) ? $maxdb_type2adodb[$t] : 'C';
+		$type = isset($maxdb_type2adodb[$t]) ? $maxdb_type2adodb[$t] : ADODB_DEFAULT_METATYPE;
 
 		// convert integer-types simulated with fixed back to integer
 		if ($t == 'FIXED' && !$fieldobj->scale && ($len == 20 || $len == 3)) {

@@ -85,7 +85,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 				return 'F';
 
 			 default:
-			 	return 'N';
+			 	return ADODB_DEFAULT_METATYPE;
 		}
 	}
 

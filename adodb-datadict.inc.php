@@ -326,7 +326,7 @@ class ADODB_DataDict {
 		if (!$this->connection->IsConnected()) {
 			$t = strtoupper($t);
 			if (isset($typeMap[$t])) return $typeMap[$t];
-			return 'N';
+			return ADODB_DEFAULT_METATYPE;
 		}
 		return $this->connection->MetaType($t,$len,$fieldobj);
 	}

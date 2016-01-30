@@ -870,7 +870,7 @@ class ADORecordSet_mysql extends ADORecordSet{
 			if (!empty($fieldobj->primary_key)) return 'R';
 			else return 'I';
 
-		default: return 'N';
+		default: return ADODB_DEFAULT_METATYPE;
 		}
 	}
 

@@ -1796,7 +1796,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 			return 'I';
 
 		default:
-			return 'N';
+			return ADODB_DEFAULT_METATYPE;
 		}
 	}
 }

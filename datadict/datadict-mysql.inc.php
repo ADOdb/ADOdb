@@ -26,6 +26,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 
 	function MetaType($t,$len=-1,$fieldobj=false)
 	{
+		
 		if (is_object($t)) {
 			$fieldobj = $t;
 			$t = $fieldobj->type;
@@ -74,7 +75,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 		case 'SMALLINT': return $is_serial ? 'R' : 'I2';
 		case 'MEDIUMINT': return $is_serial ? 'R' : 'I4';
 		case 'BIGINT':  return $is_serial ? 'R' : 'I8';
-		default: return 'N';
+		default: return ADODB_DEFAULT_METATYPE;
 		}
 	}
 

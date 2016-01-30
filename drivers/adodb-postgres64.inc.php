@@ -1106,7 +1106,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 					return 'R';
 
 				default:
-					return 'N';
+					return ADODB_DEFAULT_METATYPE;
 			}
 	}
 

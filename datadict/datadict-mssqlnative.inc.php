@@ -94,7 +94,10 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 			  -3 => 'X'
 			);
 
-		return $_typeConversion($t);
+		if (isset($_typeConversion[$t]))
+		return $_typeConversion[$t];
+		
+		return ADODB_DEFAULT_METATYPE;
 
 	}
 
@@ -126,7 +129,6 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		case 'F': return 'REAL';
 		case 'N': return 'NUMERIC';
 		default:
-			print "RETURN $meta";
 			return $meta;
 		}
 	}

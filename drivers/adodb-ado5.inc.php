@@ -579,7 +579,7 @@ class ADORecordSet_ado extends ADORecordSet {
 		case 19://adUnsignedInt	= 19,
 		case 20://adUnsignedBigInt	= 21,
 			return 'I';
-		default: return 'N';
+		default: return ADODB_DEFAULT_METATYPE;
 		}
 	}
 
