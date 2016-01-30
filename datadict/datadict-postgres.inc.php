@@ -479,6 +479,24 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 			if (strlen($fprec)) $ftype .= ",".$fprec;
 			$ftype .= ')';
 		}
+		
+		/*
+		* Handle additional options
+		*/
+		if (is_array($options))
+		{
+			foreach($options as $type=>$value)
+			{
+				switch ($type)
+				{
+					case 'ENUM':
+					$ftype .= '(' . $value . ')';
+					break;
+					
+					default:
+				}
+			}
+		}
 		return $ftype;
 	}
 }
