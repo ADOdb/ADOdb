@@ -12,6 +12,8 @@ Older changelogs:
 - adodb: Define default constructor in ADOConnection base class. #172
 - adodb: Reimplement base methods charMax() and textMax(). #183
 - adodb: fix potential SQL injection vector in SelectLimit(). #190
+- adodb: addColumnSQL datadict function now supports ENUM data types. See #26
+- adodb: introduce user-defined default Metatype. #165
 - mssqlnative: Query not returning id. #185
 - mssqlnative: support SQL Server 2014 databases. #186
 - mysql: setConnectionParameter() now allows multiple parameters with the same key value. #187
