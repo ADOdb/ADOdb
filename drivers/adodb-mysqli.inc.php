@@ -62,6 +62,13 @@ class ADODB_mysqli extends ADOConnection {
 	var $optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0));
 	var $arrayClass = 'ADORecordSet_array_mysqli';
 	var $multiQuery = false;
+	
+	/*
+	* Tells the insert_id method how to obtain the last value, depending on whether
+	* we are using a stored procedure or not
+	*/
+	private $usePreparedStatement    = false;
+	private $useLastInsertStatement  = false;
 
 	function __construct()
 	{
@@ -105,6 +112,7 @@ class ADODB_mysqli extends ADOConnection {
 		read connection options from the standard mysql configuration file
 		/etc/my.cnf - "Bastien Duclaux" <bduclaux#yahoo.com>
 		*/
+		$this->optionFlags = array();
 		foreach($this->optionFlags as $arr) {
 			mysqli_options($this->_connectionID,$arr[0],$arr[1]);
 		}
@@ -267,12 +275,21 @@ class ADODB_mysqli extends ADOConnection {
 		* if called after execution of a stored procedure
 		* so we execute this instead.
 		*/
-		return ADOConnection::GetOne('SELECT LAST_INSERT_ID()');
-
-		$result = @mysqli_insert_id($this->_connectionID);
+		$result = false;
+		if ($this->useLastInsertStatement)
+			$result = ADOConnection::GetOne('SELECT LAST_INSERT_ID()');
+        else
+		    $result = @mysqli_insert_id($this->_connectionID);
+		
 		if ($result == -1) {
-			if ($this->debug) ADOConnection::outp("mysqli_insert_id() failed : "  . $this->ErrorMsg());
+			if ($this->debug) 
+				ADOConnection::outp("mysqli_insert_id() failed : "  . $this->ErrorMsg());
 		}
+		/*
+		* reset prepared statement flags
+		*/
+		$this->usePreparedStatement   = false;
+		$this->useLastInsertStatement = false;
 		return $result;
 	}
 
@@ -750,6 +767,14 @@ class ADODB_mysqli extends ADOConnection {
 
 	function Prepare($sql)
 	{
+		/*
+		* Flag the insert_id method to use the correct retrieval method 
+		*/
+		$this->usePreparedStatement = true;
+		
+		/*
+		* Prepared statements are not yet handled correctly
+		*/
 		return $sql;
 		$stmt = $this->_connectionID->prepare($sql);
 		if (!$stmt) {
@@ -784,10 +809,25 @@ class ADODB_mysqli extends ADOConnection {
 				else $a .= 'd';
 			}
 
+			/*
+		     * set prepared statement flags
+		     */
+		    if ($this->usePreparedStatement)
+		        $this->useLastInsertStatement = true;
+			
 			$fnarr = array_merge( array($stmt,$a) , $inputarr);
 			$ret = call_user_func_array('mysqli_stmt_bind_param',$fnarr);
 			$ret = mysqli_stmt_execute($stmt);
 			return $ret;
+		}
+		else
+		{
+			/*
+			* reset prepared statement flags, in case we set them
+			* previously and didn't use them
+			*/
+			$this->usePreparedStatement   = false;
+			$this->useLastInsertStatement = false;
 		}
 
 		/*
@@ -1211,7 +1251,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		case 'FIXED':
 		default:
 			//if (!is_numeric($t)) echo "<p>--- Error in type matching $t -----</p>";
-			return ADODB_DEFAULT_METATYPE;
+			return 'N';
 		}
 	} // function
 
@@ -1312,7 +1352,7 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array {
 		case 'FIXED':
 		default:
 			//if (!is_numeric($t)) echo "<p>--- Error in type matching $t -----</p>";
-			return ADODB_DEFAULT_METATYPE;
+			return 'N';
 		}
 	} // function
 
