@@ -14,6 +14,7 @@ Older changelogs:
 - adodb: fix potential SQL injection vector in SelectLimit(). #190
 - adodb: addColumnSQL datadict function now supports ENUM data types. See #26
 - adodb: introduce user-defined default Metatype. #165
+- adodb: AutoExecute validates empty fields array. #154
 - mssqlnative: Query not returning id. #185
 - mssqlnative: support SQL Server 2014 databases. #186
 - mysql: setConnectionParameter() now allows multiple parameters with the same key value. #187

@@ -2163,6 +2163,10 @@ if (!defined('_ADODB_LAYER')) {
 		$forceUpdate means that even if the data has not changed, perform update.
 	 */
 	function AutoExecute($table, $fields_values, $mode = 'INSERT', $where = false, $forceUpdate = true, $magicq = false) {
+		if (empty($fields_values)) {
+			$this->outp_throw('AutoExecute: Empty fields array', 'AutoExecute');
+			return false;
+		}
 		if ($where === false && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) ) {
 			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause', 'AutoExecute');
 			return false;
