@@ -94,7 +94,7 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	define ('ADODB_STRINGMAX_NOTSET', -1);
 	define ('ADODB_STRINGMAX_NOLIMIT',-2);
-	
+
 	/*
 	* Defines the the default meta type returned
 	* when ADOdb encounters a type that it is not
@@ -102,7 +102,7 @@ if (!defined('_ADODB_LAYER')) {
 	*/
 	if (!defined('ADODB_DEFAULT_METATYPE'))
 		define ('ADODB_DEFAULT_METATYPE','N');
-	
+
 	if (!$ADODB_EXTENSION || ADODB_EXTENSION < 4.0) {
 
 		define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
@@ -1642,7 +1642,7 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	function GetAssoc($sql, $inputarr=false,$force_array = false, $first2cols = false) {
-		
+
 		global $ADODB_FETCH_MODE;
 		$save  = $ADODB_FETCH_MODE;
 		$savem = $this->SetFetchMode(FALSE);
@@ -1654,18 +1654,18 @@ if (!defined('_ADODB_LAYER')) {
 			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 			$this->SetFetchMode(ADODB_FETCH_NUM);
 		}
-		
-		
+
+
 		$rs = $this->Execute($sql, $inputarr);
 		if (!$rs) {
 			return false;
 		}
-		
+
 		if ($savem)
 			$this->SetFetchMode($savem);
-		
+
 		$ADODB_FETCH_MODE = $save;
-		
+
 		$arr = $rs->GetAssoc($force_array,$first2cols);
 		return $arr;
 	}
@@ -3076,7 +3076,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$rs = $this->PageExecute($sql,$nrows,$page,$inputarr,$secs2cache);
 		return $rs;
 	}
-	
+
 	/**
 	* Returns the maximum size of a MetaType C field. If the method
 	* is not defined in the driver returns ADODB_STRINGMAX_NOTSET
