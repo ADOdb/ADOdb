@@ -1642,32 +1642,33 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	function GetAssoc($sql, $inputarr=false,$force_array = false, $first2cols = false) {
-
 		global $ADODB_FETCH_MODE;
+
 		$save  = $ADODB_FETCH_MODE;
-		$savem = $this->SetFetchMode(FALSE);
-		if ($save == ADODB_FETCH_BOTH || !$save || $savem == ADODB_FETCH_BOTH)
-		{
-			/*
-		    * Method does not work in ADODB_FETCH_BOTH mode
-			*/
-			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-			$this->SetFetchMode(ADODB_FETCH_NUM);
+		$savem = $this->SetFetchMode(NULL);
+
+		// Method does not work in ADODB_FETCH_BOTH mode
+		if ($save == ADODB_FETCH_ASSOC || $savem == ADODB_FETCH_ASSOC) {
+			$switchMode = ADODB_FETCH_ASSOC;
+		} else {
+			$switchMode = ADODB_FETCH_NUM;
 		}
 
+		$ADODB_FETCH_MODE = $switchMode;
+		$this->SetFetchMode($switchMode);
 
 		$rs = $this->Execute($sql, $inputarr);
+
+		// Revert modes back to original
+		$this->SetFetchMode($savem);
+		$ADODB_FETCH_MODE = $save;
+		
 		if (!$rs) {
+			// Execution failure
 			return false;
 		}
-
-		if ($savem)
-			$this->SetFetchMode($savem);
-
-		$ADODB_FETCH_MODE = $save;
-
-		$arr = $rs->GetAssoc($force_array,$first2cols);
-		return $arr;
+		
+		return $rs->GetAssoc($force_array,$first2cols);
 	}
 
 	function CacheGetAssoc($secs2cache, $sql=false, $inputarr=false,$force_array = false, $first2cols = false) {
@@ -3524,6 +3525,89 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @return an associative array indexed by the first column of the array,
 	 * or false if the  data has less than 2 cols.
 	 */
+	function xgetAssoc($force_array = false, $first2cols = false) {
+
+        global $ADODB_EXTENSION;
+
+        /*
+		* Insufficient rows to show data
+		*/
+		if ($this->_numOfFields < 2)
+              return;
+
+		/*
+		* Empty recordset
+		*/
+		if (!$this->fields) {
+			return array();
+		}
+
+        /*
+         * Key is always value of first element
+         * Value is a numeric array of fields
+         */
+        $showArrayMethod = 0;
+
+        if ($this->_numOfFields == 2)
+            /*
+            * Key is always value of first  element
+            * Value is alway value of second element
+            */
+            $showArrayMethod = 1;
+
+        if ($force_array)
+            $showArrayMethod = 0;
+
+        if ($first2cols)
+            $showArrayMethod = 1;
+
+        $results = array();
+
+        while (!$this->EOF){
+
+            $myFields = $this->fields;
+             /*
+              * key is value of first element, rest is data,
+              * casing is already handled by the driver
+              */
+            $key = array_shift($myFields);
+
+            switch ($showArrayMethod){
+            case 0:
+
+                /*
+                 * Don't care whether its assoc or numeric, 
+                 * I want the values in a numeric array,
+                 * nicely re-indexed from zero
+                 */
+                $results[$key] = array_values($myFields);
+                break;
+
+            case 1:
+
+                /*
+                 * Don't care how long the array is,
+                 * I just want value of second column
+                 */
+                $results[$key] = array_shift($myFields);
+                break;
+            }
+
+            if ($ADODB_EXTENSION)
+                /*
+                 * Don't really need this either except for 
+                 * old version compatibility
+                 */
+                adodb_movenext($this);
+            else
+               $this->MoveNext();
+        }        
+        /*
+         * Done
+         */
+        return $results;
+    }
+	
 	function GetAssoc($force_array = false, $first2cols = false) {
 		global $ADODB_EXTENSION;
 
