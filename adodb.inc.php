@@ -1116,20 +1116,35 @@ if (!defined('_ADODB_LAYER')) {
 				$sqlarr = explode('?',$sql);
 				$nparams = sizeof($sqlarr)-1;
 
+				if (!$array_2d) {
+					// When not Bind Bulk - convert to array of arguments list
+					$inputarr = array($inputarr);
+				} else {
+					// Bulk bind - Make sure all list of params have the same number of elements
+					$countElements = array_map('count', $inputarr);
+					if (1 != count(array_unique($countElements))) {
+						$this->outp_throw(
+							"[bulk execute] Input array has different number of params  [" . print_r($countElements, true) .  "].",
+							'Execute'
+						);
+						return false;
+					}
+					unset($countElements);
+				}
 				// Make sure the number of parameters provided in the input
 				// array matches what the query expects
-				if ($nparams != count($inputarr)) {
+				$element0 = reset($inputarr);
+				if ($nparams != count($element0)) {
 					$this->outp_throw(
-						"Input array has " . count($inputarr) .
+						"Input array has " . count($element0) .
 						" params, does not match query: '" . htmlspecialchars($sql) . "'",
 						'Execute'
 					);
 					return false;
 				}
-
-				if (!$array_2d) {
-					$inputarr = array($inputarr);
-				}
+				
+				// clean memory
+				unset($element0);
 
 				foreach($inputarr as $arr) {
 					$sql = ''; $i = 0;
