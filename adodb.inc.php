@@ -1156,11 +1156,11 @@ if (!defined('_ADODB_LAYER')) {
     					);
     					return false;
 				    }
-
+				    unset($countElements);
 				}
 				// Make sure the number of parameters provided in the input
 				// array matches what the query expects
-			    $element0 = reset($inputarr);
+			    	$element0 = reset($inputarr);
 				if ($nparams != count($element0)) {
 					$this->outp_throw(
 						"Input array has " . count($element0) .
