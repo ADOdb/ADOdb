@@ -12,7 +12,7 @@ licenses.
 This means you can use it in proprietary products; 
 see [License](https://github.com/ADOdb/ADOdb/blob/master/LICENSE.md) for details.
 
-Home page: http://adodb.sourceforge.net/
+Home page: http://adodb.org/
 
 > **WARNING: known issue with Associative Fetch Mode in ADOdb v5.19
 -- PLEASE UPGRADE TO v5.20 !**  
