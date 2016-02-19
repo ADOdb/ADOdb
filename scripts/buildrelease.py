@@ -244,14 +244,6 @@ def main():
         shell=True
     )
 
-    print "Copying documentation"
-    docs = path.join(release_path, "docs")
-    shutil.rmtree(docs, ignore_errors=True)
-    shutil.copytree(
-        path.join(release_tmp_dir, "docs"),
-        path.join(release_path, "docs")
-    )
-
     if cleanup:
         print "Deleting working directories"
         shutil.rmtree(release_tmp_dir)

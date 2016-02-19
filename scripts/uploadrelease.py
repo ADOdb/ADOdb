@@ -15,12 +15,11 @@ import sys
 
 # Directories and files to exclude from release tarballs
 sf_files = "frs.sourceforge.net:/home/frs/project/adodb/"
-sf_doc = "web.sourceforge.net:/home/project-web/adodb/htdocs/"
 rsync_cmd = "rsync -vP --rsh ssh {opt} {src} {usr}@{dst}"
 
 # Command-line options
-options = "hfdn"
-long_options = ["help", "files", "doc", "dry-run"]
+options = "hn"
+long_options = ["help", "dry-run"]
 
 
 def usage():
@@ -36,8 +35,6 @@ def usage():
 
     Options:
         -h | --help             Show this usage message
-        -f | --files            Upload release files only
-        -d | --doc              Upload documentation only
         -n | --dry-run          Do not upload the files
 ''' % (
         path.basename(__file__)
@@ -121,20 +118,12 @@ def process_command_line():
         sys.exit(1)
 
     # Default values for flags
-    upload_files = True
-    upload_doc = True
     dry_run = False
 
     for opt, val in opts:
         if opt in ("-h", "--help"):
             usage()
             sys.exit(0)
-
-        elif opt in ("-f", "--files"):
-            upload_doc = False
-
-        elif opt in ("-d", "--doc"):
-            upload_files = False
 
         elif opt in ("-n", "--dry-run"):
             dry_run = True
@@ -163,23 +152,9 @@ def upload_release_files():
     print
     call_rsync(
         username,
-        "--exclude=docs",
+        "",
         path.join(release_path, "*"),
         target
-    )
-
-
-def upload_documentation():
-    ''' Upload documentation to Sourceforge web site
-    '''
-    print
-    print "Uploading documentation..."
-    print
-    call_rsync(
-        username,
-        "",
-        path.join(release_path, "docs", "*"),
-        sf_doc
     )
 
 
@@ -189,11 +164,7 @@ def main():
     # Start upload process
     print "ADOdb release upload script"
 
-    if upload_files:
-        upload_release_files()
-
-    if upload_doc:
-        upload_documentation()
+    upload_release_files()
 
 #end main()
 
