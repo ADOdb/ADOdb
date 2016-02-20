@@ -616,6 +616,11 @@ class ADODB_postgres64 extends ADOConnection{
 	{
 		global $ADODB_FETCH_MODE;
 
+		//if tablenames are quoted, remove the quotes as the tablenames here are used for comparsion of content of fields in postgres system tables
+		if (!empty($this->nameQuote) && !(strpos($table,$this->nameQuote)===false)) {
+			$table = str_replace($this->nameQuote,'',$table);
+		}
+
 		$schema = false;
 		$this->_findschema($table,$schema);
 
