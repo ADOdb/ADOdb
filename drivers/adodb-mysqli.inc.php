@@ -62,7 +62,7 @@ class ADODB_mysqli extends ADOConnection {
 	var $optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0));
 	var $arrayClass = 'ADORecordSet_array_mysqli';
 	var $multiQuery = false;
-	
+
 	/*
 	* Tells the insert_id method how to obtain the last value, depending on whether
 	* we are using a stored procedure or not
@@ -116,7 +116,7 @@ class ADODB_mysqli extends ADOConnection {
 		foreach($this->optionFlags as $arr) {
 			mysqli_options($this->_connectionID,$arr[0],$arr[1]);
 		}
-		
+
 		/*
 		* Now merge in the standard connection parameters setting
 		*/
@@ -280,9 +280,9 @@ class ADODB_mysqli extends ADOConnection {
 			$result = ADOConnection::GetOne('SELECT LAST_INSERT_ID()');
         else
 		    $result = @mysqli_insert_id($this->_connectionID);
-		
+
 		if ($result == -1) {
-			if ($this->debug) 
+			if ($this->debug)
 				ADOConnection::outp("mysqli_insert_id() failed : "  . $this->ErrorMsg());
 		}
 		/*
@@ -404,7 +404,8 @@ class ADODB_mysqli extends ADOConnection {
 				);
 			}
 
-			$indexes[$row[2]]['columns'][$row[3] - 1] = $row[4];
+			$indexes[$row[2]]['columns'][$row[3] - 1] = $row[4].
+				(is_numeric($row[7]) ? '('.(int)$row[7].')' : '');
 		}
 
 		// sort columns by order in the index
@@ -607,24 +608,24 @@ class ADODB_mysqli extends ADOConnection {
 	// "Innox - Juan Carlos Gonzalez" <jgonzalez#innox.com.mx>
 	function MetaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
 	{
-	    
+
 		global $ADODB_FETCH_MODE;
 
-		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC 
-		|| $this->fetchMode == ADODB_FETCH_ASSOC) 
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
+		|| $this->fetchMode == ADODB_FETCH_ASSOC)
 			$associative = true;
 
 		$savem = $ADODB_FETCH_MODE;
 		$this->setFetchMode(ADODB_FETCH_ASSOC);
-		
+
 		if ( !empty($owner) ) {
 			$table = "$owner.$table";
 		}
-		
+
 		$a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
-		
+
 		$this->setFetchMode($savem);
-		
+
 		$create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
 
 		$matches = array();
@@ -768,10 +769,10 @@ class ADODB_mysqli extends ADOConnection {
 	function Prepare($sql)
 	{
 		/*
-		* Flag the insert_id method to use the correct retrieval method 
+		* Flag the insert_id method to use the correct retrieval method
 		*/
 		$this->usePreparedStatement = true;
-		
+
 		/*
 		* Prepared statements are not yet handled correctly
 		*/
@@ -814,7 +815,7 @@ class ADODB_mysqli extends ADOConnection {
 		     */
 		    if ($this->usePreparedStatement)
 		        $this->useLastInsertStatement = true;
-			
+
 			$fnarr = array_merge( array($stmt,$a) , $inputarr);
 			$ret = call_user_func_array('mysqli_stmt_bind_param',$fnarr);
 			$ret = mysqli_stmt_execute($stmt);
