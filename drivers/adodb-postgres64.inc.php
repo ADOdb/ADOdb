@@ -492,6 +492,9 @@ class ADODB_postgres64 extends ADOConnection{
 	{
 		global $ADODB_FETCH_MODE;
 
+		// table-name must NOT be quoted, otherwise we will not find any index
+		$table = str_replace($this->nameQuote,'',$table);
+
 		$schema = false;
 		$false = false;
 		$this->_findschema($table,$schema);
