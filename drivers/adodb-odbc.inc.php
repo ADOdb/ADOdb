@@ -17,6 +17,15 @@ if (!defined('ADODB_DIR')) die();
 
   define("_ADODB_ODBC_LAYER", 2 );
 
+/*
+* This makes the driver return the actual type, like other drivers
+*/
+DEFINE('METACOLUMNS_RETURNS_ACTUAL',0);
+/*
+* This is legacy compatibility
+*/
+DEFINE('METACOLUMNS_RETURNS_META',1);
+	
 /*--------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------*/
 
@@ -40,6 +49,12 @@ class ADODB_odbc extends ADOConnection {
 	var $_has_stupid_odbc_fetch_api_change = true;
 	var $_lastAffectedRows = 0;
 	var $uCaseTables = true; // for meta* functions, uppercase table names
+	
+	/*
+	* Tells the metaColumns feature whether to return
+	* actual or meta type
+	*/
+	public $metaColumnsReturnType = 0;
 
 	function __construct()
 	{
@@ -463,7 +478,16 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 			if (strtoupper(trim($rs->fields[2])) == $table && (!$schema || strtoupper($rs->fields[1]) == $schema)) {
 				$fld = new ADOFieldObject();
 				$fld->name = $rs->fields[3];
-				$fld->type = $this->ODBCTypes($rs->fields[4]);
+				if ($this->metaColumnsReturnType == METACOLUMNS_RETURNS_META)
+					/* 
+				    * This is the broken, original value
+					*/
+					$fld->type = $this->ODBCTypes($rs->fields[4]);
+				else
+					/*
+				    * This is the correct new value
+					*/
+				    $fld->type = $rs->fields[4];
 
 				// ref: http://msdn.microsoft.com/library/default.asp?url=/archive/en-us/dnaraccgen/html/msdn_odk.asp
 				// access uses precision to store length for char/varchar
