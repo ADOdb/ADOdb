@@ -287,8 +287,8 @@ class ADODB2_postgres extends ADODB_DataDict {
 		$has_drop_column = 7.3 <= (float) @$this->serverInfo['version'];
 		if (!$has_drop_column && !$tableflds) {
 			if ($this->debug) ADOConnection::outp("DropColumnSQL needs complete table-definiton for PostgreSQL < 7.3");
-		return array();
-	}
+			return array();
+		}
 		if ($has_drop_column) {
 			return ADODB_DataDict::DropColumnSQL($tabname, $flds);
 		}
@@ -380,6 +380,8 @@ class ADODB2_postgres extends ADODB_DataDict {
 	// search for a sequece for the given table (asumes the seqence-name contains the table-name!)
 	// if yes return sql to drop it
 	// this is still necessary if postgres < 7.3 or the SERIAL was created on an earlier version!!!
+	// Postgres > 9.0 reports deptype "a"=automatic and "n"=normal and sequence is droped automatic
+	// causing below statements to fail, fortunate it supports "IF EXISTS" so we use that.
 	function _DropAutoIncrement($tabname)
 	{
 		$tabname = $this->connection->quote('%'.$tabname.'%');
@@ -390,7 +392,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 		if (!$seq || $this->connection->GetOne("SELECT relname FROM pg_class JOIN pg_depend ON pg_class.relfilenode=pg_depend.objid WHERE relname='$seq' AND relkind='S' AND deptype='i'")) {
 			return False;
 		}
-		return "DROP SEQUENCE ".$seq;
+		return "DROP SEQUENCE ".((float)$this->serverInfo['version'] >= 9.0 ? "IF EXISTS " : "").$seq;
 	}
 
 	function RenameTableSQL($tabname,$newname)
