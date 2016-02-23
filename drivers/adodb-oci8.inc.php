@@ -1739,7 +1739,8 @@ class ADORecordset_oci8 extends ADORecordSet {
 			oci_free_cursor($this->_refcursor);
 			$this->_refcursor = false;
 		}
-		@oci_free_statement($this->_queryID);
+		if (is_resource($this->_queryID))
+		   @oci_free_statement($this->_queryID);
 		$this->_queryID = false;
 	}
 
