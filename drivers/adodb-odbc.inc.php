@@ -18,13 +18,16 @@ if (!defined('ADODB_DIR')) die();
   define("_ADODB_ODBC_LAYER", 2 );
 
 /*
-* This makes the driver return the actual type, like other drivers
-*/
-DEFINE('METACOLUMNS_RETURNS_ACTUAL',0);
-/*
-* This is legacy compatibility
-*/
-DEFINE('METACOLUMNS_RETURNS_META',1);
+ * These constants are used to set define MetaColumns() method's behavior.
+ * - METACOLUMNS_RETURNS_ACTUAL makes the driver return the actual type, 
+ *   like all other drivers do (default)
+ * - METACOLUMNS_RETURNS_META is provided for legacy compatibility (makes
+ *   driver behave as it did prior to v5.21)
+ *
+ * @see $metaColumnsReturnType
+ */
+DEFINE('METACOLUMNS_RETURNS_ACTUAL', 0);
+DEFINE('METACOLUMNS_RETURNS_META', 1);
 	
 /*--------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------*/
@@ -51,9 +54,8 @@ class ADODB_odbc extends ADOConnection {
 	var $uCaseTables = true; // for meta* functions, uppercase table names
 	
 	/*
-	* Tells the metaColumns feature whether to return
-	* actual or meta type
-	*/
+	 * Tells the metaColumns feature whether to return actual or meta type
+	 */
 	public $metaColumnsReturnType = 0;
 
 	function __construct()
