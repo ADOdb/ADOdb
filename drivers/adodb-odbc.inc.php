@@ -56,7 +56,7 @@ class ADODB_odbc extends ADOConnection {
 	/*
 	 * Tells the metaColumns feature whether to return actual or meta type
 	 */
-	public $metaColumnsReturnType = 0;
+	public $metaColumnsReturnType = METACOLUMNS_RETURNS_ACTUAL;
 
 	function __construct()
 	{
