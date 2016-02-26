@@ -70,9 +70,11 @@ function adodb_error($provider,$dbType,$errno)
 	case 'oracle':
 	case 'oci8': $map = adodb_error_oci8(); break;
 
+	// As discussed in https://github.com/ADOdb/ADOdb/issues/201#issuecomment-188154980
+	// firebird uses the ibase error handler for now. This may change if and
+	// when the PHP driver is updated to use the new SQLSTATE error codes
+	case 'firebird':
 	case 'ibase': $map = adodb_error_ibase(); break;
-
-	case 'firebird': $map = adodb_error_firebird(); break;
 
 	case 'odbc': $map = adodb_error_odbc(); break;
 
@@ -154,36 +156,6 @@ static $MAP = array(
 }
 
 function adodb_error_ibase()
-{
-static $MAP = array(
-            -104 => DB_ERROR_SYNTAX,
-            -150 => DB_ERROR_ACCESS_VIOLATION,
-            -151 => DB_ERROR_ACCESS_VIOLATION,
-            -155 => DB_ERROR_NOSUCHTABLE,
-            -157 => DB_ERROR_NOSUCHFIELD,
-            -158 => DB_ERROR_VALUE_COUNT_ON_ROW,
-            -170 => DB_ERROR_MISMATCH,
-            -171 => DB_ERROR_MISMATCH,
-            -172 => DB_ERROR_INVALID,
-            -204 => DB_ERROR_INVALID,
-            -205 => DB_ERROR_NOSUCHFIELD,
-            -206 => DB_ERROR_NOSUCHFIELD,
-            -208 => DB_ERROR_INVALID,
-            -219 => DB_ERROR_NOSUCHTABLE,
-            -297 => DB_ERROR_CONSTRAINT,
-            -530 => DB_ERROR_CONSTRAINT,
-            -803 => DB_ERROR_CONSTRAINT,
-            -551 => DB_ERROR_ACCESS_VIOLATION,
-            -552 => DB_ERROR_ACCESS_VIOLATION,
-            -922 => DB_ERROR_NOSUCHDB,
-            -923 => DB_ERROR_CONNECT_FAILED,
-            -924 => DB_ERROR_CONNECT_FAILED
-        );
-
-		return $MAP;
-}
-
-function adodb_error_firebird()
 {
 static $MAP = array(
             -104 => DB_ERROR_SYNTAX,
