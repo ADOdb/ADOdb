@@ -18,6 +18,7 @@ Older changelogs:
 - adodb: fix getAssoc() with fetch mode = ADODB_FETCH_BOTH. #189, #198
 - adodb: Improve array identification in ADOrecordset::getAssoc(). #101
 - adodb: MetaColumns() consistently returns Actual Type by default in all drivers. #184, #133
+- firebird: updated driver, thanks to Lester Caine. #201
 - mssqlnative: Query not returning id. #185
 - mssqlnative: support SQL Server 2014 databases. #186
 - mysql: setConnectionParameter() now allows multiple parameters with the same key value. #187
