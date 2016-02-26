@@ -1659,29 +1659,15 @@ if (!defined('_ADODB_LAYER')) {
 	function GetAssoc($sql, $inputarr=false,$force_array = false, $first2cols = false) {
 		global $ADODB_FETCH_MODE;
 
-		$save  = $ADODB_FETCH_MODE;
-		$savem = $this->SetFetchMode(NULL);
-
-		// Method does not work in ADODB_FETCH_BOTH mode
-		if ($save == ADODB_FETCH_ASSOC || $savem == ADODB_FETCH_ASSOC) {
-			$switchMode = ADODB_FETCH_ASSOC;
-		} else {
-			$switchMode = ADODB_FETCH_NUM;
-		}
-
-		$ADODB_FETCH_MODE = $switchMode;
-		$this->SetFetchMode($switchMode);
-
 		$rs = $this->Execute($sql, $inputarr);
 
-		// Revert modes back to original
-		$this->SetFetchMode($savem);
-		$ADODB_FETCH_MODE = $save;
 		if (!$rs) {
-			// Execution failure
+			/*
+			* Execution failure
+			*/
 			return false;
 		}
-		return $rs->GetAssoc($force_array, $first2cols, $switchMode);
+		return $rs->GetAssoc($force_array, $first2cols);
 	}
 
 	function CacheGetAssoc($secs2cache, $sql=false, $inputarr=false,$force_array = false, $first2cols = false) {
@@ -3522,6 +3508,103 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return $arr;
 	}
 
+	function vGetAssoc($force_array = false, $first2cols = false)
+	{
+	global $ADODB_EXTENSION;
+
+		print_r($this);
+		exit;
+
+		$cols = $this->_numOfFields;
+		if ($cols < 2) {
+			$false = false;
+			return $false;
+		}
+		$numIndex = is_array($this->fields) && array_key_exists(0, $this->fields);
+		$results = array();
+
+		if (!$first2cols && ($cols > 2 || $force_array)) {
+			if ($ADODB_EXTENSION) {
+				if ($numIndex) {
+					while (!$this->EOF) {
+						$results[trim($this->fields[0])] = array_slice($this->fields, 1);
+						adodb_movenext($this);
+					}
+				} else {
+					while (!$this->EOF) {
+					// Fix for array_slice re-numbering numeric associative keys
+						$keys = array_slice(array_keys($this->fields), 1);
+						$sliced_array = array();
+
+						foreach($keys as $key) {
+							$sliced_array[$key] = $this->fields[$key];
+						}
+
+						$results[trim(reset($this->fields))] = $sliced_array;
+						adodb_movenext($this);
+					}
+				}
+			} else {
+				if ($numIndex) {
+					while (!$this->EOF) {
+						$results[trim($this->fields[0])] = array_slice($this->fields, 1);
+						$this->MoveNext();
+					}
+				} else {
+					while (!$this->EOF) {
+					// Fix for array_slice re-numbering numeric associative keys
+						$keys = array_slice(array_keys($this->fields), 1);
+						$sliced_array = array();
+
+						foreach($keys as $key) {
+							$sliced_array[$key] = $this->fields[$key];
+						}
+
+						$results[trim(reset($this->fields))] = $sliced_array;
+						$this->MoveNext();
+					}
+				}
+			}
+		} else {
+			if ($ADODB_EXTENSION) {
+				// return scalar values
+				if ($numIndex) {
+					while (!$this->EOF) {
+					// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
+						$results[trim(($this->fields[0]))] = $this->fields[1];
+						adodb_movenext($this);
+					}
+				} else {
+					while (!$this->EOF) {
+					// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
+						$v1 = trim(reset($this->fields));
+						$v2 = ''.next($this->fields);
+						$results[$v1] = $v2;
+						adodb_movenext($this);
+					}
+				}
+			} else {
+				if ($numIndex) {
+					while (!$this->EOF) {
+					// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
+						$results[trim(($this->fields[0]))] = $this->fields[1];
+						$this->MoveNext();
+					}
+				} else {
+					while (!$this->EOF) {
+					// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
+						$v1 = trim(reset($this->fields));
+						$v2 = ''.next($this->fields);
+						$results[$v1] = $v2;
+						$this->MoveNext();
+					}
+				}
+			}
+		}
+
+		$ref = $results; # workaround accelerator incompat with PHP 4.4 :(
+		return $ref;
+	}
 	/**
 	 * return whole recordset as a 2-dimensional associative array if
 	 * there are more than 2 columns. The first column is treated as the
@@ -3543,12 +3626,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *								array[col0] => array(remaining cols),
 	 *								return array[col0] => col1
 	 *
-	 * @param int	$fetchMode		(optional) The fetch mode, if available
-	 *
 	 * @return mixed
 	 *
 	 */
-	function getAssoc($force_array = false, $first2cols = false, $fetchMode=-1)
+	function getAssoc($force_array = false, $first2cols = false)
 	{
 
 		global $ADODB_EXTENSION;
@@ -3566,9 +3647,26 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			return array();
 		}
 
+		$numberOfFields = $this->_numOfFields;
+		$fetchMode      = $this->fetchMode;
+
+		if ($fetchMode == ADODB_FETCH_BOTH)
+		{
+			/*
+			* build a template of numeric keys. you could improve the
+			* speed by caching this, indexed by number of keys
+			*/
+			$testKeys = array_fill(0,$numberOfFields,0);
+
+			/*
+			* We use the associative method if ADODB_FETCH_BOTH
+			*/
+			$fetchMode = ADODB_FETCH_ASSOC;
+		}
+
 		$showArrayMethod = 0;
 
-		if ($this->_numOfFields == 2)
+		if ($numberOfFields == 2)
 			/*
 			* Key is always value of first element
 			* Value is alway value of second element
@@ -3587,45 +3685,26 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 			$myFields = $this->fields;
 
-			/*
-			* If we have used the recordset method as an API, we don't have
-			* true access to the fetch mode. This only affects the presentation
-			* of data if the showarraymethod is set to 0. So we can test it by
-			* looking at the keys. Instead of trying to identify individual key
-			* values and see if they are numeric or non-numeric, we compare the
-			* md5 of the first set of keys against something we know the value of
-			* i.e the md5 of a numeric set of keys, starting at 0 for the length of
-			* the record set
-			*/
-			if ($showArrayMethod == 0 && $fetchMode==-1)
+			if ($this->fetchMode == ADODB_FETCH_BOTH)
 			{
 				/*
-				* If the array is numeric, then $testKeys would like like this:
-				* 0=>0,1=>1,2=>2....n=>n,
-				* i.e. the keys and values would be exactly the same
+				* extract the associative keys
 				*/
-				$testKeys = array_keys($myFields);
-
-				$walkKeys = array_fill(0,$this->_numOfFields,0);
-				array_walk($walkKeys,array($this,'walkGetAssocKeys'));
-				/*
-				* If the array is numeric, then the md5 of $testKeys
-				* must be exactly the same as $walkKeys
-				*/
-				if (md5(serialize($walkKeys)) == md5(serialize($testKeys)))
-					$fetchMode = ADODB_FETCH_NUM;
-				else
-					$fetchMode = ADODB_FETCH_ASSOC;
-
+				$myFields = array_diff_key($myFields,$testKeys);
 			}
 
 			/*
 			* key is value of first element, rest is data,
-			* casing is already handled by the driver
+			* casing is already handled by the driver (but see below)
 			*/
 			$key = array_shift($myFields);
+			if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER)
+				$key = strtoupper($key);
+			elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER)
+				$key = strtolower($key);
 
-			switch ($showArrayMethod){
+			switch ($showArrayMethod)
+			{
 			case 0:
 
 				if ($fetchMode == ADODB_FETCH_ASSOC)
@@ -3642,7 +3721,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 						$myFields = array_change_key_case($myFields,CASE_LOWER);
 
 					/*
-				    * We have already shifted the key off
+					* We have already shifted the key off
 					* the front, so the rest is the value
 					*/
 					$results[$key] = $myFields;
@@ -3680,19 +3759,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		 * Done
 		 */
 		return $results;
-	}
-
-	/**
-	* Creates a numeric array where the keys and values are exactly the same
-	*
-	* @param	obj		$item	Array item, by reference
-	* @param	int		$key	The key of the item
-    *
-    * @return null
-	*/
-	final private function walkGetAssocKeys(&$item, $key)
-	{
-		$item = $key;
 	}
 
 	/**
