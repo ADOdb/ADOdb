@@ -72,19 +72,24 @@ if (!defined('_ADODB_LAYER')) {
 
 	$ADODB_EXTENSION = defined('ADODB_EXTENSION');
 
-	// ********************************************************
-	// Controls $ADODB_FORCE_TYPE mode. Default is ADODB_FORCE_VALUE (3).
-	// Used in GetUpdateSql and GetInsertSql functions. Thx to Niko, nuko#mbnet.fi
-	//
-	// 0 = ignore empty fields. All empty fields in array are ignored.
-	// 1 = force null. All empty, php null and string 'null' fields are changed to sql NULL values.
-	// 2 = force empty. All empty, php null and string 'null' fields are changed to sql empty '' or 0 values.
-	// 3 = force value. Value is left as it is. Php null and string 'null' are set to sql NULL values and empty fields '' are set to empty '' sql values.
-
+	/*********************************************************
+	* Controls $ADODB_FORCE_TYPE mode. Default is ADODB_FORCE_VALUE (3).
+	* Used in GetUpdateSql and GetInsertSql functions. Thx to Niko, nuko#mbnet.fi
+	*
+	* 0 = ignore empty fields. All empty fields in array are ignored.
+	* 1 = force null. All empty, php null and string 'null' fields are
+	*     changed to sql NULL values.
+	* 2 = force empty. All empty, php null and string 'null' fields are
+	*     changed to sql empty '' or 0 values.
+	* 3 = force value. Value is left as it is. Php null and string 'null'
+	*     are set to sql NULL values and empty fields '' are set to empty '' sql values.
+	* 4 = force value. Like 1 but numeric empty fields are set to zero.
+    */
 		define('ADODB_FORCE_IGNORE',0);
 		define('ADODB_FORCE_NULL',1);
 		define('ADODB_FORCE_EMPTY',2);
 		define('ADODB_FORCE_VALUE',3);
+		define('ADODB_FORCE_NULL_AND_ZERO',1);
 	// ********************************************************
 
 

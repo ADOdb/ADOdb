@@ -882,22 +882,22 @@ static $cacheCols;
                {
                     switch ($force) {
 
-                        case 0: // we must always set null if missing
+                        case ADODB_FORCE_IGNORE: // we must always set null if missing
 							$bad = true;
 							break;
 
-                        case 1:
+                        case ADODB_FORCE_NULL:
                             $values  .= "null, ";
                         break;
 
-                        case 2:
+                        case ADODB_FORCE_EMPTY:
                             //Set empty
                             $arrFields[$upperfname] = "";
                             $values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq,$arrFields, $magicq);
                         break;
 
 						default:
-                        case 3:
+                        case ADODB_FORCE_VALUE:
                             //Set the value that was given in array, so you can give both null and empty values
 							if (is_null($arrFields[$upperfname]) || $arrFields[$upperfname] === $zthis->null2null) {
 								$values  .= "null, ";
@@ -905,6 +905,21 @@ static $cacheCols;
                         		$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields, $magicq);
              				}
               			break;
+						
+						case ADODB_FORCE_NULL_AND_ZERO:
+							switch ($type)
+							{
+								case 'N':
+								case 'I':
+								case 'L':
+									$values .= '0, ';
+									break;
+								default:
+									$values .= "null, ";
+									break;
+							}
+						break;
+						
              		} // switch
 
             /*********************************************************/
