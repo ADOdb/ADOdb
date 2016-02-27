@@ -312,31 +312,34 @@ class ADODB2_postgres extends ADODB_DataDict {
 		if ($dropflds && !is_array($dropflds)) $dropflds = explode(',',$dropflds);
 		$copyflds = array();
 		foreach($this->MetaColumns($tabname) as $fld) {
-			if (!$dropflds || !in_array($fld->name,$dropflds)) {
-				// we need to explicit convert varchar to a number to be able to do an AlterColumn of a char column to a nummeric one
-				if (preg_match('/'.$fld->name.' (I|I2|I4|I8|N|F)/i',$tableflds,$matches) &&
-					in_array($fld->type,array('varchar','char','text','bytea'))) {
+			if (preg_match('/'.$fld->name.' (\w+)/i', $tableflds, $matches)) {
+				$new_type = strtoupper($matches[1]);
+				// AlterColumn of a char column to a nummeric one needs an explicit conversation
+				if (in_array($new_type, array('I', 'I2', 'I4', 'I8', 'N', 'F')) &&
+					in_array($fld->type, array('varchar','char','text','bytea'))
+				) {
 					$copyflds[] = "to_number($fld->name,'S9999999999999D99')";
-				} elseif (preg_match('/'.$fld->name.' (\w+)/i',$tableflds,$matches)) {
-					$type = $this->ActualType($matches[1]);
-					if (strtoupper($fld->type) != $type) {
-						if ($type == 'BYTEA' && $fld->type == 'text') {
+				} else {
+					// other column-type changes needs explicit decode, encode for bytea or cast otherwise
+					$new_actual_type = $this->ActualType($new_type);
+					if (strtoupper($fld->type) != $new_actual_type) {
+						if ($new_actual_type == 'BYTEA' && $fld->type == 'text') {
 							$copyflds[] = "DECODE($fld->name, 'escape')";
-						} elseif ($fld->type == 'bytea' && $type == 'TEXT') {
+						} elseif ($fld->type == 'bytea' && $new_actual_type == 'TEXT') {
 							$copyflds[] = "ENCODE($fld->name, 'escape')";
 						} else {
-							$copyflds[] = "CAST($fld->name AS $type)";
+							$copyflds[] = "CAST($fld->name AS $new_actual_type)";
 						}
 					}
-				} else {
-					$copyflds[] = $fld->name;
 				}
-				// identify the sequence name and the fld its on
-				if ($fld->primary_key && $fld->has_default &&
-					preg_match("/nextval\('([^']+)'::(text|regclass)\)/",$fld->default_value,$matches)) {
-					$seq_name = $matches[1];
-					$seq_fld = $fld->name;
-				}
+			} else {
+				$copyflds[] = $fld->name;
+			}
+			// identify the sequence name and the fld its on
+			if ($fld->primary_key && $fld->has_default &&
+				preg_match("/nextval\('([^']+)'::(text|regclass)\)/",$fld->default_value,$matches)) {
+				$seq_name = $matches[1];
+				$seq_fld = $fld->name;
 			}
 		}
 		$copyflds = implode(', ',$copyflds);
