@@ -1138,19 +1138,41 @@ if (!defined('_ADODB_LAYER')) {
 			unset($element0);
 
 			if (!is_array($sql) && !$this->_bindInputArray) {
-				// @TODO this would consider a '?' within a string as a parameter...
-				$sqlarr = explode('?',$sql);
+				// Normalize any hardcoded strings in the query to single quotes
+				$sql = explode("\\\"", $sql);	// protect escaped double quotes
+				while(list(, $x) = each($sql))
+					$sqlClean[] = str_replace('"', "'", $x);
+				$sql = implode('\\\"', $sqlClean);	// restore escaped double quotes
+				
+				// Split by tokens, ignoring tokens in quotes
+				$sql = explode("'", $sql);
+				$j = 0; $prevSeg = 0;
+				while(list(, $v) = each($sql)) {
+					if($j%2 == 0) {
+						// if even, we're outside the quotes
+						$exp = explode("?", $v);
+						$sqlarr[$prevSeg] .= $exp[0];
+						unset($exp[0]);
+						array_merge($sqlarr, $exp);
+						while(list(, $w) = each($exp))
+							$sqlarr[] = $w;
+						$prevSeg += count($exp);
+					} else {
+						// if odd, we're inside the quotes
+						$sqlarr[$prevSeg] .= "'".$v."'";
+					}
+					$j++;
+				}
+				$sql = implode("'", $sql);	// restore original query
+				
+
+				// Get number of parameters (tokens)
 				$nparams = sizeof($sqlarr)-1;
 
-				// Make sure the number of parameters provided in the input
-				// array matches what the query expects
-				if ($nparams != count($inputarr)) {
-					$this->outp_throw(
-						"Input array has " . count($inputarr) .
-						" params, does not match query: '" . htmlspecialchars($sql) . "'",
-						'Execute'
-					);
-					return false;
+				// If there are no '?' tokens in the query and there is a an input array (has to be
+				// since we're branched off into $inputarr !== false), throw an error
+				if ($nparams === 0) {
+					$this->outp_throw( "Input Array does not match ?: ".htmlspecialchars($sql),'Execute');
 				}
 
 				if (!$array_2d) {
@@ -1158,44 +1180,46 @@ if (!defined('_ADODB_LAYER')) {
 				}
 
 				foreach($inputarr as $arr) {
-					$sql = ''; $i = 0;
-					//Use each() instead of foreach to reduce memory usage -mikefedyk
-					while(list(, $v) = each($arr)) {
-						$sql .= $sqlarr[$i];
-						// from Ron Baldwin <ron.baldwin#sourceprose.com>
-						// Only quote string types
-						$typ = gettype($v);
-						if ($typ == 'string') {
-							//New memory copy of input created here -mikefedyk
-							$sql .= $this->qstr($v);
-						} else if ($typ == 'double') {
-							$sql .= str_replace(',','.',$v); // locales fix so 1.1 does not get converted to 1,1
-						} else if ($typ == 'boolean') {
-							$sql .= $v ? $this->true : $this->false;
-						} else if ($typ == 'object') {
-							if (method_exists($v, '__toString')) {
-								$sql .= $this->qstr($v->__toString());
+					if($nparams > 0) {
+						$sql = ''; $i = 0;
+						//Use each() instead of foreach to reduce memory usage -mikefedyk
+						while(list(, $v) = each($arr)) {
+							$sql .= $sqlarr[$i];
+							// from Ron Baldwin <ron.baldwin#sourceprose.com>
+							// Only quote string types
+							$typ = gettype($v);
+							if ($typ == 'string') {
+								//New memory copy of input created here -mikefedyk
+								$sql .= $this->qstr($v);
+							} else if ($typ == 'double') {
+								$sql .= str_replace(',','.',$v); // locales fix so 1.1 does not get converted to 1,1
+							} else if ($typ == 'boolean') {
+								$sql .= $v ? $this->true : $this->false;
+							} else if ($typ == 'object') {
+								if (method_exists($v, '__toString')) {
+									$sql .= $this->qstr($v->__toString());
+								} else {
+									$sql .= $this->qstr((string) $v);
+								}
+							} else if ($v === null) {
+								$sql .= 'NULL';
 							} else {
-								$sql .= $this->qstr((string) $v);
+								$sql .= $v;
 							}
-						} else if ($v === null) {
-							$sql .= 'NULL';
-						} else {
-							$sql .= $v;
-						}
-						$i += 1;
-
-						if ($i == $nparams) {
-							break;
-						}
-					} // while
+							$i += 1;
+	
+							if ($i == $nparams) {
+								break;
+							}
+						} // while
+					}
 					if (isset($sqlarr[$i])) {
 						$sql .= $sqlarr[$i];
 						if ($i+1 != sizeof($sqlarr)) {
 							$this->outp_throw( "Input Array does not match ?: ".htmlspecialchars($sql),'Execute');
 						}
-					} else if ($i != sizeof($sqlarr)) {
-						$this->outp_throw( "Input array does not match ?: ".htmlspecialchars($sql),'Execute');
+					} else if ($i != sizeof($sqlarr) && $nparams > 0) {
+						$this->outp_throw( "Input Array does not match ?: ".htmlspecialchars($sql),'Execute');
 					}
 
 					$ret = $this->_Execute($sql);
