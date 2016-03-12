@@ -530,7 +530,61 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	public function __construct()
 	{
+		$sar = spl_autoload_functions();
+		if (!$sar || !in_array(array($this,'metaOptionsAutoloader'),$sar))
+			spl_autoload_register(array($this,'metaOptionsAutoloader'));
 	}
+
+	/*
+	 * The autoloader that loads classes for common fumctions from adg/autoload
+	 * The class name must match exactly (case sensitive) the file name + .inc
+	 */
+	public function metaOptionsAutoloader($class)
+	{
+		/*
+		 * See if there is a driver specific version available
+		 */
+		$file = __DIR__ . '/metaoptions/' . $this->databaseType . '/' . $class . '.inc.php';
+	
+		if (file_exists($file))
+			include $file;
+		else
+		{
+			/*
+			 * See if there is a provider specific version available
+			 */
+			$file = __DIR__ . '/metaoptions/' . $this->dataProvider . '/' . $class . '.inc.php';
+
+			if (file_exists($file))
+				include $file;
+		
+			else
+			{
+			
+				
+				/*
+				 * See if there is a common version available
+				 */
+				$file = __DIR__ . '/metaoptions/'. $class . '.inc.php';
+
+				if (file_exists($file))
+					include $file;
+			
+				else
+				{	
+					if ($this->debug)
+					{
+						//OUTP Something
+					}
+					throw new Exception('No matching metaOption, use custom');
+
+				}
+			}
+				
+		}
+	
+	}
+
 
 	/*
 	 * Additional parameters that may be passed to drivers in the connect string

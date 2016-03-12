@@ -72,6 +72,7 @@ class ADODB_mysqli extends ADOConnection {
 
 	function __construct()
 	{
+		parent::__construct();
 		// if(!extension_loaded("mysqli"))
 		//trigger_error("You must have the mysqli extension installed.", E_USER_ERROR);
 	}

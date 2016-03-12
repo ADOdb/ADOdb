@@ -562,12 +562,26 @@ class ADODB_DataDict {
 	/**
 	 Generate the SQL to create table. Returns an array of sql strings.
 	*/
-	function CreateTableSQL($tabname, $flds, $tableoptions=array())
+	function CreateTableSQL($tabname, $flds='', $tableoptions=array())
 	{
+		$parsedIndexes = false;
+		if (is_object($tabname))
+		{
+			$mop = new metaOptionsParser($this,$tabname, true);
+			list($tabname,$flds,$tableoptions,$indexes) = $mop->getParsedTable();
+			
+			$mop = new metaOptionsParser($this,$indexes, true);
+			$parsedIndexes = $mop->getParsedOptions();
+			
+		}	
 		list($lines,$pkey,$idxs) = $this->_GenFields($flds, true);
 		// genfields can return FALSE at times
-		if ($lines == null) $lines = array();
-
+		if ($lines == null) 
+			$lines = array();
+		
+		if ($parsedIndexes)
+			$idxs = $parsedIndexes;
+		
 		$taboptions = $this->_Options($tableoptions);
 		$tabname = $this->TableName ($tabname);
 		$sql = $this->_TableSQL($tabname,$lines,$pkey,$taboptions);
@@ -596,6 +610,13 @@ class ADODB_DataDict {
 
 	function _GenFields($flds,$widespacing=false)
 	{
+		
+		if (is_object($flds))
+		{
+			$mop = new metaOptionsParser($this,$flds, true);
+			return $mop->getParsedOptions();
+		}
+		else
 		if (is_string($flds)) {
 			$padding = '     ';
 			$txt = $flds.$padding;
