@@ -427,8 +427,29 @@ class ADODB_DataDict {
 	/*
 	 Generates the SQL to create index. Returns an array of sql strings.
 	*/
-	function CreateIndexSQL($idxname, $tabname, $flds, $idxoptions = false)
+	function CreateIndexSQL($idxname, $tabname='', $flds='', $idxoptions = false)
 	{
+		
+		$parsedIndexes = false;
+		$sql 		   = array();
+		
+		if (is_object($idxname))
+		{
+			$mop = new metaOptionsParser($this,$idxname, true);
+			list($tabname,$flds,$tableoptions,$indexes) = $mop->getParsedTable();
+			
+			$mop = new metaOptionsParser($this,$indexes, true);
+			$parsedIndexes = $mop->getParsedOptions();
+			
+			foreach($parsedIndexes as $idx => $idxdef) 
+			{
+				$sql_idxs = $this->CreateIndexSql($idx, $tabname, $idxdef['cols'], $idxdef['opts']);
+				$sql = array_merge($sql, $sql_idxs);
+			}
+			return $sql;
+		}
+			
+		
 		if (!is_array($flds)) {
 			$flds = explode(',',$flds);
 		}
@@ -451,8 +472,15 @@ class ADODB_DataDict {
 		$this->schema = $schema;
 	}
 
-	function AddColumnSQL($tabname, $flds)
+	function AddColumnSQL($tabname, $flds='')
 	{
+		
+		if (is_object($tabname))
+		{
+			$mop = new metaOptionsParser($this,$tabname, true);
+			list($tabname,$flds,$tableoptions,$indexes) = $mop->getParsedTable();
+		}
+		
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
 		list($lines,$pkey,$idxs) = $this->_GenFields($flds);
@@ -484,6 +512,14 @@ class ADODB_DataDict {
 	 */
 	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
+		
+		if (is_object($tabname))
+		{
+			$mop = new metaOptionsParser($this,$tabname, true);
+			list($tabname,$flds,$tableoptions,$indexes) = $mop->getParsedTable();
+		}	
+		
+		
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
 		list($lines,$pkey,$idxs) = $this->_GenFields($flds);
@@ -537,8 +573,16 @@ class ADODB_DataDict {
 	 * @param array/string $tableoptions='' options for the new table see CreateTableSQL, default ''
 	 * @return array with SQL strings
 	 */
-	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	function DropColumnSQL($tabname, $flds='', $tableflds='',$tableoptions='')
 	{
+		
+		if (is_object($tabname))
+		{
+			$mop = new metaOptionsParser($this,$tabname);
+			list($tableName,$fieldData,$options,$indexData) = $mop->getParsedTable();
+			$tabname = $tableName;
+		}
+		
 		$tabname = $this->TableName ($tabname);
 		if (!is_array($flds)) $flds = explode(',',$flds);
 		$sql = array();
@@ -551,6 +595,12 @@ class ADODB_DataDict {
 
 	function DropTableSQL($tabname)
 	{
+		if (is_object($tabname))
+		{
+			$mop = new metaOptionsParser($this,$tabname);
+			list($tableName,$fieldData,$options,$indexData) = $mop->getParsedTable();
+			$tabname = $tableName;
+		}
 		return array (sprintf($this->dropTable, $this->TableName($tabname)));
 	}
 
