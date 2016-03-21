@@ -28,30 +28,27 @@ class metaObjectStructure
 	/*
 	* Constructor
 	* 
-	* @param string  $name	= '';
-	* @param string  $platform	= '';
+	* @param string  $name	    = '';
+	* @param string  $platform	Optional platform
+	* @param string  $type      Optional structure type 
 	*
 	* @return obj
 	*/
-	public function __construct($type,$name, $platform='')
+	public function __construct($name, $platform='',$type='table')
 	{
 		
 		$this->name 	= $name;
 		$this->platform = $platform;
 		$this->type		= $type;
-		$this->action   = 0;
-	
 	}
 	
 	/**
-	* Adds an attribute to one of the following: table,column,index
+	* Adds an unvalidated attribute to the current object
 	*
-	* @param string  $attribute	  One of 'table,column,index';
-	* @param string  $parentName  parent name, must exist
 	* @param string  $value		  either string, associative or numeric array
 	* @param string  $platform	  either string or provider or datatype
 	*
-	* return bool, success or failure
+	* return the current object so the commands can be chained
 	*/
 	public function addAttribute($value,$platform='')
 	{
@@ -64,6 +61,67 @@ class metaObjectStructure
 		$this->attributes[] = $o;
 		
 		return $this;
+	}
+
+	/**
+	* Adds an column to the object
+	*
+	* @param string  $columnName  Column name, must not already exist
+	* @param string  $columnType  either string, associative or numeric array
+	* @param string  $platform	  either string or provider or datatype
+	*
+	* @return object The child object
+	*/
+	public function addColumnObject($columnName,$columnType='',$platform='')
+	{
+		
+		$child = 'column';
+		if (!isset($this->columns))
+			$this->columns = array();
+		
+		if (isset($this->columns[$columnName]))
+		{
+			return false;
+		}
+		
+		$columnObject = $this->addChild($child,$columnName,$columnType,$platform);
+		return $columnObject;
+
+	}
+			
+	/**
+	* Adds an index to the object
+	*
+	* @param string  $indexName  parent name, must not already exist, if
+	*                            it does, it will be discarded
+	* @param string  $platform	 either null or provider or datatype
+	*
+	* @return object The child object
+	*/
+	public function addIndexObject($indexName,$platform='')
+	{
+		$child = 'index';
+		if (!isset($this->indexes))
+			$this->indexes = array();
+		
+		$indexObject = $this->addChild($child,$indexName,'',$platform);
+		return $indexObject;
+	}
+	
+	/**
+	* Adds a column to the index object
+	*
+	* @param string  $indexName  parent name, must not already exist
+	* @param string  $platform	  either string or provider or datatype
+	*
+	* @return object The child object
+	*/
+	public function addIndexItemObject($columnName,$platform='')
+	{
+		$child = 'index-item';
+				
+		$indexItemObject = $this->addChild($child,$columnName,'',$platform);
+		return $indexItemObject;
 	}
 	
 	/**
@@ -86,7 +144,10 @@ class metaObjectStructure
 			*/
 			return $this->indexes[$parentName];
 		
-		$o           = new metaObjectStructure($child,$parentName,$platform);
+		/*
+		* We recursively add a new structure to ourself
+		*/
+		$o           = new metaObjectStructure($parentName,$platform,$child);
 		$o->type	 = $attribute;
 		$o->name     = $parentName;
 		$o->value    = $value;
@@ -112,60 +173,6 @@ class metaObjectStructure
 			$this->{$container}[$parentName] = $o;
 		}
 		return $o;
-	}
-	
-	/**
-	* Adds an column to the object
-	*
-	* @param string  $columnName  parent name, must not already exist
-	* @param string  $columnType  either string, associative or numeric array
-	* @param string  $platform	  either string or provider or datatype
-	*
-	* @return object The child object
-	*/
-	public function addColumn($columnName,$columnType,$platform='')
-	{
-		
-		$child = 'column';
-		if (!isset($this->columns))
-			$this->columns = array();
-		$columnObject = $this->addChild($child,$columnName,$columnType,$platform);
-		return $columnObject;
-
-	}
-			
-	/**
-	* Adds an index to the object
-	*
-	* @param string  $indexName  parent name, must not already exist
-	* @param string  $platform	  either string or provider or datatype
-	*
-	* @return object The child object
-	*/
-	public function addIndex($indexName,$platform='')
-	{
-		$child = 'index';
-		if (!isset($this->indexes))
-			$this->indexes = array();
-		
-		$indexObject = $this->addChild($child,$indexName,'',$platform);
-		return $indexObject;
-	}
-	
-	/**
-	* Adds a column to the index object
-	*
-	* @param string  $indexName  parent name, must not already exist
-	* @param string  $platform	  either string or provider or datatype
-	*
-	* @return object The child object
-	*/
-	public function addIndexItem($columnName,$platform='')
-	{
-		$child = 'index-item';
-				
-		$indexItemObject = $this->addChild($child,$columnName,'',$platform);
-		return $indexItemObject;
 	}
 }
 ?>

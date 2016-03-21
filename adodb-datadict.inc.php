@@ -424,10 +424,17 @@ class ADODB_DataDict {
 		return $sql;
 	}
 
-	/*
-	 Generates the SQL to create index. Returns an array of sql strings.
+	/**
+	* Generates the SQL to create index. Returns an array of sql strings.
+	*
+	* @param	mixed	$idxname	String name of index or $metaObjectStructure
+	* @param	string	$tabname	String table name
+	* @param	string	$flds		String fields in the index
+	* @param	string	$idxoptions	String Index Options
+	*
+	* @return array list of SQL statements
 	*/
-	function CreateIndexSQL($idxname, $tabname='', $flds='', $idxoptions = false)
+	function createIndexSQL($idxname, $tabname='', $flds='', $idxoptions = false)
 	{
 		
 		$parsedIndexes = false;
@@ -435,12 +442,16 @@ class ADODB_DataDict {
 		
 		if (is_object($idxname))
 		{
-			$mop = new metaOptionsParser($this,$idxname, true);
-			list($tabname,$flds,$tableoptions,$indexes) = $mop->getParsedTable();
+			$tMop = new metaOptionsParser($this,$idxname, true);
+			list($tabname,$tableoptions) = $tMop->getLegacyParsedOptions();
 			
-			$mop = new metaOptionsParser($this,$indexes, true);
-			$parsedIndexes = $mop->getParsedOptions();
-			
+			$indexes = $tMop->getTableIndexesObject();
+			/*
+			* Create a new object and pass the indexes in
+			*/
+			$iMop 		   = new metaOptionsParser($this,$indexes);
+			$parsedIndexes = $iMop->getLegacyParsedOptions();
+						
 			foreach($parsedIndexes as $idx => $idxdef) 
 			{
 				$sql_idxs = $this->CreateIndexSql($idx, $tabname, $idxdef['cols'], $idxdef['opts']);
@@ -462,8 +473,36 @@ class ADODB_DataDict {
 		return $this->_IndexSQL($this->NameQuote($idxname), $this->TableName($tabname), $flds, $this->_Options($idxoptions));
 	}
 
+	/**
+	* Generates the SQL to drop index. Returns an array of sql strings.
+	*
+	* @param	mixed	$idxname	String name of index or $metaObjectStructure
+	* @param	string	$tabname	String table name
+	*
+	* @return array list of SQL statements
+	*/
 	function DropIndexSQL ($idxname, $tabname = NULL)
 	{
+		
+		if (is_object($idxname))
+		{
+			$tMop = new metaOptionsParser($this,$idxname, true);
+			list($tabname,$tableoptions) = $tMop->getLegacyParsedOptions();
+			
+			$indexes = $tMop->getTableIndexesObject();
+			/*
+			* Create a new object and pass the indexes in
+			*/
+			$iMop 		   = new metaOptionsParser($this,$indexes);
+			$parsedIndexes = $iMop->getLegacyParsedOptions();
+						
+			foreach($parsedIndexes as $idx => $idxdef) 
+			{
+				$sql_idxs = sprintf($this->dropIndex, $idx, $this->TableName($tabname));
+				$sql[] = $sql_idxs;
+			}
+			return $sql;
+		}
 		return array(sprintf($this->dropIndex, $this->NameQuote($idxname), $this->TableName($tabname)));
 	}
 
@@ -472,13 +511,27 @@ class ADODB_DataDict {
 		$this->schema = $schema;
 	}
 
-	function AddColumnSQL($tabname, $flds='')
+	/**
+	* Adds a column to an existing table
+	*
+	* @param	mixed	$tabname	Either a string table name or metaObjectStructure
+	* @param	string	$flds		Column definition or null if metaObject
+	*
+	* @return	string	SQL to update table
+	*/
+	function addColumnSQL($tabname, $flds='')
 	{
 		
 		if (is_object($tabname))
 		{
-			$mop = new metaOptionsParser($this,$tabname, true);
-			list($tabname,$flds,$tableoptions,$indexes) = $mop->getParsedTable();
+			$tMop = new metaOptionsParser($this,$tabname);
+			
+			list($tabname,$tableoptions) = $tMop->getLegacyParsedOptions();
+			
+			/*
+			* _genFields can process this object
+			*/
+			$flds    = $tMop->getTableColumnsObject();
 		}
 		
 		$tabname = $this->TableName ($tabname);
@@ -504,22 +557,29 @@ class ADODB_DataDict {
 	 *
 	 * As some DBM's can't do that on there own, you need to supply the complete defintion of the new table,
 	 * to allow, recreating the table and copying the content over to the new table
-	 * @param string $tabname table-name
-	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds='' complete defintion of the new table, eg. for postgres, default ''
-	 * @param array/string $tableoptions='' options for the new table see CreateTableSQL, default ''
-	 * @return array with SQL strings
+	 *
+	 * @param 	string 	$tabname		table-name or a metaStructureObject
+	 * @param 	string 	$flds 			column-name and type for the changed column
+	 * @param 	string 	$tableflds		complete defintion of the new table, eg. for postgres, default ''
+	 * @param	mixed	$tableoptions 	options for the new table see CreateTableSQL, default ''
+	 *
+	 * @return 	array with SQL strings
 	 */
-	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	function alterColumnSQL($tabname, $flds='', $tableflds='',$tableoptions='')
 	{
-		
 		if (is_object($tabname))
 		{
-			$mop = new metaOptionsParser($this,$tabname, true);
-			list($tabname,$flds,$tableoptions,$indexes) = $mop->getParsedTable();
-		}	
+			$tMop = new metaOptionsParser($this,$tabname);
+			
+			list($tabname,$tableoptions) = $tMop->getLegacyParsedOptions();
+			
+			/*
+			* _genFields can process this object
+			*/
+			$flds    = $tMop->getTableColumnsObject();
+		}
 		
-		
+				
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
 		list($lines,$pkey,$idxs) = $this->_GenFields($flds);
@@ -542,15 +602,44 @@ class ADODB_DataDict {
 	/**
 	 * Rename one column
 	 *
-	 * Some DBM's can only do this together with changeing the type of the column (even if that stays the same, eg. mysql)
-	 * @param string $tabname table-name
-	 * @param string $oldcolumn column-name to be renamed
-	 * @param string $newcolumn new column-name
-	 * @param string $flds='' complete column-defintion-string like for AddColumnSQL, only used by mysql atm., default=''
+	 * Some DBM's can only do this together with changeing the type of 
+	 * the column (even if that stays the same, eg. mysql)
+	 *
+	 * @param mixed  $tabname 		table-name or a metaObjectStructure
+	 * @param string $oldcolumn 	column-name to be renamed
+	 * @param string $newcolumn 	new column-name
+	 * @param string $flds='' 		complete column-defintion-string like 
+	 *								for AddColumnSQL, only used by mysql
+	 *
 	 * @return array with SQL strings
 	 */
-	function RenameColumnSQL($tabname,$oldcolumn,$newcolumn,$flds='')
+	function renameColumnSQL($tabname,$oldcolumn='',$newcolumn='',$flds='')
 	{
+		if (is_object($tabname))
+		{
+			$tMop = new metaOptionsParser($this,$tabname);
+			list($tabname,$tableoptions) = $tMop->getLegacyParsedOptions();
+			$tabname = $this->TableName ($tabname);
+			
+			$flds    = $tMop->getTableColumnNamesArray();
+			foreach ($flds as $oldcolumn)
+			{
+				$columnObject = $tMop->getColumnObjectByName($oldcolumn);
+				print_r($columnObject);
+				exit;
+				$cMop 	 	  = new metaOptionsParser($this,$columnObject);
+				$newcolumn    = $cMop->findObjectAttribute('rename');
+	
+				$sql[] = sprintf($this->renameColumn,
+								 $tabname,
+								 $this->NameQuote($oldcolumn),
+								 $this->NameQuote($newcolumn),
+								 $column_def);
+			}
+			return $sql;
+		
+		}
+		
 		$tabname = $this->TableName ($tabname);
 		if ($flds) {
 			list($lines,$pkey,$idxs) = $this->_GenFields($flds);
@@ -563,28 +652,32 @@ class ADODB_DataDict {
 	}
 
 	/**
-	 * Drop one column
+	 * Drop one or more columns
 	 *
 	 * Some DBM's can't do that on there own, you need to supply the complete defintion of the new table,
 	 * to allow, recreating the table and copying the content over to the new table
-	 * @param string $tabname table-name
-	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds='' complete defintion of the new table, eg. for postgres, default ''
-	 * @param array/string $tableoptions='' options for the new table see CreateTableSQL, default ''
+	 *
+	 * @param mixed 	$tabname 			table name or metaObjectStructure
+	 * @param string 	$flds 				column-name and type for the changed column
+	 * @param string 	$tableflds='' 		complete defintion of the new table, eg. for postgres, default ''
+	 * @param mixed		$tableoptions='' 	options for the new table see CreateTableSQL, default ''
+	 *
 	 * @return array with SQL strings
 	 */
-	function DropColumnSQL($tabname, $flds='', $tableflds='',$tableoptions='')
+	function dropColumnSQL($tabname, $flds='', $tableflds='',$tableoptions='')
 	{
 		
 		if (is_object($tabname))
 		{
-			$mop = new metaOptionsParser($this,$tabname);
-			list($tableName,$fieldData,$options,$indexData) = $mop->getParsedTable();
-			$tabname = $tableName;
+			$tMop = new metaOptionsParser($this,$tabname);
+			list($tabname,$tableoptions) = $tMop->getLegacyParsedOptions();
+			
+			$flds    = $tMop->getTableColumnNamesArray();
 		}
 		
 		$tabname = $this->TableName ($tabname);
-		if (!is_array($flds)) $flds = explode(',',$flds);
+		if (!is_array($flds)) 
+			$flds = explode(',',$flds);
 		$sql = array();
 		$alter = 'ALTER TABLE ' . $tabname . $this->dropCol . ' ';
 		foreach($flds as $v) {
@@ -593,35 +686,82 @@ class ADODB_DataDict {
 		return $sql;
 	}
 
-	function DropTableSQL($tabname)
+	/**
+	* Creates the table to drop a table in the database
+	*
+	* @param	mixed	$tabname	The string table name or a metaobjectstructure
+	*
+	* @return string	The SQL string to drop the table
+	*/
+	function dropTableSQL($tabname)
 	{
 		if (is_object($tabname))
 		{
 			$mop = new metaOptionsParser($this,$tabname);
-			list($tableName,$fieldData,$options,$indexData) = $mop->getParsedTable();
+			list($tableName,$options) = $mop->getLegacyParsedOptions();
 			$tabname = $tableName;
 		}
 		return array (sprintf($this->dropTable, $this->TableName($tabname)));
 	}
 
-	function RenameTableSQL($tabname,$newname)
+	
+	/**
+	* Creates the table to rename a table in the database
+	*
+	* @param	mixed	$tabname	The string table name or a metaobjectstructure
+	* @param	string	$newname	The string new name or null if a metaobject passed
+	*
+	* @return string	The SQL string to drop the table
+	*/
+	function renameTableSQL($tabname,$newname=false)
 	{
+		
+		if (is_object($tabname))
+		{
+			$mop = new metaOptionsParser($this,$tabname);
+			list($tableName,$options) = $mop->getLegacyParsedOptions();
+			$tabname = $tableName;
+			
+			$newname = $mop->findObjectAttribute('newname');
+		}
+		
+		if (!$newname)
+		{
+			return false;
+		}
 		return array (sprintf($this->renameTable, $this->TableName($tabname),$this->TableName($newname)));
 	}
 
 	/**
 	 Generate the SQL to create table. Returns an array of sql strings.
+	*
+	* @param	mixed	$tabname		The string table name or a metaobjectstructure
+	* @param	mixed	$flds			A String representing all the fields and indexes
+	* @param	mixed	$tableoptions	Optional table options
+	*
+	* @return string	The SQL string to drop the table
 	*/
-	function CreateTableSQL($tabname, $flds='', $tableoptions=array())
+	function createTableSQL($tabname, $flds='', $tableoptions=array())
 	{
 		$parsedIndexes = false;
 		if (is_object($tabname))
 		{
-			$mop = new metaOptionsParser($this,$tabname, true);
-			list($tabname,$flds,$tableoptions,$indexes) = $mop->getParsedTable();
+			$tMop = new metaOptionsParser($this,$tabname);
 			
-			$mop = new metaOptionsParser($this,$indexes, true);
-			$parsedIndexes = $mop->getParsedOptions();
+			list($tabname,$tableoptions) = $tMop->getLegacyParsedOptions();
+			
+			$indexes = $tMop->getTableIndexesObject();
+			
+			/*
+			* Create a new object and pass the indexes in
+			*/
+			$iMop 		   = new metaOptionsParser($this,$indexes);
+			$parsedIndexes = $iMop->getLegacyParsedOptions();
+			
+			/*
+			* _genFields can process this object
+			*/
+			$flds    = $tMop->getTableColumnsObject();
 			
 		}	
 		list($lines,$pkey,$idxs) = $this->_GenFields($flds, true);
@@ -658,13 +798,21 @@ class ADODB_DataDict {
 
 
 
+	/**
+	* Function to generate all the fields associated with a construction
+	*
+	* @param	mixed	$flds			String of fields or metaObjectStructure
+	* @param	bool	$widespacing	If flds is a string, pads the line to
+	*									24 characters for some reason
+	* @return list	$lines,$pkey,$idxs
+	*/
 	function _GenFields($flds,$widespacing=false)
 	{
 		
 		if (is_object($flds))
 		{
 			$mop = new metaOptionsParser($this,$flds, true);
-			return $mop->getParsedOptions();
+			return $mop->getLegacyParsedOptions();
 		}
 		else
 		if (is_string($flds)) {
@@ -1035,25 +1183,57 @@ class ADODB_DataDict {
 	This function changes/adds new fields to your table. You don't
 	have to know if the col is new or not. It will check on its own.
 	*/
-	function ChangeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
+	function changeTableSQL($tablename, $flds='', $tableoptions = false, $dropOldFlds=false)
 	{
 	global $ADODB_FETCH_MODE;
 
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-		if ($this->connection->fetchMode !== false) $savem = $this->connection->SetFetchMode(false);
-
+		if ($this->connection->fetchMode !== false) 
+			$savem = $this->connection->SetFetchMode(false);
+		
+		$saveObject = false;
+		
+		if (is_object($tablename))
+		{
+			$saveObject = $tablename;
+			
+			$tMop = new metaOptionsParser($this,$tablename);
+			
+			list($tablename,$tableoptions) = $tMop->getLegacyParsedOptions();
+			
+			$indexes = $tMop->getTableIndexesObject();
+			
+			/*
+			* Create a new object and pass the indexes in
+			*/
+			$iMop 		   = new metaOptionsParser($this,$indexes);
+			$parsedIndexes = $iMop->getLegacyParsedOptions();
+			
+			/*
+			* _genFields can process this object
+			*/
+			$flds    = $tMop->getTableColumnsObject();
+			
+			
+		}	
+		
 		// check table exists
 		$save_handler = $this->connection->raiseErrorFn;
 		$this->connection->raiseErrorFn = '';
+		
 		$cols = $this->MetaColumns($tablename);
 		$this->connection->raiseErrorFn = $save_handler;
 
 		if (isset($savem)) $this->connection->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 
-		if ( empty($cols)) {
-			return $this->CreateTableSQL($tablename, $flds, $tableoptions);
+		if ( empty($cols)) 
+		{
+			if (is_object($saveObject))
+				return $this->CreateTableSQL($saveObject);
+			else
+				return $this->CreateTableSQL($tablename, $flds, $tableoptions);
 		}
 
 		if (is_array($flds)) {
@@ -1101,6 +1281,8 @@ class ADODB_DataDict {
 		$alter = 'ALTER TABLE ' . $this->TableName($tablename);
 		$sql = array();
 
+		print_r($lines);
+		print_r($cols);
 		foreach ( $lines as $id => $v ) {
 			if ( isset($cols[$id]) && is_object($cols[$id]) ) {
 
