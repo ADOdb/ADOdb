@@ -15,9 +15,11 @@ Older changelogs:
 - adodb: addColumnSQL datadict function now supports ENUM data types. See #26
 - adodb: introduce user-defined default Metatype. #165
 - adodb: AutoExecute validates empty fields array. #154
-- adodb: fix getAssoc() with fetch mode = ADODB_FETCH_BOTH. #189, #198
+- adodb: fix getAssoc(). #189, #198, #204
 - adodb: Improve array identification in ADOrecordset::getAssoc(). #101
 - adodb: MetaColumns() consistently returns Actual Type by default in all drivers. #184, #133
+- adodb: Fix BulkBind() param count validation. #199
+- adodb: Add new value defaulting mode for getInsertSQL(). #214
 - firebird: updated driver, thanks to Lester Caine. #201
 - mssqlnative: Query not returning id. #185
 - mssqlnative: support SQL Server 2014 databases. #186
