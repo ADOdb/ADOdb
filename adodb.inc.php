@@ -75,6 +75,7 @@ if (!defined('_ADODB_LAYER')) {
 	/*********************************************************
 	* Controls $ADODB_FORCE_TYPE mode. Default is ADODB_FORCE_VALUE (3).
 	* Used in GetUpdateSql and GetInsertSql functions. Thx to Niko, nuko#mbnet.fi
+	* @link http://adodb.org/dokuwiki/doku.php?id=v5:reference:adodb_force_type
 	*
 	* 0 = ignore empty fields. All empty fields in array are ignored.
 	* 1 = force null. All empty, php null and string 'null' fields are
@@ -89,7 +90,7 @@ if (!defined('_ADODB_LAYER')) {
 		define('ADODB_FORCE_NULL',1);
 		define('ADODB_FORCE_EMPTY',2);
 		define('ADODB_FORCE_VALUE',3);
-		define('ADODB_FORCE_NULL_AND_ZERO',1);
+		define('ADODB_FORCE_NULL_AND_ZERO',4);
 	// ********************************************************
 
 
