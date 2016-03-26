@@ -14,6 +14,7 @@ class metaObjectStructure
 	public $type		= '';
 	public $value		= '';
 	public $platform	= '';
+	public $newName	    = '';
 	
 	public $options     = array();
 	public $attributes  = array();
@@ -22,24 +23,83 @@ class metaObjectStructure
 	const COLUMN_OBJECT 	= 'column';
 	const INDEX_OBJECT 		= 'index';
 	const INDEXITEM_OBJECT 	= 'index-item';
-	const CONSTRAINT_OBJECT = 'constraint';
-	const FOREIGNKEY_OBJECT = 'foreignkey';
-
+	
+	private $statusCode		= 0;
+	private $objectList     = array('table','column','index','index-item');
+	
+	private $dict;
+	
 	/*
 	* Constructor
-	* 
-	* @param string  $name	    = '';
+	*
+    * @param obj	 $dict      Handle to the data dictionary object	
+	* @param string  $name	    The name of the object
 	* @param string  $platform	Optional platform
 	* @param string  $type      Optional structure type 
 	*
 	* @return obj
 	*/
-	public function __construct($name, $platform='',$type='table')
+	public function __construct($dict,$name, $platform='',$type='table')
 	{
+		$this->dict		= $dict;
+		$this->name 	= strtolower($name);
+		$this->platform = strtolower($platform);
+		$this->type		= strtolower($type);
+	
+		if (!in_array($this->type,$this->objectList))
+		{
+			$this->statusCode    = 1;
+			if ($this->dict->connection->debug)
+			{
+				ADOconnection::outp(
+				'metaObjectStructure type ' . $this->type . ' '. 
+				'is not a valid type'
+				);
+			}
+			return false;
+		}
 		
-		$this->name 	= $name;
-		$this->platform = $platform;
-		$this->type		= $type;
+		if (!is_object($dict) || !isset($dict->connection))
+		{
+			
+			/*
+			* Cannot tell if in debug mode because no connection available
+			* so always do this
+			*/
+			$this->statusCode    = 1;
+			ADOconnection::outp(
+			'Parameter 1 of metaObjectStructure construction must '. 
+			'be a handle to a valid ADOdb data dictionary object'
+			);
+			
+			return false;
+		}
+	}
+	
+	/**
+	* Sets the new name of the object if a rename action is to be called
+	*
+	* @param	string	$newName
+	*
+	* return the current object so the commands can be chained
+	*/
+	public function setNewName($newName)
+	{
+		if ($this->type != 'table' && $this->type != 'column')
+		{
+			$this->statusCode    = 1;
+			if ($this->dict->connection->debug)
+			{
+				ADOconnection::outp(
+				'metaObjectStructure method setNewName ' .
+				'only available to objects of type table or column'
+				);
+			}
+			return false;
+		}
+		
+		$this->newName = $newName;
+		return $this;
 	}
 	
 	/**
@@ -53,6 +113,18 @@ class metaObjectStructure
 	public function addAttribute($value,$platform='')
 	{
 	
+		if (!is_string($value) && !is_array($value))
+		{
+			$this->statusCode    = 1;
+			if ($this->dict->connection->debug)
+			{
+				ADOconnection::outp(
+				'Attributes must be either a string or an array '
+				);
+			}
+			return false;
+		}
+		
 		$o = new metaElementStructure;
 		$o->type	 = $this->type;
 		$o->name     = $this->name;
@@ -74,6 +146,20 @@ class metaObjectStructure
 	*/
 	public function addColumnObject($columnName,$columnType='',$platform='')
 	{
+		
+		if ($this->type != 'table')
+		{
+			$this->statusCode    = 1;
+			if ($this->dict->connection->debug)
+			{
+				ADOconnection::outp(
+				'metaObjectStructure objects of type ' .
+				'column can only be added to parent' .
+				'objects of type table'
+				);
+			}
+			return false;
+		}
 		
 		$child = 'column';
 		if (!isset($this->columns))
@@ -100,6 +186,20 @@ class metaObjectStructure
 	*/
 	public function addIndexObject($indexName,$platform='')
 	{
+		if ($this->type != 'table')
+		{
+			$this->statusCode    = 1;
+			if ($this->dict->connection->debug)
+			{
+				ADOconnection::outp(
+				'metaObjectStructure objects of type ' .
+				'index can only be added to parent' .
+				'objects of type table'
+				);
+			}
+			return false;
+		}
+		
 		$child = 'index';
 		if (!isset($this->indexes))
 			$this->indexes = array();
@@ -118,16 +218,38 @@ class metaObjectStructure
 	*/
 	public function addIndexItemObject($columnName,$platform='')
 	{
+		
+		if ($this->type != 'index')
+		{
+			$this->statusCode    = 1;
+			if ($this->dict->connection->debug)
+			{
+				ADOconnection::outp(
+				'metaObjectStructure objects of type ' .
+				'index-item can only be added to parent' .
+				'objects of type index'
+				);
+			}
+			return false;
+		}
 		$child = 'index-item';
 				
 		$indexItemObject = $this->addChild($child,$columnName,'',$platform);
 		return $indexItemObject;
 	}
 	
+	/*
+	* Returns the current error status
+	*/
+	final public function getErrorStatus()
+	{
+		return $this->statusCode;
+	}
+	
 	/**
 	* Adds a child to the object
 	*
-	* @param string  $child	  	  One of 'column,index,foreignkey,constraint';
+	* @param string  $child	  	  One of 'column,index,index-item';
 	* @param string  $parentName  parent name, must not already exist
 	* @param string  $value		  either string, associative or numeric array
 	* @param string  $platform	  either string or provider or datatype
@@ -147,7 +269,7 @@ class metaObjectStructure
 		/*
 		* We recursively add a new structure to ourself
 		*/
-		$o           = new metaObjectStructure($parentName,$platform,$child);
+		$o           = new metaObjectStructure($this->dict,$parentName,$platform,$child);
 		$o->type	 = $attribute;
 		$o->name     = $parentName;
 		$o->value    = $value;
@@ -160,19 +282,13 @@ class metaObjectStructure
 		}	
 		
 		else if ($attribute == 'index-item')	
-		  $this->columns[] = $o;
+			$this->columns[] = $o;
 		
 		else
-		{
-			$containerNames = array(SELF::COLUMN_OBJECT=>'columns',
-								   SELF::INDEX_OBJECT=>'indexes',
-								   SELF::CONSTRAINT_OBJECT=>'constraints',
-								   SELF::FOREIGNKEY_OBJECT=>'foreignkeys'
-								   );
-			$container 	 = $containerNames[$child];
-			$this->{$container}[$parentName] = $o;
-		}
+			$this->columns[$parentName] = $o;
+		
 		return $o;
 	}
+	
 }
 ?>

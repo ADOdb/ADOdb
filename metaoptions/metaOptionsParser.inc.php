@@ -39,6 +39,17 @@ final class metaOptionsParser
 	*/
 	private   $indexData	 = array();
 	
+	/*
+	* Holds the object attributes
+	*/
+	private $attributes		 = array();
+	
+	/*
+	* Holds the new name of the object for renaming operations
+	*/
+	private $newName		 = '';
+	
+	
 	
 	/**
 	* Parses the provided metaobjectstructure object
@@ -52,12 +63,15 @@ final class metaOptionsParser
 	public function __construct($dict,$metaObject)
 	{
 	
+				
 		/*
 		* We need this to determine platform options
 		*/
 		$this->dict = $dict;
 		
 		$this->itemType = $metaObject->type;
+		if (isset($metaObject->newName))
+			$this->newName  = $metaObject->newName;
 		
 		switch ($metaObject->type)
 		{
@@ -65,13 +79,19 @@ final class metaOptionsParser
 			$this->parseTableObject($metaObject);
 			break;
 
-			case 'columns':
+			case 'column':
 			$this->parseColumnObject($metaObject);
+			break;
+			
+			case 'columns':
+			$this->parseColumnsObject($metaObject);
 			break;
 			
 			case 'indexes':
 			$this->parseIndexObject($metaObject);
 			break;
+			
+			
 		}
 	}
 	
@@ -130,20 +150,29 @@ final class metaOptionsParser
 	}
 	
 	/**
+	* Finds the object new name, if set
+	*
+	* @return string
+	*/
+	final public function getObjectNewName()
+	{
+		return $this->newName;
+	}
+	
+	/**
 	* Finds an attribute of the current object by name
 	*
 	* @param	string	$attribute	The value to find
 	* @return	string	The value if found or empty
 	*/
-	public function findObjectAttribute($attribute)
+	public function getObjectAttribute($attribute)
 	{
-		print_r($this);
-		exit;
+		
 		$matchingKeys = array();
-		foreach($this->options as $platform=>$option)
+		foreach($this->attributes as $platform=>$option)
 		{
 			if (strcmp($platform,$this->dict->connection->dataProvider) <> 0
-			&&  strcmp($platform,'DEFAULT') <> 0)
+			&&  $platform)
 			continue;
 			
 			/*
@@ -291,17 +320,17 @@ final class metaOptionsParser
 	
 	}
 	
-	
 	/**
 	* Takes a columns object and creates an old format array of data
 	*
 	* @param	object	$columnsObject	A metaObjectStructure representing columns
 	*/
-	private function parseColumnObject($columnsObject)
+	private function parseColumnsObject($columnsObject)
 	{
 		
-		$pkey = array();
-		$idxs = array();
+		$lines = array();
+		$pkey  = array();
+		$idxs  = array();
 		/*
 		* The actual columns are held in the options array of the 'columns'
 		* object
@@ -376,6 +405,77 @@ final class metaOptionsParser
 			$lines[$fieldName] = $line;
 		}
 		$this->parsedOptions = array($lines,$pkey,$idxs);
+	}
+	
+	/**
+	* Parses an individual column object
+	*
+	* @param	obj	$metaObject
+	*/
+	private function parseColumnObject($metaObject)
+	{
+		
+		$this->attributes = $metaObject->attributes;
+		
+		$fieldName = $metaObject->name;
+		/*
+		* Get the type first because we need that for all the other
+		* options
+		*/
+		if (isset($metaObject->value))
+			$fieldType = $metaObject->value;
+		else
+			$fieldType = '';
+		
+		$line = $fieldType;
+		
+		foreach ($metaObject->attributes as $a)
+		{
+			
+			if ($a->platform && strcasecmp($a->platform,$this->dict->connection->dataProvider) <> 0)
+				/*
+				 * Is this a Platform-specific option to be ignored
+				 */
+				continue;
+			
+			/*
+			* Convert any column attributes from objects to strings
+			*/
+			list($replacementLine,$portableLineData,$poPrimaryKeys,$poIndex) = $this->processAttributes($a);
+			if ($replacementLine)
+			{
+				/*
+				* The returned data completely replaces what we have
+				* now
+				*/
+				$line = $replacementLine;
+			}
+			
+			
+			if ($portableLineData)
+				/*
+				 * Add the attribute to the string representing the 
+				 * column
+				 * @example add 'NOTNULL' to the column definition
+				 */
+				$line .= ' ' . $portableLineData;
+			
+			/*
+			* If the column is part of a primary key, add it to the 
+			* primary key list
+			* This value is currently discarded
+			*/
+			$pkey  = $poPrimaryKeys;
+			
+			/*
+			* If the column is part of an index, add it to the 
+			* index list
+			* @todo does this work?
+			* This value is currently discarded
+			*/
+			$idxs  = $poIndex; 
+		}
+		$this->parsedOptions = $line;
 	}
 	
 	

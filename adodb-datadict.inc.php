@@ -424,6 +424,7 @@ class ADODB_DataDict {
 		return $sql;
 	}
 
+		
 	/**
 	* Generates the SQL to create index. Returns an array of sql strings.
 	*
@@ -615,6 +616,8 @@ class ADODB_DataDict {
 	 */
 	function renameColumnSQL($tabname,$oldcolumn='',$newcolumn='',$flds='')
 	{
+		$sql = array();
+		
 		if (is_object($tabname))
 		{
 			$tMop = new metaOptionsParser($this,$tabname);
@@ -625,11 +628,18 @@ class ADODB_DataDict {
 			foreach ($flds as $oldcolumn)
 			{
 				$columnObject = $tMop->getColumnObjectByName($oldcolumn);
-				print_r($columnObject);
-				exit;
 				$cMop 	 	  = new metaOptionsParser($this,$columnObject);
-				$newcolumn    = $cMop->findObjectAttribute('rename');
-	
+				$newcolumn    = $cMop->getObjectNewName();
+				
+				/*
+				* This needs to be moved to the class driver
+				*/
+				if ($this->connection->dataProvider == 'mysql')
+					$column_def   = $cMop->getLegacyParsedOptions();
+				else
+					$column_def   = '';
+				
+				
 				$sql[] = sprintf($this->renameColumn,
 								 $tabname,
 								 $this->NameQuote($oldcolumn),
@@ -722,7 +732,7 @@ class ADODB_DataDict {
 			list($tableName,$options) = $mop->getLegacyParsedOptions();
 			$tabname = $tableName;
 			
-			$newname = $mop->findObjectAttribute('newname');
+			$newname = $mop->getObjectNewName();
 		}
 		
 		if (!$newname)
@@ -1281,8 +1291,7 @@ class ADODB_DataDict {
 		$alter = 'ALTER TABLE ' . $this->TableName($tablename);
 		$sql = array();
 
-		print_r($lines);
-		print_r($cols);
+		
 		foreach ( $lines as $id => $v ) {
 			if ( isset($cols[$id]) && is_object($cols[$id]) ) {
 
