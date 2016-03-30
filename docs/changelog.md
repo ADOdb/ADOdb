@@ -6,6 +6,8 @@ Older changelogs:
 [v2.x](changelog_v2.x.md).
 
 
+## 5.21.0 - ??-???-2016
+
 ## 5.20.4 - 30-Mar-2016
 
 - adodb: Fix BulkBind() param count validation. #199
