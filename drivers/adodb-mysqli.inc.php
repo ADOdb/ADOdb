@@ -135,7 +135,8 @@ class ADODB_mysqli extends ADOConnection {
 					$argUsername,
 					$argPassword,
 					$argDatabasename,
-					$this->port,
+					# PHP7 compat: port must be int. Use default port if cast yields zero
+					(int)$this->port != 0 ? (int)$this->port : 3306,
 					$this->socket,
 					$this->clientFlags);
 
@@ -1131,7 +1132,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			}
 		}
 
-		if($this->_queryID) {
+		if($this->_queryID instanceof mysqli_result) {
 			mysqli_free_result($this->_queryID);
 		}
 		$this->_queryID = false;

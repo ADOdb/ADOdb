@@ -18,7 +18,6 @@ Older changelogs:
 - adodb: fix getAssoc(). #189, #198, #204
 - adodb: Improve array identification in ADOrecordset::getAssoc(). #101
 - adodb: MetaColumns() consistently returns Actual Type by default in all drivers. #184, #133
-- adodb: Fix BulkBind() param count validation. #199
 - adodb: Add new value defaulting mode for getInsertSQL(). #214
 - firebird: updated driver, thanks to Lester Caine. #201
 - mssqlnative: Query not returning id. #185
@@ -35,6 +34,12 @@ Older changelogs:
 - sqlite: Fix Metataypes mapping. #177
 - sqlite: driver did not support metaForeignKeys. #179
 - session: add 'httponly' flag to cookie. #190
+
+## 5.20.4 - 30-Mar-2016
+
+- adodb: Fix BulkBind() param count validation. #199
+- mysqli: fix PHP warning in recordset destructor. #217
+- mysqli: cast port number to int when connecting (PHP7 compatibility). #218
 
 ## 5.20.3 - 01-Jan-2016
 
