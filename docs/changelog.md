@@ -9,6 +9,7 @@ Older changelogs:
 ## 5.20.4 - 30-Mar-2016
 
 - adodb: Fix BulkBind() param count validation. #199
+- mysqli: fix PHP warning in recordset destructor. #217
 - mysqli: cast port number to int when connecting (PHP7 compatibility). #218
 
 ## 5.20.3 - 01-Jan-2016

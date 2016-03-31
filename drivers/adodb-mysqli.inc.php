@@ -1060,7 +1060,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			}
 		}
 
-		if($this->_queryID) {
+		if($this->_queryID instanceof mysqli_result) {
 			mysqli_free_result($this->_queryID);
 		}
 		$this->_queryID = false;
