@@ -107,10 +107,11 @@ class metaObjectStructure
 	*
 	* @param string  $value		  either string, associative or numeric array
 	* @param string  $platform	  either string or provider or datatype
+	* @param int     $priority	  An integer indicating the process priority 0=high, -1 = not set
 	*
 	* return the current object so the commands can be chained
 	*/
-	public function addAttribute($value,$platform='')
+	public function addAttribute($value,$platform='',$priority=-1)
 	{
 	
 		if (!is_string($value) && !is_array($value))
@@ -130,6 +131,7 @@ class metaObjectStructure
 		$o->name     = $this->name;
 		$o->value    = $value;
 		$o->platform = $platform;
+		$o->priority = $priority;
 		$this->attributes[] = $o;
 		
 		return $this;

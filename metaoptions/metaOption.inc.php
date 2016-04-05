@@ -9,6 +9,7 @@ class metaOption
 	protected $primaryKey;
 	protected $indexes;
 	protected $replacementBase;
+	protected $priority = 10;
 	
 	/**
 	  * The ADOconnection class is available to the class as 
@@ -27,7 +28,7 @@ class metaOption
 	*/
 	final public function getAttributes()
 	{
-		return array($this->replacementBase,' ' . $this->text,$this->primaryKey,$this->indexes);
+		return array($this->replacementBase,$this->priority,$this->text,$this->primaryKey,$this->indexes);
 	}
 }
 ?>

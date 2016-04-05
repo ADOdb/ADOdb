@@ -13,6 +13,8 @@ final class metaOptionsParser
 	*/
 	private   $parsedOptions = array();
 	
+	private  $customOptions = array();
+	
 	/*
 	* This represents the actual name that is assigned to the object item
 	*/
@@ -63,10 +65,10 @@ final class metaOptionsParser
 	public function __construct($dict,$metaObject)
 	{
 	
-				
 		/*
 		* We need this to determine platform options
 		*/
+		
 		$this->dict = $dict;
 		
 		$this->itemType = $metaObject->type;
@@ -95,7 +97,6 @@ final class metaOptionsParser
 		}
 	}
 	
-	
 	/**
 	* Returns a list of items that reflect a table metaObjectStructure
 	*/
@@ -117,6 +118,12 @@ final class metaOptionsParser
 		
 		return $this->parsedOptions;
 	}
+	
+	final public function getCustomOptions()
+	{
+		return $this->customOptions;
+	}
+	
 	
 	final public function getTableColumnsObject()
 	{
@@ -208,6 +215,8 @@ final class metaOptionsParser
 		$indexes 	     = array();
 		$line            = '';
 		$replacementLine = '';
+		$priority        = 10;
+		
 		
 		$attributeValue = $attributes->value;
 		
@@ -216,53 +225,68 @@ final class metaOptionsParser
 		* we convert as necessary
 		*/
 		if (!is_array($attributeValue))
-			$attributeValue = (array)$attributeValue;
-
-		foreach($attributeValue as $key=>$value)
 		{
-			
+			$attributeValue = (array)$attributeValue;
+		}
+		
+		/*
+		* Process the array, if necessary flipping the key,value
+		*/
+		$value  = reset($attributeValue);
+		$avKeys = array_keys($attributeValue);
+		$key	= reset($avKeys);
+		
+		if (is_numeric($key))
+		{
+			$key 		 = $value;
+		    $value       = '';
 			$arrayToPass = array($key=>$value);
-			if (is_numeric($key))
-			{
-				$key 		 = $value;
-			    $value       = '';
-				$arrayToPass = array($key=>$value);
-			}
+		}
+		else
+			$arrayToPass = $attributeValue;
+		
+		$portableAttribute = true;	
+		/*
+		* We cannot autoload a class name with special characters or
+		* spaces in it, so it must be a custom value
+		*/
+		try {
+
+			if (preg_match('/[^A-z0-9]/',$key))
+				throw new Exception("NOT AN AUTOLOADABLE CLASS");
 			
-			/*
-			* We cannot autoload a class name with special characters or
-			* spaces in it, so it must be a custom value
-			*/
-			try {
-
-				if (preg_match('/[^A-z0-9]/',$key))
-					throw new Exception("NOT AN AUTOLOADABLE CLASS");
-				
-				$loader = 'metaOption_' . strtoupper($key);
-				$optionHandler = new $loader($this->dict,$value);
-			}
-			catch (Exception $e)
-			{
-				$loader = 'metaOption_CUSTOM';
-				$optionHandler = new $loader($this->dict,$value,$key);
-			}
-
-			if (is_object($optionHandler))
-			{
-				list($replacementLine, $lineItem,$primaryKey,$index) = $optionHandler->getAttributes();
-				
-				if ($lineItem)
-					$line .= $lineItem;
-				
-				if ($primaryKey)
-					$primaryKeys[] = $attributes->name;
-				
-				if ($index)
-					$indexes[] = $attributes->name;
-			}
+			$loader        = 'metaOption_' . strtoupper($key);
+			$optionHandler = new $loader($this->dict,$value);
+		}
+		catch (Exception $e)
+		{
+			$portableAttribute = false;
+			$loader            = 'metaOption_CUSTOM';
+			$optionHandler     = new $loader($this->dict,$value,$key);
 		}
 
-		return array($replacementLine, $line,$primaryKeys,$indexes);
+		if (is_object($optionHandler))
+		{
+			list($replacementLine, 
+				 $priority, 
+				 $lineItem, 
+				 $primaryKey, 
+				 $index) = $optionHandler->getAttributes();
+							
+			if ($primaryKey)
+				$primaryKeys[] = $attributes->name;
+			
+			if ($index)
+				$indexes[] = $attributes->name;
+		}
+		
+		/*
+		* Has the priority been overloaded
+		*/
+		if ($attributes->priority <> -1)
+			$priority = $attributes->priority;
+
+		return array($replacementLine, $priority, $portableAttribute,$lineItem, $primaryKeys,$indexes);
 	}
 	
 	/**
@@ -331,6 +355,7 @@ final class metaOptionsParser
 		$lines = array();
 		$pkey  = array();
 		$idxs  = array();
+		$custom = array();
 		/*
 		* The actual columns are held in the options array of the 'columns'
 		* object
@@ -352,6 +377,10 @@ final class metaOptionsParser
 			
 			$line = $fieldName . ' ' . $fieldType;
 			
+			$lineAttributeList = array();
+			$portableAttributeList = array();
+			$customAttributeList   = array();
+
 			foreach ($fieldData->attributes as $a)
 			{
 				
@@ -364,7 +393,13 @@ final class metaOptionsParser
 				/*
 				* Convert any column attributes from objects to strings
 				*/
-				list($replacementLine,$portableLineData,$poPrimaryKeys,$poIndex) = $this->processAttributes($a);
+				list($replacementLine,
+					 $priority, 
+					 $portableAttribute,
+					 $lineItem,
+					 $poPrimaryKeys,
+					 $poIndex) = $this->processAttributes($a);
+					 
 				if ($replacementLine)
 				{
 					/*
@@ -374,14 +409,24 @@ final class metaOptionsParser
 					$line = $replacementLine;
 				}
 				
-				
-				if ($portableLineData)
-					/*
-				     * Add the attribute to the string representing the 
-					 * column
-					 * @example add 'NOTNULL' to the column definition
-					 */
-					$line .= ' ' . $portableLineData;
+				if ($lineItem)
+				{
+					$priority *= 10;
+					if ($portableAttribute)
+					{
+						while (isset($portableAttributeList[$priority]))
+							$priority++;
+												
+						$portableAttributeList[$priority] = $lineItem;
+					}
+					else
+					{
+						while (isset($customAttributeList[$priority]))
+							$priority++;
+												
+						$customAttributeList[$priority] = $lineItem;
+					}
+				}
 				
 				/*
 				* If the column is part of a primary key, add it to the 
@@ -397,14 +442,23 @@ final class metaOptionsParser
 				$idxs  = array_merge($idxs,$poIndex); 
 				
 			}
+			/*
+			* Now place attributes in priority order
+			*/
+			ksort($portableAttributeList);
+			ksort($customAttributeList);
+			$lineAttributes = implode(' ',$portableAttributeList);
+			$line .= ' ' . $lineAttributes;
 			
 			/*
 			* Add the string line to the array, which is understandable by the
 			* old functions
 			*/
-			$lines[$fieldName] = $line;
+			$lines[$fieldName] = trim($line);
+			$custom[$fieldName] = trim(implode(' ',$customAttributeList));
 		}
-		$this->parsedOptions = array($lines,$pkey,$idxs);
+		
+		$this->parsedOptions = array($lines,$pkey,$idxs,$custom);
 	}
 	
 	/**
@@ -429,6 +483,10 @@ final class metaOptionsParser
 		
 		$line = $fieldType;
 		
+		$lineAttributeList     = array();
+		$portableAttributeList = array();
+		$customAttributeList   = array();
+		
 		foreach ($metaObject->attributes as $a)
 		{
 			
@@ -441,7 +499,13 @@ final class metaOptionsParser
 			/*
 			* Convert any column attributes from objects to strings
 			*/
-			list($replacementLine,$portableLineData,$poPrimaryKeys,$poIndex) = $this->processAttributes($a);
+				list($replacementLine,
+					 $priority, 
+					 $portableAttribute,
+					 $lineItem,
+					 $poPrimaryKeys,
+					 $poIndex) = $this->processAttributes($a);
+					 
 			if ($replacementLine)
 			{
 				/*
@@ -451,15 +515,25 @@ final class metaOptionsParser
 				$line = $replacementLine;
 			}
 			
-			
-			if ($portableLineData)
-				/*
-				 * Add the attribute to the string representing the 
-				 * column
-				 * @example add 'NOTNULL' to the column definition
-				 */
-				$line .= ' ' . $portableLineData;
-			
+			if ($lineItem)
+			{
+				$priority *= 10;
+				if ($portableAttribute)
+				{
+					while (isset($portableAttributeList[$priority]))
+						$priority++;
+											
+					$portableAttributeList[$priority] = $lineItem;
+				}
+				else
+				{
+					while (isset($customAttributeList[$priority]))
+						$priority++;
+											
+					$customAttributeList[$priority] = $lineItem;
+				}
+			}
+						
 			/*
 			* If the column is part of a primary key, add it to the 
 			* primary key list
@@ -475,7 +549,15 @@ final class metaOptionsParser
 			*/
 			$idxs  = $poIndex; 
 		}
-		$this->parsedOptions = $line;
+		/*
+		* Now place attributes in priority order
+		*/
+		
+		ksort($portableAttributeList);
+		$lineAttributes = implode(' ',$portableAttributeList);
+		$line .= ' ' . $lineAttributes;
+		$this->parsedOptions = trim($line);
+		$this->customOptions = $customAttributeList;
 	}
 	
 	
@@ -488,7 +570,11 @@ final class metaOptionsParser
 	private function parseIndexObject($metaObject)
 	{
 		
-		$this->parsedOptions = array();
+		$this->parsedOptions   = array();
+		$lineAttributeList     = array();
+		$portableAttributeList = array();
+		$customAttributeList   = array();
+		
 		foreach ($metaObject->options as $indexObject)
 		{
 			if ($indexObject->platform 
@@ -509,20 +595,46 @@ final class metaOptionsParser
 						continue;
 					
 					list($replacementLine,
-						 $portableLineData,
+						 $priority, 
+						 $portableAttribute,
+						 $lineItem,
 						 $poPrimaryKeys,
 						 $poIndex) = $this->processAttributes($a);
+
 					if ($replacementLine)
-					{
 						$line = $replacementLine;
+					
+					if ($lineItem)
+					{
+						$priority *= 10;
+						if ($portableAttribute)
+						{
+							while (isset($portableAttributeList[$priority]))
+								$priority++;
+													
+							$portableAttributeList[$priority] = $lineItem;
+						}
+						else
+						{
+							while (isset($customAttributeList[$priority]))
+								$priority++;
+													
+							$customAttributeList[$priority] = $lineItem;
+						}
 					}
 					
-					if ($portableLineData)
-						$line .= ' ' . $portableLineData;
-					
 				}
-												
-				$this->parsedOptions[$indexObject->name]['cols'][$columnObject->name] = $line;
+				
+				/*
+				* Now place attributes in priority order
+				*/
+				ksort($portableAttributeList);
+				$lineAttributes = implode(' ',$portableAttributeList);
+				$line .= ' ' . $lineAttributes;
+																
+				$this->parsedOptions[$indexObject->name]['cols'][$columnObject->name] = trim($line);
+				$this->customOptions = $customAttributeList;
+
 			}
 		}
 	}
