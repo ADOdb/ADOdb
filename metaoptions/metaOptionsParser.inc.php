@@ -178,9 +178,8 @@ final class metaOptionsParser
 		$matchingKeys = array();
 		foreach($this->attributes as $platform=>$option)
 		{
-			if (strcmp($platform,$this->dict->connection->dataProvider) <> 0
-			&&  $platform)
-			continue;
+			if (!$this->matchPlatform($platform))
+				continue;	
 			
 			/*
 			* Now loop through the remaining attributes and find the object with the
@@ -267,6 +266,7 @@ final class metaOptionsParser
 
 		if (is_object($optionHandler))
 		{
+			$portableAttribute = $optionHandler->useLegacyParser();
 			list($replacementLine, 
 				 $priority, 
 				 $lineItem, 
@@ -345,6 +345,26 @@ final class metaOptionsParser
 	}
 	
 	/**
+	* Checks a platform attribute against the current configuration
+	*
+	* @param	string	$platform	The platform to check
+	*
+	* @return	bool	Whether we have a platform match
+	*/
+	final private function matchPlatform($platform)
+	{
+		if (!$platform)
+			return true;
+		
+		if (strcasecmp($platform,$this->dict->connection->dataProvider) <> 0
+		&&  strcasecmp($platform,$this->dict->connection->databaseType) <> 0)
+			return false;
+		
+		return true;
+	
+	}
+	
+	/**
 	* Takes a columns object and creates an old format array of data
 	*
 	* @param	object	$columnsObject	A metaObjectStructure representing columns
@@ -384,10 +404,7 @@ final class metaOptionsParser
 			foreach ($fieldData->attributes as $a)
 			{
 				
-				if ($a->platform && strcasecmp($a->platform,$this->dict->connection->dataProvider) <> 0)
-					/*
-				     * Is this a Platform-specific option to be ignored
-					 */
+				if (!$this->matchPlatform($a->platform))
 					continue;
 				
 				/*
@@ -490,10 +507,7 @@ final class metaOptionsParser
 		foreach ($metaObject->attributes as $a)
 		{
 			
-			if ($a->platform && strcasecmp($a->platform,$this->dict->connection->dataProvider) <> 0)
-				/*
-				 * Is this a Platform-specific option to be ignored
-				 */
+			if (!$this->matchPlatform($a->platform))
 				continue;
 			
 			/*
@@ -577,9 +591,7 @@ final class metaOptionsParser
 		
 		foreach ($metaObject->options as $indexObject)
 		{
-			if ($indexObject->platform 
-			&& strcasecmp($indexObject->platform,
-						  $this->dict->connection->dataProvider) <> 0)
+			if (!$this->matchPlatform($indexObject->platform))
 				continue;	
 			
 			$this->parsedOptions[$indexObject->name] = array('cols'=>array(),
@@ -591,8 +603,8 @@ final class metaOptionsParser
 				foreach ($columnObject->attributes as $a)
 				{
 				
-					if ($a->platform && strcasecmp($a->platform,$this->dict->connection->dataProvider) <> 0)
-						continue;
+					if (!$this->matchPlatform($a->platform))
+						continue;	
 					
 					list($replacementLine,
 						 $priority, 

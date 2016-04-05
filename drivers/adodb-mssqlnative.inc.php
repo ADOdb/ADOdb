@@ -145,6 +145,8 @@ class ADODB_mssqlnative extends ADOConnection {
 			sqlsrv_log_set_subsystems(SQLSRV_LOG_SYSTEM_ALL);
 			sqlsrv_configure('WarningsReturnAsErrors', 0);
 		}
+		parent::__construct();
+
 	}
 	function ServerVersion() {
 		$data = $this->ServerInfo();

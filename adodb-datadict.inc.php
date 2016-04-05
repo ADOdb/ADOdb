@@ -819,18 +819,34 @@ class ADODB_DataDict {
 	function _GenFields($flds,$widespacing=false)
 	{
 		
+		$customAttributesList = array();
+		$useMetaObjectStructure = false;
 		if (is_object($flds))
 		{
+			$useMetaObjectStructure = true;
 			$mop = new metaOptionsParser($this,$flds, true);
-			return $mop->getLegacyParsedOptions();
+			list($flds,$pkey,$idxs,$customAttributesList) = $mop->getLegacyParsedOptions();
+			/*
+			* For the initial implementation, we turn this array
+			* back to a string that can be parsed normally
+			*/
+			$flds = implode("\n",$flds);
+			
+			/*
+			* Custom attributes are held back until the line is processed,
+			* then appended as is onto the line. In this implementation,
+			* the order does not work properly
+			*/
+			
 		}
-		else
+		
 		if (is_string($flds)) {
 			$padding = '     ';
 			$txt = $flds.$padding;
 			$flds = array();
 			$flds0 = Lens_ParseArgs($txt,',');
 			$hasparam = false;
+			
 			foreach($flds0 as $f0) {
 				$f1 = array();
 				foreach($f0 as $token) {
@@ -933,7 +949,10 @@ class ADODB_DataDict {
 				case 'UNIQUE': $funiqueindex = true; break;
 				case 'ENUM':
 					$fOptions['ENUM'] = $v; break;
-				} //switch
+			
+				}
+
+				//switch
 			} // foreach $fld
 
 			//--------------------
@@ -1032,6 +1051,10 @@ class ADODB_DataDict {
 			$lines[$fid] = $fname.' '.$ftype.$suffix;
 
 			if ($fautoinc) $this->autoIncrement = true;
+			
+			if (isset($customAttributesList[strtolower($fid)]))
+				$lines[$fid] .= ' ' . $customAttributesList[strtolower($fid)];
+			
 		} // foreach $flds
 
 		return array($lines,$pkey,$idxs);
@@ -1063,8 +1086,11 @@ class ADODB_DataDict {
 					$ftype .= '(' . $value . ')';
 					break;
 					
+					case 'METAOBJECT':
+					$ftype .= ' ' . $value;
 					default:
 				}
+				
 			}
 		}
 		

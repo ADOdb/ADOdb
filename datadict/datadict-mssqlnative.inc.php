@@ -133,9 +133,22 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		}
 	}
 
-
-	function AddColumnSQL($tabname, $flds)
+/*
+	function AddColumnSQL($tabname, $flds='')
 	{
+		if (is_object($tabname))
+		{
+			$tMop = new metaOptionsParser($this,$tabname);
+			
+			list($tabname,$tableoptions) = $tMop->getLegacyParsedOptions();
+			
+			/*
+			* _genFields can process this object
+			
+			$flds    = $tMop->getTableColumnsObject();
+			print_r($flds);
+		}
+		
 		$tabname = $this->TableName ($tabname);
 		$f = array();
 		list($lines,$pkey) = $this->_GenFields($flds);
@@ -147,6 +160,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		$sql[] = $s;
 		return $sql;
 	}
+	*/
 
 	/*
 	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
@@ -172,7 +186,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	 *
 	 * @return string  The SQL necessary to drop the column
 	 */
-	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	function DropColumnSQL($tabname, $flds='', $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
 		if (!is_array($flds))

@@ -9,6 +9,13 @@
 class metaOption_CUSTOM extends metaOption
 {
 	
+	/*
+	* This tells the metaOptionsParser to not use the legacy parser to process
+	* the attribute. In this case, the options are appended as-is to the 
+	* _genfields line
+	*/
+	protected $legacyParser = false;
+	
 	function __construct()
 	{
 	    $args         = func_get_args();
