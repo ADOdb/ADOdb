@@ -369,6 +369,30 @@ order by constraint_name, referenced_table_name, keyno";
 		$text = "SUBSTRING($fld,$start,$length)";
 		return $text;
 	}
+	
+	/**
+	* Returns the maximum size of a MetaType C field. Because of the 
+	* database design, SQL Server places no limits on the size of data inserted
+	* Although the actual limit is 2^31-1 bytes.
+	*
+	* @return int
+	*/
+	function charMax()
+	{
+		return ADODB_STRINGMAX_NOLIMIT;
+	}
+
+	/**
+	* Returns the maximum size of a MetaType X field. Because of the 
+	* database design, SQL Server places no limits on the size of data inserted
+	* Although the actual limit is 2^31-1 bytes.
+	*
+	* @return int
+	*/
+	function textMax()
+	{
+		return ADODB_STRINGMAX_NOLIMIT;
+	}
 
 }
 
