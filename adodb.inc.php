@@ -3104,6 +3104,26 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	{
 		return ADODB_STRINGMAX_NOTSET;
 	}
+	
+	/**
+	* Returns a substring of a varchar type field
+	*
+	* Some databases have variations of the parameters, which is why
+	* we have an ADOdb function for it
+	*
+	* @param	string	$fld	The field to sub-string
+	* @param	int		$start	The start point
+	* @param	int		$length	An optional length
+	*
+	* @return	The SQL text
+	*/
+	function substr($fld,$start,$length=0) {
+		$text = "{$this->substr}($fld,$start";
+		if ($length > 0)
+			$text .= ",$length";
+		$text .= ')';
+		return $text;
+	}
 
 } // end class ADOConnection
 

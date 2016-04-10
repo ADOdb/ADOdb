@@ -863,6 +863,32 @@ order by constraint_name, referenced_table_name, keyno";
 	{
 		return ADORecordSet_array_mssql::UnixTimeStamp($v);
 	}
+	
+	/**
+	* Returns a substring of a varchar type field
+	*
+	* The SQL server version varies because the length is mandatory, so
+	* we append a reasonable string length
+	*
+	* @param	string	$fld	The field to sub-string
+	* @param	int		$start	The start point
+	* @param	int		$length	An optional length
+	*
+	* @return	The SQL text
+	*/
+	function substr($fld,$start,$length=0)
+	{
+		if ($length == 0)
+			/*
+		     * The length available to varchar is 2GB, but that makes no
+			 * sense in a substring, so I'm going to arbitrarily limit 
+			 * the length to 1K, but you could change it if you want
+			 */
+			$length = 1024;
+		
+		$text = "SUBSTRING($fld,$start,$length)";
+		return $text;
+	}
 }
 
 /*--------------------------------------------------------------------------------------
