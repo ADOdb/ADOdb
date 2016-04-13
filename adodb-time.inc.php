@@ -1162,6 +1162,9 @@ static $jan1_1971;
 		case 't': $dates .= $arr['ndays']; break;
 		case 'z': $dates .= $arr['yday']; break;
 		case 'w': $dates .= adodb_dow($year,$month,$day); break;
+		case 'W':
+			$dates .= sprintf('%02d',ceil( $arr['yday'] / 7) - 1);
+			break;
 		case 'l': $dates .= gmdate('l',$_day_power*(3+adodb_dow($year,$month,$day))); break;
 		case 'D': $dates .= gmdate('D',$_day_power*(3+adodb_dow($year,$month,$day))); break;
 		case 'j': $dates .= $day; break;
