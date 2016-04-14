@@ -3125,6 +3125,43 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return $text;
 	}
 
+	/*
+	 * Formats the date into Month only format MM with leading zeroes
+	 *
+	 * @param	string		$fld	The name of the date to format
+	 *
+	 * @return	string				The SQL text
+	 */
+	function month($fld) {
+		$x = $this->sqlDate('m',$fld);
+
+		return $x;
+	}
+
+	/*
+	 * Formats the date into Day only format DD with leading zeroes
+	 *
+	 * @param	string		$fld	The name of the date to format
+	 * @return	string		The SQL text
+	 */
+	function day($fld) {
+		$x = $this->sqlDate('d',$fld);
+		return $x;
+	}
+
+	/*
+	 * Formats the date into year only format YYYY
+	 *
+	 * @param	string		$fld The name of the date to format
+	 *
+	 * @return	string		The SQL text
+	 */
+	function year($fld) {
+		$x = $this->sqlDate('Y',$fld);
+		return $x;
+	}
+
+
 } // end class ADOConnection
 
 

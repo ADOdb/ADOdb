@@ -277,10 +277,21 @@ class ADODB_sqlite3 extends ADOConnection {
 
 	function SQLDate($fmt, $col=false)
 	{
+		/*
+		* In order to map the values correctly, we must ensure the proper
+		* casing for certain fields
+		* Y must be UC, because y is a 2 digit year
+		* d must be LC, because D is 3 char day
+		* A must be UC  because a is non-portable am
+		* Q must be UC  because q means nothing
+		*/
+		$fromChars = array('y','D','a','q');
+		$toChars   = array('Y','d','A','Q');
+		$fmt       = str_replace($fromChars,$toChars,$fmt);
+
 		$fmt = $this->qstr($fmt);
 		return ($col) ? "adodb_date2($fmt,$col)" : "adodb_date($fmt)";
 	}
-
 
 	function _createFunctions()
 	{
@@ -473,6 +484,50 @@ class ADODB_sqlite3 extends ADOConnection {
 	function textMax()
 	{
 		return ADODB_STRINGMAX_NOLIMIT;
+	}
+
+	/**
+	 * Converts a date to a month only field and pads it to 2 characters
+	 *
+	 * This uses the more efficient strftime native function to process
+	 *
+	 * @param 	str		$fld	The name of the field to process
+	 *
+	 * @return	str				The SQL Statement
+	 */
+	function month($fld)
+	{
+		$x = "strftime('%m',$fld)";
+		return $x;
+	}
+
+	/**
+	 * Converts a date to a day only field and pads it to 2 characters
+	 *
+	 * This uses the more efficient strftime native function to process
+	 *
+	 * @param 	str		$fld	The name of the field to process
+	 *
+	 * @return	str				The SQL Statement
+	 */
+	function day($fld) {
+		$x = "strftime('%d',$fld)";
+		return $x;
+	}
+
+	/**
+	 * Converts a date to a year only field
+	 *
+	 * This uses the more efficient strftime native function to process
+	 *
+	 * @param 	str		$fld	The name of the field to process
+	 *
+	 * @return	str				The SQL Statement
+	 */
+	function year($fld)
+	{
+		$x = "strftime('%Y',$fld)";
+		return $x;
 	}
 
 }

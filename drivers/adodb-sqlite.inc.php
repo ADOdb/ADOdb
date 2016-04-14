@@ -371,6 +371,41 @@ class ADODB_sqlite extends ADOConnection {
 		return ADODB_STRINGMAX_NOLIMIT;
 	}
 
+	/*
+	 * Converts a date to a month only field and pads it to 2 characters
+	 *
+	 * @param 	str		$fld	The name of the field to process
+	 * @return	str				The SQL Statement
+	 */
+	function month($fld)
+	{
+		$x = "strftime('%m',$fld)";
+
+		return $x;
+	}
+
+	/*
+	 * Converts a date to a day only field and pads it to 2 characters
+	 *
+	 * @param 	str		$fld	The name of the field to process
+	 * @return	str				The SQL Statement
+	 */
+	function day($fld) {
+		$x = "strftime('%d',$fld)";
+		return $x;
+	}
+
+	/*
+	 * Converts a date to a year only field
+	 *
+	 * @param 	str		$fld	The name of the field to process
+	 * @return	str				The SQL Statement
+	 */
+	function year($fld) {
+		$x = "strftime('%Y',$fld)";
+
+		return $x;
+	}
 }
 
 /*--------------------------------------------------------------------------------------
