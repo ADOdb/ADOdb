@@ -19,9 +19,15 @@ Older changelogs:
 - adodb: Improve array identification in ADOrecordset::getAssoc(). #101
 - adodb: MetaColumns() consistently returns Actual Type by default in all drivers. #184, #133
 - adodb: Add new value defaulting mode for getInsertSQL(). #214
+- adodb: Added portable substring method. #219
+- adodb: New helper methods: day(), month(), year(). #225
+- adodb-time: Fix 'Q' (quarter of year) format in adodb_date(). #222
+- adodb-time: Add 'W' (week of year) format support in adodb_date().  #223
 - firebird: updated driver, thanks to Lester Caine. #201
+- mssql: Add charMax() and textMax() methods. #220
 - mssqlnative: Query not returning id. #185
 - mssqlnative: support SQL Server 2014 databases. #186
+- mssqlnative: add support for 'l' (day of week) format in sqlDate(). #232
 - mysql: setConnectionParameter() now allows multiple parameters with the same key value. #187
 - mysqli: Deprecate $optionFlags property in favor of standard setConnectionParameter() method. #188
 - mysqli: Insert_ID() did not return correct value after executing stored procedure. #166
@@ -35,7 +41,7 @@ Older changelogs:
 - sqlite: driver did not support metaForeignKeys. #179
 - session: add 'httponly' flag to cookie. #190
 
-## 5.20.4 - 30-Mar-2016
+## 5.20.4 - 31-Mar-2016
 
 - adodb: Fix BulkBind() param count validation. #199
 - mysqli: fix PHP warning in recordset destructor. #217
