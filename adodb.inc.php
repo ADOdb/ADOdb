@@ -1174,7 +1174,7 @@ if (!defined('_ADODB_LAYER')) {
 					);
 					return false;
 				}
-				
+
 				// clean memory
 				unset($element0);
 
@@ -3104,7 +3104,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	{
 		return ADODB_STRINGMAX_NOTSET;
 	}
-	
+
 	/**
 	* Returns a substring of a varchar type field
 	*

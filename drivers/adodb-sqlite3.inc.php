@@ -77,24 +77,24 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 		return !empty($ret);
 	}
-    
+
 	function metaType($t,$len=-1,$fieldobj=false)
 	{
-		
+
 		if (is_object($t))
 		{
 			$fieldobj = $t;
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		$t = strtoupper($t);
-		
+
 		/*
 		* We are using the Sqlite affinity method here
 		* @link https://www.sqlite.org/datatype3.html
 		*/
-		$affinity = array( 
+		$affinity = array(
 		'INT'=>'INTEGER',
 		'INTEGER'=>'INTEGER',
 		'TINYINT'=>'INTEGER',
@@ -127,22 +127,22 @@ class ADODB_sqlite3 extends ADOConnection {
 		'DATE'=>'NUMERIC',
 		'DATETIME'=>'NUMERIC'
 		);
-		
+
 		if (!isset($affinity[$t]))
 			return ADODB_DEFAULT_METATYPE;
-		
+
 		$subt = $affinity[$t];
 		/*
 		* Now that we have subclassed the provided data down
 		* the sqlite 'affinity', we convert to ADOdb metatype
 		*/
-		
+
 		$subclass = array('INTEGER'=>'I',
 						  'TEXT'=>'X',
 						  'BLOB'=>'B',
 						  'REAL'=>'N',
 						  'NUMERIC'=>'N');
-		
+
 		return $subclass[$subt];
 	}
 	// mark newnham
@@ -191,14 +191,14 @@ class ADODB_sqlite3 extends ADOConnection {
 		$ADODB_FETCH_MODE = $save;
 		return $arr;
 	}
-	
+
 	function metaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
 	{
 	    global $ADODB_FETCH_MODE;
-		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC 
-		|| $this->fetchMode == ADODB_FETCH_ASSOC) 
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
+		|| $this->fetchMode == ADODB_FETCH_ASSOC)
 		$associative = true;
-		
+
 	    /*
 		* Read sqlite master to find foreign keys
 		*/
@@ -219,12 +219,12 @@ class ADODB_sqlite3 extends ADOConnection {
 		{
 			if (!preg_match('/FOREIGN/',$y))
 				continue;
-			
+
 			$matches = false;
 			preg_match_all('/\((.+?)\)/i',$y,$matches);
 			$tmatches = false;
 			preg_match_all('/REFERENCES (.+?)\(/i',$y,$tmatches);
-			
+
 			if ($associative)
 			{
 				if (!isset($fkeyList[$tmatches[1][0]]))
@@ -234,7 +234,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			else
 				$fkeyList[$tmatches[1][0]][] = $matches[1][0] . '=' . $matches[1][1];
 		}
-		
+
 		if ($associative)
 		{
 			if ($upper)
@@ -463,9 +463,9 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 		return $indexes;
 	}
-	
+
 	/**
-	* Returns the maximum size of a MetaType C field. Because of the 
+	* Returns the maximum size of a MetaType C field. Because of the
 	* database design, sqlite places no limits on the size of data inserted
 	*
 	* @return int
@@ -476,7 +476,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	}
 
 	/**
-	* Returns the maximum size of a MetaType X field. Because of the 
+	* Returns the maximum size of a MetaType X field. Because of the
 	* database design, sqlite places no limits on the size of data inserted
 	*
 	* @return int
