@@ -307,7 +307,9 @@ class ADODB_mssql extends ADOConnection {
 			case 'A':
 				$s .= "substring(convert(char(19),$col,0),18,2)";
 				break;
-
+			case 'l':
+				$s .= "datename(dw,$col)";
+				break;
 			default:
 				if ($ch == '\\') {
 					$i++;
