@@ -1,6 +1,8 @@
 <?php
 /*
- V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+ @version   v5.21.0-dev  ??-???-2016
+ @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+ @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -121,11 +123,6 @@ class ADODB_postgres64 extends ADOConnection{
 	// I'm not familiar enough with both ADODB as well as Postgres
 	// to know what the concequences are. The other values are correct (wheren't in 0.94)
 	// -- Freek Dijkstra
-
-	function __construct()
-	{
-		// changes the metaColumnsSQL, adds columns: attnum[6]
-	}
 
 	function ServerInfo()
 	{
@@ -737,7 +734,7 @@ class ADODB_postgres64 extends ADOConnection{
 		# PHP does not handle 'hex' properly ('x74657374' is returned as 't657374')
 		# https://bugs.php.net/bug.php?id=59831 states this is in fact not a bug,
 		# so we manually set bytea_output
-		if (version_compare($info['version'], '9.0', '>=')) {
+		if ( !empty($this->connection->noBlobs) && version_compare($info['version'], '9.0', '>=')) {
 			$this->Execute('set bytea_output=escape');
 		}
 
@@ -932,12 +929,14 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		$this->adodbFetchMode = $mode;
 
 		// Parent's constructor
-		$this->ADORecordSet($queryID);
+		parent::__construct($queryID);
 	}
 
-	function GetRowAssoc($upper=true)
+	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
-		if ($this->fetchMode == PGSQL_ASSOC && !$upper) return $this->fields;
+		if ($this->fetchMode == PGSQL_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
+			return $this->fields;
+		}
 		$row = ADORecordSet::GetRowAssoc($upper);
 		return $row;
 	}
@@ -1107,7 +1106,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 					return 'R';
 
 				default:
-					return 'N';
+					return ADODB_DEFAULT_METATYPE;
 			}
 	}
 

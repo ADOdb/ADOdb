@@ -1,6 +1,8 @@
 <?php
 /*
- V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+ @version   v5.21.0-dev  ??-???-2016
+ @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+ @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -305,12 +307,6 @@ class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 
 	var $databaseType = "postgres7";
 
-
-	function __construct($queryID, $mode=false)
-	{
-		parent::__construct($queryID, $mode);
-	}
-
 	// 10% speedup to move MoveNext to child class
 	function MoveNext()
 	{
@@ -337,11 +333,6 @@ class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 	var $databaseType = "postgres7";
 
 
-	function __construct($queryID, $mode=false)
-	{
-		parent::__construct($queryID, $mode);
-	}
-
 	function _fetch()
 	{
 		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0) {
@@ -356,26 +347,6 @@ class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 		}
 
 		return (is_array($this->fields));
-	}
-
-		// Create associative array
-	function _updatefields()
-	{
-		if (ADODB_ASSOC_CASE == 2) return; // native
-
-		$arr = array();
-		$lowercase = (ADODB_ASSOC_CASE == 0);
-
-		foreach($this->fields as $k => $v) {
-			if (is_integer($k)) $arr[$k] = $v;
-			else {
-				if ($lowercase)
-					$arr[strtolower($k)] = $v;
-				else
-					$arr[strtoupper($k)] = $v;
-			}
-		}
-		$this->fields = $arr;
 	}
 
 	function MoveNext()

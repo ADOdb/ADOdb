@@ -1,6 +1,8 @@
 <?php
 /*
-  V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+  @version   v5.21.0-dev  ??-???-2016
+  @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -19,10 +21,6 @@ class ADODB_sybase_ase extends ADODB_sybase {
 	 var $metaTablesSQL="SELECT sysobjects.name FROM sysobjects, sysusers WHERE sysobjects.type='U' AND sysobjects.uid = sysusers.uid";
 	 var $metaColumnsSQL = "SELECT syscolumns.name AS field_name, systypes.name AS type, systypes.length AS width FROM sysobjects, syscolumns, systypes WHERE sysobjects.name='%s' AND syscolumns.id = sysobjects.id AND systypes.type=syscolumns.type";
 	 var $metaDatabasesSQL ="SELECT a.name FROM master.dbo.sysdatabases a, master.dbo.syslogins b WHERE a.suid = b.suid and a.name like '%' and a.name != 'tempdb' and a.status3 != 256  order by 1";
-
-	function ADODB_sybase_ase()
-	{
-	}
 
 	// split the Views, Tables and procedures.
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
@@ -109,10 +107,5 @@ class ADODB_sybase_ase extends ADODB_sybase {
 }
 
 class adorecordset_sybase_ase extends ADORecordset_sybase {
-var $databaseType = "sybase_ase";
-function ADORecordset_sybase_ase($id,$mode=false)
-	{
-		$this->ADORecordSet_sybase($id,$mode);
-	}
-
+	var $databaseType = "sybase_ase";
 }

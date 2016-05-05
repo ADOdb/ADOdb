@@ -1,6 +1,8 @@
 <?php
 /*
-V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+@version   v5.21.0-dev  ??-???-2016
+@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -913,7 +915,7 @@ END Adodb;
 	print "<p>GetRowAssoc Upper: Should get 1, Caroline</p>";
 	$rs = $db->SelectLimit('select id,firstname from ADOXYZ order by id',1);
 	if ($rs && !$rs->EOF) {
-		$arr = $rs->GetRowAssoc();
+		$arr = $rs->GetRowAssoc(ADODB_ASSOC_CASE_UPPER);
 
 		if ($arr[strtoupper($id)] != 1) {Err("Error 1");print_r($arr);};
 		if (trim($arr[strtoupper($fname)]) != 'Caroline') {Err("Error 2"); print_r($arr);};
@@ -924,7 +926,7 @@ END Adodb;
 	print "<p>GetRowAssoc Lower: Should get 1, Caroline</p>";
 	$rs = $db->SelectLimit('select id,firstname from ADOXYZ order by id',1);
 	if ($rs && !$rs->EOF) {
-		$arr = $rs->GetRowAssoc(false);
+		$arr = $rs->GetRowAssoc(ADODB_ASSOC_CASE_LOWER);
 		if ($arr['id'] != 1) {Err("Error 1"); print_r($arr);};
 		if (trim($arr['firstname']) != 'Caroline') {Err("Error 2"); print_r($arr);};
 

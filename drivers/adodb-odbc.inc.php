@@ -1,6 +1,8 @@
 <?php
 /*
-V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+@version   v5.21.0-dev  ??-???-2016
+@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -15,6 +17,18 @@ if (!defined('ADODB_DIR')) die();
 
   define("_ADODB_ODBC_LAYER", 2 );
 
+/*
+ * These constants are used to set define MetaColumns() method's behavior.
+ * - METACOLUMNS_RETURNS_ACTUAL makes the driver return the actual type, 
+ *   like all other drivers do (default)
+ * - METACOLUMNS_RETURNS_META is provided for legacy compatibility (makes
+ *   driver behave as it did prior to v5.21)
+ *
+ * @see $metaColumnsReturnType
+ */
+DEFINE('METACOLUMNS_RETURNS_ACTUAL', 0);
+DEFINE('METACOLUMNS_RETURNS_META', 1);
+	
 /*--------------------------------------------------------------------------------------
 --------------------------------------------------------------------------------------*/
 
@@ -38,8 +52,13 @@ class ADODB_odbc extends ADOConnection {
 	var $_has_stupid_odbc_fetch_api_change = true;
 	var $_lastAffectedRows = 0;
 	var $uCaseTables = true; // for meta* functions, uppercase table names
+	
+	/*
+	 * Tells the metaColumns feature whether to return actual or meta type
+	 */
+	public $metaColumnsReturnType = METACOLUMNS_RETURNS_ACTUAL;
 
-	function ADODB_odbc()
+	function __construct()
 	{
 		$this->_haserrorfunctions = ADODB_PHPVER >= 0x4050;
 		$this->_has_stupid_odbc_fetch_api_change = ADODB_PHPVER >= 0x4200;
@@ -132,7 +151,7 @@ class ADODB_odbc extends ADOConnection {
 	}
 
 	var $_dropSeqSQL = 'drop table %s';
-	function DropSequence($seqname)
+	function DropSequence($seqname = 'adodbseq')
 	{
 		if (empty($this->_dropSeqSQL)) return false;
 		return $this->Execute(sprintf($this->_dropSeqSQL,$seqname));
@@ -461,7 +480,16 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 			if (strtoupper(trim($rs->fields[2])) == $table && (!$schema || strtoupper($rs->fields[1]) == $schema)) {
 				$fld = new ADOFieldObject();
 				$fld->name = $rs->fields[3];
-				$fld->type = $this->ODBCTypes($rs->fields[4]);
+				if ($this->metaColumnsReturnType == METACOLUMNS_RETURNS_META)
+					/* 
+				    * This is the broken, original value
+					*/
+					$fld->type = $this->ODBCTypes($rs->fields[4]);
+				else
+					/*
+				    * This is the correct new value
+					*/
+				    $fld->type = $rs->fields[4];
 
 				// ref: http://msdn.microsoft.com/library/default.asp?url=/archive/en-us/dnaraccgen/html/msdn_odk.asp
 				// access uses precision to store length for char/varchar
@@ -606,7 +634,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 	var $useFetchArray;
 	var $_has_stupid_odbc_fetch_api_change;
 
-	function ADORecordSet_odbc($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -619,7 +647,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 		// the following is required for mysql odbc driver in 4.3.1 -- why?
 		$this->EOF = false;
 		$this->_currentRow = -1;
-		//$this->ADORecordSet($id);
+		//parent::__construct($id);
 	}
 
 
@@ -683,7 +711,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 		$this->fetchMode = $savem;
 
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-			$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
+			$this->fields = $this->GetRowAssoc();
 		}
 
 		$results = array();
@@ -721,7 +749,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 		}
 		if ($rez) {
 			if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-				$this->fields = $this->GetRowAssoc(ADODB_ASSOC_CASE);
+				$this->fields = $this->GetRowAssoc();
 			}
 			return true;
 		}

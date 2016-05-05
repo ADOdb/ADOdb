@@ -1,6 +1,8 @@
 <?php
 /**
-	@version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+	@version   v5.21.0-dev  ??-???-2016
+	@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+	@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
 	Released under both BSD license and Lesser GPL library license.
 	Whenever there is any discrepancy between the two licenses,
@@ -84,10 +86,6 @@ class ADODB_pdo extends ADOConnection {
 	var $dsnType = '';
 	var $stmt = false;
 	var $_driver;
-
-	function ADODB_pdo()
-	{
-	}
 
 	function _UpdatePDO()
 	{
@@ -548,7 +546,7 @@ class ADOPDOStatement {
 	var $_stmt;
 	var $_connectionID;
 
-	function ADOPDOStatement($stmt,$connection)
+	function __construct($stmt,$connection)
 	{
 		$this->_stmt = $stmt;
 		$this->_connectionID = $connection;
@@ -625,7 +623,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 	var $databaseType = "pdo";
 	var $dataProvider = "pdo";
 
-	function ADORecordSet_pdo($id,$mode=false)
+	function __construct($id,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -642,7 +640,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 		$this->fetchMode = $mode;
 
 		$this->_queryID = $id;
-		$this->ADORecordSet($id);
+		parent::__construct($id);
 	}
 
 
@@ -706,16 +704,15 @@ class ADORecordSet_pdo extends ADORecordSet {
 		$o->max_length = $arr['len'];
 		$o->precision = $arr['precision'];
 
-		switch(ADODB_ASSOC_CASE == 0) {
+		switch(ADODB_ASSOC_CASE) {
 			case ADODB_ASSOC_CASE_LOWER:
 				$o->name = strtolower($o->name);
 				break;
 			case ADODB_ASSOC_CASE_UPPER:
 				$o->name = strtoupper($o->name);
 				break;
-			default:
-				return $o;
 		}
+		return $o;
 	}
 
 	function _seek($row)

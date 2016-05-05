@@ -1,6 +1,8 @@
 <?php
 /*
- @version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+ @version   v5.21.0-dev  ??-???-2016
+ @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+ @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
  Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -22,10 +24,6 @@ class ADODB_fbsql extends ADOConnection {
 	var $metaColumnsSQL = "SHOW COLUMNS FROM %s";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $hasLimit = false;
-
-	function ADODB_fbsql()
-	{
-	}
 
 	function _insertid()
 	{
@@ -162,7 +160,7 @@ class ADORecordSet_fbsql extends ADORecordSet{
 	var $databaseType = "fbsql";
 	var $canSeek = true;
 
-	function ADORecordSet_fbsql($queryID,$mode=false)
+	function __construct($queryID,$mode=false)
 	{
 		if (!$mode) {
 			global $ADODB_FETCH_MODE;
@@ -175,7 +173,7 @@ class ADORecordSet_fbsql extends ADORecordSet{
 		default:
 		$this->fetchMode = FBSQL_BOTH; break;
 		}
-		return $this->ADORecordSet($queryID);
+		return parent::__construct($queryID);
 	}
 
 	function _initrs()
@@ -257,7 +255,7 @@ class ADORecordSet_fbsql extends ADORecordSet{
 			if (!empty($fieldobj->primary_key)) return 'R';
 			else return 'I';
 
-		default: return 'N';
+		default: return ADODB_DEFAULT_METATYPE;
 		}
 	}
 

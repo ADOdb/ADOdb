@@ -1,6 +1,8 @@
 <?php
 /*
-  V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+  @version   v5.21.0-dev  ??-???-2016
+  @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
   First cut at the Netezza Driver by Josh Eldridge joshuae74#hotmail.com
  Based on the previous postgres drivers.
@@ -47,11 +49,6 @@ class ADODB_netezza extends ADODB_postgres64 {
 	var $autoRollback = true; // apparently pgsql does not autorollback properly before 4.3.4
 							// http://bugs.php.net/bug.php?id=25404
 
-
-	function ADODB_netezza()
-	{
-
-	}
 
 	function MetaColumns($table,$upper=true)
 	{
@@ -138,25 +135,6 @@ class ADORecordSet_netezza extends ADORecordSet_postgres64
 {
 	var $databaseType = "netezza";
 	var $canSeek = true;
-
-	function ADORecordSet_netezza($queryID,$mode=false)
-	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		switch ($mode)
-		{
-		case ADODB_FETCH_NUM: $this->fetchMode = PGSQL_NUM; break;
-		case ADODB_FETCH_ASSOC:$this->fetchMode = PGSQL_ASSOC; break;
-
-		case ADODB_FETCH_DEFAULT:
-		case ADODB_FETCH_BOTH:
-		default: $this->fetchMode = PGSQL_BOTH; break;
-		}
-		$this->adodbFetchMode = $mode;
-		$this->ADORecordSet($queryID);
-	}
 
 	// _initrs modified to disable blob handling
 	function _initrs()

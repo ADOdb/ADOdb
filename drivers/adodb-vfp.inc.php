@@ -1,6 +1,8 @@
 <?php
 /*
-V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+@version   v5.21.0-dev  ??-???-2016
+@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -33,11 +35,6 @@ class ADODB_vfp extends ADODB_odbc {
 	var $ansiOuter = true;
 	var $hasTransactions = false;
 	var $curmode = false ; // See sqlext.h, SQL_CUR_DEFAULT == SQL_CUR_USE_DRIVER == 2L
-
-	function ADODB_vfp()
-	{
-		$this->ADODB_odbc();
-	}
 
 	function Time()
 	{
@@ -72,12 +69,7 @@ class  ADORecordSet_vfp extends ADORecordSet_odbc {
 	var $databaseType = "vfp";
 
 
-	function ADORecordSet_vfp($id,$mode=false)
-	{
-		return $this->ADORecordSet_odbc($id,$mode);
-	}
-
-	function MetaType($t,$len=-1)
+	function MetaType($t, $len = -1, $fieldobj = false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -98,7 +90,7 @@ class  ADORecordSet_vfp extends ADORecordSet_odbc {
 
 		case 'I': return 'I';
 
-		default: return 'N';
+		default: return ADODB_DEFAULT_METATYPE;
 		}
 	}
 }

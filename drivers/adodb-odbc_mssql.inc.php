@@ -1,6 +1,8 @@
 <?php
 /*
-V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+@version   v5.21.0-dev  ??-???-2016
+@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
@@ -44,12 +46,6 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	var $hasInsertID = true;
 	var $connectStmt = 'SET CONCAT_NULL_YIELDS_NULL OFF'; # When SET CONCAT_NULL_YIELDS_NULL is ON,
 														  # concatenating a null value with a string yields a NULL result
-
-	function ADODB_odbc_mssql()
-	{
-		$this->ADODB_odbc();
-		//$this->curmode = SQL_CUR_USE_ODBC;
-	}
 
 	// crashes php...
 	function ServerInfo()
@@ -252,7 +248,7 @@ order by constraint_name, referenced_table_name, keyno";
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
-	function MetaPrimaryKeys($table)
+	function MetaPrimaryKeys($table, $owner = false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -347,6 +343,56 @@ order by constraint_name, referenced_table_name, keyno";
 		}
 		return $s;
 	}
+	
+	/**
+	* Returns a substring of a varchar type field
+	*
+	* The SQL server version varies because the length is mandatory, so
+	* we append a reasonable string length
+	*
+	* @param	string	$fld	The field to sub-string
+	* @param	int		$start	The start point
+	* @param	int		$length	An optional length
+	*
+	* @return	The SQL text
+	*/
+	function substr($fld,$start,$length=0)
+	{
+		if ($length == 0)
+			/*
+		     * The length available to varchar is 2GB, but that makes no
+			 * sense in a substring, so I'm going to arbitrarily limit 
+			 * the length to 1K, but you could change it if you want
+			 */
+			$length = 1024;
+		
+		$text = "SUBSTRING($fld,$start,$length)";
+		return $text;
+	}
+	
+	/**
+	* Returns the maximum size of a MetaType C field. Because of the 
+	* database design, SQL Server places no limits on the size of data inserted
+	* Although the actual limit is 2^31-1 bytes.
+	*
+	* @return int
+	*/
+	function charMax()
+	{
+		return ADODB_STRINGMAX_NOLIMIT;
+	}
+
+	/**
+	* Returns the maximum size of a MetaType X field. Because of the 
+	* database design, SQL Server places no limits on the size of data inserted
+	* Although the actual limit is 2^31-1 bytes.
+	*
+	* @return int
+	*/
+	function textMax()
+	{
+		return ADODB_STRINGMAX_NOLIMIT;
+	}
 
 }
 
@@ -354,8 +400,4 @@ class  ADORecordSet_odbc_mssql extends ADORecordSet_odbc {
 
 	var $databaseType = 'odbc_mssql';
 
-	function ADORecordSet_odbc_mssql($id,$mode=false)
-	{
-		return $this->ADORecordSet_odbc($id,$mode);
-	}
 }

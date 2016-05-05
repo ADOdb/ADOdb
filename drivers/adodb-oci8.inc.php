@@ -1,7 +1,9 @@
 <?php
 /*
 
-  version V5.20dev  ??-???-2014  (c) 2000-2014 John Lim. All rights reserved.
+  @version   v5.21.0-dev  ??-???-2016
+  @copyright (c) 2000-2013 John Lim. All rights reserved.
+  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
@@ -101,7 +103,7 @@ END;
 
 	// var $ansiOuter = true; // if oracle9
 
-	function ADODB_oci8()
+	function __construct()
 	{
 		$this->_hasOciFetchStatement = ADODB_PHPVER >= 0x4200;
 		if (defined('ADODB_EXTENSION')) {
@@ -1534,7 +1536,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	var $bind=false;
 	var $_fieldobjs;
 
-	function ADORecordset_oci8($queryID,$mode=false)
+	function __construct($queryID,$mode=false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -1656,6 +1658,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	{
 		if ($this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode)) {
 			$this->_currentRow += 1;
+			$this->_updatefields();
 			return true;
 		}
 		if (!$this->EOF) {
@@ -1682,6 +1685,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 		if (!$this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode)) {
 			return $arr;
 		}
+		$this->_updatefields();
 		$results = array();
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
@@ -1715,7 +1719,10 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 	function _fetch()
 	{
-		return $this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode);
+		$this->fields = @oci_fetch_array($this->_queryID,$this->fetchMode);
+		$this->_updatefields();
+
+		return $this->fields;
 	}
 
 	/**
@@ -1732,7 +1739,8 @@ class ADORecordset_oci8 extends ADORecordSet {
 			oci_free_cursor($this->_refcursor);
 			$this->_refcursor = false;
 		}
-		@oci_free_statement($this->_queryID);
+		if (is_resource($this->_queryID))
+		   @oci_free_statement($this->_queryID);
 		$this->_queryID = false;
 	}
 
@@ -1789,16 +1797,12 @@ class ADORecordset_oci8 extends ADORecordSet {
 			return 'I';
 
 		default:
-			return 'N';
+			return ADODB_DEFAULT_METATYPE;
 		}
 	}
 }
 
 class ADORecordSet_ext_oci8 extends ADORecordSet_oci8 {
-	function ADORecordSet_ext_oci8($queryID,$mode=false)
-	{
-		parent::__construct($queryID, $mode);
-	}
 
 	function MoveNext()
 	{

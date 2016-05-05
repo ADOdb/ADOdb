@@ -1,6 +1,8 @@
 <?php
 /*
-V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+@version   v5.21.0-dev  ??-???-2016
+@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence. See License.txt.
@@ -15,8 +17,9 @@ if (!defined('_ADODB_ODBC_LAYER')) {
 
 	include(ADODB_DIR."/drivers/adodb-odbc.inc.php");
 }
- if (!defined('_ADODB_ACCESS')) {
- 	define('_ADODB_ACCESS',1);
+
+if (!defined('_ADODB_ACCESS')) {
+	define('_ADODB_ACCESS',1);
 
 class  ADODB_access extends ADODB_odbc {
 	var $databaseType = 'access';
@@ -29,12 +32,12 @@ class  ADODB_access extends ADODB_odbc {
 	var $hasTransactions = false;
 	var $upperCase = 'ucase';
 
-	function ADODB_access()
+	function __construct()
 	{
 	global $ADODB_EXTENSION;
 
 		$ADODB_EXTENSION = false;
-		$this->ADODB_odbc();
+		parent::__construct();
 	}
 
 	function Time()
@@ -78,9 +81,6 @@ class  ADORecordSet_access extends ADORecordSet_odbc {
 
 	var $databaseType = "access";
 
-	function ADORecordSet_access($id,$mode=false)
-	{
-		return $this->ADORecordSet_odbc($id,$mode);
-	}
-}// class
+} // class
+
 }

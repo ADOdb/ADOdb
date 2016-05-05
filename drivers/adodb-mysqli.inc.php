@@ -1,12 +1,18 @@
 <?php
 /*
-V5.20dev  ??-???-2014  (c) 2000-2014 John Lim (jlim#natsoft.com). All rights reserved.
+@version   v5.21.0-dev  ??-???-2016
+@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
   Set tabs to 8.
 
-  MySQL code that does not support transactions. Use mysqlt if you need transactions.
+  This is the preferred driver for MySQL connections, and supports both transactional
+  and non-transactional table types. You can use this as a drop-in replacement for both
+  the mysql and mysqlt drivers. As of ADOdb Version 5.20.0, all other native MySQL drivers
+  are deprecated
+
   Requires mysql client. Works on Windows and Unix.
 
 21 October 2003: MySQLi extension implementation by Arjen de Rijke (a.de.rijke@xs4all.nl)
@@ -57,7 +63,14 @@ class ADODB_mysqli extends ADOConnection {
 	var $arrayClass = 'ADORecordSet_array_mysqli';
 	var $multiQuery = false;
 
-	function ADODB_mysqli()
+	/*
+	* Tells the insert_id method how to obtain the last value, depending on whether
+	* we are using a stored procedure or not
+	*/
+	private $usePreparedStatement    = false;
+	private $useLastInsertStatement  = false;
+
+	function __construct()
 	{
 		// if(!extension_loaded("mysqli"))
 		//trigger_error("You must have the mysqli extension installed.", E_USER_ERROR);
@@ -99,8 +112,18 @@ class ADODB_mysqli extends ADOConnection {
 		read connection options from the standard mysql configuration file
 		/etc/my.cnf - "Bastien Duclaux" <bduclaux#yahoo.com>
 		*/
+		$this->optionFlags = array();
 		foreach($this->optionFlags as $arr) {
 			mysqli_options($this->_connectionID,$arr[0],$arr[1]);
+		}
+
+		/*
+		* Now merge in the standard connection parameters setting
+		*/
+		foreach ($this->connectionParameters as $options)
+		{
+			foreach($options as $k=>$v)
+				$ok = mysqli_options($this->_connectionID,$k,$v);
 		}
 
 		//http ://php.net/manual/en/mysqli.persistconns.php
@@ -112,7 +135,8 @@ class ADODB_mysqli extends ADOConnection {
 					$argUsername,
 					$argPassword,
 					$argDatabasename,
-					$this->port,
+					# PHP7 compat: port must be int. Use default port if cast yields zero
+					(int)$this->port != 0 ? (int)$this->port : 3306,
 					$this->socket,
 					$this->clientFlags);
 
@@ -247,10 +271,26 @@ class ADODB_mysqli extends ADOConnection {
 
 	function _insertid()
 	{
-		$result = @mysqli_insert_id($this->_connectionID);
+		/*
+		* mysqli_insert_id does not return the last_insert_id
+		* if called after execution of a stored procedure
+		* so we execute this instead.
+		*/
+		$result = false;
+		if ($this->useLastInsertStatement)
+			$result = ADOConnection::GetOne('SELECT LAST_INSERT_ID()');
+        else
+		    $result = @mysqli_insert_id($this->_connectionID);
+
 		if ($result == -1) {
-			if ($this->debug) ADOConnection::outp("mysqli_insert_id() failed : "  . $this->ErrorMsg());
+			if ($this->debug)
+				ADOConnection::outp("mysqli_insert_id() failed : "  . $this->ErrorMsg());
 		}
+		/*
+		* reset prepared statement flags
+		*/
+		$this->usePreparedStatement   = false;
+		$this->useLastInsertStatement = false;
 		return $result;
 	}
 
@@ -568,17 +608,25 @@ class ADODB_mysqli extends ADOConnection {
 	// "Innox - Juan Carlos Gonzalez" <jgonzalez#innox.com.mx>
 	function MetaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
 	{
-	 global $ADODB_FETCH_MODE;
 
-		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC || $this->fetchMode == ADODB_FETCH_ASSOC) $associative = true;
+		global $ADODB_FETCH_MODE;
+
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
+		|| $this->fetchMode == ADODB_FETCH_ASSOC)
+			$associative = true;
+
+		$savem = $ADODB_FETCH_MODE;
+		$this->setFetchMode(ADODB_FETCH_ASSOC);
 
 		if ( !empty($owner) ) {
 			$table = "$owner.$table";
 		}
+
 		$a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
-		if ($associative) {
-			$create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
-		} else $create_sql = $a_create_table[1];
+
+		$this->setFetchMode($savem);
+
+		$create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
 
 		$matches = array();
 
@@ -720,6 +768,14 @@ class ADODB_mysqli extends ADOConnection {
 
 	function Prepare($sql)
 	{
+		/*
+		* Flag the insert_id method to use the correct retrieval method
+		*/
+		$this->usePreparedStatement = true;
+
+		/*
+		* Prepared statements are not yet handled correctly
+		*/
 		return $sql;
 		$stmt = $this->_connectionID->prepare($sql);
 		if (!$stmt) {
@@ -754,10 +810,25 @@ class ADODB_mysqli extends ADOConnection {
 				else $a .= 'd';
 			}
 
+			/*
+		     * set prepared statement flags
+		     */
+		    if ($this->usePreparedStatement)
+		        $this->useLastInsertStatement = true;
+
 			$fnarr = array_merge( array($stmt,$a) , $inputarr);
 			$ret = call_user_func_array('mysqli_stmt_bind_param',$fnarr);
 			$ret = mysqli_stmt_execute($stmt);
 			return $ret;
+		}
+		else
+		{
+			/*
+			* reset prepared statement flags, in case we set them
+			* previously and didn't use them
+			*/
+			$this->usePreparedStatement   = false;
+			$this->useLastInsertStatement = false;
 		}
 
 		/*
@@ -810,7 +881,9 @@ class ADODB_mysqli extends ADOConnection {
 	// returns true or false
 	function _close()
 	{
-		@mysqli_close($this->_connectionID);
+		if($this->_connectionID) {
+			mysqli_close($this->_connectionID);
+		}
 		$this->_connectionID = false;
 	}
 
@@ -878,7 +951,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	var $databaseType = "mysqli";
 	var $canSeek = true;
 
-	function ADORecordSet_mysqli($queryID, $mode = false)
+	function __construct($queryID, $mode = false)
 	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
@@ -899,7 +972,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 				break;
 		}
 		$this->adodbFetchMode = $mode;
-		$this->ADORecordSet($queryID);
+		parent::__construct($queryID);
 	}
 
 	function _initrs()
@@ -951,13 +1024,20 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		// $o->blob = $o->flags & MYSQLI_BLOB_FLAG; /* not returned by MetaColumns */
 		$o->unsigned = $o->flags & MYSQLI_UNSIGNED_FLAG;
 
-		return $o;
+		/*
+		* Trivial method to cast class to ADOfieldObject
+		*/
+		$a = new ADOFieldObject;
+		foreach (get_object_vars($o) as $key => $name)
+			$a->$key = $name;
+		return $a;
 	}
 
-	function GetRowAssoc($upper = true)
+	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
-		if ($this->fetchMode == MYSQLI_ASSOC && !$upper)
+		if ($this->fetchMode == MYSQLI_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
 			return $this->fields;
+		}
 		$row = ADORecordSet::GetRowAssoc($upper);
 		return $row;
 	}
@@ -1026,7 +1106,10 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		$this->_currentRow++;
 		$this->fields = @mysqli_fetch_array($this->_queryID,$this->fetchMode);
 
-		if (is_array($this->fields)) return true;
+		if (is_array($this->fields)) {
+			$this->_updatefields();
+			return true;
+		}
 		$this->EOF = true;
 		return false;
 	}
@@ -1034,6 +1117,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	function _fetch()
 	{
 		$this->fields = mysqli_fetch_array($this->_queryID,$this->fetchMode);
+		$this->_updatefields();
 		return is_array($this->fields);
 	}
 
@@ -1042,11 +1126,15 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		//if results are attached to this pointer from Stored Proceedure calls, the next standard query will die 2014
 		//only a problem with persistant connections
 
-		while(mysqli_more_results($this->connection->_connectionID)){
-			@mysqli_next_result($this->connection->_connectionID);
+		if($this->connection->_connectionID) {
+			while(mysqli_more_results($this->connection->_connectionID)){
+				mysqli_next_result($this->connection->_connectionID);
+			}
 		}
 
-		mysqli_free_result($this->_queryID);
+		if($this->_queryID instanceof mysqli_result) {
+			mysqli_free_result($this->_queryID);
+		}
 		$this->_queryID = false;
 	}
 
@@ -1174,11 +1262,6 @@ class ADORecordSet_mysqli extends ADORecordSet{
 }
 
 class ADORecordSet_array_mysqli extends ADORecordSet_array {
-
-	function ADORecordSet_array_mysqli($id=-1,$mode=false)
-	{
-		$this->ADORecordSet_array($id,$mode);
-	}
 
 	function MetaType($t, $len = -1, $fieldobj = false)
 	{
