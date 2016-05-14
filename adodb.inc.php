@@ -4874,17 +4874,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$class = $db = 'postgres8';
 				break;
 
-			case 'pdo_mssql':
-			case 'pdo_mysql':
-			case 'pdo_oci':
-			case 'pdo_pgsql':
-			case 'pdo_sqlite':
-			case 'pdo_sqlsrv':
-				$class = $db = 'pdo';
-				break;
-
 			default:
 				$class = $db; break;
+		}
+		
+		if (substr($db, 0, 4) === 'pdo_') {
+			ADOConnection::outp("Invalid database type $db");
+			return false;
 		}
 
 		$file = ADODB_DIR."/drivers/adodb-".$db.".inc.php";
