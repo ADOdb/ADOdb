@@ -148,7 +148,7 @@ class ADOdbLoadBalancer
 		if ( $this->last_connection_id[$obj->type] == $i ) {
 			$this->last_connection_id[$obj->type] = FALSE;
 		}
-		
+
 		unset($this->connections[$i]);
 
 		return TRUE;
@@ -238,7 +238,7 @@ class ADOdbLoadBalancer
 				if ( is_array( $this->user_defined_session_init_sql ) ) {
 					foreach( $this->user_defined_session_init_sql as $session_init_sql ) {
 						$adodb_obj->Execute( $session_init_sql );
-					}					
+					}
 				}
 				$this->executeSessionVariables( $adodb_obj );
 			}
@@ -263,7 +263,7 @@ class ADOdbLoadBalancer
 		if ( $this->pinned_connection_id !== FALSE ) {
 			$connection_id = $this->pinned_connection_id;
 		} else {
-			$connection_id = $this->getLoadBalancedConnection( $type );			
+			$connection_id = $this->getLoadBalancedConnection( $type );
 		}
 
 		try {
@@ -454,7 +454,7 @@ class ADOdbLoadBalancer
 			return $adodb_obj->Execute( $sql, $inputarr );
 		}
 
-		return FALSE;		
+		return FALSE;
 	}
 
 	/**
@@ -524,7 +524,7 @@ class ADOdbLoadBalancer
 			default:
 				break;
 		}
-		
+
 		$adodb_obj = $this->getConnection( $type, $pin_connection );
 		if ( is_object( $adodb_obj ) ) {
 			$result = call_user_func_array( array( $adodb_obj, $method ), $this->makeValuesReferenced( $args ) );
