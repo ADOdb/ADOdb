@@ -5,64 +5,96 @@
  	Whenever there is any discrepancy between the two licenses,
  	the BSD license will take precedence.
 *******************************************************************************/
-/**
- * ADOdb loadbalancer is a class that allows the user to do read/write splitting and load balancing across multiple connections.
- * It can handle and load balance any number of master or slaves, including dealing with connection failures.
- *
- * Last Editor: $Author: Mike Benoit $
- * @author Mike Benoit
- * @version $Revision: 1.0 $
- *
- */
 
 /*
- * Example Usage:
- *  $db = new ADOdbLoadBalancer( 'postgres8' );
- *  $db_connection_obj = new ADOdbLoadBalancerConnection( 'master', 10, $dsn ); //Master with weight of 10
- *  $db_connection_obj->getADODbObject()->SetFetchMode(ADODB_FETCH_ASSOC); //Pass specific settings to the ADOdb object itself.
- *  $db->addConnection( $db_connection_obj );
- *
- *  $db_connection_obj = new ADOdbLoadBalancerConnection( 'slave', 100, $dsn ); //Slave with weight of 100
- *  $db_connection_obj->getADODbObject()->SetFetchMode(ADODB_FETCH_ASSOC); //Pass specific settings to the ADOdb object itself.
- *  $db->addConnection( $db_connection_obj );
- *
- *  $db_connection_obj = new ADOdbLoadBalancerConnection( 'slave', 100, $dsn ); //Slave with weight of 100
- *  $db_connection_obj->getADODbObject()->SetFetchMode(ADODB_FETCH_ASSOC); //Pass specific settings to the ADOdb object itself.
- *  $db->addConnection( $db_connection_obj );
- *
- *  //Perform ADODB calls as normal..
- *  $db->Excute( 'SELECT * FROM MYTABLE' );
+  @version   v5.21.0-dev	??-???-2016
+  @copyright (c) 2016		Mike Benoit and the ADOdb community
+  Released under both BSD license and Lesser GPL library license.
+  Whenever there is any discrepancy between the two licenses,
+  the BSD license will take precedence. See License.txt.
+  Set tabs to 4 for best viewing.
+
+  ADOdb loadbalancer is a class that allows the user to do read/write splitting and load balancing across multiple connections.
+  It can handle and load balance any number of master or slaves, including dealing with connection failures.
+*/
+
+/**
+ * Class ADOdbLoadBalancer
  */
-class ADOdbLoadBalancer {
-
+class ADOdbLoadBalancer
+{
+	/**
+	 * @var Bool|Array	All connections to each database.
+	 */
 	protected $connections = FALSE;
-	protected $connections_master = FALSE; //Links to just master connections
-	protected $connections_slave = FALSE; //Links to just slave connections
 
-	protected $total_connections = array( 'all' => 0, 'master' => 0, 'slave' => 0 );
-	protected $total_connection_weights = array( 'all' => 0, 'master' => 0, 'slave' => 0 );
+	/**
+	 * @var bool|Array	Just connections to the master database.
+	 */
+	protected $connections_master = FALSE;
 
-	protected $enable_sticky_sessions = TRUE; //Once a master or slave connection is made, stick to that connection for the entire request.
-	protected $pinned_connection_id = FALSE; //When in transactions, always use this connection.
-	protected $last_connection_id = array( 'master' => FALSE, 'slave' => FALSE, 'all' => FALSE );
-	
-	protected $session_variables = FALSE; //Session variables that must be maintained across all connections, ie: SET TIME ZONE.
-	
-	protected $blacklist_functions = FALSE; //List of functions to blacklist as write-only (must run on master) **NOT YET IMPLEMENTED**
+	/**
+	 * @var bool|Array	Just connections to the slave database.
+	 */
+	protected $connections_slave = FALSE;
 
-	protected $user_defined_session_init_sql = FALSE; //Called immediately after connecting to any DB.
+	/**
+	 * @var array	Counts of all connections and their types.
+	 */
+	protected $total_connections = array('all' => 0, 'master' => 0, 'slave' => 0 );
 
-	function setBlackListFunctions( $arr ) {
-		$this->blacklist_functions = (array)$arr;
-		return TRUE;
-	}
-	
-	function setSessionInitSQL( $sql ) {
+	/**
+	 * @var array	Weights of all connections for each type.
+	 */
+	protected $total_connection_weights = array('all' => 0, 'master' => 0, 'slave' => 0 );
+
+	/**
+	 * @var bool	Once a master or slave connection is made, stick to that connection for the entire request.
+	 */
+	protected $enable_sticky_sessions = TRUE;
+
+	/**
+	 * @var bool	When in transactions, always use this connection.
+	 */
+	protected $pinned_connection_id = FALSE;
+
+	/**
+	 * @var array	Last connection_id for each database type.
+	 */
+	protected $last_connection_id = array('master' => FALSE, 'slave' => FALSE, 'all' => FALSE );
+
+	/**
+	 * @var bool	Session variables that must be maintained across all connections, ie: SET TIME ZONE.
+	 */
+	protected $session_variables = FALSE;
+
+	/**
+	 * @var bool	Called immediately after connecting to any DB.
+	 */
+	protected $user_defined_session_init_sql = FALSE;
+
+
+	/**
+	 * Defines SQL queries that are executed each time a new database connection is established.
+	 *
+	 * @param $sql
+	 * @return bool
+	 */
+	public function setSessionInitSQL( $sql )
+	{
 		$this->user_defined_session_init_sql[] = $sql;
 		return TRUE;
 	}
 
-	function addConnection( $obj ) {
+	/**
+	 * Adds a new database connection to the pool, but no actual connection is made until its needed.
+	 *
+	 * @param $obj
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function addConnection( $obj )
+	{
 		if ( $obj instanceof ADOdbLoadBalancerConnection ) {
 			$this->connections[] = $obj;
 			end( $this->connections );
@@ -88,7 +120,14 @@ class ADOdbLoadBalancer {
 		return FALSE;
 	}
 
-	function removeConnection( $i ) {
+	/**
+	 * Removes a database connection from the pool.
+	 *
+	 * @param $i
+	 * @return bool
+	 */
+	public function removeConnection( $i )
+	{
 		$obj = $this->connections[$i];
 
 		$this->total_connections[$obj->type]--;
@@ -115,7 +154,14 @@ class ADOdbLoadBalancer {
 		return TRUE;
 	}
 
-	function getConnectionByWeight( $type ) {
+	/**
+	 * Returns a database connection of the specified type, but takes into account the connection weight for load balancing.
+	 *
+	 * @param $type	Type of database connection, either: 'master' or 'slave'
+	 * @return bool|int|string
+	 */
+	private function getConnectionByWeight( $type )
+	{
 		if ( $type == 'slave' ) {
 			$total_weight = $this->total_connection_weights['all'];
 		} else {
@@ -135,10 +181,18 @@ class ADOdbLoadBalancer {
 				}
 			}
 		}
+
 		return $i;
 	}
 
-	function getLoadBalancedConnection( $type ) {
+	/**
+	 * Returns the proper database connection when taking into account sticky sessions and load balancing.
+	 *
+	 * @param $type
+	 * @return bool|int|mixed|string
+	 */
+	public function getLoadBalancedConnection( $type )
+	{
 		if ( $this->total_connections == 0 ) {
 			$connection_id = 0;
 		} else {
@@ -156,16 +210,24 @@ class ADOdbLoadBalancer {
 		return $connection_id;
 	}
 
-	function _getConnection( $connection_id ) {
+	/**
+	 * Returns the ADODB connection object by connection_id and ensures that its connected and the session variables are executed.
+	 *
+	 * @param $connection_id
+	 * @return bool
+	 * @throws Exception
+	 */
+	private function _getConnection( $connection_id )
+	{
 		if ( isset($this->connections[$connection_id]) ) {
 			$connection_obj = $this->connections[$connection_id];
 			$adodb_obj = $connection_obj->getADOdbObject();
 			if ( is_object($adodb_obj) && $adodb_obj->_connectionID == FALSE ) {
 				try {
 					if ( $connection_obj->persistent_connection == TRUE ) {
-						$connection_result = $adodb_obj->Pconnect( $connection_obj->host, $connection_obj->user, $connection_obj->password, $connection_obj->database );
+						$adodb_obj->Pconnect( $connection_obj->host, $connection_obj->user, $connection_obj->password, $connection_obj->database );
 					} else {
-						$connection_result = $adodb_obj->Connect( $connection_obj->host, $connection_obj->user, $connection_obj->password, $connection_obj->database );
+						$adodb_obj->Connect( $connection_obj->host, $connection_obj->user, $connection_obj->password, $connection_obj->database );
 					}
 				} catch ( Exception $e ) {
 					//Connection error, see if there are other connections to try still.
@@ -187,7 +249,17 @@ class ADOdbLoadBalancer {
 		}
 	}
 
-	function getConnection( $type = 'master', $pin_connection = NULL, $force_connection_id = FALSE ) {
+	/**
+	 * Returns the ADODB connection object by database type and ensures that its connected and the session variables are executed.
+	 *
+	 * @param string $type
+	 * @param null $pin_connection
+	 * @param bool $force_connection_id
+	 * @return bool
+	 * @throws Exception
+	 */
+	public function getConnection( $type = 'master', $pin_connection = NULL, $force_connection_id = FALSE )
+	{
 		if ( $this->pinned_connection_id !== FALSE ) {
 			$connection_id = $this->pinned_connection_id;
 		} else {
@@ -223,11 +295,17 @@ class ADOdbLoadBalancer {
 		return $adodb_obj;
 	}
 
-	function makeValuesReferenced( $arr ) {
+	/**
+	 * This is a hack to work around pass by reference error.
+	 * Parameter 1 to ADOConnection::GetInsertSQL() expected to be a reference, value given in adodb-loadbalancer.inc.php on line 83
+	 *
+	 * @param $arr
+	 * @return array
+	 */
+	private function makeValuesReferenced( $arr )
+	{
 		$refs = array();
 
-		//This is a hack to work around pass by reference error.
-		//Parameter 1 to ADOConnection::GetInsertSQL() expected to be a reference, value given in adodb-loadbalancer.inc.php on line 83
 		foreach( $arr as $key => $value ) {
 			$refs[$key] = &$arr[$key];
 		}
@@ -235,8 +313,21 @@ class ADOdbLoadBalancer {
 		return $refs;
 	}
 	
-	//Allow setting session variables that are maintained across connections.
-	public function setSessionVariable( $name, $value, $execute_immediately = TRUE ) {
+	/**
+	 * Allow setting session variables that are maintained across connections.
+	 *
+	 * Its important that these are set using name/value, so it can determine if the same variable is set multiple times
+	 * causing bloat/clutter when new connections are established. For example if the time_zone is set to many different
+	 * ones through the course of a single connection, a new connection should only set it to the most recent value.
+	 *
+	 *
+	 * @param $name
+	 * @param $value
+	 * @param bool $execute_immediately
+	 * @return array|bool|mixed
+	 */
+	public function setSessionVariable( $name, $value, $execute_immediately = TRUE )
+	{
 		$this->session_variables[$name] = $value;
 
 		if ( $execute_immediately == TRUE ) {
@@ -245,7 +336,15 @@ class ADOdbLoadBalancer {
 			return TRUE;
 		}
 	}
-	private function executeSessionVariables( $adodb_obj = FALSE ) {
+
+	/**
+	 * Executes the session variables on a given ADODB object.
+	 *
+	 * @param bool $adodb_obj
+	 * @return array|bool|mixed
+	 */
+	private function executeSessionVariables( $adodb_obj = FALSE )
+	{
 		if ( is_array( $this->session_variables ) ) {
 			$sql = '';
 			foreach( $this->session_variables as $name => $value ) {
@@ -267,9 +366,19 @@ class ADOdbLoadBalancer {
 		return FALSE;
 	}
 
-	//Executes the same QUERY on the entire cluster of connections.
-	//Would be used for things like SET SESSION TIME ZONE calls and such.
-	public function ClusterExecute( $sql, $inputarr = FALSE, $return_all_results = FALSE, $existing_connections_only = TRUE ) {
+	/**
+	 * Executes the same SQL QUERY on the entire cluster of connections.
+	 * Would be used for things like SET SESSION TIME ZONE calls and such.
+	 *
+	 * @param $sql
+	 * @param bool $inputarr
+	 * @param bool $return_all_results
+	 * @param bool $existing_connections_only
+	 * @return array|bool|mixed
+	 * @throws Exception
+	 */
+	public function ClusterExecute( $sql, $inputarr = FALSE, $return_all_results = FALSE, $existing_connections_only = TRUE )
+	{
 		if ( is_array($this->connections) && count($this->connections) > 0 ) {
 			foreach( $this->connections as $key => $connection_obj ) {
 				if ( $existing_connections_only == FALSE || ( $existing_connections_only == TRUE && $connection_obj->getADOdbObject()->_connectionID !== FALSE ) ) {
@@ -300,7 +409,14 @@ class ADOdbLoadBalancer {
 		return FALSE;
 	}
 
-	public function isReadOnlyQuery( $sql ) {
+	/**
+	 * Determines if a SQL query is read-only or not.
+	 *
+	 * @param $sql	SQL Query to test.
+	 * @return bool
+	 */
+	public function isReadOnlyQuery( $sql )
+	{
 		if ( stripos( $sql, 'SELECT') === 0 && stripos( $sql, 'FOR UPDATE') === FALSE && stripos( $sql, ' INTO ') === FALSE && stripos( $sql, 'LOCK IN') === FALSE ) {
 			return TRUE;
 		}
@@ -308,8 +424,16 @@ class ADOdbLoadBalancer {
 		return FALSE;
 	}
 	
-	//Use this instead of __call() as it significantly reduces the overhead of call_user_func_array().
-	public function Execute( $sql, $inputarr = FALSE ) {
+	/**
+	 * Use this instead of __call() as it significantly reduces the overhead of call_user_func_array().
+	 *
+	 * @param $sql
+	 * @param bool $inputarr
+	 * @return array|bool|mixed
+	 * @throws Exception
+	 */
+	public function Execute( $sql, $inputarr = FALSE )
+	{
 		$type = 'master';
 		$pin_connection = NULL;
 
@@ -333,7 +457,16 @@ class ADOdbLoadBalancer {
 		return FALSE;		
 	}
 
-	public function __call( $method, $args ) { //Intercept ADOdb functions
+	/**
+	 * Magic method to intercept method calls back to the proper ADODB object for master/slaves.
+	 *
+	 * @param $method	ADODB method to call.
+	 * @param $args		Arguments to the ADODB method.
+	 * @return bool|mixed
+	 * @throws Exception
+	 */
+	public function __call( $method, $args )
+	{
 		$type = 'master';
 		$pin_connection = NULL;
 
@@ -401,34 +534,100 @@ class ADOdbLoadBalancer {
 		return FALSE;
 	}
 
-	function __get( $property ) {
+	/**
+	 * Magic method to proxy property getter calls back to the proper ADODB object currently in use.
+	 *
+	 * @param $property
+	 * @return mixed
+	 * @throws Exception
+	 */
+	public function __get( $property )
+	{
 		return $this->getConnection()->$property;
 	}
-	
-	function __set( $property, $value ) {
+
+	/**
+	 * Magic method to proxy property setter calls back to the proper ADODB object currently in use.
+	 *
+	 * @param $property
+	 * @param $value
+	 * @return mixed
+	 * @throws Exception
+	 */
+	public function __set( $property, $value )
+	{
 		return $this->getConnection()->$property = $value;
 	}
-	
+
+	/**
+	 *  Override the __clone() magic method.
+	 */
 	private function __clone() { }
 }
 
+/**
+ * Class ADOdbLoadBalancerConnection
+ */
 class ADOdbLoadBalancerConnection {
-	//ADOdb data
+	/**
+	 * @var bool	ADOdb drive name.
+	 */
 	protected $driver = FALSE;
+
+	/**
+	 * @var bool	ADODB object.
+	 */
 	protected $adodb_obj = FALSE;
 
-	//Load balancing data
+	/**
+	 * @var string	Type of connection, either 'master' or 'slave'
+	 */
 	public $type = 'master';
+
+	/**
+	 * @var int		Weight of connection, lower receives less queries, higher receives more queries.
+	 */
 	public $weight = 1;
+
+	/**
+	 * @var bool	Determines if the connection persistent.
+	 */
 	public $persistent_connection = FALSE;
 
-	//DB connection data
+	/**
+	 * @var string	Database connection host
+	 */
 	public $host = '';
+
+	/**
+	 * @var string	Database connection user
+	 */
 	public $user = '';
+
+	/**
+	 * @var string	Database connection password
+	 */
 	public $password = '';
+
+	/**
+	 * @var string	Database connection database name
+	 */
 	public $database = '';
 
-	function __construct( $driver, $type = 'master', $weight = 1, $persistent_connection = FALSE, $argHostname = '', $argUsername = '', $argPassword = '', $argDatabaseName = '' ) {
+	/**
+	 * ADOdbLoadBalancerConnection constructor to setup the ADODB object.
+	 *
+	 * @param $driver
+	 * @param string $type
+	 * @param int $weight
+	 * @param bool $persistent_connection
+	 * @param string $argHostname
+	 * @param string $argUsername
+	 * @param string $argPassword
+	 * @param string $argDatabaseName
+	 */
+	public function __construct( $driver, $type = 'master', $weight = 1, $persistent_connection = FALSE, $argHostname = '', $argUsername = '', $argPassword = '', $argDatabaseName = '' )
+	{
 		if ( $type !== 'master' && $type !== 'slave' ) {
 			return FALSE;
 		}
@@ -445,9 +644,15 @@ class ADOdbLoadBalancerConnection {
 		$this->database = $argDatabaseName;
 
 		return TRUE;
-	}	
+	}
 
-	function getADOdbObject() {
+	/**
+	 * Returns the ADODB object for this connection.
+	 *
+	 * @return bool
+	 */
+	public function getADOdbObject()
+	{
 		return $this->adodb_obj;
 	}
 }
