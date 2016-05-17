@@ -861,6 +861,8 @@ static $cacheCols;
 			$bad = false;
 			if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES)) {
 				switch ($ADODB_QUOTE_FIELDNAMES) {
+				case 'BRACKETS':
+					$fnameq = $zthis->leftBracket.$upperfname.$zthis->rightBracket;break;
 				case 'LOWER':
 					$fnameq = $zthis->nameQuote.strtolower($field->name).$zthis->nameQuote;break;
 				case 'NATIVE':
