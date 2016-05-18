@@ -455,6 +455,8 @@ if (!defined('_ADODB_LAYER')) {
 	var $false = '0';			/// string that represents FALSE for a database
 	var $replaceQuote = "\\'";	/// string to use to replace quotes
 	var $nameQuote = '"';		/// string to use to quote identifiers and names
+	var $leftBracket = '[';		/// left square bracked for t-sql styled column names
+	var $rightBracket = ']';	/// right square bracked for t-sql styled column names
 	var $charSet=false;			/// character set to use - only for interbase, postgres and oci8
 	var $metaDatabasesSQL = '';
 	var $metaTablesSQL = '';
