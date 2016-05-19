@@ -35,6 +35,7 @@ Older changelogs:
 - mysqli: return fields as ADOFieldObject objects. #175
 - odbc/mssql: fix null strings concatenation issue with SQL server 2012. #148
 - odbc: MetaColumns() can optionally be set to return MetaType for backwards compatibility. #184
+- pdo: fix PHP notice. #248
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
 - sqlite: Fix Metataypes mapping. #177
