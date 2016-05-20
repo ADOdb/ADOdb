@@ -98,6 +98,7 @@ class ADODB_pdo extends ADOConnection {
 		$this->random = $d->random;
 		$this->concat_operator = $d->concat_operator;
 		$this->nameQuote = $d->nameQuote;
+		$this->arrayClass = $d->arrayClass;
 
 		$this->hasGenID = $d->hasGenID;
 		$this->_genIDSQL = $d->_genIDSQL;
@@ -788,3 +789,5 @@ class ADORecordSet_pdo extends ADORecordSet {
 	}
 
 }
+
+class ADORecordSet_array_pdo extends ADORecordSet_array {}
