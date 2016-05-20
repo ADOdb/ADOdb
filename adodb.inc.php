@@ -1292,8 +1292,16 @@ if (!defined('_ADODB_LAYER')) {
 			return $rs;
 		}
 
+		if ($this->dataProvider == 'pdo' && $this->databaseType != 'pdo')
+			/*
+		    * PDO uses a slightly different naming convention for the recordset class
+			* if the database type is changed so we must treat it specifically. The 
+			* mysql driver leaves the databaseType as pdo
+			*/
+			$rsclass = 	$rsclass = $this->rsPrefix.'pdo_' . $this->databaseType;
+		else
+			$rsclass = $this->rsPrefix.$this->databaseType;
 		// return real recordset from select statement
-		$rsclass = $this->rsPrefix.$this->databaseType;
 		$rs = new $rsclass($this->_queryID,$this->fetchMode);
 		$rs->connection = $this; // Pablo suggestion
 		$rs->Init();
