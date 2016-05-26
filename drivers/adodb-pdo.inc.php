@@ -518,6 +518,30 @@ class ADODB_pdo extends ADOConnection {
 	{
 		return ($this->_connectionID) ? $this->_connectionID->lastInsertId() : 0;
 	}
+
+	/**
+	 * Quotes a string to be sent to the database.
+	 * If we have an active connection, delegates quoting to the underlying
+	 * PDO object. Otherwise, replace "'" by the value of $replaceQuote (same
+	 * behavior as mysqli driver)
+	 * @param string  $s            The string to quote
+	 * @param boolean $magic_quotes If false, use PDO::quote().
+	 * @return string Quoted string
+	 */
+	function qstr($s, $magic_quotes = false)
+	{
+		if (!$magic_quotes) {
+			if ($this->_connectionID) {
+				return $this->_connectionID->quote($s);
+			}
+			return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
+		}
+
+		// undo magic quotes for "
+		$s = str_replace('\\"', '"', $s);
+		return "'$s'";
+	}
+
 }
 
 class ADODB_pdo_base extends ADODB_pdo {
