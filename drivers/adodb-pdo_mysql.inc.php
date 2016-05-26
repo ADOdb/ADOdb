@@ -100,8 +100,9 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	{
 		$this->_findschema($table, $schema);
 		if ($schema) {
-			$dbName = $this->database;
-			$this->SelectDB($schema);
+			$meta = str_replace('FROM `%s`', 'FROM `'.$schema.'`.`%s`', $this->metaColumnsSQL);
+		} else {
+			$meta = $this->metaColumnsSQL;
 		}
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
@@ -110,11 +111,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		if ($this->fetchMode !== false) {
 			$savem = $this->SetFetchMode(false);
 		}
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL, $table));
-
-		if ($schema) {
-			$this->SelectDB($dbName);
-		}
+		$rs = $this->Execute(sprintf($meta, $table));
 
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
