@@ -4420,12 +4420,12 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param $fetchmode =null ADODB_FETCH_{DEFAULT|ASSOC|NUM|BOTH}, default is to use currently selected fetch-mode
 	 * @return array|boolean false if there's nothing to fetch
 	 */
-	function &fetch($fetchmode=null) {
+	function fetch($fetchmode=null) {
 		if (!is_null($fetchmode)) {
 			$save = $this->fetchMode;
 			$this->fetchMode = $fetchmode;
 		}
-		$row =& $this->FetchRow();
+		$row = $this->FetchRow();
 		if (!is_null($fetchmode)) {
 			$this->fetchMode = $save;
 		}
