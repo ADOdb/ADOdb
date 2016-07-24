@@ -1081,10 +1081,10 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			$this->fieldObjectsIndex[$fld->name] = $key;
 			
 		}
-		if ($fieldIndex == -1)
+		if ($fieldOffset == -1)
 			return $this->fieldObjects;
 		
-		return $this->fieldObjects[$fieldIndex];
+		return $this->fieldObjects[$fieldOffset];
 	}
 	
 	/*
