@@ -86,6 +86,7 @@ Older changelogs:
 - session: add 'httponly' flag to cookie. #190
 - session: string parameters for `assert` are deprecated in PHP 7.2. #438
 - xml: support table 'opt' attribute with mysqli. #267
+- xml: add support for 'DESCR' tags for tables/fields. #265
 
 ## 5.20.15 - 24-Nov-2019
 
