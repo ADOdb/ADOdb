@@ -346,6 +346,14 @@ class dbTable extends dbObject {
 	*/
 	function _tag_cdata( &$parser, $cdata ) {
 		switch( $this->currentElement ) {
+			// Table or field comment
+			case 'DESCR':
+				if( isset( $this->current_field ) ) {
+					$this->addFieldOpt( $this->current_field, $this->currentElement, $cdata );
+				} else {
+					$this->addTableComment( $cdata );
+				}
+				break;
 			// Table/field constraint
 			case 'CONSTRAINT':
 				if( isset( $this->current_field ) ) {
@@ -510,6 +518,12 @@ class dbTable extends dbObject {
 		return $this->opts;
 	}
 
+	function addTableComment( $opt ) {
+		if(isset($this->currentPlatform)) {
+			$this->opts['comment'] = $opt;
+		}
+		return $this->opts;
+	}
 
 	/**
 	* Generates the SQL that will create the table in the database
