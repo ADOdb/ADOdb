@@ -519,9 +519,7 @@ class dbTable extends dbObject {
 	}
 
 	function addTableComment( $opt ) {
-		if(isset($this->currentPlatform)) {
-			$this->opts['comment'] = $opt;
-		}
+		$this->opts['comment'] = $opt;
 		return $this->opts;
 	}
 
