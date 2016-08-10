@@ -42,6 +42,17 @@ Older changelogs:
 - sqlite: driver did not support metaForeignKeys. #179
 - session: add 'httponly' flag to cookie. #190
 
+## 5.20.5 - 10-Aug-2016
+
+- adodb: Fix fatal error when connecting with missing extension. #254
+- adodb: Fix _adodb_getcount(). #236
+- mssql: Destructor fails if recordset already closed. #268
+- mssql: Use SQL server native data types if available. #234
+- mysqli: Fix PHP notice in _close() method. #240
+- pdo: Let driver handle SelectDB() and SQLDate() calls. #242
+- xml: Fix PHP strict warning. #260
+- xml: remove calls to 'unset($this)' (PHP 7.1 compatibility). #257
+
 ## 5.20.4 - 31-Mar-2016
 
 - adodb: Fix BulkBind() param count validation. #199

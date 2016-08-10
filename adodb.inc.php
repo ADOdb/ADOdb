@@ -690,23 +690,23 @@ if (!defined('_ADODB_LAYER')) {
 		}
 		if (isset($rez)) {
 			$err = $this->ErrorMsg();
+			$errno = $this->ErrorNo();
 			if (empty($err)) {
 				$err = "Connection error to server '$argHostname' with user '$argUsername'";
 			}
-			$ret = false;
 		} else {
 			$err = "Missing extension for ".$this->dataProvider;
-			$ret = 0;
+			$errno = 0;
 		}
 		if ($fn = $this->raiseErrorFn) {
-			$fn($this->databaseType,'CONNECT',$this->ErrorNo(),$err,$this->host,$this->database,$this);
+			$fn($this->databaseType, 'CONNECT', $errno, $err, $this->host, $this->database, $this);
 		}
 
 		$this->_connectionID = false;
 		if ($this->debug) {
 			ADOConnection::outp( $this->host.': '.$err);
 		}
-		return $ret;
+		return false;
 	}
 
 	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName) {
