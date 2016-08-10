@@ -505,7 +505,11 @@ class dbTable extends dbObject {
 	*/
 	function addTableOpt( $opt ) {
 		if(isset($this->currentPlatform)) {
-			$this->opts[$this->parent->db->databaseType] = $opt;
+                        if('mysqli' === $this->parent->db->databaseType){
+                                $this->opts['mysql'] = $opt;
+                        }else{
+                                $this->opts[$this->parent->db->databaseType] = $opt;
+                        }
 		}
 		return $this->opts;
 	}
