@@ -6,6 +6,8 @@ Older changelogs:
 [v2.x](changelog_v2.x.md).
 
 
+## 5.21.0 - ??-???-2016
+
 ## 5.20.5 - 10-Aug-2016
 
 - adodb: Fix fatal error when connecting with missing extension. #254
