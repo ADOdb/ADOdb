@@ -158,7 +158,7 @@ class ADODB_Session {
 	*/
 	static function driver($driver = null)
 	{
-		static $_driver = 'mysql';
+		static $_driver = 'mysqli';
 		static $set = false;
 
 		if (!is_null($driver)) {
