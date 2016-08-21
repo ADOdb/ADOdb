@@ -14,8 +14,9 @@
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
 
-  ADOdb loadbalancer is a class that allows the user to do read/write splitting and load balancing across multiple connections.
-  It can handle and load balance any number of master or slaves, including dealing with connection failures.
+  ADOdb loadbalancer is a class that allows the user to do read/write splitting and load balancing across multiple servers.
+  It can handle and load balance any number of write capable (AKA: master) or readonly (AKA: slave) connections, including dealing
+  with connection failures and retrying queries on a different connection instead.
 */
 
 /**
@@ -29,27 +30,27 @@ class ADOdbLoadBalancer
     protected $connections = false;
 
     /**
-     * @var bool|Array    Just connections to the master database.
+     * @var bool|Array    Just connections to the write capable database.
      */
-    protected $connections_master = false;
+    protected $connections_write = false;
 
     /**
-     * @var bool|Array    Just connections to the slave database.
+     * @var bool|Array    Just connections to the readonly database.
      */
-    protected $connections_slave = false;
+    protected $connections_readonly = false;
 
     /**
      * @var array    Counts of all connections and their types.
      */
-    protected $total_connections = array('all' => 0, 'master' => 0, 'slave' => 0);
+    protected $total_connections = array('all' => 0, 'write' => 0, 'readonly' => 0);
 
     /**
      * @var array    Weights of all connections for each type.
      */
-    protected $total_connection_weights = array('all' => 0, 'master' => 0, 'slave' => 0);
+    protected $total_connection_weights = array('all' => 0, 'write' => 0, 'readonly' => 0);
 
     /**
-     * @var bool    Once a master or slave connection is made, stick to that connection for the entire request.
+     * @var bool    Once a write or readonly connection is made, stick to that connection for the entire request.
      */
     protected $enable_sticky_sessions = true;
 
@@ -61,7 +62,7 @@ class ADOdbLoadBalancer
     /**
      * @var array    Last connection_id for each database type.
      */
-    protected $last_connection_id = array('master' => false, 'slave' => false, 'all' => false);
+    protected $last_connection_id = array('write' => false, 'readonly' => false, 'all' => false);
 
     /**
      * @var bool    Session variables that must be maintained across all connections, ie: SET TIME ZONE.
@@ -107,10 +108,10 @@ class ADOdbLoadBalancer
             $this->total_connection_weights[$obj->type] += abs($obj->weight);
             $this->total_connection_weights['all'] += abs($obj->weight);
 
-            if ($obj->type == 'master') {
-                $this->connections_master[] = $i;
+            if ($obj->type == 'write') {
+                $this->connections_write[] = $i;
             } else {
-                $this->connections_slave[] = $i;
+                $this->connections_readonly[] = $i;
             }
 
             return true;
@@ -137,12 +138,12 @@ class ADOdbLoadBalancer
         $this->total_connection_weights[$obj->type] -= abs($obj->weight);
         $this->total_connection_weights['all'] -= abs($obj->weight);
 
-        if ($obj->type == 'master') {
-            unset($this->connections_master[array_search($i, $this->connections_master)]);
-            $this->connections_master = array_values($this->connections_master); //Reindex array.
+        if ($obj->type == 'write') {
+            unset($this->connections_write[array_search($i, $this->connections_write)]);
+            $this->connections_write = array_values($this->connections_write); //Reindex array.
         } else {
-            unset($this->connections_slave[array_search($i, $this->connections_slave)]);
-            $this->connections_slave = array_values($this->connections_slave); //Reindex array.
+            unset($this->connections_readonly[array_search($i, $this->connections_readonly)]);
+            $this->connections_readonly = array_values($this->connections_readonly); //Reindex array.
         }
 
         //Remove any sticky connections as well.
@@ -158,15 +159,15 @@ class ADOdbLoadBalancer
     /**
      * Returns a database connection of the specified type, but takes into account the connection weight for load balancing.
      *
-     * @param $type    Type of database connection, either: 'master' or 'slave'
+     * @param $type    Type of database connection, either: 'write' cabable or 'readonly'
      * @return bool|int|string
      */
     private function getConnectionByWeight($type)
     {
-        if ($type == 'slave') {
+        if ($type == 'readonly') {
             $total_weight = $this->total_connection_weights['all'];
         } else {
-            $total_weight = $this->total_connection_weights['master'];
+            $total_weight = $this->total_connection_weights['write'];
         }
 
         $i = false;
@@ -174,7 +175,7 @@ class ADOdbLoadBalancer
             $n = 0;
             $num = mt_rand(0, $total_weight);
             foreach ($this->connections as $i => $connection_obj) {
-                if ($connection_obj->weight > 0 && ($type == 'slave' || $connection_obj->type == 'master')) {
+                if ($connection_obj->weight > 0 && ($type == 'readonly' || $connection_obj->type == 'write')) {
                     $n += $connection_obj->weight;
                     if ($n >= $num) {
                         break;
@@ -200,8 +201,8 @@ class ADOdbLoadBalancer
             if ($this->enable_sticky_sessions == true && $this->last_connection_id[$type] !== false) {
                 $connection_id = $this->last_connection_id[$type];
             } else {
-                if ($type == 'master' && $this->total_connections['master'] == 1) {
-                    $connection_id = $this->connections_master[0];
+                if ($type == 'write' && $this->total_connections['write'] == 1) {
+                    $connection_id = $this->connections_write[0];
                 } else {
                     $connection_id = $this->getConnectionByWeight($type);
                 }
@@ -261,7 +262,7 @@ class ADOdbLoadBalancer
      * @return bool
      * @throws Exception
      */
-    public function getConnection($type = 'master', $pin_connection = null, $force_connection_id = false)
+    public function getConnection($type = 'write', $pin_connection = null, $force_connection_id = false)
     {
         if ($this->pinned_connection_id !== false) {
             $connection_id = $this->pinned_connection_id;
@@ -274,7 +275,7 @@ class ADOdbLoadBalancer
             $connection_obj = $this->connections[$connection_id];
         } catch (Exception $e) {
             //Connection error, see if there are other connections to try still.
-            if (($type == 'master' && $this->total_connections['master'] > 0) || ($type == 'slave' && $this->total_connections['all'] > 0)) {
+            if (($type == 'write' && $this->total_connections['write'] > 0) || ($type == 'readonly' && $this->total_connections['all'] > 0)) {
                 $this->removeConnection($connection_id);
 
                 return $this->getConnection($type, $pin_connection);
@@ -291,9 +292,9 @@ class ADOdbLoadBalancer
         } elseif ($pin_connection === false && $adodb_obj->transOff <= 1) { //UnPin connection only if we are 1 level deep in a transaction.
             $this->pinned_connection_id = false;
 
-            //When unpinning connection, reset last_connection_id so slave queries don't get stuck on the master.
-            $this->last_connection_id['master'] = false;
-            $this->last_connection_id['slave'] = false;
+            //When unpinning connection, reset last_connection_id so readonly queries don't get stuck on the write capable connection.
+            $this->last_connection_id['write'] = false;
+            $this->last_connection_id['readonly'] = false;
         }
 
         return $adodb_obj;
@@ -444,15 +445,15 @@ class ADOdbLoadBalancer
      */
     public function Execute($sql, $inputarr = false)
     {
-        $type = 'master';
+        $type = 'write';
         $pin_connection = null;
 
-        //SELECT queries that can write and therefore must be run on MASTER.
+        //SELECT queries that can write and therefore must be run on a write capable connection.
         //SELECT ... FOR UPDATE;
         //SELECT ... INTO ...
         //SELECT .. LOCK IN ... (MYSQL)
         if ($this->isReadOnlyQuery($sql) == true) {
-            $type = 'slave';
+            $type = 'readonly';
         } elseif (stripos($sql, 'SET') === 0) {
             //SET SQL statements should likely use setSessionVariable() instead,
             //so state is properly maintained across connections, especially when they are lazily created.
@@ -468,7 +469,7 @@ class ADOdbLoadBalancer
     }
 
     /**
-     * Magic method to intercept method calls back to the proper ADODB object for master/slaves.
+     * Magic method to intercept method and callback to the proper ADODB object for write/readonly connections.
      *
      * @param $method    ADODB method to call.
      * @param $args        Arguments to the ADODB method.
@@ -477,7 +478,7 @@ class ADOdbLoadBalancer
      */
     public function __call($method, $args)
     {
-        $type = 'master';
+        $type = 'write';
         $pin_connection = null;
 
         //Intercept specific methods to determine if they are read-only or not.
@@ -491,7 +492,7 @@ class ADOdbLoadBalancer
             case 'getassoc':
             case 'selectlimit':
                 if ($this->isReadOnlyQuery($args[0]) == true) {
-                    $type = 'slave';
+                    $type = 'readonly';
                 }
                 break;
             case 'cachegetone':
@@ -503,7 +504,7 @@ class ADOdbLoadBalancer
             case 'cacheselect':
             case 'pageexecute':
             case 'cachepageexecute':
-                $type = 'slave';
+                $type = 'readonly';
                 break;
             //case 'ignoreerrors':
             //	//When ignoreerrors is called, PIN to the connection until its called again.
@@ -594,9 +595,9 @@ class ADOdbLoadBalancerConnection
     protected $adodb_obj = false;
 
     /**
-     * @var string    Type of connection, either 'master' or 'slave'
+     * @var string    Type of connection, either 'write' capable or 'readonly'
      */
-    public $type = 'master';
+    public $type = 'write';
 
     /**
      * @var int        Weight of connection, lower receives less queries, higher receives more queries.
@@ -642,7 +643,7 @@ class ADOdbLoadBalancerConnection
      */
     public function __construct(
             $driver,
-            $type = 'master',
+            $type = 'write',
             $weight = 1,
             $persistent_connection = false,
             $argHostname = '',
@@ -650,7 +651,7 @@ class ADOdbLoadBalancerConnection
             $argPassword = '',
             $argDatabaseName = ''
     ) {
-        if ($type !== 'master' && $type !== 'slave') {
+        if ($type !== 'write' && $type !== 'readonly') {
             return false;
         }
 
