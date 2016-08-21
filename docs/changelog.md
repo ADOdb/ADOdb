@@ -35,11 +35,23 @@ Older changelogs:
 - mysqli: return fields as ADOFieldObject objects. #175
 - odbc/mssql: fix null strings concatenation issue with SQL server 2012. #148
 - odbc: MetaColumns() can optionally be set to return MetaType for backwards compatibility. #184
+- pdo: fix PHP notice. #248
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
 - sqlite: Fix Metataypes mapping. #177
 - sqlite: driver did not support metaForeignKeys. #179
 - session: add 'httponly' flag to cookie. #190
+
+## 5.20.5 - 10-Aug-2016
+
+- adodb: Fix fatal error when connecting with missing extension. #254
+- adodb: Fix _adodb_getcount(). #236
+- mssql: Destructor fails if recordset already closed. #268
+- mssql: Use SQL server native data types if available. #234
+- mysqli: Fix PHP notice in _close() method. #240
+- pdo: Let driver handle SelectDB() and SQLDate() calls. #242
+- xml: Fix PHP strict warning. #260
+- xml: remove calls to 'unset($this)' (PHP 7.1 compatibility). #257
 
 ## 5.20.4 - 31-Mar-2016
 

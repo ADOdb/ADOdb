@@ -192,6 +192,7 @@ class ADODB_pdo extends ADOConnection {
 
 			$this->_driver->_connectionID = $this->_connectionID;
 			$this->_UpdatePDO();
+			$this->_driver->database = $this->database;
 			return true;
 		}
 		$this->_driver = new ADODB_pdo_base();
@@ -260,6 +261,16 @@ class ADODB_pdo extends ADOConnection {
 	function OffsetDate($dayFraction,$date=false)
 	{
 		return $this->_driver->OffsetDate($dayFraction,$date);
+	}
+
+	function SelectDB($dbName)
+	{
+		return $this->_driver->SelectDB($dbName);
+	}
+
+	function SQLDate($fmt, $col=false)
+	{
+		return $this->_driver->SQLDate($fmt, $col);
 	}
 
 	function ErrorMsg()
@@ -454,7 +465,9 @@ class ADODB_pdo extends ADOConnection {
 		#adodb_backtrace();
 		#var_dump($this->_bindInputArray);
 		if ($stmt) {
-			$this->_driver->debug = $this->debug;
+			if (isset($this->_driver)) {
+				$this->_driver->debug = $this->debug;
+			}
 			if ($inputarr) {
 				$ok = $stmt->execute($inputarr);
 			}
@@ -695,12 +708,22 @@ class ADORecordSet_pdo extends ADORecordSet {
 		}
 		//adodb_pr($arr);
 		$o->name = $arr['name'];
-		if (isset($arr['native_type']) && $arr['native_type'] <> "null") {
-			$o->type = $arr['native_type'];
+		if (isset($arr['sqlsrv:decl_type']) && $arr['sqlsrv:decl_type'] <> "null") 
+		{
+		    /*
+		    * If the database is SQL server, use the native built-ins
+		    */
+		    $o->type = $arr['sqlsrv:decl_type'];
 		}
-		else {
-			$o->type = adodb_pdo_type($arr['pdo_type']);
+		elseif (isset($arr['native_type']) && $arr['native_type'] <> "null") 
+		{
+		    $o->type = $arr['native_type'];
 		}
+		else 
+		{
+		     $o->type = adodb_pdo_type($arr['pdo_type']);
+		}
+		
 		$o->max_length = $arr['len'];
 		$o->precision = $arr['precision'];
 
