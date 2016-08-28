@@ -30,6 +30,7 @@ release_prefix = "adodb"
 exclude_list = (".git*",
                 "replicate",
                 "scripts",
+                "tests",
                 # There are no png files in there...
                 # "cute_icons_for_site/*.png",
                 "hs~*.*",
