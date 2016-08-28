@@ -1741,8 +1741,11 @@ if (sizeof($_GET) == 0) $testmysql = true;
 
 
 foreach($_GET as $k=>$v)  {
-	//global $$k;
-	$$k = $v;
+	// XSS protection (see Github issue #274) - only set variables for
+	// expected get parameters used in testdatabases.inc.php
+	if(preg_match('/^(test|no)\w+$/', $k)) {
+		$$k = $v;
+	}
 }
 
 ?>
