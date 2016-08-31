@@ -7,14 +7,6 @@ Older changelogs:
 
 ## 5.21.0 - ??-???-2016
 
-## 5.20.6 - 31-Aug-2016
-
-- security: Fix XSS vulnerability in old test script (CVE-2016-4855). #274
-- adodb: Exit with error/exception when the ADOdb Extension is loaded. #269
-- adodb: Fix truncated exception messages. #273
-
-## 5.21.0 - ??-???-2016
-
 - adodb: Remove useless constructors. #171
 - adodb: Define default constructor in ADOConnection base class. #172
 - adodb: Reimplement base methods charMax() and textMax(). #183
@@ -48,6 +40,12 @@ Older changelogs:
 - sqlite: Fix Metataypes mapping. #177
 - sqlite: driver did not support metaForeignKeys. #179
 - session: add 'httponly' flag to cookie. #190
+
+## 5.20.6 - 31-Aug-2016
+
+- security: Fix XSS vulnerability in old test script (CVE-2016-4855). #274
+- adodb: Exit with error/exception when the ADOdb Extension is loaded. #269
+- adodb: Fix truncated exception messages. #273
 
 ## 5.20.5 - 10-Aug-2016
 
