@@ -37,6 +37,21 @@
 if (!defined('_ADODB_LAYER')) {
 	define('_ADODB_LAYER',1);
 
+	// The ADOdb extension is no longer maintained and effectively unsupported
+	// since v5.04. The library will not function properly if it is present.
+	if(defined('ADODB_EXTENSION')) {
+		$msg = "Unsupported ADOdb Extension (v" . ADODB_EXTENSION . ") detected! "
+			. "Disable it to use ADOdb";
+
+		$errorfn = defined('ADODB_ERROR_HANDLER') ? ADODB_ERROR_HANDLER : false;
+		if ($errorfn) {
+			$conn = false;
+			$errorfn('ADOdb', basename(__FILE__), -9999, $msg, null, null, $conn);
+		} else {
+			die($msg . PHP_EOL);
+		}
+	}
+
 	//==============================================================================================
 	// CONSTANT DEFINITIONS
 	//==============================================================================================
