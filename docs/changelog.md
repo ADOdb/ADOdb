@@ -5,6 +5,8 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.21.0 - ??-???-2016
+
 ## 5.20.6 - 31-Aug-2016
 
 - security: Fix XSS vulnerability in old test script (CVE-2016-4855). #274
