@@ -77,7 +77,7 @@ class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 			/*
 		    * Look for cached field offset
 			*/
-			return $fieldObject[$fieldOffset];
+			return $fieldObjects[$fieldOffset];
 		
 		$o = new ADOFieldObject();
 		$arr = @$this->_queryID->getColumnMeta($fieldOffset);
@@ -147,7 +147,7 @@ class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo {
 			/*
 		    * Look for cached field offset
 			*/
-			return $fieldObject[$fieldOffset];
+			return $fieldObjects[$fieldOffset];
 		
 		$o = new ADOFieldObject();
 		$arr = @$this->_queryID->getColumnMeta($fieldOffset);
