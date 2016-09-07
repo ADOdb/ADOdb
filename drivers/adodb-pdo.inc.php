@@ -98,6 +98,7 @@ class ADODB_pdo extends ADOConnection {
 		$this->random = $d->random;
 		$this->concat_operator = $d->concat_operator;
 		$this->nameQuote = $d->nameQuote;
+		$this->arrayClass = $d->arrayClass;
 
 		$this->hasGenID = $d->hasGenID;
 		$this->_genIDSQL = $d->_genIDSQL;
@@ -171,6 +172,19 @@ class ADODB_pdo extends ADOConnection {
 			//$this->_connectionID->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_SILENT );
 			$this->_connectionID->setAttribute(PDO::ATTR_CASE,$m);
 
+			/*
+			* Now merge in any provided attributes for PDO
+			*/
+			foreach ($this->connectionParameters as $options)
+			{
+				foreach($options as $k=>$v)
+				{
+					if ($this->debug)
+						ADOconnection::outp('Setting attribute: ' . $k . ' to ' . $v);
+					$this->_connectionID->setAttribute($k,$v);
+				}
+			}
+			
 			$class = 'ADODB_pdo_'.$this->dsnType;
 			//$this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT,true);
 			switch($this->dsnType) {
@@ -775,3 +789,5 @@ class ADORecordSet_pdo extends ADORecordSet {
 	}
 
 }
+
+class ADORecordSet_array_pdo extends ADORecordSet_array {}
