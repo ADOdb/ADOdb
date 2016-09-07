@@ -172,15 +172,12 @@ class ADODB_pdo extends ADOConnection {
 			//$this->_connectionID->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_SILENT );
 			$this->_connectionID->setAttribute(PDO::ATTR_CASE,$m);
 
-			/*
-			* Now merge in any provided attributes for PDO
-			*/
-			foreach ($this->connectionParameters as $options)
-			{
-				foreach($options as $k=>$v)
-				{
-					if ($this->debug)
+			// Now merge in any provided attributes for PDO
+			foreach ($this->connectionParameters as $options) {
+				foreach($options as $k=>$v) {
+					if ($this->debug) {
 						ADOconnection::outp('Setting attribute: ' . $k . ' to ' . $v);
+					}
 					$this->_connectionID->setAttribute($k,$v);
 				}
 			}

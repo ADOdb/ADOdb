@@ -5,13 +5,10 @@
  */
 class ADODB_pdo_sqlsrv extends ADODB_pdo
 {
-
 	var $hasTop = 'top';
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
 	var $sysTimeStamp = 'GetDate()';
-	
 	var $arrayClass = 'ADORecordSet_array_pdo_sqlsrv';
-
 
 	function _init(ADODB_pdo $parentDriver)
 	{
@@ -50,40 +47,36 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 	}
 }
 
-class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo 
+class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 {
 
 	public $databaseType = "pdo_sqlsrv";
 
 	/**
-	* returns the field object
-	*
-	* @param    int	$fieldOffset Optional field offset
-	*
-	* @return	obj	The ADOfieldobject describing the field
-	*/
+	 * returns the field object
+	 *
+	 * @param  int $fieldOffset Optional field offset
+	 *
+	 * @return object The ADOFieldObject describing the field
+	 */
 	public function fetchField($fieldOffset = 0)
 	{
-		
-		static $fieldObjects = array();
-		/*
-		* Default behavior allows passing in of -1 offset,
-		* which crashes the method
-		*/
-		if ($fieldOffset == -1)
-			$fieldOffset++;
 
-		if (isset($fieldObjects[$fieldOffset]))
-			/*
-		    * Look for cached field offset
-			*/
+		static $fieldObjects = array();
+		// Default behavior allows passing in of -1 offset, which crashes the method
+		if ($fieldOffset == -1) {
+			$fieldOffset++;
+		}
+
+		if (isset($fieldObjects[$fieldOffset])) {
+			// Look for cached field offset
 			return $fieldObjects[$fieldOffset];
-		
+		}
+
 		$o = new ADOFieldObject();
 		$arr = @$this->_queryID->getColumnMeta($fieldOffset);
-		
-		if (!$arr) 
-		{
+
+		if (!$arr) {
 			$o->name = 'bad getColumnMeta()';
 			$o->max_length = -1;
 			$o->type = 'VARCHAR';
@@ -91,20 +84,16 @@ class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 			return $o;
 		}
 		$o->name = $arr['name'];
-		if (isset($arr['sqlsrv:decl_type']) && $arr['sqlsrv:decl_type'] <> "null") 
-		{
-			/*
-			* Use the SQL Server driver specific value
-			*/
+		if (isset($arr['sqlsrv:decl_type']) && $arr['sqlsrv:decl_type'] <> "null") {
+			// Use the SQL Server driver specific value
 			$o->type = $arr['sqlsrv:decl_type'];
-		}
-		else {
+		} else {
 			$o->type = adodb_pdo_type($arr['pdo_type']);
 		}
 		$o->max_length = $arr['len'];
 		$o->precision = $arr['precision'];
 
-		switch(ADODB_ASSOC_CASE) {
+		switch (ADODB_ASSOC_CASE) {
 			case ADODB_ASSOC_CASE_LOWER:
 				$o->name = strtolower($o->name);
 				break;
@@ -112,48 +101,42 @@ class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 				$o->name = strtoupper($o->name);
 				break;
 		}
-		
-		/*
-		* Add to the cache
-		*/
+
+		// Add to the cache
 		$fieldObjects[$fieldOffset] = $o;
 		return $o;
 	}
 }
 
-class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo {
-	
+class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo
+{
+
 	/**
-	* returns the field object
-	*
-	* Note that this is a direct copy of the ADORecordSet_pdo_sqlsrv method
-	*
-	* @param    int	$fieldOffset Optional field offset
-	*
-	* @return	obj	The ADOfieldobject describing the field
-	*/
+	 * returns the field object
+	 *
+	 * Note that this is a direct copy of the ADORecordSet_pdo_sqlsrv method
+	 *
+	 * @param  int $fieldOffset Optional field offset
+	 *
+	 * @return object The ADOfieldobject describing the field
+	 */
 	public function fetchField($fieldOffset = 0)
 	{
-		
 		static $fieldObjects = array();
-		/*
-		* Default behavior allows passing in of -1 offset,
-		* which crashes the method
-		*/
-		if ($fieldOffset == -1)
+		// Default behavior allows passing in of -1 offset, which crashes the method
+		if ($fieldOffset == -1) {
 			$fieldOffset++;
+		}
 
-		if (isset($fieldObjects[$fieldOffset]))
-			/*
-		    * Look for cached field offset
-			*/
+		if (isset($fieldObjects[$fieldOffset])) {
+			// Look for cached field offset
 			return $fieldObjects[$fieldOffset];
-		
+		}
+
 		$o = new ADOFieldObject();
 		$arr = @$this->_queryID->getColumnMeta($fieldOffset);
-		
-		if (!$arr) 
-		{
+
+		if (!$arr) {
 			$o->name = 'bad getColumnMeta()';
 			$o->max_length = -1;
 			$o->type = 'VARCHAR';
@@ -161,20 +144,16 @@ class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo {
 			return $o;
 		}
 		$o->name = $arr['name'];
-		if (isset($arr['sqlsrv:decl_type']) && $arr['sqlsrv:decl_type'] <> "null") 
-		{
-			/*
-			* Use the SQL Server driver specific value
-			*/
+		if (isset($arr['sqlsrv:decl_type']) && $arr['sqlsrv:decl_type'] <> "null") {
+			// Use the SQL Server driver specific value
 			$o->type = $arr['sqlsrv:decl_type'];
-		}
-		else {
+		} else {
 			$o->type = adodb_pdo_type($arr['pdo_type']);
 		}
 		$o->max_length = $arr['len'];
 		$o->precision = $arr['precision'];
 
-		switch(ADODB_ASSOC_CASE) {
+		switch (ADODB_ASSOC_CASE) {
 			case ADODB_ASSOC_CASE_LOWER:
 				$o->name = strtolower($o->name);
 				break;
@@ -182,12 +161,9 @@ class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo {
 				$o->name = strtoupper($o->name);
 				break;
 		}
-		
-		/*
-		* Add to the cache
-		*/
+
+		// Add to the cache
 		$fieldObjects[$fieldOffset] = $o;
 		return $o;
 	}
 }
-
