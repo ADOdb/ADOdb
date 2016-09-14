@@ -44,6 +44,7 @@ Older changelogs:
 - sqlite: Fix Metataypes mapping. #177
 - sqlite: driver did not support metaForeignKeys. #179
 - session: add 'httponly' flag to cookie. #190
+- xml: support table 'opt' attribute with mysqli. #267
 
 ## 5.20.6 - 31-Aug-2016
 
