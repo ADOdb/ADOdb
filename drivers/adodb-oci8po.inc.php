@@ -33,7 +33,6 @@ class ADODB_oci8po extends ADODB_oci8 {
 	function __construct()
 	{
 		$this->_hasOCIFetchStatement = ADODB_PHPVER >= 0x4200;
-		# oci8po does not support adodb extension: adodb_movenext()
 	}
 
 	function Param($name,$type='C')
