@@ -106,9 +106,6 @@ END;
 	function __construct()
 	{
 		$this->_hasOciFetchStatement = ADODB_PHPVER >= 0x4200;
-		if (defined('ADODB_EXTENSION')) {
-			$this->rsPrefix .= 'ext_';
-		}
 	}
 
 	/*  function MetaColumns($table, $normalize=true) added by smondino@users.sourceforge.net*/

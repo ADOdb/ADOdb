@@ -32,14 +32,6 @@ class  ADODB_access extends ADODB_odbc {
 	var $hasTransactions = false;
 	var $upperCase = 'ucase';
 
-	function __construct()
-	{
-	global $ADODB_EXTENSION;
-
-		$ADODB_EXTENSION = false;
-		parent::__construct();
-	}
-
 	function Time()
 	{
 		return time();

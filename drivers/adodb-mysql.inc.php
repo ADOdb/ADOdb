@@ -51,11 +51,6 @@ class ADODB_mysql extends ADOConnection {
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
 	var $compat323 = false; 		// true if compat with mysql 3.23
 
-	function __construct()
-	{
-		if (defined('ADODB_EXTENSION')) $this->rsPrefix .= 'ext_';
-	}
-
 
 	// SetCharSet - switch the client encoding
 	function SetCharSet($charset_name)
@@ -794,8 +789,6 @@ class ADORecordSet_mysql extends ADORecordSet{
 
 	function MoveNext()
 	{
-		//return adodb_movenext($this);
-		//if (defined('ADODB_EXTENSION')) return adodb_movenext($this);
 		if (@$this->fields = mysql_fetch_array($this->_queryID,$this->fetchMode)) {
 			$this->_updatefields();
 			$this->_currentRow += 1;
