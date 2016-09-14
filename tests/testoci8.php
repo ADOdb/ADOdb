@@ -2,7 +2,7 @@
 <body>
 <?php
 /*
-@version   v5.20.6  31-Aug-2016
+@version   v5.20.7  19-Sep-2016
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
