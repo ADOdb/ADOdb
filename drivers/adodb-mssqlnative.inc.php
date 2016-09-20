@@ -524,10 +524,6 @@ class ADODB_mssqlnative extends ADOConnection {
 	function Prepare($sql)
 	{
 		return $sql; // prepare does not work properly with bind parameters as bind parameters are managed by sqlsrv_prepare!
-
-		$stmt = sqlsrv_prepare( $this->_connectionID, $sql);
-		if (!$stmt)  return $sql;
-		return array($sql,$stmt);
 	}
 
 	// returns concatenated string
