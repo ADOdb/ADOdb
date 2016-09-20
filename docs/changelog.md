@@ -5,6 +5,8 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.21.0 - ??-???-2016
+
 ## 5.20.7 - 20-Sep-2016
 
 - security: Fix SQL injection in PDO drivers qstr() method (CVE-2016-7405). #226
