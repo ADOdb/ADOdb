@@ -40,6 +40,7 @@ Older changelogs:
 - pdo: fix PHP notice. #248
 - pdo: ADORecordSet class loading. #250
 - pdo/sqlsrv: fix fetchField() method. #251, #234
+- pgsql: add CIDR data type to MetaType(). #281
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
 - sqlite: Fix Metataypes mapping. #177
