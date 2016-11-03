@@ -21,6 +21,7 @@ Older changelogs:
 - adodb: Added portable substring method. #219
 - adodb: New helper methods: day(), month(), year(). #225
 - adodb: Remove references to obsolete ADOdb Extension. #270
+- adodb: add Occitan translation. #285
 - adodb-time: Fix 'Q' (quarter of year) format in adodb_date(). #222
 - adodb-time: Add 'W' (week of year) format support in adodb_date(). #223
 - firebird: updated driver, thanks to Lester Caine. #201
