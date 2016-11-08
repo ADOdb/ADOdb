@@ -758,13 +758,19 @@ END;
 
 			if (is_array($inputarr)) {
 				foreach($inputarr as $k => $v) {
+					$i=0;
+					if ($this->databaseType == 'oci8po') {
+						$bv_name = ":".$i++;
+					} else {
+						$bv_name = ":".$k;
+					}
 					if (is_array($v)) {
 						// suggested by g.giunta@libero.
 						if (sizeof($v) == 2) {
-							oci_bind_by_name($stmt,":$k",$inputarr[$k][0],$v[1]);
+							oci_bind_by_name($stmt,$bv_name,$inputarr[$k][0],$v[1]);
 						}
 						else {
-							oci_bind_by_name($stmt,":$k",$inputarr[$k][0],$v[1],$v[2]);
+							oci_bind_by_name($stmt,$bv_name,$inputarr[$k][0],$v[1],$v[2]);
 						}
 					} else {
 						$len = -1;
@@ -774,7 +780,7 @@ END;
 						if (isset($bindarr)) {	// is prepared sql, so no need to oci_bind_by_name again
 							$bindarr[$k] = $v;
 						} else { 				// dynamic sql, so rebind every time
-							oci_bind_by_name($stmt,":$k",$inputarr[$k],$len);
+							oci_bind_by_name($stmt,$bv_name,$inputarr[$k],$len);
 						}
 					}
 				}
