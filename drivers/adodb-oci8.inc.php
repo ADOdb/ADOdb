@@ -755,10 +755,11 @@ END;
 
 			if (is_array($inputarr)) {
 				foreach($inputarr as $k => $v) {
+					$i=0;
 					if ($this->databaseType == 'oci8po') {
-						$bv_name = ":".array_search($k, array_keys($inputarr));
+						$bv_name = ":".$i++;
 					} else {
-						$bv_name = ":$k";
+						$bv_name = ":".$k;
 					}
 					if (is_array($v)) {
 						// suggested by g.giunta@libero.
