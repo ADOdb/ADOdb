@@ -155,7 +155,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		$version = (int)reset($matches);
 
 		// We only support SQL Server 2005 and up
-		if($version < 9 || $version > 12) {
+		if($version < 9) {
 			die("SQL SERVER VERSION {$data['version']} NOT SUPPORTED IN mssqlnative DRIVER");
 		}
 
@@ -211,8 +211,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		case 10:
 			return $this->GenID2008();
 			break;
-		case 11:
-		case 12:
+		default:
 			return $this->GenID2012();
 			break;
 		}
@@ -228,8 +227,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		case 10:
 			return $this->CreateSequence2008();
 			break;
-		case 11:
-		case 12:
+		default:
 			return $this->CreateSequence2012();
 			break;
 		}
