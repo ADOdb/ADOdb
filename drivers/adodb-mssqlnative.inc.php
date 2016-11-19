@@ -204,8 +204,6 @@ class ADODB_mssqlnative extends ADOConnection {
 	}
 
 	function GenID($seq='adodbseq',$start=1) {
-		if (!$this->mssql_version)
-			$this->ServerVersion();
 		switch($this->mssql_version){
 		case 9:
 		case 10:
@@ -219,9 +217,6 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function CreateSequence($seq='adodbseq',$start=1)
 	{
-		if (!$this->mssql_version)
-			$this->ServerVersion();
-
 		switch($this->mssql_version){
 		case 9:
 		case 10:
@@ -499,6 +494,9 @@ class ADODB_mssqlnative extends ADOConnection {
 			if ($this->debug) ADOConnection::outp( "<hr><b>errors</b>: ".print_r( sqlsrv_errors(), true));
 			return false;
 		}
+
+		$this->ServerVersion();
+
 		return true;
 	}
 
@@ -763,9 +761,6 @@ class ADODB_mssqlnative extends ADOConnection {
 			return $cached_columns[$table];
 		}
 		
-
-		if (!$this->mssql_version)
-			$this->ServerVersion();
 
 		$this->_findschema($table,$schema);
 		if ($schema) {
