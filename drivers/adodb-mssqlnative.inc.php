@@ -144,31 +144,22 @@ class ADODB_mssqlnative extends ADOConnection {
 			sqlsrv_configure('WarningsReturnAsErrors', 0);
 		}
 	}
+
+	/**
+	 * Initializes the SQL Server version.
+	 * Dies if connected to a non-supported version (2000 and older)
+	 */
 	function ServerVersion() {
 		$data = $this->ServerInfo();
-		if (preg_match('/^09/',$data['version'])){
-			/*
-			 * SQL Server 2005
-			 */
-			$this->mssql_version = 9;
-		} elseif (preg_match('/^10/',$data['version'])){
-			/*
-			 * SQL Server 2008
-			 */
-			$this->mssql_version = 10;
-		} elseif (preg_match('/^11/',$data['version'])){
-			/*
-			 * SQL Server 2012
-			 */
-			$this->mssql_version = 11;
-		} elseif (preg_match('/^12/',$data['version'])){
-			/*
-			 * SQL Server 2014
-			 */
-			$this->mssql_version = 12;
-		
-		} else
+		preg_match('/^\d{2}', $data['version'], $matches);
+		$version = (int)reset($matches);
+
+		// We only support SQL Server 2005 and up
+		if($version < 9 || $version > 12) {
 			die("SQL SERVER VERSION {$data['version']} NOT SUPPORTED IN mssqlnative DRIVER");
+		}
+
+		$this->mssql_version = $version;
 	}
 
 	function ServerInfo() {
