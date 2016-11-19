@@ -311,7 +311,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		if (!is_array($this->sequences)
 		|| is_array($this->sequences) && !in_array($seq,$this->sequences)){
-			$this->CreateSequence2012($seq='adodbseq',$start=1);
+			$this->CreateSequence2012($seq, $start=1);
 
 		}
 		$num = $this->GetOne("SELECT NEXT VALUE FOR $seq");
