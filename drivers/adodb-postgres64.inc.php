@@ -425,13 +425,17 @@ class ADODB_postgres64 extends ADOConnection{
 		return $realblob;
 	}
 
-	/*
-		See http://www.postgresql.org/idocs/index.php?datatype-binary.html
-
-		NOTE: SQL string literals (input strings) must be preceded with two backslashes
-		due to the fact that they must pass through two parsers in the PostgreSQL
-		backend.
-	*/
+	/**
+	 * Encode binary value prior to DB storage.
+	 *
+	 * See https://www.postgresql.org/docs/current/static/datatype-binary.html
+	 *
+	 * NOTE: SQL string literals (input strings) must be preceded with two
+	 * backslashes due to the fact that they must pass through two parsers in
+	 * the PostgreSQL backend.
+	 *
+	 * @param string $blob
+	 */
 	function BlobEncode($blob)
 	{
 		if (ADODB_PHPVER >= 0x5200) return pg_escape_bytea($this->_connectionID, $blob);
