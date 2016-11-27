@@ -479,10 +479,9 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function ErrorNo()
 	{
-		if ($this->_logsql && $this->_errorCode !== false) return $this->_errorCode;
 		$err = sqlsrv_errors(SQLSRV_ERR_ALL);
 		if($err[0]) return $err[0]['code'];
-		else return -1;
+		else return 0;
 	}
 
 	// returns true or false
