@@ -219,7 +219,7 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function CreateSequence($seq='adodbseq',$start=1)
 	{
-		if (!$this->mssql_vesion)
+		if (!$this->mssql_version)
 			$this->ServerVersion();
 
 		switch($this->mssql_version){
