@@ -287,7 +287,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		$num = $this->GetOne("select id from $seq");
 		sqlsrv_commit($this->_connectionID);
-		return true;
+		return $num;
 	}
 	/**
 	 * Only available to Server 2012 and up
