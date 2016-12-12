@@ -170,6 +170,7 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 		if ($uSet && $where) {
 			$update = "UPDATE $table SET $uSet WHERE $where";
 
+            $zthis->_lastReplaceSql = $update;
 			$rs = $zthis->Execute($update);
 
 
@@ -208,7 +209,11 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 			}
 		}
 		$insert = "INSERT INTO $table ($iCols) VALUES ($iVals)";
+        $zthis->_lastReplaceSql = $insert;
 		$rs = $zthis->Execute($insert);
+
+
+
 		return ($rs) ? 2 : 0;
 }
 
