@@ -5,6 +5,7 @@
 
 from distutils.version import LooseVersion
 import getopt
+import getpass
 import glob
 import os
 from os import path
@@ -21,8 +22,8 @@ sf_files = "frs.sourceforge.net:/home/frs/project/adodb/"
 rsync_cmd = "rsync -vP --rsh ssh {opt} {src} {usr}@{dst}"
 
 # Command-line options
-options = "hn"
-long_options = ["help", "dry-run"]
+options = "hu:n"
+long_options = ["help", "user=", "dry-run"]
 
 
 def usage():
@@ -32,12 +33,12 @@ def usage():
     current one if unspecified) to Sourceforge.
 
     Parameters:
-        username                Sourceforge user account
         release_path            Location of the release files to upload
                                 (see buildrelease.py)
 
     Options:
         -h | --help             Show this usage message
+        -u | --user <name>      Sourceforge account (defaults to current user)
         -n | --dry-run          Do not upload the files
 ''' % (
         path.basename(__file__)
@@ -139,12 +140,9 @@ def process_command_line():
         usage()
         sys.exit(2)
 
-    if len(args) < 1:
-        usage()
-        print "ERROR: please specify the Sourceforge user and release_path"
-        sys.exit(1)
-
     # Default values for flags
+    username = getpass.getuser()
+    print username
     dry_run = False
 
     for opt, val in opts:
@@ -152,15 +150,18 @@ def process_command_line():
             usage()
             sys.exit(0)
 
+        elif opt in ("-u", "--user"):
+            username = val
+
         elif opt in ("-n", "--dry-run"):
             dry_run = True
 
     # Mandatory parameters
-    username = args[0]
+    # (none)
 
     # Change to release directory, current if not specified
     try:
-        release_path = args[1]
+        release_path = args[0]
         os.chdir(release_path)
     except IndexError:
         release_path = os.getcwd()
