@@ -151,7 +151,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	 */
 	function ServerVersion() {
 		$data = $this->ServerInfo();
-		preg_match('/^\d{2}', $data['version'], $matches);
+		preg_match('/^\d{2}/', $data['version'], $matches);
 		$version = (int)reset($matches);
 
 		// We only support SQL Server 2005 and up
