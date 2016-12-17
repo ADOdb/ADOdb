@@ -75,7 +75,8 @@ def call_rsync(usr, opt, src, dst):
 
 
 def get_release_version():
-    ''' Get the version number from the zip file to upload
+    ''' Returns the version number (X.Y.Z) from the zip file to upload,
+        excluding the SemVer suffix
     '''
     try:
         zipfile = glob.glob('adodb-*.zip')[0]
@@ -85,7 +86,7 @@ def get_release_version():
 
     try:
         version = re.search(
-            "^adodb-([\d]+\.[\d]+\.[\d]+)\.zip$",
+            "^adodb-([\d]+\.[\d]+\.[\d]+)(-(alpha|beta|rc)\.[\d]+)?\.zip$",
             zipfile
             ).group(1)
     except AttributeError:
@@ -97,13 +98,17 @@ def get_release_version():
 
 
 def sourceforge_target_dir(version):
-    ''' Returns the sourceforge target directory
-        Base directory as defined in sf_files global variable, plus
+    ''' Returns the sourceforge target directory, relative to the root
+        directory (defined in sf_files global variable): basedir/subdir, with
+        basedir:
+        - for ADOdb version 5: adodb-php5-only
+        - for newer versions:  adodbX (where X is the major version number)
+        subdir:
         - if version >= 5.21: adodb-X.Y
         - for older versions: adodb-XYZ-for-php5
     '''
-    # Keep only X.Y (discard patch number)
-    short_version = version.rsplit('.', 1)[0]
+    # Keep only X.Y (discard patch number and pre-release suffix)
+    short_version = version.split('-')[0].rsplit('.', 1)[0]
 
     directory = 'adodb-php5-only/'
     if LooseVersion(version) >= LooseVersion('5.21'):
