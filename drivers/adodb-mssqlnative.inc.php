@@ -256,7 +256,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	/**
 	 * Proper Sequences Only available to Server 2012 and up
 	 */
-	function CreateSequence2012($seq='adodb',$start=1){
+	function CreateSequence2012($seq='adodbseq',$start=1){
 		if (!$this->sequences){
 			$sql = "SELECT name FROM sys.sequences";
 			$this->sequences = $this->GetCol($sql);
