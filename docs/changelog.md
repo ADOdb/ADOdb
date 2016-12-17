@@ -5,6 +5,17 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.20.8 - 17-Dec-2016
+
+- mssql: support MSSQL Server 2016 and later #294
+- mssql: fix Find() returning no results. #298
+- mssql: fix Sequence name forced to 'adodbseq'. #295, #300
+- mssql: fix GenId() not returning next sequence value with SQL Server 2005/2008. #302
+- mssql: fix drop/alter column with existing default constraint. #290
+- mssql: fix PHP notice in MetaColumns(). #289
+- oci8po: fix inconsistent variable binding in SelectLimit() #288
+- oci8po: fix SelectLimit() with prepared statements #282
+
 ## 5.20.7 - 20-Sep-2016
 
 - security: Fix SQL injection in PDO drivers qstr() method (CVE-2016-7405). #226
@@ -28,7 +39,7 @@ Older changelogs:
 - xml: Fix PHP strict warning. #260
 - xml: remove calls to 'unset($this)' (PHP 7.1 compatibility). #257
 
-## 5.20.4 - 30-Mar-2016
+## 5.20.4 - 31-Mar-2016
 
 - adodb: Fix BulkBind() param count validation. #199
 - mysqli: fix PHP warning in recordset destructor. #217
@@ -41,6 +52,7 @@ Older changelogs:
 ## 5.20.2 - 27-Dec-2015
 
 - adodb: Remove a couple leftover PHP 4.x constructors (PHP7 compatibility). #139
+- db2ora: Remove deprecated preg_replace '/e' flag (PHP7 compatibility). #168
 - mysql: MoveNext() now respects ADODB_ASSOC_CASE. #167
 - mssql, mysql, informix: Avoid PHP warning when closing recordset from destructor. #170
 
