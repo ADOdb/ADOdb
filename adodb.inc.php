@@ -14,7 +14,7 @@
 /**
 	\mainpage
 
-	@version   v5.20.8  17-Dec-2016
+	@version   v5.21.0-dev  ??-???-2016
 	@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 	@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
@@ -232,7 +232,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'v5.20.8  17-Dec-2016';
+		$ADODB_vers = 'v5.21.0-dev  ??-???-2016';
 
 		/**
 		 * Determines whether recordset->RecordCount() is used.
