@@ -218,28 +218,28 @@ class ADODB_mssqlnative extends ADOConnection {
 		switch($this->mssql_version){
 		case 9:
 		case 10:
-			return $this->GenID2008();
+			return $this->GenID2008($seq,$start);
 			break;
 		case 11:
 		case 12:
-			return $this->GenID2012();
+			return $this->GenID2012($seq,$start);
 			break;
 		}
 	}
 
 	function CreateSequence($seq='adodbseq',$start=1)
 	{
-		if (!$this->mssql_vesion)
+		if (!$this->mssql_version)
 			$this->ServerVersion();
 
 		switch($this->mssql_version){
 		case 9:
 		case 10:
-			return $this->CreateSequence2008();
+			return $this->CreateSequence2008($seq,$start);
 			break;
 		case 11:
 		case 12:
-			return $this->CreateSequence2012();
+			return $this->CreateSequence2012($seq,$start);
 			break;
 		}
 
@@ -298,7 +298,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		$num = $this->GetOne("select id from $seq");
 		sqlsrv_commit($this->_connectionID);
-		return true;
+		return $num;
 	}
 	/**
 	 * Only available to Server 2012 and up
@@ -322,7 +322,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		if (!is_array($this->sequences)
 		|| is_array($this->sequences) && !in_array($seq,$this->sequences)){
-			$this->CreateSequence2012($seq='adodbseq',$start=1);
+			$this->CreateSequence2012($seq,$start);
 
 		}
 		$num = $this->GetOne("SELECT NEXT VALUE FOR $seq");
