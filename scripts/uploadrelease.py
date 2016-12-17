@@ -107,10 +107,17 @@ def sourceforge_target_dir(version):
         - if version >= 5.21: adodb-X.Y
         - for older versions: adodb-XYZ-for-php5
     '''
+    major_version = int(version.rsplit('.')[0])
+
+    # Base directory
+    if major_version == 5:
+        directory = 'adodb-php5-only/'
+    else:
+        directory = 'adodb{}/'.format(major_version)
+
     # Keep only X.Y (discard patch number and pre-release suffix)
     short_version = version.split('-')[0].rsplit('.', 1)[0]
 
-    directory = 'adodb-php5-only/'
     if LooseVersion(version) >= LooseVersion('5.21'):
         directory += "adodb-" + short_version
     else:
