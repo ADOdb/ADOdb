@@ -56,9 +56,21 @@ def call_rsync(usr, opt, src, dst):
 
     command = rsync_cmd.format(usr=usr, opt=opt, src=src, dst=dst)
 
+    # Create directory if it does not exist
+    dst_split = dst.rsplit(':')
+    host = dst_split[0]
+    dst = dst_split[1]
+    mkdir = 'ssh {usr}@{host} mkdir -p {dst}'.format(
+        usr=usr,
+        host=host,
+        dst=dst
+    )
+
     if dry_run:
+        print mkdir
         print command
     else:
+        subprocess.call(mkdir, shell=True)
         subprocess.call(command, shell=True)
 
 
