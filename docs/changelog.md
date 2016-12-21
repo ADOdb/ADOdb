@@ -5,6 +5,8 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.21.0 - ??-???-2016
+
 ## 5.20.9 - 21-Dec-2016
 
 - mssql: fix syntax error in version matching regex #305
