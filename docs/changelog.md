@@ -49,6 +49,10 @@ Older changelogs:
 - session: add 'httponly' flag to cookie. #190
 - xml: support table 'opt' attribute with mysqli. #267
 
+## 5.20.9 - 21-Dec-2016
+
+- mssql: fix syntax error in version matching regex #305
+
 ## 5.20.8 - 17-Dec-2016
 
 - mssql: support MSSQL Server 2016 and later #294
