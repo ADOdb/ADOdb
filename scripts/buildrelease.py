@@ -41,7 +41,7 @@ exclude_list = (".git*",
 
 # Command-line options
 options = "hb:dfk"
-long_options = ["help", "branch", "debug", "fresh", "keep"]
+long_options = ["help", "branch=", "debug", "fresh", "keep"]
 
 # Global flags
 debug_mode = False
