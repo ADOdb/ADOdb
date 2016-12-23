@@ -322,9 +322,9 @@ class ADODB_mssqlnative extends ADOConnection {
 		       "m/d/Y"=>101,"m/d/y"=>101 // US
 		      ,"Y.m.d"=>102,"y/m/d"=>102 // ANSI
 		      ,"d/m/Y"=>103,"d/m/y"=>103 // French /english
-          ,"d.m.Y"=>104,"d.m.y"=>104 // German
-          ,"d-m-Y"=>105,"d-m-y"=>105 // Italian
-          ,"m-d-Y"=>110,"m-d-y"=>110 // US Dash
+		      ,"d.m.Y"=>104,"d.m.y"=>104 // German
+		      ,"d-m-Y"=>105,"d-m-y"=>105 // Italian
+		      ,"m-d-Y"=>110,"m-d-y"=>110 // US Dash
 		      ,"Y/m/d"=>111,"y/m/d"=>111 // Japan
 		      ,"Ymd"=>112,"ymd"=>112 // ISO
 		      ,"H:i:s"=>108 // Time
