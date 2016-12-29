@@ -250,7 +250,7 @@ class ADODB_DataDict {
 		'LONGBINARY' => 'B',
 		'B' => 'B',
 		##
-		'YEAR' => 'D', // mysql
+		'YEAR' => 'Y', // mysql
 		'DATE' => 'D',
 		'D' => 'D',
 		##
