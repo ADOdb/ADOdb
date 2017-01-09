@@ -51,6 +51,21 @@ class ADODB_mysql extends ADOConnection {
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
 	var $compat323 = false; 		// true if compat with mysql 3.23
 
+	/**
+	 * ADODB_mysql constructor.
+	 */
+	public function __construct() {
+		if(version_compare(PHP_VERSION, '7.0.0', '>=')) {
+			$this->outp_throw(
+				'mysql extension is not supported since PHP 7.0.0, use mysqli instead',
+				__METHOD__
+			);
+			die(1); // Stop execution even if not using Exceptions
+		} elseif(version_compare(PHP_VERSION, '5.5.0', '>=')) {
+			// Just print a warning
+			$this->outp('mysql extension is deprecated since PHP 5.5.0, consider using mysqli');
+		}
+	}
 
 	// SetCharSet - switch the client encoding
 	function SetCharSet($charset_name)
