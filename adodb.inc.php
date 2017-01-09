@@ -4790,6 +4790,15 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$class = $db = 'postgres8';
 				break;
 
+			case 'mysql':
+				// mysql driver deprecated since 5.5, removed in 7.0
+				// automatically switch to mysqli
+				if(version_compare(PHP_VERSION, '7.0.0', '>=')) {
+					$db = 'mysqli';
+				}
+				$class = $db;
+				break;
+
 			default:
 				if (substr($db, 0, 4) === 'pdo_') {
 					ADOConnection::outp("Invalid database type: $db");
