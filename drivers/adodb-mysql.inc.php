@@ -181,7 +181,7 @@ class ADODB_mysql extends ADOConnection {
 		}
 
 		// get index details
-		$rs = $this->Execute(sprintf('SHOW INDEX FROM %s',$table));
+		$rs = $this->Execute(sprintf('SHOW INDEX FROM `%s`',$table));
 
 		// restore fetchmode
 		if (isset($savem)) {
