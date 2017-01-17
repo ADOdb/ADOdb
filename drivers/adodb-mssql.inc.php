@@ -620,6 +620,7 @@ order by constraint_name, referenced_table_name, keyno";
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$newconnect=false)
 	{
 		if (!function_exists('mssql_pconnect')) return null;
+		if (!empty($this->port)) $argHostname .= ":".$this->port;
 		$this->_connectionID = mssql_connect($argHostname,$argUsername,$argPassword,$newconnect);
 		if ($this->_connectionID === false) return false;
 		if ($argDatabasename) return $this->SelectDB($argDatabasename);
@@ -631,6 +632,7 @@ order by constraint_name, referenced_table_name, keyno";
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (!function_exists('mssql_pconnect')) return null;
+		if (!empty($this->port)) $argHostname .= ":".$this->port;
 		$this->_connectionID = mssql_pconnect($argHostname,$argUsername,$argPassword);
 		if ($this->_connectionID === false) return false;
 
