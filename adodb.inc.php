@@ -628,8 +628,7 @@ if (!defined('_ADODB_LAYER')) {
 			$fn($msg,$newline);
 			return;
 		} else if (isset($ADODB_OUTP)) {
-			$fn = $ADODB_OUTP;
-			$fn($msg,$newline);
+			call_user_func($ADODB_OUTP,$msg,$newline);
 			return;
 		}
 
