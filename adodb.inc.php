@@ -4857,6 +4857,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	/**
 	 * synonym for ADONewConnection for people like me who cannot remember the correct name
+	 * or people who read official documentation written by someone, who also can not remember the correct name
+	 * http://adodb.org/dokuwiki/doku.php?id=v5:database:microsoft_sql_server
 	 */
 	function NewADOConnection($db='') {
 		$tmp = ADONewConnection($db);
