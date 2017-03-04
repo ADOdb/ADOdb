@@ -1,0 +1,13 @@
+    
+    /**
+    * This is the short description indented placeholder for the class method docblock
+    *
+!##!
+    *
+@##@* @return  FIXME
+    *
+    * @version 5.21.0
+    * @adodb-visibility  FIXME
+    * @adodb-function-status FIXME
+    * @adodb-api FIXME
+    */

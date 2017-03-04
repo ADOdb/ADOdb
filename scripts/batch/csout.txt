@@ -1,0 +1,284 @@
+
+FILE: C:\dev\github\sddata\adodb-active-record.inc.php
+----------------------------------------------------------------------
+FOUND 133 ERRORS AND 44 WARNINGS AFFECTING 135 LINES
+----------------------------------------------------------------------
+    2 | ERROR   | You must use "/**" style comments for a file
+      |         | comment
+    4 | WARNING | Line exceeds 85 characters; contains 95 characters
+   15 | WARNING | Line exceeds 85 characters; contains 93 characters
+   21 | WARNING | Line exceeds 85 characters; contains 95 characters
+   23 | WARNING | Line exceeds 85 characters; contains 104 characters
+   31 | ERROR   | Missing class doc comment
+   37 | ERROR   | Missing class doc comment
+   51 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+   51 | ERROR   | Function name "ADODB_SetDatabaseAdapter" is
+      |         | invalid; consider "ADODB_setDatabaseAdapter"
+      |         | instead
+   55 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+   61 | WARNING | Line exceeds 85 characters; contains 100 characters
+   81 | ERROR   | Missing class doc comment
+   87 | WARNING | Line exceeds 85 characters; contains 93 characters
+   89 | WARNING | Line exceeds 85 characters; contains 124 characters
+   93 | WARNING | Line exceeds 85 characters; contains 90 characters
+   99 | ERROR   | Missing function doc comment
+   99 | ERROR   | Method name "ADODB_Active_Record::UseDefaultValues"
+      |         | is not in camel caps format
+  109 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  109 | ERROR   | Method name
+      |         | "ADODB_Active_Record::SetDatabaseAdapter" is not in
+      |         | camel caps format
+  115 | ERROR   | Missing function doc comment
+  122 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  135 | ERROR   | Expected "} else {\n"; found "}\n            else {
+      |         | "
+  138 | WARNING | Line exceeds 85 characters; contains 87 characters
+  144 | WARNING | Line exceeds 85 characters; contains 100 characters
+  153 | WARNING | Line exceeds 85 characters; contains 123 characters
+  158 | ERROR   | Missing function doc comment
+  164 | ERROR   | Missing function doc comment
+  192 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  201 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+  204 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+  214 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+  222 | ERROR   | Missing function doc comment
+  222 | WARNING | Line exceeds 85 characters; contains 93 characters
+  227 | WARNING | Line exceeds 85 characters; contains 105 characters
+  230 | WARNING | Line exceeds 85 characters; contains 118 characters
+  234 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  234 | ERROR   | Method name "ADODB_Active_Record::TableHasMany" is
+      |         | not in camel caps format
+  234 | WARNING | Line exceeds 85 characters; contains 113 characters
+  241 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  241 | ERROR   | Method name "ADODB_Active_Record::TableKeyHasMany"
+      |         | is not in camel caps format
+  241 | WARNING | Line exceeds 85 characters; contains 128 characters
+  251 | WARNING | Line exceeds 85 characters; contains 112 characters
+  253 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  253 | ERROR   | Method name "ADODB_Active_Record::ClassHasMany" is
+      |         | not in camel caps format
+  253 | WARNING | Line exceeds 85 characters; contains 119 characters
+  260 | ERROR   | Missing function doc comment
+  260 | WARNING | Line exceeds 85 characters; contains 106 characters
+  268 | WARNING | Line exceeds 85 characters; contains 105 characters
+  275 | ERROR   | Missing function doc comment
+  275 | ERROR   | Method name "ADODB_Active_Record::ClassBelongsTo"
+      |         | is not in camel caps format
+  275 | WARNING | Line exceeds 85 characters; contains 127 characters
+  281 | ERROR   | Missing function doc comment
+  281 | ERROR   | Method name "ADODB_Active_Record::TableBelongsTo"
+      |         | is not in camel caps format
+  281 | WARNING | Line exceeds 85 characters; contains 127 characters
+  287 | ERROR   | Missing function doc comment
+  287 | ERROR   | Method name
+      |         | "ADODB_Active_Record::TableKeyBelongsTo" is not in
+      |         | camel caps format
+  287 | WARNING | Line exceeds 85 characters; contains 142 characters
+  300 | ERROR   | Missing parameter comment
+  301 | ERROR   | Tag cannot be grouped with parameter tags in a doc
+      |         | comment
+  302 | ERROR   | Tag cannot be grouped with parameter tags in a doc
+      |         | comment
+  309 | ERROR   | Missing short description in doc comment
+  309 | ERROR   | Doc comment for parameter "$offset" missing
+  309 | ERROR   | Doc comment for parameter "$limit" missing
+  310 | ERROR   | Missing parameter comment
+  312 | ERROR   | Missing parameter name
+  313 | ERROR   | Missing parameter name
+  316 | ERROR   | Method name "ADODB_Active_Record::LoadRelations" is
+      |         | not in camel caps format
+  335 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+  338 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+  341 | ERROR   | Expected "} else {\n"; found "}\n            else
+      |         | {\n"
+  345 | ERROR   | Expected "} else {\n"; found "}\n               
+      |         | else {\n"
+  349 | WARNING | Line exceeds 85 characters; contains 111 characters
+  356 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+  364 | WARNING | Line exceeds 85 characters; contains 99 characters
+  377 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  377 | ERROR   | Method name
+      |         | "ADODB_Active_Record::UpdateActiveTable" is not in
+      |         | camel caps format
+  379 | WARNING | Line exceeds 85 characters; contains 96 characters
+  390 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  394 | ERROR   | Expected "} else {\n"; found "}\n               
+      |         | else {\n"
+  401 | WARNING | Line exceeds 85 characters; contains 98 characters
+  402 | WARNING | Line exceeds 85 characters; contains 98 characters
+  407 | WARNING | Line exceeds 85 characters; contains 92 characters
+  408 | WARNING | Line exceeds 85 characters; contains 94 characters
+  411 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  415 | ERROR   | Expected "} else {\n"; found "}\n                  
+      |         |  else {\n"
+  422 | WARNING | Line exceeds 85 characters; contains 99 characters
+  452 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  462 | WARNING | Line exceeds 85 characters; contains 87 characters
+  471 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  476 | ERROR   | Expected "} else {\n"; found "}\n               
+      |         | else {\n"
+  481 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  487 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  493 | ERROR   | Expected "} else {\n"; found "}\n               
+      |         | else {\n"
+  499 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  504 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  510 | ERROR   | Expected "} else {\n"; found "}\n               
+      |         | else {\n"
+  515 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  543 | ERROR   | Missing function doc comment
+  543 | ERROR   | Method name "ADODB_Active_Record::GetPrimaryKeys"
+      |         | is not in camel caps format
+  549 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  549 | ERROR   | Method name "ADODB_Active_Record::Error" is not in
+      |         | camel caps format
+  559 | ERROR   | Expected "} else {\n"; found "}\n        else {\n"
+  568 | ERROR   | Expected "} else {\n"; found "}\n            else
+      |         | {\n"
+  580 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  580 | ERROR   | Method name "ADODB_Active_Record::ErrorMsg" is not
+      |         | in camel caps format
+  586 | ERROR   | Expected "} else {\n"; found "}\n            else
+      |         | {\n"
+  598 | ERROR   | Missing function doc comment
+  598 | ERROR   | Method name "ADODB_Active_Record::ErrorNo" is not
+      |         | in camel caps format
+  610 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  616 | WARNING | Line exceeds 85 characters; contains 112 characters
+  625 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  625 | ERROR   | Method name "ADODB_Active_Record::TableInfo" is not
+      |         | in camel caps format
+  635 | WARNING | Line exceeds 85 characters; contains 102 characters
+  636 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  636 | ERROR   | Method name "ADODB_Active_Record::Reload" is not in
+      |         | camel caps format
+  649 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  649 | ERROR   | Method name "ADODB_Active_Record::Set" is not in
+      |         | camel caps format
+  679 | ERROR   | Expected "} else {\n"; found "}\n        else {\n"
+  686 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  698 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  698 | ERROR   | Method name "ADODB_Active_Record::LastInsertID" is
+      |         | not in camel caps format
+  703 | ERROR   | Expected "} else {\n"; found "}\n        else {\n"
+  715 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  736 | WARNING | Line exceeds 85 characters; contains 89 characters
+  748 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  748 | ERROR   | Method name "ADODB_Active_Record::GenWhere" is not
+      |         | in camel caps format
+  753 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  756 | WARNING | Line exceeds 85 characters; contains 91 characters
+  763 | ERROR   | Missing function doc comment
+  777 | WARNING | Line exceeds 85 characters; contains 89 characters
+  779 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  779 | ERROR   | Method name "ADODB_Active_Record::Load" is not in
+      |         | camel caps format
+  797 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+  814 | ERROR   | Missing function doc comment
+  814 | ERROR   | Method name "ADODB_Active_Record::LoadLocked" is
+      |         | not in camel caps format
+  821 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  821 | ERROR   | Method name "ADODB_Active_Record::Reset" is not in
+      |         | camel caps format
+  828 | ERROR   | Expected "foreach (...) {\n"; found
+      |         | "foreach(...){\n"
+  829 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+  838 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  838 | ERROR   | Method name "ADODB_Active_Record::Save" is not in
+      |         | camel caps format
+  843 | ERROR   | Expected "} else {\n"; found "}\n        else {\n"
+  852 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  852 | ERROR   | Method name "ADODB_Active_Record::Insert" is not in
+      |         | camel caps format
+  865 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  867 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+  867 | WARNING | Line exceeds 85 characters; contains 93 characters
+  876 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  883 | WARNING | Line exceeds 85 characters; contains 108 characters
+  889 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  905 | ERROR   | Missing function doc comment
+  905 | ERROR   | Method name "ADODB_Active_Record::Delete" is not in
+      |         | camel caps format
+  921 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  921 | ERROR   | Method name "ADODB_Active_Record::Find" is not in
+      |         | camel caps format
+  927 | WARNING | Line exceeds 85 characters; contains 119 characters
+  932 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+  932 | ERROR   | Method name "ADODB_Active_Record::Replace" is not
+      |         | in camel caps format
+  944 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  976 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  980 | ERROR   | Expected "} elseif (...) {\n"; found "}\n       
+      |         | elseif (...) {\n"
+  981 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+  991 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+ 1009 | ERROR   | You must use "/**" style comments for a function
+      |         | comment
+ 1009 | ERROR   | Method name "ADODB_Active_Record::Update" is not in
+      |         | camel caps format
+ 1028 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+ 1042 | ERROR   | Expected "} else {\n"; found "}\n                  
+      |         |  else {\n"
+ 1049 | WARNING | Line exceeds 85 characters; contains 89 characters
+ 1076 | ERROR   | Missing function doc comment
+ 1076 | ERROR   | Method name
+      |         | "ADODB_Active_Record::GetAttributeNames" is not in
+      |         | camel caps format
+ 1087 | ERROR   | Missing function doc comment
+ 1087 | ERROR   | Function name "adodb_GetActiveRecordsClass" is
+      |         | prefixed with a package name but does not begin
+      |         | with a capital letter
+ 1087 | WARNING | Line exceeds 85 characters; contains 94 characters
+ 1099 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+ 1101 | ERROR   | Expected "if (...) {\n"; found "if(...) {\n"
+ 1102 | WARNING | Line exceeds 85 characters; contains 86 characters
+ 1126 | WARNING | Line exceeds 85 characters; contains 100 characters
+ 1136 | ERROR   | Expected "foreach (...) {\n"; found "foreach(...)
+      |         | {\n"
+----------------------------------------------------------------------
+
+Time: 565ms; Memory: 13Mb
+

@@ -1,0 +1,3 @@
+/dev/github/sddata/adodb-active-record.inc.php
+
+Notice: Undefined offset: 2 in C:\dev\github\standards\insert-header-docblock.php on line 22

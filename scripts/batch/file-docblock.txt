@@ -1,0 +1,20 @@
+/**
+* This is the short description placeholder for the generic file docblock
+*
+* PHP 5
+*
+!##!
+*
+* @category FIXME
+* @package ADODB
+* @author John Lim <author@domain.com>
+* @copyright 2014 The ADODB project
+* @copyright 2000-2013 John Lim
+* @license BSD (Primary) LGPL (Secondary)
+* @version 5.21.0
+* @link FIXME
+*
+* @adodb-filecheck-status: FIXME
+* @adodb-codesniffer-status: FIXME
+* @adodb-documentor-status: FIXME
+*/ 
