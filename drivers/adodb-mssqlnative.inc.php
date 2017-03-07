@@ -458,8 +458,6 @@ class ADODB_mssqlnative extends ADOConnection {
 				$this->_errorMsg .= "Error Code: ".$arrError[ 'code']."\n";
 				$this->_errorMsg .= "Message: ".$arrError[ 'message']."\n";
 			}
-		} else {
-			$this->_errorMsg = "No errors found";
 		}
 		return $this->_errorMsg;
 	}
