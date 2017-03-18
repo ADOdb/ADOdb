@@ -19,6 +19,8 @@
 Based on adodb 3.40
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -669,7 +671,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		$retarr = array();
 		while (!$rs->EOF) {
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			$fld->name = $rs->fields[0];
 			$type = $rs->fields[1];
 
@@ -1007,7 +1009,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		if ( !isset($o->flags) ) {
 			$o->flags = 0;
 		}
-		/* Properties of an ADOFieldObject as set by MetaColumns */
+		/* Properties of an ADOdb\FieldObject as set by MetaColumns */
 		$o->primary_key = $o->flags & MYSQLI_PRI_KEY_FLAG;
 		$o->not_null = $o->flags & MYSQLI_NOT_NULL_FLAG;
 		$o->auto_increment = $o->flags & MYSQLI_AUTO_INCREMENT_FLAG;
@@ -1018,7 +1020,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		/*
 		* Trivial method to cast class to ADOfieldObject
 		*/
-		$a = new ADOFieldObject;
+		$a = new FieldObject;
 		foreach (get_object_vars($o) as $key => $name)
 			$a->$key = $name;
 		return $a;

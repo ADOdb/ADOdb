@@ -1,5 +1,7 @@
 <?php
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -227,7 +229,7 @@ $ADODB_INCLUDED_CSV = 1;
 					$flds = false;
 					break;
 				}
-				$fld = new ADOFieldObject();
+				$fld = new FieldObject();
 				$fld->name = urldecode($o2[0]);
 				$fld->type = $o2[1];
 				$fld->max_length = $o2[2];

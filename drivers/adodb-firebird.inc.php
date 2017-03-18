@@ -14,6 +14,8 @@ Set tabs to 4 for best viewing.
 
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -501,7 +503,7 @@ class ADODB_firebird extends ADOConnection {
 	}
 	//OPN STUFF end
 
-	// returns array of ADOFieldObjects for current table
+	// returns array of ADOdb\FieldObjects for current table
 	function MetaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
@@ -522,7 +524,7 @@ class ADODB_firebird extends ADOConnection {
 		$dialect3 = ($this->dialect==3 ? true : false);
 		//OPN STUFF end
 		while (!$rs->EOF) { //print_r($rs->fields);
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			$fld->name = trim($rs->fields[0]);
 			//OPN STUFF start
 			$this->_ConvertFieldType($fld, $rs->fields[7], $rs->fields[3], $rs->fields[4], $rs->fields[5], $rs->fields[6], $dialect3);
@@ -795,7 +797,7 @@ class  ADORecordset_firebird extends ADORecordSet
 	*/
 	function FetchField($fieldOffset = -1)
 	{
-			$fld = new ADOFieldObject;
+			$fld = new FieldObject;
 			 $ibf = fbird_field_info($this->_queryID,$fieldOffset);
 
 			$name = empty($ibf['alias']) ? $ibf['name'] : $ibf['alias'];

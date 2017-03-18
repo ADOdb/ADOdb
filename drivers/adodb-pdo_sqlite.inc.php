@@ -15,6 +15,8 @@
 	And also Sid Dunayer [sdunayer#interserv.com] for extensive fixes.
 */
 
+use ADOdb\FieldObject;
+
 class ADODB_pdo_sqlite extends ADODB_pdo {
 	var $metaTablesSQL   = "SELECT name FROM sqlite_master WHERE type='table'";
 	var $sysDate         = 'current_date';
@@ -168,7 +170,7 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	    if (sizeof($type)==2)
 	    $size = trim($type[1],')');
 	    $fn = strtoupper($r['name']);
-	    $fld = new ADOFieldObject;
+	    $fld = new FieldObject;
 	    $fld->name = $r['name'];
 	    $fld->type = $type[0];
 	    $fld->max_length = $size;

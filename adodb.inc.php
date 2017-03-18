@@ -34,6 +34,8 @@
 
  */
 
+use ADOdb\FieldObject;
+
 if (!defined('_ADODB_LAYER')) {
 	define('_ADODB_LAYER',1);
 
@@ -267,26 +269,8 @@ if (!defined('_ADODB_LAYER')) {
 
 	ADODB_Setup();
 
-	//==============================================================================================
-	// CLASS ADOFieldObject
-	//==============================================================================================
-	/**
-	 * Helper class for FetchFields -- holds info on a column
-	 */
-	class ADOFieldObject {
-		var $name = '';
-		var $max_length=0;
-		var $type="";
-/*
-		// additional fields by dannym... (danny_milo@yahoo.com)
-		var $not_null = false;
-		// actually, this has already been built-in in the postgres, fbsql AND mysql module? ^-^
-		// so we can as well make not_null standard (leaving it at "false" does not harm anyways)
-
-		var $has_default = false; // this one I have done only in mysql and postgres for now ...
-			// others to come (dannym)
-		var $default_value; // default, if any, and supported. Check has_default first.
-*/
+	if (!class_exists('ADOdb\\FieldObject')) {
+		include(__DIR__ . '/FieldObject.php');
 	}
 
 
@@ -2663,14 +2647,14 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	 * List columns in a database as an array of ADOFieldObjects.
+	 * List columns in a database as an array of ADOdb\FieldObjects.
 	 * See top of file for definition of object.
 	 *
 	 * @param $table	table name to query
 	 * @param $normalize	makes table name case-insensitive (required by some databases)
 	 * @schema is optional database schema to use - not supported by all databases.
 	 *
-	 * @return  array of ADOFieldObjects for current table.
+	 * @return  array of ADOdb\FieldObjects for current table.
 	 */
 	function MetaColumns($table,$normalize=true) {
 		global $ADODB_FETCH_MODE;
@@ -2695,7 +2679,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 			$retarr = array();
 			while (!$rs->EOF) { //print_r($rs->fields);
-				$fld = new ADOFieldObject();
+				$fld = new FieldObject();
 				$fld->name = $rs->fields[0];
 				$fld->type = $rs->fields[1];
 				if (isset($rs->fields[3]) && $rs->fields[3]) {
@@ -4206,11 +4190,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	 * Get the ADOFieldObject of a specific column.
+	 * Get the ADOdb\FieldObject of a specific column.
 	 *
 	 * @param fieldoffset	is the column position to access(0-based).
 	 *
-	 * @return the ADOFieldObject for that column, or false.
+	 * @return the ADOdb\FieldObject for that column, or false.
 	 */
 	function FetchField($fieldoffset = -1) {
 		// must be defined by child class
@@ -4219,7 +4203,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	 * Get the ADOFieldObjects of all columns in an array.
+	 * Get the ADOdb\FieldObjects of all columns in an array.
 	 *
 	 */
 	function FieldTypesArray() {
@@ -4321,7 +4305,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * many databases use different names for the same type, so we transform the original
 	 * type to our standardised version which uses 1 character codes:
 	 *
-	 * @param t  is the type passed in. Normally is ADOFieldObject->type.
+	 * @param t  is the type passed in. Normally is ADOdb\FieldObject->type.
 	 * @param len is the maximum length of that field. This is because we treat character
 	 *	fields bigger than a certain size as a 'B' (blob).
 	 * @param fieldobj is the field object returned by the database driver. Can hold
@@ -4627,7 +4611,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$this->_fieldobjects = array();
 
 			foreach($hdr as $k => $name) {
-				$f = new ADOFieldObject();
+				$f = new FieldObject();
 				$f->name = $name;
 				$f->type = $this->_types[$k];
 				$f->max_length = -1;
@@ -4668,7 +4652,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		 * @param array		is a 2-dimensional array holding the data.
 		 *			The first row should hold the column names
 		 *			unless paramter $colnames is used.
-		 * @param fieldarr	holds an array of ADOFieldObject's.
+		 * @param fieldarr	holds an array of ADOdb\FieldObject's.
 		 */
 		function InitArrayFields(&$array,&$fieldarr) {
 			$this->_array = $array;
@@ -4723,7 +4707,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if (isset($this->_fieldobjects)) {
 				return $this->_fieldobjects[$fieldOffset];
 			}
-			$o =  new ADOFieldObject();
+			$o =  new FieldObject();
 			$o->name = $this->_colnames[$fieldOffset];
 			$o->type =  $this->_types[$fieldOffset];
 			$o->max_length = -1; // length not known

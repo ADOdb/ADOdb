@@ -11,6 +11,8 @@
 */
 // Code contributed by "stefan bogdan" <sbogdan#rsb.ro>
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -344,7 +346,7 @@ class ADODB_odbtp extends ADOConnection{
 		while (!$rs->EOF) {
 			//print_r($rs->fields);
 			if (strtoupper($rs->fields[2]) == $table) {
-				$fld = new ADOFieldObject();
+				$fld = new FieldObject();
 				$fld->name = $rs->fields[3];
 				$fld->type = $rs->fields[5];
 				$fld->max_length = $rs->fields[6];
@@ -699,7 +701,7 @@ class ADORecordSet_odbtp extends ADORecordSet {
 	function FetchField($fieldOffset = 0)
 	{
 		$off=$fieldOffset; // offsets begin at 0
-		$o= new ADOFieldObject();
+		$o= new FieldObject();
 		$o->name = @odbtp_field_name($this->_queryID,$off);
 		$o->type = @odbtp_field_type($this->_queryID,$off);
         $o->max_length = @odbtp_field_length($this->_queryID,$off);

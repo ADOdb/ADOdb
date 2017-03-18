@@ -17,6 +17,8 @@ Set tabs to 4 for best viewing.
   Please check http://bugs.php.net/ for more info.
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -84,7 +86,7 @@ class  ADODB_ado_mssql extends ADODB_ado {
 
 		if ($adors){
 			while (!$adors->EOF){
-				$fld = new ADOFieldObject();
+				$fld = new FieldObject();
 				$c = $adors->Fields(3);
 				$fld->name = $c->Value;
 				$fld->type = 'CHAR'; // cannot discover type in ADO!

@@ -14,6 +14,8 @@
   If you are using Oracle 8 or later, use the oci8 driver which is much better and more reliable.
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -252,7 +254,7 @@ class ADORecordset_oracle extends ADORecordSet {
 
 	   function FetchField($fieldOffset = -1)
 	   {
-			$fld = new ADOFieldObject;
+			$fld = new FieldObject;
 			$fld->name = ora_columnname($this->_queryID, $fieldOffset);
 			$fld->type = ora_columntype($this->_queryID, $fieldOffset);
 			$fld->max_length = ora_columnsize($this->_queryID, $fieldOffset);

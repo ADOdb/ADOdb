@@ -12,6 +12,8 @@
 
 */
 
+use ADOdb\FieldObject;
+
 class ADODB_pdo_oci extends ADODB_pdo_base {
 
 	var $concat_operator='||';
@@ -67,7 +69,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		}
 		$retarr = array();
 		while (!$rs->EOF) { //print_r($rs->fields);
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 	   		$fld->name = $rs->fields[0];
 	   		$fld->type = $rs->fields[1];
 	   		$fld->max_length = $rs->fields[2];

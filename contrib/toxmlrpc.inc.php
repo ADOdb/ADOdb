@@ -14,6 +14,8 @@
     *       - null values
     */
 
+use ADOdb\FieldObject;
+
     /**
     * Include the main libraries
     */
@@ -150,7 +152,7 @@
         $fieldinfo = $header->structmem('fieldinfo');
         for ($i = 0; $i < $numfields; $i++) {
             $temp = $fieldinfo->arraymem($i);
-            $fld = new ADOFieldObject();
+            $fld = new FieldObject();
             while (list($key,$value) = $temp->structeach()) {
                 if ($key == "name") $fld->name = $value->scalarval();
                 if ($key == "type") $fld->type = $value->scalarval();

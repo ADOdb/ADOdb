@@ -19,6 +19,8 @@
 		LOB handling for CLOB/BLOB differs significantly
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -731,7 +733,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 	{
 		$off=$fieldOffset+1; // offsets begin at 1
 
-		$o= new ADOFieldObject();
+		$o= new FieldObject();
 		$arr = @$this->_queryID->getColumnMeta($fieldOffset);
 		if (!$arr) {
 			$o->name = 'bad getColumnMeta()';
