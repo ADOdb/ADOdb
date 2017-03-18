@@ -31,7 +31,8 @@
 	},
 
 	"autoload" : {
-		"files" : ["adodb.inc.php"]
+		"files" : ["adodb.inc.php"],
+		"psr-4" : { "ADOdb\\" : "" }
 	}
 
 }
