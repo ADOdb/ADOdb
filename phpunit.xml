@@ -1,6 +1,7 @@
 <phpunit bootstrap="tests/bootstrap.php"> 
     <testsuites>
         <testsuite name="main">
+        <file>tests/AllTest.php</file>
         <file>tests/MySQLiTest.php</file>
         <file>tests/PDO_MySQLTest.php</file>
         <file>tests/Postgres9Test.php</file>
