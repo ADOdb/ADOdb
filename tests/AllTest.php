@@ -8,6 +8,7 @@ class AllTest extends PHPUnit_Framework_TestCase
             $con = $this->getConnection($driver);
             if ($con === false) {
                 echo "No {$driver} connection; skipping those tests" . PHP_EOL;
+                continue;
             }
 
             // generic tests go here
@@ -76,7 +77,7 @@ class AllTest extends PHPUnit_Framework_TestCase
                     return false;
                 }
                 $credentials = json_decode(file_get_contents(__DIR__ . '/credentials.json'), true);
-                $credentials = $credentials['mysql'];
+                $credentials = $credentials['postgres'];
                 $con = ADONewConnection('pdo');
                 $con->Connect('pgsql:host=localhost;dbname=adodb_test', $credentials['user'], $credentials['password']);
                 return $con->IsConnected() ? $con : false;
