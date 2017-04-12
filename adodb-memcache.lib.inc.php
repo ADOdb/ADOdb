@@ -68,7 +68,7 @@ $db->CacheExecute($sql);
 			if (class_exists('Memcache')) {
 				$this->library='Memcache';
 				$memcache = new MemCache;
-			elseif (class_exists('Memcached')) {
+			} elseif (class_exists('Memcached')) {
 				$this->library='Memcached';
 				$memcache = new MemCached;
 			} else {
