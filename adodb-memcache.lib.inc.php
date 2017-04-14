@@ -42,7 +42,11 @@ $db->CacheExecute($sql);
 
 	class ADODB_Cache_MemCache {
 		var $createdir = false; // create caching directory structure?
-		var $library = false; // check for memcache/memcached prior to connect, then populate this variable
+
+		// $library will be populated with the proper library on connect
+		// and is used later when there are differences in specific calls
+		// between memcache and memcached
+		var $library = false;
 
 		//-----------------------------
 		// memcache specific variables
@@ -114,7 +118,9 @@ $db->CacheExecute($sql);
 						$failed=true;
 					}
 					break;
-				default: $failed=true; break;
+				default:
+					$failed=true;
+					break;
 			}
 
 			if($failed) {
