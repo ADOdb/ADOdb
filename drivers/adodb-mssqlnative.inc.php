@@ -55,11 +55,11 @@ if (!function_exists('sqlsrv_log_set_subsystems')) {
 // MORE LOCALIZATION INFO
 // ----------------------
 // To configure datetime, look for and modify sqlcommn.loc,
-//  	typically found in c:\mssql\install
+//   typically found in c:\mssql\install
 // Also read :
-//	 http://support.microsoft.com/default.aspx?scid=kb;EN-US;q220918
+//   http://support.microsoft.com/default.aspx?scid=kb;EN-US;q220918
 // Alternatively use:
-// 	   CONVERT(char(12),datecol,120)
+//   CONVERT(char(12),datecol,120)
 //
 // Also if your month is showing as month-1,
 //   e.g. Jan 13, 2002 is showing as 13/0/2002, then see
@@ -124,10 +124,10 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $uniqueOrderBy = true;
 	var $_bindInputArray = true;
 	var $_dropSeqSQL = "drop table %s";
-	
+
 	var $connectionInfo    = array('ReturnDatesAsStrings'=>true);
 	var $cachedSchemaFlush = false;
-	
+
 	var $sequences = false;
 	var $mssql_version = '';
 
@@ -146,31 +146,22 @@ class ADODB_mssqlnative extends ADOConnection {
 			sqlsrv_configure('WarningsReturnAsErrors', 0);
 		}
 	}
+
+	/**
+	 * Initializes the SQL Server version.
+	 * Dies if connected to a non-supported version (2000 and older)
+	 */
 	function ServerVersion() {
 		$data = $this->ServerInfo();
-		if (preg_match('/^09/',$data['version'])){
-			/*
-			 * SQL Server 2005
-			 */
-			$this->mssql_version = 9;
-		} elseif (preg_match('/^10/',$data['version'])){
-			/*
-			 * SQL Server 2008
-			 */
-			$this->mssql_version = 10;
-		} elseif (preg_match('/^11/',$data['version'])){
-			/*
-			 * SQL Server 2012
-			 */
-			$this->mssql_version = 11;
-		} elseif (preg_match('/^12/',$data['version'])){
-			/*
-			 * SQL Server 2014
-			 */
-			$this->mssql_version = 12;
-		
-		} else
+		preg_match('/^\d{2}/', $data['version'], $matches);
+		$version = (int)reset($matches);
+
+		// We only support SQL Server 2005 and up
+		if($version < 9) {
 			die("SQL SERVER VERSION {$data['version']} NOT SUPPORTED IN mssqlnative DRIVER");
+		}
+
+		$this->mssql_version = $version;
 	}
 
 	function ServerInfo() {
@@ -213,36 +204,28 @@ class ADODB_mssqlnative extends ADOConnection {
 	}
 
 	function GenID($seq='adodbseq',$start=1) {
-		if (!$this->mssql_version)
-			$this->ServerVersion();
 		switch($this->mssql_version){
 		case 9:
 		case 10:
-			return $this->GenID2008();
+			return $this->GenID2008($seq, $start);
 			break;
-		case 11:
-		case 12:
-			return $this->GenID2012();
+		default:
+			return $this->GenID2012($seq, $start);
 			break;
 		}
 	}
 
 	function CreateSequence($seq='adodbseq',$start=1)
 	{
-		if (!$this->mssql_vesion)
-			$this->ServerVersion();
-
 		switch($this->mssql_version){
 		case 9:
 		case 10:
-			return $this->CreateSequence2008();
+			return $this->CreateSequence2008($seq, $start);
 			break;
-		case 11:
-		case 12:
-			return $this->CreateSequence2012();
+		default:
+			return $this->CreateSequence2012($seq, $start);
 			break;
 		}
-
 	}
 
 	/**
@@ -267,7 +250,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	/**
 	 * Proper Sequences Only available to Server 2012 and up
 	 */
-	function CreateSequence2012($seq='adodb',$start=1){
+	function CreateSequence2012($seq='adodbseq',$start=1){
 		if (!$this->sequences){
 			$sql = "SELECT name FROM sys.sequences";
 			$this->sequences = $this->GetCol($sql);
@@ -298,7 +281,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		$num = $this->GetOne("select id from $seq");
 		sqlsrv_commit($this->_connectionID);
-		return true;
+		return $num;
 	}
 	/**
 	 * Only available to Server 2012 and up
@@ -322,7 +305,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		if (!is_array($this->sequences)
 		|| is_array($this->sequences) && !in_array($seq,$this->sequences)){
-			$this->CreateSequence2012($seq='adodbseq',$start=1);
+			$this->CreateSequence2012($seq, $start);
 
 		}
 		$num = $this->GetOne("SELECT NEXT VALUE FOR $seq");
@@ -410,6 +393,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		sqlsrv_commit($this->_connectionID);
 		return true;
 	}
+
 	function RollbackTrans()
 	{
 		if ($this->transOff) return true;
@@ -479,22 +463,21 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function ErrorNo()
 	{
-		if ($this->_logsql && $this->_errorCode !== false) return $this->_errorCode;
 		$err = sqlsrv_errors(SQLSRV_ERR_ALL);
 		if($err[0]) return $err[0]['code'];
-		else return -1;
+		else return 0;
 	}
 
 	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (!function_exists('sqlsrv_connect')) return null;
-		
+
 		$connectionInfo 			= $this->connectionInfo;
 		$connectionInfo["Database"]	= $argDatabasename;
 		$connectionInfo["UID"]		= $argUsername;
 		$connectionInfo["PWD"]		= $argPassword;
-	
+
 		/*
 		* Now merge in the passed connection parameters setting
 		*/
@@ -503,14 +486,16 @@ class ADODB_mssqlnative extends ADOConnection {
 			foreach($options as $parameter=>$value)
 				$connectionInfo[$parameter] = $value;
 		}
-		
-		
+
 		if ($this->debug) ADOConnection::outp("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
 		if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo)))
 		{
 			if ($this->debug) ADOConnection::outp( "<hr><b>errors</b>: ".print_r( sqlsrv_errors(), true));
 			return false;
 		}
+
+		$this->ServerVersion();
+
 		return true;
 	}
 
@@ -524,10 +509,6 @@ class ADODB_mssqlnative extends ADOConnection {
 	function Prepare($sql)
 	{
 		return $sql; // prepare does not work properly with bind parameters as bind parameters are managed by sqlsrv_prepare!
-
-		$stmt = sqlsrv_prepare( $this->_connectionID, $sql);
-		if (!$stmt)  return $sql;
-		return array($sql,$stmt);
 	}
 
 	// returns concatenated string
@@ -585,6 +566,12 @@ class ADODB_mssqlnative extends ADOConnection {
 		if (is_array($sql))
 			$sql = $sql[1];
 
+		$insert = false;
+		// handle native driver flaw for retrieving the last insert ID
+		if(preg_match('/^\W*insert[\s\w()",.]+values\s*\((?:[^;\']|\'\'|(?:(?:\'\')*\'[^\']+\'(?:\'\')*))*;?$/i', $sql)) {
+			$insert = true;
+			$sql .= '; '.$this->identitySQL; // select scope_identity()
+		}
 		if($inputarr) {
 			$rez = sqlsrv_query($this->_connectionID, $sql, $inputarr);
 		} else {
@@ -772,10 +759,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		if (array_key_exists($table,$cached_columns)){
 			return $cached_columns[$table];
 		}
-		
 
-		if (!$this->mssql_version)
-			$this->ServerVersion();
 
 		$this->_findschema($table,$schema);
 		if ($schema) {
@@ -809,7 +793,7 @@ class ADODB_mssqlnative extends ADOConnection {
 				$fld->type          = $rs->fields[1];
 				$fld->max_length    = $rs->fields[2];
 				$fld->precision     = $rs->fields[3];
-				$fld->scale     	= $rs->fields[4];
+				$fld->scale         = $rs->fields[4];
 				$fld->not_null      =!$rs->fields[5];
 				$fld->has_default   = $rs->fields[6];
 				$fld->xtype         = $rs->fields[7];
@@ -820,7 +804,7 @@ class ADODB_mssqlnative extends ADOConnection {
 				$fld->type          = $rs->fields['type'];
 				$fld->max_length    = $rs->fields['length'];
 				$fld->precision     = $rs->fields['precision'];
-				$fld->scale     	= $rs->fields['scale'];
+				$fld->scale         = $rs->fields['scale'];
 				$fld->not_null      =!$rs->fields['nullable'];
 				$fld->has_default   = $rs->fields['default_value'];
 				$fld->xtype         = $rs->fields['xtype'];
@@ -838,10 +822,10 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		$rs->Close();
 		$cached_columns[$table] = $retarr;
-		
+
 		return $retarr;
 	}
-	
+
 	/**
 	* Returns a substring of a varchar type field
 	*
@@ -859,17 +843,17 @@ class ADODB_mssqlnative extends ADOConnection {
 		if ($length == 0)
 			/*
 		     * The length available to varchar is 2GB, but that makes no
-			 * sense in a substring, so I'm going to arbitrarily limit 
+			 * sense in a substring, so I'm going to arbitrarily limit
 			 * the length to 1K, but you could change it if you want
 			 */
 			$length = 1024;
-		
+
 		$text = "SUBSTRING($fld,$start,$length)";
 		return $text;
 	}
-	
+
 	/**
-	* Returns the maximum size of a MetaType C field. Because of the 
+	* Returns the maximum size of a MetaType C field. Because of the
 	* database design, SQL Server places no limits on the size of data inserted
 	* Although the actual limit is 2^31-1 bytes.
 	*
@@ -881,7 +865,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	}
 
 	/**
-	* Returns the maximum size of a MetaType X field. Because of the 
+	* Returns the maximum size of a MetaType X field. Because of the
 	* database design, SQL Server places no limits on the size of data inserted
 	* Although the actual limit is 2^31-1 bytes.
 	*
@@ -903,33 +887,33 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	var $canSeek = false;
 	var $fieldOffset = 0;
 	// _mths works only in non-localised system
-	
+
 	/*
 	 * Holds a cached version of the metadata
 	 */
 	private $fieldObjects = false;
-	
+
 	/*
 	 * Flags if we have retrieved the metadata
 	 */
 	private $fieldObjectsRetrieved = false;
-	
+
 	/*
 	* Cross-reference the objects by name for easy access
 	*/
 	private $fieldObjectsIndex = array();
-	
-	
+
+
 	/*
 	 * Cross references the dateTime objects for faster decoding
 	 */
 	private $dateTimeObjects = array();
-	
+
 	/*
 	 * flags that we have dateTimeObjects to handle
 	 */
 	private $hasDateTimeObjects = false;
-	
+
 	/*
 	 * This is cross reference between how the types are stored
 	 * in SQL Server and their english-language description
@@ -961,10 +945,10 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			 91  => 'date',
 			 93  => 'datetime'
 			);
-	
-	
-	
-	
+
+
+
+
 	function __construct($id,$mode=false)
 	{
 		if ($mode === false) {
@@ -1020,10 +1004,10 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	/**
 	* Returns: an object containing field information.
 	*
-	* Get column information in the Recordset object. fetchField() 
-	* can be used in order to obtain information about fields in a 
-	* certain query result. If the field offset isn't specified, 
-	* the next field that wasn't yet retrieved by fetchField() 
+	* Get column information in the Recordset object. fetchField()
+	* can be used in order to obtain information about fields in a
+	* certain query result. If the field offset isn't specified,
+	* the next field that wasn't yet retrieved by fetchField()
 	* is retrieved.
 	*
 	* $param int $fieldOffset (optional default=-1 for all
@@ -1041,7 +1025,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 				else
 					return $this->fieldObjects[$fieldOffset];
 			}
-			else 
+			else
 				/*
 			     * No metadata available
 				 */
@@ -1054,13 +1038,13 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		 * numeric array.
 		 */
 		$fieldMetaData = sqlsrv_field_metadata($this->_queryID);
-		
+
 		if (!$fieldMetaData)
 			/*
 		     * Not a statement that gives us metaData
 			 */
 			return false;
-		
+
 		$this->_numOfFields = count($fieldMetaData);
 		foreach ($fieldMetaData as $key=>$value)
 		{
@@ -1070,23 +1054,23 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			 * Caution - keys are case-sensitive, must respect
 			 * casing of values
 			 */
-			
+
 			$fld->name          = $value['Name'];
 			$fld->max_length    = $value['Size'];
 			$fld->column_source = $value['Name'];
 			$fld->type          = $this->_typeConversion[$value['Type']];
-			
-			$this->fieldObjects[$key] = $fld; 
-			
+
+			$this->fieldObjects[$key] = $fld;
+
 			$this->fieldObjectsIndex[$fld->name] = $key;
-			
+
 		}
 		if ($fieldOffset == -1)
 			return $this->fieldObjects;
-		
+
 		return $this->fieldObjects[$fieldOffset];
 	}
-	
+
 	/*
 	 * Fetchfield copies the oracle method, it loads the field information
 	 * into the _fieldobjs array once, to save multiple calls to the
@@ -1112,12 +1096,12 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	// speedup
 	function MoveNext()
 	{
-		if ($this->EOF) 
+		if ($this->EOF)
 			return false;
 
 		$this->_currentRow++;
 
-		if ($this->_fetch()) 
+		if ($this->_fetch())
 			return true;
 		$this->EOF = true;
 
@@ -1129,25 +1113,25 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 			if ($this->fetchMode & ADODB_FETCH_NUM)
 				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_BOTH);
-			else 
+			else
 				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_ASSOC);
-			
-			if (is_array($this->fields)) 
+
+			if (is_array($this->fields))
 			{
 
-				if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) 
+				if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER)
 					$this->fields = array_change_key_case($this->fields,CASE_LOWER);
 				else if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER)
 					$this->fields = array_change_key_case($this->fields,CASE_UPPER);
-				
+
 			}
-		} 
-		else 
+		}
+		else
 			$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_NUMERIC);
-		
+
 		if (!$this->fields)
 			return false;
-			
+
 		return $this->fields;
 	}
 

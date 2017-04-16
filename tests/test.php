@@ -40,13 +40,9 @@ function Err($msg)
 
 function CheckWS($conn)
 {
-global $ADODB_EXTENSION;
-
 	include_once('../session/adodb-session.php');
 	if (defined('CHECKWSFAIL')){ echo " TESTING $conn ";flush();}
-	$saved = $ADODB_EXTENSION;
 	$db = ADONewConnection($conn);
-	$ADODB_EXTENSION = $saved;
 	if (headers_sent()) {
 		print "<p><b>White space detected in adodb-$conn.inc.php or include file...</b></p>";
 		//die();
@@ -125,12 +121,10 @@ FROM `nuke_stories` `t1`, `nuke_authors` `t2`, `nuke_stories_cat` `t3`, `nuke_to
 	//print $db->UnixTimeStamp('2003-7-22 23:00:00');
 
 	$phpv = phpversion();
-	if (defined('ADODB_EXTENSION')) $ext = ' &nbsp; Extension '.ADODB_EXTENSION.' installed';
-	else $ext = '';
 	print "<h3>ADODB Version: $ADODB_vers";
 	print "<p>Host: <i>$db->host</i>";
 	print "<br>Database: <i>$db->database</i>";
-	print "<br>PHP: <i>$phpv $ext</i></h3>";
+	print "<br>PHP: <i>$phpv</i></h3>";
 
 	flush();
 
@@ -1741,8 +1735,11 @@ if (sizeof($_GET) == 0) $testmysql = true;
 
 
 foreach($_GET as $k=>$v)  {
-	//global $$k;
-	$$k = $v;
+	// XSS protection (see Github issue #274) - only set variables for
+	// expected get parameters used in testdatabases.inc.php
+	if(preg_match('/^(test|no)\w+$/', $k)) {
+		$$k = $v;
+	}
 }
 
 ?>
