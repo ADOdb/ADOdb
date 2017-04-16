@@ -24,6 +24,12 @@
  */
 class ADOdbLoadBalancer
 {
+	/**
+	 * @var bool    Once a write or readonly connection is made, stick to that connection for the entire request.
+	 */
+	public $enable_sticky_sessions = true;
+
+
     /**
      * @var Bool|Array    All connections to each database.
      */
@@ -48,11 +54,6 @@ class ADOdbLoadBalancer
      * @var array    Weights of all connections for each type.
      */
     protected $total_connection_weights = array('all' => 0, 'write' => 0, 'readonly' => 0);
-
-    /**
-     * @var bool    Once a write or readonly connection is made, stick to that connection for the entire request.
-     */
-    protected $enable_sticky_sessions = true;
 
     /**
      * @var bool    When in transactions, always use this connection.
