@@ -131,31 +131,35 @@ class ADOdbLoadBalancer
      */
     public function removeConnection($i)
     {
-        $obj = $this->connections[$i];
+		if ( isset($this->connections[$i]) ) {
+			$obj = $this->connections[ $i ];
 
-        $this->total_connections[$obj->type]--;
-        $this->total_connections['all']--;
+			$this->total_connections[ $obj->type ]--;
+			$this->total_connections['all']--;
 
-        $this->total_connection_weights[$obj->type] -= abs($obj->weight);
-        $this->total_connection_weights['all'] -= abs($obj->weight);
+			$this->total_connection_weights[ $obj->type ] -= abs($obj->weight);
+			$this->total_connection_weights['all'] -= abs($obj->weight);
 
-        if ($obj->type == 'write') {
-            unset($this->connections_write[array_search($i, $this->connections_write)]);
-            $this->connections_write = array_values($this->connections_write); //Reindex array.
-        } else {
-            unset($this->connections_readonly[array_search($i, $this->connections_readonly)]);
-            $this->connections_readonly = array_values($this->connections_readonly); //Reindex array.
-        }
+			if ( $obj->type == 'write' ) {
+				unset( $this->connections_write[array_search( $i, $this->connections_write)]);
+				$this->connections_write = array_values($this->connections_write); //Reindex array.
+			} else {
+				unset( $this->connections_readonly[array_search( $i, $this->connections_readonly)]);
+				$this->connections_readonly = array_values($this->connections_readonly); //Reindex array.
+			}
 
-        //Remove any sticky connections as well.
-        if ($this->last_connection_id[$obj->type] == $i) {
-            $this->last_connection_id[$obj->type] = false;
-        }
+			//Remove any sticky connections as well.
+			if ( $this->last_connection_id[$obj->type] == $i ) {
+				$this->last_connection_id[$obj->type] = false;
+			}
 
-        unset($this->connections[$i]);
+			unset( $this->connections[$i] );
 
-        return true;
-    }
+			return true;
+		}
+
+		return false;
+	}
 
     /**
      * Returns a database connection of the specified type, but takes into account the connection weight for load balancing.
@@ -237,7 +241,6 @@ class ADOdbLoadBalancer
                 } catch (Exception $e) {
                     //Connection error, see if there are other connections to try still.
                     throw $e; //No connections left, reThrow exception so application can catch it.
-                    return false;
                 }
 
                 if (is_array($this->user_defined_session_init_sql)) {
@@ -252,6 +255,8 @@ class ADOdbLoadBalancer
         } else {
             throw new Exception('Unable to return Connection object...');
         }
+
+        return false;
     }
 
     /**
@@ -265,26 +270,29 @@ class ADOdbLoadBalancer
      */
     public function getConnection($type = 'write', $pin_connection = null, $force_connection_id = false)
     {
-        if ($this->pinned_connection_id !== false) {
-            $connection_id = $this->pinned_connection_id;
-        } else {
-            $connection_id = $this->getLoadBalancedConnection($type);
-        }
+		while ( ($type == 'write' AND $this->total_connections['write'] > 0 ) OR ( $type == 'readonly' AND $this->total_connections['all'] > 0 ) ) {
+			if ( $this->pinned_connection_id !== false ) {
+				$connection_id = $this->pinned_connection_id;
+			} else {
+				$connection_id = $this->getLoadBalancedConnection( $type );
+			}
 
-        try {
-            $adodb_obj = $this->_getConnection($connection_id);
-            $connection_obj = $this->connections[$connection_id];
-        } catch (Exception $e) {
-            //Connection error, see if there are other connections to try still.
-            if (($type == 'write' && $this->total_connections['write'] > 0) || ($type == 'readonly' && $this->total_connections['all'] > 0)) {
-                $this->removeConnection($connection_id);
-
-                return $this->getConnection($type, $pin_connection);
-            } else {
-                throw $e; //No connections left, reThrow exception so application can catch it.
-                return false;
-            }
-        }
+			if ( $connection_id !== FALSE ) {
+				try {
+					$adodb_obj = $this->_getConnection( $connection_id );
+					//$connection_obj = $this->connections[$connection_id];
+					break;
+				} catch ( Exception $e ) {
+					//Connection error, see if there are other connections to try still.
+					$this->removeConnection( $connection_id );
+					if ( ( $type == 'write' AND $this->total_connections['write'] == 0 ) OR ( $type == 'readonly' AND $this->total_connections['all'] == 0 ) ) {
+						throw $e;
+					}
+				}
+			} else {
+				throw Exception('Connection ID is invalid!');
+			}
+		}
 
         $this->last_connection_id[$type] = $connection_id;
 
@@ -412,7 +420,11 @@ class ADOdbLoadBalancer
                     }
 
                     return $result_arr[0];
-                }
+                } else {
+					//When using lazy connections, there are cases where setSessionVariable() is called early on, but there are no connections to execute the queries on yet.
+					//This captures that case and forces a RETURN TRUE to occur. As likely the queries will be exectued as soon as a connection is established.
+					return true;
+				}
             }
         }
 
@@ -448,6 +460,8 @@ class ADOdbLoadBalancer
     {
         $type = 'write';
         $pin_connection = null;
+
+        $sql = trim($sql); //Prevent leading spaces from causing isReadOnlyQuery/stripos from failing.
 
         //SELECT queries that can write and therefore must be run on a write capable connection.
         //SELECT ... FOR UPDATE;
@@ -492,7 +506,7 @@ class ADOdbLoadBalancer
             case 'getcol':
             case 'getassoc':
             case 'selectlimit':
-                if ($this->isReadOnlyQuery($args[0]) == true) {
+                if ($this->isReadOnlyQuery(trim($args[0])) == true) {
                     $type = 'readonly';
                 }
                 break;
@@ -518,6 +532,7 @@ class ADOdbLoadBalancer
 
             //Manual transactions
             case 'begintrans':
+			case 'settransactionmode':
                 $pin_connection = true;
                 break;
             case 'rollbacktrans':
@@ -533,18 +548,38 @@ class ADOdbLoadBalancer
                 //getConnection() will only unpin the transaction if we're exiting the last nested transaction
                 $pin_connection = false;
                 break;
+
+			//Functions that don't require any connection and therefore shouldn't force a connection be established before they run.
+			case 'qstr':
+			case 'escape':
+			case 'binddate':
+			case 'bindtimestamp':
+			case 'setfetchmode':
+				$type = false; //No connection necessary.
+				break;
+
+			//Default to assuming write connection is required to be on the safe side.
             default:
                 break;
         }
 
-        $adodb_obj = $this->getConnection($type, $pin_connection);
-        if (is_object($adodb_obj)) {
-            $result = call_user_func_array(array($adodb_obj, $method), $this->makeValuesReferenced($args));
+		if ( $type === false ) {
+			if ( is_array($this->connections) AND count($this->connections) > 0 ) {
+				foreach( $this->connections as $key => $connection_obj ) {
+					$adodb_obj = $connection_obj->getADOdbObject();
+					return call_user_func_array( array($adodb_obj, $method), $this->makeValuesReferenced( $args ) ); //Just makes the function call on the first object.
+				}
+			}
+		} else {
+			$adodb_obj = $this->getConnection( $type, $pin_connection );
+			if ( is_object( $adodb_obj ) ) {
+				$result = call_user_func_array( array($adodb_obj, $method), $this->makeValuesReferenced( $args ) );
 
-            return $result;
-        }
+				return $result;
+			}
 
-        return false;
+			return false;
+		}
     }
 
     /**
@@ -556,7 +591,13 @@ class ADOdbLoadBalancer
      */
     public function __get($property)
     {
-        return $this->getConnection()->$property;
+		if ( is_array( $this->connections ) AND count( $this->connections ) > 0 ) {
+			foreach ( $this->connections as $key => $connection_obj ) {
+				return $connection_obj->getADOdbObject()->$property; //Just returns the property from the first object.
+			}
+		}
+
+		return false;
     }
 
     /**
@@ -569,7 +610,12 @@ class ADOdbLoadBalancer
      */
     public function __set($property, $value)
     {
-        return $this->getConnection()->$property = $value;
+		//Special function to set object properties on all objects without initiating a connection to the database.
+		if ( is_array( $this->connections ) AND count( $this->connections ) > 0 ) {
+			foreach ( $this->connections as $key => $connection_obj ) {
+				return $connection_obj->getADOdbObject()->$property; //Just returns the property from the first object.
+			}
+		}
     }
 
     /**
