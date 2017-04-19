@@ -268,7 +268,7 @@ class ADOdbLoadBalancer
      * @return bool
      * @throws Exception
      */
-    public function getConnection($type = 'write', $pin_connection = null, $force_connection_id = false)
+    public function getConnection($type = 'write', $pin_connection = null)
     {
 		while ( ($type == 'write' AND $this->total_connections['write'] > 0 ) OR ( $type == 'readonly' AND $this->total_connections['all'] > 0 ) ) {
 			if ( $this->pinned_connection_id !== false ) {
