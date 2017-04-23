@@ -613,9 +613,13 @@ class ADOdbLoadBalancer
 		//Special function to set object properties on all objects without initiating a connection to the database.
 		if ( is_array( $this->connections ) AND count( $this->connections ) > 0 ) {
 			foreach ( $this->connections as $key => $connection_obj ) {
-				return $connection_obj->getADOdbObject()->$property; //Just returns the property from the first object.
+				$connection_obj->getADOdbObject()->$property = $value;
 			}
+
+			return TRUE;
 		}
+
+		return FALSE;
     }
 
     /**
