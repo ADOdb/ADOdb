@@ -1211,6 +1211,14 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		case MYSQLI_TYPE_MEDIUM_BLOB :
 			return !empty($fieldobj->binary) ? 'B' : 'X';
 
+		//Handle geometry types as strings as they need to be passed through to the database unmodified with functions often.
+		case MYSQLI_TYPE_GEOMETRY:
+		case 'GEOMETRY':
+		case 'POINT':
+		case 'LINESTRING':
+		case 'POLYGON':
+			return 'Z';
+
 		case 'YEAR':
 		case 'DATE':
 		case MYSQLI_TYPE_DATE :

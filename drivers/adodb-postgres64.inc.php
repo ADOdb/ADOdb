@@ -1065,6 +1065,14 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				case '_VARCHAR':
 				case 'INET':
 				case 'MACADDR':
+				//Handle geometry types as strings.
+				case 'POINT':
+				case 'LINE':
+				case 'LSEG':
+				case 'BOX':
+				case 'PATH':
+				case 'POLYGON':
+				case 'CIRCLE':
 					if ($len <= $this->blobSize) return 'C';
 
 				case 'TEXT':
