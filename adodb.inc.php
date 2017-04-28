@@ -37,6 +37,21 @@
 if (!defined('_ADODB_LAYER')) {
 	define('_ADODB_LAYER',1);
 
+	// The ADOdb extension is no longer maintained and effectively unsupported
+	// since v5.04. The library will not function properly if it is present.
+	if(defined('ADODB_EXTENSION')) {
+		$msg = "Unsupported ADOdb Extension (v" . ADODB_EXTENSION . ") detected! "
+			. "Disable it to use ADOdb";
+
+		$errorfn = defined('ADODB_ERROR_HANDLER') ? ADODB_ERROR_HANDLER : false;
+		if ($errorfn) {
+			$conn = false;
+			$errorfn('ADOdb', basename(__FILE__), -9999, $msg, null, null, $conn);
+		} else {
+			die($msg . PHP_EOL);
+		}
+	}
+
 	//==============================================================================================
 	// CONSTANT DEFINITIONS
 	//==============================================================================================
@@ -60,7 +75,6 @@ if (!defined('_ADODB_LAYER')) {
 		$ADODB_CACHE_DIR,	// directory to cache recordsets
 		$ADODB_CACHE,
 		$ADODB_CACHE_CLASS,
-		$ADODB_EXTENSION,   // ADODB extension installed
 		$ADODB_COMPAT_FETCH, // If $ADODB_COUNTRECS and this is true, $rs->fields is available on EOF
 		$ADODB_FETCH_MODE,	// DEFAULT, NUM, ASSOC or BOTH. Default follows native driver default...
 		$ADODB_GETONE_EOF,
@@ -69,8 +83,6 @@ if (!defined('_ADODB_LAYER')) {
 	//==============================================================================================
 	// GLOBAL SETUP
 	//==============================================================================================
-
-	$ADODB_EXTENSION = defined('ADODB_EXTENSION');
 
 	/*********************************************************
 	* Controls $ADODB_FORCE_TYPE mode. Default is ADODB_FORCE_VALUE (3).
@@ -109,17 +121,15 @@ if (!defined('_ADODB_LAYER')) {
 	if (!defined('ADODB_DEFAULT_METATYPE'))
 		define ('ADODB_DEFAULT_METATYPE','N');
 
-	if (!$ADODB_EXTENSION || ADODB_EXTENSION < 4.0) {
-
-		define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
+	define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
 
 	// allow [ ] @ ` " and . in table names
-		define('ADODB_TABLE_REGEX','([]0-9a-z_\:\"\`\.\@\[-]*)');
+	define('ADODB_TABLE_REGEX','([]0-9a-z_\:\"\`\.\@\[-]*)');
 
 	// prefetching used by oracle
-		if (!defined('ADODB_PREFETCH_ROWS')) {
-			define('ADODB_PREFETCH_ROWS',10);
-		}
+	if (!defined('ADODB_PREFETCH_ROWS')) {
+		define('ADODB_PREFETCH_ROWS',10);
+	}
 
 
 	/**
@@ -134,10 +144,10 @@ if (!defined('_ADODB_LAYER')) {
 	 *   - BOTH:    array(0 => 456, 'id' => 456, 1 => 'john', 'name' => 'john')
 	 *   - DEFAULT: driver-dependent
 	 */
-		define('ADODB_FETCH_DEFAULT', 0);
-		define('ADODB_FETCH_NUM', 1);
-		define('ADODB_FETCH_ASSOC', 2);
-		define('ADODB_FETCH_BOTH', 3);
+	define('ADODB_FETCH_DEFAULT', 0);
+	define('ADODB_FETCH_NUM', 1);
+	define('ADODB_FETCH_ASSOC', 2);
+	define('ADODB_FETCH_BOTH', 3);
 
 	/**
 	 * Associative array case constants
@@ -154,34 +164,34 @@ if (!defined('_ADODB_LAYER')) {
 	 * NOTE: This functionality is not implemented everywhere, it currently
 	 * works only with: mssql, odbc, oci8 and ibase derived drivers
 	 */
-		define('ADODB_ASSOC_CASE_LOWER', 0);
-		define('ADODB_ASSOC_CASE_UPPER', 1);
-		define('ADODB_ASSOC_CASE_NATIVE', 2);
+	define('ADODB_ASSOC_CASE_LOWER', 0);
+	define('ADODB_ASSOC_CASE_UPPER', 1);
+	define('ADODB_ASSOC_CASE_NATIVE', 2);
 
 
-		if (!defined('TIMESTAMP_FIRST_YEAR')) {
-			define('TIMESTAMP_FIRST_YEAR',100);
-		}
-
-		/**
-		 * AutoExecute constants
-		 * (moved from adodb-pear.inc.php since they are only used in here)
-		 */
-		define('DB_AUTOQUERY_INSERT', 1);
-		define('DB_AUTOQUERY_UPDATE', 2);
-
-
-		// PHP's version scheme makes converting to numbers difficult - workaround
-		$_adodb_ver = (float) PHP_VERSION;
-		if ($_adodb_ver >= 5.2) {
-			define('ADODB_PHPVER',0x5200);
-		} else if ($_adodb_ver >= 5.0) {
-			define('ADODB_PHPVER',0x5000);
-		} else {
-			die("PHP5 or later required. You are running ".PHP_VERSION);
-		}
-		unset($_adodb_ver);
+	if (!defined('TIMESTAMP_FIRST_YEAR')) {
+		define('TIMESTAMP_FIRST_YEAR',100);
 	}
+
+	/**
+	 * AutoExecute constants
+	 * (moved from adodb-pear.inc.php since they are only used in here)
+	 */
+	define('DB_AUTOQUERY_INSERT', 1);
+	define('DB_AUTOQUERY_UPDATE', 2);
+
+
+	// PHP's version scheme makes converting to numbers difficult - workaround
+	$_adodb_ver = (float) PHP_VERSION;
+	if ($_adodb_ver >= 5.2) {
+		define('ADODB_PHPVER',0x5200);
+	} else if ($_adodb_ver >= 5.0) {
+		define('ADODB_PHPVER',0x5000);
+	} else {
+		die("PHP5 or later required. You are running ".PHP_VERSION);
+	}
+	unset($_adodb_ver);
+
 
 
 	/**
@@ -690,23 +700,23 @@ if (!defined('_ADODB_LAYER')) {
 		}
 		if (isset($rez)) {
 			$err = $this->ErrorMsg();
+			$errno = $this->ErrorNo();
 			if (empty($err)) {
 				$err = "Connection error to server '$argHostname' with user '$argUsername'";
 			}
-			$ret = false;
 		} else {
 			$err = "Missing extension for ".$this->dataProvider;
-			$ret = 0;
+			$errno = 0;
 		}
 		if ($fn = $this->raiseErrorFn) {
-			$fn($this->databaseType,'CONNECT',$this->ErrorNo(),$err,$this->host,$this->database,$this);
+			$fn($this->databaseType, 'CONNECT', $errno, $err, $this->host, $this->database, $this);
 		}
 
 		$this->_connectionID = false;
 		if ($this->debug) {
 			ADOConnection::outp( $this->host.': '.$err);
 		}
-		return $ret;
+		return false;
 	}
 
 	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName) {
@@ -1292,8 +1302,17 @@ if (!defined('_ADODB_LAYER')) {
 			return $rs;
 		}
 
+		if ($this->dataProvider == 'pdo' && $this->databaseType != 'pdo') {
+			// PDO uses a slightly different naming convention for the
+			// recordset class if the database type is changed, so we must
+			// treat it specifically. The mysql driver leaves the
+			// databaseType as pdo
+			$rsclass = $this->rsPrefix . 'pdo_' . $this->databaseType;
+		} else {
+			$rsclass = $this->rsPrefix . $this->databaseType;
+		}
+
 		// return real recordset from select statement
-		$rsclass = $this->rsPrefix.$this->databaseType;
 		$rs = new $rsclass($this->_queryID,$this->fetchMode);
 		$rs->connection = $this; // Pablo suggestion
 		$rs->Init();
@@ -3504,10 +3523,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @return an array indexed by the rows (0-based) from the recordset
 	 */
 	function GetArray($nRows = -1) {
-		global $ADODB_EXTENSION; if ($ADODB_EXTENSION) {
-		$results = adodb_getall($this,$nRows);
-		return $results;
-	}
 		$results = array();
 		$cnt = 0;
 		while (!$this->EOF && $nRows != $cnt) {
@@ -3573,8 +3588,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	function vGetAssoc($force_array = false, $first2cols = false)
 	{
-	global $ADODB_EXTENSION;
-
 		print_r($this);
 		exit;
 
@@ -3587,80 +3600,39 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$results = array();
 
 		if (!$first2cols && ($cols > 2 || $force_array)) {
-			if ($ADODB_EXTENSION) {
-				if ($numIndex) {
-					while (!$this->EOF) {
-						$results[trim($this->fields[0])] = array_slice($this->fields, 1);
-						adodb_movenext($this);
-					}
-				} else {
-					while (!$this->EOF) {
-					// Fix for array_slice re-numbering numeric associative keys
-						$keys = array_slice(array_keys($this->fields), 1);
-						$sliced_array = array();
-
-						foreach($keys as $key) {
-							$sliced_array[$key] = $this->fields[$key];
-						}
-
-						$results[trim(reset($this->fields))] = $sliced_array;
-						adodb_movenext($this);
-					}
+			if ($numIndex) {
+				while (!$this->EOF) {
+					$results[trim($this->fields[0])] = array_slice($this->fields, 1);
+					$this->MoveNext();
 				}
 			} else {
-				if ($numIndex) {
-					while (!$this->EOF) {
-						$results[trim($this->fields[0])] = array_slice($this->fields, 1);
-						$this->MoveNext();
-					}
-				} else {
-					while (!$this->EOF) {
-					// Fix for array_slice re-numbering numeric associative keys
-						$keys = array_slice(array_keys($this->fields), 1);
-						$sliced_array = array();
+				while (!$this->EOF) {
+				// Fix for array_slice re-numbering numeric associative keys
+					$keys = array_slice(array_keys($this->fields), 1);
+					$sliced_array = array();
 
-						foreach($keys as $key) {
-							$sliced_array[$key] = $this->fields[$key];
-						}
-
-						$results[trim(reset($this->fields))] = $sliced_array;
-						$this->MoveNext();
+					foreach($keys as $key) {
+						$sliced_array[$key] = $this->fields[$key];
 					}
+
+					$results[trim(reset($this->fields))] = $sliced_array;
+					$this->MoveNext();
 				}
 			}
 		} else {
-			if ($ADODB_EXTENSION) {
-				// return scalar values
-				if ($numIndex) {
-					while (!$this->EOF) {
-					// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
-						$results[trim(($this->fields[0]))] = $this->fields[1];
-						adodb_movenext($this);
-					}
-				} else {
-					while (!$this->EOF) {
-					// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
-						$v1 = trim(reset($this->fields));
-						$v2 = ''.next($this->fields);
-						$results[$v1] = $v2;
-						adodb_movenext($this);
-					}
+			if ($numIndex) {
+				while (!$this->EOF) {
+				// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
+					$results[trim(($this->fields[0]))] = $this->fields[1];
+					$this->MoveNext();
 				}
 			} else {
-				if ($numIndex) {
-					while (!$this->EOF) {
-					// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
-						$results[trim(($this->fields[0]))] = $this->fields[1];
-						$this->MoveNext();
-					}
-				} else {
-					while (!$this->EOF) {
-					// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
-						$v1 = trim(reset($this->fields));
-						$v2 = ''.next($this->fields);
-						$results[$v1] = $v2;
-						$this->MoveNext();
-					}
+				while (!$this->EOF) {
+				// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
+					$v1 = trim(reset($this->fields));
+					$v2 = ''.next($this->fields);
+					$results[$v1] = $v2;
+					$this->MoveNext();
 				}
 			}
 		}
@@ -3694,9 +3666,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function getAssoc($force_array = false, $first2cols = false)
 	{
-
-		global $ADODB_EXTENSION;
-
 		/*
 		* Insufficient rows to show data
 		*/
@@ -3809,14 +3778,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				break;
 			}
 
-			if ($ADODB_EXTENSION)
-				/*
-				 * Don't really need this either except for
-				 * old version compatibility
-				 */
-				adodb_movenext($this);
-			else
-			   $this->MoveNext();
+			$this->MoveNext();
 		}
 		/*
 		 * Done
@@ -4042,18 +4004,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if ($rowNumber < $this->_currentRow) {
 				return false;
 			}
-			global $ADODB_EXTENSION;
-			if ($ADODB_EXTENSION) {
-				while (!$this->EOF && $this->_currentRow < $rowNumber) {
-					adodb_movenext($this);
-				}
-			} else {
-				while (! $this->EOF && $this->_currentRow < $rowNumber) {
-					$this->_currentRow++;
+			while (! $this->EOF && $this->_currentRow < $rowNumber) {
+				$this->_currentRow++;
 
-					if (!$this->_fetch()) {
-						$this->EOF = true;
-					}
+				if (!$this->_fetch()) {
+					$this->EOF = true;
 				}
 			}
 			return !($this->EOF);
@@ -4875,7 +4830,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				break;
 
 			default:
-				$class = $db; break;
+				if (substr($db, 0, 4) === 'pdo_') {
+					ADOConnection::outp("Invalid database type: $db");
+					return false;
+				}
+
+				$class = $db;
+				break;
 		}
 
 		$file = ADODB_DIR."/drivers/adodb-".$db.".inc.php";

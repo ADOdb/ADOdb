@@ -426,7 +426,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		if ( strpos($sql, '_ADODB_COUNT') !== FALSE ) {
 			$rewritesql = preg_replace('/^\s*?SELECT\s+_ADODB_COUNT(.*)_ADODB_COUNT\s/is','SELECT COUNT(*) ',$sql);
 		} else {
-			$rewritesql = preg_replace('/^\s*?SELECT\s.*?\s+(.*?)\s+FROM\s/is','SELECT COUNT(*) FROM ',$sql);
+			$rewritesql = preg_replace('/^\s*SELECT\s.*\s+FROM\s/Uis','SELECT COUNT(*) FROM ',$sql);
 		}
 		// fix by alexander zhukov, alex#unipack.ru, because count(*) and 'order by' fails
 		// with mssql, access and postgresql. Also a good speedup optimization - skips sorting!
@@ -465,18 +465,11 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		if (!$rstest) $rstest = $zthis->Execute($sql,$inputarr);
 	}
 	if ($rstest) {
-	  		$qryRecs = $rstest->RecordCount();
+		$qryRecs = $rstest->RecordCount();
 		if ($qryRecs == -1) {
-		global $ADODB_EXTENSION;
-		// some databases will return -1 on MoveLast() - change to MoveNext()
-			if ($ADODB_EXTENSION) {
-				while(!$rstest->EOF) {
-					adodb_movenext($rstest);
-				}
-			} else {
-				while(!$rstest->EOF) {
-					$rstest->MoveNext();
-				}
+			// some databases will return -1 on MoveLast() - change to MoveNext()
+			while(!$rstest->EOF) {
+				$rstest->MoveNext();
 			}
 			$qryRecs = $rstest->_currentRow;
 		}
@@ -905,7 +898,7 @@ static $cacheCols;
                         		$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields, $magicq);
              				}
               			break;
-						
+
 						case ADODB_FORCE_NULL_AND_ZERO:
 							switch ($type)
 							{
@@ -919,7 +912,7 @@ static $cacheCols;
 									break;
 							}
 						break;
-						
+
              		} // switch
 
             /*********************************************************/

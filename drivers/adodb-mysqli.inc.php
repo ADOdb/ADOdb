@@ -29,9 +29,6 @@ if (! defined("_ADODB_MYSQLI_LAYER")) {
  if (! defined("MYSQLI_BINARY_FLAG"))  define("MYSQLI_BINARY_FLAG", 128);
  if (!defined('MYSQLI_READ_DEFAULT_GROUP')) define('MYSQLI_READ_DEFAULT_GROUP',1);
 
- // disable adodb extension - currently incompatible.
- global $ADODB_EXTENSION; $ADODB_EXTENSION = false;
-
 class ADODB_mysqli extends ADOConnection {
 	var $databaseType = 'mysqli';
 	var $dataProvider = 'mysql';
@@ -69,12 +66,6 @@ class ADODB_mysqli extends ADOConnection {
 	*/
 	private $usePreparedStatement    = false;
 	private $useLastInsertStatement  = false;
-
-	function __construct()
-	{
-		// if(!extension_loaded("mysqli"))
-		//trigger_error("You must have the mysqli extension installed.", E_USER_ERROR);
-	}
 
 	function SetTransactionMode( $transaction_mode )
 	{
@@ -1126,7 +1117,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		//if results are attached to this pointer from Stored Proceedure calls, the next standard query will die 2014
 		//only a problem with persistant connections
 
-		if($this->connection->_connectionID) {
+		if(isset($this->connection->_connectionID) && $this->connection->_connectionID) {
 			while(mysqli_more_results($this->connection->_connectionID)){
 				mysqli_next_result($this->connection->_connectionID);
 			}
