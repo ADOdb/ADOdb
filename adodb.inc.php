@@ -3586,60 +3586,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return $arr;
 	}
 
-	function vGetAssoc($force_array = false, $first2cols = false)
-	{
-		print_r($this);
-		exit;
-
-		$cols = $this->_numOfFields;
-		if ($cols < 2) {
-			$false = false;
-			return $false;
-		}
-		$numIndex = is_array($this->fields) && array_key_exists(0, $this->fields);
-		$results = array();
-
-		if (!$first2cols && ($cols > 2 || $force_array)) {
-			if ($numIndex) {
-				while (!$this->EOF) {
-					$results[trim($this->fields[0])] = array_slice($this->fields, 1);
-					$this->MoveNext();
-				}
-			} else {
-				while (!$this->EOF) {
-				// Fix for array_slice re-numbering numeric associative keys
-					$keys = array_slice(array_keys($this->fields), 1);
-					$sliced_array = array();
-
-					foreach($keys as $key) {
-						$sliced_array[$key] = $this->fields[$key];
-					}
-
-					$results[trim(reset($this->fields))] = $sliced_array;
-					$this->MoveNext();
-				}
-			}
-		} else {
-			if ($numIndex) {
-				while (!$this->EOF) {
-				// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
-					$results[trim(($this->fields[0]))] = $this->fields[1];
-					$this->MoveNext();
-				}
-			} else {
-				while (!$this->EOF) {
-				// some bug in mssql PHP 4.02 -- doesn't handle references properly so we FORCE creating a new string
-					$v1 = trim(reset($this->fields));
-					$v2 = ''.next($this->fields);
-					$results[$v1] = $v2;
-					$this->MoveNext();
-				}
-			}
-		}
-
-		$ref = $results; # workaround accelerator incompat with PHP 4.4 :(
-		return $ref;
-	}
 	/**
 	 * return whole recordset as a 2-dimensional associative array if
 	 * there are more than 2 columns. The first column is treated as the
@@ -3727,14 +3673,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 			/*
 			* key is value of first element, rest is data,
-			* casing is already handled by the driver (but see below)
+			* The key is not case processed
 			*/
 			$key = array_shift($myFields);
-			if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER)
-				$key = strtoupper($key);
-			elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER)
-				$key = strtolower($key);
-
+			
 			switch ($showArrayMethod)
 			{
 			case 0:
