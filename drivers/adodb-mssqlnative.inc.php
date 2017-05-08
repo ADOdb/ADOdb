@@ -572,7 +572,14 @@ class ADODB_mssqlnative extends ADOConnection {
 			$insert = true;
 			$sql .= '; '.$this->identitySQL; // select scope_identity()
 		}
-		if($inputarr) {
+		if($inputarr)
+		{
+			/*
+			* Ensure that the input array is numeric, as required by
+			* sqlsrv_query. If param() was used to create portable binds
+			* then the array might be associative
+			*/
+			$inputarr = array_values($inputarr);
 			$rez = sqlsrv_query($this->_connectionID, $sql, $inputarr);
 		} else {
 			$rez = sqlsrv_query($this->_connectionID,$sql);
