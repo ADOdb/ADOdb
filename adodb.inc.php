@@ -674,7 +674,7 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
-		if ( strpos($this->host, ':') > 0 && isset($this->port) && strpos($this->host,'://') === FALSE ) { //If host is ldap:// or ldaps:// don't try to explode the port off.
+		if ( strpos($this->host, ":") > 0 && isset($this->port) && strpos($this->host,"://") === FALSE ) { //If host is ldap:// or ldaps:// don't try to explode the port off.
 			list($this->host, $this->port) = explode(":", $this->host, 2);
 		}
 		if ($argUsername != "") {
