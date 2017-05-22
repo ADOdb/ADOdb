@@ -674,9 +674,9 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
-		if ( strpos($this->host, ':') > 0 && isset($this->port) ) {
+		if ( strpos($this->host, ':') > 0 && isset($this->port) && strpos($this->host,'://') === FALSE ) { //If host is ldap:// or ldaps:// don't try to explode the port off.
 			list($this->host, $this->port) = explode(":", $this->host, 2);
-        	}
+		}
 		if ($argUsername != "") {
 			$this->user = $argUsername;
 		}
@@ -3676,7 +3676,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			* The key is not case processed
 			*/
 			$key = array_shift($myFields);
-			
+
 			switch ($showArrayMethod)
 			{
 			case 0:
