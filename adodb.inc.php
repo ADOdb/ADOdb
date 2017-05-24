@@ -1714,7 +1714,7 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @param string		$sql		SQL statement
 	 * @param array|bool	$inputarr	input bind array
-	 * @return string|int|bool
+	 * @return mixed
 	 */
 	public function GetOne($sql, $inputarr=false) {
 		global $ADODB_COUNTRECS,$ADODB_GETONE_EOF;
