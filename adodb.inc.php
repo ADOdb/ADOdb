@@ -1709,13 +1709,14 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* Return first element of first row of sql statement. Recordset is disposed
-	* for you.
-	*
-	* @param sql			SQL statement
-	* @param [inputarr]		input bind array
-	*/
-	function GetOne($sql,$inputarr=false) {
+	 * Return first element of first row of sql statement. Recordset is disposed
+	 * for you.
+	 *
+	 * @param string		$sql		SQL statement
+	 * @param array|bool	$inputarr	input bind array
+	 * @return mixed
+	 */
+	public function GetOne($sql, $inputarr=false) {
 		global $ADODB_COUNTRECS,$ADODB_GETONE_EOF;
 
 		$crecs = $ADODB_COUNTRECS;
