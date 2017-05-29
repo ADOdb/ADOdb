@@ -1681,13 +1681,13 @@ if (!defined('_ADODB_LAYER')) {
 		return $arr;
 	}
 
-		/**
-		 * @param string $sql
-		 * @param false|array $inputarr
-		 * @param bool $force_array
-		 * @param bool $first2cols
-		 * @return false|array
-		 */
+	/**
+	 * @param string $sql
+	 * @param false|array $inputarr
+	 * @param bool $force_array
+	 * @param bool $first2cols
+	 * @return false|array
+	 */
 	public function GetAssoc($sql, $inputarr = false, $force_array = false, $first2cols = false) {
 		global $ADODB_FETCH_MODE;
 
@@ -1702,14 +1702,14 @@ if (!defined('_ADODB_LAYER')) {
 		return $rs->GetAssoc($force_array, $first2cols);
 	}
 
-		/**
-		 * @param int $secs2cache
-		 * @param false|string $sql
-		 * @param false|array $inputarr
-		 * @param bool $force_array
-		 * @param bool $first2cols
-		 * @return false|array
-		 */
+	/**
+	 * @param int $secs2cache
+	 * @param false|string $sql
+	 * @param false|array $inputarr
+	 * @param bool $force_array
+	 * @param bool $first2cols
+	 * @return false|array
+	 */
 	public function CacheGetAssoc($secs2cache, $sql = false, $inputarr = false,$force_array = false, $first2cols = false) {
 		if (!is_numeric($secs2cache)) {
 			$first2cols = $force_array;
