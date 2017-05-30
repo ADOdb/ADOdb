@@ -1129,11 +1129,11 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * Execute SQL
 	 *
-	 * @param sql		SQL statement to execute, or possibly an array holding prepared statement ($sql[0] will hold sql text)
-	 * @param [inputarr]	holds the input data to bind to. Null elements will be set to null.
-	 * @return RecordSet or false
+	 * @param string $sql SQL statement to execute, or possibly an array holding prepared statement ($sql[0] will hold sql text)
+	 * @param false|array $inputarr holds the input data to bind to. Null elements will be set to null.
+	 * @return false|ADORecordSet
 	 */
-	function Execute($sql,$inputarr=false) {
+	public function Execute($sql, $inputarr = false) {
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
 			$ret = $fn($this,$sql,$inputarr);
