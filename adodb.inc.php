@@ -4795,6 +4795,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$class = $db;
 				break;
 		}
+		
+		if (substr($db, 0, 4) === 'pdo_') {
+			ADOConnection::outp("Invalid database type $db");
+			return false;
+		}
 
 		$file = ADODB_DIR."/drivers/adodb-".$db.".inc.php";
 		@include_once($file);
