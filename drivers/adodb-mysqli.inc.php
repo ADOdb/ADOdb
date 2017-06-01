@@ -128,7 +128,7 @@ class ADODB_mysqli extends ADOConnection {
 			return true;
 		} else {
 			if ($this->debug) {
-				ADOConnection::outp("Could't connect : "  . $this->ErrorMsg());
+				ADOConnection::outp("Could not connect : "  . $this->ErrorMsg());
 			}
 			$this->_connectionID = null;
 			return false;
