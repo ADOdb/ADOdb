@@ -21,8 +21,52 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 
 	function BeginTrans()
 	{
-		$returnval = parent::BeginTrans();
-		return $returnval;
+		if (!$this->hasTransactions) {
+			return false;
+		}
+		if ($this->transOff) {
+			return true;
+		}
+		$this->transCnt += 1;
+
+		return $this->_connectionID->beginTransaction();
+	}
+
+	function CommitTrans($ok = true)
+	{
+		if (!$this->hasTransactions) {
+			return false;
+		}
+		if ($this->transOff) {
+			return true;
+		}
+		if (!$ok) {
+			return $this->RollbackTrans();
+		}
+		if ($this->transCnt) {
+			$this->transCnt -= 1;
+		}
+		$this->_autocommit = true;
+
+		$ret = $this->_connectionID->commit();
+		return $ret;
+	}
+
+	function RollbackTrans()
+	{
+		if (!$this->hasTransactions) {
+			return false;
+		}
+		if ($this->transOff) {
+			return true;
+		}
+		if ($this->transCnt) {
+			$this->transCnt -= 1;
+		}
+		$this->_autocommit = true;
+
+		$ret = $this->_connectionID->rollback();
+		return $ret;
 	}
 
 	function MetaColumns($table, $normalize = true)
