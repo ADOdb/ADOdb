@@ -179,7 +179,7 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	define('DB_AUTOQUERY_INSERT', 1);
 	define('DB_AUTOQUERY_UPDATE', 2);
-
+	define('DB_AUTOQUERY_UPSERT', 3);
 
 	// PHP's version scheme makes converting to numbers difficult - workaround
 	$_adodb_ver = (float) PHP_VERSION;
@@ -2207,7 +2207,7 @@ if (!defined('_ADODB_LAYER')) {
 			$this->outp_throw('AutoExecute: Empty fields array', 'AutoExecute');
 			return false;
 		}
-		if ($where === false && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) ) {
+		if ($where === false && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */ || $mode == 'UPSERT' || $mode == 3 /* DB_AUTOQUERY_UPSERT */) ) {
 			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause', 'AutoExecute');
 			return false;
 		}
@@ -2225,6 +2225,13 @@ if (!defined('_ADODB_LAYER')) {
 		$rs->sql = $sql;
 
 		switch($mode) {
+			case 'UPSERT':
+			case DB_AUTOQUERY_UPSERT:
+				$rs->_numOfRows=-1;
+				$lnumrows = $rs->PO_RecordCount($table,$where);
+				if($lnumrows>0) $sql = $this->GetUpdateSQL($rs, $fields_values, $forceUpdate, $magicq);
+				else $sql = $this->GetInsertSQL($rs, $fields_values, $magicq);
+				break;
 			case 'UPDATE':
 			case DB_AUTOQUERY_UPDATE:
 				$sql = $this->GetUpdateSQL($rs, $fields_values, $forceUpdate, $magicq);
