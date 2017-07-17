@@ -3627,6 +3627,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function getAssoc($force_array = false, $first2cols = false)
 	{
+		
+		global $ADODB_FETCH_MODE;
 		/*
 		* Insufficient rows to show data
 		*/
@@ -3641,7 +3643,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 
 		$numberOfFields = $this->_numOfFields;
-		$fetchMode      = $this->fetchMode;
+		$fetchMode      = $ADODB_FETCH_MODE;
 
 		if ($fetchMode == ADODB_FETCH_BOTH)
 		{
@@ -3678,7 +3680,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 			$myFields = $this->fields;
 
-			if ($this->fetchMode == ADODB_FETCH_BOTH)
+			if ($fetchMode == ADODB_FETCH_BOTH)
 			{
 				/*
 				* extract the associative keys
