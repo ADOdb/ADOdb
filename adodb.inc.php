@@ -1507,8 +1507,8 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * Choose a database to connect to. Many databases do not support this.
 	 *
-	 * @param dbName is the name of the database to select
-	 * @return true or false
+	 * @param string $dbName the name of the database to select
+	 * @return bool
 	 */
 	function SelectDB($dbName) {return false;}
 
