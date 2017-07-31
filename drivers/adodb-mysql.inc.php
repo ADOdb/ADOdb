@@ -18,6 +18,8 @@
  28 Feb 2001: MetaColumns bug fix - suggested by  Freek Dijkstra (phpeverywhere@macfreek.com)
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -514,7 +516,7 @@ class ADODB_mysql extends ADOConnection {
 
 		$retarr = array();
 		while (!$rs->EOF){
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			$fld->name = $rs->fields[0];
 			$type = $rs->fields[1];
 

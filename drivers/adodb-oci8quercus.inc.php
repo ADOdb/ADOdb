@@ -19,6 +19,8 @@
 
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -41,7 +43,7 @@ class ADORecordset_oci8quercus extends ADORecordset_oci8 {
 	function _FetchField($fieldOffset = -1)
 	{
 	global $QUERCUS;
-		$fld = new ADOFieldObject;
+		$fld = new FieldObject;
 
 		if (!empty($QUERCUS)) {
 			$fld->name = oci_field_name($this->_queryID, $fieldOffset);

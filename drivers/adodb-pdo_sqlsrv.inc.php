@@ -1,5 +1,7 @@
 <?php
 
+use ADOdb\FieldObject;
+
 /**
  * Provided by Ned Andre to support sqlsrv library
  */
@@ -57,7 +59,7 @@ class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 	 *
 	 * @param  int $fieldOffset Optional field offset
 	 *
-	 * @return object The ADOFieldObject describing the field
+	 * @return object The ADOdb\FieldObject describing the field
 	 */
 	public function fetchField($fieldOffset = 0)
 	{
@@ -73,7 +75,7 @@ class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 			return $fieldObjects[$fieldOffset];
 		}
 
-		$o = new ADOFieldObject();
+		$o = new FieldObject();
 		$arr = @$this->_queryID->getColumnMeta($fieldOffset);
 
 		if (!$arr) {
@@ -133,7 +135,7 @@ class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo
 			return $fieldObjects[$fieldOffset];
 		}
 
-		$o = new ADOFieldObject();
+		$o = new FieldObject();
 		$arr = @$this->_queryID->getColumnMeta($fieldOffset);
 
 		if (!$arr) {

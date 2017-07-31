@@ -14,6 +14,8 @@ Set tabs to 4 for best viewing.
 
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -101,7 +103,7 @@ class ADODB_SAPDB extends ADODB_odbc {
 		$retarr = array();
 		foreach($this->GetAll("SELECT COLUMNNAME,DATATYPE,LEN,DEC,NULLABLE,MODE,\"DEFAULT\",CASE WHEN \"DEFAULT\" IS NULL THEN 0 ELSE 1 END AS HAS_DEFAULT FROM COLUMNS WHERE tablename=$table ORDER BY pos") as $column)
 		{
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			$fld->name = $column[0];
 			$fld->type = $column[1];
 			$fld->max_length = $fld->type == 'LONG' ? 2147483647 : $column[2];

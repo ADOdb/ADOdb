@@ -19,6 +19,8 @@
 
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -130,7 +132,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	// lowercase field names...
 	function _FetchField($fieldOffset = -1)
 	{
-		$fld = new ADOFieldObject;
+		$fld = new FieldObject;
 		$fieldOffset += 1;
 		$fld->name = OCIcolumnname($this->_queryID, $fieldOffset);
 		if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {

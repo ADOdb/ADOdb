@@ -16,6 +16,8 @@
   13 Nov 2000 jlim - removed all ora_* references.
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -138,7 +140,7 @@ END;
 		}
 		$retarr = array();
 		while (!$rs->EOF) {
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			$fld->name = $rs->fields[0];
 			$fld->type = $rs->fields[1];
 			$fld->max_length = $rs->fields[2];
@@ -1620,7 +1622,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	 */
 	function _FetchField($fieldOffset = -1)
 	{
-		$fld = new ADOFieldObject;
+		$fld = new FieldObject;
 		$fieldOffset += 1;
 		$fld->name =oci_field_name($this->_queryID, $fieldOffset);
 		if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {

@@ -11,6 +11,8 @@
 
 */
 
+use ADOdb\FieldObject;
+
 class ADODB_pdo_pgsql extends ADODB_pdo {
 	var $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
     var $metaTablesSQL = "select tablename,'T' from pg_tables where tablename not like 'pg\_%'
@@ -182,7 +184,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 
 		$retarr = array();
 		while (!$rs->EOF) {
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			$fld->name = $rs->fields[0];
 			$fld->type = $rs->fields[1];
 			$fld->max_length = $rs->fields[2];

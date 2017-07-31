@@ -16,6 +16,9 @@
     Updated public variables for Netezza
     Still need to remove blob functions, as Netezza doesn't suppport blob
 */
+
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -72,7 +75,7 @@ class ADODB_netezza extends ADODB_postgres64 {
 
 		$retarr = array();
 		while (!$rs->EOF) {
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			$fld->name = $rs->fields[0];
 
 			// since we're returning type and length as one string,

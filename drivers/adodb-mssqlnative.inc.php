@@ -20,6 +20,8 @@ Set tabs to 4 for best viewing.
 
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -794,7 +796,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		$retarr = array();
 		while (!$rs->EOF){
 
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			if (array_key_exists(0,$rs->fields)) {
 				$fld->name          = $rs->fields[0];
 				$fld->type          = $rs->fields[1];
@@ -1018,7 +1020,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	* is retrieved.
 	*
 	* $param int $fieldOffset (optional default=-1 for all
-	* @return mixed an ADOFieldObject, or array of objects
+	* @return mixed an ADOdb\FieldObject, or array of objects
 	*/
 	private function _fetchField($fieldOffset = -1)
 	{
@@ -1056,7 +1058,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		foreach ($fieldMetaData as $key=>$value)
 		{
 
-			$fld = new ADOFieldObject;
+			$fld = new FieldObject;
 			/*
 			 * Caution - keys are case-sensitive, must respect
 			 * casing of values

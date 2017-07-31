@@ -17,6 +17,8 @@
   2. Rename the file, remove the .txt prefix.
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -104,7 +106,7 @@ class ADODB_sqlite extends ADOConnection {
 				$size = trim($type[1],')');
 			}
 			$fn = strtoupper($r['name']);
-			$fld = new ADOFieldObject;
+			$fld = new FieldObject;
 			$fld->name = $r['name'];
 			$fld->type = $type[0];
 			$fld->max_length = $size;
@@ -457,7 +459,7 @@ class ADORecordset_sqlite extends ADORecordSet {
 
 	function FetchField($fieldOffset = -1)
 	{
-		$fld = new ADOFieldObject;
+		$fld = new FieldObject;
 		$fld->name = sqlite_field_name($this->_queryID, $fieldOffset);
 		$fld->type = 'VARCHAR';
 		$fld->max_length = -1;

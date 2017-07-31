@@ -44,6 +44,8 @@
 
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -559,7 +561,7 @@ class ADODB_postgres64 extends ADOConnection{
 
 		$retarr = array();
 		while (!$rs->EOF) {
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			$fld->name = $rs->fields[0];
 			$fld->type = $rs->fields[1];
 			$fld->max_length = $rs->fields[2];
@@ -982,7 +984,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 	{
 		// offsets begin at 0
 
-		$o= new ADOFieldObject();
+		$o= new FieldObject();
 		$o->name = @pg_field_name($this->_queryID,$off);
 		$o->type = @pg_field_type($this->_queryID,$off);
 		$o->max_length = @pg_fieldsize($this->_queryID,$off);

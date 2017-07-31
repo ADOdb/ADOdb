@@ -35,6 +35,9 @@ DELPHI FOR PHP USERS:
             Database object's DriverName property.
 
 */
+
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -457,7 +460,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
     while (!$rs->EOF) {
     //  adodb_pr($rs->fields);
       if (strtoupper(trim($rs->fields[2])) == $table && (!$schema || strtoupper($rs->fields[1]) == $schema)) {
-        $fld = new ADOFieldObject();
+        $fld = new FieldObject();
         $fld->name = $rs->fields[3];
         $fld->type = $this->ODBCTypes($rs->fields[4]);
 
@@ -677,7 +680,7 @@ class ADORecordSet_ads extends ADORecordSet {
 
     $off=$fieldOffset+1; // offsets begin at 1
 
-    $o= new ADOFieldObject();
+    $o= new FieldObject();
     $o->name = @ads_field_name($this->_queryID,$off);
     $o->type = @ads_field_type($this->_queryID,$off);
     $o->max_length = @ads_field_len($this->_queryID,$off);

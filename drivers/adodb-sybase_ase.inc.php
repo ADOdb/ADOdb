@@ -12,6 +12,7 @@
   Contributed by Interakt Online. Thx Cristian MARIN cristic#interaktonline.com
 */
 
+use ADOdb\FieldObject;
 
 require_once ADODB_DIR."/drivers/adodb-sybase.inc.php";
 
@@ -79,7 +80,7 @@ class ADODB_sybase_ase extends ADODB_sybase {
 
 			$retarr = array();
 			while (!$rs->EOF) {
-				$fld = new ADOFieldObject();
+				$fld = new FieldObject();
 				$fld->name = $rs->Fields('field_name');
 				$fld->type = $rs->Fields('type');
 				$fld->max_length = $rs->Fields('width');

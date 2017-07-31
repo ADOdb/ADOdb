@@ -12,6 +12,9 @@ Set tabs to 4 for best viewing.
 
   Requires ODBC. Works on Windows and Unix.
 */
+
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -478,7 +481,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 		while (!$rs->EOF) {
 		//	adodb_pr($rs->fields);
 			if (strtoupper(trim($rs->fields[2])) == $table && (!$schema || strtoupper($rs->fields[1]) == $schema)) {
-				$fld = new ADOFieldObject();
+				$fld = new FieldObject();
 				$fld->name = $rs->fields[3];
 				if ($this->metaColumnsReturnType == METACOLUMNS_RETURNS_META)
 					/* 
@@ -657,7 +660,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 
 		$off=$fieldOffset+1; // offsets begin at 1
 
-		$o= new ADOFieldObject();
+		$o= new FieldObject();
 		$o->name = @odbc_field_name($this->_queryID,$off);
 		$o->type = @odbc_field_type($this->_queryID,$off);
 		$o->max_length = @odbc_field_len($this->_queryID,$off);

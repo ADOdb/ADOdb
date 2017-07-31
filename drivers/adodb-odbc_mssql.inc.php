@@ -14,6 +14,8 @@ Set tabs to 4 for best viewing.
   For Unix configuration, see http://phpbuilder.com/columns/alberto20000919.php3
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -159,7 +161,7 @@ order by constraint_name, referenced_table_name, keyno";
 
 		$retarr = array();
 		while (!$rs->EOF){
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			$fld->name = $rs->fields[0];
 			$fld->type = $rs->fields[1];
 

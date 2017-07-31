@@ -10,6 +10,8 @@
 
 */
 
+use ADOdb\FieldObject;
+
 class ADODB_pdo_mysql extends ADODB_pdo {
 
 	var $metaTablesSQL = "SELECT
@@ -129,7 +131,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 
 		$retarr = array();
 		while (!$rs->EOF){
-			$fld = new ADOFieldObject();
+			$fld = new FieldObject();
 			$fld->name = $rs->fields[0];
 			$type = $rs->fields[1];
 

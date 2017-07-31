@@ -13,6 +13,8 @@ Set tabs to 4 for best viewing.
 	Microsoft ADO data driver. Requires ADO. Works only on MS Windows. PHP5 compat version.
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -211,7 +213,7 @@ class ADODB_ado extends ADOConnection {
 
 				if (strtoupper($t->Value) == $table) {
 
-					$fld = new ADOFieldObject();
+					$fld = new FieldObject();
 					$c = $adors->Fields(3);
 					$fld->name = $c->Value;
 					$fld->type = 'CHAR'; // cannot discover type in ADO!
@@ -392,7 +394,7 @@ class ADORecordSet_ado extends ADORecordSet {
 	function FetchField($fieldOffset = -1) {
 		$off=$fieldOffset+1; // offsets begin at 1
 
-		$o= new ADOFieldObject();
+		$o= new FieldObject();
 		$rs = $this->_queryID;
 		if (!$rs) return false;
 

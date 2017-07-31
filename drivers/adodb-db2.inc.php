@@ -17,6 +17,8 @@
   of this code to point out any other things that can be removed.
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -557,7 +559,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 		*/
 		while (!$rs->EOF) {
 			if (strtoupper(trim($rs->fields[2])) == $table && (!$schema || strtoupper($rs->fields[1]) == $schema)) {
-				$fld = new ADOFieldObject();
+				$fld = new FieldObject();
 				$fld->name = $rs->fields[3];
 				$fld->type = $this->DB2Types($rs->fields[4]);
 
@@ -743,7 +745,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 	// returns the field object
 	function FetchField($offset = -1)
 	{
-		$o= new ADOFieldObject();
+		$o= new FieldObject();
 		$o->name = @db2_field_name($this->_queryID,$offset);
 		$o->type = @db2_field_type($this->_queryID,$offset);
 		$o->max_length = db2_field_width($this->_queryID,$offset);

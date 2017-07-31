@@ -16,6 +16,8 @@
 
 */
 
+use ADOdb\FieldObject;
+
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -211,7 +213,7 @@ class ADODB_informix72 extends ADOConnection {
 
 			$retarr = array();
 			while (!$rs->EOF) { //print_r($rs->fields);
-				$fld = new ADOFieldObject();
+				$fld = new FieldObject();
 				$fld->name = $rs->fields[0];
 /*  //!eos.
 						$rs->fields[1] is not the correct adodb type
@@ -417,7 +419,7 @@ class ADORecordset_informix72 extends ADORecordSet {
 		if (empty($this->_fieldprops)) {
 			$fp = ifx_fieldproperties($this->_queryID);
 			foreach($fp as $k => $v) {
-				$o = new ADOFieldObject;
+				$o = new FieldObject;
 				$o->name = $k;
 				$arr = explode(';',$v); //"SQLTYPE;length;precision;scale;ISNULLABLE"
 				$o->type = $arr[0];
