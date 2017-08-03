@@ -522,7 +522,7 @@ class ADODB_Active_Record {
 			$activetab->_created = time();
 			$s = serialize($activetab);
 			if (!function_exists('adodb_write_file')) {
-				include(ADODB_DIR.'/adodb-csvlib.inc.php');
+				include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
 			}
 			adodb_write_file($fname,$s);
 		}
