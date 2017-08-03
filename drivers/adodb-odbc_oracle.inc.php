@@ -16,7 +16,7 @@ Set tabs to 4 for best viewing.
 if (!defined('ADODB_DIR')) die();
 
 if (!defined('_ADODB_ODBC_LAYER')) {
-	include(ADODB_DIR."/drivers/adodb-odbc.inc.php");
+	include_once(ADODB_DIR."/drivers/adodb-odbc.inc.php");
 }
 
 
