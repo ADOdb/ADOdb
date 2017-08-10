@@ -124,14 +124,36 @@ class ADODB_postgres64 extends ADOConnection{
 	// to know what the concequences are. The other values are correct (wheren't in 0.94)
 	// -- Freek Dijkstra
 
-	function ServerInfo()
+	/**
+	 * Retrieve Server version and information.
+	 * @param bool $detailed If true, retrieve detailed version string (executes
+	 *                       a SQL query) in addition to the version number
+	 * @return array|bool Server info or false if version could not be retrieved
+	 *                    e.g. if there is no active connection
+	 */
+	function ServerInfo($detailed = true)
 	{
-		if (isset($this->version)) return $this->version;
+		if (empty($this->version['version'])) {
+			// We don't have a connection, so we can't retrieve server info
+			if (!$this->_connectionID) {
+				return false;
+			}
 
-		$arr['description'] = $this->GetOne("select version()");
-		$arr['version'] = ADOConnection::_findvers($arr['description']);
-		$this->version = $arr;
-		return $arr;
+			// Use pg_parameter_status() instead of pg_version() to retrieve the
+			// version number, as the former includes logic to obtain values for
+			// server_version, even when PHP has been compiled with PostgreSQL
+			// 7.3 or lower.
+			$version = pg_parameter_status($this->_connectionID, 'server_version');
+			$this->version = array(
+				'version' => $version,
+				'description' => null,
+			);
+		}
+		if ($detailed && $this->version['description'] === null) {
+			$this->version['description'] = $this->GetOne('select version()');
+		}
+
+		return $this->version;
 	}
 
 	function IfNull( $field, $ifNull )
