@@ -754,9 +754,9 @@ class ADODB_postgres64 extends ADOConnection{
 		if ($this->_connectionID === false) return false;
 		$this->Execute("set datestyle='ISO'");
 
-		$info = $this->ServerInfo();
-		$this->pgVersion = (float) substr($info['version'],0,3);
-		if ($this->pgVersion >= 7.1) { // good till version 999
+		$info = $this->ServerInfo(false);
+
+		if (version_compare($info['version'], '7.1', '>=')) {
 			$this->_nestedSQL = true;
 		}
 
