@@ -125,7 +125,9 @@ class ADODB_postgres64 extends ADOConnection{
 	// -- Freek Dijkstra
 
 	/**
-	 * Retrieve Server version and information.
+	 * Retrieve Server information.
+	 * In addition to server version and desription, the function also returns
+	 * the client version.
 	 * @param bool $detailed If true, retrieve detailed version string (executes
 	 *                       a SQL query) in addition to the version number
 	 * @return array|bool Server info or false if version could not be retrieved
@@ -139,13 +141,15 @@ class ADODB_postgres64 extends ADOConnection{
 				return false;
 			}
 
-			// Use pg_parameter_status() instead of pg_version() to retrieve the
-			// version number, as the former includes logic to obtain values for
-			// server_version, even when PHP has been compiled with PostgreSQL
-			// 7.3 or lower.
-			$version = pg_parameter_status($this->_connectionID, 'server_version');
+			$version = pg_version($this->connectionID);
 			$this->version = array(
-				'version' => $version,
+				// If PHP has been compiled with PostgreSQL 7.3 or lower, then
+				// server version is not set so we use pg_parameter_status()
+				// which includes logic to obtain values server_version
+				'version' => isset($version['server'])
+					? $version['server']
+					: pg_parameter_status($this->_connectionID, 'server_version'),
+				'client' => $version['client'],
 				'description' => null,
 			);
 		}
