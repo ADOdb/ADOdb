@@ -90,4 +90,13 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		else
 			return $retarr;
 	}
+
+    /**
+     * @param bool $auto_commit
+     * @return void
+     */
+    function SetAutoCommit($auto_commit)
+    {
+        $this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
+    }
 }
