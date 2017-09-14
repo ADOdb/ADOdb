@@ -203,6 +203,7 @@ class ADODB_mysqli extends ADOConnection {
 		if (!$ok) return $this->RollbackTrans();
 
 		if ($this->transCnt) $this->transCnt -= 1;
+		$this->lastInsID = $this->_insertid();
 		$this->Execute('COMMIT');
 
 		//$this->Execute('SET AUTOCOMMIT=1');
