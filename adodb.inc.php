@@ -4182,7 +4182,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *
 	 */
 	function FieldTypesArray() {
-		$arr = array();
+		static $arr = array();
+		if (count($arr)>0) {
+			return $arr;
+		}
 		for ($i=0, $max=$this->_numOfFields; $i < $max; $i++)
 			$arr[] = $this->FetchField($i);
 		return $arr;
