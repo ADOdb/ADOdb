@@ -816,7 +816,7 @@ global $_month_table_normal,$_month_table_leaf;
 
 	if ($marr[$m] < $d) return false;
 
-	if ($y < 1000 && $y > 3000) return false;
+	if ($y < 1000 || $y > 3000) return false;
 
 	return true;
 }
