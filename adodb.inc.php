@@ -2470,6 +2470,7 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function Close() {
 		$rez = $this->_close();
+		$this->_queryID = false;
 		$this->_connectionID = false;
 		return $rez;
 	}
