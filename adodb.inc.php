@@ -488,7 +488,7 @@ if (!defined('_ADODB_LAYER')) {
 	var $memCache = false; /// should we use memCache instead of caching in files
 	var $memCacheHost; /// memCache host
 	var $memCachePort = 11211; /// memCache port
-	var $memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
+	var $memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib, not supported w/memcached library)
 
 	var $sysDate = false; /// name of function that returns the current date
 	var $sysTimeStamp = false; /// name of function that returns the current timestamp
