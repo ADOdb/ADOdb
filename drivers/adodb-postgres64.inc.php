@@ -728,18 +728,22 @@ class ADODB_postgres64 extends ADOConnection{
 		if ($this->_connectionID === false) return false;
 		$this->Execute("set datestyle='ISO'");
 
-		$info = $this->ServerInfo();
-		$this->pgVersion = (float) substr($info['version'],0,3);
-		if ($this->pgVersion >= 7.1) { // good till version 999
-			$this->_nestedSQL = true;
-		}
+		//PostgreSQL >= v7.1 supports nested SQL queries.
+		// Since 7.1 was EOL April 2006 (11years ago) it should be safe to default this and save a call to "select version()" upon every connection.
+		$this->_nestedSQL = true;
 
 		# PostgreSQL 9.0 changed the default output for bytea from 'escape' to 'hex'
 		# PHP does not handle 'hex' properly ('x74657374' is returned as 't657374')
 		# https://bugs.php.net/bug.php?id=59831 states this is in fact not a bug,
 		# so we manually set bytea_output
-		if ( !empty($this->connection->noBlobs) && version_compare($info['version'], '9.0', '>=')) {
-			$this->Execute('set bytea_output=escape');
+		# According to the PHP bug report, PostgreSQL v9.2 should work without specifying the 'set bytea_output=escape'
+		# however that is still a pretty new version, so unless blobs are disabled, this call is still required.
+		# A possible optimization may be to use pg_version() instead though. 
+		if ( !empty($this->connection->noBlobs) ) {
+			$info = $this->ServerInfo();
+			if( version_compare($info['version'], '9.0', '>=') {
+				$this->Execute('set bytea_output=escape');
+			}
 		}
 
 		return true;
