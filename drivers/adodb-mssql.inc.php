@@ -917,7 +917,7 @@ class ADORecordset_mssql extends ADORecordSet {
 
 		}
 		$this->fetchMode = $mode;
-		return parent::__construct($id,$mode);
+		return parent::__construct($id);
 	}
 
 

@@ -314,7 +314,7 @@ class ADORecordset_sybase extends ADORecordSet {
 		}
 		if (!$mode) $this->fetchMode = ADODB_FETCH_ASSOC;
 		else $this->fetchMode = $mode;
-		parent::__construct($id,$mode);
+		parent::__construct($id);
 	}
 
 	/*	Returns: an object containing field information.
