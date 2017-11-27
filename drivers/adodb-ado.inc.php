@@ -350,7 +350,7 @@ class ADORecordSet_ado extends ADORecordSet {
 			$mode = $ADODB_FETCH_MODE;
 		}
 		$this->fetchMode = $mode;
-		return parent::__construct($id,$mode);
+		return parent::__construct($id);
 	}
 
 
