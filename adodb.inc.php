@@ -1392,7 +1392,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return  the last inserted ID. Not all databases support this.
 	 */
 	function Insert_ID($table='',$column='') {
-		if ($this->_logsql && $this->lastInsID) {
+		if ($this->_logsql || $this->lastInsID) {
 			return $this->lastInsID;
 		}
 		if ($this->hasInsertID) {
