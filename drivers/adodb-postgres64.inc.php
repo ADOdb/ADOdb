@@ -141,7 +141,7 @@ class ADODB_postgres64 extends ADOConnection{
 				return false;
 			}
 
-			$version = pg_version($this->connectionID);
+			$version = pg_version($this->_connectionID);
 			$this->version = array(
 				// If PHP has been compiled with PostgreSQL 7.3 or lower, then
 				// server version is not set so we use pg_parameter_status()
