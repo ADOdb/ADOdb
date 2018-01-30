@@ -5,7 +5,8 @@ ADOdb Library for PHP5
 [![Download ADOdb](https://img.shields.io/sourceforge/dm/adodb.svg)](https://sourceforge.net/projects/adodb/files/latest/download)
 
 (c) 2000-2013 John Lim (jlim@natsoft.com)  
-(c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+(c) 2014      Damien Regad, Mark Newnham and the
+              [ADOdb community](https://github.com/ADOdb/ADOdb/graphs/contributors)
 
 The ADOdb Library is dual-licensed, released under both the
 [BSD 3-Clause](https://github.com/ADOdb/ADOdb/blob/master/LICENSE.md#bsd-3-clause-license) 
