@@ -7,10 +7,12 @@ ADOdb Library for PHP5
 (c) 2000-2013 John Lim (jlim@natsoft.com)  
 (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
-Released under both [BSD 3-Clause](https://github.com/ADOdb/ADOdb/blob/master/LICENSE.md#bsd-3-clause-license) 
-and [GNU Lesser GPL library 2.1](https://github.com/ADOdb/ADOdb/blob/master/LICENSE.md#gnu-lesser-general-public-license) 
-licenses.  
-This means you can use it in proprietary products; 
+The ADOdb Library is dual-licensed, released under both the
+[BSD 3-Clause](https://github.com/ADOdb/ADOdb/blob/master/LICENSE.md#bsd-3-clause-license) 
+and the
+[GNU Lesser General Public Licence (LGPL) v2.1](https://github.com/ADOdb/ADOdb/blob/master/LICENSE.md#gnu-lesser-general-public-license)
+or, at your option, any later version. 
+This means you can use it in proprietary products;
 see [License](https://github.com/ADOdb/ADOdb/blob/master/LICENSE.md) for details.
 
 Home page: http://adodb.org/

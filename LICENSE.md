@@ -1,7 +1,10 @@
 ADOdb License
 =============
 
-ADOdb is dual licensed under BSD and LGPL.
+The ADOdb Library is dual-licensed, released under both the
+[BSD 3-clause](#bsd-3-clause-license) and the
+[GNU Lesser General Public License (LGPL) v2.1](#gnu-lesser-general-public-license)
+or, at your option, any later version.
 
 In plain English, you do not need to distribute your application in source code form,
 nor do you need to distribute ADOdb source code, provided you follow the rest of
