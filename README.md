@@ -18,15 +18,6 @@ see [License](https://github.com/ADOdb/ADOdb/blob/master/LICENSE.md) for details
 
 Home page: http://adodb.org/
 
-> **WARNING: known issue with Associative Fetch Mode in ADOdb v5.19
--- PLEASE UPGRADE TO v5.20 !**  
-> When fetching data in Associative mode (i.e. when `$ADODB_FETCH_MODE` is
-> set to *ADODB_FETCH_ASSOC*), recordsets do not return any data (empty strings)
-> when using some database drivers. The problem has been reported on MSSQL,
-> Interbase and Foxpro, but possibly affects other drivers as well; all drivers
-> derived from the above are also impacted.
-> For further details, please refer to [Issue #20](https://github.com/ADOdb/ADOdb/issues/20).
-
 
 Introduction
 ============
