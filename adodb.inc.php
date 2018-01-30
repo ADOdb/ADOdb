@@ -4619,8 +4619,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$class = $db; break;
 		}
 
-		$file = ADODB_DIR."/drivers/adodb-".$db.".inc.php";
-		@include_once($file);
+		$file = "drivers/adodb-$db.inc.php";
+		@include_once(ADODB_DIR . '/' . $file);
 		$ADODB_LASTDB = $class;
 		if (class_exists("ADODB_" . $class)) {
 			return $class;
