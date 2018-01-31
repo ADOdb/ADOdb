@@ -30,6 +30,7 @@ release_prefix = "adodb"
 exclude_list = (".git*",
                 "replicate",
                 "scripts",
+                "tests",
                 # There are no png files in there...
                 # "cute_icons_for_site/*.png",
                 "hs~*.*",
@@ -40,7 +41,7 @@ exclude_list = (".git*",
 
 # Command-line options
 options = "hb:dfk"
-long_options = ["help", "branch", "debug", "fresh", "keep"]
+long_options = ["help", "branch=", "debug", "fresh", "keep"]
 
 # Global flags
 debug_mode = False

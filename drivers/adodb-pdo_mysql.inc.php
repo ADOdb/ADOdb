@@ -70,7 +70,9 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	{
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
-			$this->metaTablesSQL .= " from $showSchema";
+			$this->metaTablesSQL .= $this->qstr($showSchema);
+		} else {
+			$this->metaTablesSQL .= 'schema()';
 		}
 
 		if ($mask) {
@@ -82,6 +84,15 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		$this->metaTablesSQL = $save;
 		return $ret;
 	}
+
+    /**
+     * @param bool $auto_commit
+     * @return void
+     */
+    function SetAutoCommit($auto_commit)
+    {
+        $this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
+    }
 
 	function SetTransactionMode($transaction_mode)
 	{
@@ -190,6 +201,8 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	// parameters use PostgreSQL convention, not MySQL
 	function SelectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs=0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;		
 		$offsetStr =($offset>=0) ? "$offset," : '';
 		// jason judge, see http://phplens.com/lens/lensforum/msgs.php?id=9220
 		if ($nrows < 0) {

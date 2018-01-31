@@ -15,7 +15,7 @@
 if (!defined('_ADODB_ODBC_LAYER')) {
 	if (!defined('ADODB_DIR')) die();
 
-	include(ADODB_DIR."/drivers/adodb-odbc.inc.php");
+	include_once(ADODB_DIR."/drivers/adodb-odbc.inc.php");
 }
 
 if (!defined('_ADODB_ACCESS')) {
@@ -31,14 +31,6 @@ class  ADODB_access extends ADODB_odbc {
 	var $sysTimeStamp = 'NOW';
 	var $hasTransactions = false;
 	var $upperCase = 'ucase';
-
-	function __construct()
-	{
-	global $ADODB_EXTENSION;
-
-		$ADODB_EXTENSION = false;
-		parent::__construct();
-	}
 
 	function Time()
 	{

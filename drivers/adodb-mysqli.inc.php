@@ -29,9 +29,6 @@ if (! defined("_ADODB_MYSQLI_LAYER")) {
  if (! defined("MYSQLI_BINARY_FLAG"))  define("MYSQLI_BINARY_FLAG", 128);
  if (!defined('MYSQLI_READ_DEFAULT_GROUP')) define('MYSQLI_READ_DEFAULT_GROUP',1);
 
- // disable adodb extension - currently incompatible.
- global $ADODB_EXTENSION; $ADODB_EXTENSION = false;
-
 class ADODB_mysqli extends ADOConnection {
 	var $databaseType = 'mysqli';
 	var $dataProvider = 'mysql';
@@ -69,12 +66,6 @@ class ADODB_mysqli extends ADOConnection {
 	*/
 	private $usePreparedStatement    = false;
 	private $useLastInsertStatement  = false;
-
-	function __construct()
-	{
-		// if(!extension_loaded("mysqli"))
-		//trigger_error("You must have the mysqli extension installed.", E_USER_ERROR);
-	}
 
 	function SetTransactionMode( $transaction_mode )
 	{
@@ -130,7 +121,7 @@ class ADODB_mysqli extends ADOConnection {
 		if ($persist && PHP_VERSION > 5.2 && strncmp($argHostname,'p:',2) != 0) $argHostname = 'p:'.$argHostname;
 
 		#if (!empty($this->port)) $argHostname .= ":".$this->port;
-		$ok = mysqli_real_connect($this->_connectionID,
+		$ok = @mysqli_real_connect($this->_connectionID,
 					$argHostname,
 					$argUsername,
 					$argPassword,
@@ -145,7 +136,7 @@ class ADODB_mysqli extends ADOConnection {
 			return true;
 		} else {
 			if ($this->debug) {
-				ADOConnection::outp("Could't connect : "  . $this->ErrorMsg());
+				ADOConnection::outp("Could not connect : "  . $this->ErrorMsg());
 			}
 			$this->_connectionID = null;
 			return false;
@@ -1126,7 +1117,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		//if results are attached to this pointer from Stored Proceedure calls, the next standard query will die 2014
 		//only a problem with persistant connections
 
-		if($this->connection->_connectionID) {
+		if(isset($this->connection->_connectionID) && $this->connection->_connectionID) {
 			while(mysqli_more_results($this->connection->_connectionID)){
 				mysqli_next_result($this->connection->_connectionID);
 			}

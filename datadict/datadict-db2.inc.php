@@ -73,8 +73,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 		return array();
 	}
 
-
-	function ChangeTableSQL($tablename, $flds, $tableoptions = false)
+	function ChangeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
 	{
 
 		/**

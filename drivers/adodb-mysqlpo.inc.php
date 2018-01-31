@@ -32,11 +32,6 @@ class ADODB_mysqlt extends ADODB_mysql {
 	var $hasTransactions = true;
 	var $autoRollback = true; // apparently mysql does not autorollback properly
 
-	function __construct()
-	{
-	global $ADODB_EXTENSION; if ($ADODB_EXTENSION) $this->rsPrefix .= 'ext_';
-	}
-
 	function BeginTrans()
 	{
 		if ($this->transOff) return true;
