@@ -135,6 +135,9 @@ function _array_change_key_case($an_array)
 
 function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_autoinc)
 {
+		// Add Quote around table name to support use of spaces / reserve keywords
+		$table=sprintf('%s%s%s', $zthis->nameQuote,$table,$zthis->nameQuote); 
+	
 		if (count($fieldArray) == 0) return 0;
 		$first = true;
 		$uSet = '';
@@ -152,18 +155,22 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 			}
 			if (in_array($k,$keyCol)) continue; // skip UPDATE if is key
 
+			// Add Quote around column name to support use of spaces / reserve keywords
 			if ($first) {
 				$first = false;
-				$uSet = "$k=$v";
+				$uSet = sprintf('%s%s%s=%s', $zthis->nameQuote,$k,$zthis->nameQuote,$v);
 			} else
-				$uSet .= ",$k=$v";
+				$uSet .= sprintf(',%s%s%s=%s',$zthis->nameQuote,$k,$zthis->nameQuote,$v);
 		}
 
+		// Add Quote around column name in where clause
 		$where = false;
 		foreach ($keyCol as $v) {
 			if (isset($fieldArray[$v])) {
-				if ($where) $where .= ' and '.$v.'='.$fieldArray[$v];
-				else $where = $v.'='.$fieldArray[$v];
+				if ($where) 
+					$where .= sprintf(' and %s%s%s=%s ', $zthis->nameQuote,$v,$zthis->nameQuote,$fieldArray[$v]);
+				else 
+					$where = sprintf('%s%s%s=%s', $zthis->nameQuote,$v,$zthis->nameQuote,$fieldArray[$v]);
 			}
 		}
 
@@ -197,13 +204,13 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 		$first = true;
 		foreach($fieldArray as $k => $v) {
 			if ($has_autoinc && in_array($k,$keyCol)) continue; // skip autoinc col
-
+			// Add Quote around Column Name
 			if ($first) {
 				$first = false;
-				$iCols = "$k";
+				$iCols = sprintf('%s%s%s',$zthis->nameQuote,$k,$zthis->nameQuote);
 				$iVals = "$v";
 			} else {
-				$iCols .= ",$k";
+				$iCols .= sprintf(',%s%s%s',$zthis->nameQuote,$k,$zthis->nameQuote);
 				$iVals .= ",$v";
 			}
 		}
