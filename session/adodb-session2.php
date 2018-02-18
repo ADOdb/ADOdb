@@ -566,9 +566,8 @@ class ADODB_Session {
 #		assert('$host');
 		if (strpos($driver, 'pdo_') === 0){
 			$conn = ADONewConnection('pdo');
-			$driver = str_replace('pdo_', '', $driver)
-			$dsn=$driver+':'+'hostname='+$host+';database='+$database+';'
-			$db->connect($dsn,$user,$password);
+			$driver = str_replace('pdo_', '', $driver);
+			$dsn = $driver.':'.'hostname='.$host.';dbname='.$database.';';
 			if ($persist) {
 				switch($persist) {
 				default:
@@ -580,7 +579,7 @@ class ADODB_Session {
 				$ok = $conn->Connect($dsn,$user,$password);
 			}
 		}else{
-			$conn = ADONewConnection($driver);
+			$conn = ADONewConnection($driverÏ);
 			if ($debug) {
 				$conn->debug = true;
 				ADOConnection::outp( " driver=$driver user=$user db=$database ");
@@ -823,7 +822,7 @@ class ADODB_Session {
 		//assert('$table');
 
 		$qkey = $conn->quote($key);
-		$binary = $conn->dataProvider === 'mysql' ? '/*! BINARY */' : '';
+		$binary = $conn->dataProvider === 'mysql' || $conn->dataProvider === 'pdo' ? '/*! BINARY */' : '';
 
 		if ($expire_notify) {
 			reset($expire_notify);
