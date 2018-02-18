@@ -564,28 +564,44 @@ class ADODB_Session {
 #		assert('$database');
 #		assert('$driver');
 #		assert('$host');
-
-		$conn = ADONewConnection($driver);
-
-		if ($debug) {
-			$conn->debug = true;
-			ADOConnection::outp( " driver=$driver user=$user db=$database ");
-		}
-
-		if (empty($conn->_connectionID)) { // not dsn
+		if (strpos($driver, 'pdo_') === 0){
+			$conn = ADONewConnection('pdo');
+			$driver = str_replace('pdo_', '', $driver)
+			$dsn=$driver+':'+'hostname='+$host+';database='+$database+';'
+			$db->connect($dsn,$user,$password);
 			if ($persist) {
 				switch($persist) {
 				default:
-				case 'P': $ok = $conn->PConnect($host, $user, $password, $database); break;
-				case 'C': $ok = $conn->Connect($host, $user, $password, $database); break;
-				case 'N': $ok = $conn->NConnect($host, $user, $password, $database); break;
+				case 'P': $ok = $conn->PConnect($dsn,$user,$password); break;
+				case 'C': $ok = $conn->Connect($dsn,$user,$password); break;
+				case 'N': $ok = $conn->NConnect($dsn,$user,$password); break;
 				}
 			} else {
-				$ok = $conn->Connect($host, $user, $password, $database);
+				$ok = $conn->Connect($dsn,$user,$password);
 			}
-		} else {
-			$ok = true; // $conn->_connectionID is set after call to ADONewConnection
+		}else{
+			$conn = ADONewConnection($driver);
+			if ($debug) {
+				$conn->debug = true;
+				ADOConnection::outp( " driver=$driver user=$user db=$database ");
+			}
+
+			if (empty($conn->_connectionID)) { // not dsn
+				if ($persist) {
+					switch($persist) {
+					default:
+					case 'P': $ok = $conn->PConnect($host, $user, $password, $database); break;
+					case 'C': $ok = $conn->Connect($host, $user, $password, $database); break;
+					case 'N': $ok = $conn->NConnect($host, $user, $password, $database); break;
+					}
+				} else {
+					$ok = $conn->Connect($host, $user, $password, $database);
+				}
+			} else {
+				$ok = true; // $conn->_connectionID is set after call to ADONewConnection
+			}
 		}
+
 
 		if ($ok) $GLOBALS['ADODB_SESS_CONN'] = $conn;
 		else
