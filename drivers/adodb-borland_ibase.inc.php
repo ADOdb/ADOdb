@@ -53,6 +53,8 @@ class ADODB_borland_ibase extends ADODB_ibase {
 	//		SELECT FIRST 5 SKIP 2 col1, col2 FROM TABLE
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		if ($nrows > 0) {
 			if ($offset <= 0) $str = " ROWS $nrows ";
 			else {

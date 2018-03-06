@@ -234,7 +234,8 @@ class ADODB_db2 extends ADOConnection {
 
 	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputArr = false, $secs2cache = 0)
 	{
-		$nrows = (integer) $nrows;
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		if ($offset <= 0) {
 		// could also use " OPTIMIZE FOR $nrows ROWS "
 			if ($nrows >= 0) $sql .=  " FETCH FIRST $nrows ROWS ONLY ";

@@ -709,6 +709,8 @@ END;
 	 */
 	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		// Since the methods used to limit the number of returned rows rely
 		// on modifying the provided SQL query, we can't work with prepared
 		// statements so we just extract the SQL string.
