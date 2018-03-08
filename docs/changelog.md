@@ -5,7 +5,7 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
-## 5.20.10 - Unreleased
+## 5.20.10 - 08-Mar-2018
 
 - Fix year validation in adodb_validdate() #375
 - Release db resource when closing connection #379
