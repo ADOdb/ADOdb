@@ -49,6 +49,17 @@ Older changelogs:
 - session: add 'httponly' flag to cookie. #190
 - xml: support table 'opt' attribute with mysqli. #267
 
+## 5.20.10 - 08-Mar-2018
+
+- Fix year validation in adodb_validdate() #375
+- Release db resource when closing connection #379
+- Avoid full file path disclosure in ADOLoadCode() #389
+- mssql: fix PHP warning in _adodb_getcount() #359
+- mssql: string keys are not allowed in parameters arrays #316
+- mysqli: fix PHP warning on DB connect #348
+- pdo: fix auto-commit error in sqlsrv #347
+- sybase: fix PHP Warning in _connect()/_pconnect #371
+
 ## 5.20.9 - 21-Dec-2016
 
 - mssql: fix syntax error in version matching regex #305
