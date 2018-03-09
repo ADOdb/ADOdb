@@ -44,6 +44,7 @@ Older changelogs:
 - mysqli: method failed if $associative set true. #181
 - mysqli: return fields as ADOFieldObject objects. #175
 - odbc/mssql: fix null strings concatenation issue with SQL server 2012. #148
+- odbc/mssql: add missing Concat() method. #402
 - odbc: MetaColumns() can optionally be set to return MetaType for backwards compatibility. #184
 - pdo: allow loading of subclassed recordset. #245
 - pdo: add setConnectionParameter support. #247
