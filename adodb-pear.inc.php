@@ -358,7 +358,7 @@ class DB
 	 */
 	function assertExtension($name)
 	{
-		if (!extension_loaded($name)) {
+		if (function_exists('dl') && !extension_loaded($name)) {
 			$dlext = (strncmp(PHP_OS,'WIN',3) === 0) ? '.dll' : '.so';
 			@dl($name . $dlext);
 		}
