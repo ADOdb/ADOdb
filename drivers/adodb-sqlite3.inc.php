@@ -337,6 +337,8 @@ class ADODB_sqlite3 extends ADOConnection {
 
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
+        $nrows = (int) $nrows;
+        $offset = (int) $offset;
 		$offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
 		$limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : ($offset >= 0 ? ' LIMIT 999999999' : '');
 		if ($secs2cache) {
