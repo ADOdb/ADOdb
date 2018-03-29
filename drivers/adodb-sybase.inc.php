@@ -118,8 +118,7 @@ class ADODB_sybase extends ADOConnection {
 		if (function_exists('sybase_get_last_message'))
 			$this->_errorMsg = sybase_get_last_message();
 		else {
-			$err = error_get_last();
-			$this->_errorMsg = $err ? $err['message'] : 'SYBASE error messages not supported on this platform';
+			$this->_errorMsg = 'SYBASE error messages not supported on this platform';
 		}
 
 		return $this->_errorMsg;

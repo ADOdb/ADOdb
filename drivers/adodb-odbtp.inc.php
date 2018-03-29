@@ -609,7 +609,7 @@ class ADODB_odbtp extends ADOConnection{
 
 	function _query($sql,$inputarr=false)
 	{
-		error_clear_last();
+		$last_php_error = $this->resetLastError();
 		$this->_errorMsg = false;
 		$this->_errorCode = false;
 
@@ -619,8 +619,7 @@ class ADODB_odbtp extends ADOConnection{
 			} else {
 				$stmtid = @odbtp_prepare($sql,$this->_connectionID);
 				if ($stmtid == false) {
-					$err = error_get_last();
-					$this->_errorMsg = $err ? $err['message'] : '';
+					$this->_errorMsg = $this->getChangedErrorMsg($last_php_error);
 					return false;
 				}
 			}
