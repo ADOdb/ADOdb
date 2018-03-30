@@ -3194,6 +3194,60 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return $x;
 	}
 
+	/**
+	 * Get the last error recorded by PHP and clear the message.
+	 *
+	 * By clearing the message, it becomes possible to detect whether a new error
+	 * has occurred, even when it is the same error as before being repeated.
+	 *
+	 * @return array|null Array if an error has previously occurred. Null otherwise.
+	 */
+	protected function resetLastError() {
+		$error = error_get_last();
+
+		if (is_array($error)) {
+			$error['message'] = '';
+		}
+
+		return $error;
+	}
+
+	/**
+	 * Compare a previously stored error message with the last error recorded by PHP
+	 * to determine whether a new error has occured.
+	 *
+	 * @param array|null $old Optional. Previously stored return value of error_get_last().
+	 *
+	 * @return string The error message if a new error has occured
+	 *                or an empty string if no (new) errors have occured..
+	 */
+	protected function getChangedErrorMsg($old = null) {
+		$new = error_get_last();
+
+		if (is_null($new)) {
+			// No error has occured yet at all.
+			return '';
+		}
+
+		if (is_null($old)) {
+			// First error recorded.
+			return $new['message'];
+		}
+
+		$changed = false;
+		foreach($new as $key => $value) {
+			if ($new[$key] !== $old[$key]) {
+				$changed = true;
+				break;
+			}
+		}
+
+		if ($changed === true) {
+			return $new['message'];
+		}
+
+		return '';
+	}
 
 } // end class ADOConnection
 

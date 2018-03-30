@@ -108,6 +108,8 @@ class ADODB_db2 extends ADOConnection {
 		// Replaces the odbc_binmode() call that was in Execute()
 		ini_set('ibm_db2.binmode', $this->binmode);
 
+		$this->_errorMsg = '';
+
 		if ($argDatabasename && empty($argDSN)) {
 
 			if (stripos($argDatabasename,'UID=') && stripos($argDatabasename,'PWD=')) $this->_connectionID = db2_pconnect($argDatabasename,null,null);
@@ -619,7 +621,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 	/* returns queryID or false */
 	function _query($sql,$inputarr=false)
 	{
-		error_clear_last();
+		$last_php_error = $this->resetLastError();
 		$this->_errorMsg = '';
 
 		if ($inputarr) {
@@ -629,8 +631,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 				$stmtid = db2_prepare($this->_connectionID,$sql);
 
 				if ($stmtid == false) {
-					$err = error_get_last();
-					$this->_errorMsg = $err ? $err['message'] : '';
+					$this->_errorMsg = $this->getChangedErrorMsg($last_php_error);
 					return false;
 				}
 			}
@@ -668,16 +669,14 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 				$this->_errorMsg = '';
 				$this->_errorCode = 0;
 			} else {
-				$err = error_get_last();
-				$this->_errorMsg = $err ? $err['message'] : '';
+				$this->_errorMsg = $this->getChangedErrorMsg($last_php_error);
 			}
 		} else {
 			if ($this->_haserrorfunctions) {
 				$this->_errorMsg = db2_stmt_errormsg();
 				$this->_errorCode = db2_stmt_error();
 			} else {
-				$err = error_get_last();
-				$this->_errorMsg = $err ? $err['message'] : '';
+				$this->_errorMsg = $this->getChangedErrorMsg($last_php_error);
 			}
 		}
 		return $stmtid;
