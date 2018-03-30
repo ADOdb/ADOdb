@@ -49,6 +49,14 @@ Older changelogs:
 - session: add 'httponly' flag to cookie. #190
 - xml: support table 'opt' attribute with mysqli. #267
 
+## 5.20.11 - 30-Mar-2018
+
+- adodb: PHP 7.2 compatibility
+	- Replace each() with foreach. #373
+	- Replace deprecated create_function() calls. #404
+	- Replace $php_errormsg with error_get_last(). #405
+- adodb: fix potential SQL injection vector in SelectLimit(). #190 #311 #401
+
 ## 5.20.10 - 08-Mar-2018
 
 - Fix year validation in adodb_validdate() #375
