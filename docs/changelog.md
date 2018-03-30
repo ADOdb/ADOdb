@@ -5,6 +5,14 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.20.11 - Unreleased
+
+- adodb: PHP 7.2 compatibility
+	- Replace each() with foreach. #373
+	- Replace deprecated create_function() calls. #404
+	- Replace $php_errormsg with error_get_last(). #405
+- adodb: fix potential SQL injection vector in SelectLimit(). #190 #311 #401
+
 ## 5.20.10 - 08-Mar-2018
 
 - Fix year validation in adodb_validdate() #375
