@@ -245,6 +245,8 @@ class ADODB_mssql extends ADOConnection {
 
 	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
 				'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop." $nrows ",$sql);
@@ -689,7 +691,12 @@ order by constraint_name, referenced_table_name, keyno";
 				$arr = $args;
 			}
 
-			array_walk($arr, create_function('&$v', '$v = "CAST(" . $v . " AS VARCHAR(255))";'));
+			array_walk(
+				$arr,
+				function(&$value, $key) {
+					$value = "CAST(" . $value . " AS VARCHAR(255))";
+				}
+			);
 			$s = implode('+',$arr);
 			if (sizeof($arr) > 0) return "$s";
 

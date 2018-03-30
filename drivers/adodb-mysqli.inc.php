@@ -745,6 +745,8 @@ class ADODB_mysqli extends ADOConnection {
 				$inputarr = false,
 				$secs = 0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		$offsetStr = ($offset >= 0) ? "$offset," : '';
 		if ($nrows < 0) $nrows = '18446744073709551615';
 

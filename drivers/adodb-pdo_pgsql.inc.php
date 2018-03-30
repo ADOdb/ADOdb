@@ -73,12 +73,14 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
-		 $offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
-		 $limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : '';
-		 if ($secs2cache)
-		  	$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
-		 else
-		  	$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
+		$offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
+		$limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : '';
+		if ($secs2cache)
+			$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
+		else
+			$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
 
 		return $rs;
 	}
