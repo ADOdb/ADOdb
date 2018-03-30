@@ -10,7 +10,6 @@ Older changelogs:
 - adodb: Remove useless constructors. #171
 - adodb: Define default constructor in ADOConnection base class. #172
 - adodb: Reimplement base methods charMax() and textMax(). #183
-- adodb: fix potential SQL injection vector in SelectLimit(). #190
 - adodb: addColumnSQL datadict function now supports ENUM data types. See #26
 - adodb: introduce user-defined default Metatype. #165
 - adodb: AutoExecute validates empty fields array. #154
@@ -48,6 +47,14 @@ Older changelogs:
 - sqlite: driver did not support metaForeignKeys. #179
 - session: add 'httponly' flag to cookie. #190
 - xml: support table 'opt' attribute with mysqli. #267
+
+## 5.20.11 - 30-Mar-2018
+
+- adodb: PHP 7.2 compatibility
+	- Replace each() with foreach. #373
+	- Replace deprecated create_function() calls. #404
+	- Replace $php_errormsg with error_get_last(). #405
+- adodb: fix potential SQL injection vector in SelectLimit(). #190 #311 #401
 
 ## 5.20.10 - 08-Mar-2018
 
