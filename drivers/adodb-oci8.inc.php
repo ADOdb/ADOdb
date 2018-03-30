@@ -1,7 +1,7 @@
 <?php
 /*
 
-  @version   v5.20.11  30-Mar-2018
+  @version   v5.20.12  30-Mar-2018
   @copyright (c) 2000-2013 John Lim. All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
