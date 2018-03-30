@@ -20,15 +20,25 @@ Older changelogs:
 - adodb: Added portable substring method. #219
 - adodb: New helper methods: day(), month(), year(). #225
 - adodb: Remove references to obsolete ADOdb Extension. #270
-- adodb: add Occitan translation. #285
+- adodb: getAssoc() should not change case of result set's outermost key. #335
+- adodb: getAssoc() fix fetch mode. #350
+- adodb: Optimize FieldTypesArray with static variable #367
+- adodb: Allow output handler to be callable #312
+- adodb: fix ADORecordSet constructor signature. #278
+- adodb: add Occitan (#285) and Indonesian (#293) translations.
 - adodb-time: Fix 'Q' (quarter of year) format in adodb_date(). #222
 - adodb-time: Add 'W' (week of year) format support in adodb_date(). #223
+- db2: fix ChangeTableSQL() signature. #338
 - firebird: updated driver, thanks to Lester Caine. #201
 - mssql: Add charMax() and textMax() methods. #220
+- mssql: support alternative port in connect. #314
 - mssqlnative: Query not returning id. #185
 - mssqlnative: support SQL Server 2014 databases. #186
 - mssqlnative: add support for 'l' (day of week) format in sqlDate(). #232
+- mssqlnative: fix invalid return value for ErrorNo(). #298
+- mssqlnative: ensure that the bind array is numeric. #336
 - mysql: setConnectionParameter() now allows multiple parameters with the same key value. #187
+- mysql: prevent use of driver with PHP >= 7.0. #310
 - mysqli: Deprecate $optionFlags property in favor of standard setConnectionParameter() method. #188
 - mysqli: Insert_ID() did not return correct value after executing stored procedure. #166
 - mysqli: method failed if $associative set true. #181
@@ -39,12 +49,16 @@ Older changelogs:
 - pdo: add setConnectionParameter support. #247
 - pdo: fix PHP notice. #248
 - pdo: ADORecordSet class loading. #250
+- pdo/pgsql: Add support for transactions. #363
 - pdo/sqlsrv: fix fetchField() method. #251, #234
+- pdo/sqlsrv: add SetTransactionMode() method. #362
 - pgsql: add CIDR data type to MetaType(). #281
+- pgsql: optimize version check. #334
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
 - sqlite: Fix Metataypes mapping. #177
 - sqlite: driver did not support metaForeignKeys. #179
+- memcache: add support for memcached PECL library. #322
 - session: add 'httponly' flag to cookie. #190
 - xml: support table 'opt' attribute with mysqli. #267
 
