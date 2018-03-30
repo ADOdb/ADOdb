@@ -5,13 +5,20 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
-## 5.20.11 - 30-Mar-2018
+## 5.20.12 - 30-Mar-2018
 
 - adodb: PHP 7.2 compatibility
 	- Replace each() with foreach. #373
 	- Replace deprecated create_function() calls. #404
 	- Replace $php_errormsg with error_get_last(). #405
+- adodb: Don't call `dl()` when the function is disabled #406
+- adodb: Don't bother with magic quotes when not available #407
 - adodb: fix potential SQL injection vector in SelectLimit(). #190 #311 #401
+
+## 5.20.11 - Withdrawn
+
+This release has been withdrawn as it introduced a regression on PHP 5.x.
+Please use version 5.20.12 or later.
 
 ## 5.20.10 - 08-Mar-2018
 
