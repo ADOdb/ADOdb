@@ -431,6 +431,7 @@ if (!defined('_ADODB_LAYER')) {
 	var $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
 	var $database = '';			/// Name of database to be used.
 	var $host = '';				/// The hostname of the database server
+	var $port = '';				/// The port of the database server
 	var $user = '';				/// The username which is used to connect to the database server.
 	var $password = '';			/// Password for the username. For security, we no longer store it.
 	var $debug = false;			/// if set to true will output sql statements
@@ -633,6 +634,26 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
+	 * Parses the hostname to extract the port.
+	 * Overwrites $this->host and $this->port, only if a port is specified.
+	 * The Hostname can be fully or partially qualified,
+	 * ie: "db.mydomain.com:5432" or "ldaps://ldap.mydomain.com:636"
+	 * Any specified scheme such as ldap:// or ldaps:// is maintained.
+	 */
+	protected function parseHostNameAndPort() {
+		$parsed_url = parse_url($this->host);
+		if (is_array($parsed_url) && isset($parsed_url['host']) && isset($parsed_url['port'])) {
+			if ( isset($parsed_url['scheme']) ) {
+				// If scheme is specified (ie: ldap:// or ldaps://, make sure we retain that.
+				$this->host = $parsed_url['scheme'] . "://" . $parsed_url['host'];
+			} else {
+				$this->host = $parsed_url['host'];
+			}
+			$this->port = $parsed_url['port'];
+		}
+	}
+
+	/**
 	 * Connect to database
 	 *
 	 * @param [argHostname]		Host to connect to
@@ -647,9 +668,9 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
-		if ( strpos($this->host, ':') > 0 && isset($this->port) ) {
-			list($this->host, $this->port) = explode(":", $this->host, 2);
-        	}
+		// Overwrites $this->host and $this->port if a port is specified.
+		$this->parseHostNameAndPort();
+
 		if ($argUsername != "") {
 			$this->user = $argUsername;
 		}
@@ -730,9 +751,9 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
-		if ( strpos($this->host, ':') > 0 && isset($this->port) ) {
-			list($this->host, $this->port) = explode(":", $this->host, 2);
-	        }
+		// Overwrites $this->host and $this->port if a port is specified.
+		$this->parseHostNameAndPort();
+
 		if ($argUsername != "") {
 			$this->user = $argUsername;
 		}
