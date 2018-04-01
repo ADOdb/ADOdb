@@ -455,8 +455,6 @@ class ADODB_mssqlnative extends ADOConnection {
 				$this->_errorMsg .= "Error Code: ".$arrError[ 'code']."\n";
 				$this->_errorMsg .= "Message: ".$arrError[ 'message']."\n";
 			}
-		} else {
-			$this->_errorMsg = "No errors found";
 		}
 		return $this->_errorMsg;
 	}
@@ -528,7 +526,12 @@ class ADODB_mssqlnative extends ADOConnection {
 			$arr = $args;
 		}
 
-		array_walk($arr, create_function('&$v', '$v = "CAST(" . $v . " AS VARCHAR(255))";'));
+		array_walk(
+			$arr,
+			function(&$value, $key) {
+				$value = "CAST(" . $value . " AS VARCHAR(255))";
+			}
+		);
 		$s = implode('+',$arr);
 		if (sizeof($arr) > 0) return "$s";
 
@@ -572,7 +575,14 @@ class ADODB_mssqlnative extends ADOConnection {
 			$insert = true;
 			$sql .= '; '.$this->identitySQL; // select scope_identity()
 		}
-		if($inputarr) {
+		if($inputarr)
+		{
+			/*
+			* Ensure that the input array is numeric, as required by
+			* sqlsrv_query. If param() was used to create portable binds
+			* then the array might be associative
+			*/
+			$inputarr = array_values($inputarr);
 			$rez = sqlsrv_query($this->_connectionID, $sql, $inputarr);
 		} else {
 			$rez = sqlsrv_query($this->_connectionID,$sql);
@@ -957,7 +967,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 
 		}
 		$this->fetchMode = $mode;
-		return parent::__construct($id,$mode);
+		return parent::__construct($id);
 	}
 
 

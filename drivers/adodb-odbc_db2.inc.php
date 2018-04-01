@@ -92,7 +92,7 @@ to DB2 full rights to the DB2 SQLLIB directory, and place the user in the DBUSER
 if (!defined('ADODB_DIR')) die();
 
 if (!defined('_ADODB_ODBC_LAYER')) {
-	include(ADODB_DIR."/drivers/adodb-odbc.inc.php");
+	include_once(ADODB_DIR."/drivers/adodb-odbc.inc.php");
 }
 if (!defined('ADODB_ODBC_DB2')){
 define('ADODB_ODBC_DB2',1);

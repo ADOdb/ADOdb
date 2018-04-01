@@ -551,7 +551,7 @@ class ADODB_Active_Record {
 			$activetab->_created = time();
 			$s = serialize($activetab);
 			if (!function_exists('adodb_write_file')) {
-				include(ADODB_DIR.'/adodb-csvlib.inc.php');
+				include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
 			}
 			adodb_write_file($fname,$s);
 		}
@@ -1300,7 +1300,7 @@ function adodb_GetActiveRecordsClass(&$db, $class, $tableObj,$whereOrderBy,$bind
 
 
 		if (!isset($_ADODB_ACTIVE_DBS)) {
-			include(ADODB_DIR.'/adodb-active-record.inc.php');
+			include_once(ADODB_DIR.'/adodb-active-record.inc.php');
 		}
 		if (!class_exists($class)) {
 			$db->outp_throw("Unknown class $class in GetActiveRecordsClass()",'GetActiveRecordsClass');

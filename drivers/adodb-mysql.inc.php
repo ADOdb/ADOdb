@@ -51,6 +51,30 @@ class ADODB_mysql extends ADOConnection {
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
 	var $compat323 = false; 		// true if compat with mysql 3.23
 
+	/**
+	 * ADODB_mysql constructor.
+	 */
+	public function __construct() {
+		if(version_compare(PHP_VERSION, '7.0.0', '>=')) {
+			$this->outp_throw(
+				'mysql extension is not supported since PHP 7.0.0, use mysqli instead',
+				__METHOD__
+			);
+			die(1); // Stop execution even if not using Exceptions
+		} elseif(version_compare(PHP_VERSION, '5.5.0', '>=')) {
+			// If mysql extension is available just print a warning,
+			// otherwise die with an error message
+			if(function_exists('mysql_connect')) {
+				$this->outp('mysql extension is deprecated since PHP 5.5.0, consider using mysqli');
+			} else {
+				$this->outp_throw(
+					'mysql extension is not available, use mysqli instead',
+					__METHOD__
+				);
+				die(1); // Stop execution even if not using Exceptions
+			}
+		}
+	}
 
 	// SetCharSet - switch the client encoding
 	function SetCharSet($charset_name)
@@ -580,6 +604,8 @@ class ADODB_mysql extends ADOConnection {
 	// parameters use PostgreSQL convention, not MySQL
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs=0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		$offsetStr =($offset>=0) ? ((integer)$offset)."," : '';
 		// jason judge, see http://phplens.com/lens/lensforum/msgs.php?id=9220
 		if ($nrows < 0) $nrows = '18446744073709551615';

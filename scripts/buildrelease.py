@@ -27,7 +27,9 @@ release_branch = "master"
 release_prefix = "adodb"
 
 # Directories and files to exclude from release tarballs
+# For consistency, this should match the list in .gitattributes
 exclude_list = (".git*",
+                ".mailmap",
                 "replicate",
                 "scripts",
                 "tests",

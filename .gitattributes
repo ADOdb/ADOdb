@@ -15,3 +15,10 @@
 # Binary files
 *.gif	binary
 
+# Exclude files and dirs from git archive
+# matching what buildrelease.py does
+.git*           export-ignore
+.mailmap        export-ignore
+replicate/      export-ignore
+scripts/        export-ignore
+tests/          export-ignore

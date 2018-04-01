@@ -15,7 +15,7 @@ Set tabs to 4 for best viewing.
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
-include(ADODB_DIR."/drivers/adodb-db2.inc.php");
+include_once(ADODB_DIR."/drivers/adodb-db2.inc.php");
 
 
 if (!defined('ADODB_DB2OCI')){
