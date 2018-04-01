@@ -109,6 +109,8 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	// which makes obsolete the LIMIT limit,offset syntax
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		$offsetStr = ($offset >= 0) ? " OFFSET ".((integer)$offset) : '';
 		$limitStr  = ($nrows >= 0)  ? " LIMIT ".((integer)$nrows) : '';
 		if ($secs2cache)

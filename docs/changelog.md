@@ -10,7 +10,6 @@ Older changelogs:
 - adodb: Remove useless constructors. #171
 - adodb: Define default constructor in ADOConnection base class. #172
 - adodb: Reimplement base methods charMax() and textMax(). #183
-- adodb: fix potential SQL injection vector in SelectLimit(). #190
 - adodb: addColumnSQL datadict function now supports ENUM data types. See #26
 - adodb: introduce user-defined default Metatype. #165
 - adodb: AutoExecute validates empty fields array. #154
@@ -21,33 +20,74 @@ Older changelogs:
 - adodb: Added portable substring method. #219
 - adodb: New helper methods: day(), month(), year(). #225
 - adodb: Remove references to obsolete ADOdb Extension. #270
-- adodb: add Occitan translation. #285
+- adodb: getAssoc() should not change case of result set's outermost key. #335
+- adodb: getAssoc() fix fetch mode. #350
+- adodb: Optimize FieldTypesArray with static variable #367
+- adodb: Allow output handler to be callable #312
+- adodb: fix ADORecordSet constructor signature. #278
+- adodb: add Occitan (#285) and Indonesian (#293) translations.
 - adodb-time: Fix 'Q' (quarter of year) format in adodb_date(). #222
 - adodb-time: Add 'W' (week of year) format support in adodb_date(). #223
+- db2: fix ChangeTableSQL() signature. #338
 - firebird: updated driver, thanks to Lester Caine. #201
 - mssql: Add charMax() and textMax() methods. #220
+- mssql: support alternative port in connect. #314
 - mssqlnative: Query not returning id. #185
 - mssqlnative: support SQL Server 2014 databases. #186
 - mssqlnative: add support for 'l' (day of week) format in sqlDate(). #232
+- mssqlnative: fix invalid return value for ErrorNo(). #298
+- mssqlnative: ensure that the bind array is numeric. #336
 - mysql: setConnectionParameter() now allows multiple parameters with the same key value. #187
+- mysql: prevent use of driver with PHP >= 7.0. #310
 - mysqli: Deprecate $optionFlags property in favor of standard setConnectionParameter() method. #188
 - mysqli: Insert_ID() did not return correct value after executing stored procedure. #166
 - mysqli: method failed if $associative set true. #181
 - mysqli: return fields as ADOFieldObject objects. #175
 - odbc/mssql: fix null strings concatenation issue with SQL server 2012. #148
+- odbc/mssql: add missing Concat() method. #402
 - odbc: MetaColumns() can optionally be set to return MetaType for backwards compatibility. #184
 - pdo: allow loading of subclassed recordset. #245
 - pdo: add setConnectionParameter support. #247
 - pdo: fix PHP notice. #248
 - pdo: ADORecordSet class loading. #250
+- pdo/pgsql: Add support for transactions. #363
 - pdo/sqlsrv: fix fetchField() method. #251, #234
+- pdo/sqlsrv: add SetTransactionMode() method. #362
 - pgsql: add CIDR data type to MetaType(). #281
+- pgsql: optimize version check. #334
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
 - sqlite: Fix Metataypes mapping. #177
 - sqlite: driver did not support metaForeignKeys. #179
+- memcache: add support for memcached PECL library. #322
 - session: add 'httponly' flag to cookie. #190
 - xml: support table 'opt' attribute with mysqli. #267
+
+## 5.20.12 - 30-Mar-2018
+
+- adodb: PHP 7.2 compatibility
+	- Replace each() with foreach. #373
+	- Replace deprecated create_function() calls. #404
+	- Replace $php_errormsg with error_get_last(). #405
+- adodb: Don't call `dl()` when the function is disabled #406
+- adodb: Don't bother with magic quotes when not available #407
+- adodb: fix potential SQL injection vector in SelectLimit(). #190 #311 #401
+
+## 5.20.11 - Withdrawn
+
+This release has been withdrawn as it introduced a regression on PHP 5.x.
+Please use version 5.20.12 or later.
+
+## 5.20.10 - 08-Mar-2018
+
+- Fix year validation in adodb_validdate() #375
+- Release db resource when closing connection #379
+- Avoid full file path disclosure in ADOLoadCode() #389
+- mssql: fix PHP warning in _adodb_getcount() #359
+- mssql: string keys are not allowed in parameters arrays #316
+- mysqli: fix PHP warning on DB connect #348
+- pdo: fix auto-commit error in sqlsrv #347
+- sybase: fix PHP Warning in _connect()/_pconnect #371
 
 ## 5.20.9 - 21-Dec-2016
 

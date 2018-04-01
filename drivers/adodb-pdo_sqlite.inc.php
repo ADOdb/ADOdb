@@ -54,13 +54,15 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
 		$parent = $this->pdoDriver;
 		$offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
 		$limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : ($offset >= 0 ? ' LIMIT 999999999' : '');
-	  	if ($secs2cache)
-	   		$rs = $parent->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
-	  	else
-	   		$rs = $parent->Execute($sql."$limitStr$offsetStr",$inputarr);
+		if ($secs2cache)
+			$rs = $parent->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
+		else
+			$rs = $parent->Execute($sql."$limitStr$offsetStr",$inputarr);
 
 		return $rs;
 	}
