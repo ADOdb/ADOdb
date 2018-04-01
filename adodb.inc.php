@@ -447,6 +447,7 @@ if (!defined('_ADODB_LAYER')) {
 	var $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
 	var $database = '';			/// Name of database to be used.
 	var $host = '';				/// The hostname of the database server
+	var $port = '';				/// The port of the database server
 	var $user = '';				/// The username which is used to connect to the database server.
 	var $password = '';			/// Password for the username. For security, we no longer store it.
 	var $debug = false;			/// if set to true will output sql statements
@@ -660,6 +661,29 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
+	 * Parses a fully or partially qualified hostname to extract the port. ie: "db.mydomain.com:5432" or "ldaps://ldap.mydomain.com:636"
+	 * Overwrites $this->host and $this->port only if a port is found to be specified.
+	 *
+	 * Important that it maintains any specified scheme such as ldap:// or ldaps://
+	 *
+	 * @return true
+	 */
+	function parseHostNameAndPort() {
+		$parsed_url = parse_url($this->host);
+		if (is_array($parsed_url) && isset($parsed_url['host']) && isset($parsed_url['port'])) {
+			if ( isset($parsed_url['scheme']) ) {
+				$this->host = $parsed_url['scheme']."://".$parsed_url['host']; //If scheme is specified (ie: ldap:// or ldaps://, make sure we retain that.
+			} else {
+				$this->host = $parsed_url['host'];
+			}
+			$this->port = $parsed_url['port'];
+		}
+		unset($parsed_url);
+
+		return TRUE;
+	}
+
+	/**
 	 * Connect to database
 	 *
 	 * @param [argHostname]		Host to connect to
@@ -674,10 +698,8 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
+		$this->parseHostNameAndPort(); //Overwrites $this->host and $this->port if a port is specified.
 
-		if ( strpos($this->host, ":") > 0 && isset($this->port) && strpos($this->host,"://") === FALSE ) { //If host is ldap:// or ldaps:// don't try to explode the port off.
-			list($this->host, $this->port) = explode(":", $this->host, 2);
-		}
 		if ($argUsername != "") {
 			$this->user = $argUsername;
 		}
@@ -758,9 +780,8 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
-		if ( strpos($this->host, ":") > 0 && isset($this->port) && strpos($this->host,"://") === FALSE ) { //If host is ldap:// or ldaps:// don't try to explode the port off.
-				list($this->host, $this->port) = explode(":", $this->host, 2);
-	        }
+		$this->parseHostNameAndPort(); //Overwrites $this->host and $this->port if a port is specified.
+
 		if ($argUsername != "") {
 			$this->user = $argUsername;
 		}
