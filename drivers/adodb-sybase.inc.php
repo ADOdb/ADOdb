@@ -113,8 +113,10 @@ class ADODB_sybase extends ADOConnection {
 		if ($this->_logsql) return $this->_errorMsg;
 		if (function_exists('sybase_get_last_message'))
 			$this->_errorMsg = sybase_get_last_message();
-		else
-			$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : 'SYBASE error messages not supported on this platform';
+		else {
+			$this->_errorMsg = 'SYBASE error messages not supported on this platform';
+		}
+
 		return $this->_errorMsg;
 	}
 
@@ -129,9 +131,9 @@ class ADODB_sybase extends ADOConnection {
 		}
 
 		if ($this->charSet) {
-			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword, $this->charSet);
+			$this->_connectionID = @sybase_connect($argHostname,$argUsername,$argPassword, $this->charSet);
 		} else {
-			$this->_connectionID = sybase_connect($argHostname,$argUsername,$argPassword);
+			$this->_connectionID = @sybase_connect($argHostname,$argUsername,$argPassword);
 		}
 
 		if ($this->_connectionID === false) return false;
@@ -150,9 +152,9 @@ class ADODB_sybase extends ADOConnection {
 		}
 
 		if ($this->charSet) {
-			$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword, $this->charSet);
+			$this->_connectionID = @sybase_pconnect($argHostname,$argUsername,$argPassword, $this->charSet);
 		} else {
-			$this->_connectionID = sybase_pconnect($argHostname,$argUsername,$argPassword);
+			$this->_connectionID = @sybase_pconnect($argHostname,$argUsername,$argPassword);
 		}
 
 		if ($this->_connectionID === false) return false;
@@ -314,7 +316,7 @@ class ADORecordset_sybase extends ADORecordSet {
 		}
 		if (!$mode) $this->fetchMode = ADODB_FETCH_ASSOC;
 		else $this->fetchMode = $mode;
-		parent::__construct($id,$mode);
+		parent::__construct($id);
 	}
 
 	/*	Returns: an object containing field information.

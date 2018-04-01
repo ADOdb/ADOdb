@@ -62,15 +62,9 @@ class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 	public function fetchField($fieldOffset = 0)
 	{
 
-		static $fieldObjects = array();
 		// Default behavior allows passing in of -1 offset, which crashes the method
 		if ($fieldOffset == -1) {
 			$fieldOffset++;
-		}
-
-		if (isset($fieldObjects[$fieldOffset])) {
-			// Look for cached field offset
-			return $fieldObjects[$fieldOffset];
 		}
 
 		$o = new ADOFieldObject();
@@ -102,8 +96,6 @@ class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 				break;
 		}
 
-		// Add to the cache
-		$fieldObjects[$fieldOffset] = $o;
 		return $o;
 	}
 }
@@ -122,15 +114,9 @@ class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo
 	 */
 	public function fetchField($fieldOffset = 0)
 	{
-		static $fieldObjects = array();
 		// Default behavior allows passing in of -1 offset, which crashes the method
 		if ($fieldOffset == -1) {
 			$fieldOffset++;
-		}
-
-		if (isset($fieldObjects[$fieldOffset])) {
-			// Look for cached field offset
-			return $fieldObjects[$fieldOffset];
 		}
 
 		$o = new ADOFieldObject();
@@ -162,8 +148,17 @@ class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo
 				break;
 		}
 
-		// Add to the cache
-		$fieldObjects[$fieldOffset] = $o;
 		return $o;
+	}
+	
+	function SetTransactionMode( $transaction_mode )
+	{
+		$this->_transmode  = $transaction_mode;
+		if (empty($transaction_mode)) {
+			$this->_connectionID->query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+			return;
+		}
+		if (!stristr($transaction_mode,'isolation')) $transaction_mode = 'ISOLATION LEVEL '.$transaction_mode;
+		$this->_connectionID->query("SET TRANSACTION ".$transaction_mode);
 	}
 }

@@ -15,7 +15,7 @@
 if (!defined('_ADODB_ODBC_LAYER')) {
 	if (!defined('ADODB_DIR')) die();
 
-	include(ADODB_DIR."/drivers/adodb-odbc.inc.php");
+	include_once(ADODB_DIR."/drivers/adodb-odbc.inc.php");
 }
 
 if (!defined('_ADODB_ACCESS')) {

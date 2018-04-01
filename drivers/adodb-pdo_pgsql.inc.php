@@ -73,12 +73,14 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
-		 $offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
-		 $limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : '';
-		 if ($secs2cache)
-		  	$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
-		 else
-		  	$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
+		$nrows = (int) $nrows;
+		$offset = (int) $offset;
+		$offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
+		$limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : '';
+		if ($secs2cache)
+			$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
+		else
+			$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
 
 		return $rs;
 	}
@@ -227,4 +229,64 @@ select viewname,'V' from pg_views where viewname like $mask";
 
 	}
 
+	function BeginTrans()
+	{
+		if (!$this->hasTransactions) {
+			return false;
+		}
+		if ($this->transOff) {
+			return true;
+		}
+		$this->transCnt += 1;
+
+		return $this->_connectionID->beginTransaction();
+	}
+
+	function CommitTrans($ok = true)
+	{
+		if (!$this->hasTransactions) {
+			return false;
+		}
+		if ($this->transOff) {
+			return true;
+		}
+		if (!$ok) {
+			return $this->RollbackTrans();
+		}
+		if ($this->transCnt) {
+			$this->transCnt -= 1;
+		}
+		$this->_autocommit = true;
+
+		$ret = $this->_connectionID->commit();
+		return $ret;
+	}
+
+	function RollbackTrans()
+	{
+		if (!$this->hasTransactions) {
+			return false;
+		}
+		if ($this->transOff) {
+			return true;
+		}
+		if ($this->transCnt) {
+			$this->transCnt -= 1;
+		}
+		$this->_autocommit = true;
+
+		$ret = $this->_connectionID->rollback();
+		return $ret;
+	}
+
+	function SetTransactionMode( $transaction_mode )
+	{
+		$this->_transmode  = $transaction_mode;
+		if (empty($transaction_mode)) {
+			$this->_connectionID->query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+			return;
+		}
+		if (!stristr($transaction_mode,'isolation')) $transaction_mode = 'ISOLATION LEVEL '.$transaction_mode;
+		$this->_connectionID->query("SET TRANSACTION ".$transaction_mode);
+	}
 }

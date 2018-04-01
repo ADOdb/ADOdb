@@ -455,8 +455,6 @@ class ADODB_mssqlnative extends ADOConnection {
 				$this->_errorMsg .= "Error Code: ".$arrError[ 'code']."\n";
 				$this->_errorMsg .= "Message: ".$arrError[ 'message']."\n";
 			}
-		} else {
-			$this->_errorMsg = "No errors found";
 		}
 		return $this->_errorMsg;
 	}
@@ -528,7 +526,12 @@ class ADODB_mssqlnative extends ADOConnection {
 			$arr = $args;
 		}
 
-		array_walk($arr, create_function('&$v', '$v = "CAST(" . $v . " AS VARCHAR(255))";'));
+		array_walk(
+			$arr,
+			function(&$value, $key) {
+				$value = "CAST(" . $value . " AS VARCHAR(255))";
+			}
+		);
 		$s = implode('+',$arr);
 		if (sizeof($arr) > 0) return "$s";
 
@@ -964,7 +967,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 
 		}
 		$this->fetchMode = $mode;
-		return parent::__construct($id,$mode);
+		return parent::__construct($id);
 	}
 
 
