@@ -33,7 +33,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 				THEN 'SERIAL'
 				ELSE t.typname
 			END AS typname,
-			a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
+			a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum, t.typcategory
 		FROM
 			pg_class c,
 			pg_attribute a
@@ -67,7 +67,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 				THEN 'SERIAL'
 				ELSE t.typname
 			END AS typname,
-			a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
+			a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum, t.typcategory
 		FROM
 			pg_class c,
 			pg_namespace n,
