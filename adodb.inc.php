@@ -660,10 +660,11 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Parses a fully or partially qualified hostname to extract the port. ie: "db.mydomain.com:5432" or "ldaps://ldap.mydomain.com:636"
-	 * Overwrites $this->host and $this->port only if a port is found to be specified.
-	 *
-	 * Important that it maintains any specified scheme such as ldap:// or ldaps://
+	 * Parses the hostname to extract the port.
+     * Overwrites $this->host and $this->port, only if a port is specified.
+     * The Hostname can be fully or partially qualified,
+     * ie: "db.mydomain.com:5432" or "ldaps://ldap.mydomain.com:636"
+     * Any specified scheme such as ldap:// or ldaps:// is maintained.
 	 *
 	 * @return true
 	 */
@@ -671,7 +672,8 @@ if (!defined('_ADODB_LAYER')) {
 		$parsed_url = parse_url($this->host);
 		if (is_array($parsed_url) && isset($parsed_url['host']) && isset($parsed_url['port'])) {
 			if ( isset($parsed_url['scheme']) ) {
-				$this->host = $parsed_url['scheme']."://".$parsed_url['host']; //If scheme is specified (ie: ldap:// or ldaps://, make sure we retain that.
+				// If scheme is specified (ie: ldap:// or ldaps://, make sure we retain that.
+				$this->host = $parsed_url['scheme'] . "://" . $parsed_url['host'];
 			} else {
 				$this->host = $parsed_url['host'];
 			}
@@ -697,7 +699,8 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
-		$this->parseHostNameAndPort(); //Overwrites $this->host and $this->port if a port is specified.
+        // Overwrites $this->host and $this->port if a port is specified.
+		$this->parseHostNameAndPort();
 
 		if ($argUsername != "") {
 			$this->user = $argUsername;
