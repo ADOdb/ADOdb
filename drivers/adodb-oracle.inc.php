@@ -333,7 +333,7 @@ class ADORecordset_oracle extends ADORecordSet {
 		case 'INT':
 		case 'SMALLINT':
 		case 'INTEGER': return 'I';
-		default: return 'N';
+		default: return ADODB_DEFAULT_METATYPE;
 		}
 	}
 }

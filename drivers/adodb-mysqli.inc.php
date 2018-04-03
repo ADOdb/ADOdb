@@ -1253,7 +1253,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		case 'FIXED':
 		default:
 			//if (!is_numeric($t)) echo "<p>--- Error in type matching $t -----</p>";
-			return 'N';
+			return ADODB_DEFAULT_METATYPE;
 		}
 	} // function
 

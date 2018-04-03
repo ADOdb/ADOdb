@@ -117,9 +117,11 @@ if (!defined('_ADODB_LAYER')) {
 	* Defines the the default meta type returned
 	* when ADOdb encounters a type that it is not
 	* defined in the metaTypes.
+	*
+	* Default to "Z" or RAW (unmodified) type, which should allow most advanced data types such as geometry/ENUMS/JSON to work without further modifications.
 	*/
 	if (!defined('ADODB_DEFAULT_METATYPE'))
-		define ('ADODB_DEFAULT_METATYPE','N');
+		define ('ADODB_DEFAULT_METATYPE','Z');
 
 	define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
 
@@ -3680,7 +3682,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function getAssoc($force_array = false, $first2cols = false)
 	{
-		
+
 		global $ADODB_FETCH_MODE;
 		/*
 		* Insufficient rows to show data
@@ -3746,7 +3748,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			* The key is not case processed
 			*/
 			$key = array_shift($myFields);
-			
+
 			switch ($showArrayMethod)
 			{
 			case 0:
