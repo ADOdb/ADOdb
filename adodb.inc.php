@@ -780,7 +780,8 @@ if (!defined('_ADODB_LAYER')) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
-		$this->parseHostNameAndPort(); //Overwrites $this->host and $this->port if a port is specified.
+		// Overwrites $this->host and $this->port if a port is specified.
+		$this->parseHostNameAndPort();
 
 		if ($argUsername != "") {
 			$this->user = $argUsername;
