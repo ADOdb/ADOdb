@@ -679,8 +679,6 @@ if (!defined('_ADODB_LAYER')) {
 			}
 			$this->port = $parsed_url['port'];
 		}
-		unset($parsed_url);
-
 		return TRUE;
 	}
 
