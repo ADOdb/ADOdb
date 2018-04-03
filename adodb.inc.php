@@ -665,10 +665,8 @@ if (!defined('_ADODB_LAYER')) {
 	 * The Hostname can be fully or partially qualified,
 	 * ie: "db.mydomain.com:5432" or "ldaps://ldap.mydomain.com:636"
 	 * Any specified scheme such as ldap:// or ldaps:// is maintained.
-	 *
-	 * @return true
 	 */
-	function parseHostNameAndPort() {
+	protected function parseHostNameAndPort() {
 		$parsed_url = parse_url($this->host);
 		if (is_array($parsed_url) && isset($parsed_url['host']) && isset($parsed_url['port'])) {
 			if ( isset($parsed_url['scheme']) ) {
@@ -679,7 +677,6 @@ if (!defined('_ADODB_LAYER')) {
 			}
 			$this->port = $parsed_url['port'];
 		}
-		return TRUE;
 	}
 
 	/**
