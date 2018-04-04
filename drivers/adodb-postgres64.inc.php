@@ -1151,7 +1151,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 					return 'R';
 
 				default:
-					if ( isset($fieldobj) && $fieldobj->type_category == 'E' ) { //Check if type category is a ENUM and if so make sure we return it as varchar type so its quoted.
+					if ( isset($fieldobj) && is_object($fieldobj) && $fieldobj->type_category == 'E' ) { //Check if type category is a ENUM and if so make sure we return it as varchar type so its quoted.
 						return 'C';
 					} else {
 						return ADODB_DEFAULT_METATYPE;
