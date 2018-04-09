@@ -126,7 +126,7 @@ class ADODB_mysqli extends ADOConnection {
 		if ($persist && PHP_VERSION > 5.2 && strncmp($argHostname,'p:',2) != 0) $argHostname = 'p:'.$argHostname;
 
 		// SSL Connections for MySQLI
-		if ($this->ssl_key || $this->ssl_cer || $this->ssl_ca || $this->ssl_ccapath || $this->ca_cipher) {
+		if ($this->ssl_key || $this->ssl_cer || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
 			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cer, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
 		}
 
