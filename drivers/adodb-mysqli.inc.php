@@ -59,6 +59,11 @@ class ADODB_mysqli extends ADOConnection {
 	var $optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0));
 	var $arrayClass = 'ADORecordSet_array_mysqli';
 	var $multiQuery = false;
+	var $ssl_key = false;
+	var $ssl_cer = false;
+	var $ssl_ca = false;
+	var $ssl_capath = false;
+	var $ssl_cipher = false;
 
 	/*
 	* Tells the insert_id method how to obtain the last value, depending on whether
@@ -119,6 +124,11 @@ class ADODB_mysqli extends ADOConnection {
 
 		//http ://php.net/manual/en/mysqli.persistconns.php
 		if ($persist && PHP_VERSION > 5.2 && strncmp($argHostname,'p:',2) != 0) $argHostname = 'p:'.$argHostname;
+
+		// SSL Connections for MySQLI
+		if ($this->ssl_key || $this->ssl_cer || $this->ssl_ca || $this->ssl_ccapath || $this->ca_cipher) {
+            mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cer, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
+        }
 
 		#if (!empty($this->port)) $argHostname .= ":".$this->port;
 		$ok = @mysqli_real_connect($this->_connectionID,
