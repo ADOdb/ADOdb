@@ -59,11 +59,11 @@ class ADODB_mysqli extends ADOConnection {
 	var $optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0));
 	var $arrayClass = 'ADORecordSet_array_mysqli';
 	var $multiQuery = false;
-	var $ssl_key = false;
-	var $ssl_cer = false;
-	var $ssl_ca = false;
-	var $ssl_capath = false;
-	var $ssl_cipher = false;
+	var $ssl_key = null;
+	var $ssl_cer = null;
+	var $ssl_ca = null;
+	var $ssl_capath = null;
+	var $ssl_cipher = null;
 
 	/*
 	* Tells the insert_id method how to obtain the last value, depending on whether
