@@ -1150,6 +1150,12 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				case 'SERIAL':
 					return 'R';
 
+				case 'NUMERIC':
+				case 'DECIMAL':
+				case 'FLOAT4':
+				case 'FLOAT8':
+					return 'N';
+
 				default:
 					if ( isset($fieldobj) && is_object($fieldobj) && $fieldobj->type_category == 'E' ) { //Check if type category is a ENUM and if so make sure we return it as varchar type so its quoted.
 						return 'C';
