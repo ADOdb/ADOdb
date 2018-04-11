@@ -82,7 +82,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 			} else {
 				// Need to identify if the ? is inside a quoted string, and if
 				// so not use it as a bind variable
-				preg_match_all('/".*\??"|\'.*\?.*?\'/', $sql, $matches);
+				preg_match_all('/".*?"|\'.*?\'/', $sql, $matches);
 				foreach($matches[0] as $qmMatch){
 					$qmReplace = str_replace('?', '-QUESTIONMARK-', $qmMatch);
 					$sql = str_replace($qmMatch, $qmReplace, $sql);
