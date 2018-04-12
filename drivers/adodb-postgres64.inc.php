@@ -73,13 +73,13 @@ class ADODB_postgres64 extends ADOConnection{
 	var $sysDate = "CURRENT_DATE";
 	var $sysTimeStamp = "CURRENT_TIMESTAMP";
 	var $blobEncodeType = 'C';
-	var $metaColumnsSQL = "SELECT a.attname, t.typname, a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum, t.typcategory
+	var $metaColumnsSQL = "SELECT a.attname,t.typname,a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum
 		FROM pg_class c, pg_attribute a,pg_type t
 		WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s')) and a.attname not like '....%%'
 		AND a.attnum > 0 AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
 
 	// used when schema defined
-	var $metaColumnsSQL1 = "SELECT a.attname, t.typname, a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum, t.typcategory
+	var $metaColumnsSQL1 = "SELECT a.attname, t.typname, a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
 		FROM pg_class c, pg_attribute a, pg_type t, pg_namespace n
 		WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 		and c.relnamespace=n.oid and n.nspname='%s'
@@ -588,7 +588,6 @@ class ADODB_postgres64 extends ADOConnection{
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
 			$fld->type = $rs->fields[1];
-			$fld->type_category = $rs->fields[7]; //Required to determine if its a ENUM type.
 			$fld->max_length = $rs->fields[2];
 			$fld->attnum = $rs->fields[6];
 
@@ -1088,7 +1087,6 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-
 		switch (strtoupper($t)) {
 				case 'MONEY': // stupid, postgres expects money to be a string
 				case 'INTERVAL':
@@ -1157,11 +1155,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 					return 'N';
 
 				default:
-					if ( isset($fieldobj) && is_object($fieldobj) && $fieldobj->type_category == 'E' ) { //Check if type category is a ENUM and if so make sure we return it as varchar type so its quoted.
-						return 'C';
-					} else {
-						return ADODB_DEFAULT_METATYPE;
-					}
+					return ADODB_DEFAULT_METATYPE;
 			}
 	}
 

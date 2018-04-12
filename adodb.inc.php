@@ -118,10 +118,10 @@ if (!defined('_ADODB_LAYER')) {
 	* when ADOdb encounters a type that it is not
 	* defined in the metaTypes.
 	*
-	* Default to "Z" or RAW (unmodified) type, which should allow most advanced data types such as geometry/ENUMS/JSON to work without further modifications.
+	* Default to "C" or char type, which should allow most advanced data types such as geometry/ENUMS/JSON to work without further modifications.
 	*/
 	if (!defined('ADODB_DEFAULT_METATYPE'))
-		define ('ADODB_DEFAULT_METATYPE','Z');
+		define ('ADODB_DEFAULT_METATYPE','C');
 
 	define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
 

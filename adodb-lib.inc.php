@@ -868,7 +868,7 @@ static $cacheCols;
 			} else
 				$fnameq = $upperfname;
 
-			$type = $recordSet->MetaType($field->type, -1, $field );
+			$type = $recordSet->MetaType($field->type);
 
             /********************************************************/
             if (is_null($arrFields[$upperfname])
