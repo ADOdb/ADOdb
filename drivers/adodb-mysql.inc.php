@@ -228,11 +228,16 @@ class ADODB_mysql extends ADOConnection {
 			if (!isset($indexes[$row[2]])) {
 				$indexes[$row[2]] = array(
 					'unique' => ($row[1] == 0),
-					'columns' => array()
+					'columns' => array(),
+					'length' => array()
 				);
 			}
 
 			$indexes[$row[2]]['columns'][$row[3] - 1] = $row[4];
+
+			if (is_numeric($row[7])) {
+				$indexes[$row[2]]['length'][$row[4]] = (int)$row[7];
+			}
 		}
 
 		// sort columns by order in the index
