@@ -205,7 +205,7 @@ class dbObject {
 	* @param string $field Field.
 	* @return string Field ID.
 	*/
-	function FieldID( $field ) {
+	function fieldID( $field ) {
 		return strtoupper( preg_replace( '/^`(.+)`$/', '$1', $field ) );
 	}
 }
@@ -521,9 +521,9 @@ class dbTable extends dbObject {
 		$sql = array();
 
 		// drop any existing indexes
-		if( is_array( $legacy_indexes = $xmls->dict->MetaIndexes( $this->name ) ) ) {
+		if( is_array( $legacy_indexes = $xmls->dict->metaIndexes( $this->name ) ) ) {
 			foreach( $legacy_indexes as $index => $index_details ) {
-				$sql[] = $xmls->dict->DropIndexSQL( $index, $this->name );
+				$sql[] = $xmls->dict->dropIndexSQL( $index, $this->name );
 			}
 		}
 
@@ -533,10 +533,10 @@ class dbTable extends dbObject {
 		}
 
 		// if table exists
-		if( is_array( $legacy_fields = $xmls->dict->MetaColumns( $this->name ) ) ) {
+		if( is_array( $legacy_fields = $xmls->dict->metaColumns( $this->name ) ) ) {
 			// drop table
 			if( $this->drop_table ) {
-				$sql[] = $xmls->dict->DropTableSQL( $this->name );
+				$sql[] = $xmls->dict->dropTableSQL( $this->name );
 
 				return $sql;
 			}
@@ -544,7 +544,7 @@ class dbTable extends dbObject {
 			// drop any existing fields not in schema
 			foreach( $legacy_fields as $field_id => $field ) {
 				if( !isset( $this->fields[$field_id] ) ) {
-					$sql[] = $xmls->dict->DropColumnSQL( $this->name, $field->name );
+					$sql[] = $xmls->dict->dropColumnSQL( $this->name, $field->name );
 				}
 			}
 		// if table doesn't exist
@@ -590,7 +590,7 @@ class dbTable extends dbObject {
 
 		if( empty( $legacy_fields ) ) {
 			// Create the new table
-			$sql[] = $xmls->dict->CreateTableSQL( $this->name, $fldarray, $this->opts );
+			$sql[] = $xmls->dict->createTableSQL( $this->name, $fldarray, $this->opts );
 			logMsg( end( $sql ), 'Generated CreateTableSQL' );
 		} else {
 			// Upgrade an existing table
@@ -599,12 +599,12 @@ class dbTable extends dbObject {
 				// Use ChangeTableSQL
 				case 'ALTER':
 					logMsg( 'Generated ChangeTableSQL (ALTERing table)' );
-					$sql[] = $xmls->dict->ChangeTableSQL( $this->name, $fldarray, $this->opts );
+					$sql[] = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
 					break;
 				case 'REPLACE':
 					logMsg( 'Doing upgrade REPLACE (testing)' );
-					$sql[] = $xmls->dict->DropTableSQL( $this->name );
-					$sql[] = $xmls->dict->CreateTableSQL( $this->name, $fldarray, $this->opts );
+					$sql[] = $xmls->dict->dropTableSQL( $this->name );
+					$sql[] = $xmls->dict->createTableSQL( $this->name, $fldarray, $this->opts );
 					break;
 				// ignore table
 				default:
@@ -794,7 +794,7 @@ class dbIndex extends dbObject {
 			}
 		}
 
-		return $xmls->dict->CreateIndexSQL( $this->name, $this->parent->name, $this->columns, $this->opts );
+		return $xmls->dict->createIndexSQL( $this->name, $this->parent->name, $this->columns, $this->opts );
 	}
 
 	/**
@@ -902,7 +902,7 @@ class dbData extends dbObject {
 
 		// Set the field index so we know where we are
 		if( isset( $attributes['NAME'] ) ) {
-			$this->current_field = $this->FieldID( $attributes['NAME'] );
+			$this->current_field = $this->fieldID( $attributes['NAME'] );
 		} else {
 			$this->current_field = count( $this->data[$this->row] );
 		}
@@ -934,12 +934,12 @@ class dbData extends dbObject {
 	* @return array Array containing index creation SQL
 	*/
 	function create( &$xmls ) {
-		$table = $xmls->dict->TableName($this->parent->name);
+		$table = $xmls->dict->tableName($this->parent->name);
 		$table_field_count = count($this->parent->fields);
-		$tables = $xmls->db->MetaTables();
+		$tables = $xmls->db->metaTables();
 		$sql = array();
 
-		$ukeys = $xmls->db->MetaPrimaryKeys( $table );
+		$ukeys = $xmls->db->metaPrimaryKeys( $table );
 		if( !empty( $this->parent->indexes ) and !empty( $ukeys ) ) {
 			foreach( $this->parent->indexes as $indexObj ) {
 				if( !in_array( $indexObj->name, $ukeys ) ) $ukeys[] = $indexObj->name;
@@ -1026,19 +1026,19 @@ class dbData extends dbObject {
 					$where .= $key . ' = ' . $xmls->db->qstr( $mfields[$key] );
 				}
 			}
-			$records = $xmls->db->Execute( 'SELECT * FROM ' . $table . ' WHERE ' . $where );
-			switch( $records->RecordCount() ) {
+			$records = $xmls->db->execute( 'SELECT * FROM ' . $table . ' WHERE ' . $where );
+			switch( $records->recordCount() ) {
 				case 0:
 					// No matching record, so safe to insert.
 					logMsg( "No matching records. Inserting new row with unique data" );
-					$sql[] = $xmls->db->GetInsertSQL( $records, $mfields );
+					$sql[] = $xmls->db->getInsertSQL( $records, $mfields );
 					break;
 				case 1:
 					// Exactly one matching record, so we can update if the mode permits.
 					logMsg( "One matching record..." );
 					if( $mode == XMLS_MODE_UPDATE ) {
 						logMsg( "...Updating existing row from unique data" );
-						$sql[] = $xmls->db->GetUpdateSQL( $records, $mfields );
+						$sql[] = $xmls->db->getUpdateSQL( $records, $mfields );
 					}
 					break;
 				default:
@@ -1438,7 +1438,7 @@ class adoSchema {
 	* @param string $method Upgrade method (ALTER|REPLACE|BEST|NONE)
 	* @returns string Upgrade method used
 	*/
-	function SetUpgradeMethod( $method = '' ) {
+	function setUpgradeMethod( $method = '' ) {
 		if( !is_string( $method ) ) {
 			return FALSE;
 		}
@@ -1486,7 +1486,7 @@ class adoSchema {
 	* @param int $mode XMLS_MODE_INSERT, XMLS_MODE_UPDATE, or XMLS_MODE_IGNORE
 	* @return int current mode
 	*/
-	function ExistingData( $mode = NULL ) {
+	function existingData( $mode = NULL ) {
 		if( is_int( $mode ) ) {
 			switch( $mode ) {
 				case XMLS_MODE_UPDATE:
@@ -1519,9 +1519,9 @@ class adoSchema {
 	* @param bool $mode execute
 	* @return bool current execution mode
 	*
-	* @see ParseSchema(), ExecuteSchema()
+	* @see parseSchema(), executeSchema()
 	*/
-	function ExecuteInline( $mode = NULL ) {
+	function executeInline( $mode = NULL ) {
 		if( is_bool( $mode ) ) {
 			$this->executeInline = $mode;
 		}
@@ -1540,9 +1540,9 @@ class adoSchema {
 	* @param bool $mode execute
 	* @return bool current continueOnError mode
 	*
-	* @see addSQL(), ExecuteSchema()
+	* @see addSQL(), executeSchema()
 	*/
-	function ContinueOnError( $mode = NULL ) {
+	function continueOnError( $mode = NULL ) {
 		if( is_bool( $mode ) ) {
 			$this->continueOnError = $mode;
 		}
@@ -1557,14 +1557,14 @@ class adoSchema {
 	* the filesystem and generate the SQL necessary to create the database
 	* described. This method automatically converts the schema to the latest
 	* axmls schema version.
-	* @see ParseSchemaString()
+	* @see parseSchemaString()
 	*
 	* @param string $file Name of XML schema file.
 	* @param bool $returnSchema Return schema rather than parsing.
 	* @return array Array of SQL queries, ready to execute
 	*/
-	function ParseSchema( $filename, $returnSchema = FALSE ) {
-		return $this->ParseSchemaString( $this->ConvertSchemaFile( $filename ), $returnSchema );
+	function parseSchema( $filename, $returnSchema = FALSE ) {
+		return $this->parseSchemaString( $this->convertSchemaFile( $filename ), $returnSchema );
 	}
 
 	/**
@@ -1577,18 +1577,18 @@ class adoSchema {
 	* This method does not automatically convert the schema to the latest axmls
 	* schema version. You must convert the schema manually using either the
 	* ConvertSchemaFile() or ConvertSchemaString() method.
-	* @see ParseSchema()
-	* @see ConvertSchemaFile()
-	* @see ConvertSchemaString()
+	* @see parseSchema()
+	* @see convertSchemaFile()
+	* @see convertSchemaString()
 	*
 	* @param string $file Name of XML schema file.
 	* @param bool $returnSchema Return schema rather than parsing.
 	* @return array Array of SQL queries, ready to execute.
 	*
-	* @deprecated Replaced by adoSchema::ParseSchema() and adoSchema::ParseSchemaString()
-	* @see ParseSchema(), ParseSchemaString()
+	* @deprecated Replaced by adoSchema::parseSchema() and adoSchema::parseSchemaString()
+	* @see parseSchema(), parseSchemaString()
 	*/
-	function ParseSchemaFile( $filename, $returnSchema = FALSE ) {
+	function parseSchemaFile( $filename, $returnSchema = FALSE ) {
 		// Open the file
 		if( !($fp = fopen( $filename, 'r' )) ) {
 			logMsg( 'Unable to open file' );
@@ -1596,7 +1596,7 @@ class adoSchema {
 		}
 
 		// do version detection here
-		if( $this->SchemaFileVersion( $filename ) != $this->schemaVersion ) {
+		if( $this->schemaFileVersion( $filename ) != $this->schemaVersion ) {
 			logMsg( 'Invalid Schema Version' );
 			return FALSE;
 		}
@@ -1634,20 +1634,20 @@ class adoSchema {
 	*
 	* Call this method to parse a string containing an XML schema (see the DTD for the proper format)
 	* and generate the SQL necessary to create the database described by the schema.
-	* @see ParseSchema()
+	* @see parseSchema()
 	*
 	* @param string $xmlstring XML schema string.
 	* @param bool $returnSchema Return schema rather than parsing.
 	* @return array Array of SQL queries, ready to execute.
 	*/
-	function ParseSchemaString( $xmlstring, $returnSchema = FALSE ) {
+	function parseSchemaString( $xmlstring, $returnSchema = FALSE ) {
 		if( !is_string( $xmlstring ) OR empty( $xmlstring ) ) {
 			logMsg( 'Empty or Invalid Schema' );
 			return FALSE;
 		}
 
 		// do version detection here
-		if( $this->SchemaStringVersion( $xmlstring ) != $this->schemaVersion ) {
+		if( $this->schemaStringVersion( $xmlstring ) != $this->schemaVersion ) {
 			logMsg( 'Invalid Schema Version' );
 			return FALSE;
 		}
@@ -1678,14 +1678,14 @@ class adoSchema {
 	*
 	* Call this method to load the specified schema (see the DTD for the proper format) from
 	* the filesystem and generate the SQL necessary to remove the database described.
-	* @see RemoveSchemaString()
+	* @see removeSchemaString()
 	*
 	* @param string $file Name of XML schema file.
 	* @param bool $returnSchema Return schema rather than parsing.
 	* @return array Array of SQL queries, ready to execute
 	*/
-	function RemoveSchema( $filename, $returnSchema = FALSE ) {
-		return $this->RemoveSchemaString( $this->ConvertSchemaFile( $filename ), $returnSchema );
+	function removeSchema( $filename, $returnSchema = FALSE ) {
+		return $this->removeSchemaString( $this->convertSchemaFile( $filename ), $returnSchema );
 	}
 
 	/**
@@ -1693,20 +1693,20 @@ class adoSchema {
 	*
 	* Call this method to parse a string containing an XML schema (see the DTD for the proper format)
 	* and generate the SQL necessary to uninstall the database described by the schema.
-	* @see RemoveSchema()
+	* @see removeSchema()
 	*
 	* @param string $schema XML schema string.
 	* @param bool $returnSchema Return schema rather than parsing.
 	* @return array Array of SQL queries, ready to execute.
 	*/
-	function RemoveSchemaString( $schema, $returnSchema = FALSE ) {
+	function removeSchemaString( $schema, $returnSchema = FALSE ) {
 
 		// grab current version
-		if( !( $version = $this->SchemaStringVersion( $schema ) ) ) {
+		if( !( $version = $this->schemaStringVersion( $schema ) ) ) {
 			return FALSE;
 		}
 
-		return $this->ParseSchemaString( $this->TransformSchema( $schema, 'remove-' . $version), $returnSchema );
+		return $this->parseSchemaString( $this->transformSchema( $schema, 'remove-' . $version), $returnSchema );
 	}
 
 	/**
@@ -1715,16 +1715,16 @@ class adoSchema {
 	* Call this method to apply the current schema (generally created by calling
 	* ParseSchema() or ParseSchemaString() ) to the database (creating the tables, indexes,
 	* and executing other SQL specified in the schema) after parsing.
-	* @see ParseSchema(), ParseSchemaString(), ExecuteInline()
+	* @see parseSchema(), parseSchemaString(), executeInline()
 	*
 	* @param array $sqlArray Array of SQL statements that will be applied rather than
 	*		the current schema.
 	* @param boolean $continueOnErr Continue to apply the schema even if an error occurs.
 	* @returns integer 0 if failure, 1 if errors, 2 if successful.
 	*/
-	function ExecuteSchema( $sqlArray = NULL, $continueOnErr =  NULL ) {
+	function executeSchema( $sqlArray = NULL, $continueOnErr =  NULL ) {
 		if( !is_bool( $continueOnErr ) ) {
-			$continueOnErr = $this->ContinueOnError();
+			$continueOnErr = $this->continueOnError();
 		}
 
 		if( !isset( $sqlArray ) ) {
@@ -1734,7 +1734,7 @@ class adoSchema {
 		if( !is_array( $sqlArray ) ) {
 			$this->success = 0;
 		} else {
-			$this->success = $this->dict->ExecuteSQLArray( $sqlArray, $continueOnErr );
+			$this->success = $this->dict->executeSQLArray( $sqlArray, $continueOnErr );
 		}
 
 		return $this->success;
@@ -1749,7 +1749,7 @@ class adoSchema {
 	* @param string $format Format: HTML, TEXT, or NONE (PHP array)
 	* @return array Array of SQL statements or FALSE if an error occurs
 	*/
-	function PrintSQL( $format = 'NONE' ) {
+	function printSQL( $format = 'NONE' ) {
 		$sqlArray = null;
 		return $this->getSQL( $format, $sqlArray );
 	}
@@ -1763,7 +1763,7 @@ class adoSchema {
 	* @param string $filename Path and name where the file should be saved.
 	* @return boolean TRUE if save is successful, else FALSE.
 	*/
-	function SaveSQL( $filename = './schema.sql' ) {
+	function saveSQL( $filename = './schema.sql' ) {
 
 		if( !isset( $sqlArray ) ) {
 			$sqlArray = $this->sqlArray;
@@ -1851,17 +1851,17 @@ class adoSchema {
 	* parameter is specified, the schema will be converted to the current DTD version.
 	* If the newFile parameter is provided, the converted schema will be written to the specified
 	* file.
-	* @see ConvertSchemaFile()
+	* @see convertSchemaFile()
 	*
 	* @param string $schema String containing XML schema that will be converted.
 	* @param string $newVersion DTD version to convert to.
 	* @param string $newFile File name of (converted) output file.
 	* @return string Converted XML schema or FALSE if an error occurs.
 	*/
-	function ConvertSchemaString( $schema, $newVersion = NULL, $newFile = NULL ) {
+	function convertSchemaString( $schema, $newVersion = NULL, $newFile = NULL ) {
 
 		// grab current version
-		if( !( $version = $this->SchemaStringVersion( $schema ) ) ) {
+		if( !( $version = $this->schemaStringVersion( $schema ) ) ) {
 			return FALSE;
 		}
 
@@ -1872,7 +1872,7 @@ class adoSchema {
 		if( $version == $newVersion ) {
 			$result = $schema;
 		} else {
-			$result = $this->TransformSchema( $schema, 'convert-' . $version . '-' . $newVersion);
+			$result = $this->transformSchema( $schema, 'convert-' . $version . '-' . $newVersion);
 		}
 
 		if( is_string( $result ) AND is_string( $newFile ) AND ( $fp = fopen( $newFile, 'w' ) ) ) {
@@ -1900,17 +1900,17 @@ class adoSchema {
 	* parameter is specified, the schema will be converted to the current DTD version.
 	* If the newFile parameter is provided, the converted schema will be written to the specified
 	* file.
-	* @see ConvertSchemaString()
+	* @see convertSchemaString()
 	*
 	* @param string $filename Name of XML schema file that will be converted.
 	* @param string $newVersion DTD version to convert to.
 	* @param string $newFile File name of (converted) output file.
 	* @return string Converted XML schema or FALSE if an error occurs.
 	*/
-	function ConvertSchemaFile( $filename, $newVersion = NULL, $newFile = NULL ) {
+	function convertSchemaFile( $filename, $newVersion = NULL, $newFile = NULL ) {
 
 		// grab current version
-		if( !( $version = $this->SchemaFileVersion( $filename ) ) ) {
+		if( !( $version = $this->schemaFileVersion( $filename ) ) ) {
 			return FALSE;
 		}
 
@@ -1926,7 +1926,7 @@ class adoSchema {
 				$result = substr( $result, 3 );
 			}
 		} else {
-			$result = $this->TransformSchema( $filename, 'convert-' . $version . '-' . $newVersion, 'file' );
+			$result = $this->transformSchema( $filename, 'convert-' . $version . '-' . $newVersion, 'file' );
 		}
 
 		if( is_string( $result ) AND is_string( $newFile ) AND ( $fp = fopen( $newFile, 'w' ) ) ) {
@@ -1937,7 +1937,7 @@ class adoSchema {
 		return $result;
 	}
 
-	function TransformSchema( $schema, $xsl, $schematype='string' )
+	function transformSchema( $schema, $xsl, $schematype='string' )
 	{
 		// Fail if XSLT extension is not available
 		if( ! function_exists( 'xslt_create' ) ) {
@@ -2048,7 +2048,7 @@ class adoSchema {
 	* @param string $filename AXMLS schema file
 	* @return string Schema version number or FALSE on error
 	*/
-	function SchemaFileVersion( $filename ) {
+	function schemaFileVersion( $filename ) {
 		// Open the file
 		if( !($fp = fopen( $filename, 'r' )) ) {
 			// die( 'Unable to open file' );
@@ -2074,7 +2074,7 @@ class adoSchema {
 	* @param string $xmlstring XML schema string
 	* @return string Schema version number or FALSE on error
 	*/
-	function SchemaStringVersion( $xmlstring ) {
+	function schemaStringVersion( $xmlstring ) {
 		if( !is_string( $xmlstring ) OR empty( $xmlstring ) ) {
 			return FALSE;
 		}
@@ -2099,12 +2099,12 @@ class adoSchema {
 	* @stripprefix strip prefix string when storing in XML schema
 	* @return string Generated XML schema
 	*/
-	function ExtractSchema( $data = FALSE, $indent = '  ', $prefix = '' , $stripprefix=false) {
-		$old_mode = $this->db->SetFetchMode( ADODB_FETCH_NUM );
+	function extractSchema( $data = FALSE, $indent = '  ', $prefix = '' , $stripprefix=false) {
+		$old_mode = $this->db->setFetchMode( ADODB_FETCH_NUM );
 
 		$schema = '<?xml version="1.0"?>' . "\n"
 				. '<schema version="' . $this->schemaVersion . '">' . "\n";
-		if( is_array( $tables = $this->db->MetaTables( 'TABLES' ,false ,($prefix) ? str_replace('_','\_',$prefix).'%' : '') ) ) {
+		if( is_array( $tables = $this->db->metaTables( 'TABLES' ,false ,($prefix) ? str_replace('_','\_',$prefix).'%' : '') ) ) {
 			foreach( $tables as $table ) {
 				$schema .= $indent
 					. '<table name="'
@@ -2112,9 +2112,9 @@ class adoSchema {
 					. '">' . "\n";
 
 				// grab details from database
-				$rs = $this->db->Execute( 'SELECT * FROM ' . $table . ' WHERE -1' );
-				$fields = $this->db->MetaColumns( $table );
-				$indexes = $this->db->MetaIndexes( $table );
+				$rs = $this->db->execute( 'SELECT * FROM ' . $table . ' WHERE -1' );
+				$fields = $this->db->metaColumns( $table );
+				$indexes = $this->db->metaIndexes( $table );
 
 				if( is_array( $fields ) ) {
 					foreach( $fields as $details ) {
@@ -2146,7 +2146,7 @@ class adoSchema {
 						// this stops the creation of 'R' columns,
 						// AUTOINCREMENT is used to create auto columns
 						$details->primary_key = 0;
-						$type = $rs->MetaType( $details );
+						$type = $rs->metaType( $details );
 
 						$schema .= str_repeat( $indent, 2 ) . '<field name="' . htmlentities( $details->name ) . '" type="' . $type . '"' . $extra;
 
@@ -2177,12 +2177,12 @@ class adoSchema {
 				}
 
 				if( $data ) {
-					$rs = $this->db->Execute( 'SELECT * FROM ' . $table );
+					$rs = $this->db->execute( 'SELECT * FROM ' . $table );
 
 					if( is_object( $rs ) && !$rs->EOF ) {
 						$schema .= str_repeat( $indent, 2 ) . "<data>\n";
 
-						while( $row = $rs->FetchRow() ) {
+						while( $row = $rs->fetchRow() ) {
 							foreach( $row as $key => $val ) {
 								if ( $val != htmlentities( $val ) ) {
 									$row[$key] = '<![CDATA[' . $val . ']]>';
@@ -2200,7 +2200,7 @@ class adoSchema {
 			}
 		}
 
-		$this->db->SetFetchMode( $old_mode );
+		$this->db->setFetchMode( $old_mode );
 
 		$schema .= '</schema>';
 		return $schema;
@@ -2216,7 +2216,7 @@ class adoSchema {
 	* @param boolean $underscore If TRUE, automatically append an underscore character to the prefix.
 	* @return boolean TRUE if successful, else FALSE
 	*/
-	function SetPrefix( $prefix = '', $underscore = TRUE ) {
+	function setPrefix( $prefix = '', $underscore = TRUE ) {
 		switch( TRUE ) {
 			// clear prefix
 			case empty( $prefix ):
@@ -2320,15 +2320,15 @@ class adoSchema {
 			$this->sqlArray[] = $sql;
 
 			// if executeInline is enabled, and either no errors have occurred or continueOnError is enabled, execute SQL.
-			if( $this->ExecuteInline() && ( $this->success == 2 || $this->ContinueOnError() ) ) {
+			if( $this->executeInline() && ( $this->success == 2 || $this->continueOnError() ) ) {
 				$saved = $this->db->debug;
 				$this->db->debug = $this->debug;
-				$ok = $this->db->Execute( $sql );
+				$ok = $this->db->execute( $sql );
 				$this->db->debug = $saved;
 
 				if( !$ok ) {
 					if( $this->debug ) {
-						ADOConnection::outp( $this->db->ErrorMsg() );
+						ADOConnection::outp( $this->db->errorMsg() );
 					}
 
 					$this->success = 1;
@@ -2375,7 +2375,7 @@ class adoSchema {
 	* Call this method to clean up after an adoSchema object that is no longer in use.
 	* @deprecated adoSchema now cleans up automatically.
 	*/
-	function Destroy() {
+	function destroy() {
 		ini_set("magic_quotes_runtime", $this->mgq );
 		#set_magic_quotes_runtime( $this->mgq );
 		unset( $this );
