@@ -173,7 +173,7 @@ class ADORecordSet_fbsql extends ADORecordSet{
 		default:
 		$this->fetchMode = FBSQL_BOTH; break;
 		}
-		return parent::__construct($queryID);
+		parent::__construct($queryID);
 	}
 
 	function _initrs()
