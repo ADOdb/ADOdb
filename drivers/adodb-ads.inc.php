@@ -169,7 +169,7 @@ class ADODB_ads extends ADOConnection {
                 $go = $this->Execute("select * from $seqname");
                 if (!$go){
                         $res = $this->Execute("CREATE TABLE $seqname ( ID autoinc( 1 ) ) IN DATABASE");
-                        if(!res){
+                        if(!$res){
                                 print $this->ErrorMsg();
                                 return false;
                         }
