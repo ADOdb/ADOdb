@@ -322,7 +322,7 @@ class ADODB_text extends ADOConnection {
 
 		// check for desc sort
 		$orderby = substr($orderby,strlen($col)+1);
-		$arr == array();
+		$arr = array();
 		preg_match('/([A-Z_0-9]*)/i',$orderby,$arr);
 
 		if (trim($arr[1]) == 'DESC') $sortf = 'adodb_cmpr';
