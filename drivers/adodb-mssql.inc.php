@@ -1050,9 +1050,9 @@ class ADORecordset_mssql extends ADORecordSet {
 					$this->fields = @mssql_fetch_assoc($this->_queryID);
 				else {
 					$this->fields = @mssql_fetch_array($this->_queryID);
-					if (@is_array($$this->fields)) {
+					if (@is_array($this->fields)) {
 						$fassoc = array();
-						foreach($$this->fields as $k => $v) {
+						foreach($this->fields as $k => $v) {
 							if (is_integer($k)) continue;
 							$fassoc[$k] = $v;
 						}
