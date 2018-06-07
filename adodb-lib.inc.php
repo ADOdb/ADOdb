@@ -416,15 +416,13 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 			} else
 				$rewritesql = "SELECT COUNT(*) FROM (".$rewritesql.")";
 
-		} else if (strncmp($zthis->databaseType,'postgres',8) == 0
-			|| strncmp($zthis->databaseType,'mysql',5) == 0
-			|| strncmp($zthis->databaseType,'mssql',5) == 0
-		) {
-			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
-		} else {
-		    // SqlSrver compliant - Larry Adams on 6/7/2018
-			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
-		}
+        } else if (strncmp($zthis->databaseType,'postgres',8) == 0
+            || strncmp($zthis->databaseType,'mysql',5) == 0
+            || strncmp($zthis->databaseType,'mssql',5) == 0)  {
+            $rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
+        } else {
+            $rewritesql = "SELECT COUNT(*) FROM ($rewritesql)";
+        }
 	} else {
 		// now replace SELECT ... FROM with SELECT COUNT(*) FROM
 		if ( strpos($sql, '_ADODB_COUNT') !== FALSE ) {
