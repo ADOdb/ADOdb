@@ -422,7 +422,8 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		) {
 			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
 		} else {
-			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql)";
+		    // SqlSrver compliant - Larry Adams on 6/7/2018
+			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
 		}
 	} else {
 		// now replace SELECT ... FROM with SELECT COUNT(*) FROM
