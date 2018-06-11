@@ -318,6 +318,20 @@ class ADODB_mssqlnative extends ADOConnection {
 		if (!$col) $col = $this->sysTimeStamp;
 		$s = '';
 
+		$ConvertableFmt=array(
+		       "m/d/Y"=>101,"m/d/y"=>101 // US
+		      ,"Y.m.d"=>102,"y/m/d"=>102 // ANSI
+		      ,"d/m/Y"=>103,"d/m/y"=>103 // French /english
+		      ,"d.m.Y"=>104,"d.m.y"=>104 // German
+		      ,"d-m-Y"=>105,"d-m-y"=>105 // Italian
+		      ,"m-d-Y"=>110,"m-d-y"=>110 // US Dash
+		      ,"Y/m/d"=>111,"y/m/d"=>111 // Japan
+		      ,"Ymd"=>112,"ymd"=>112 // ISO
+		      ,"H:i:s"=>108 // Time
+		);
+		if(key_exists($fmt,$ConvertableFmt))
+		  return  "convert (varchar ,$col,".$ConvertableFmt[$fmt].")";
+
 		$len = strlen($fmt);
 		for ($i=0; $i < $len; $i++) {
 			if ($s) $s .= '+';
