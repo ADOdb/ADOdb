@@ -418,6 +418,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 
         } else if (strncmp($zthis->databaseType,'postgres',8) == 0
             || strncmp($zthis->databaseType,'mysql',5) == 0
+	    || strncmp($zthis->databaseType,'mssql',5) == 0
             || strncmp($zthis->dsnType,'sqlsrv',5) == 0
         ){
 		    $rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
