@@ -429,7 +429,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		if ( strpos($sql, '_ADODB_COUNT') !== FALSE ) {
 			$rewritesql = preg_replace('/^\s*?SELECT\s+_ADODB_COUNT(.*)_ADODB_COUNT\s/is','SELECT COUNT(*) ',$sql);
 		} else {
-			$rewritesql = preg_replace('/^\s*SELECT\s.*\s+FROM\s/Uis','SELECT COUNT(*) FROM ',$sql);
+			$rewritesql = preg_replace('/\s*SELECT\s.*\s+FROM\s/Uis','SELECT COUNT(*) FROM ',$sql);
 		}
 		// fix by alexander zhukov, alex#unipack.ru, because count(*) and 'order by' fails
 		// with mssql, access and postgresql. Also a good speedup optimization - skips sorting!
