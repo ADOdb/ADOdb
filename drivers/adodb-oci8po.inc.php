@@ -81,28 +81,87 @@ class ADODB_oci8po extends ADODB_oci8 {
 					$arr['bind'.$i++] = $v;
 				}
 			} else {
-				// Need to identify if the ? is inside a quoted string, and if
-				// so not use it as a bind variable
-				preg_match_all('/".*\??"|\'.*\?.*?\'/', $sql, $matches);
-				foreach($matches[0] as $qmMatch){
-					$qmReplace = str_replace('?', '-QUESTIONMARK-', $qmMatch);
-					$sql = str_replace($qmMatch, $qmReplace, $sql);
-				}
-
-				// Replace parameters if any were found
-				$sqlarr = explode('?',$sql);
-				if(count($sqlarr) > 1) {
-					$sql = $sqlarr[0];
-
-					foreach ($inputarr as $k => $v) {
-						$sql .= ":$k" . $sqlarr[++$i];
-					}
-				}
-
-				$sql = str_replace('-QUESTIONMARK-', '?', $sql);
+				$sql = $this->extractBinds($sql,$inputarr);
 			}
 		}
 		return ADODB_oci8::_query($sql,$inputarr);
+	}
+	/**
+	* Replaces compatibility bind markers with oracle ones and returns a
+	* valid sql statement
+	*
+	* This replaces a regexp based section of code that has been subject
+	* to numerous tweaks, as more extreme test cases have appeared. This
+	* is now done this like this to help maintainability and avoid the 
+	* need to rely on regexp experienced maintainers
+        *
+	* @param	string		$sql		The sql statement
+	* @param	string[]	$inputarr	The bind array
+	*
+	* @return	string	The modified statement
+	*/	
+	final private function extractBinds($sql,$inputarr)
+	{
+		$inString  = false;
+		$escaped   = 0;
+		$sqlLength = strlen($sql) - 1;
+		$newSql    = '';
+		$bindCount = 0;
+		
+		/*
+		* inputarr is the passed in bind list, which is associative, but
+		* we only want the keys here
+		*/
+		$inputKeys = array_keys($inputarr);
+		
+		
+		for ($i=0;$i<=$sqlLength;$i++)
+		{
+			/*
+			* find the next character of the string
+			*/
+			$c = $sql{$i};
+
+			if ($c == "'" && !$inString && $escaped==0)
+				/*
+				* Found the start of a string inside the statement
+				*/
+				$inString = true;
+			elseif ($c == "\\" && $escaped==0)
+				/*
+				* The next character will be escaped
+				*/
+				$escaped = 1;
+			elseif ($c == "'" && $inString && $escaped==0)
+				/*
+				* We found the end of the string
+				*/
+				$inString = false;
+			
+			if ($escaped == 2)
+				$escaped = 0;
+
+			if ($escaped==0 && !$inString && $c == '?')
+				/*
+				* We found a bind symbol, replace it with the oracle equivalent
+				*/
+				$newSql .= ':' . $inputKeys[$bindCount++];
+			else
+				/*
+				* Add the current character the pile
+				*/
+				$newSql .= $c;
+			
+			if ($escaped == 1)
+				/*
+				* We have just found an escape character, make sure we ignore the
+				* next one that comes along, it might be a ' character
+				*/
+				$escaped = 2;
+		}
+		
+		return $newSql;
+			
 	}
 }
 
