@@ -916,7 +916,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	{
 		$_typeConversion = array(
 			-155 => 'datetimeoffset',
-			-154 => 'time',
+			-154 => 'char',
 			-152 => 'xml',
 			-151 => 'udt',
 			-11 => 'uniqueidentifier',
