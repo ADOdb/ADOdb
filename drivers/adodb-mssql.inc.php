@@ -805,7 +805,16 @@ order by constraint_name, referenced_table_name, keyno";
 						$decl .= "@P$i NVARCHAR($len)";
 					}
 
-					$params .= "@P$i=N". (strncmp($v,"'",1)==0? $v : $this->qstr($v));
+
+					if (substr($v,0,1) == "'" && substr($v,-1,1) == "'")
+						/*
+						* String is already fully quoted
+						*/
+						$inputVar = $v;
+					else
+						$inputVar = $this->qstr($v);
+
+					$params .= "@P$i=N" . $inputVar;	
 				} else if (is_integer($v)) {
 					$decl .= "@P$i INT";
 					$params .= "@P$i=".$v;
