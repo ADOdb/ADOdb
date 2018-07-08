@@ -80,25 +80,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 					$arr['bind'.$i++] = $v;
 				}
 			} else {
-				// Need to identify if the ? is inside a quoted string, and if
-				// so not use it as a bind variable
-				preg_match_all('/".*\??"|\'.*\?.*?\'/', $sql, $matches);
-				foreach($matches[0] as $qmMatch){
-					$qmReplace = str_replace('?', '-QUESTIONMARK-', $qmMatch);
-					$sql = str_replace($qmMatch, $qmReplace, $sql);
-				}
-
-				// Replace parameters if any were found
-				$sqlarr = explode('?',$sql);
-				if(count($sqlarr) > 1) {
-					$sql = $sqlarr[0];
-
-					foreach ($inputarr as $k => $v) {
-						$sql .= ":$k" . $sqlarr[++$i];
-					}
-				}
-
-				$sql = str_replace('-QUESTIONMARK-', '?', $sql);
+				$sql = $this->extractBinds($sql,$inputarr);
 			}
 		}
 		return ADODB_oci8::_query($sql,$inputarr);
