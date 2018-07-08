@@ -941,10 +941,11 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	/*
 	 * This is cross reference between how the types are stored
 	 * in SQL Server and their english-language description
+	 * -154 is a time field, see #432
 	 */
 	private $_typeConversion = array(
 			-155 => 'datetimeoffset',
-			-154 => 'time',
+			-154 => 'char',
 			-152 => 'xml',
 			-151 => 'udt',
 			-11  => 'uniqueidentifier',
