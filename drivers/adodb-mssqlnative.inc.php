@@ -585,7 +585,7 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		$insert = false;
 		// handle native driver flaw for retrieving the last insert ID
-		if(preg_match('^\W*insert[\s\w()[\]",.]+values\s*\((?:[^;\']|\'\'|(?:(?:\'\')*\'[^\']+\'(?:\'\')*))*;?$/i', $sql)) {
+		if(preg_match('/^\W*insert[\s\w()[\]",.]+values\s*\((?:[^;\']|\'\'|(?:(?:\'\')*\'[^\']+\'(?:\'\')*))*;?$/i', $sql)) {
 
 			$insert = true;
 			$sql .= '; '.$this->identitySQL; // select scope_identity()
