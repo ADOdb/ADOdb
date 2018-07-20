@@ -80,6 +80,9 @@ function ADODB_SetDatabaseAdapter(&$db, $index=false)
 
 class ADODB_Active_Record {
 	static $_changeNames = true; // dynamically pluralize table names
+	/*
+	* Optional parameter that duplicates the ADODB_QUOTE_FIELDNAMES
+	*/
 	static $_quoteNames = false;
 
 	static $_foreignSuffix = '_id'; //
@@ -700,9 +703,14 @@ class ADODB_Active_Record {
 			$val = false;
 		}
 
-		if (is_null($val) || $val === false) {
+		if (is_null($val) || $val === false)
+		{
+			$SQL = sprintf("SELECT MAX(%s) FROM %s",
+						   $this->nameQuoter($db,$fieldname),
+						   $this->nameQuoter($db,$this->_table)
+						   );
 			// this might not work reliably in multi-user environment
-			return $db->GetOne("select max(".$fieldname.") from ".$this->_table);
+			return $db->GetOne($SQL);
 		}
 		return $val;
 	}
@@ -749,10 +757,11 @@ class ADODB_Active_Record {
 		foreach($keys as $k) {
 			$f = $table->flds[$k];
 			if ($f) {
-				$parr[] = $k.' = '.$this->doquote($db,$this->$k,$db->MetaType($f->type));
+				$columnName = $this->nameQuoter($db,$k);
+				$parr[] = $columnName.' = '.$this->doquote($db,$this->$k,$db->MetaType($f->type));
 			}
 		}
-		return implode(' and ', $parr);
+		return implode(' AND ', $parr);
 	}
 
 
@@ -774,7 +783,7 @@ class ADODB_Active_Record {
 
 	function Load($where=null,$bindarr=false, $lock = false)
 	{
-	global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 
 		$db = $this->DB();
 		if (!$db) {
@@ -788,7 +797,9 @@ class ADODB_Active_Record {
 			$savem = $db->SetFetchMode(false);
 		}
 
-		$qry = "select * from ".$this->_table;
+		$qry = sprintf("SELECT * FROM %s",
+					   $this->nameQuoter($db,$this->_table)
+					   );
 
 		if($where) {
 			$qry .= ' WHERE '.$where;
@@ -862,7 +873,7 @@ class ADODB_Active_Record {
 			$val = $this->$name;
 			if(!is_array($val) || !is_null($val) || !array_key_exists($name, $table->keys)) {
 				$valarr[] = $val;
-				$names[] = $this->_QName($name,$db);
+				$names[] = $this->nameQuoter($db,$name);
 				$valstr[] = $db->Param($cnt);
 				$cnt += 1;
 			}
@@ -871,12 +882,18 @@ class ADODB_Active_Record {
 		if (empty($names)){
 			foreach($table->flds as $name=>$fld) {
 				$valarr[] = null;
-				$names[] = $name;
+				$names[] = $this->nameQuoter($db,$name);
 				$valstr[] = $db->Param($cnt);
 				$cnt += 1;
 			}
 		}
-		$sql = 'INSERT INTO '.$this->_table."(".implode(',',$names).') VALUES ('.implode(',',$valstr).')';
+		
+		$tableName = $this->nameQuoter($db,$this->_table);
+		$sql = sprintf('INSERT INTO %s (%s) VALUES (%s)',
+					   $tableName,
+					   implode(',',$names),
+					   implode(',',$valstr)
+					   );
 		$ok = $db->Execute($sql,$valarr);
 
 		if ($ok) {
@@ -907,7 +924,14 @@ class ADODB_Active_Record {
 		$table = $this->TableInfo();
 
 		$where = $this->GenWhere($db,$table);
-		$sql = 'DELETE FROM '.$this->_table.' WHERE '.$where;
+
+		$tableName = $this->nameQuoter($db,$this->_table);
+		
+		$sql = sprintf('DELETE FROM %s WHERE %s',
+					   $tableName,
+					   $where
+					   );
+
 		$ok = $db->Execute($sql);
 
 		return $ok ? true : false;
@@ -977,8 +1001,20 @@ class ADODB_Active_Record {
 				$pkey[$k] = strtoupper($v);
 			}
 		}
-
-		$ok = $db->Replace($this->_table,$arr,$pkey);
+		
+		$newArr = array();
+		foreach($arr as $k=>$v)
+			$newArr[$this->nameQuoter($db,$k)] = $v;
+		$arr = $newArr;
+		
+		$newPkey = array();
+		foreach($pkey as $k=>$v)
+			$newPkey[$k] = $this->nameQuoter($db,$v);
+		$pkey = $newPkey;
+		
+		$tableName = $this->nameQuoter($db,$this->_table);
+		
+		$ok = $db->Replace($tableName,$arr,$pkey);
 		if ($ok) {
 			$this->_saved = true; // 1= update 2=insert
 			if ($ok == 2) {
@@ -1050,7 +1086,7 @@ class ADODB_Active_Record {
 			}
 
 			$valarr[] = $val;
-			$pairs[] = $this->_QName($name,$db).'='.$db->Param($cnt);
+			$pairs[] = $this->nameQuoter($db,$name).'='.$db->Param($cnt);
 			$cnt += 1;
 		}
 
@@ -1059,7 +1095,13 @@ class ADODB_Active_Record {
 			return -1;
 		}
 
-		$sql = 'UPDATE '.$this->_table." SET ".implode(",",$pairs)." WHERE ".$where;
+		$tableName = $this->nameQuoter($db,$this->_table);
+
+		$sql = sprintf('UPDATE %s SET %s WHERE %s',
+					   $tableName,
+					   implode(',',$pairs),
+					   $where);
+		
 		$ok = $db->Execute($sql,$valarr);
 		if ($ok) {
 			$this->_original = $neworig;
@@ -1077,6 +1119,66 @@ class ADODB_Active_Record {
 		return array_keys($table->flds);
 	}
 
+	/**
+	* Quotes the table and column and field names
+	*
+	* this honours the ADODB_QUOTE_FIELDNAMES directive. The routines that
+	* use it should really just call _adodb_getinsertsql and _adodb_getupdatesql
+	* which is a nice easy project if you are interested
+	*
+	* @param	obj		$db		The database connection
+	* @param	string	$name	The table or column name to quote
+	*
+	* @return	string	The quoted name
+	*/
+	final private function nameQuoter($db,$string)
+	{
+		global $ADODB_QUOTE_FIELDNAMES;
+		
+		if (!$ADODB_QUOTE_FIELDNAMES && !$this->_quoteNames)
+			/*
+			* Nothing to be done
+			*/
+			return $string;
+		
+		if ($this->_quoteNames == 'NONE')
+			/*
+			* Force no quoting when ADODB_QUOTE_FIELDNAMES is set
+			*/
+			return $string;
+		
+		if ($this->_quoteNames)
+			/*
+			* Internal setting takes precedence
+			*/
+			$quoteMethod = $this->_quoteNames;
+			
+		else
+			$quoteMethod = $ADODB_QUOTE_FIELDNAMES;
+		
+		switch ($quoteMethod)
+		{
+		case 'LOWER':
+			$string = strtolower($string);
+			break;
+		case 'NATIVE':
+			/*
+			* Nothing to be done
+			*/
+			break;
+		case 'UPPER':
+		default:
+			$string = strtoupper($string);
+		}
+			
+		$string = sprintf(	'%s%s%s',
+							$db->nameQuote,
+							$string,
+							$db->nameQuote
+					  );
+		return $string;
+	}
+
 };
 
 function adodb_GetActiveRecordsClass(&$db, $class, $table,$whereOrderBy,$bindarr, $primkeyArr,
@@ -1086,6 +1188,7 @@ global $_ADODB_ACTIVE_DBS;
 
 
 	$save = $db->SetFetchMode(ADODB_FETCH_NUM);
+	
 	$qry = "select * from ".$table;
 
 	if (!empty($whereOrderBy)) {
