@@ -1562,7 +1562,13 @@ class ADORecordset_oci8 extends ADORecordSet {
 		$this->adodbFetchMode = $mode;
 		$this->_queryID = $queryID;
 	}
-
+	
+	/**
+	* Overrides the core destructor method as that causes problems here
+	*
+	* @return void
+	*/
+	function __destruct() {}
 
 	function Init()
 	{
