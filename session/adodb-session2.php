@@ -579,7 +579,7 @@ class ADODB_Session {
 				$ok = $conn->Connect($dsn,$user,$password);
 			}
 		}else{
-			$conn = ADONewConnection($driverÏ);
+			$conn = ADONewConnection($driver);
 			if ($debug) {
 				$conn->debug = true;
 				ADOConnection::outp( " driver=$driver user=$user db=$database ");
