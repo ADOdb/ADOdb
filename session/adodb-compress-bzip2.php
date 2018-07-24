@@ -41,8 +41,8 @@ class ADODB_Compress_Bzip2 {
 	/**
 	 */
 	function setBlockSize($block_size) {
-		assert('$block_size >= 1');
-		assert('$block_size <= 9');
+		assert($block_size >= 1);
+		assert($block_size <= 9);
 		$this->_block_size = (int) $block_size;
 	}
 
@@ -55,8 +55,8 @@ class ADODB_Compress_Bzip2 {
 	/**
 	 */
 	function setWorkLevel($work_level) {
-		assert('$work_level >= 0');
-		assert('$work_level <= 250');
+		assert($work_level >= 0);
+		assert($work_level <= 250);
 		$this->_work_level = (int) $work_level;
 	}
 
@@ -69,7 +69,7 @@ class ADODB_Compress_Bzip2 {
 	/**
 	 */
 	function setMinLength($min_length) {
-		assert('$min_length >= 0');
+		assert($min_length >= 0);
 		$this->_min_length = (int) $min_length;
 	}
 
