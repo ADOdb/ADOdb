@@ -487,9 +487,12 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		$connectionInfo 			= $this->connectionInfo;
 		$connectionInfo["Database"]	= $argDatabasename;
-		$connectionInfo["UID"]		= $argUsername;
-		$connectionInfo["PWD"]		= $argPassword;
-
+		if (!((is_null($argUsername) || (is_string($argUsername) && strlen($argUsername) === 0)) &&
+			   is_null($argPassword) || (is_string($argPassword) && strlen($argPassword) === 0))) {
+			$connectionInfo["UID"]=$argUsername;
+			$connectionInfo["PWD"]=$argPassword;
+		}
+		
 		/*
 		* Now merge in the passed connection parameters setting
 		*/
