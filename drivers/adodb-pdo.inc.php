@@ -479,13 +479,13 @@ class ADODB_pdo extends ADOConnection {
 	/* returns queryID or false */
 	function _query($sql,$inputarr=false)
 	{
+		$ok = false;
 		if (is_array($sql)) {
 			$stmt = $sql[1];
 		} else {
 			$stmt = $this->_connectionID->prepare($sql);
 		}
-		#adodb_backtrace();
-		#var_dump($this->_bindInputArray);
+		
 		if ($stmt) {
 			if (isset($this->_driver)) {
 				$this->_driver->debug = $this->debug;
