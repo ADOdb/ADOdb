@@ -60,7 +60,7 @@ class ADODB_mysqli extends ADOConnection {
 	var $arrayClass = 'ADORecordSet_array_mysqli';
 	var $multiQuery = false;
 	var $ssl_key = null;
-	var $ssl_cer = null;
+	var $ssl_cert = null;
 	var $ssl_ca = null;
 	var $ssl_capath = null;
 	var $ssl_cipher = null;
@@ -126,8 +126,8 @@ class ADODB_mysqli extends ADOConnection {
 		if ($persist && PHP_VERSION > 5.2 && strncmp($argHostname,'p:',2) != 0) $argHostname = 'p:'.$argHostname;
 
 		// SSL Connections for MySQLI
-		if ($this->ssl_key || $this->ssl_cer || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
-			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cer, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
+		if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
+			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cert, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
 		}
 
 		#if (!empty($this->port)) $argHostname .= ":".$this->port;
