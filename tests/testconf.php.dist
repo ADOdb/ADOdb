@@ -1,0 +1,16 @@
+<?php
+
+# example testconf.php for your local testings
+# This testconf.php.dist is a fallback that can be used by ADODB tests for testing if real test databases not configured yet.
+
+# Using their own testconf.php allows testers testing the adodb tests with their custom local test environments easier.
+
+# sqlite3 :memory: requires no database file and db destroyed when connection closes           
+# So we can use this always as long PHP has the sqlite3 included.
+# param1 .. param4 are for the connect() of ADODB, see http://adodb.org/dokuwiki/doku.php?id=v5:database:connection_matrix
+$testdbs[]=array('type'=>'sqlite3', 'param1'=>':memory:', 'param2'=>null, 'param3'=>null, 'param4'=>null);                                   
+
+# more examples as inspiration for local testing with testconf.php
+#$testdbs[]=array('type'=>'sqlite3', 'param1'=>'_adodbtest_sqlite3.db', 'param2'=>null, 'param3'=>null, 'param4'=>null);
+#$testdbs[]=array('type'=>'mysqli',  'param1'=>'localhost', 'param2'=>'root',    'param3'=>'', 'param4'=>'adodbtest');
+#$testdbs[]=array('type'=>'postgres','param1'=>'localhost', 'param2'=>'postgres','param3'=>'', 'param4'=>'adodbtest');
