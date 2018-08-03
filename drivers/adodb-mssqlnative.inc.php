@@ -483,13 +483,40 @@ class ADODB_mssqlnative extends ADOConnection {
 	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
-		if (!function_exists('sqlsrv_connect')) return null;
-
+		if (!function_exists('sqlsrv_connect'))
+		{
+			if ($this->debug)
+				ADOConnection::outp('Microsoft SQL Server native driver (mssqlnative) not installed');
+			return null;
+		}
+		
 		$connectionInfo 			= $this->connectionInfo;
 		$connectionInfo["Database"]	= $argDatabasename;
-		$connectionInfo["UID"]		= $argUsername;
-		$connectionInfo["PWD"]		= $argPassword;
-
+		if ((string)$argUsername != '' || (string)$argPassword != '')
+		{
+			/*
+			* If they pass either a userid or password, we assume
+			* SQL Server authentication
+			*/
+			$connectionInfo["UID"]		= $argUsername;
+			$connectionInfo["PWD"]		= $argPassword;
+			
+			if ($this->debug)
+				ADOConnection::outp('userid or password supplied, attempting connection with SQL Server Authentication');
+			
+		}
+		else 
+		{
+			/*
+			* If they don't pass either value, we wont add them to the
+			* connection parameters. This will then force an attempt
+			* to use windows authentication
+			*/
+			if ($this->debug)
+				ADOConnection::outp('No userid or password supplied, attempting connection with Windows Authentication');
+		}
+				
+		
 		/*
 		* Now merge in the passed connection parameters setting
 		*/
@@ -499,10 +526,11 @@ class ADODB_mssqlnative extends ADOConnection {
 				$connectionInfo[$parameter] = $value;
 		}
 
-		if ($this->debug) ADOConnection::outp("<hr>connecting... hostname: $argHostname params: ".var_export($connectionInfo,true));
-		if(!($this->_connectionID = sqlsrv_connect($argHostname,$connectionInfo)))
+		if ($this->debug) ADOConnection::outp("connecting to host: $argHostname params: ".var_export($connectionInfo,true));
+		if(!($this->_connectionID = @sqlsrv_connect($argHostname,$connectionInfo)))
 		{
-			if ($this->debug) ADOConnection::outp( "<hr><b>errors</b>: ".print_r( sqlsrv_errors(), true));
+			if ($this->debug) 
+				ADOConnection::outp( 'Connection Failed: '.print_r( sqlsrv_errors(), true));
 			return false;
 		}
 
