@@ -8,7 +8,7 @@
   the BSD license will take precedence.
 	  Set tabs to 4 for best viewing.
 
-  Latest version of ADODB is available at http://php.weblogs.com/adodb
+  Latest version is available at http://adodb.org/
   ======================================================================
 
  This file provides PHP4 session management using the ADODB database

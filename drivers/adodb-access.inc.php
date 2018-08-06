@@ -8,7 +8,7 @@
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.sourceforge.net
+  Latest version is available at http://adodb.org/
 
   Microsoft Access data driver. Requires ODBC. Works only on MS Windows.
 */

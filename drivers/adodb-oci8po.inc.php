@@ -7,7 +7,7 @@
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
 
-  Latest version is available at http://adodb.sourceforge.net
+  Latest version is available at http://adodb.org/
 
   Portable version of oci8 driver, to make it more similar to other database drivers.
   The main differences are
@@ -94,7 +94,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 	* to numerous tweaks, as more extreme test cases have appeared. This
 	* is now done this like this to help maintainability and avoid the 
 	* need to rely on regexp experienced maintainers
-   	*
+	*
 	* @param	string		$sql		The sql statement
 	* @param	string[]	$inputarr	The bind array
 	*

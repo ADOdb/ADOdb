@@ -8,7 +8,7 @@
   the BSD license will take precedence.
 Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.sourceforge.net
+  Latest version is available at http://adodb.org/
 
   Native mssql driver. Requires mssql client. Works on Windows.
     http://www.microsoft.com/sql/technologies/php/default.mspx
@@ -614,7 +614,6 @@ class ADODB_mssqlnative extends ADOConnection {
 		$insert = false;
 		// handle native driver flaw for retrieving the last insert ID
 		if(preg_match('/^\W*insert[\s\w()[\]",.]+values\s*\((?:[^;\']|\'\'|(?:(?:\'\')*\'[^\']+\'(?:\'\')*))*;?$/i', $sql)) {
-
 			$insert = true;
 			$sql .= '; '.$this->identitySQL; // select scope_identity()
 		}

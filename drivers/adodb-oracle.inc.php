@@ -7,7 +7,7 @@
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
 
-  Latest version is available at http://adodb.sourceforge.net
+  Latest version is available at http://adodb.org/
 
   Oracle data driver. Requires Oracle client. Works on Windows and Unix and Oracle 7.
 

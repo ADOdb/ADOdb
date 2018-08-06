@@ -16,14 +16,10 @@ $ADODB_INCLUDED_CSV = 1;
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.sourceforge.net
+  Latest version is available at http://adodb.org/
 
   Library for CSV serialization. This is used by the csv/proxy driver and is the
   CacheExecute() serialization format.
-
-  ==== NOTE ====
-  Format documented at http://php.weblogs.com/ADODB_CSV
-  ==============
 */
 
 	/**
