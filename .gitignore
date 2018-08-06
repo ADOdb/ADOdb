@@ -8,3 +8,5 @@
 /nbproject/
 .idea/
 
+# Composer
+composer.lock

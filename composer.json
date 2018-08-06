@@ -32,6 +32,8 @@
 
 	"autoload" : {
 		"files" : ["adodb.inc.php"]
+	},
+	"require-dev": {
+		"phpunit/phpunit": "^7.0"
 	}
-
 }
