@@ -2,7 +2,7 @@
 /*
 ADOdb Date Library, part of the ADOdb abstraction library
 
-Latest version is available at http://adodb.sourceforge.net
+Latest version is available at http://adodb.org/
 
 @version   v5.20.12  30-Mar-2018
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.

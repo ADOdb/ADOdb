@@ -7,7 +7,7 @@
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
 
-  Latest version is available at http://adodb.sourceforge.net
+  Latest version is available at http://adodb.org/
 
   Portable version of oci8 driver, to make it more similar to other database drivers.
   The main differences are
