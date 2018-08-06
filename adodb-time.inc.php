@@ -1,7 +1,8 @@
 <?php
 /*
 ADOdb Date Library, part of the ADOdb abstraction library
-Download: http://adodb.sourceforge.net/#download
+
+Latest version is available at http://adodb.sourceforge.net
 
 @version   v5.20.12  30-Mar-2018
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
