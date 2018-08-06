@@ -20,7 +20,7 @@
  *
  * example:
  *
- * http://localhost/php/server.php?select+*+from+table&nrows=10&offset=2
+ * http://localhost/php/server.php?sql=select+*+from+table&nrows=10&offset=2
  */
 
 
@@ -33,7 +33,7 @@ $ACCEPTIP = '127.0.0.1';
 /*
  * Connection parameters
  */
-$driver = 'mysql';
+$driver = 'mysqli';
 $host = 'localhost'; // DSN for odbc
 $uid = 'root';
 $pwd = 'garbase-it-is';
@@ -80,7 +80,7 @@ if (empty($_REQUEST['sql'])) err('No SQL');
 
 $conn = ADONewConnection($driver);
 
-if (!$conn->Connect($host,$uid,$pwd,$database)) err($conn->ErrorNo(). $sep . $conn->ErrorMsg());
+if (!$conn->connect($host,$uid,$pwd,$database)) err($conn->errorNo(). $sep . $conn->errorMsg());
 $sql = undomq($_REQUEST['sql']);
 
 if (isset($_REQUEST['fetch']))
@@ -89,12 +89,12 @@ if (isset($_REQUEST['fetch']))
 if (isset($_REQUEST['nrows'])) {
 	$nrows = $_REQUEST['nrows'];
 	$offset = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : -1;
-	$rs = $conn->SelectLimit($sql,$nrows,$offset);
+	$rs = $conn->selectLimit($sql,$nrows,$offset);
 } else
-	$rs = $conn->Execute($sql);
+	$rs = $conn->execute($sql);
 if ($rs){
 	//$rs->timeToLive = 1;
 	echo _rs2serialize($rs,$conn,$sql);
-	$rs->Close();
+	$rs->close();
 } else
-	err($conn->ErrorNo(). $sep .$conn->ErrorMsg());
+	err($conn->errorNo(). $sep .$conn->errorMsg());
