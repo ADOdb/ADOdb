@@ -9,7 +9,7 @@
 *
 * Set tabs to 4 for best viewing.
 *
-* Latest version is available at http://php.weblogs.com
+* Latest version is available at http://adodb.org
 *
 *  Portable MSSQL Driver that supports || instead of +
 *
