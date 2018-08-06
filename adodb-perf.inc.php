@@ -226,7 +226,7 @@ class adodb_perf {
 	var $cliFormat = "%32s => %s \r\n";
 	var $sql1 = 'sql1';  // used for casting sql1 to text for mssql
 	var $explain = true;
-	var $helpurl = '<a href="http://adodb.sourceforge.net/docs-adodb.htm#logsql">LogSQL help</a>';
+	var $helpurl = '<a href="http://adodb.org/dokuwiki/doku.php?id=v5:performance:logsql">LogSQL help</a>';
 	var $createTableSQL = false;
 	var $maxLength = 2000;
 
@@ -721,7 +721,7 @@ Committed_AS:   348732 kB
 
 	if  (empty($_GET['hidem']))
 	echo "<table border=1 width=100% bgcolor=lightyellow><tr><td colspan=2>
-	<b><a href=http://adodb.sourceforge.net/?perf=1>ADOdb</a> Performance Monitor</b> <font size=1>for $app</font></tr><tr><td>
+	<b><a href=http://adodb.org/dokuwiki/doku.php?id=v5:performance:performance_index>ADOdb</a> Performance Monitor</b> <font size=1>for $app</font></tr><tr><td>
 	<a href=?do=stats><b>Performance Stats</b></a> &nbsp; <a href=?do=viewsql><b>View SQL</b></a>
 	 &nbsp; <a href=?do=tables><b>View Tables</b></a> &nbsp; <a href=?do=poll><b>Poll Stats</b></a>",
 	 $allowsql ? ' &nbsp; <a href=?do=dosql><b>Run SQL</b></a>' : '',
