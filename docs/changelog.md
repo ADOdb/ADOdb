@@ -5,7 +5,7 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
-## 5.20.13 - Unreleased
+## 5.20.13 - 06-Aug-2018
 
 - core: Fix query execution failures with mismatched quotes. #420
 - ldap: Fix connections using URIs. #340
