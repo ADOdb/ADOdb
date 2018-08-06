@@ -5,6 +5,17 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.20.13 - Unreleased
+
+- core: Fix query execution failures with mismatched quotes. #420
+- ldap: Fix connections using URIs. #340
+- mssql: Fix Time field format, allowing autoExecute() to inserting time. #432
+- mssql: Fix Insert_ID returning null with table name in brackets. #313
+- mssql: Fix count wrapper. #423
+- oci8: Fix prepared statements failure. #318
+- oci8po: Fix incorrect query parameter replacements. #370
+- pdo: fix PHP notice due to uninitialized variable. #437
+
 ## 5.20.12 - 30-Mar-2018
 
 - adodb: PHP 7.2 compatibility
