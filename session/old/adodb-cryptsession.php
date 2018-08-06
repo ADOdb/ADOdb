@@ -11,7 +11,7 @@
 
   Set tabs to 4 for best viewing.
 
-  Latest version of ADODB is available at http://adodb.org/adodb
+  Latest version of ADODB is available at http://adodb.org/
   ======================================================================
 
  This file provides PHP4 session management using the ADODB database

@@ -24,7 +24,7 @@ require_once 'adodb-errorpear.inc.php';
  *
  * This storage driver can use all databases which are supported
  * by the ADBdb DB abstraction layer to fetch login data.
- * See http://adodb.org/adodb for information on ADOdb.
+ * See http://adodb.org/ for information on ADOdb.
  * NOTE: The ADOdb directory MUST be in your PHP include_path!
  *
  * @author   Richard Tango-Lowy <richtl@arscognita.com>
