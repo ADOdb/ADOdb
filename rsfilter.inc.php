@@ -9,7 +9,7 @@
  *
  * Set tabs to 4 for best viewing.
  *
- * Latest version is available at http://adodb.org
+ * Latest version is available at http://adodb.org/
  *
  * Requires PHP4.01pl2 or later because it uses include_once
 */

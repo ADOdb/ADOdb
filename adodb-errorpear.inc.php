@@ -9,7 +9,7 @@
  *
  * Set tabs to 4 for best viewing.
  *
- * Latest version is available at http://adodb.org
+ * Latest version is available at http://adodb.org/
  *
 */
 include_once('PEAR.php');
