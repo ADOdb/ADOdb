@@ -8,7 +8,7 @@
   the BSD license will take precedence.
 Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.sourceforge.net
+  Latest version is available at http://adodb.org/
 
   Microsoft SQL Server ADO data driver. Requires ADO and MSSQL client.
   Works only on MS Windows.

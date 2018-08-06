@@ -771,7 +771,7 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 				if (preg_match('/\s(ORDER\s.*)/is', $whereClause[1], $discard));
 				else if (preg_match('/\s(LIMIT\s.*)/is', $whereClause[1], $discard));
 				else if (preg_match('/\s(FOR UPDATE.*)/is', $whereClause[1], $discard));
-				else preg_match('/\s.*(\) WHERE .*)/is', $whereClause[1], $discard); # see http://sourceforge.net/tracker/index.php?func=detail&aid=1379638&group_id=42718&atid=433976
+				else preg_match('/\s.*(\) WHERE .*)/is', $whereClause[1], $discard); # see https://sourceforge.net/p/adodb/bugs/37/
 			} else
 				$whereClause = array(false,false);
 

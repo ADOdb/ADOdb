@@ -666,8 +666,8 @@ class ADODB_postgres64 extends ADOConnection{
 		}
 
 		$col_names = $this->MetaColumnNames($table,true,true);
-		//3rd param is use attnum,
-		// see http://sourceforge.net/tracker/index.php?func=detail&aid=1451245&group_id=42718&atid=433976
+		// 3rd param is use attnum,
+		// see https://sourceforge.net/p/adodb/bugs/45/
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
 			$columns = array();

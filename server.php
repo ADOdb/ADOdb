@@ -9,7 +9,7 @@
   the BSD license will take precedence.
  */
 
-/* Documentation on usage is at http://php.weblogs.com/adodb_csv
+/* Documentation on usage is at http://adodb.org/dokuwiki/doku.php?id=v5:proxy:proxy_index
  *
  * Legal query string parameters:
  *

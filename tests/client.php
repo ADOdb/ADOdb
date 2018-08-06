@@ -12,7 +12,7 @@
  * set tabs to 8
  */
 
- // documentation on usage is at http://php.weblogs.com/adodb_csv
+ // documentation on usage is at http://adodb.org/dokuwiki/doku.php?id=v5:proxy:proxy_index
 
  echo PHP_VERSION,'<br>';
  var_dump(parse_url('odbc_mssql://userserver/'));

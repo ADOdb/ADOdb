@@ -9,7 +9,7 @@ reserved.
   the BSD license will take precedence.
 Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.sourceforge.net
+  Latest version is available at http://adodb.org/
 
   21.02.2002 - Wade Johnson wade@wadejohnson.de
 			   Extended ODBC class for Sybase SQLAnywhere.
