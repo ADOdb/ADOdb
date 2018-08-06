@@ -2,6 +2,10 @@
 
 class SQLite3Test extends PHPUnit_Framework_TestCase
 {
+    /**
+     * This test creates a table, loads values into it, uses ADOdb
+     * Meta* methods to inspect the table, and finally drops the table again
+     */
     public function testDB()
     {
         if (!class_exists('SQLite3')) {

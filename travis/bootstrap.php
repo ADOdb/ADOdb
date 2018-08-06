@@ -1,4 +1,9 @@
 <?php
+/**
+ * PHPUnit allows for a "bootstrap" file to set up autoloading.
+ * ADOdb doesn't really use autoloading so it's just a set of
+ * conditional includes
+ */
 
 if (!function_exists('ADONewConnection')) {
     include(__DIR__ . '/../adodb.inc.php');

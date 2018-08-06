@@ -2,6 +2,10 @@
 
 class PDO_MySQLTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * This test creates a table, loads values into it, uses ADOdb
+     * Meta* methods to inspect the table, and finally drops the table again
+     */
     public function testDB()
     {
         if (!class_exists('PDO')) {
@@ -96,6 +100,10 @@ class PDO_MySQLTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(true, $con->Close());
     }
 
+    /**
+     * This is the existing ADOdb test "test-active-record.php"
+     * translated to use PHPUnit assertions
+     */
     public function testActiveRecord()
     {
         if (!class_exists('Person')) {

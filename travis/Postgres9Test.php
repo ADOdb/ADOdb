@@ -1,20 +1,25 @@
 <?php
 
-class PDO_SQLiteTest extends PHPUnit_Framework_TestCase
+class Postgres9Test extends PHPUnit_Framework_TestCase
 {
+    /**
+     * This test creates a table, loads values into it, uses ADOdb
+     * Meta* methods to inspect the table, and finally drops the table again
+     */
     public function testDB()
     {
-        if (!class_exists('PDO')) {
-            echo "Skipping PDO_SQLite tests" . PHP_EOL;
+        if (!function_exists('pg_connect')) {
+            echo "Skipping Postgres9 tests" . PHP_EOL;
             return;
         }
-        $db_file = tempnam(sys_get_temp_dir(), 'sql') . '.db';
+        $credentials = json_decode(file_get_contents(__DIR__ . '/credentials.json'), true);
+        $credentials = $credentials['postgres'];
 
-        $con = ADONewConnection('pdo');
+        $con = ADONewConnection('postgres9');
         $this->assertInternalType('object', $con, 'Could not get driver object');
         $this->assertEquals(false, $con->IsConnected());
 
-        $con->Connect('sqlite:' . $db_file, '', '', '');
+        $con->Connect('localhost', $credentials['user'], $credentials['password'], 'adodb_test');
         $this->assertEquals(true, $con->IsConnected(), 'Could not connect');
 
         $info = $con->ServerInfo();
@@ -22,36 +27,28 @@ class PDO_SQLiteTest extends PHPUnit_Framework_TestCase
         $this->assertArrayHasKey('version', $info);
 
         $this->assertEquals(true, is_numeric($con->Time()), 'Could not get time');
-        /**
-          The pdo_sqlite class does not implement SQLDate. The base
-          pdo class calls SQLDate on its $_driver memember. Since all the PDO subtypes
-          inherit from the main PDO class, any subclass that doesn't override 
-          SQLDate either crashes because the $_driver member is null in
-          the subclass instance or recurses infinitely
-        $this->assertEquals('DATE_FORMAT(NOW(),\'%Y-%m-%d\')', $con->SQLDate('Y-m-d'));
-        $this->assertEquals('DATE_FORMAT(foo,\'%Y-%m-%d\')', $con->SQLDate('Y-m-d', 'foo'));
-        */
+        $this->assertEquals('TO_CHAR(CURRENT_TIMESTAMP,\'YYYY-MM-DD\')', $con->SQLDate('Y-m-d'));
+        $this->assertEquals('TO_CHAR(foo,\'YYYY-MM-DD\')', $con->SQLDate('Y-m-d', 'foo'));
 
-        $this->assertInternalType('array', $con->Prepare('SELECT 1'));
-        $this->assertInternalType('array', $con->PrepareSP('SELECT 1'));
-
-        $this->assertEquals("'foo'", $con->qstr('foo'));
+        $this->assertEquals('foo', $con->Prepare('foo'));
         $this->assertEquals("'foo'", $con->Quote('foo'));
         $byRef = 'foo';
         $con->q($byRef);
         $this->assertEquals("'foo'", $byRef);
-        $this->assertEquals('?', $con->Param('foo'));
+        $this->assertEquals('foo', $con->PrepareSP('foo'));
+
+        $this->assertEquals("'foo'", $con->qstr('foo'));
+        $this->assertEquals('$1', $con->Param('foo'));
 
         $con->Execute("DROP TABLE IF EXISTS test");
 
-        $create = $con->Prepare("CREATE TABLE test (id INT PRIMARY KEY, val INT)");
+        $create = $con->Prepare("CREATE TABLE test (id SERIAL, val INT, PRIMARY KEY(id))");
         $con->Execute($create);
         $insert = $con->Prepare("INSERT INTO test (val) VALUES (?)");
         $con->Execute($insert, array(1));
         $this->assertEquals(1, $con->Insert_ID());
         $con->Execute('UPDATE test SET val=2 WHERE id=1');
-        // unimplemented in sqlite?
-        //$this->assertEquals(1, $con->Affected_Rows());
+        $this->assertEquals(1, $con->Affected_Rows());
         $this->assertEquals('', $con->ErrorMsg());
         $this->assertEquals(0, $con->ErrorNo());
         $this->assertEquals(array('id'), $con->MetaPrimaryKeys('test'));
@@ -82,24 +79,22 @@ class PDO_SQLiteTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(0=>1,'id'=>1), $con->GetRow('SELECT 1 AS id'));
         $this->assertEquals(array(0=>1,'id'=>1), $con->CacheGetRow(5, 'SELECT 1 AS id'));
 
-        $this->assertEquals(" CASE WHEN id is null THEN 0 ELSE id END ", $con->IfNull('id', 0));
+        $this->assertEquals(" coalesce(id, 0) ", $con->IfNull('id', 0));
         $this->assertEquals("a||b", $con->Concat('a', 'b'));
 
-        $this->assertEquals(false, $con->MetaDatabases());
+        $this->assertEquals(true, in_array('adodb_test', $con->MetaDatabases()));
         $this->assertEquals(array('test'), $con->MetaTables());
         $cols = $con->MetaColumns('test');
         $this->assertEquals(true, $cols['ID']->primary_key);
-        $this->assertEquals(0, $cols['ID']->not_null);
-        $this->assertEquals(0, $cols['VAL']->primary_key);
-        $this->assertEquals(0, $cols['VAL']->not_null);
-        $this->assertEquals('INT', $cols['ID']->type);
+        $this->assertEquals(true, $cols['ID']->not_null);
+        $this->assertEquals(false, $cols['VAL']->not_null);
+        $this->assertEquals('SERIAL', $cols['ID']->type);
         $this->assertEquals('id', $cols['ID']->name);
-        $this->assertEquals(false, $con->MetaIndexes('test'));
+        $this->assertEquals(array(), $con->MetaIndexes('test'));
         $this->assertEquals(array('ID'=>'id', 'VAL'=>'val'), $con->MetaColumnNames('test'));
 
         $con->Execute("DROP TABLE IF EXISTS test");
         $this->assertEquals(true, $con->Close());
-        unlink($db_file);
     }
 }
 

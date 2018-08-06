@@ -1,7 +1,16 @@
 <?php
 
+/**
+ * @class MySQLiTest
+ *
+ * PHPUnit tests specific to the mysqli driver
+ */
 class MySQLiTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * These tests verify methods that generate SQL snippet strings
+     * return the expected results
+     */
     public function testStateless()
     {
         if (!function_exists('mysqli_connect')) {
@@ -28,6 +37,10 @@ class MySQLiTest extends PHPUnit_Framework_TestCase
 
     }
 
+    /**
+     * This test creates a table, loads values into it, uses ADOdb
+     * Meta* methods to inspect the table, and finally drops the table again
+     */
     public function testStateful()
     {
         if (!function_exists('mysqli_connect')) {
@@ -107,6 +120,10 @@ class MySQLiTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(null, $con->Close());
     }
 
+    /**
+     * This is the existing ADOdb test "test-active-record.php"
+     * translated to use PHPUnit assertions
+     */
     public function testActiveRecord()
     {
         if (!function_exists('mysqli_connect')) {
@@ -205,6 +222,10 @@ class MySQLiTest extends PHPUnit_Framework_TestCase
         $db->Execute('DROP TABLE children');
     }
 
+    /**
+     * This is the existing ADOdb test "test-xmlschema.php"
+     * translated to use PHPUnit assertions
+     */
     public function testXmlSchema()
     {
         if (!function_exists('mysqli_connect')) {
@@ -222,6 +243,10 @@ class MySQLiTest extends PHPUnit_Framework_TestCase
         $db->Execute('DROP TABLE mytable');
     }
 
+    /**
+     * This is the existing ADOdb test "test-datadict.php"
+     * translated to use PHPUnit assertions
+     */
     public function testDataDict()
     {
         if (!function_exists('mysqli_connect')) {

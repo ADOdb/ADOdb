@@ -1,7 +1,33 @@
 <?php
 
+/**
+ * @class AllTest
+ *
+ * PHPUnit test of basic functionality that behaves consistently
+ * across all (or most) tested drivers.
+ */
 class AllTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * Test cases that should behave the same across drivers.
+     *
+     * Covers (all):
+     *   - ADOConnection::CacheGetArray
+     *   - ADOConnection::CacheGetCol
+     *   - ADOConnection::CacheGetOne
+     *   - ADOConnection::CacheGetRow
+     *   - ADOConnection::GetArray
+     *   - ADOConnection::GetCol
+     *   - ADOConnection::GetOne
+     *   - ADOConnection::GetRow
+     *   - ADOConnection::ServerInfo
+     *   - ADOConnection::Time
+     *
+     * Also covers (all except pdo_mysql)
+     *   - ADOConnection::CreateSequnce
+     *   - ADOConnection::DropSequence
+     *   - ADOConnection::GenID
+     */
     public function testAll()
     {
         foreach (array('mysqli', 'pdo_mysql', 'postgres9', 'pdo_pgsql', 'sqlite3', 'pdo_sqlite') as $driver) {
@@ -39,6 +65,9 @@ class AllTest extends PHPUnit_Framework_TestCase
         }
     }
 
+    /**
+     * Helper method to initialize different database connections
+     */
     private function getConnection($type)
     {
         switch ($type) {
