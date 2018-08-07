@@ -237,7 +237,7 @@ class MySQLiTest extends PHPUnit_Framework_TestCase
         $db = ADONewConnection('mysqli');
         $db->Connect('localhost', $credentials['user'], $credentials['password'], 'adodb_test');
         $schema = new adoSchema($db);
-        $sql = $schema->ParseSchema(__DIR__ . '/xmlschema.xml');
+        $sql = $schema->ParseSchema(__DIR__ . '/../tests/xmlschema.xml');
         $this->assertEquals(2, $schema->ExecuteSchema($sql));
         $this->assertEquals(null, $schema->Destroy());
         $db->Execute('DROP TABLE mytable');

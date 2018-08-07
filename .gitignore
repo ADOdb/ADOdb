@@ -7,5 +7,5 @@
 .settings/
 /nbproject/
 .idea/
-tests/credentials.json
+travis/credentials.json
 
