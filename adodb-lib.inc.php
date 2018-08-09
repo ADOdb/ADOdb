@@ -738,6 +738,20 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
                                 $setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,$arrFields, $magicq);
                             }
                         break;
+		        case ADODB_FORCE_NULL_AND_ZERO:
+					
+			    switch ($type)
+			    {
+				case 'N':
+				case 'I':
+				case 'L':
+				$setFields .= $field->name . ' = 0, ';
+				break;
+				default:
+				$setFields .= $field->name . ' = null, ';
+				break;
+			    }
+			    break;
                     }
                 //********************************************************//
                 } else {
