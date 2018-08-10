@@ -642,7 +642,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		if(!$rez)
 			$rez = false;
 		if ($insert)
-			$this->_lastInsertResult = $res;
+			$this->_lastInsertResult = $rez;
 
 		return $rez;
 	}
