@@ -131,6 +131,8 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $sequences = false;
 	var $mssql_version = '';
 
+	var $_lastInsertResult = false;
+
 	function __construct()
 	{
 		if ($this->debug) {
@@ -191,7 +193,11 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function _insertid()
 	{
-		$rez = sqlsrv_query($this->_connectionID,$this->identitySQL);
+		if ($this->_lastInsertResult) {
+			$rez = $this->_lastInsertResult;
+		} else {
+			$rez = sqlsrv_query($this->_connectionID,$this->identitySQL);
+		}
 		sqlsrv_fetch($rez);
 		$this->lastInsertID = sqlsrv_get_field($rez, 0);
 		return $this->lastInsertID;
@@ -615,6 +621,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		// handle native driver flaw for retrieving the last insert ID
 		if(preg_match('/^\W*insert[\s\w()[\]",.]+values\s*\((?:[^;\']|\'\'|(?:(?:\'\')*\'[^\']+\'(?:\'\')*))*;?$/i', $sql)) {
 			$insert = true;
+			$this->_lastInsertResult = false;
 			$sql .= '; '.$this->identitySQL; // select scope_identity()
 		}
 		if($inputarr)
@@ -634,6 +641,8 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		if(!$rez)
 			$rez = false;
+		if ($insert)
+			$this->_lastInsertResult = $res;
 
 		return $rez;
 	}
