@@ -25,8 +25,9 @@ class ADODB2_sqlite extends ADODB_DataDict {
 	var $dropIndex = 'DROP INDEX IF EXISTS %s';
 	var $renameTable = 'ALTER TABLE %s RENAME TO %s';
 
-
-
+	public $blobAllowsDefaultValue = true;
+	public $blobAllowsNotNull      = true;
+    
 	function ActualType($meta)
 	{
 		switch(strtoupper($meta)) {
