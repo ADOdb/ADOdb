@@ -19,6 +19,10 @@ class ADODB2_db2 extends ADODB_DataDict {
 	var $seqField = false;
 	var $dropCol = 'ALTER TABLE %s DROP COLUMN %s';
 
+	public $blobAllowsDefaultValue = true;
+	public $blobAllowsNotNull      = true;
+
+	
  	function ActualType($meta)
 	{
 		switch($meta) {
