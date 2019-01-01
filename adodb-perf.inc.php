@@ -167,6 +167,9 @@ function adodb_log_sql(&$connx,$sql,$inputarr)
 		global $ADODB_PERF_MIN;
 		if ($errN != 0 || $time >= $ADODB_PERF_MIN) {
 			$ok = $conn->Execute($isql,$arr);
+			if($conn instanceof ADODB_mysqli && $conn->_queryID){
+				mysqli_free_result($conn->_queryID);
+            		}
 		} else
 			$ok = true;
 
