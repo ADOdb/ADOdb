@@ -5,6 +5,13 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.20.14 - Unreleased
+
+- security: Denial of service in adodb_date(). #467
+- core: Fix support for getMenu with ADODB_FETCH_ASSOC. #460
+- perf/mysql: fix tables() function incompatible with parent. #435
+- perf/mysql: fix error when logging slow queries. #463
+
 ## 5.20.13 - 06-Aug-2018
 
 - core: Fix query execution failures with mismatched quotes. #420
