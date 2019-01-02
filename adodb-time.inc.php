@@ -421,7 +421,7 @@ $ADODB_DATETIME_CLASS = (PHP_VERSION >= 5.2);
 
 if (!defined('ADODB_ALLOW_NEGATIVE_TS')) define('ADODB_NO_NEGATIVE_TS',1);
 
-if (!DEFINED('ADODB_FUTURE_DATE_CUTOFF_YEARS')) 
+if (!DEFINED('ADODB_FUTURE_DATE_CUTOFF_YEARS'))
 	DEFINE('ADODB_FUTURE_DATE_CUTOFF_YEARS',200);
 
 function adodb_date_test_date($y1,$m,$d=13)
@@ -843,7 +843,7 @@ global $_month_table_normal,$_month_table_leaf, $_adodb_last_date_call_failed;
 	$_min_power = 60;
 
 	$cutoffDate = time() + (60 * 60 * 24 * 365 * ADODB_FUTURE_DATE_CUTOFF_YEARS);
-	
+
 	if ($d > $cutoffDate)
 	{
 		$d = $cutoffDate;
@@ -1484,6 +1484,6 @@ global $ADODB_DATE_LOCALE;
 function adodb_last_date_status()
 {
 	global $_adodb_last_date_call_failed;
-	
+
 	return $_adodb_last_date_call_failed;
 }
