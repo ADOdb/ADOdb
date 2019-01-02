@@ -421,6 +421,8 @@ $ADODB_DATETIME_CLASS = (PHP_VERSION >= 5.2);
 
 if (!defined('ADODB_ALLOW_NEGATIVE_TS')) define('ADODB_NO_NEGATIVE_TS',1);
 
+if (!DEFINED('ADODB_FUTURE_DATE_CUTOFF_YEARS')) 
+	DEFINE('ADODB_FUTURE_DATE_CUTOFF_YEARS',200);												
 function adodb_date_test_date($y1,$m,$d=13)
 {
 	$h = round(rand()% 24);
@@ -830,13 +832,22 @@ global $_month_table_normal,$_month_table_leaf;
 function _adodb_getdate($origd=false,$fast=false,$is_gmt=false)
 {
 static $YRS;
-global $_month_table_normal,$_month_table_leaf;
+global $_month_table_normal,$_month_table_leaf, $_adodb_last_date_call_failed;
+
+	$_adodb_last_date_call_failed = false;
 
 	$d =  $origd - ($is_gmt ? 0 : adodb_get_gmt_diff_ts($origd));
 	$_day_power = 86400;
 	$_hour_power = 3600;
 	$_min_power = 60;
 
+	$cutoffDate = time() + (60 * 60 * 24 * 365 * ADODB_FUTURE_DATE_CUTOFF_YEARS);
+	
+	if ($d > $cutoffDate)
+	{
+		$d = $cutoffDate;
+		$_adodb_last_date_call_failed = true;
+	}
 	if ($d < -12219321600) $d -= 86400*10; // if 15 Oct 1582 or earlier, gregorian correction
 
 	$_month_table_normal = array("",31,28,31,30,31,30,31,31,30,31,30,31);
@@ -1473,3 +1484,16 @@ global $ADODB_DATE_LOCALE;
 	$ret = adodb_date($fmtdate, $ts, $is_gmt);
 	return $ret;
 }
+
+/**
+* Returns the status of the last date calculation and whether it exceeds
+* the limit of ADODB_FUTURE_DATE_CUTOFF_YEARS
+*
+* @return boolean
+*/
+function adodb_last_date_status()
+{
+	global $_adodb_last_date_call_failed;
+	
+	return $_adodb_last_date_call_failed;
+}								 
