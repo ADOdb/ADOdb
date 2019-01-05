@@ -63,6 +63,13 @@ Older changelogs:
 - session: add 'httponly' flag to cookie. #190
 - xml: support table 'opt' attribute with mysqli. #267
 
+## 5.20.14 - 06-Jan-2019
+
+- security: Denial of service in adodb_date(). #467
+- core: Fix support for getMenu with ADODB_FETCH_ASSOC. #460
+- perf/mysql: fix tables() function incompatible with parent. #435
+- perf/mysql: fix error when logging slow queries. #463
+
 ## 5.20.13 - 06-Aug-2018
 
 - core: Fix query execution failures with mismatched quotes. #420
