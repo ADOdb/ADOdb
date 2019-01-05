@@ -1,7 +1,7 @@
 <?php
 
 /*
-@version   v5.20.13  06-Aug-2018
+@version   v5.20.14  06-Jan-2019
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
          Contributed by Ross Smith (adodb@netebb.com).

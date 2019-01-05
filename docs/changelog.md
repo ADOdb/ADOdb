@@ -5,7 +5,7 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
-## 5.20.14 - Unreleased
+## 5.20.14 - 06-Jan-2019
 
 - security: Denial of service in adodb_date(). #467
 - core: Fix support for getMenu with ADODB_FETCH_ASSOC. #460
