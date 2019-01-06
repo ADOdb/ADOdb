@@ -362,10 +362,10 @@ class ADODB_pdo extends ADOConnection {
 		return parent::SetTransactionMode($seqname);
 	}
 
-	function BeginTrans()
+	function beginTrans()
 	{
-		if(method_exists($this->_driver, 'BeginTrans')) {
-			return $this->_driver->BeginTrans();
+		if(method_exists($this->_driver, 'beginTrans')) {
+			return $this->_driver->beginTrans();
 		}
 
 		if (!$this->hasTransactions) {
@@ -381,10 +381,11 @@ class ADODB_pdo extends ADOConnection {
 		return $this->_connectionID->beginTransaction();
 	}
 
-	function CommitTrans($ok=true)
+	function commitTrans($ok=true)
 	{
-		if(method_exists($this->_driver, 'CommitTrans')) {
-			return $this->_driver->CommitTrans($ok);
+
+		if(method_exists($this->_driver, 'commitTrans')) {
+			return $this->_driver->commitTrans($ok);
 		}
 
 		if (!$this->hasTransactions) {
@@ -394,7 +395,7 @@ class ADODB_pdo extends ADOConnection {
 			return true;
 		}
 		if (!$ok) {
-			return $this->RollbackTrans();
+			return $this->rollbackTrans();
 		}
 		if ($this->transCnt) {
 			$this->transCnt -= 1;
@@ -448,10 +449,10 @@ class ADODB_pdo extends ADOConnection {
 		return $obj;
 	}
 
-	function CreateSequence($seqname='adodbseq',$startID=1)
+	public function createSequence($seqname='adodbseq',$startID=1)
 	{
-		if(method_exists($this->_driver, 'CreateSequence')) {
-			return $this->_driver->CreateSequence($seqname, $startID);
+		if(method_exists($this->_driver, 'createSequence')) {
+			return $this->_driver->createSequence($seqname, $startID);
 		}
 
 		return parent::CreateSequence($seqname, $startID);
