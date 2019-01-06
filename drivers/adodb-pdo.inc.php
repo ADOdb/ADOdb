@@ -141,6 +141,7 @@ class ADODB_pdo extends ADOConnection {
 				case 'oci':
 				case 'pgsql':
 				case 'sqlite':
+				case 'firebird':
 				default:
 					$argDSN .= ';dbname='.$argDatabasename;
 			}
@@ -191,6 +192,7 @@ class ADODB_pdo extends ADOConnection {
 				case 'pgsql':
 				case 'sqlite':
 				case 'sqlsrv':
+				case 'firebird':
 					include_once(ADODB_DIR.'/drivers/adodb-pdo_'.$this->dsnType.'.inc.php');
 					break;
 			}
