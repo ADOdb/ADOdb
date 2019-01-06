@@ -258,6 +258,64 @@ class ADODB_pdo extends ADOConnection {
 		return $this->_driver->MetaColumns($table,$normalize);
 	}
 
+	public function metaIndexes($table,$normalize=true)
+	{
+		if (method_exists($this->_driver,'metaIndexes'))
+			return $this->_driver->metaIndexes($table,$normalize);
+	}
+
+	/**
+	 * Return a list of Primary Keys for a specified table.
+	 *
+	 * @param string   $table
+	 * @param bool     $owner      (optional) not used in this driver
+	 *
+	 * @return string[]    Array of indexes
+	 */
+	public function metaPrimaryKeys($table,$owner=false)
+	{
+		if (method_exists($this->_driver,'metaPrimaryKeys'))
+			return $this->_driver->metaPrimaryKeys($table,$owner);
+	}
+
+	/**
+	 * Returns a list of Foreign Keys for a specified table.
+	 *
+	 * @param string   $table
+	 * @param bool     $owner      (optional) not used in this driver
+	 * @param bool     $upper
+	 * @param bool     $associative
+	 *
+	 * @return string[] where keys are tables, and values are foreign keys
+	 */
+	public function metaForeignKeys($table, $owner=false, $upper=false,$associative=false) {
+		if (method_exists($this->_driver,'metaForeignKeys'))
+			return $this->_driver->metaForeignKeys($table,$owner,$upper,$associative);
+	}
+
+	/**
+	 * List procedures or functions in an array.
+	 *
+	 * @param $procedureNamePattern A procedure name pattern; must match the procedure name as it is stored in the database.
+	 * @param $catalog              A catalog name; must match the catalog name as it is stored in the database.
+	 * @param $schemaPattern        A schema name pattern.
+	 *
+	 * @return false|array false if not supported, or array of procedures on current database with structure below
+	 *         Array(
+	 *           [name_of_procedure] => Array(
+	 *             [type] => PROCEDURE or FUNCTION
+	 *             [catalog] => Catalog_name
+	 *             [schema] => Schema_name
+	 *             [remarks] => explanatory comment on the procedure
+	 *           )
+	 *         )
+	 */
+	public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
+		if (method_exists($this->_driver,'metaProcedures'))
+			return $this->_driver->metaProcedures($procedureNamePattern,$catalog,$schemaPattern);
+		return false;
+	}
+
 	function InParameter(&$stmt,&$var,$name,$maxLen=4000,$type=false)
 	{
 		$obj = $stmt[1];
