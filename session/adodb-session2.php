@@ -464,7 +464,6 @@ class ADODB_Session {
 	/*!
 	*/
 	static function _init() {
-		session_module_name('user');
 		session_set_save_handler(
 			array('ADODB_Session', 'open'),
 			array('ADODB_Session', 'close'),

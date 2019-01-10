@@ -417,7 +417,6 @@ function adodb_sess_gc($maxlifetime)
 	return true;
 }
 
-session_module_name('user');
 session_set_save_handler(
 	"adodb_sess_open",
 	"adodb_sess_close",
