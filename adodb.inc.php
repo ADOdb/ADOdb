@@ -701,17 +701,21 @@ if (!defined('_ADODB_LAYER')) {
 			$this->password = 'not stored'; // not stored for security reasons
 		}
 		if ($argDatabaseName != "") {
-			$this->database = $argDatabaseName;
+			if (is_array($argDatabaseName)) {
+				$this->database = isset($argDatabaseName['database']) ? $argDatabaseName['database'] : '';
+			} else {
+				$this->database = $argDatabaseName;
+			}
 		}
 
 		$this->_isPersistentConnection = false;
 
 		if ($forceNew) {
-			if ($rez=$this->_nconnect($this->host, $this->user, $argPassword, $this->database)) {
+			if ($rez=$this->_nconnect($this->host, $this->user, $argPassword, $argDatabaseName)) {
 				return true;
 			}
 		} else {
-			if ($rez=$this->_connect($this->host, $this->user, $argPassword, $this->database)) {
+			if ($rez=$this->_connect($this->host, $this->user, $argPassword, $argDatabaseName)) {
 				return true;
 			}
 		}

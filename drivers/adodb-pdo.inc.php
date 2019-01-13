@@ -131,6 +131,18 @@ class ADODB_pdo extends ADOConnection {
 		$at = strpos($argDSN,':');
 		$this->dsnType = substr($argDSN,0,$at);
 
+		// Handle driver-specific connection options
+		$connectionOptions = array();
+		if (is_array($argDatabasename)) {
+			$connectionOptions = $argDatabasename;
+			if (isset($connectionOptions['database'])) {
+				$argDatabasename = $connectionOptions['database'];
+				unset($connectionOptions['database']);
+			} else {
+				$argDatabasename = '';
+			}
+		}
+
 		if ($argDatabasename) {
 			switch($this->dsnType){
 				case 'sqlsrv':
@@ -146,7 +158,7 @@ class ADODB_pdo extends ADOConnection {
 			}
 		}
 		try {
-			$this->_connectionID = new PDO($argDSN, $argUsername, $argPassword);
+			$this->_connectionID = new PDO($argDSN, $argUsername, $argPassword, $connectionOptions);
 		} catch (Exception $e) {
 			$this->_connectionID = false;
 			$this->_errorno = -1;

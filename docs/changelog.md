@@ -48,6 +48,7 @@ Older changelogs:
 - odbc: MetaColumns() can optionally be set to return MetaType for backwards compatibility. #184
 - pdo: allow loading of subclassed recordset. #245
 - pdo: add setConnectionParameter support. #247
+- pdo: add support for connection options in constructor. #476
 - pdo: fix PHP notice. #248
 - pdo: ADORecordSet class loading. #250
 - pdo/pgsql: Add support for transactions. #363
