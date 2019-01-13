@@ -738,7 +738,7 @@ class ADODB_DataDict {
 
 			$ftype = $this->_GetSize($ftype, $ty, $fsize, $fprec, $fOptions);
 
-			if (($ty == 'X' || $ty == 'X2' || $ty == 'B') && !$this->blobAllowsNotNull)
+			if (($ty == 'X' || $ty == 'X2' || $ty == 'XL' || $ty == 'B') && !$this->blobAllowsNotNull)
 				/*
 				* some blob types do not accept nulls, so we override the
 				* previously defined value
@@ -748,7 +748,7 @@ class ADODB_DataDict {
 			if ($fprimary) 
 				$pkey[] = $fname;
 
-			if (($ty == 'X' || $ty == 'X2' || $ty == 'B') && !$this->blobAllowsDefaultValue)
+			if (($ty == 'X' || $ty == 'X2' || $ty == 'XL' || $ty == 'B') && !$this->blobAllowsDefaultValue)
 				/*
 				* some databases do not allow blobs to have defaults, so we
 				* override the previously defined value
