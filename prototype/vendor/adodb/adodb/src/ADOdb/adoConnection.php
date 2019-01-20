@@ -1945,6 +1945,15 @@ class adoConnection
 	function GetUpdateSQL(&$rs, $arrFields,$forceUpdate=false,$magicq=false,$force=null) {
 		global $ADODB_INCLUDED_LIB;
 
+		$getUpdateSQL = $this->driverPath . 'datadict\getUpdateSQL';
+		
+		$f = new $getUpdateSQL($this,$rs, $arrFields,$forceUpdate,$magicq,$force);
+
+		return $f->getResult();
+		
+		
+		
+		
 		// ********************************************************
 		// This is here to maintain compatibility
 		// with older adodb versions. Sets force type to force nulls if $forcenulls is set.
