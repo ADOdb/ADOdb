@@ -927,6 +927,72 @@ class ADODB_mssqlnative extends ADOConnection {
 	{
 		return ADODB_STRINGMAX_NOLIMIT;
 	}
+	/**
+	 * Lists procedures, functions and methods in an array.
+	 *
+	 * @param	string $procedureNamePattern (optional)
+	 * @param	string $catalog				 (optional)
+	 * @param	string $schemaPattern		 (optional)
+	 
+	 * @return array of stored objects in current database.
+	 *
+	 */
+	public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null)
+	{
+		
+		$metaProcedures = array();
+		$procedureSQL   = '';
+		$catalogSQL     = '';
+		$schemaSQL      = '';
+				
+		if ($procedureNamePattern)
+			$procedureSQL = "AND ROUTINE_NAME LIKE " . strtoupper($this->qstr($procedureNamePattern));
+		
+		if ($catalog)
+			$catalogSQL = "AND SPECIFIC_SCHEMA=" . strtoupper($this->qstr($catalog));
+		
+		if ($schemaPattern)
+			$schemaSQL = "AND ROUTINE_SCHEMA LIKE {$this->qstr($schemaPattern)}";
+		
+				
+		$fields = "	ROUTINE_NAME,ROUTINE_TYPE,ROUTINE_SCHEMA,ROUTINE_CATALOG";
+		
+		$SQL = "SELECT $fields
+		          FROM {$this->database}.information_schema.routines
+				 WHERE 1=1
+				  $procedureSQL
+				  $catalogSQL
+				  $schemaSQL
+				ORDER BY ROUTINE_NAME
+				";
+		
+		$result = $this->execute($SQL);
+		
+		if (!$result)
+			return false;
+		while ($r = $result->fetchRow()){
+			
+			if (!isset($r[0]))
+				/*
+				* Convert to numeric
+				*/
+				$r = array_values($r);
+			
+			$procedureName = $r[0];
+			$schemaName    = $r[2];
+			$routineCatalog= $r[3];
+			$metaProcedures[$procedureName] = array('type'=> $r[1],
+												   'catalog' => $routineCatalog,
+												   'schema'  => $schemaName,
+												   'remarks' => '',
+												    );
+													
+		}
+		
+		return $metaProcedures;
+		
+	}
+	
 }
 
 /*--------------------------------------------------------------------------------------
