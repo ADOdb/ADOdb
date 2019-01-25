@@ -131,6 +131,10 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		#if (!empty($this->port)) $argHostname .= ":".$this->port;
+		
+		// NOTE: Connecting on non-standard port failed when mysqlnd was active and port was not part of host.
+		if (function_exists('mysqli_fetch_all') && !empty($this->port)) $argHostname .= ":" . $this->port;
+
 		$ok = @mysqli_real_connect($this->_connectionID,
 					$argHostname,
 					$argUsername,
