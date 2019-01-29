@@ -511,7 +511,11 @@ order by constraint_name, referenced_table_name, keyno";
 		foreach($arr as $k => $v) {
 			foreach($v as $a => $b) {
 				if ($upper) $a = strtoupper($a);
-				$arr2[$a] = $b;
+				if (is_array($arr2[$a])) {	// a previous foreign key was define for this reference table, we merge the new one
+					$arr2[$a] = array_merge($arr2[$a], $b);
+				} else {
+					$arr2[$a] = $b;
+				}
 			}
 		}
 		return $arr2;
