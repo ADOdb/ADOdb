@@ -83,14 +83,25 @@ class ADODB_mysqli extends ADOConnection {
 		$this->Execute("SET SESSION TRANSACTION ".$transaction_mode);
 	}
 
-	// returns true or false
-	// To add: parameter int $port,
-	//         parameter string $socket
-	function _connect($argHostname = NULL,
-				$argUsername = NULL,
-				$argPassword = NULL,
-				$argDatabasename = NULL, $persist=false)
-	{
+    /**
+     * Connect to a database.
+     * TODO add: parameter int $port, parameter string $socket
+     *
+     * @param string|null $argHostname (Optional) The host to connect to.
+     * @param string|null $argUsername (Optional) The username to connect as.
+     * @param string|null $argPassword (Optional) The password to connect with.
+     * @param string|null $argDatabasename (Optional) The name of the database to start in when connected.
+     * @param bool $persist (Optional) Whether or not to use a persistent connection.
+     *
+     * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
+     * isn't currently loaded.
+     */
+    function _connect($argHostname = null,
+                      $argUsername = null,
+                      $argPassword = null,
+                      $argDatabasename = null,
+                      $persist = false)
+    {
 		if(!extension_loaded("mysqli")) {
 			return null;
 		}
@@ -122,7 +133,7 @@ class ADODB_mysqli extends ADOConnection {
 				$ok = mysqli_options($this->_connectionID,$k,$v);
 		}
 
-		//http ://php.net/manual/en/mysqli.persistconns.php
+		//https://php.net/manual/en/mysqli.persistconns.php
 		if ($persist && PHP_VERSION > 5.2 && strncmp($argHostname,'p:',2) != 0) $argHostname = 'p:'.$argHostname;
 
 		// SSL Connections for MySQLI
@@ -153,28 +164,64 @@ class ADODB_mysqli extends ADOConnection {
 		}
 	}
 
-	// returns true or false
-	// How to force a persistent connection
+    /**
+     * Connect to a database with a persistent connection.
+     *
+     * @param string|null $argHostname The host to connect to.
+     * @param string|null $argUsername The username to connect as.
+     * @param string|null $argPassword The password to connect with.
+     * @param string|null $argDatabasename The name of the database to start in when connected.
+     *
+     * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
+     * isn't currently loaded.
+     */
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename, true);
 	}
 
-	// When is this used? Close old connection first?
-	// In _connect(), check $this->forceNewConnect?
+    /**
+     * Connect to a database, whilst setting $this->forceNewConnect to true.
+     *
+     * When is this used? Close old connection first?
+     * In _connect(), check $this->forceNewConnect?
+     *
+     * @param string|null $argHostname The host to connect to.
+     * @param string|null $argUsername The username to connect as.
+     * @param string|null $argPassword The password to connect with.
+     * @param string|null $argDatabasename The name of the database to start in when connected.
+     *
+     * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
+     * isn't currently loaded.
+     */
 	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		$this->forceNewConnect = true;
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename);
 	}
 
-	function IfNull( $field, $ifNull )
-	{
-		return " IFNULL($field, $ifNull) "; // if MySQL
-	}
+    /**
+     * Returns a stringing containing a MySQL IFNULL() function call for the provided values.
+     *
+     * @param mixed $field The value/column to check for NULL.
+     * @param mixed $ifNull The value/column to use if the first value/column is NULL.
+     *
+     * @return string
+     */
+    function IfNull($field, $ifNull)
+    {
+        return " IFNULL($field, $ifNull) ";
+    }
 
-	// do not use $ADODB_COUNTRECS
-	function GetOne($sql,$inputarr=false)
+    /**
+     * Do not use $ADODB_COUNTRECS.
+     *
+     * @param string $sql The SQL to execute.
+     * @param bool|array $inputarr (Optional) An array containing any required SQL parameters, or false if none needed.
+     *
+     * @return bool|array|null
+     */
+    function GetOne($sql, $inputarr = false)
 	{
 		global $ADODB_GETONE_EOF;
 
@@ -188,6 +235,11 @@ class ADODB_mysqli extends ADOConnection {
 		return $ret;
 	}
 
+    /**
+     * Get information about the current MySQL server.
+     *
+     * @return array
+     */
 	function ServerInfo()
 	{
 		$arr['description'] = $this->GetOne("select version()");
@@ -195,7 +247,11 @@ class ADODB_mysqli extends ADOConnection {
 		return $arr;
 	}
 
-
+    /**
+     * Begin a transaction.
+     *
+     * @return bool Always returns true.
+     */
 	function BeginTrans()
 	{
 		if ($this->transOff) return true;
@@ -207,7 +263,14 @@ class ADODB_mysqli extends ADOConnection {
 		return true;
 	}
 
-	function CommitTrans($ok=true)
+    /**
+     * Commit a transaction.
+     *
+     * @param bool $ok (Optional) If false, will rollback the transaction instead.
+     *
+     * @return bool Always returns true.
+     */
+    function CommitTrans($ok = true)
 	{
 		if ($this->transOff) return true;
 		if (!$ok) return $this->RollbackTrans();
@@ -220,6 +283,11 @@ class ADODB_mysqli extends ADOConnection {
 		return true;
 	}
 
+    /**
+     * Rollback a transaction.
+     *
+     * @return bool Always returns true.
+     */
 	function RollbackTrans()
 	{
 		if ($this->transOff) return true;
@@ -230,7 +298,16 @@ class ADODB_mysqli extends ADOConnection {
 		return true;
 	}
 
-	function RowLock($tables,$where='',$col='1 as adodbignore')
+    /**
+     * Start a transaction and lock the rows for the specified tables using the specified where condition.
+     *
+     * @param string $tables The table(s) to lock rows for.
+     * @param string $where (Optional) The WHERE clause to use to determine which rows to lock.
+     * @param string $col (Optional) The columns to select.
+     *
+     * @return bool True if the locking SQL statement executed successfully, otherwise false.
+     */
+    function RowLock($tables, $where = '', $col = '1 as adodbignore')
 	{
 		if ($this->transCnt==0) $this->BeginTrans();
 		if ($where) $where = ' where '.$where;
@@ -270,6 +347,11 @@ class ADODB_mysqli extends ADOConnection {
 		return "'$s'";
 	}
 
+    /**
+     * Return the AUTO_INCREMENT id of the last row that has been inserted or updated in a table.
+     *
+     * @return int|string
+     */
 	function _insertid()
 	{
 		/*
@@ -295,7 +377,12 @@ class ADODB_mysqli extends ADOConnection {
 		return $result;
 	}
 
-	// Only works for INSERT, UPDATE and DELETE query's
+    /**
+     * Returns how many rows were effected by the most recently executed SQL statement.
+     * Only works for INSERT, UPDATE and DELETE queries.
+     *
+     * @return int The number of rows affected.
+     */
 	function _affectedrows()
 	{
 		$result =  @mysqli_affected_rows($this->_connectionID);
@@ -305,7 +392,6 @@ class ADODB_mysqli extends ADOConnection {
 		return $result;
 	}
 
-	// See http://www.mysql.com/doc/M/i/Miscellaneous_functions.html
 	// Reference on Last_Insert_ID on the recommended way to simulate sequences
 	var $_genIDSQL = "update %s set id=LAST_INSERT_ID(id+1);";
 	var $_genSeqSQL = "create table if not exists %s (id int not null)";
@@ -313,7 +399,15 @@ class ADODB_mysqli extends ADOConnection {
 	var $_genSeq2SQL = "insert into %s values (%s)";
 	var $_dropSeqSQL = "drop table if exists %s";
 
-	function CreateSequence($seqname='adodbseq',$startID=1)
+    /**
+     * Create a sequence.
+     *
+     * @param string $seqname The sequence name.
+     * @param int $startID The start id.
+     *
+     * @return ADORecordSet|bool A record set if executed successfully, otherwise false.
+     */
+    function CreateSequence($seqname = 'adodbseq', $startID = 1)
 	{
 		if (empty($this->_genSeqSQL)) return false;
 		$u = strtoupper($seqname);
@@ -323,7 +417,13 @@ class ADODB_mysqli extends ADOConnection {
 		return $this->Execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
 	}
 
-	function GenID($seqname='adodbseq',$startID=1)
+    /**
+     * @param string $seqname
+     * @param int $startID
+     *
+     * @return bool|int|string
+     */
+    function GenID($seqname = 'adodbseq', $startID = 1)
 	{
 		// post-nuke sets hasGenID to false
 		if (!$this->hasGenID) return false;
@@ -349,6 +449,11 @@ class ADODB_mysqli extends ADOConnection {
 		return $this->genID;
 	}
 
+    /**
+     * Return a list of all visible databases except the 'mysql' database.
+     *
+     * @return array|false An array of database names, or false if the query failed.
+     */
 	function MetaDatabases()
 	{
 		$query = "SHOW DATABASES";
@@ -365,8 +470,16 @@ class ADODB_mysqli extends ADOConnection {
 		return $ret;
 	}
 
-
-	function MetaIndexes ($table, $primary = FALSE, $owner = false)
+    /**
+     * Get a list of indexes on the specified table.
+     *
+     * @param string $table The name of the table to get indexes for.
+     * @param bool $primary (Optional) Whether or not to include the primary key.
+     * @param bool $owner (Optional) Unused.
+     *
+     * @return array|bool An array of the indexes, or false if the query to get the indexes failed.
+     */
+    function MetaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -418,9 +531,15 @@ class ADODB_mysqli extends ADOConnection {
 		return $indexes;
 	}
 
-
-	// Format date column in sql string given an input format that understands Y M D
-	function SQLDate($fmt, $col=false)
+    /**
+     * Return an SQL DATE_FORMAT() string that can be used to format a date column based on the given input format.
+     *
+     * @param string $fmt The date format to use.
+     * @param string|bool $col (Optional) The table column to date format, or if false, use NOW().
+     *
+     * @return bool|string The SQL DATE_FORMAT() string, or false if the provided date format was empty.
+     */
+    function SQLDate($fmt, $col = false)
 	{
 		if (!$col) $col = $this->sysTimeStamp;
 		$s = 'DATE_FORMAT('.$col.",'";
@@ -497,8 +616,13 @@ class ADODB_mysqli extends ADOConnection {
 		return $s;
 	}
 
-	// returns concatenated string
-	// much easier to run "mysqld --ansi" or "mysqld --sql-mode=PIPES_AS_CONCAT" and use || operator
+    /**
+     * Returns a MySQL string for a CONCAT() function call.
+     * All arguments passed into this function will be combined together within the CONCAT().
+     * E.g. $this->Concat('foo', 'bar'); => CONCAT('foo', 'bar')
+     *
+     * @return string
+     */
 	function Concat()
 	{
 		$s = "";
@@ -510,8 +634,15 @@ class ADODB_mysqli extends ADOConnection {
 		else return '';
 	}
 
-	// dayFraction is a day in floating point
-	function OffsetDate($dayFraction,$date=false)
+    /**
+     * Returns a MySQL string that can be used to offset a date by a given interval.
+     *
+     * @param float $dayFraction A day in floating point
+     * @param string|bool $date (Optional) The date to offset. If false, uses CURDATE()
+     *
+     * @return string
+     */
+    function OffsetDate($dayFraction, $date = false)
 	{
 		if (!$date) $date = $this->sysDate;
 
@@ -521,6 +652,15 @@ class ADODB_mysqli extends ADOConnection {
 //		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
 
+    /**
+     * Returns information about stored procedures and stored functions.
+     *
+     * @param string|bool $NamePattern (Optional) Only look for procedures/functions with a name matching this pattern.
+     * @param null $catalog (Optional) Unused.
+     * @param null $schemaPattern (Optional) Unused.
+     *
+     * @return array
+     */
 	function MetaProcedures($NamePattern = false, $catalog  = null, $schemaPattern  = null)
 	{
 		// save old fetch mode
@@ -578,16 +718,16 @@ class ADODB_mysqli extends ADOConnection {
 		return $procedures;
 	}
 
-	/**
-	 * Retrieves a list of tables based on given criteria
-	 *
-	 * @param string $ttype Table type = 'TABLE', 'VIEW' or false=both (default)
-	 * @param string $showSchema schema name, false = current schema (default)
-	 * @param string $mask filters the table by name
-	 *
-	 * @return array list of tables
-	 */
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+    /**
+     * Retrieves a list of tables based on given criteria
+     *
+     * @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
+     * @param string|bool $showSchema (Optional) schema name, false = current schema (default)
+     * @param string|bool $mask (Optional) filters the table by name
+     *
+     * @return array list of tables
+     */
+    function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
@@ -606,8 +746,17 @@ class ADODB_mysqli extends ADOConnection {
 		return $ret;
 	}
 
-	// "Innox - Juan Carlos Gonzalez" <jgonzalez#innox.com.mx>
-	function MetaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
+    /**
+     * Return information about a table's foreign keys.
+     *
+     * @param string $table The name of the table to get the foreign keys for.
+     * @param string|bool $owner (Optional) The database the table belongs to, or false to assume the current db.
+     * @param string|bool $upper (Optional) Force uppercase table name on returned array keys.
+     * @param bool $associative (Optional) Whether to return an associate or numeric array.
+     *
+     * @return array|bool An array of foreign keys, or false no foreign keys could be found.
+     */
+    function MetaForeignKeys($table, $owner = false, $upper = false, $associative = false)
 	{
 
 		global $ADODB_FETCH_MODE;
@@ -660,7 +809,15 @@ class ADODB_mysqli extends ADOConnection {
 		return $foreign_keys;
 	}
 
-	function MetaColumns($table, $normalize=true)
+    /**
+     * Return an array of information about a table's columns.
+     *
+     * @param string $table The name of the table to get the column info for.
+     * @param bool $normalize (Optional) Unused.
+     *
+     * @return ADOFieldObject[]|bool An array of info for each column, or false if it could not determine the info.
+     */
+    function MetaColumns($table, $normalize = true)
 	{
 		$false = false;
 		if (!$this->metaColumnsSQL)
@@ -731,7 +888,13 @@ class ADODB_mysqli extends ADOConnection {
 		return $retarr;
 	}
 
-	// returns true or false
+    /**
+     * Tell the MySQL connection to select the named database.
+     *
+     * @param string $dbName The name of the database to select.
+     *
+     * @return bool True if the database was selected successfully, otherwise false.
+     */
 	function SelectDB($dbName)
 	{
 //		$this->_connectionID = $this->mysqli_resolve_link($this->_connectionID);
@@ -748,13 +911,23 @@ class ADODB_mysqli extends ADOConnection {
 		return false;
 	}
 
-	// parameters use PostgreSQL convention, not MySQL
-	function SelectLimit($sql,
-				$nrows = -1,
-				$offset = -1,
-				$inputarr = false,
-				$secs = 0)
-	{
+    /**
+     * Execute the provided SQL using the desired limit.
+     *
+     * @param string $sql The SQL to execute.
+     * @param int $nrows (Optional) The limit for the number of records you want returned. By default, all results.
+     * @param int $offset (Optional) The offset to use when selecting the results. By default, no offset.
+     * @param array|bool $inputarr (Optional) Any parameter values required by the SQL statement, or false if none.
+     * @param int $secs (Optional) If greater than 0, perform a cached execute. By default, normal execution.
+     *
+     * @return ADORecordSet|false The query results, or false if the query failed to execute.
+     */
+    function SelectLimit($sql,
+                         $nrows = -1,
+                         $offset = -1,
+                         $inputarr = false,
+                         $secs = 0)
+    {
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
 		$offsetStr = ($offset >= 0) ? "$offset," : '';
@@ -768,7 +941,14 @@ class ADODB_mysqli extends ADOConnection {
 		return $rs;
 	}
 
-
+    /**
+     * Return a prepared statement.
+     * Currently this does nothing other than return the original SQL provided.
+     *
+     * @param string $sql The SQL to prepare.
+     *
+     * @return string The original SQL that was provided.
+     */
 	function Prepare($sql)
 	{
 		/*
@@ -788,11 +968,17 @@ class ADODB_mysqli extends ADOConnection {
 		return array($sql,$stmt);
 	}
 
-
-	// returns queryID or false
-	function _query($sql, $inputarr)
-	{
-	global $ADODB_COUNTRECS;
+    /**
+     * Return the query id.
+     *
+     * @param string|array $sql
+     * @param array $inputarr
+     *
+     * @return bool|mysqli_result
+     */
+    function _query($sql, $inputarr)
+    {
+        global $ADODB_COUNTRECS;
 		// Move to the next recordset, or return false if there is none. In a stored proc
 		// call, mysqli_next_result returns true for the last "recordset", but mysqli_store_result
 		// returns false. I think this is because the last "recordset" is actually just the
@@ -862,7 +1048,11 @@ class ADODB_mysqli extends ADOConnection {
 
 	}
 
-	/*	Returns: the last error message from previous database operation	*/
+    /**
+     * Returns the last error message from previous database operation.
+     *
+     * @return string The last error message.
+     */
 	function ErrorMsg()
 	{
 		if (empty($this->_connectionID))
@@ -872,7 +1062,11 @@ class ADODB_mysqli extends ADOConnection {
 		return $this->_errorMsg;
 	}
 
-	/*	Returns: the last error number from previous database operation	*/
+    /**
+     * Returns the last error number from previous database operation.
+     *
+     * @return int The last error number.
+     */
 	function ErrorNo()
 	{
 		if (empty($this->_connectionID))
@@ -881,7 +1075,11 @@ class ADODB_mysqli extends ADOConnection {
 			return @mysqli_errno($this->_connectionID);
 	}
 
-	// returns true or false
+    /**
+     * Close the database connection.
+     *
+     * @return void
+     */
 	function _close()
 	{
 		if($this->_connectionID) {
@@ -890,30 +1088,31 @@ class ADODB_mysqli extends ADOConnection {
 		$this->_connectionID = false;
 	}
 
-	/*
-	* Maximum size of C field
-	*/
-	function CharMax()
-	{
-		return 255;
-	}
+    /**
+     * Return the maximum size of C field.
+     *
+     * @return int
+     */
+    function CharMax()
+    {
+        return 255;
+    }
 
-	/*
-	* Maximum size of X field
-	*/
-	function TextMax()
-	{
-		return 4294967295;
-	}
+    /**
+     * Return the maximum size of X field.
+     *
+     * @return int
+     */
+    function TextMax()
+    {
+        return 4294967295;
+    }
 
-
-	// this is a set of functions for managing client encoding - very important if the encodings
-	// of your database and your output target (i.e. HTML) don't match
-	// for instance, you may have UTF8 database and server it on-site as latin1 etc.
-	// GetCharSet - get the name of the character set the client is using now
-	// Under Windows, the functions should work with MySQL 4.1.11 and above, the set of charsets supported
-	// depends on compile flags of mysql distribution
-
+    /**
+     * Get the name of the character set the client connection is using now.
+     *
+     * @return string|bool The name of the character set, or false if it can't be determined.
+     */
 	function GetCharSet()
 	{
 		//we will use ADO's builtin property charSet
@@ -928,7 +1127,13 @@ class ADODB_mysqli extends ADOConnection {
 		}
 	}
 
-	// SetCharSet - switch the client encoding
+    /**
+     * Change the character set the client connection is using to the one specified.
+     *
+     * @param string $charset_name The character set to switch to.
+     *
+     * @return bool True if the character set was changed successfully, otherwise false.
+     */
 	function SetCharSet($charset_name)
 	{
 		if (!method_exists($this->_connectionID,'set_charset')) {
@@ -946,7 +1151,7 @@ class ADODB_mysqli extends ADOConnection {
 }
 
 /*--------------------------------------------------------------------------------------
-	 Class Name: Recordset
+	 Class Name: ADORecordSet_mysqli
 --------------------------------------------------------------------------------------*/
 
 class ADORecordSet_mysqli extends ADORecordSet{
