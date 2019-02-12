@@ -72,7 +72,14 @@ class ADODB_mysqli extends ADOConnection {
 	private $usePreparedStatement    = false;
 	private $useLastInsertStatement  = false;
 
-	function SetTransactionMode( $transaction_mode )
+    /**
+     * Set the transaction mode.
+     *
+     * @param string $transaction_mode The transaction mode to set.
+     *
+     * @return void
+     */
+    function SetTransactionMode($transaction_mode)
 	{
 		$this->_transmode = $transaction_mode;
 		if (empty($transaction_mode)) {
