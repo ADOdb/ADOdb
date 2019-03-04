@@ -20,10 +20,12 @@ Based on adodb 3.40
 */
 
 // security - hide paths
-if (!defined('ADODB_DIR')) die();
+if (!defined('ADODB_DIR')) {
+	die();
+}
 
-if (! defined("_ADODB_MYSQLI_LAYER")) {
- define("_ADODB_MYSQLI_LAYER", 1 );
+if (!defined("_ADODB_MYSQLI_LAYER")) {
+	define("_ADODB_MYSQLI_LAYER", 1);
 
  // PHP5 compat...
  if (! defined("MYSQLI_BINARY_FLAG"))  define("MYSQLI_BINARY_FLAG", 128);
