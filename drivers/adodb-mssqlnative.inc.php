@@ -1175,65 +1175,46 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	* is retrieved.
 	*
 	* $param int $fieldOffset (optional default=-1 for all
-	* @return mixed an ADOFieldObject, or array of objects
+	* @return ADOFieldObject|ADOFieldObject[]|false
 	*/
 	private function _fetchField($fieldOffset = -1)
 	{
-		if ($this->fieldObjectsRetrieved){
-			if ($this->fieldObjects) {
-				/*
-				 * Already got the information
-				 */
-				if ($fieldOffset == -1)
-					return $this->fieldObjects;
-				else
-					return $this->fieldObjects[$fieldOffset];
+		if (!$this->fieldObjectsRetrieved) {
+			// Retrieve all metadata in one go
+			$fieldMetaData = sqlsrv_field_metadata($this->_queryID);
+			if ($fieldMetaData) {
+				$this->_numOfFields = count($fieldMetaData);
+				foreach ($fieldMetaData as $key => $value) {
+					$fld = new ADOFieldObject;
+					// Caution - keys are case-sensitive, must respect casing of values
+					$fld->name          = $value['Name'];
+					$fld->max_length    = $value['Size'];
+					$fld->column_source = $value['Name'];
+					$fld->type          = $this->_typeConversion[$value['Type']];
+
+					$this->fieldObjects[$key] = $fld;
+					$this->fieldObjectsIndex[$fld->name] = $key;
+				}
+			} else {
+				$this->_numOfFields = -1;
+				$this->fieldObjects = false;
+				$this->fieldObjectsIndex = array();
 			}
-			else
-				/*
-			     * No metadata available
-				 */
-				return false;
+			$this->fieldObjectsRetrieved = true;
 		}
 
-		$this->fieldObjectsRetrieved = true;
-		/*
-		 * Retrieve all metadata in one go. This is always returned as a
-		 * numeric array.
-		 */
-		$fieldMetaData = sqlsrv_field_metadata($this->_queryID);
-
-		if (!$fieldMetaData)
-			/*
-		     * Not a statement that gives us metaData
-			 */
-			return false;
-
-		$this->_numOfFields = count($fieldMetaData);
-		foreach ($fieldMetaData as $key=>$value)
-		{
-
-			$fld = new ADOFieldObject;
-			/*
-			 * Caution - keys are case-sensitive, must respect
-			 * casing of values
-			 */
-
-			$fld->name          = $value['Name'];
-			$fld->max_length    = $value['Size'];
-			$fld->column_source = $value['Name'];
-			$fld->type          = $this->_typeConversion[$value['Type']];
-
-			$this->fieldObjects[$key] = $fld;
-
-			$this->fieldObjectsIndex[$fld->name] = $key;
-
+		if ($this->fieldObjects) {
+			if ($fieldOffset == -1) {
+				return $this->fieldObjects;
+			} else {
+				return $this->fieldObjects[$fieldOffset];
+			}
 		}
-		if ($fieldOffset == -1)
-			return $this->fieldObjects;
 
-		return $this->fieldObjects[$fieldOffset];
+		// No metadata available
+		return false;
 	}
+
 
 	/*
 	 * Fetchfield copies the oracle method, it loads the field information
