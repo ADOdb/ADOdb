@@ -895,6 +895,9 @@ class ADORecordSet_mysql extends ADORecordSet{
 
 }
 
+/**
+ * Class ADORecordSet_ext_mysql
+ */
 class ADORecordSet_ext_mysql extends ADORecordSet_mysql {
 
 	function MoveNext()
