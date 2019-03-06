@@ -342,6 +342,12 @@ class ADODB_mysqli extends ADOConnection {
 
 		if ($rs) {
 			$this->genID = mysqli_insert_id($this->_connectionID);
+			if ($this->genID == 0)
+			{
+				$getnext = sprintf("select LAST_INSERT_ID() from %s;",$seqname);
+				$rs = @$this->Execute($getnext);
+				$this->genID = (int) $rs->fields[0];
+			}
 			$rs->Close();
 		} else
 			$this->genID = 0;
