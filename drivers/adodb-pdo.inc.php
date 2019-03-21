@@ -191,6 +191,7 @@ class ADODB_pdo extends ADOConnection {
 				case 'pgsql':
 				case 'sqlite':
 				case 'sqlsrv':
+				case 'dblib':
 					include_once(ADODB_DIR.'/drivers/adodb-pdo_'.$this->dsnType.'.inc.php');
 					break;
 			}
