@@ -193,6 +193,7 @@ class ADODB_pdo extends ADOConnection {
 				case 'sqlite':
 				case 'sqlsrv':
 				case 'firebird':
+				case 'dblib':
 					include_once(ADODB_DIR.'/drivers/adodb-pdo_'.$this->dsnType.'.inc.php');
 					break;
 			}
