@@ -21,7 +21,7 @@
     if (!defined('ADODB_DIR')) require_once('adodb.inc.php');
 
     /**
-    * Builds an xmlrpc struct value out of an AdoDB recordset
+    * Builds an xmlrpc struct value out of an AdoDB recordset.
     */
     function rs2xmlrpcval(&$adodbrs) {
 
