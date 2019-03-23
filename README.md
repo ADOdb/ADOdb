@@ -1,4 +1,4 @@
-ADOdb Library for PHP5
+ADOdb Library for PHP
 ======================
 
 [![Join chat on Gitter](https://img.shields.io/gitter/room/form-data/form-data.svg)](https://gitter.im/adodb/adodb?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
