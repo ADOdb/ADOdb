@@ -49,8 +49,8 @@ if (!function_exists('ctype_alnum')) {
 	Same with 'abc def'.
 	However if `abc def`, then will read in as `abc def`
 
-	@param endstmtchar    Character that indicates end of statement
-	@param tokenchars     Include the following characters in tokens apart from A-Z and 0-9
+	@param endstmtchar    Character that indicates end of statement.
+	@param tokenchars     Include the following characters in tokens apart from A-Z and 0-9.
 	@returns 2 dimensional array containing parsed tokens.
 */
 function Lens_ParseArgs($args,$endstmtchar=',',$tokenchars='_.-')
