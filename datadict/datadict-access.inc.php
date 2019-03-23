@@ -20,7 +20,6 @@ class ADODB2_access extends ADODB_DataDict {
 	var $databaseType = 'access';
 	var $seqField = false;
 
-
  	function ActualType($meta)
 	{
 		switch($meta) {
@@ -74,7 +73,6 @@ class ADODB2_access extends ADODB_DataDict {
 		return array();
 	}
 
-
 	function SetSchema($schema)
 	{
 	}
@@ -85,11 +83,9 @@ class ADODB2_access extends ADODB_DataDict {
 		return array();
 	}
 
-
 	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		if ($this->debug) ADOConnection::outp("DropColumnSQL not supported");
 		return array();
 	}
-
 }
