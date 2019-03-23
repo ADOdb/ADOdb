@@ -10,7 +10,7 @@
 
   Latest version is available at http://adodb.org/
 
-  Microsoft Access data driver. Requires ODBC. Works only on MS Windows.
+  Microsoft Access data driver. Requires ODBC. Works only on Microsoft Windows.
 */
 if (!defined('_ADODB_ODBC_LAYER')) {
 	if (!defined('ADODB_DIR')) die();
