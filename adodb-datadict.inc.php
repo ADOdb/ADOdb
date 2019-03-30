@@ -1,5 +1,4 @@
 <?php
-
 /**
   @version   v5.21.0-dev  ??-???-2016
   @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
@@ -31,7 +30,6 @@ print "<pre>";
 print_r($a);
 print "</pre>";
 }
-
 
 if (!function_exists('ctype_alnum')) {
 	function ctype_alnum($text) {
