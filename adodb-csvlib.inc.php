@@ -1,5 +1,4 @@
 <?php
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
@@ -7,7 +6,6 @@ global $ADODB_INCLUDED_CSV;
 $ADODB_INCLUDED_CSV = 1;
 
 /*
-
   @version   v5.21.0-dev  ??-???-2016
   @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
@@ -76,7 +74,6 @@ $ADODB_INCLUDED_CSV = 1;
 		$rs2->fetchMode = $savefetch;
 		return $line.serialize($rs2);
 	}
-
 
 /**
 * Open CSV file and convert it into Data.
@@ -256,7 +253,6 @@ $ADODB_INCLUDED_CSV = 1;
 		$rs->InitArrayFields($arr,$flds);
 		return $rs;
 	}
-
 
 	/**
 	* Save a file $filename and its $contents (normally for caching) with file locking
