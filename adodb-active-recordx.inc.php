@@ -1,6 +1,5 @@
 <?php
 /*
-
 @version   v5.21.0-dev  ??-???-2016
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
@@ -20,12 +19,10 @@
   	for info on Ruby on Rails Active Record implementation
 */
 
-
-	// CFR: Active Records Definitions
+// CFR: Active Records Definitions
 define('ADODB_JOIN_AR', 0x01);
 define('ADODB_WORK_AR', 0x02);
 define('ADODB_LAZY_AR', 0x03);
-
 
 global $_ADODB_ACTIVE_DBS;
 global $ADODB_ACTIVE_CACHESECS; // set to true to enable caching of metadata such as field info
