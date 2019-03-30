@@ -138,7 +138,6 @@ class ADODB_Replicate {
 
 	/*
 		We assume replication between $table and $desttable only works if the field names and types match for both tables.
-
 		Also $table and desttable can have different names.
 	*/
 
