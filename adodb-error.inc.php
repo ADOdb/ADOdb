@@ -13,7 +13,6 @@
  * Portions (c)1997-2002 The PHP Group.
  */
 
-
 if (!defined("DB_ERROR")) define("DB_ERROR",-1);
 
 if (!defined("DB_ERROR_SYNTAX")) {
@@ -50,7 +49,7 @@ if (!defined("DB_ERROR_SYNTAX")) {
 
 function adodb_errormsg($value)
 {
-global $ADODB_LANG,$ADODB_LANG_ARRAY;
+	global $ADODB_LANG,$ADODB_LANG_ARRAY;
 
 	if (empty($ADODB_LANG)) $ADODB_LANG = 'en';
 	if (isset($ADODB_LANG_ARRAY['LANG']) && $ADODB_LANG_ARRAY['LANG'] == $ADODB_LANG) ;
