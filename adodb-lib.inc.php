@@ -179,7 +179,6 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 
 			$rs = $zthis->Execute($update);
 
-
 			if ($rs) {
 				if ($zthis->poorAffectedRows) {
 				/*
