@@ -52,8 +52,6 @@ class ADODB2_mssql extends ADODB_DataDict {
 	var $typeX = 'TEXT';  ## Alternatively, set it to VARCHAR(4000)
 	var $typeXL = 'TEXT';
 
-	//var $alterCol = ' ALTER COLUMN ';
-
 	function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
