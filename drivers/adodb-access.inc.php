@@ -43,29 +43,6 @@ class  ADODB_access extends ADODB_odbc {
 	{
 		return " IIF(IsNull($field), $ifNull, $field) "; // if Access
 	}
-/*
-	function MetaTables()
-	{
-	global $ADODB_FETCH_MODE;
-
-		$savem = $ADODB_FETCH_MODE;
-		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		$qid = odbc_tables($this->_connectionID);
-		$rs = new ADORecordSet_odbc($qid);
-		$ADODB_FETCH_MODE = $savem;
-		if (!$rs) return false;
-
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
-
-		$arr = $rs->GetArray();
-		//print_pre($arr);
-		$arr2 = array();
-		for ($i=0; $i < sizeof($arr); $i++) {
-			if ($arr[$i][2] && $arr[$i][3] != 'SYSTEM TABLE')
-				$arr2[] = $arr[$i][2];
-		}
-		return $arr2;
-	}*/
 }
 
 
