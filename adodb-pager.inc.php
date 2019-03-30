@@ -1,5 +1,4 @@
 <?php
-
 /*
 	@version   v5.21.0-dev  ??-???-2016
 	@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
@@ -21,7 +20,6 @@
 	Please note, this class is entirely unsupported,
 	and no free support requests except for bug reports
 	will be entertained by the author.
-
 */
 class ADODB_Pager {
 	var $id; 	// unique id for pager (defaults to 'adodb')
