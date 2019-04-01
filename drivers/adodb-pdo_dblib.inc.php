@@ -2,7 +2,6 @@
 
 class ADODB_pdo_dblib extends ADODB_pdo
 {
-
     var $hasTop = 'top';
     var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
     var $sysTimeStamp = 'GetDate()';
