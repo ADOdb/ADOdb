@@ -1083,11 +1083,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	function _initrs()
 	{
 		$this->_numOfRows = -1;//not supported
-		$fieldmeta = sqlsrv_field_metadata($this->_queryID);
-		$this->_numOfFields = ($fieldmeta)? count($fieldmeta):-1;
-		/*
-		* Cache the metadata right now
-		 */
+		// Cache the metadata right now
 		$this->_fetchField();
 
 	}

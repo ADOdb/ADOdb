@@ -37,6 +37,7 @@ Older changelogs:
 - mssqlnative: add support for 'l' (day of week) format in sqlDate(). #232
 - mssqlnative: fix invalid return value for ErrorNo(). #298
 - mssqlnative: ensure that the bind array is numeric. #336
+- mssqlnative: fix crash with driver version 5.6 on queries returning no data. #492
 - mysql: setConnectionParameter() now allows multiple parameters with the same key value. #187
 - mysql: prevent use of driver with PHP >= 7.0. #310
 - mysqli: Deprecate $optionFlags property in favor of standard setConnectionParameter() method. #188
