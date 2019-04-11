@@ -16,12 +16,10 @@
  * This version has only been tested on Firebird 3.0 and PHP 7
  */
 
-class ADODB_pdo_firebird extends ADODB_pdo {
-
+class ADODB_pdo_firebird extends ADODB_pdo
+{
 	public $dialect = 3;
-
 	public $metaTablesSQL = "select lower(rdb\$relation_name) from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
-
 	public $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
 
 	var $arrayClass = 'ADORecordSet_array_pdo_firebird';
@@ -42,12 +40,18 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 	public function serverInfo()
 	{
 		$arr['dialect'] = $this->dialect;
-		switch($arr['dialect']) {
-		case '':
-		case '1': $s = 'Firebird Dialect 1'; break;
-		case '2': $s = 'Firebird Dialect 2'; break;
-		default:
-		case '3': $s = 'Firebird Dialect 3'; break;
+		switch ($arr['dialect']) {
+			case '':
+			case '1':
+				$s = 'Firebird Dialect 1';
+				break;
+			case '2':
+				$s = 'Firebird Dialect 2';
+				break;
+			default:
+			case '3':
+				$s = 'Firebird Dialect 3';
+				break;
 		}
 		$arr['version'] = ADOConnection::_findvers($s);
 		$arr['description'] = $s;
@@ -55,28 +59,29 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 	}
 
 	/**
-	 * Returns the tables in the database
-	 * @param	mixed	$ttype
-	 * @param	bool	$showSchema
-	 * @param	mixed	$mask
+	 * Returns the tables in the database.
 	 *
-	 * @return	string[]
+	 * @param mixed $ttype
+	 * @param bool  $showSchema
+	 * @param mixed $mask
+	 *
+	 * @return    string[]
 	 */
-	public function metaTables($ttype=false,$showSchema=false,$mask=false)
+	public function metaTables($ttype = false, $showSchema = false, $mask = false)
 	{
-		$ret = ADOConnection::MetaTables($ttype,$showSchema);
+		$ret = ADOConnection::MetaTables($ttype, $showSchema);
 
 		return $ret;
 	}
 
-	public function metaColumns($table, $normalize=true)
+	public function metaColumns($table, $normalize = true)
 	{
 		global $ADODB_FETCH_MODE;
 
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
+		$rs = $this->Execute(sprintf($this->metaColumnsSQL, strtoupper($table)));
 
 		$ADODB_FETCH_MODE = $save;
 
@@ -89,54 +94,67 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 		while (!$rs->EOF) { //print_r($rs->fields);
 			$fld = new ADOFieldObject();
 			$fld->name = trim($rs->fields[0]);
-			$this->_ConvertFieldType($fld, $rs->fields[7], $rs->fields[3], $rs->fields[4], $rs->fields[5], $rs->fields[6], $dialect3);
+			$this->_ConvertFieldType($fld, $rs->fields[7], $rs->fields[3], $rs->fields[4], $rs->fields[5],
+				$rs->fields[6], $dialect3);
 			if (isset($rs->fields[1]) && $rs->fields[1]) {
 				$fld->not_null = true;
 			}
 			if (isset($rs->fields[2])) {
 
 				$fld->has_default = true;
-				$d = substr($rs->fields[2],strlen('default '));
-				switch ($fld->type)
-				{
-				case 'smallint':
-				case 'integer': $fld->default_value = (int) $d; break;
-				case 'char':
-				case 'blob':
-				case 'text':
-				case 'varchar': $fld->default_value = (string) substr($d,1,strlen($d)-2); break;
-				case 'double':
-				case 'float': $fld->default_value = (float) $d; break;
-				default: $fld->default_value = $d; break;
+				$d = substr($rs->fields[2], strlen('default '));
+				switch ($fld->type) {
+					case 'smallint':
+					case 'integer':
+						$fld->default_value = (int)$d;
+						break;
+					case 'char':
+					case 'blob':
+					case 'text':
+					case 'varchar':
+						$fld->default_value = (string)substr($d, 1, strlen($d) - 2);
+						break;
+					case 'double':
+					case 'float':
+						$fld->default_value = (float)$d;
+						break;
+					default:
+						$fld->default_value = $d;
+						break;
 				}
-		//	case 35:$tt = 'TIMESTAMP'; break;
 			}
 			if ((isset($rs->fields[5])) && ($fld->type == 'blob')) {
 				$fld->sub_type = $rs->fields[5];
 			} else {
 				$fld->sub_type = null;
 			}
-			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;
-			else $retarr[strtoupper($fld->name)] = $fld;
+			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) {
+				$retarr[] = $fld;
+			} else {
+				$retarr[strtoupper($fld->name)] = $fld;
+			}
 
 			$rs->MoveNext();
 		}
 		$rs->Close();
-		if ( empty($retarr)) return false;
-		else return $retarr;
+		if (empty($retarr)) {
+			return false;
+		} else {
+			return $retarr;
+		}
 	}
 
-	public function metaIndexes ($table, $primary = FALSE, $owner=false)
+	public function metaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		if ($this->fetchMode !== FALSE) {
-				$savem = $this->SetFetchMode(FALSE);
+		if ($this->fetchMode !== false) {
+			$savem = $this->SetFetchMode(false);
 		}
 		$table = strtoupper($table);
-		$sql = "SELECT * FROM RDB\$INDICES WHERE RDB\$RELATION_NAME = '".$table."'";
+		$sql = "SELECT * FROM RDB\$INDICES WHERE RDB\$RELATION_NAME = '" . $table . "'";
 		if (!$primary) {
 			$sql .= " AND RDB\$INDEX_NAME NOT LIKE 'RDB\$%'";
 		} else {
@@ -166,7 +184,7 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 					'columns' => array()
 				);
 			}
-			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '".$index."' ORDER BY RDB\$FIELD_POSITION ASC";
+			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '" . $index . "' ORDER BY RDB\$FIELD_POSITION ASC";
 			$rs1 = $this->Execute($sql);
 			while ($row1 = $rs1->FetchRow()) {
 				$indexes[$index]['columns'][$row1[2]] = $row1[1];
@@ -181,7 +199,7 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 		return $indexes;
 	}
 
-	public function metaPrimaryKeys($table,$owner_notused=false,$internalKey=false)
+	public function metaPrimaryKeys($table, $owner_notused = false, $internalKey = false)
 	{
 		if ($internalKey) {
 			return array('RDB$DB_KEY');
@@ -191,21 +209,24 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 
 		$sql = 'SELECT S.RDB$FIELD_NAME AFIELDNAME
 	FROM RDB$INDICES I JOIN RDB$INDEX_SEGMENTS S ON I.RDB$INDEX_NAME=S.RDB$INDEX_NAME
-	WHERE I.RDB$RELATION_NAME=\''.$table.'\' and I.RDB$INDEX_NAME like \'RDB$PRIMARY%\'
+	WHERE I.RDB$RELATION_NAME=\'' . $table . '\' and I.RDB$INDEX_NAME like \'RDB$PRIMARY%\'
 	ORDER BY I.RDB$INDEX_NAME,S.RDB$FIELD_POSITION';
 
-		$a = $this->GetCol($sql,false,true);
-		if ($a && sizeof($a)>0) return $a;
+		$a = $this->GetCol($sql, false, true);
+		if ($a && sizeof($a) > 0) {
+			return $a;
+		}
 		return false;
 	}
 
 	public function createSequence($seqname = 'adodbseq', $startID = 1)
 	{
 		$ok = $this->execute("CREATE SEQUENCE $seqname");
-		if (!$ok)
+		if (!$ok) {
 			return false;
+		}
 
-		return $this->execute("ALTER SEQUENCE $seqname RESTART WITH ".($startID-1));
+		return $this->execute("ALTER SEQUENCE $seqname RESTART WITH " . ($startID - 1));
 	}
 
 	public function dropSequence($seqname = 'adodbseq')
@@ -217,23 +238,21 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 
 	public function _affectedrows()
 	{
-		return fbird_affected_rows( $this->_transactionID ? $this->_transactionID : $this->_connectionID );
+		return fbird_affected_rows($this->_transactionID ? $this->_transactionID : $this->_connectionID);
 	}
 
-	public function genId($seqname='adodbseq',$startID=1)
+	public function genId($seqname = 'adodbseq', $startID = 1)
 	{
 		$getnext = ("SELECT Gen_ID($seqname,1) FROM RDB\$DATABASE");
 		$rs = @$this->execute($getnext);
-		if (!$rs) 
-		{
-			$this->execute(("CREATE SEQUENCE $seqname" ));
-			$this->execute("ALTER SEQUENCE $seqname RESTART WITH ".($startID-1).';');
+		if (!$rs) {
+			$this->execute(("CREATE SEQUENCE $seqname"));
+			$this->execute("ALTER SEQUENCE $seqname RESTART WITH " . ($startID - 1) . ';');
 			$rs = $this->execute($getnext);
 		}
 		if ($rs && !$rs->EOF) {
-			$this->genID = (integer) reset($rs->fields);
-		}
-		else {
+			$this->genID = (integer)reset($rs->fields);
+		} else {
 			$this->genID = 0; // false
 		}
 
@@ -244,44 +263,47 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 		return $this->genID;
 	}
 
-	public function selectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $secs=0)
+	public function selectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs = 0)
 	{
-		$nrows = (integer) $nrows;
-		$offset = (integer) $offset;
+		$nrows = (integer)$nrows;
+		$offset = (integer)$offset;
 		$str = 'SELECT ';
-		if ($nrows >= 0) $str .= "FIRST $nrows ";
-		$str .=($offset>=0) ? "SKIP $offset " : '';
+		if ($nrows >= 0) {
+			$str .= "FIRST $nrows ";
+		}
+		$str .= ($offset >= 0) ? "SKIP $offset " : '';
 
-		$sql = preg_replace('/^[ \t]*select/i',$str,$sql);
-		if ($secs)
-			$rs = $this->cacheExecute($secs,$sql,$inputarr);
-		else
-			$rs = $this->execute($sql,$inputarr);
+		$sql = preg_replace('/^[ \t]*select/i', $str, $sql);
+		if ($secs) {
+			$rs = $this->cacheExecute($secs, $sql, $inputarr);
+		} else {
+			$rs = $this->execute($sql, $inputarr);
+		}
 
 		return $rs;
 	}
 
 	/**
-	* Sets the appropriate type into the $fld variable
-	*
-	* @param	string		$fld		By reference
-	* @param	int			$ftype
-	* @param	int			$flen
-	* @param	int			$fscale
-	* @param	int			$fsubtype
-	* @param	int			$fprecision
-	* @param	bool		$dialect3
-	*/
+	 * Sets the appropriate type into the $fld variable
+	 *
+	 * @param ADOFieldObject $fld By reference
+	 * @param int            $ftype
+	 * @param int            $flen
+	 * @param int            $fscale
+	 * @param int            $fsubtype
+	 * @param int            $fprecision
+	 * @param bool           $dialect3
+	 */
 	final private function _convertFieldType(&$fld, $ftype, $flen, $fscale, $fsubtype, $fprecision, $dialect3)
 	{
 		$fscale = abs($fscale);
 		$fld->max_length = $flen;
 		$fld->scale = null;
-		switch($ftype){
+		switch ($ftype) {
 			case 7:
 			case 8:
 				if ($dialect3) {
-					switch($fsubtype){
+					switch ($fsubtype) {
 						case 0:
 							$fld->type = ($ftype == 7 ? 'smallint' : 'integer');
 							break;
@@ -297,7 +319,7 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 							break;
 					} // switch
 				} else {
-					if ($fscale !=0) {
+					if ($fscale != 0) {
 						$fld->type = 'decimal';
 						$fld->scale = $fscale;
 						$fld->max_length = ($ftype == 7 ? 4 : 9);
@@ -308,7 +330,7 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 				break;
 			case 16:
 				if ($dialect3) {
-					switch($fsubtype){
+					switch ($fsubtype) {
 						case 0:
 							$fld->type = 'decimal';
 							$fld->max_length = 18;
@@ -334,7 +356,7 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 				$fld->type = 'char';
 				break;
 			case 27:
-				if ($fscale !=0) {
+				if ($fscale != 0) {
 					$fld->type = 'decimal';
 					$fld->max_length = 15;
 					$fld->scale = 5;
@@ -377,26 +399,24 @@ class ADORecordSet_pdo_firebird extends ADORecordSet_pdo
 	/**
 	 * returns the field object
 	 *
-	 * @param  int $fieldOffset Optional field offset
+	 * @param int $fieldOffset Optional field offset
 	 *
 	 * @return object The ADOFieldObject describing the field
 	 */
 	public function fetchField($fieldOffset = 0)
 	{
 	}
-
 }
 
 class ADORecordSet_array_pdo_firebird extends ADORecordSet_array_pdo
 {
-
 	public $databaseType = "pdo_firebird";
 	public $canSeek = true;
 
 	/**
 	 * returns the field object
 	 *
-	 * @param  int $fieldOffset Optional field offset
+	 * @param int $fieldOffset Optional field offset
 	 *
 	 * @return object The ADOFieldObject describing the field
 	 */
