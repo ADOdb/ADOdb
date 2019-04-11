@@ -402,16 +402,16 @@ class ADODB_pdo extends ADOConnection {
 		return $err;
 	}
 
-    /**
-     * @param bool $auto_commit
-     * @return void
-     */
+	/**
+	 * @param bool $auto_commit
+	 * @return void
+	 */
 	function SetAutoCommit($auto_commit)
-    {
-        if(method_exists($this->_driver, 'SetAutoCommit')) {
-            $this->_driver->SetAutoCommit($auto_commit);
-        }
-    }
+	{
+		if(method_exists($this->_driver, 'SetAutoCommit')) {
+			$this->_driver->SetAutoCommit($auto_commit);
+		}
+	}
 
 	function SetTransactionMode($transaction_mode)
 	{
