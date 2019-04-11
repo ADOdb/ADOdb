@@ -16,6 +16,9 @@
  * This version has only been tested on Firebird 3.0 and PHP 7
  */
 
+/**
+ * Class ADODB_pdo_firebird
+ */
 class ADODB_pdo_firebird extends ADODB_pdo
 {
 	public $dialect = 3;
@@ -391,6 +394,9 @@ class ADODB_pdo_firebird extends ADODB_pdo
 	}
 }
 
+/**
+ * Class ADORecordSet_pdo_firebird
+ */
 class ADORecordSet_pdo_firebird extends ADORecordSet_pdo
 {
 
@@ -408,6 +414,9 @@ class ADORecordSet_pdo_firebird extends ADORecordSet_pdo
 	}
 }
 
+/**
+ * Class ADORecordSet_array_pdo_firebird
+ */
 class ADORecordSet_array_pdo_firebird extends ADORecordSet_array_pdo
 {
 	public $databaseType = "pdo_firebird";
