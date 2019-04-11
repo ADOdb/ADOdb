@@ -79,9 +79,9 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
 
 		$ADODB_FETCH_MODE = $save;
-		$false = false;
+
 		if ($rs === false) {
-			return $false;
+			return false;
 		}
 
 		$retarr = array();
@@ -122,7 +122,7 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 			$rs->MoveNext();
 		}
 		$rs->Close();
-		if ( empty($retarr)) return $false;
+		if ( empty($retarr)) return false;
 		else return $retarr;
 	}
 
@@ -130,7 +130,6 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
-		$false = false;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== FALSE) {
@@ -152,7 +151,7 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 				$this->SetFetchMode($savem);
 			}
 			$ADODB_FETCH_MODE = $save;
-			return $false;
+			return false;
 		}
 
 		$indexes = array();
