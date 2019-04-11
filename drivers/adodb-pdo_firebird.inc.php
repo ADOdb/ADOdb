@@ -85,13 +85,10 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 		}
 
 		$retarr = array();
-		//OPN STUFF start
-		$dialect3 = ($this->dialect==3 ? true : false);
-		//OPN STUFF end
+		$dialect3 = $this->dialect == 3;
 		while (!$rs->EOF) { //print_r($rs->fields);
 			$fld = new ADOFieldObject();
 			$fld->name = trim($rs->fields[0]);
-			//OPN STUFF start
 			$this->_ConvertFieldType($fld, $rs->fields[7], $rs->fields[3], $rs->fields[4], $rs->fields[5], $rs->fields[6], $dialect3);
 			if (isset($rs->fields[1]) && $rs->fields[1]) {
 				$fld->not_null = true;
@@ -119,7 +116,6 @@ class ADODB_pdo_firebird extends ADODB_pdo {
 			} else {
 				$fld->sub_type = null;
 			}
-			//OPN STUFF end
 			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;
 			else $retarr[strtoupper($fld->name)] = $fld;
 
