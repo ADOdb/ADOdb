@@ -212,10 +212,11 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 		return ($rs) ? 2 : 0;
 }
 
-// Requires $ADODB_FETCH_MODE = ADODB_FETCH_NUM
 function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=false,
 			$size=0, $selectAttr='',$compareFields0=true)
 {
+	global $ADODB_FETCH_MODE;
+
 	$hasvalue = false;
 
 	if (is_array($name))
@@ -258,13 +259,15 @@ function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=f
 			continue;
 		}
 
-		$myFields = array_map('trim',array_values($zthis->fields));
-
-		if ($fieldsize > 1) {
-			if (isset($myFields[1]))
-				$zval2 = $myFields[1];
-			else
-				$zval2 = next($myFields);
+        if ($fieldsize > 1) {
+			if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC) {
+				// Get 2nd field's value regardless of its name
+				$zval2 = current(array_slice($zthis->fields, 1, 1));
+			} else {
+				// With NUM or BOTH fetch modes, we have a numeric index
+				$zval2 = $zthis->fields[1];
+			}
+			$zval2 = trim($zval2);
 		}
 		$selected = ($compareFields0) ? $zval : $zval2;
 
@@ -291,10 +294,11 @@ function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=f
 	return $s ."\n</select>\n";
 }
 
-// Requires $ADODB_FETCH_MODE = ADODB_FETCH_NUM
 function _adodb_getmenu_gp(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=false,
 			$size=0, $selectAttr='',$compareFields0=true)
 {
+	global $ADODB_FETCH_MODE;
+
 	$hasvalue = false;
 
 	if (is_array($name))
@@ -334,13 +338,15 @@ function _adodb_getmenu_gp(&$zthis, $name,$defstr='',$blank1stItem=true,$multipl
 			continue;
 		}
 
-		$myFields = array_map('trim',array_values($zthis->fields));
-
 		if ($fieldsize > 1) {
-			if (isset($myFields[1]))
-				$zval2 = $myFields[1];
-			else
-				$zval2 = next($myFields);
+			if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC) {
+				// Get 2nd field's value regardless of its name
+				$zval2 = current(array_slice($zthis->fields, 1, 1));
+			} else {
+				// With NUM or BOTH fetch modes, we have a numeric index
+				$zval2 = $zthis->fields[1];
+			}
+			$zval2 = trim($zval2);
 		}
 
 		$selected = ($compareFields0) ? $zval : $zval2;
