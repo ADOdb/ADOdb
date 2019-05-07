@@ -3386,26 +3386,26 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	 * Generate a SELECT tag string from a recordset, and return the string.
-	 * If the recordset has 2 cols, we treat the 1st col as the containing
-	 * the text to display to the user, and 2nd col as the return value. Default
-	 * strings are compared with the FIRST column.
+	 * Generate a SELECT tag from a recordset, and return the HTML markup.
 	 *
-	 * @param name			name of SELECT tag
-	 * @param [defstr]		the value to hilite. Use an array for multiple hilites for listbox.
-	 * @param [blank1stItem]	true to leave the 1st item in list empty
-	 * @param [multiple]		true for listbox, false for popup
-	 * @param [size]		#rows to show for listbox. not used by popup
-	 * @param [selectAttr]		additional attributes to defined for SELECT tag.
-	 *				useful for holding javascript onChange='...' handlers.
-	 & @param [compareFields0]	when we have 2 cols in recordset, we compare the defstr with
-	 *				column 0 (1st col) if this is true. This is not documented.
+	 * If the recordset has 2 columns, we treat the first one as the text to
+	 * display to the user, and the second as the return value. Extra columns
+	 * are discarded.
 	 *
-	 * @return HTML
+	 * @param string       $name            Name of SELECT tag
+	 * @param string|array $defstr          The value to highlight. Use an array for multiple highlight values.
+	 * @param bool|string $blank1stItem     True to create an empty item (default), False not to add one;
+	 *                                      'string' to set its label and 'value:string' to assign a value to it.
+	 * @param bool         $multiple        True for multi-select list
+	 * @param int          $size            Number of rows to show (applies to multi-select box only)
+	 * @param string       $selectAttr      Additional attributes to defined for SELECT tag,
+	 *                                      useful for holding javascript onChange='...' handlers, CSS class, etc.
+	 * @param bool         $compareFirstCol When true (default), $defstr is compared against the value (column 2),
+	 *                                      while false will compare against the description (column 1).
 	 *
-	 * changes by glen.davies@cce.ac.nz to support multiple hilited items
+	 * @return string HTML
 	 */
-	function GetMenu($name,$defstr='',$blank1stItem=true,$multiple=false,
+	function getMenu($name,$defstr='',$blank1stItem=true,$multiple=false,
 			$size=0, $selectAttr='',$compareFields0=true)
 	{
 		global $ADODB_INCLUDED_LIB;
