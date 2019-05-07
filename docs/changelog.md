@@ -5,6 +5,13 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.20.15 - ???
+
+- core: remove unnecessary srand() calls. #532
+- pdo/mysql: remove extraneous comma in $fmtTimeStamp. #531
+- session: Remove session_module_name('user') calls (PHP 7.2 compatibility). #449
+ 
+
 ## 5.20.14 - 06-Jan-2019
 
 - security: Denial of service in adodb_date(). #467
