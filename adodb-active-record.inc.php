@@ -466,7 +466,7 @@ class ADODB_Active_Record {
 		$attr = array();
 		$keys = array();
 
-		switch($ADODB_ASSOC_CASE) {
+		switch(ADODB_ASSOC_CASE) {
 		case 0:
 			foreach($cols as $name => $fldobj) {
 				$name = strtolower($name);
