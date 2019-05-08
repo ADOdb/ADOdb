@@ -492,7 +492,7 @@ class ADODB_Active_Record {
 		$keys = array();
 
 		switch (ADODB_ASSOC_CASE) {
-		case 0:
+		case ADODB_ASSOC_CASE_LOWER:
 			foreach($cols as $name => $fldobj) {
 				$name = strtolower($name);
 				if ($ADODB_ACTIVE_DEFVALS && isset($fldobj->default_value)) {
@@ -508,7 +508,7 @@ class ADODB_Active_Record {
 			}
 			break;
 
-		case 1:
+		case ADODB_ASSOC_CASE_UPPER:
 			foreach($cols as $name => $fldobj) {
 				$name = strtoupper($name);
 
