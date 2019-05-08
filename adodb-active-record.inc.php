@@ -966,14 +966,17 @@ class ADODB_Active_Record {
 			$pkey = array($pkey);
 		}
 
-		if (ADODB_ASSOC_CASE == 0) {
-			foreach($pkey as $k => $v)
-				$pkey[$k] = strtolower($v);
-		}
-		elseif (ADODB_ASSOC_CASE == 1) {
-			foreach($pkey as $k => $v) {
-				$pkey[$k] = strtoupper($v);
-			}
+		switch (ADODB_ASSOC_CASE) {
+			case 0:
+				foreach ($pkey as $k => $v) {
+					$pkey[$k] = strtolower($v);
+				}
+				break;
+			case 1:
+				foreach ($pkey as $k => $v) {
+					$pkey[$k] = strtoupper($v);
+				}
+				break;
 		}
 
 		$ok = $db->Replace($this->_table,$arr,$pkey);
