@@ -1095,7 +1095,7 @@ class ADODB_Active_Record {
 		}
 
 
-		switch (ADODB_ASSOC_CASE == 0) {
+		switch (ADODB_ASSOC_CASE) {
 			case ADODB_ASSOC_CASE_LOWER:
 				foreach($pkey as $k => $v) {
 					$pkey[$k] = strtolower($v);
