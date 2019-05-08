@@ -63,6 +63,13 @@ Older changelogs:
 - session: add 'httponly' flag to cookie. #190
 - xml: support table 'opt' attribute with mysqli. #267
 
+## 5.20.15 - ???
+
+- core: remove unnecessary srand() calls. #532
+- pdo/mysql: remove extraneous comma in $fmtTimeStamp. #531
+- active record: Use ADODB_ASSOC_CASE constant. #536
+- session: Remove session_module_name('user') calls (PHP 7.2 compatibility). #449
+ 
 ## 5.20.14 - 06-Jan-2019
 
 - security: Denial of service in adodb_date(). #467
