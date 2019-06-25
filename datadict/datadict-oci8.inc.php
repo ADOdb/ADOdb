@@ -221,7 +221,7 @@ end;
 		$seqIncr = '';
 		if (isset($tableoptions['SEQUENCE_INCREMENT'])){$seqIncr = ' INCREMENT BY '.$tableoptions['SEQUENCE_INCREMENT'];}
 		$seqStart = '';
-		if (isset($tableoptions['SEQUENCE_START'])){$seqIncr = ' START WITH '.$tableoptions['SEQUENCE_START'];}
+		if (isset($tableoptions['SEQUENCE_START'])){$seqStart = ' START WITH '.$tableoptions['SEQUENCE_START'];}
 		$sql[] = "CREATE SEQUENCE $seqname $seqStart $seqIncr $seqCache";
 		$sql[] = "CREATE OR REPLACE TRIGGER $trigname BEFORE insert ON $tabname FOR EACH ROW WHEN (NEW.$this->seqField IS NULL OR NEW.$this->seqField = 0) BEGIN select $seqname.nextval into :new.$this->seqField from dual; END;";
 
