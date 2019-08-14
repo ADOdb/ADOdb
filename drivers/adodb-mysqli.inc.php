@@ -788,6 +788,10 @@ class ADODB_mysqli extends ADOConnection {
 		return array($sql,$stmt);
 	}
 
+	/* check if connection is still alive */
+	function _ping() {
+		return mysqli_ping($this->_connectionID);
+	}
 
 	// returns queryID or false
 	function _query($sql, $inputarr)

@@ -475,6 +475,20 @@ class ADODB_pdo extends ADOConnection {
 		return parent::GenID($seqname, $startID);
 	}
 
+	/* check if connection is still alive */
+ 	function _ping() {
+   		$stmt = $this->_connectionID->prepare('SELECT 1');
+    		if ($stmt) {
+    			$ok = $stmt->execute();
+    			$stmt = false;
+    			if (!$ok) {
+    				return false;
+    			}
+    			return true;
+    		}
+    		return false;
+    	}
+
 
 	/* returns queryID or false */
 	function _query($sql,$inputarr=false)

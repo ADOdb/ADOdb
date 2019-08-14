@@ -693,7 +693,7 @@ if (!defined('_ADODB_LAYER')) {
 			$this->user = $argUsername;
 		}
 		if ($argPassword != "") {
-			$this->password = 'not stored'; // not stored for security reasons
+			$this->password = $argPassword;
 		}
 		if ($argDatabaseName != "") {
 			$this->database = $argDatabaseName;
@@ -702,11 +702,11 @@ if (!defined('_ADODB_LAYER')) {
 		$this->_isPersistentConnection = false;
 
 		if ($forceNew) {
-			if ($rez=$this->_nconnect($this->host, $this->user, $argPassword, $this->database)) {
+			if ($rez=$this->_nconnect($this->host, $this->user, $this->password, $this->database)) {
 				return true;
 			}
 		} else {
-			if ($rez=$this->_connect($this->host, $this->user, $argPassword, $this->database)) {
+			if ($rez=$this->_connect($this->host, $this->user, $this->password, $this->database)) {
 				return true;
 			}
 		}
@@ -776,7 +776,7 @@ if (!defined('_ADODB_LAYER')) {
 			$this->user = $argUsername;
 		}
 		if ($argPassword != "") {
-			$this->password = 'not stored';
+			$this->password = $argPassword;
 		}
 		if ($argDatabaseName != "") {
 			$this->database = $argDatabaseName;
@@ -784,7 +784,7 @@ if (!defined('_ADODB_LAYER')) {
 
 		$this->_isPersistentConnection = true;
 
-		if ($rez = $this->_pconnect($this->host, $this->user, $argPassword, $this->database)) {
+		if ($rez = $this->_pconnect($this->host, $this->user, $this->password, $this->database)) {
 			return true;
 		}
 		if (isset($rez)) {
@@ -1146,6 +1146,11 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return false|ADORecordSet
 	 */
 	public function Execute($sql, $inputarr = false) {
+
+		/* check if sill connected, otherwise reconnect to db */
+		if (!$this->_ping()) {
+			$this->PConnect();
+		}
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
 			$ret = $fn($this,$sql,$inputarr);
