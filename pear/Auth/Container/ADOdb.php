@@ -199,7 +199,7 @@ class Auth_Container_ADOdb extends Auth_Container
         /* Include additional fields if they exist */
         if(!empty($this->options['db_fields'])){
             if(is_array($this->options['db_fields'])){
-                $this->options['db_fields'] = join($this->options['db_fields'], ', ');
+                $this->options['db_fields'] = join(', ', $this->options['db_fields'], );
             }
             $this->options['db_fields'] = ', '.$this->options['db_fields'];
         }

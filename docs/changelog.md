@@ -69,7 +69,8 @@ Older changelogs:
 - pdo/mysql: remove extraneous comma in $fmtTimeStamp. #531
 - active record: Use ADODB_ASSOC_CASE constant. #536
 - session: Remove session_module_name('user') calls (PHP 7.2 compatibility). #449
- 
+- PHP 7.4 compatibility: fix deprecated usage of join() #547
+
 ## 5.20.14 - 06-Jan-2019
 
 - security: Denial of service in adodb_date(). #467
