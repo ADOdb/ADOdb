@@ -1126,8 +1126,8 @@ class ADORecordSet_mysqli extends ADORecordSet{
 
 	function _close()
 	{
-		//if results are attached to this pointer from Stored Proceedure calls, the next standard query will die 2014
-		//only a problem with persistant connections
+		//if results are attached to this pointer from Stored Procedure calls, the next standard query will die 2014
+		//only a problem with persistent connections
 
 		if(isset($this->connection->_connectionID) && $this->connection->_connectionID) {
 			while(mysqli_more_results($this->connection->_connectionID)){
@@ -1246,7 +1246,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			return 'I';
 
 		// Added floating-point types
-		// Maybe not necessery.
+		// Maybe not necessary.
 		case 'FLOAT':
 		case 'DOUBLE':
 //		case 'DOUBLE PRECISION':
@@ -1347,7 +1347,7 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array {
 
 
 		// Added floating-point types
-		// Maybe not necessery.
+		// Maybe not necessary.
 		case 'FLOAT':
 		case 'DOUBLE':
 //		case 'DOUBLE PRECISION':

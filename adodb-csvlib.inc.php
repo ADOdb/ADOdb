@@ -27,7 +27,7 @@ $ADODB_INCLUDED_CSV = 1;
 	 *
 	 * @param rs	the recordset
 	 *
-	 * @return	the CSV formated data
+	 * @return	the CSV formatted data
 	 */
 	function _rs2serialize(&$rs,$conn=false,$sql='')
 	{
@@ -85,7 +85,7 @@ $ADODB_INCLUDED_CSV = 1;
 * @param err		returns the error message
 * @param timeout	dispose if recordset has been alive for $timeout secs
 *
-* @return		recordset, or false if error occured. If no
+* @return		recordset, or false if error occurred. If no
 *			error occurred in sql INSERT/UPDATE/DELETE,
 *			empty recordset is returned
 */

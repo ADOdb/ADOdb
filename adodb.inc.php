@@ -1975,7 +1975,7 @@ if (!defined('_ADODB_LAYER')) {
 	* $table		table name
 	* $fieldArray	associative array of data (you must quote strings yourself).
 	* $keyCol		the primary key field name or if compound key, array of field names
-	* autoQuote		set to true to use a hueristic to quote strings. Works with nulls and numbers
+	* autoQuote		set to true to use a heuristic to quote strings. Works with nulls and numbers
 	*					but does not work with dates nor SQL functions.
 	* has_autoinc	the primary key is an auto-inc field, so skip in insert.
 	*
@@ -2549,7 +2549,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	 * If database does not support transactions, always return true as data always commited
+	 * If database does not support transactions, always return true as data always committed
 	 *
 	 * @param $ok  set to false to rollback transaction, true to commit
 	 *
@@ -2966,7 +2966,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param v		is the character date in YYYY-MM-DD format, returned by database
 	 * @param fmt	is the format to apply to it, using date()
 	 *
-	 * @return a date formated as user desires
+	 * @return a date formatted as user desires
 	 */
 	function UserDate($v,$fmt='Y-m-d',$gmt=false) {
 		$tt = $this->UnixDate($v);
@@ -2989,7 +2989,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param v		is the character timestamp in YYYY-MM-DD hh:mm:ss format
 	 * @param fmt	is the format to apply to it, using date()
 	 *
-	 * @return a timestamp formated as user desires
+	 * @return a timestamp formatted as user desires
 	 */
 	function UserTimeStamp($v,$fmt='Y-m-d H:i:s',$gmt=false) {
 		if (!isset($v)) {
@@ -3227,18 +3227,18 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	/**
 	 * Compare a previously stored error message with the last error recorded by PHP
-	 * to determine whether a new error has occured.
+	 * to determine whether a new error has occurred.
 	 *
 	 * @param array|null $old Optional. Previously stored return value of error_get_last().
 	 *
-	 * @return string The error message if a new error has occured
-	 *                or an empty string if no (new) errors have occured..
+	 * @return string The error message if a new error has occurred
+	 *                or an empty string if no (new) errors have occurred..
 	 */
 	protected function getChangedErrorMsg($old = null) {
 		$new = error_get_last();
 
 		if (is_null($new)) {
-			// No error has occured yet at all.
+			// No error has occurred yet at all.
 			return '';
 		}
 
@@ -3730,7 +3730,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if ($numberOfFields == 2)
 			/*
 			* Key is always value of first element
-			* Value is alway value of second element
+			* Value is always value of second element
 			*/
 			$showArrayMethod = 1;
 
@@ -3816,7 +3816,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param v		is the character timestamp in YYYY-MM-DD hh:mm:ss format
 	 * @param fmt	is the format to apply to it, using date()
 	 *
-	 * @return a timestamp formated as user desires
+	 * @return a timestamp formatted as user desires
 	 */
 	function UserTimeStamp($v,$fmt='Y-m-d H:i:s') {
 		if (is_numeric($v) && strlen($v)<14) {
@@ -3838,7 +3838,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param v		is the character date in YYYY-MM-DD format, returned by database
 	 * @param fmt	is the format to apply to it, using date()
 	 *
-	 * @return a date formated as user desires
+	 * @return a date formatted as user desires
 	 */
 	function UserDate($v,$fmt='Y-m-d') {
 		$tt = $this->UnixDate($v);
@@ -4672,7 +4672,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		 *
 		 * @param array		is a 2-dimensional array holding the data.
 		 *			The first row should hold the column names
-		 *			unless paramter $colnames is used.
+		 *			unless parameter $colnames is used.
 		 * @param typearr	holds an array of types. These are the same types
 		 *			used in MetaTypes (C,B,L,I,N).
 		 * @param [colnames]	array of column names. If set, then the first row of
@@ -4695,7 +4695,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		 *
 		 * @param array		is a 2-dimensional array holding the data.
 		 *			The first row should hold the column names
-		 *			unless paramter $colnames is used.
+		 *			unless parameter $colnames is used.
 		 * @param fieldarr	holds an array of ADOFieldObject's.
 		 */
 		function InitArrayFields(&$array,&$fieldarr) {

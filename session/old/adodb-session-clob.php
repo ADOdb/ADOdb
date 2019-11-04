@@ -318,7 +318,7 @@ function adodb_sess_write($key, $val)
 		ADOConnection::outp( '
 -- Session Replace: '.nl2br($err).'</p>',false);
 	}  else {
-		// bug in access driver (could be odbc?) means that info is not commited
+		// bug in access driver (could be odbc?) means that info is not committed
 		// properly unless select statement executed in Win2000
 		if ($ADODB_SESS_CONN->databaseType == 'access')
 			$rs = $ADODB_SESS_CONN->Execute("select sesskey from $ADODB_SESSION_TBL WHERE sesskey='$key'");

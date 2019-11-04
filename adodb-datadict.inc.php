@@ -181,7 +181,7 @@ class ADODB_DataDict {
 	var $dataProvider;
 	var $invalidResizeTypes4 = array('CLOB','BLOB','TEXT','DATE','TIME'); // for changetablesql
 	var $blobSize = 100; 	/// any varchar/char field this size or greater is treated as a blob
-							/// in other words, we use a text area for editting.
+							/// in other words, we use a text area for editing.
 
 	function GetCommentSQL($table,$col)
 	{
@@ -474,11 +474,11 @@ class ADODB_DataDict {
 	/**
 	 * Change the definition of one column
 	 *
-	 * As some DBM's can't do that on there own, you need to supply the complete defintion of the new table,
+	 * As some DBM's can't do that on there own, you need to supply the complete definition of the new table,
 	 * to allow, recreating the table and copying the content over to the new table
 	 * @param string $tabname table-name
 	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds='' complete defintion of the new table, eg. for postgres, default ''
+	 * @param string $tableflds='' complete definition of the new table, eg. for postgres, default ''
 	 * @param array/string $tableoptions='' options for the new table see CreateTableSQL, default ''
 	 * @return array with SQL strings
 	 */
@@ -529,11 +529,11 @@ class ADODB_DataDict {
 	/**
 	 * Drop one column
 	 *
-	 * Some DBM's can't do that on there own, you need to supply the complete defintion of the new table,
+	 * Some DBM's can't do that on there own, you need to supply the complete definition of the new table,
 	 * to allow, recreating the table and copying the content over to the new table
 	 * @param string $tabname table-name
 	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds='' complete defintion of the new table, eg. for postgres, default ''
+	 * @param string $tableflds='' complete definition of the new table, eg. for postgres, default ''
 	 * @param array/string $tableoptions='' options for the new table see CreateTableSQL, default ''
 	 * @return array with SQL strings
 	 */

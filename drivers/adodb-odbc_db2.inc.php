@@ -28,7 +28,7 @@ to SQL_CUR_USE_ODBC Cursor Type, then
 the whole query speed up from 1 till 10 seconds
 to 0.2 till 0.3 seconds for 100 records. Amazing!!!
 
-Therfore, PHP is just almost fast as calling the DB2
+Therefore, PHP is just almost fast as calling the DB2
 from Servlets using JDBC (don't take too much care
 about the speed at whole: the database was on a
 completely other location, so the whole connection

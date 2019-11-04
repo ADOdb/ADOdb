@@ -31,7 +31,7 @@ $conn->Connect($dsn);
 - Now MetaType() can accept a field object as the first parameter.
 - New $arr = $db->ServerInfo( ) function. Returns $arr['description'] which is the string description, and $arr['version'].
 - PostgreSQL and MSSQL speedups for insert/updates.
-- Implemented new SetFetchMode() that removes the need to use $ADODB_FETCH_MODE. Each connection has independant fetchMode.
+- Implemented new SetFetchMode() that removes the need to use $ADODB_FETCH_MODE. Each connection has independent fetchMode.
 - ADODB_ASSOC_CASE now defaults to 2, use native defaults. This is because we would break backward compat for too many applications otherwise.
 - Patched encrypted sessions to use replace()
 - The qstr function supports quoting of nulls when escape character is \
@@ -209,7 +209,7 @@ $conn->Connect($dsn);
 - Properly implemented Prepare() in oci8 and ODBC.
 - Added Bind() support to oci8 to support Prepare().
 - Improved error handler. Catches CacheExecute() and GenID() errors now.
-- Now if you are running php from the command line, debugging messages do not output html formating. Not 100% complete, but getting there.
+- Now if you are running php from the command line, debugging messages do not output html formatting. Not 100% complete, but getting there.
 
 ## 1.81 - 22 March 2002
 
@@ -471,7 +471,7 @@ $conn->Connect($dsn);
 
 ## 0.71 - 22 Nov 2000
 
-- Switched from using require_once to include/include_once for backward compatability with PHP 4.02 and earlier.
+- Switched from using require_once to include/include_once for backward compatibility with PHP 4.02 and earlier.
 
 ## 0.70 - 15 Nov 2000
 

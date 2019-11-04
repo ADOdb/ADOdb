@@ -275,7 +275,7 @@ class ADODB_Pager {
 	}
 
 	//------------------------------------------------------
-	// override this to control overall layout and formating
+	// override this to control overall layout and formatting
 	function RenderLayout($header,$grid,$footer,$attributes='border=1 bgcolor=beige')
 	{
 		echo "<table ".$attributes."><tr><td>",

@@ -994,7 +994,7 @@ class ADODB_db2 extends ADOConnection {
 	}
 	
 	/**
-	  * Lists databases. Because instances are independant, we only know about
+	  * Lists databases. Because instances are independent, we only know about
 	  * the current database name
 	  *
 	  * @return string[]
@@ -1347,7 +1347,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 		/*
 		 * We now have a stored parameter resource 
 		 * to bind to. The spResource and sql that is returned are
-		 * not usable, its for dummy compatibilty. Everything
+		 * not usable, its for dummy compatibility. Everything
 		 * will be handled by the storedProcedureParameters 
 		 * array
 		 */

@@ -10,7 +10,7 @@
   Set tabs to 8.
 
   This driver only supports the original MySQL driver in transactional mode. It
-  is deprected in PHP version 5.5 and removed in PHP version 7. It is deprecated
+  is deprecated in PHP version 5.5 and removed in PHP version 7. It is deprecated
   as of ADOdb version 5.20.0. Use the mysqli driver instead, which supports both
   transactional and non-transactional updates
 

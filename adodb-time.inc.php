@@ -38,7 +38,7 @@ of date()'s field formats. Mktime() will convert from local time to GMT,
 and date() will convert from GMT to local time, but daylight savings is
 not handled currently.
 
-This library is independant of the rest of ADOdb, and can be used
+This library is independent of the rest of ADOdb, and can be used
 as standalone code.
 
 PERFORMANCE
@@ -268,7 +268,7 @@ Changed adodb_get_gm_diff to use DateTimeZone().
 * Now adodb_mktime(0,0,0,24,1,2037) works correctly.
 
 - 15 July 2007 0.30
-Added PHP 5.2.0 compatability fixes.
+Added PHP 5.2.0 compatibility fixes.
  * gmtime behaviour for 1970 has changed. We use the actual date if it is between 1970 to 2038 to get the
  * timezone, otherwise we use the current year as the baseline to retrieve the timezone.
  * Also the timezone's in php 5.2.* support historical data better, eg. if timezone today was +8, but
@@ -532,8 +532,8 @@ function adodb_date_test()
 	if (adodb_year_digit_check(50) != 1950) print "Err 2-digit 1950<br>";
 	if (adodb_year_digit_check(90) != 1990) print "Err 2-digit 1990<br>";
 
-	// Test string formating
-	print "<p>Testing date formating</p>";
+	// Test string formatting
+	print "<p>Testing date formatting</p>";
 
 	$fmt = '\d\a\t\e T Y-m-d H:i:s a A d D F g G h H i j l L m M n O \R\F\C2822 r s t U w y Y z Z 2003';
 	$s1 = date($fmt,0);

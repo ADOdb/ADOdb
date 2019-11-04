@@ -14,7 +14,7 @@
     Fixed the way data types and lengths are returned in MetaColumns()
     as well as added the default lengths for certain types
     Updated public variables for Netezza
-    Still need to remove blob functions, as Netezza doesn't suppport blob
+    Still need to remove blob functions, as Netezza doesn't support blob
 */
 // security - hide paths
 if (!defined('ADODB_DIR')) die();

@@ -501,7 +501,7 @@ class ADORecordset_informix72 extends ADORecordSet {
 
 }
 /** !Eos
-* Auxiliar function to Parse coltype,collength. Used by Metacolumns
+* Auxiliary function to Parse coltype,collength. Used by Metacolumns
 * return: array ($mtype,$length,$precision,$nullable) (similar to ifx_fieldpropierties)
 */
 function ifx_props($coltype,$collength){

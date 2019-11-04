@@ -164,11 +164,11 @@ class ADODB2_postgres extends ADODB_DataDict {
 	/**
 	 * Change the definition of one column
 	 *
-	 * Postgres can't do that on it's own, you need to supply the complete defintion of the new table,
+	 * Postgres can't do that on it's own, you need to supply the complete definition of the new table,
 	 * to allow, recreating the table and copying the content over to the new table
 	 * @param string $tabname table-name
 	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds complete defintion of the new table, eg. for postgres, default ''
+	 * @param string $tableflds complete definition of the new table, eg. for postgres, default ''
 	 * @param array/ $tableoptions options for the new table see CreateTableSQL, default ''
 	 * @return array with SQL strings
 	 */
@@ -200,7 +200,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 				 // this next block doesn't work - there is no way that I can see to
 				 // explicitly ask a column to be null using $flds
 				else if ($set_null = preg_match('/NULL/i',$v)) {
-					// if they didn't specify not null, see if they explicitely asked for null
+					// if they didn't specify not null, see if they explicitly asked for null
 					// Lookbehind pattern covers the case 'fieldname NULL datatype DEFAULT NULL'
 					// only the first NULL should be removed, not the one specifying
 					// the default value
@@ -274,11 +274,11 @@ class ADODB2_postgres extends ADODB_DataDict {
 	/**
 	 * Drop one column
 	 *
-	 * Postgres < 7.3 can't do that on it's own, you need to supply the complete defintion of the new table,
+	 * Postgres < 7.3 can't do that on it's own, you need to supply the complete definition of the new table,
 	 * to allow, recreating the table and copying the content over to the new table
 	 * @param string $tabname table-name
 	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds complete defintion of the new table, eg. for postgres, default ''
+	 * @param string $tableflds complete definition of the new table, eg. for postgres, default ''
 	 * @param array/ $tableoptions options for the new table see CreateTableSQL, default ''
 	 * @return array with SQL strings
 	 */
@@ -303,7 +303,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 	 * @internal
 	 * @param string $tabname table-name
 	 * @param string $dropflds column-names to drop
-	 * @param string $tableflds complete defintion of the new table, eg. for postgres
+	 * @param string $tableflds complete definition of the new table, eg. for postgres
 	 * @param array/string $tableoptions options for the new table see CreateTableSQL, default ''
 	 * @return array with SQL strings
 	 */
@@ -341,7 +341,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 			$aSql[] = "SELECT setval('$seq_name',MAX($seq_fld)) FROM $tabname";
 		}
 		$aSql[] = "DROP TABLE $tempname";
-		// recreate the indexes, if they not contain one of the droped columns
+		// recreate the indexes, if they not contain one of the dropped columns
 		foreach($this->MetaIndexes($tabname) as $idx_name => $idx_data)
 		{
 			if (substr($idx_name,-5) != '_pkey' && (!$dropflds || !count(array_intersect($dropflds,$idx_data['columns'])))) {
@@ -377,7 +377,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 		return $suffix;
 	}
 
-	// search for a sequece for the given table (asumes the seqence-name contains the table-name!)
+	// search for a sequence for the given table (asumes the seqence-name contains the table-name!)
 	// if yes return sql to drop it
 	// this is still necessary if postgres < 7.3 or the SERIAL was created on an earlier version!!!
 	function _DropAutoIncrement($tabname)
@@ -386,7 +386,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 
 		$seq = $this->connection->GetOne("SELECT relname FROM pg_class WHERE NOT relname ~ 'pg_.*' AND relname LIKE $tabname AND relkind='S'");
 
-		// check if a tables depends on the sequenz and it therefor cant and dont need to be droped separatly
+		// check if a tables depends on the sequence and it therefore can't and don't need to be dropped separately
 		if (!$seq || $this->connection->GetOne("SELECT relname FROM pg_class JOIN pg_depend ON pg_class.relfilenode=pg_depend.objid WHERE relname='$seq' AND relkind='S' AND deptype='i'")) {
 			return False;
 		}

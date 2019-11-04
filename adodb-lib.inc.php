@@ -726,7 +726,7 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
                     switch ($force) {
 
                         //case 0:
-                        //    //Ignore empty values. This is allready handled in "adodb_key_exists" function.
+                        //    //Ignore empty values. This is already handled in "adodb_key_exists" function.
                         //break;
 
                         case 1:

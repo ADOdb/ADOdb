@@ -248,8 +248,8 @@ class ADODB_ads extends ADOConnection {
   }
 
 
-  // Returns tables,Views or both on succesfull execution. Returns
-        // tables by default on succesfull execustion.
+  // Returns tables,Views or both on successful execution. Returns
+        // tables by default on successful execution.
   function &MetaTables($ttype = false, $showSchema = false, $mask = false)
   {
           $recordSet1 = $this->Execute("select * from system.tables");
@@ -386,7 +386,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
     $savem = $ADODB_FETCH_MODE;
     $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-    /*if (false) { // after testing, confirmed that the following does not work becoz of a bug
+    /*if (false) { // after testing, confirmed that the following does not work because of a bug
       $qid2 = ads_tables($this->_connectionID);
       $rs = new ADORecordSet_ads($qid2);
       $ADODB_FETCH_MODE = $savem;

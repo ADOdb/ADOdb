@@ -120,7 +120,7 @@ $db->CacheExecute($sql);
 - Fixed GetActiveRecordsClass() reference bug. See http://phplens.com/lens/lensforum/msgs.php?id=16120
 - Added handling of nulls in adodb-ado_mssql.inc.php for qstr(). Thx to Felix Rabinovich.
 - Adodb-dict contributions by Gaetano
-    - Support for INDEX in data-dict. Example: idx_ev1. The ability to define indexes using the INDEX keyword was added in ADOdb 4.94. The following example features mutiple indexes, including a compound index idx_ev1.
+    - Support for INDEX in data-dict. Example: idx_ev1. The ability to define indexes using the INDEX keyword was added in ADOdb 4.94. The following example features multiple indexes, including a compound index idx_ev1.
 
         ```
         event_id I(11) NOTNULL AUTOINCREMENT PRIMARY,
@@ -139,7 +139,7 @@ $db->CacheExecute($sql);
   - makes any date defined as DEFAULT value for D and T columns work cross-database, not just the "sysdate" value (as long as it is specified using adodb standard format). See above example.
 - Fixed pdo's GetInsertID() support. Thx Ricky Su.
 - oci8 Prepare() now sets error messages if an error occurs.
-- Added 'PT_BR' to SetDateLocale() -- brazilian portugese.
+- Added 'PT_BR' to SetDateLocale() -- brazilian portuguese.
 - charset in oci8 was not set correctly on `*Connect()`
 - ADOConnection::Transpose() now appends as first column the field names.
 - Added $ADODB_QUOTE_FIELDNAMES. If set to true, will autoquote field names in AutoExecute(),GetInsertSQL(), GetUpdateSQL().
@@ -446,7 +446,7 @@ fbird: X->VARCHAR(4000) XL->VARCHAR(32000)
   - MaxDB was padding the defaults of none-string types with spaces
   - MySql now correctly converts enum columns to varchar
 - Ralf also changed Postgresql datadict:
-  - you cant add NOT NULL columns in postgres in one go, they need to be added as NULL and then altered to NOT NULL
+  - you can't add NOT NULL columns in postgres in one go, they need to be added as NULL and then altered to NOT NULL
   - AlterColumnSQL could not change a varchar column with numbers into an integer column, postgres need an explicit conversation
   - a re-created sequence was not set to the correct value, if the name was the old name (no implicit sequence), now always the new name of the implicit sequence is used
 - Sergio Strampelli added extra $intoken check to Lens_ParseArgs() in datadict code.
@@ -521,7 +521,7 @@ fbird: X->VARCHAR(4000) XL->VARCHAR(32000)
 - More XHTML changes for GetMenu. By Jeremy Evans.
 - Fixes some ibase date issues. Thx to stefan bogdan.
 - Improvements to mysqli driver to support $ADODB_COUNTRECS.
-- Fixed adodb-csvlib.inc.php problem when reading stream from socket. We need to poll stream continiously.
+- Fixed adodb-csvlib.inc.php problem when reading stream from socket. We need to poll stream continuously.
 
 ## 4.23 - 16 June 2004
 
@@ -655,7 +655,7 @@ echo "return = ".$rs."<br>";</pre>
 - CacheSelectLimit internal parameters to SelectLimit were wrong. Thx to Nio.
 - Modified adodb_pr() and adodb_backtrace() to support command-line usage (eg. no html).
 - Fixed some fr and it lang errors. Thx to Gaetano G.
-- Added contrib directory, with adodb rs to xmlrpc convertor by Gaetano G.
+- Added contrib directory, with adodb rs to xmlrpc converter by Gaetano G.
 - Fixed array recordset bugs when `_skiprow1` is true. Thx to Gaetano G.
 - Fixed pivot table code when count is false.
 
