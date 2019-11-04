@@ -336,7 +336,7 @@ class DB
 			$parsed['hostspec'] = urldecode($str);
 		}
 
-		// Get dabase if any
+		// Get database if any
 		// $dsn => database
 		if (!empty($dsn)) {
 			$parsed['database'] = $dsn;

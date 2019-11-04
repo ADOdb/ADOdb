@@ -197,7 +197,7 @@ $Crypt = new MD5Crypt;
 		ADOConnection::outp( '
 -- Session Replace: '.$ADODB_SESS_CONN->ErrorMsg().'</p>',false);
 	} else {
-		// bug in access driver (could be odbc?) means that info is not commited
+		// bug in access driver (could be odbc?) means that info is not committed
 		// properly unless select statement executed in Win2000
 
 	if ($ADODB_SESS_CONN->databaseType == 'access') $rs = $ADODB_SESS_CONN->Execute("select sesskey from $ADODB_SESSION_TBL WHERE sesskey='$key'");

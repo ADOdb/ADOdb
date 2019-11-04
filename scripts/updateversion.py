@@ -261,7 +261,7 @@ def update_changelog(version):
             )
 
     # Stable release (X.Y.0)
-    # Replace the 1st occurence of markdown level 2 header matching version
+    # Replace the 1st occurrence of markdown level 2 header matching version
     # and release date patterns
     elif not version_is_patch(version):
         print "  Updating release date for v%s" % version

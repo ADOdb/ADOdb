@@ -126,7 +126,7 @@ class ADODB_postgres64 extends ADOConnection{
 
 	/**
 	 * Retrieve Server information.
-	 * In addition to server version and desription, the function also returns
+	 * In addition to server version and description, the function also returns
 	 * the client version.
 	 * @param bool $detailed If true, retrieve detailed version string (executes
 	 *                       a SQL query) in addition to the version number
@@ -414,7 +414,7 @@ class ADODB_postgres64 extends ADOConnection{
 	}
 
 	/*
-		Hueristic - not guaranteed to work.
+		Heuristic - not guaranteed to work.
 	*/
 	function GuessOID($oid)
 	{

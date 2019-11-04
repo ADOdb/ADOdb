@@ -1583,7 +1583,7 @@ END Adodb;
 		else {
 			$name = $db->GetOne("Select firstname from ADOXYZ where id=1");
 			if (trim($name) != "Carolx") Err("Error: CompleteTrans (2) should have succeeded, returned name=$name");
-			else echo "<p> -- Passed StartTrans test2 - commiting</p>";
+			else echo "<p> -- Passed StartTrans test2 - committing</p>";
 		}
 	}
 	flush();

@@ -66,7 +66,7 @@ class ADODB_mssql_n extends ADODB_mssql {
      * and ODBTP) keeping SQL compatibility at ADOdb level (instead of hacking every project to add
      * the "N" notation when working against MSSQL.
      *
-     * The orginal note indicated that this hack should only be used if ALL the char-based columns
+     * The original note indicated that this hack should only be used if ALL the char-based columns
      * in your DB are of type nchar, nvarchar and ntext, but testing seems to indicate that SQL server
      * doesn't seem to care if the statement is used against char etc fields.
      *

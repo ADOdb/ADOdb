@@ -39,7 +39,7 @@ if (!defined('ADODB_DIR')) die();
 //----------------------------------------------------------------
 
 
-// has datetime converstion to YYYY-MM-DD format, and also mssql_fetch_assoc
+// has datetime conversion to YYYY-MM-DD format, and also mssql_fetch_assoc
 if (ADODB_PHPVER >= 0x4300) {
 // docs say 4.2.0, but testing shows only since 4.3.0 does it work!
 	ini_set('mssql.datetimeconvert',0);

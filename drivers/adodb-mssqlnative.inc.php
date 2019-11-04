@@ -68,7 +68,7 @@ if (!function_exists('sqlsrv_log_set_subsystems')) {
 //----------------------------------------------------------------
 
 
-// has datetime converstion to YYYY-MM-DD format, and also mssql_fetch_assoc
+// has datetime conversion to YYYY-MM-DD format, and also mssql_fetch_assoc
 if (ADODB_PHPVER >= 0x4300) {
 // docs say 4.2.0, but testing shows only since 4.3.0 does it work!
 	ini_set('mssql.datetimeconvert',0);
@@ -508,7 +508,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		else 
 		{
 			/*
-			* If they don't pass either value, we wont add them to the
+			* If they don't pass either value, we won't add them to the
 			* connection parameters. This will then force an attempt
 			* to use windows authentication
 			*/

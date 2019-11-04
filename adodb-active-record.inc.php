@@ -1228,7 +1228,7 @@ global $_ADODB_ACTIVE_DBS;
 	// arrRef will be the structure that knows about our objects.
 	// It is an associative array.
 	// We will, however, return arr, preserving regular 0.. order so that
-	// obj[0] can be used by app developpers.
+	// obj[0] can be used by app developers.
 	$arrRef = array();
 	$bTos = array(); // Will store belongTo's indices if any
 	foreach($rows as $row) {

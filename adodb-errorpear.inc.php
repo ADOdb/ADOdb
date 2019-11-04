@@ -78,7 +78,7 @@ global $ADODB_Last_PEAR_Error;
 
 /**
 * Returns last PEAR_Error object. This error might be for an error that
-* occured several sql statements ago.
+* occurred several sql statements ago.
 */
 function ADODB_PEAR_Error()
 {

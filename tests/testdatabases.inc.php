@@ -432,7 +432,7 @@ if (!empty($testmssql)) { // MS SQL Server via ODBC
 }
 
 ADOLoadCode("ado_mssql");
-if (!empty($testmssql) && !empty($testado) ) { // ADO ACCESS MSSQL -- thru ODBC -- DSN-less
+if (!empty($testmssql) && !empty($testado) ) { // ADO ACCESS MSSQL -- through ODBC -- DSN-less
 
 	$db = ADONewConnection("ado_mssql");
 	//$db->debug=1;

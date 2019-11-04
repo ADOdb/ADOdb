@@ -227,7 +227,7 @@ def main():
                 retry = False
                 continue
             else:
-                # We already tried to delete or some other error occured
+                # We already tried to delete or some other error occurred
                 raise
 
     # Create tarballs

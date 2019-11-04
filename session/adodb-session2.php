@@ -643,7 +643,7 @@ class ADODB_Session {
 		$sql = "SELECT $ADODB_SESSION_SELECT_FIELDS FROM $table WHERE sesskey = $binary ".$conn->Param(0)." AND expiry >= " . $conn->sysTimeStamp;
 
 		/* Lock code does not work as it needs to hold transaction within whole page, and we don't know if
-		  developer has commited elsewhere... :(
+		  developer has committed elsewhere... :(
 		 */
 		#if (ADODB_Session::Lock())
 		#	$rs = $conn->RowLock($table, "$binary sesskey = $qkey AND expiry >= " . time(), sessdata);
@@ -941,12 +941,12 @@ ADODB_Session::_init();
 if (empty($ADODB_SESSION_READONLY))
 	register_shutdown_function('session_write_close');
 
-// for backwards compatability only
+// for backwards compatibility only
 function adodb_sess_open($save_path, $session_name, $persist = true) {
 	return ADODB_Session::open($save_path, $session_name, $persist);
 }
 
-// for backwards compatability only
+// for backwards compatibility only
 function adodb_sess_gc($t)
 {
 	return ADODB_Session::gc($t);
