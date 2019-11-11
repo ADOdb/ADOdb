@@ -4866,6 +4866,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$class = $db;
 				break;
 
+			case 'pdo_mysql':
+				$db = 'pdo_mysql';
+				$class = $db;
+				break;
+
 			default:
 				if (substr($db, 0, 4) === 'pdo_') {
 					ADOConnection::outp("Invalid database type: $db");
@@ -4955,7 +4960,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 					} else {
 						$dsna['host'] = rawurlencode($sch[1].':host='.rawurldecode($dsna['host']));
 					}
-					$dsna['scheme'] = 'pdo';
+					list($scheme, ) = explode('://', $origdsn);
+					$dsna['scheme'] = $scheme;
 				}
 			}
 
