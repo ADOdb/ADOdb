@@ -8,6 +8,7 @@ Older changelogs:
 ## 5.20.15 - ???
 
 - core: remove unnecessary srand() calls. #532
+- pgsql: stop using obsolete pg_attrdef.adsrc column. #562
 - pdo/mysql: remove extraneous comma in $fmtTimeStamp. #531
 - active record: Use ADODB_ASSOC_CASE constant. #536
 - session: Remove session_module_name('user') calls (PHP 7.2 compatibility). #449
