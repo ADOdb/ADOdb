@@ -172,21 +172,16 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 
 	if ($uSet && $where) {
 		$update = "UPDATE $table SET $uSet WHERE $where";
-
 		$rs = $zthis->Execute($update);
-
 
 		if ($rs) {
 			if ($zthis->poorAffectedRows) {
-			/*
-			 The Select count(*) wipes out any errors that the update would have returned.
-			http://phplens.com/lens/lensforum/msgs.php?id=5696
-			*/
+				// The Select count(*) wipes out any errors that the update would have returned.
+				// http://phplens.com/lens/lensforum/msgs.php?id=5696
 				if ($zthis->ErrorNo()<>0) return 0;
 
-			# affected_rows == 0 if update field values identical to old values
-			# for mysql - which is silly.
-
+				// affected_rows == 0 if update field values identical to old values
+				// for mysql - which is silly.
 				$cnt = $zthis->GetOne("select count(*) from $table where $where");
 				if ($cnt > 0) return 1; // record already exists
 			} else {
