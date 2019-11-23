@@ -672,15 +672,15 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Connect to database
+	 * Connect to database.
 	 *
-	 * @param [argHostname]		Host to connect to
-	 * @param [argUsername]		Userid to login
-	 * @param [argPassword]		Associated password
-	 * @param [argDatabaseName]	database
-	 * @param [forceNew]		force new connection
+	 * @param string $argHostname     Host to connect to
+	 * @param string $argUsername     Userid to login
+	 * @param string $argPassword     Associated password
+	 * @param string $argDatabaseName Database name
+	 * @param bool   $forceNew        Force new connection
 	 *
-	 * @return true or false
+	 * @return bool
 	 */
 	function Connect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "", $forceNew = false) {
 		if ($argHostname != "") {
@@ -735,30 +735,31 @@ if (!defined('_ADODB_LAYER')) {
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName);
 	}
 
-
 	/**
-	 * Always force a new connection to database - currently only works with oracle
+	 * Always force a new connection to database.
 	 *
-	 * @param [argHostname]		Host to connect to
-	 * @param [argUsername]		Userid to login
-	 * @param [argPassword]		Associated password
-	 * @param [argDatabaseName]	database
+	 * Currently this only works with Oracle.
 	 *
-	 * @return true or false
+	 * @param string $argHostname     Host to connect to
+	 * @param string $argUsername     Userid to login
+	 * @param string $argPassword     Associated password
+	 * @param string $argDatabaseName Database name
+	 *
+	 * @return bool
 	 */
 	function NConnect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "") {
 		return $this->Connect($argHostname, $argUsername, $argPassword, $argDatabaseName, true);
 	}
 
 	/**
-	 * Establish persistent connect to database
+	 * Establish persistent connection to database.
 	 *
-	 * @param [argHostname]		Host to connect to
-	 * @param [argUsername]		Userid to login
-	 * @param [argPassword]		Associated password
-	 * @param [argDatabaseName]	database
+	 * @param string $argHostname     Host to connect to
+	 * @param string $argUsername     Userid to login
+	 * @param string $argPassword     Associated password
+	 * @param string $argDatabaseName Database name
 	 *
-	 * @return return true or false
+	 * @return bool
 	 */
 	function PConnect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "") {
 
@@ -816,7 +817,11 @@ if (!defined('_ADODB_LAYER')) {
 		ADOConnection::outp($msg);
 	}
 
-	// create cache class. Code is backward compat with old memcache implementation
+	/**
+	 * Create cache class.
+	 *
+	 * Code is backwards-compatible with old memcache implementation.
+	 */
 	function _CreateCache() {
 		global $ADODB_CACHE, $ADODB_CACHE_CLASS;
 
@@ -832,8 +837,16 @@ if (!defined('_ADODB_LAYER')) {
 		}
 	}
 
-	// Format date column in sql string given an input format that understands Y M D
-	function SQLDate($fmt, $col=false) {
+	/**
+	 * Format date column in sql string.
+	 *
+	 * See https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:sqldate
+	 * for documentation on supported formats.
+	 *
+	 * @param string $fmt Format string
+	 * @param string $col Date column; use system date if not specified.
+	 */
+	function SQLDate($fmt, $col = '') {
 		if (!$col) {
 			$col = $this->sysDate;
 		}
@@ -841,7 +854,8 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Should prepare the sql statement and return the stmt resource.
+	 * Prepare an sql statement and return the statement resource.
+	 *
 	 * For databases that do not support this, we return the $sql. To ensure
 	 * compatibility with databases that do not support prepare:
 	 *
@@ -849,29 +863,27 @@ if (!defined('_ADODB_LAYER')) {
 	 *   $db->Execute($stmt,array(1,'Jill')) or die('insert failed');
 	 *   $db->Execute($stmt,array(2,'Joe')) or die('insert failed');
 	 *
-	 * @param sql	SQL to send to database
+	 * @param string sql SQL to send to database
 	 *
-	 * @return return FALSE, or the prepared statement, or the original sql if
-	 *         if the database does not support prepare.
-	 *
+	 * @return mixed|false The prepared statement, or the original sql if the
+	 *                     database does not support prepare.
 	 */
 	function Prepare($sql) {
 		return $sql;
 	}
 
 	/**
+	 * Prepare a Stored Procedure and return the statement resource.
+	 *
 	 * Some databases, eg. mssql require a different function for preparing
 	 * stored procedures. So we cannot use Prepare().
 	 *
-	 * Should prepare the stored procedure  and return the stmt resource.
-	 * For databases that do not support this, we return the $sql. To ensure
-	 * compatibility with databases that do not support prepare:
+	 * For databases that do not support this, we return the $sql.
 	 *
-	 * @param sql	SQL to send to database
+	 * @param string sql SQL to send to database
 	 *
-	 * @return return FALSE, or the prepared statement, or the original sql if
-	 *         if the database does not support prepare.
-	 *
+	 * @return mixed|false The prepared statement, or the original sql if the
+	 *                     database does not support prepare.
 	 */
 	function PrepareSP($sql,$param=true) {
 		return $this->Prepare($sql,$param);
@@ -4906,7 +4918,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param [db]  is the database Connection object to create. If undefined,
 	 *	use the last database driver that was loaded by ADOLoadCode().
 	 *
-	 * @return the freshly created instance of the Connection class.
+	 * @return ADOConnection|false The freshly created instance of the Connection class
+	 *                             or false in case of error.
 	 */
 	function ADONewConnection($db='') {
 		global $ADODB_NEWCONNECTION, $ADODB_LASTDB;
