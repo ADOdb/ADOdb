@@ -3419,14 +3419,26 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	 * Generate a SELECT tag string from a recordset, and return the string.
-	 * If the recordset has 2 cols, we treat the 1st col as the containing
-	 * the text to display to the user, and 2nd col as the return value. Default
-	 * strings are compared with the SECOND column.
+	 * Generate a SELECT tag from a recordset, and return the HTML markup.
 	 *
+	 * Same as GetMenu(), except that default strings are compared with the
+	 * FIRST column (the description).
+	 *
+	 * @param string       $name            Name of SELECT tag
+	 * @param string|array $defstr          The value to highlight. Use an array for multiple highlight values.
+	 * @param bool|string $blank1stItem     True to create an empty item (default), False not to add one;
+	 *                                      'string' to set its label and 'value:string' to assign a value to it.
+	 * @param bool         $multiple        True for multi-select list
+	 * @param int          $size            Number of rows to show (applies to multi-select box only)
+	 * @param string       $selectAttr      Additional attributes to defined for SELECT tag,
+	 *                                      useful for holding javascript onChange='...' handlers, CSS class, etc.
+	 *
+	 * @return string HTML
 	 */
-	function GetMenu2($name,$defstr='',$blank1stItem=true,$multiple=false,$size=0, $selectAttr='') {
-		return $this->GetMenu($name,$defstr,$blank1stItem,$multiple,
+	function getMenu2($name, $defstr = '', $blank1stItem = true, $multiple = false,
+					  $size = 0, $selectAttr = '')
+	{
+		return $this->getMenu($name, $defstr, $blank1stItem, $multiple,
 			$size, $selectAttr,false);
 	}
 
