@@ -3405,15 +3405,15 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *
 	 * @return string HTML
 	 */
-	function getMenu($name,$defstr='',$blank1stItem=true,$multiple=false,
-			$size=0, $selectAttr='',$compareFields0=true)
+	function getMenu($name, $defstr = '', $blank1stItem = true, $multiple = false,
+					 $size = 0, $selectAttr = '', $compareFirstCol = true)
 	{
 		global $ADODB_INCLUDED_LIB;
 		if (empty($ADODB_INCLUDED_LIB)) {
 			include(ADODB_DIR.'/adodb-lib.inc.php');
 		}
-		return _adodb_getmenu($this, $name,$defstr,$blank1stItem,$multiple,
-			$size, $selectAttr,$compareFields0);
+		return _adodb_getmenu($this, $name, $defstr, $blank1stItem, $multiple,
+			$size, $selectAttr, $compareFirstCol);
 	}
 
 
