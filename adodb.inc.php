@@ -3444,18 +3444,34 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$size, $selectAttr,false);
 	}
 
-	/*
-		Grouped Menu
+	/**
+	 * Generate a SELECT tag with groups from a recordset, and return the HTML markup.
+	 *
+	 * The recordset must have 3 columns and be ordered by the 3rd column. The
+	 * first column contains the text to display to the user, the second is the
+	 * return value and the third is the option group. Extra columns are discarded.
+	 * Default strings are compared with the SECOND column.
+	 *
+	 * @param string       $name            Name of SELECT tag
+	 * @param string|array $defstr          The value to highlight. Use an array for multiple highlight values.
+	 * @param bool|string $blank1stItem     True to create an empty item (default), False not to add one;
+	 *                                      'string' to set its label and 'value:string' to assign a value to it.
+	 * @param bool         $multiple        True for multi-select list
+	 * @param int          $size            Number of rows to show (applies to multi-select box only)
+	 * @param string       $selectAttr      Additional attributes to defined for SELECT tag,
+	 *                                      useful for holding javascript onChange='...' handlers, CSS class, etc.
+	 *
+	 * @return string HTML
 	*/
-	function GetMenu3($name,$defstr='',$blank1stItem=true,$multiple=false,
-			$size=0, $selectAttr='')
+	function getMenu3($name, $defstr = '', $blank1stItem = true, $multiple = false,
+			$size = 0, $selectAttr = '')
 	{
 		global $ADODB_INCLUDED_LIB;
 		if (empty($ADODB_INCLUDED_LIB)) {
 			include(ADODB_DIR.'/adodb-lib.inc.php');
 		}
-		return _adodb_getmenu_gp($this, $name,$defstr,$blank1stItem,$multiple,
-			$size, $selectAttr,false);
+		return _adodb_getmenu_gp($this, $name, $defstr, $blank1stItem, $multiple,
+			$size, $selectAttr, false);
 	}
 
 	/**
