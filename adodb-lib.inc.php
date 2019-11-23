@@ -135,16 +135,15 @@ function _array_change_key_case($an_array)
 
 function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_autoinc)
 {
-	// Add Quote around table name to support use of spaces / reserve keywords
+	// Add Quote around table name to support use of spaces / reserved keywords
 	$table=sprintf('%s%s%s', $zthis->nameQuote,$table,$zthis->nameQuote);
 
 	if (count($fieldArray) == 0) return 0;
-	$first = true;
-	$uSet = '';
 
 	if (!is_array($keyCol)) {
 		$keyCol = array($keyCol);
 	}
+	$uSet = '';
 	foreach($fieldArray as $k => $v) {
 		if ($v === null) {
 			$v = 'NULL';
@@ -155,23 +154,20 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 		}
 		if (in_array($k,$keyCol)) continue; // skip UPDATE if is key
 
-		// Add Quote around column name to support use of spaces / reserve keywords
-		if ($first) {
-			$first = false;
-			$uSet = sprintf('%s%s%s=%s', $zthis->nameQuote,$k,$zthis->nameQuote,$v);
-		} else
-			$uSet .= sprintf(',%s%s%s=%s',$zthis->nameQuote,$k,$zthis->nameQuote,$v);
+		// Add Quote around column name to support use of spaces / reserved keywords
+		$uSet .= sprintf(',%s%s%s=%s',$zthis->nameQuote,$k,$zthis->nameQuote,$v);
 	}
+	$uSet = ltrim($uSet, ',');
 
 	// Add Quote around column name in where clause
-	$where = false;
+	$where = '';
 	foreach ($keyCol as $v) {
 		if (isset($fieldArray[$v])) {
-			if ($where)
-				$where .= sprintf(' and %s%s%s=%s ', $zthis->nameQuote,$v,$zthis->nameQuote,$fieldArray[$v]);
-			else
-				$where = sprintf('%s%s%s=%s', $zthis->nameQuote,$v,$zthis->nameQuote,$fieldArray[$v]);
+			$where .= sprintf(' and %s%s%s=%s ', $zthis->nameQuote,$v,$zthis->nameQuote,$fieldArray[$v]);
 		}
+	}
+	if ($where) {
+		$where = substr($where, 5);
 	}
 
 	if ($uSet && $where) {
@@ -200,20 +196,17 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 			return 0;
 	}
 
-//	print "<p>Error=".$this->ErrorNo().'<p>';
-	$first = true;
+	$iCols = $iVals = '';
 	foreach($fieldArray as $k => $v) {
 		if ($has_autoinc && in_array($k,$keyCol)) continue; // skip autoinc col
+
 		// Add Quote around Column Name
-		if ($first) {
-			$first = false;
-			$iCols = sprintf('%s%s%s',$zthis->nameQuote,$k,$zthis->nameQuote);
-			$iVals = "$v";
-		} else {
-			$iCols .= sprintf(',%s%s%s',$zthis->nameQuote,$k,$zthis->nameQuote);
-			$iVals .= ",$v";
-		}
+		$iCols .= sprintf(',%s%s%s',$zthis->nameQuote,$k,$zthis->nameQuote);
+		$iVals .= ",$v";
 	}
+	$iCols = ltrim($iCols, ',');
+	$iVals = ltrim($iVals, ',');
+
 	$insert = "INSERT INTO $table ($iCols) VALUES ($iVals)";
 	$rs = $zthis->Execute($insert);
 	return ($rs) ? 2 : 0;
