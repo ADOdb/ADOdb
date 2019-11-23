@@ -3434,6 +3434,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *                                      useful for holding javascript onChange='...' handlers, CSS class, etc.
 	 *
 	 * @return string HTML
+	 *
+	 * @deprecated 5.21.0 Use getMenu() with $compareFirstCol = false instead.
 	 */
 	function getMenu2($name, $defstr = '', $blank1stItem = true, $multiple = false,
 					  $size = 0, $selectAttr = '')
