@@ -407,7 +407,7 @@ other database types as well; all drivers derived from the above are also impact
 ## 5.06 - 16 Oct 2008
 
 - Added driver adodb-pdo_sqlite.inc.php. Thanks Diogo Toscano (diogo#scriptcase.net) for the code.
-- Added support for [one-to-many relationships](docs-active-record.htm#onetomany) with BelongsTo() and HasMany() in adodb_active_record.
+- Added support for [one-to-many relationships](https://adodb.org/dokuwiki/doku.php?id=v5:userguide:active_record#one_to_many_relations) with BelongsTo() and HasMany() in adodb_active_record.
 - Added BINARY type to mysql.inc.php (also in 4.991).
 - Added support for SelectLimit($sql,-1,100) in oci8. (also in 4.991).
 - New $conn->GetMedian($table, $field, $where='') to get median account no. (also in 4.991)
