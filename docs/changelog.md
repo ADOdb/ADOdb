@@ -5,7 +5,7 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
-## 5.20.15 - ???
+## 5.20.15 - 24-Nov-2019
 
 - core: remove unnecessary srand() calls. #532
 - core: Fix getMenu with ADODB_FETCH_BOTH. #482
