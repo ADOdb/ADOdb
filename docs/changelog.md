@@ -8,6 +8,8 @@ Older changelogs:
 ## 5.20.15 - ???
 
 - core: remove unnecessary srand() calls. #532
+- core: Fix getMenu with ADODB_FETCH_BOTH. #482
+- core: code cleanup for getMenu and related functions. #563
 - pgsql: stop using obsolete pg_attrdef.adsrc column. #562
 - pdo/mysql: remove extraneous comma in $fmtTimeStamp. #531
 - active record: Use ADODB_ASSOC_CASE constant. #536
