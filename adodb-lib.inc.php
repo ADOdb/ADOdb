@@ -217,33 +217,7 @@ function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=f
 {
 	global $ADODB_FETCH_MODE;
 
-	if ($multiple or is_array($defstr)) {
-		if ($size == 0 ) {
-			$size = 5;
-		}
-		$attr = ' multiple size="' . $size . '"';
-		if (!strpos($name,'[]')) {
-			$name .= '[]';
-		}
-	} elseif ($size) {
-		$attr = ' size="' . $size . '"';
-	} else {
-		$attr ='';
-	}
-
-	$s = '<select name="'.$name.'"'.$attr.' '.$selectAttr.'>';
-	if ($blank1stItem) {
-		if (is_string($blank1stItem))  {
-			$barr = explode(':',$blank1stItem);
-			if (sizeof($barr) == 1) {
-				$barr[] = '';
-			}
-			$s .= "\n<option value=\"".$barr[0]."\">".$barr[1]."</option>";
-		} 
-		else {
-			$s .= "\n<option></option>";
-		}
-	}
+	$s = _adodb_getmenu_select($name, $defstr, $blank1stItem, $multiple, $size, $selectAttr);
 
 	$hasvalue = $zthis->FieldCount() > 1;
 	if (!$hasvalue) {
@@ -268,22 +242,11 @@ function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=f
 				$zval2 = $zthis->fields[1];
 			}
 			$zval2 = trim($zval2);
-			$value = ' value="' . htmlspecialchars($zval2) . '"';
+			$value = 'value="' . htmlspecialchars($zval2) . '"';
 		}
-		$selected = $compareFields0 ? $zval : $zval2;
 
-		if (is_array($defstr)) {
-			if (in_array($selected, $defstr))
-				$s .= "\n<option selected=\"selected\"$value>" . htmlspecialchars($zval) . '</option>';
-			else
-				$s .= "\n<option".$value.'>' . htmlspecialchars($zval) . '</option>';
-		}
-		else {
-			if (strcasecmp($selected,$defstr)==0)
-				$s .= "\n<option selected='selected'$value>" . htmlspecialchars($zval) . '</option>';
-			else
-				$s .= "\n<option".$value.'>' . htmlspecialchars($zval) . '</option>';
-		}
+		$s .= _adodb_getmenu_option($defstr, $compareFields0 ? $zval : $zval2, $value, $zval);
+
 		$zthis->MoveNext();
 	} // while
 
@@ -295,31 +258,7 @@ function _adodb_getmenu_gp(&$zthis, $name,$defstr='',$blank1stItem=true,$multipl
 {
 	global $ADODB_FETCH_MODE;
 
-	if ($multiple or is_array($defstr)) {
-		if ($size == 0) {
-			$size = 5;
-		}
-		$attr = ' multiple size="' . $size . '"';
-		if (!strpos($name,'[]')) {
-			$name .= '[]';
-		}
-	} elseif ($size) {
-		$attr = ' size="' . $size . '"';
-	} else {
-		$attr = '';
-	}
-
-	$s = '<select name="'.$name.'"'.$attr.' '.$selectAttr.'>';
-	if ($blank1stItem)
-		if (is_string($blank1stItem))  {
-			$barr = explode(':',$blank1stItem);
-			if (sizeof($barr) == 1) {
-				$barr[] = '';
-			}
-			$s .= "\n<option value=\"".$barr[0]."\">".$barr[1]."</option>";
-		} else {
-			$s .= "\n<option></option>";
-		}
+	$s = _adodb_getmenu_select($name, $defstr, $blank1stItem, $multiple, $size, $selectAttr);
 
 	$hasvalue = $zthis->FieldCount() > 1;
 	$hasgroup = $zthis->FieldCount() > 2;
@@ -355,10 +294,8 @@ function _adodb_getmenu_gp(&$zthis, $name,$defstr='',$blank1stItem=true,$multipl
 				}
 			}
 			$zval2 = trim($zval2);
-			$value = " value='".htmlspecialchars($zval2)."'";
+			$value = "value='".htmlspecialchars($zval2)."'";
 		}
-
-		$selected = $compareFields0 ? $zval : $zval2;
 
 		if ($optgroup != $group) {
 			$optgroup = $group;
@@ -370,18 +307,8 @@ function _adodb_getmenu_gp(&$zthis, $name,$defstr='',$blank1stItem=true,$multipl
 			$s .="\n<optgroup label='". htmlspecialchars($group) ."'>";
 		}
 
-		if (is_array($defstr))  {
-			if (in_array($selected,$defstr))
-				$s .= "\n<option selected='selected'$value>".htmlspecialchars($zval).'</option>';
-			else
-				$s .= "\n<option".$value.'>'.htmlspecialchars($zval).'</option>';
-		}
-		else {
-			if (strcasecmp($selected,$defstr)==0)
-				$s .= "\n<option selected='selected'$value>".htmlspecialchars($zval).'</option>';
-			else
-				$s .= "\n<option".$value.'>'.htmlspecialchars($zval).'</option>';
-		}
+		$s .= _adodb_getmenu_option($defstr, $compareFields0 ? $zval : $zval2, $value, $zval);
+
 		$zthis->MoveNext();
 	} // while
 
@@ -390,6 +317,78 @@ function _adodb_getmenu_gp(&$zthis, $name,$defstr='',$blank1stItem=true,$multipl
 		$s .= "\n</optgroup>";
 	}
 	return $s ."\n</select>\n";
+}
+
+/**
+ * Generate the opening SELECT tag for getmenu functions.
+ *
+ * ADOdb internal function, used by _adodb_getmenu() and _adodb_getmenu_gp().
+ *
+ * @param string $name
+ * @param string $defstr
+ * @param bool   $blank1stItem
+ * @param bool   $multiple
+ * @param int    $size
+ * @param string $selectAttr
+ *
+ * @return string HTML
+ */
+function _adodb_getmenu_select($name, $defstr = '', $blank1stItem = true,
+							   $multiple = false, $size = 0, $selectAttr = '')
+{
+	if ($multiple || is_array($defstr)) {
+		if ($size == 0 ) {
+			$size = 5;
+		}
+		$attr = ' multiple size="' . $size . '"';
+		if (!strpos($name,'[]')) {
+			$name .= '[]';
+		}
+	} elseif ($size) {
+		$attr = ' size="' . $size . '"';
+	} else {
+		$attr = '';
+	}
+
+	$html = '<select name="' . $name . '"' . $attr . ' ' . $selectAttr . '>';
+	if ($blank1stItem) {
+		if (is_string($blank1stItem))  {
+			$barr = explode(':',$blank1stItem);
+			if (sizeof($barr) == 1) {
+				$barr[] = '';
+			}
+			$html .= "\n<option value=\"" . $barr[0] . "\">" . $barr[1] . "</option>";
+		} else {
+			$html .= "\n<option></option>";
+		}
+	}
+
+	return $html;
+}
+
+/**
+ * Print the OPTION tags for getmenu functions.
+ *
+ * ADOdb internal function, used by _adodb_getmenu() and _adodb_getmenu_gp().
+ *
+ * @param string $defstr  Default values
+ * @param string $compare Value to compare against defaults
+ * @param string $value   Ready-to-print `value="xxx"` (or empty) string
+ * @param string $display Display value
+ *
+ * @return string HTML
+ */
+function _adodb_getmenu_option($defstr, $compare, $value, $display)
+{
+	if (   is_array($defstr) && in_array($compare, $defstr)
+		|| !is_array($defstr) && strcasecmp($compare, $defstr) == 0
+	) {
+		$selected = ' selected="selected"';
+	} else {
+		$selected = '';
+	}
+
+	return "\n<option $value$selected>" . htmlspecialchars($display) . '</option>';
 }
 
 /*
