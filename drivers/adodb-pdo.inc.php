@@ -141,6 +141,7 @@ class ADODB_pdo extends ADOConnection {
 				case 'oci':
 				case 'pgsql':
 				case 'sqlite':
+				case 'firebird':
 				default:
 					$argDSN .= ';dbname='.$argDatabasename;
 			}
@@ -191,6 +192,7 @@ class ADODB_pdo extends ADOConnection {
 				case 'pgsql':
 				case 'sqlite':
 				case 'sqlsrv':
+				case 'firebird':
 					include_once(ADODB_DIR.'/drivers/adodb-pdo_'.$this->dsnType.'.inc.php');
 					break;
 			}
@@ -256,6 +258,64 @@ class ADODB_pdo extends ADOConnection {
 	function MetaColumns($table,$normalize=true)
 	{
 		return $this->_driver->MetaColumns($table,$normalize);
+	}
+
+	public function metaIndexes($table,$normalize=true)
+	{
+		if (method_exists($this->_driver,'metaIndexes'))
+			return $this->_driver->metaIndexes($table,$normalize);
+	}
+
+	/**
+	 * Return a list of Primary Keys for a specified table.
+	 *
+	 * @param string   $table
+	 * @param bool     $owner      (optional) not used in this driver
+	 *
+	 * @return string[]    Array of indexes
+	 */
+	public function metaPrimaryKeys($table,$owner=false)
+	{
+		if (method_exists($this->_driver,'metaPrimaryKeys'))
+			return $this->_driver->metaPrimaryKeys($table,$owner);
+	}
+
+	/**
+	 * Returns a list of Foreign Keys for a specified table.
+	 *
+	 * @param string   $table
+	 * @param bool     $owner      (optional) not used in this driver
+	 * @param bool     $upper
+	 * @param bool     $associative
+	 *
+	 * @return string[] where keys are tables, and values are foreign keys
+	 */
+	public function metaForeignKeys($table, $owner=false, $upper=false,$associative=false) {
+		if (method_exists($this->_driver,'metaForeignKeys'))
+			return $this->_driver->metaForeignKeys($table,$owner,$upper,$associative);
+	}
+
+	/**
+	 * List procedures or functions in an array.
+	 *
+	 * @param $procedureNamePattern A procedure name pattern; must match the procedure name as it is stored in the database.
+	 * @param $catalog              A catalog name; must match the catalog name as it is stored in the database.
+	 * @param $schemaPattern        A schema name pattern.
+	 *
+	 * @return false|array false if not supported, or array of procedures on current database with structure below
+	 *         Array(
+	 *           [name_of_procedure] => Array(
+	 *             [type] => PROCEDURE or FUNCTION
+	 *             [catalog] => Catalog_name
+	 *             [schema] => Schema_name
+	 *             [remarks] => explanatory comment on the procedure
+	 *           )
+	 *         )
+	 */
+	public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
+		if (method_exists($this->_driver,'metaProcedures'))
+			return $this->_driver->metaProcedures($procedureNamePattern,$catalog,$schemaPattern);
+		return false;
 	}
 
 	function InParameter(&$stmt,&$var,$name,$maxLen=4000,$type=false)
@@ -362,10 +422,10 @@ class ADODB_pdo extends ADOConnection {
 		return parent::SetTransactionMode($seqname);
 	}
 
-	function BeginTrans()
+	function beginTrans()
 	{
-		if(method_exists($this->_driver, 'BeginTrans')) {
-			return $this->_driver->BeginTrans();
+		if(method_exists($this->_driver, 'beginTrans')) {
+			return $this->_driver->beginTrans();
 		}
 
 		if (!$this->hasTransactions) {
@@ -381,10 +441,11 @@ class ADODB_pdo extends ADOConnection {
 		return $this->_connectionID->beginTransaction();
 	}
 
-	function CommitTrans($ok=true)
+	function commitTrans($ok=true)
 	{
-		if(method_exists($this->_driver, 'CommitTrans')) {
-			return $this->_driver->CommitTrans($ok);
+
+		if(method_exists($this->_driver, 'commitTrans')) {
+			return $this->_driver->commitTrans($ok);
 		}
 
 		if (!$this->hasTransactions) {
@@ -394,7 +455,7 @@ class ADODB_pdo extends ADOConnection {
 			return true;
 		}
 		if (!$ok) {
-			return $this->RollbackTrans();
+			return $this->rollbackTrans();
 		}
 		if ($this->transCnt) {
 			$this->transCnt -= 1;
@@ -448,10 +509,10 @@ class ADODB_pdo extends ADOConnection {
 		return $obj;
 	}
 
-	function CreateSequence($seqname='adodbseq',$startID=1)
+	public function createSequence($seqname='adodbseq',$startID=1)
 	{
-		if(method_exists($this->_driver, 'CreateSequence')) {
-			return $this->_driver->CreateSequence($seqname, $startID);
+		if(method_exists($this->_driver, 'createSequence')) {
+			return $this->_driver->createSequence($seqname, $startID);
 		}
 
 		return parent::CreateSequence($seqname, $startID);
@@ -531,6 +592,9 @@ class ADODB_pdo extends ADOConnection {
 
 	function _affectedrows()
 	{
+		if(method_exists($this->_driver, '_affectedrows'))
+			return $this->_driver->_affectedrows();
+		
 		return ($this->_stmt) ? $this->_stmt->rowCount() : 0;
 	}
 
