@@ -63,9 +63,11 @@ Older changelogs:
 - session: add 'httponly' flag to cookie. #190
 - xml: support table 'opt' attribute with mysqli. #267
 
-## 5.20.15 - ???
+## 5.20.15 - 24-Nov-2019
 
 - core: remove unnecessary srand() calls. #532
+- core: Fix getMenu with ADODB_FETCH_BOTH. #482
+- core: code cleanup for getMenu and related functions. #563
 - pgsql: stop using obsolete pg_attrdef.adsrc column. #562
 - pdo/mysql: remove extraneous comma in $fmtTimeStamp. #531
 - active record: Use ADODB_ASSOC_CASE constant. #536
@@ -463,7 +465,7 @@ other database types as well; all drivers derived from the above are also impact
 ## 5.06 - 16 Oct 2008
 
 - Added driver adodb-pdo_sqlite.inc.php. Thanks Diogo Toscano (diogo#scriptcase.net) for the code.
-- Added support for [one-to-many relationships](docs-active-record.htm#onetomany) with BelongsTo() and HasMany() in adodb_active_record.
+- Added support for [one-to-many relationships](https://adodb.org/dokuwiki/doku.php?id=v5:userguide:active_record#one_to_many_relations) with BelongsTo() and HasMany() in adodb_active_record.
 - Added BINARY type to mysql.inc.php (also in 4.991).
 - Added support for SelectLimit($sql,-1,100) in oci8. (also in 4.991).
 - New $conn->GetMedian($table, $field, $where='') to get median account no. (also in 4.991)
