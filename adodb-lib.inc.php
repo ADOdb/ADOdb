@@ -19,7 +19,12 @@ $ADODB_INCLUDED_LIB = 1;
 
 function adodb_strip_order_by($sql)
 {
-	$rez = preg_match('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is', $sql, $arr);
+	$rez = preg_match_all('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is', $sql, $arr);
+	if ($arr) 
+	{
+		$tmp = array_pop($arr);
+		$arr = [1=>array_pop($tmp)];
+	}
 	if ($arr)
 		if (strpos($arr[1], '(') !== false) {
 			$at = strpos($sql, $arr[1]);
@@ -39,6 +44,7 @@ function adodb_strip_order_by($sql)
 		} else {
 			$sql = str_replace($arr[1], '', $sql);
 		}
+
 	return $sql;
 }
 

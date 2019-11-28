@@ -1589,7 +1589,7 @@ END Adodb;
 	flush();
 	$saved = $db->debug;
 	$db->debug=1;
-	$cnt = _adodb_getcount($db, 'select * from ADOXYZ where firstname in (select firstname from ADOXYZ)');
+	$cnt = _adodb_S($db, 'select * from ADOXYZ where firstname in (select firstname from ADOXYZ)');
 	echo "<b>Count=</b> $cnt";
 	$db->debug=$saved;
 
