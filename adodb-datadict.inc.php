@@ -196,7 +196,8 @@ class ADODB_DataDict {
 	*/
 	public $blobAllowsDefaultValue;
 
-	function getCommentSQL($table,$col)
+	
+	function GetCommentSQL($table,$col)
 	{
 		return false;
 	}

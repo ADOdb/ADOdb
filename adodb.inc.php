@@ -504,7 +504,30 @@ if (!defined('_ADODB_LAYER')) {
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
 
-
+	/*
+	* Suppresses the extended attributes returned from
+	* metaIndexes so that only the orginal legacy
+	* version is returned
+	*/
+	public $suppressExtendedMetaIndexes = false;
+	
+	/*
+	* The legacy format of each metaindex entry
+	*/
+	protected $legacyMetaIndexFormat = array(
+		'unique'=>0,
+		'columns'=>array()
+		);
+		
+	/*
+	* The new extended metaIndex format
+	*/
+	protected $extendedMetaIndexFormat = array(
+		'unique'=>0,
+		'columns'=>array(),
+		'index-attributes'=>array(),
+		'column-attributes'=>array()
+		);
 	/**
 	 * Default Constructor.
 	 * We define it even though it does not actually do anything. This avoids
