@@ -614,8 +614,105 @@ class ADODB_mssqlnative extends ADOConnection {
 		return $rez;
 	}
 
+	// mssql uses a default date like Dec 30 2000 12:00AM
+	static function UnixDate($v)
+	{
+		return ADORecordSet_array_mssqlnative::UnixDate($v);
+	}
+
+	static function UnixTimeStamp($v)
+	{
+		return ADORecordSet_array_mssqlnative::UnixTimeStamp($v);
+	}
+
+	function metaIndexes($table,$primary=false, $owner = false)
+	{
+		$table = $this->qstr($table);
+		$p1 = $this->param('p1');
+		$bind = array('p1'=>$p1);
+		$this->debug = true;
+		$sql = "
+		SELECT 
+			ind.name IndexName,
+			col.name ColumnName,
+			ind.is_primary_key PrimaryKey,
+			ind.is_unique IsUnique,
+			ind.*,
+			ic.*,
+			col.* 
+		FROM 
+			 sys.indexes ind 
+		INNER JOIN 
+			 sys.index_columns ic ON  ind.object_id = ic.object_id and ind.index_id = ic.index_id 
+		INNER JOIN 
+			 sys.columns col ON ic.object_id = col.object_id and ic.column_id = col.column_id 
+		INNER JOIN 
+			 sys.tables t ON ind.object_id = t.object_id 
+		
+		ORDER BY 
+			 t.name, ind.name, ind.index_id, ic.index_column_id;";
+		
+		global $ADODB_FETCH_MODE;
+		$save = $ADODB_FETCH_MODE;
+		if ($this->fetchMode !== FALSE) {
+			$savem = $this->SetFetchMode(FALSE);
+		}
+
+		$rs = $this->execute($sql,$bind);
+		if (isset($savem)) {
+			$this->SetFetchMode($savem);
+		}
+		//$ADODB_FETCH_MODE = $save;
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+
+		if (!is_object($rs)) {
+			return FALSE;
+		}
+
+		$indexes = array();
+		while ($row = $rs->FetchRow()) {
+			
+			/*
+			* Dont know what casing is set on the driver, so artificially
+			* convert keys to lower case
+			*/
+			$rowKeys   = array_keys($row);
+			$rowValues = array_values($row);
+			$rowKeys   = array_map('strtolower',$rowKeys);
+			$row       = array_combine($rowKeys,$rowValues);
+			
+			if (!$primary && $row['primarykey']) 
+				continue;
+
+			if (!isset($indexes[$row[2]])) 
+			{
+				if ($this->suppressExtendedMetaIndexes)
+					$indexes[$row['indexName']] = $this->legacyMetaIndexFormat;
+				else
+					$indexes[$row['indexName']] = $this->extendedMetaIndexFormat;
+				
+				$indexes[$row['indexName']]['unique']    = $row['isunique'];
+				$indexes[$row['indexName']]['primary']   = $row['primarykey'];
+
+				
+				if (!$this->suppressExtendedMetaIndexes)
+				{
+					/*
+					* We need to extract the 'index' specific itema
+					* from the extended attributes
+					*/
+					$iAttributes = array_intersect_key($extendedAttributes,$indexExtendedAttributeNames);
+					$indexes[$row[2]]['index-attributes'] = $iAttributes;
+				}
+			}
+			
+			
+			$indexes[$row['indexname']]['columns'][] = $row['columnname'];
+		}
+		return $indexes;
+	}
 	
-	function MetaIndexes($table,$primary=false, $owner = false)
+	function oldMetaIndexes($table,$primary=false, $owner = false)
 	{
 		$table = $this->qstr($table);
 
