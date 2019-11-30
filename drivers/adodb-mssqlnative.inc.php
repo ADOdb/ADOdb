@@ -627,10 +627,9 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function metaIndexes($table,$primary=false, $owner = false)
 	{
-		$table = $this->qstr($table);
+		$table = $this->addq($table);
 		$p1 = $this->param('p1');
-		$bind = array('p1'=>$p1);
-		$this->debug = true;
+		$bind = array('p1'=>$table);
 		$sql = "
 		SELECT 
 			ind.name IndexName,
@@ -639,7 +638,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			ind.is_unique IsUnique,
 			ind.*,
 			ic.*,
-			col.* 
+			col.*
 		FROM 
 			 sys.indexes ind 
 		INNER JOIN 
@@ -647,10 +646,10 @@ class ADODB_mssqlnative extends ADOConnection {
 		INNER JOIN 
 			 sys.columns col ON ic.object_id = col.object_id and ic.column_id = col.column_id 
 		INNER JOIN 
-			 sys.tables t ON ind.object_id = t.object_id 
+			 sys.tables t ON ind.object_id = t.object_id and t.name=$p1
 		
 		ORDER BY 
-			 t.name, ind.name, ind.index_id, ic.index_column_id;";
+			 t.name, ind.name, ind.index_id, ic.index_column_id";
 		
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
@@ -670,29 +669,57 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 
 		$indexes = array();
+		
+		/*
+		* These items describe the index itself
+		*/
+		$indexExtendedAttributeNames = array_flip(array(
+		'indexname','columnname','primarykey','isunique','object_id',
+		'name','index_id','type','type_desc','is_unique','data_space_id',
+		'ignore_dup_key','is_primary_key','is_unique_constraint',
+		'fill_factor','is_padded','is_disabled','is_hypothetical',
+		'allow_row_locks','allow_page_locks','has_filter','filter_definition'
+		));
+       
+		/*
+		* These items describe the column attributes in the index
+		*/
+		$columnExtendedAttributeNames = array_flip(array(
+		'index_column_id','column_id','key_ordinal','partition_ordinal',
+		'is_descending_key','is_included_column','system_type_id','user_type_id',
+		'max_length','precision','scale','collation_name','is_nullable',
+		'is_ansi_padded','is_rowguidcol','is_identity','is_computed',
+		'is_filestream','is_replicated','is_non_sql_subscribed',
+		'is_merge_published','is_dts_replicated','is_xml_document',
+		'xml_collection_id','default_object_id','rule_object_id',
+		'is_sparse' ,'is_column_set'
+		));
+	
 		while ($row = $rs->FetchRow()) {
 			
+			//print_r($row);
+			//exit;
 			/*
 			* Dont know what casing is set on the driver, so artificially
 			* convert keys to lower case
 			*/
-			$rowKeys   = array_keys($row);
-			$rowValues = array_values($row);
-			$rowKeys   = array_map('strtolower',$rowKeys);
-			$row       = array_combine($rowKeys,$rowValues);
-			
+			$row  = array_change_key_case($row);
+						
 			if (!$primary && $row['primarykey']) 
 				continue;
 
-			if (!isset($indexes[$row[2]])) 
+			/*
+			* First iteration of index, build format
+			*/
+			if (!isset($indexes[$row['indexname']])) 
 			{
 				if ($this->suppressExtendedMetaIndexes)
-					$indexes[$row['indexName']] = $this->legacyMetaIndexFormat;
+					$indexes[$row['indexname']] = $this->legacyMetaIndexFormat;
 				else
-					$indexes[$row['indexName']] = $this->extendedMetaIndexFormat;
+					$indexes[$row['indexname']] = $this->extendedMetaIndexFormat;
 				
-				$indexes[$row['indexName']]['unique']    = $row['isunique'];
-				$indexes[$row['indexName']]['primary']   = $row['primarykey'];
+				$indexes[$row['indexname']]['unique']    = $row['isunique'];
+				$indexes[$row['indexname']]['primary']   = $row['primarykey'];
 
 				
 				if (!$this->suppressExtendedMetaIndexes)
@@ -701,13 +728,23 @@ class ADODB_mssqlnative extends ADOConnection {
 					* We need to extract the 'index' specific itema
 					* from the extended attributes
 					*/
-					$iAttributes = array_intersect_key($extendedAttributes,$indexExtendedAttributeNames);
-					$indexes[$row[2]]['index-attributes'] = $iAttributes;
+					$iAttributes = array_intersect_key($row,$indexExtendedAttributeNames);
+					$indexes[$row['indexname']]['index-attributes'] = $iAttributes;
 				}
 			}
 			
 			
 			$indexes[$row['indexname']]['columns'][] = $row['columnname'];
+			
+			if (!$this->suppressExtendedMetaIndexes)
+			{
+				/*
+				* We need to extract the 'column' specific itema
+				* from the extended attributes
+				*/
+				$cAttributes = array_intersect_key($row,$columnExtendedAttributeNames);
+				$indexes[$row['indexname']]['column-attributes'][$row['columnname']] = $cAttributes;
+			}
 		}
 		return $indexes;
 	}
