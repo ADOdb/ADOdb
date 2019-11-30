@@ -449,15 +449,12 @@ class ADODB_sqlite3 extends ADOConnection {
 				);
 			}
 			/**
-			 * There must be a more elegant way of doing this,
-			 * the index elements appear in the SQL statement
+			 * The index elements appear in the SQL statement
 			 * in cols[1] between parentheses
 			 * e.g CREATE UNIQUE INDEX ware_0 ON warehouse (org,warehouse)
 			 */
-			$cols = explode("(",$row[1]);
-			$cols = explode(")",$cols[1]);
-			array_pop($cols);
-			$indexes[$row[0]]['columns'] = $cols;
+			preg_match_all('/\((.*)\)/',$row[1],$indexExpression);
+			$indexes[$row[0]]['columns'] = array_map('trim',explode(',',$indexExpression[1][0]));
 		}
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
