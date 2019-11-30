@@ -440,14 +440,19 @@ class ADODB_sqlite3 extends ADOConnection {
 
 		$indexes = array ();
 		while ($row = $rs->FetchRow()) {
+			print_r($row);
 			if ($primary && preg_match("/primary/i",$row[1]) == 0) {
 				continue;
 			}
-			if (!isset($indexes[$row[0]])) {
-				$indexes[$row[0]] = array(
-					'unique' => preg_match("/unique/i",$row[1]),
-					'columns' => array()
-				);
+			if (!isset($indexes[$row[0]])) 
+			{
+				if ($this->suppressExtendedMetaIndexes)
+					$indexes[$row[0]] = $this->legacyMetaIndexFormat;
+				else
+					$indexes[$row[0]] = $this->extendedMetaIndexFormat;
+				
+				$indexes[$row[0]]['unique'] = stripos($row[1],'unique')!== false ?1:0;
+				$indexes[$row[0]]['primary']= stripos($row[1],'primary') !== false ?1:0;
 			}
 			/**
 			 * The index elements appear in the SQL statement
@@ -456,6 +461,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			 */
 			preg_match_all('/\((.*)\)/',$row[1],$indexExpression);
 			$indexes[$row[0]]['columns'] = array_map('trim',explode(',',$indexExpression[1][0]));
+
 		}
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
