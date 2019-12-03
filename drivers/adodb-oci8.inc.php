@@ -471,17 +471,23 @@ END;
 		// get Primary index
 		$primary_key = '';
 
-		$rs = $this->Execute(sprintf("SELECT * FROM ALL_CONSTRAINTS WHERE UPPER(TABLE_NAME)='%s' AND CONSTRAINT_TYPE='P'",$table));
-		if (!is_object($rs)) {
+		$p1 = $this->param('p1');
+		$bind = array('p1'=>$table);
+		/*
+		* Separate statement to retrieve the primary key
+		*/
+		$sql = "SELECT CONSTRAINT_NAME
+		         FROM ALL_CONSTRAINTS 
+				 WHERE UPPER(TABLE_NAME)=$p1
+				 AND CONSTRAINT_TYPE='P'";
+				 
+		$primary_key = $this->getOne($sql,$bind);
+		if (!$primary_key) {
 			if (isset($savem)) {
 				$this->SetFetchMode($savem);
 			}
 			$ADODB_FETCH_MODE = $save;
 			return false;
-		}
-
-		if ($row = $rs->FetchRow()) {
-			$primary_key = $row[1]; //constraint_name
 		}
 
 		if ($primary==TRUE && $primary_key=='') {
@@ -492,7 +498,15 @@ END;
 			return false; //There is no primary key
 		}
 
-		$rs = $this->Execute(sprintf("SELECT ALL_INDEXES.INDEX_NAME, ALL_INDEXES.UNIQUENESS, ALL_IND_COLUMNS.COLUMN_POSITION, ALL_IND_COLUMNS.COLUMN_NAME FROM ALL_INDEXES,ALL_IND_COLUMNS WHERE UPPER(ALL_INDEXES.TABLE_NAME)='%s' AND ALL_IND_COLUMNS.INDEX_NAME=ALL_INDEXES.INDEX_NAME",$table));
+		$sql = "SELECT ALL_INDEXES.INDEX_NAME, 
+					   ALL_INDEXES.UNIQUENESS, 
+					   ALL_IND_COLUMNS.COLUMN_POSITION, 
+					   ALL_IND_COLUMNS.COLUMN_NAME 
+				  FROM ALL_INDEXES,ALL_IND_COLUMNS 
+				 WHERE UPPER(ALL_INDEXES.TABLE_NAME)=$p1 
+				   AND ALL_IND_COLUMNS.INDEX_NAME=ALL_INDEXES.INDEX_NAME";
+		
+		$rs = $this->execute($sql,$bind);
 
 
 		if (!is_object($rs)) {
