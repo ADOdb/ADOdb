@@ -635,7 +635,11 @@ class ADODB_postgres64 extends ADOConnection{
 		global $ADODB_FETCH_MODE;
 
 		/*
-		* Alternate method
+		* Alternate method to obtain column information. This
+		* needs someone with more
+		 experience then I in postgres to parse the column
+		* information out of the create index statement
+		
 		
 $sql = "SELECT
     tablename,
@@ -666,20 +670,21 @@ ORDER BY
 		,'relhastriggers','relhassubclass','relrowsecurity','relforcerowsecurity'
 		,'relispopulated','relreplident','relfrozenxid','relminmxid','relacl' 
 		,'reloptions'
-		);
-		
-		/*
-		* These items describe the column attributes in the index
-		*/
-		$columnExtendedAttributeNames = array_flip(array(
-		'relname','relnamespace','reltype','reloftype','relowner','relam'
+		,'relname','relnamespace','reltype','reloftype','relowner','relam'
 		,'relfilenode','reltablespace','relpages','reltuples','relallvisible'
 		,'reltoastrelid','relhasindex','relisshared','relpersistence','relkind'
 		,'relnatts','relchecks','relhasoids','relhaspkey','relhasrules'
 		,'relhastriggers','relhassubclass','relrowsecurity','relforcerowsecurity'
 		,'relispopulated','relreplident','relfrozenxid','relminmxid'
 		,'relacl','reloptions' 
-		));
+		);
+		
+		/*
+		* These items describe the column attributes in the index
+		*/
+		$columnExtendedAttributeNames = array(
+		
+		);
 		
 		$schema = false;
 		$this->_findschema($table,$schema);
@@ -690,7 +695,7 @@ ORDER BY
 					   i.indisunique as "Unique",
 					   i.indkey as "Columns",
 					   i.indisprimary as "Primary",
-					   i.*,c.*
+					   i.*,c.*,c2.*
 				FROM pg_catalog.pg_class c
 				JOIN pg_catalog.pg_index i ON i.indexrelid=c.oid
 				JOIN pg_catalog.pg_class c2 ON c2.oid=i.indrelid
@@ -705,7 +710,7 @@ ORDER BY
 					   i.indisunique as "Unique", 
 					   i.indkey as "Columns",
    					   i.indisprimary as "Primary",
-					   i.*,c.*
+					   i.*,c.*,c2.*
 				FROM pg_catalog.pg_class c
 				JOIN pg_catalog.pg_index i ON i.indexrelid=c.oid
 				JOIN pg_catalog.pg_class c2 ON c2.oid=i.indrelid
