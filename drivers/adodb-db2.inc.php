@@ -866,8 +866,8 @@ class ADODB_db2 extends ADOConnection {
 
 		
 		$savem 			  = $ADODB_FETCH_MODE;
-		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		$this->setFetchMode(ADODB_FETCH_NUM);
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		$this->setFetchMode(ADODB_FETCH_ASSOC);
 
         $sql = "SELECT * 
 				  FROM syscat.indexes
@@ -875,6 +875,32 @@ class ADODB_db2 extends ADOConnection {
 		 
 		$rows = $this->getAll($sql);
 		
+		/*
+		* These items describe the index itself
+		*/
+		$indexExtendedAttributeNames = array(
+		'indschema','indname','owner','ownertype' ,'tabschema' ,
+		'tabname' ,'colnames' ,'uniquerule' ,'made_unique',
+		'colcount','unique_colcount' ,'indextype' ,'entrytype'
+		,'pctfree' ,'iid' ,'nleaf','nlevels','firstkeycard'
+		,'first2keycard' ,'first3keycard' ,'first4keycard'
+        ,'fullkeycard','clusterratio','clusterfactor'
+		,'sequential_pages','density','user_defined'
+		,'system_required','create_time','stats_time','page_fetch_pairs'
+		,'minpctused','reverse_scans','internal_format','compression'
+        ,'ieschema','iename','iearguments','index_objectid','numrids'
+        ,'numrids_deleted' ,'num_empty_leafs','average_random_fetch_pages' 
+        ,'average_random_pages' ,'average_sequence_gap' ,'average_sequence_fetch_gap' 
+        ,'average_sequence_pages','average_sequence_fetch_pages','tbspaceid'
+        ,'level2pctfree','pagesplit','avgpartition_clusterratio'
+		,'avgpartition_clusterfactor','avgpartition_page_fetch_pairs' 
+        ,'pctpagessaved','datapartition_clusterfactor','indcard' 
+        ,'avgleafkeysize','avgnleafkeysize','os_ptr_size','collectstatistcs'  
+        ,'definer','lastused','periodname' ,'periodpolicy' 
+        ,'made_withoutoverlaps','envstringunits','nullkeys','func_path' 
+        ,'viewschema','viewname','remarks' 
+		);
+				
 		$this->setFetchMode($savem);
 		$ADODB_FETCH_MODE = $savem;
 		
@@ -883,6 +909,8 @@ class ADODB_db2 extends ADOConnection {
 
         foreach ($rows as $r)
 		{
+			$keys = array_keys($r);
+			$values = array_values($r);
 			
 			$primaryIndex = $r[7] == 'P'?1:0;
 			if (!$primary)
@@ -895,11 +923,17 @@ class ADODB_db2 extends ADOConnection {
 			$indexName = $this->getMetaCasedValue($r[1]);
 			if (!isset($indices[$indexName]))
 			{
+				
+				if ($this->suppressExtendedMetaIndexes)
+					$indices[$indexName] = $this->legacyMetaIndexFormat;
+				else
+					$indices[$indexName] = $this->extendedMetaIndexFormat;
+				
+				
 				$unique = ($r[7] == 'U')?1:0;
-				$indices[$indexName] = array('unique'=>$unique,
-											 'primary'=>$primaryIndex,
-										     'columns'=>array()
-										);
+				$indices[$indexName]['unique'] = $unique;
+				$indices[$indexName]['primary'] = $primaryIndex;
+				$indices[$indexName]['columns'] = array();
 			}
 			$cols = explode('+',$r[6]);
 			foreach ($cols as $colIndex=>$col)
