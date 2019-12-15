@@ -877,7 +877,7 @@ class ADODB_db2 extends ADOConnection {
 		
 		/*
 		* These items describe the index itself
-		*/
+		
 		$indexExtendedAttributeNames = array(
 		'indschema','indname','owner','ownertype' ,'tabschema' ,
 		'tabname' ,'colnames' ,'uniquerule' ,'made_unique',
@@ -900,7 +900,7 @@ class ADODB_db2 extends ADOConnection {
         ,'made_withoutoverlaps','envstringunits','nullkeys','func_path' 
         ,'viewschema','viewname','remarks' 
 		);
-				
+		*/		
 		$this->setFetchMode($savem);
 		$ADODB_FETCH_MODE = $savem;
 		
@@ -909,18 +909,17 @@ class ADODB_db2 extends ADOConnection {
 
         foreach ($rows as $r)
 		{
-			$keys = array_keys($r);
-			$values = array_values($r);
-			
-			$primaryIndex = $r[7] == 'P'?1:0;
+			$r = array_change_key_case($r,CASE_LOWER);
+						
+			$primaryIndex = $r['uniquerule'] == 'P'?1:0;
 			if (!$primary)
 				/*
 			     * Primary key not requested, ignore that one
 				 */
-				if ($r[7] == 'P')
+				if ($primaryIndex)
 					continue;
 				
-			$indexName = $this->getMetaCasedValue($r[1]);
+			$indexName = $this->getMetaCasedValue($r['indname']);
 			if (!isset($indices[$indexName]))
 			{
 				
@@ -930,18 +929,26 @@ class ADODB_db2 extends ADOConnection {
 					$indices[$indexName] = $this->extendedMetaIndexFormat;
 				
 				
-				$unique = ($r[7] == 'U')?1:0;
+				$unique = ($r['uniquerule'] == 'U')?1:0;
 				$indices[$indexName]['unique'] = $unique;
 				$indices[$indexName]['primary'] = $primaryIndex;
 				$indices[$indexName]['columns'] = array();
+				$indices[$indexName]['index-attributes'] = $r;
 			}
-			$cols = explode('+',$r[6]);
+			/*
+			* The columns in the index are just in a single
+			* field that lists the like this: col1+col2+col3
+			*/
+			$cols = explode('+',$r['colnames']);
 			foreach ($cols as $colIndex=>$col)
 			{
 				if ($colIndex == 0)
 					continue;
+				
 				$columnName = $this->getMetaCasedValue($col);
 				$indices[$indexName]['columns'][] = $columnName;
+				$indices[$indexName]['column-attributes'][$columnName] = array();
+
 			}
 			
 		}
