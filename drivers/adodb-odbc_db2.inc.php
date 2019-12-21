@@ -210,10 +210,15 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 		$indexes = array ();
         // parse index data into array
         while ($row = $rs->FetchRow()) {
-			$indexes[$row[0]] = array(
-			   'unique' => ($row[1] == 'U' || $row[1] == 'P'),
-			   'columns' => array()
-			);
+			
+			if ($this->suppressExtendedMetaIndexes)
+				$indexes[$row[0]] = $this->legacyMetaIndexFormat;
+			else
+				$indexes[$row[0]] = $this->extendedMetaIndexFormat;
+			
+			$indexes[$row[0]]['unique'] = ($row[1] == 'U' || $row[1] == 'P');
+			$indexes[$row[0]]['columns'] = array();
+			
 			$cols = ltrim($row[2],'+');
 			$indexes[$row[0]]['columns'] = explode('+', $cols);
         }

@@ -440,7 +440,6 @@ class ADODB_sqlite3 extends ADOConnection {
 
 		$indexes = array ();
 		while ($row = $rs->FetchRow()) {
-			print_r($row);
 			if ($primary && preg_match("/primary/i",$row[1]) == 0) {
 				continue;
 			}

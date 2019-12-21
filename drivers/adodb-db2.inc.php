@@ -933,7 +933,8 @@ class ADODB_db2 extends ADOConnection {
 				$indices[$indexName]['unique'] = $unique;
 				$indices[$indexName]['primary'] = $primaryIndex;
 				$indices[$indexName]['columns'] = array();
-				$indices[$indexName]['index-attributes'] = $r;
+				if (!$this->suppressExtendedMetaIndexes)
+					$indices[$indexName]['index-attributes'] = $r;
 			}
 			/*
 			* The columns in the index are just in a single
@@ -947,7 +948,8 @@ class ADODB_db2 extends ADOConnection {
 				
 				$columnName = $this->getMetaCasedValue($col);
 				$indices[$indexName]['columns'][] = $columnName;
-				$indices[$indexName]['column-attributes'][$columnName] = array();
+				if (!$this->suppressExtendedMetaIndexes)
+					$indices[$indexName]['column-attributes'][$columnName] = array();
 
 			}
 			

@@ -179,13 +179,18 @@ class ADODB_pdo_firebird extends ADODB_pdo
 		while ($row = $rs->FetchRow()) {
 			$index = $row[0];
 			if (!isset($indexes[$index])) {
+				
+				if ($this->suppressExtendedMetaIndexes)
+					$indexes[$index] = $this->legacyMetaIndexFormat;
+				else
+					$indexes[$index] = $this->extendedMetaIndexFormat;
+				
 				if (is_null($row[3])) {
 					$row[3] = 0;
 				}
-				$indexes[$index] = array(
-					'unique' => ($row[3] == 1),
-					'columns' => array()
-				);
+				$indexes[$index]['unique'] = ($row[3] == 1);
+				$indexes[$index]['columns'] = array();
+				
 			}
 			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '" . $index . "' ORDER BY RDB\$FIELD_POSITION ASC";
 			$rs1 = $this->Execute($sql);

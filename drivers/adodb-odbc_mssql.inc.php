@@ -189,44 +189,126 @@ order by constraint_name, referenced_table_name, keyno";
 	}
 
 
-	function MetaIndexes($table,$primary=false, $owner=false)
+	function metaIndexes($table,$primary=false, $owner = false)
 	{
-		$table = $this->qstr($table);
-
-		$sql = "SELECT i.name AS ind_name, C.name AS col_name, USER_NAME(O.uid) AS Owner, c.colid, k.Keyno,
-			CASE WHEN I.indid BETWEEN 1 AND 254 AND (I.status & 2048 = 2048 OR I.Status = 16402 AND O.XType = 'V') THEN 1 ELSE 0 END AS IsPK,
-			CASE WHEN I.status & 2 = 2 THEN 1 ELSE 0 END AS IsUnique
-			FROM dbo.sysobjects o INNER JOIN dbo.sysindexes I ON o.id = i.id
-			INNER JOIN dbo.sysindexkeys K ON I.id = K.id AND I.Indid = K.Indid
-			INNER JOIN dbo.syscolumns c ON K.id = C.id AND K.colid = C.Colid
-			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND O.Name LIKE $table
-			ORDER BY O.name, I.Name, K.keyno";
-
+		$table = $this->addq($table);
+		$p1 = $this->param('p1');
+		$bind = array('p1'=>$table);
+		$sql = "
+		SELECT 
+			ind.name IndexName,
+			col.name ColumnName,
+			ind.is_primary_key PrimaryKey,
+			ind.is_unique IsUnique,
+			ind.*,
+			ic.*,
+			col.*
+		FROM 
+			 sys.indexes ind 
+		INNER JOIN 
+			 sys.index_columns ic ON  ind.object_id = ic.object_id and ind.index_id = ic.index_id 
+		INNER JOIN 
+			 sys.columns col ON ic.object_id = col.object_id and ic.column_id = col.column_id 
+		INNER JOIN 
+			 sys.tables t ON ind.object_id = t.object_id and t.name=$p1
+		
+		ORDER BY 
+			 t.name, ind.name, ind.index_id, ic.index_column_id";
+		
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-        if ($this->fetchMode !== FALSE) {
-        	$savem = $this->SetFetchMode(FALSE);
-        }
+		if ($this->fetchMode !== FALSE) {
+			$savem = $this->SetFetchMode(FALSE);
+		}
 
-        $rs = $this->Execute($sql);
-        if (isset($savem)) {
-        	$this->SetFetchMode($savem);
-        }
-        $ADODB_FETCH_MODE = $save;
+		$rs = $this->execute($sql,$bind);
+		if (isset($savem)) {
+			$this->SetFetchMode($savem);
+		}
+		//$ADODB_FETCH_MODE = $save;
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 
-        if (!is_object($rs)) {
-        	return FALSE;
-        }
+		if (!is_object($rs)) {
+			return FALSE;
+		}
 
 		$indexes = array();
+		
+		/*
+		* These items describe the index itself
+		*/
+		$indexExtendedAttributeNames = array_flip(array(
+		'indexname','columnname','primarykey','isunique','object_id',
+		'name','index_id','type','type_desc','is_unique','data_space_id',
+		'ignore_dup_key','is_primary_key','is_unique_constraint',
+		'fill_factor','is_padded','is_disabled','is_hypothetical',
+		'allow_row_locks','allow_page_locks','has_filter','filter_definition'
+		));
+       
+		/*
+		* These items describe the column attributes in the index
+		*/
+		$columnExtendedAttributeNames = array_flip(array(
+		'index_column_id','column_id','key_ordinal','partition_ordinal',
+		'is_descending_key','is_included_column','system_type_id','user_type_id',
+		'max_length','precision','scale','collation_name','is_nullable',
+		'is_ansi_padded','is_rowguidcol','is_identity','is_computed',
+		'is_filestream','is_replicated','is_non_sql_subscribed',
+		'is_merge_published','is_dts_replicated','is_xml_document',
+		'xml_collection_id','default_object_id','rule_object_id',
+		'is_sparse' ,'is_column_set'
+		));
+	
 		while ($row = $rs->FetchRow()) {
-			if (!$primary && $row[5]) continue;
+			
+			/*
+			* Dont know what casing is set on the driver, so artificially
+			* convert keys to lower case
+			*/
+			$row  = array_change_key_case($row);
+						
+			if (!$primary && $row['primarykey']) 
+				continue;
 
-            $indexes[$row[0]]['unique'] = $row[6];
-            $indexes[$row[0]]['columns'][] = $row[1];
-    	}
-        return $indexes;
+			/*
+			* First iteration of index, build format
+			*/
+			if (!isset($indexes[$row['indexname']])) 
+			{
+				if ($this->suppressExtendedMetaIndexes)
+					$indexes[$row['indexname']] = $this->legacyMetaIndexFormat;
+				else
+					$indexes[$row['indexname']] = $this->extendedMetaIndexFormat;
+				
+				$indexes[$row['indexname']]['unique']    = $row['isunique'];
+				$indexes[$row['indexname']]['primary']   = $row['primarykey'];
+
+				
+				if (!$this->suppressExtendedMetaIndexes)
+				{
+					/*
+					* We need to extract the 'index' specific itema
+					* from the extended attributes
+					*/
+					$iAttributes = array_intersect_key($row,$indexExtendedAttributeNames);
+					$indexes[$row['indexname']]['index-attributes'] = $iAttributes;
+				}
+			}
+			
+			
+			$indexes[$row['indexname']]['columns'][] = $row['columnname'];
+			
+			if (!$this->suppressExtendedMetaIndexes)
+			{
+				/*
+				* We need to extract the 'column' specific itema
+				* from the extended attributes
+				*/
+				$cAttributes = array_intersect_key($row,$columnExtendedAttributeNames);
+				$indexes[$row['indexname']]['column-attributes'][$row['columnname']] = $cAttributes;
+			}
+		}
+		return $indexes;
 	}
 
 	function _query($sql,$inputarr=false)
