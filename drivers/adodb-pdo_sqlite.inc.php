@@ -203,4 +203,59 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		}
 		return $ret;
    }
+   function MetaIndexes($table, $primary = FALSE, $owner = false)
+	{
+		$parent = $this->pdoDriver;
+
+		$false = false;
+		// save old fetch mode
+		global $ADODB_FETCH_MODE;
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($parent->fetchMode !== false) 
+			$savem = $parent->SetFetchMode(false);
+		
+		$SQL = sprintf("SELECT name,sql FROM sqlite_master WHERE type='index' AND LOWER(tbl_name)='%s'", strtolower($table));
+		$data = $parent->getAll($SQL);
+		if (isset($savem)) {
+			$parent->SetFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
+
+		$indexes = array ();
+		foreach($data as $row)
+		{
+			if ($primary && preg_match("/primary/i",$row[1]) == 0) {
+				continue;
+			
+			}
+			if (!isset($indexes[$row[0]])) 
+			{
+				if ($this->suppressExtendedMetaIndexes)
+					$indexes[$row[0]] = $this->legacyMetaIndexFormat;
+				else
+					$indexes[$row[0]] = $this->extendedMetaIndexFormat;
+				
+				$indexes[$row[0]]['unique'] = stripos($row[1],'unique')!== false ?1:0;
+				$indexes[$row[0]]['primary']= stripos($row[1],'primary') !== false ?1:0;
+				
+				if (!$this->suppressExtendedMetaIndexes)
+					$indexes[$row[0]]['index-attributes'] = $row[1];
+			}
+			/**
+			 * The index elements appear in the SQL statement
+			 * in cols[1] between parentheses
+			 * e.g CREATE UNIQUE INDEX ware_0 ON warehouse (org,warehouse)
+			 */
+			preg_match_all('/\((.*)\)/',$row[1],$indexElements);
+			$cols = explode(',',$indexElements[1][0]);
+			$indexes[$row[0]]['columns'] = $cols;
+			if (!$this->suppressExtendedMetaIndexes)
+			{
+				foreach($cols as $c)
+					$indexes[$row[0]]['column-attributes'][$c] = array();
+			}
+		}
+		return $indexes;
+	}
 }

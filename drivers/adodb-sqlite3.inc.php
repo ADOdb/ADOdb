@@ -418,7 +418,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		return $this->_connectionID->close();
 	}
 
-	function MetaIndexes($table, $primary = FALSE, $owner = false)
+	function metaIndexes($table, $primary = FALSE, $owner = false)
 	{
 		$false = false;
 		// save old fetch mode
@@ -461,6 +461,17 @@ class ADODB_sqlite3 extends ADOConnection {
 			preg_match_all('/\((.*)\)/',$row[1],$indexExpression);
 			$indexes[$row[0]]['columns'] = array_map('trim',explode(',',$indexExpression[1][0]));
 
+			if (!$this->suppressExtendedMetaIndexes)
+				$indexes[$row[0]]['index-attributes'] = $row[1];
+
+			$cols = explode(',',$indexElements[1][0]);
+			$indexes[$row[0]]['columns'] = $cols;
+			if (!$this->suppressExtendedMetaIndexes)
+			{
+				foreach($cols as $c)
+					$indexes[$row[0]]['column-attributes'][$c] = array();
+			}
+			
 		}
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
