@@ -257,10 +257,10 @@ class ADODB_pdo extends ADOConnection {
 		return $this->_driver->MetaColumns($table,$normalize);
 	}
 
-	public function metaIndexes($table,$normalize=true)
+	public function metaIndexes($table,$showPrimary=false,$owner=false)
 	{
 		if (method_exists($this->_driver,'metaIndexes'))
-			return $this->_driver->metaIndexes($table,$normalize);
+			return $this->_driver->metaIndexes($table,$showPrimary,$owner);
 	}
 
 	/**
