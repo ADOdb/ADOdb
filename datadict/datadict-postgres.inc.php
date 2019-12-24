@@ -190,7 +190,9 @@ class ADODB2_postgres extends ADODB_DataDict {
 		if ($has_alter_column) {
 			$tabname = $this->TableName($tabname);
 			$sql = array();
-			list($lines,$pkey) = $this->_GenFields($flds);
+			// Avoid use of SERIAL when altering an existing column
+			// 2014-04-14 by AS
+			list($lines,$pkey) = $this->_GenFields($flds, false, false);
 			$set_null = false;
 			foreach($lines as $v) {
 				$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
