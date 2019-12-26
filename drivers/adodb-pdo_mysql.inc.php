@@ -31,6 +31,8 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 
 	function _init($parentDriver)
 	{
+		$this->pdoDriver = $parentDriver;
+
 		$parentDriver->hasTransactions = false;
 		#$parentDriver->_bindInputArray = false;
 		$parentDriver->hasInsertID = true;
@@ -87,6 +89,139 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		$this->metaTablesSQL = $save;
 		return $ret;
 	}
+	
+	function MetaIndexes ($table, $primary = FALSE, $owner = false)
+	{
+		// save old fetch mode
+		global $ADODB_FETCH_MODE;
+
+		$parent = $this->pdoDriver;
+
+		$false = false;
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($parent->fetchMode !== FALSE) {
+			$savem = $parent->SetFetchMode(FALSE);
+		}
+
+		// get index details
+		$rs = $parent->Execute(sprintf('SHOW INDEXES FROM %s',$table));
+
+		// restore fetchmode
+		if (isset($savem)) {
+			$parent->SetFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
+
+		if (!is_object($rs)) {
+			return $false;
+		}
+
+		$indexes = array ();
+		
+		/*
+		* Extended index attributes are provided as follows:
+		0 table The name of the table
+		1 non_unique 1 if the index can contain duplicates, 0 if it cannot.
+		2 key_name The name of the index. The primary key index always has the name of PRIMARY.
+		3 seq_in_index The column sequence number in the index. The first column sequence number starts from 1.
+		4 column_name The column name
+		5 collation Collation represents how the column is sorted in the index. A means ascending, B means descending, or NULL means not sorted.
+		6 cardinality The cardinality returns an estimated number of unique values in the index. Note that the higher the cardinality, the greater the chance that the query optimizer uses the index for lookups.
+		7 sub_part The index prefix. It is null if the entire column is indexed. Otherwise, it shows the number of indexed characters in case the column is partially indexed.
+		8 packed indicates how the key is packed; NUL if it is not.
+		9 null YES if the column may contain NULL values and blank if it does not.
+		10 index_type represents the index method used such as BTREE, HASH, RTREE, or FULLTEXT.
+		11 comment The information about the index not described in its own column.
+		12 index_comment shows the comment for the index specified when you create the index with the COMMENT attribute.
+		13 visible Whether the index is visible or invisible to the query optimizer or not; YES if it is, NO if not.
+		14 expression If the index uses an expression rather than column or column prefix value, the expression indicates the expression for the key part and also the column_name column is NULL.
+		*/
+		$extendedAttributeNames = array(
+			'table','non_unique','key_name','seq_in_index',
+			'column_name','collation','cardinality','sub_part',
+			'packed','null','index_type','comment',
+			'index_comment','visible', 'expression');
+			
+		
+		/*
+		* These items describe the index itself
+		*/
+		
+		$indexExtendedAttributeNames = array_flip(array(
+			'table','non_unique','key_name','cardinality',
+			'packed','index_type','index_comment',
+			'visible', 'expression'));
+			
+		/*
+		* These items describe the column attributes in the index
+		*/
+		$columnExtendedAttributeNames = array_flip(array(
+			'seq_in_index',
+			'column_name','collation','sub_part',
+			'null'));		
+			
+		/*
+		*  parse index data into array
+		*/
+		while ($row = $rs->FetchRow()) {
+			
+			if ($primary == FALSE AND $row[2] == 'PRIMARY') {
+				continue;
+			}
+			
+			/*
+			* Prepare the extended attributes for use
+			*/
+			if (!$this->suppressExtendedMetaIndexes)
+			{
+				$rowCount = count($row);
+				$earow = array_merge($row,array_fill($rowCount,15 - $rowCount,''));
+				$extendedAttributes = array_combine($extendedAttributeNames,$earow);
+			}
+			
+			if (!isset($indexes[$row[2]])) 
+			{
+				if ($this->suppressExtendedMetaIndexes)
+					$indexes[$row[2]] = $this->legacyMetaIndexFormat;
+				else
+					$indexes[$row[2]] = $this->extendedMetaIndexFormat;
+				
+				$indexes[$row[2]]['unique'] = ($row[1] == 0);
+				
+				if (!$this->suppressExtendedMetaIndexes)
+				{
+					/*
+					* We need to extract the 'index' specific itema
+					* from the extended attributes
+					*/
+					$iAttributes = array_intersect_key($extendedAttributes,$indexExtendedAttributeNames);
+					$indexes[$row[2]]['index-attributes'] = $iAttributes;
+				}
+			}
+
+			$indexes[$row[2]]['columns'][$row[3] - 1] = $row[4];
+			
+			if (!$this->suppressExtendedMetaIndexes)
+			{
+				/*
+				* We need to extract the 'column' specific itema
+				* from the extended attributes
+				*/
+				$cAttributes = array_intersect_key($extendedAttributes,$columnExtendedAttributeNames);
+				$indexes[$row[2]]['column-attributes'][$cAttributes['column_name']] = $cAttributes;
+			}
+		}
+
+		// sort columns by order in the index
+		foreach ( array_keys ($indexes) as $index )
+		{
+			ksort ($indexes[$index]['columns']);
+		}
+
+		return $indexes;
+	}
+
 
     /**
      * @param bool $auto_commit
