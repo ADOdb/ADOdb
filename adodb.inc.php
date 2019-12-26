@@ -4,7 +4,7 @@
  *
  * Latest version is available at http://adodb.org/
  *
- * This is the main include file for ADOdb.
+ * This is the main include file fo272 ADOdb.
  * Database specific drivers are stored in the adodb/drivers/adodb-*.inc.php
  *
  * The ADOdb files are formatted so that doxygen can be used to generate documentation.

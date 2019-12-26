@@ -59,9 +59,13 @@ WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 	function _init($parentDriver)
 	{
 
+
 		$parentDriver->hasTransactions = false; ## <<< BUG IN PDO pgsql driver
 		$parentDriver->hasInsertID = true;
 		$parentDriver->_nestedSQL = true;
+
+		$this->pdoDriver = $parentDriver;
+
 	}
 
 	function ServerInfo()
@@ -228,6 +232,165 @@ select viewname,'V' from pg_views where viewname like $mask";
 		} else return $retarr;
 
 	}
+	
+	function MetaIndexes ($table, $primary = FALSE, $owner = false)
+	{
+		global $ADODB_FETCH_MODE;
+
+		/*
+		* Alternate method to obtain column information. This
+		* needs someone with more
+		 experience then I in postgres to parse the column
+		* information out of the create index statement
+		
+		
+$sql = "SELECT
+    tablename,
+    indexname,
+    indexdef
+FROM
+    pg_indexes
+WHERE
+    tablename LIKE 'a%'
+ORDER BY
+    tablename,
+    indexname";
+		*/
+		
+		$parent = $this->pdoDriver;
+
+
+		/*
+		* These items describe the index itself
+		*/
+		$indexExtendedAttributeNames = array(
+		'name','unique','columns','primary','indexrelid','indrelid','indnatts','indisunique','indisprimary'
+		,'indisexclusion','indimmediate','indisclustered','indisvalid'
+		,'indcheckxmin','indisready','indislive','indisreplident'
+		,'indkey','indcollation','indclass','indoption','indexprs','indpred' 
+		,'relname','relnamespace','reltype','reloftype','relowner','relam'
+		,'relfilenode','reltablespace','relpages','reltuples','relallvisible'
+		,'reltoastrelid','relhasindex','relisshared','relpersistence','relkind'
+		,'relnatts','relchecks','relhasoids','relhaspkey','relhasrules'
+		,'relhastriggers','relhassubclass','relrowsecurity','relforcerowsecurity'
+		,'relispopulated','relreplident','relfrozenxid','relminmxid','relacl' 
+		,'reloptions'
+		,'relname','relnamespace','reltype','reloftype','relowner','relam'
+		,'relfilenode','reltablespace','relpages','reltuples','relallvisible'
+		,'reltoastrelid','relhasindex','relisshared','relpersistence','relkind'
+		,'relnatts','relchecks','relhasoids','relhaspkey','relhasrules'
+		,'relhastriggers','relhassubclass','relrowsecurity','relforcerowsecurity'
+		,'relispopulated','relreplident','relfrozenxid','relminmxid'
+		,'relacl','reloptions' 
+		);
+		
+		/*
+		* These items describe the column attributes in the index
+		*/
+		$columnExtendedAttributeNames = array(
+		
+		);
+		
+		$schema = false;
+		$parent->_findschema($table,$schema);
+
+		if ($schema) { // requires pgsql 7.3+ - pg_namespace used.
+			$sql = '
+				SELECT c.relname as "Name",
+					   i.indisunique as "Unique",
+					   i.indkey as "Columns",
+					   i.indisprimary as "Primary",
+					   i.*,c.*,c2.*
+				FROM pg_catalog.pg_class c
+				JOIN pg_catalog.pg_index i ON i.indexrelid=c.oid
+				JOIN pg_catalog.pg_class c2 ON c2.oid=i.indrelid
+					,pg_namespace n
+				WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))
+				and c.relnamespace=c2.relnamespace
+				and c.relnamespace=n.oid
+				and n.nspname=\'%s\'';
+		} else {
+			$sql = '
+				SELECT c.relname as "Name", 
+					   i.indisunique as "Unique", 
+					   i.indkey as "Columns",
+   					   i.indisprimary as "Primary",
+					   i.*,c.*,c2.*
+				FROM pg_catalog.pg_class c
+				JOIN pg_catalog.pg_index i ON i.indexrelid=c.oid
+				JOIN pg_catalog.pg_class c2 ON c2.oid=i.indrelid
+				WHERE (c2.relname=\'%s\' or c2.relname=lower(\'%s\'))';
+		}
+
+		if ($primary == FALSE) {
+			$sql .= ' AND i.indisprimary=false;';
+		}
+
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($parent->fetchMode !== FALSE) {
+			$savem = $parent->SetFetchMode(FALSE);
+		}
+
+		$rs = $parent->Execute(sprintf($sql,$table,$table,$schema));
+		if (isset($savem)) {
+			$parent->SetFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
+
+		if (!is_object($rs)) {
+			$false = false;
+			return $false;
+		}
+
+		$col_names = $parent->MetaColumnNames($table,true,false);
+		// 3rd param is use attnum,
+		// see https://sourceforge.net/p/adodb/bugs/45/
+		$indexes = array();
+	
+		while ($row = $rs->FetchRow()) {
+
+			/*
+			* Prepare the extended attributes for use
+			
+			if (!$this->suppressExtendedMetaIndexes)
+			{
+				$rowCount = count($row);
+				$earow = array_merge($row,array_fill($rowCount,15 - $rowCount,''));
+				$extendedAttributes = array_combine($extendedAttributeNames,$earow);
+			}
+			*/
+			
+			
+			if ($this->suppressExtendedMetaIndexes)
+				$indexes[$row[0]] = $this->legacyMetaIndexFormat;
+			else
+				$indexes[$row[0]] = $this->extendedMetaIndexFormat;
+			
+			
+			$columns = array();
+			foreach (explode(' ', $row[2]) as $col) {
+				$columns[] = $col_names[$col];
+				$indexes[$row[0]]['column-attributes'][$col_names[$col]] = array();
+			}
+
+			$indexes[$row[0]]['unique'] = ($row[1] == 't');
+			$indexes[$row[0]]['columns'] = $columns;
+			$indexes[$row[0]]['primary'] = ($row[3] == 't'); //indisprimary
+			if (!$this->suppressExtendedMetaIndexes)
+			{
+				/*
+				* We need to extract the 'index' specific itema
+				* from the extended attributes
+				*/
+				$iAttributes = array_combine($indexExtendedAttributeNames,$row);
+				$indexes[$row[0]]['index-attributes'] = $iAttributes;
+			}
+			
+		}
+		return $indexes;
+	}
+
 
 	function BeginTrans()
 	{
