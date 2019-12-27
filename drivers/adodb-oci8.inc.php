@@ -613,7 +613,7 @@ END;
 					$indexes[$row['index_name']]['index-attributes'] = $iAttributes;
 				}
 			}
-			$indexes[$row['index_name']]['columns'][] = $row[3];
+			$indexes[$row['index_name']]['columns'][] = $row['column_name'];
 			
 			if (!$this->suppressExtendedMetaIndexes)
 			{
