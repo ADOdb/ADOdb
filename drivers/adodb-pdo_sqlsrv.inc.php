@@ -8,6 +8,9 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 	var $hasTop = 'top';
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
 	var $sysTimeStamp = 'GetDate()';
+	
+	public $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
+
 	var $arrayClass = 'ADORecordSet_array_pdo_sqlsrv';
 
 	function _init(ADODB_pdo $parentDriver)
@@ -17,6 +20,8 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 		$parentDriver->hasInsertID = true;
 		$parentDriver->fmtTimeStamp = "'Y-m-d H:i:s'";
 		$parentDriver->fmtDate = "'Y-m-d'";
+		
+		$this->pdoDriver = $parentDriver;
 	}
 
 	function BeginTrans()
@@ -30,11 +35,22 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 		return false;
 	}
 
-	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	function metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
-		return false;
-	}
+		if ($mask) {
+			$save = $this->metaTablesSQL;
+			$mask = $this->pdoDriver->qstr(($mask));
+			$this->metaTablesSQL .= " AND name like $mask";
+		}
+		
+		$ret = ADOConnection::MetaTables($ttype,$showSchema);
 
+		if ($mask) {
+			$this->metaTablesSQL = $save;
+		}
+		return $ret;
+	}
+	
 	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
 	{
 		$ret = ADOConnection::SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
