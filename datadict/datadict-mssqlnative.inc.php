@@ -53,6 +53,9 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 
 	//var $alterCol = ' ALTER COLUMN ';
 
+	public $blobAllowsDefaultValue = true;
+	public $blobAllowsNotNull      = true;
+
 	function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {

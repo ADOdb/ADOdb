@@ -22,6 +22,7 @@ if (!defined('ADODB_DIR')) die();
 
 class ADODB_sqlite extends ADOConnection {
 	var $databaseType = "sqlite";
+	var $dataProvider = "sqlite";
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $concat_operator='||';
 	var $_errorNo = 0;
