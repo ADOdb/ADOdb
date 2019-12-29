@@ -363,14 +363,13 @@ class ADODB_DataDict {
 			return $quote . $matches[1] . $quote;
 		}
 
-		// if name contains special characters, quote it
-		$regex = ($allowBrackets) ? $this->nameRegexBrackets : $this->nameRegex;
-
-		if ( !preg_match('/^[' . $regex . ']+$/', $name) ) {
-			return $quote . $name . $quote;
+		// allways quote column names to kope with column names being reserved words like eg. "timestamp"
+		// if brackets are allowed, quote only the rest,
+		// to allow to limit indexes on colums, eg "column(32)"
+		if ($allowBrackets && preg_match('/^(.*) *(\(\d+\))$/',$name,$matches)) {
+			return $quote . $matches[1] . $quote . ' '. $matches[2];
 		}
-
-		return $name;
+		return $quote . $name . $quote;
 	}
 
 	function TableName($name)
@@ -677,11 +676,11 @@ class ADODB_DataDict {
 			//-----------------
 			// Parse attributes
 			foreach($fld as $attr => $v) {
-				if ($attr == 2 && is_numeric($v)) 
+				if ($attr == 2 && is_numeric($v))
 					$attr = 'SIZE';
-				elseif ($attr == 2 && strtoupper($ftype) == 'ENUM') 
+				elseif ($attr == 2 && strtoupper($ftype) == 'ENUM')
 					$attr = 'ENUM';
-				else if (is_numeric($attr) && $attr > 1 && !is_numeric($v)) 
+				else if (is_numeric($attr) && $attr > 1 && !is_numeric($v))
 					$attr = strtoupper($v);
 
 				switch($attr) {
@@ -842,7 +841,7 @@ class ADODB_DataDict {
 			if (strlen($fprec)) $ftype .= ",".$fprec;
 			$ftype .= ')';
 		}
-		
+
 		/*
 		* Handle additional options
 		*/
@@ -855,12 +854,12 @@ class ADODB_DataDict {
 					case 'ENUM':
 					$ftype .= '(' . $value . ')';
 					break;
-					
+
 					default:
 				}
 			}
 		}
-		
+
 		return $ftype;
 	}
 

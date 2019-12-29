@@ -522,6 +522,9 @@ class ADODB_postgres64 extends ADOConnection{
 	{
 		global $ADODB_FETCH_MODE;
 
+		// table-name must NOT be quoted, otherwise we will not find any index
+		$table = str_replace($this->nameQuote,'',$table);
+
 		$schema = false;
 		$false = false;
 		$this->_findschema($table,$schema);
@@ -645,6 +648,11 @@ class ADODB_postgres64 extends ADOConnection{
 	function MetaIndexes ($table, $primary = FALSE, $owner = false)
 	{
 		global $ADODB_FETCH_MODE;
+
+		//if tablenames are quoted, remove the quotes as the tablenames here are used for comparsion of content of fields in postgres system tables
+		if (!empty($this->nameQuote) && !(strpos($table,$this->nameQuote)===false)) {
+			$table = str_replace($this->nameQuote,'',$table);
+		}
 
 		$schema = false;
 		$this->_findschema($table,$schema);

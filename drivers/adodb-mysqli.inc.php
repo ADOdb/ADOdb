@@ -671,6 +671,8 @@ class ADODB_mysqli extends ADOConnection {
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false)
 			$savem = $this->SetFetchMode(false);
+		// need to remove quotes, if table-name is already name-quoted by datadict::MetaColumns
+		if ($table[0] == $this->nameQuote) $table = substr($table, 1, -1);
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
