@@ -9,8 +9,8 @@
 /*
 Setup:
 
- 	$db = NewADOConnection('text');
- 	$db->Connect($array,[$types],[$colnames]);
+ 	$db = ADONewConnection('text');
+ 	$db->connect($array, [$types], [$colnames]);
 
 	Parameter $array is the 2 dimensional array of data. The first row can contain the
 	column names. If column names is not defined in first row, you MUST define $colnames,
@@ -25,38 +25,43 @@ Setup:
 	column names of $array. If undefined, we assume the first row of $array holds the
 	column names.
 
- The Execute() function will return a recordset. The recordset works like a normal recordset.
+ The execute() function will return a recordset. The recordset works like a normal recordset.
  We have partial support for SQL parsing. We process the SQL using the following rules:
 
- 1. SQL order by's always work for the first column ordered. Subsequent cols are ignored
+ 1. SQL order by's always work for the first column ordered. Subsequent cols are ignored.
 
  2. All operations take place on the same table. No joins possible. In fact the FROM clause
-	is ignored! You can use any name for the table.
+    is ignored! You can use any name for the table.
 
  3. To simplify code, all columns are returned, except when selecting 1 column
 
- 	$rs = $db->Execute('select col1,col2 from table'); // sql ignored, will generate all cols
+ 	$rs = $db->execute('select col1,col2 from table'); // sql ignored, will generate all cols
 
 	We special case handling of 1 column because it is used in filter popups
 
-	$rs = $db->Execute('select col1 from table');
+	$rs = $db->execute('select col1 from table');
 	// sql accepted and processed -- any table name is accepted
 
-	$rs = $db->Execute('select distinct col1 from table');
+	$rs = $db->execute('select distinct col1 from table');
 	// sql accepted and processed
 
-4. Where clauses are ignored, but searching with the 3rd parameter of Execute is permitted.
+4. Where clauses are ignored, but searching with the 3rd parameter of execute() is permitted.
    This has to use PHP syntax and we will eval() it. You can even use PHP functions.
 
-	 $rs = $db->Execute('select * from table',false,"\$COL1='abc' and $\COL2=3")
+	 $rs = $db->execute('select * from table', false, "\$COL1=='abc' and $\COL2==3");
  	// the 3rd param is searched -- make sure that $COL1 is a legal column name
 	// and all column names must be in upper case.
 
-4. Group by, having, other clauses are ignored
+   Note: For ADODB 5.*, you can set $db->evalAll variable before the execute() as ADODB 5 execute() does not have a 3rd parameter.
+	$db->evalAll = "\$COL1=='abc' and $\COL2==3";
+	$rs = $db->execute('select * from table');
+	$db->evalAll = false; # optional housekeeping for any later query
 
-5. Expression columns, min(), max() are ignored
+5. GROUP BY, HAVING, other clauses are ignored.
 
-6. All data is readonly. Only SELECTs permitted.
+6. Expression columns, min(), max() are ignored.
+
+7. All data is readonly. Only SELECTs permitted.
 */
 
 // security - hide paths
@@ -70,7 +75,7 @@ function adodb_cmp($a, $b) {
 	if ($a[0] == $b[0]) return 0;
 	return ($a[0] < $b[0]) ? -1 : 1;
 }
-// for sorting in _query()
+// for reverse/desc sorting in _query()
 function adodb_cmpr($a, $b) {
 	if ($a[0] == $b[0]) return 0;
 	return ($a[0] > $b[0]) ? -1 : 1;
@@ -108,15 +113,13 @@ class ADODB_text extends ADOConnection {
 	}
 
 		// returns true or false
-	function PConnect(&$array, $types = false, $colnames = false)
+	function pconnect(&$array, $types = false, $colnames = false)
 	{
 		return $this->Connect($array, $types, $colnames);
 	}
 		// returns true or false
-	function Connect(&$array, $types = false, $colnames = false)
+	function connect(&$array, $types = false, $colnames = false)
 	{
-		if (is_string($array) and $array === 'iluvphplens') return 'me2';
-
 		if (!$array) {
 			$this->_origarray = false;
 			return true;
@@ -124,19 +127,19 @@ class ADODB_text extends ADOConnection {
 		$row = $array[0];
 		$cols = sizeof($row);
 
-
-		if ($colnames) $this->_colnames = $colnames;
-		else {
+		if ($colnames) {
+			$this->_colnames = $colnames;
+		} else {
 			$this->_colnames = $array[0];
 			$this->_skiprow1 = true;
 		}
 		if (!$types) {
-		// probe and guess the type
+			// probe and guess the type
 			$types = array();
 			$firstrow = true;
 			if ($this->_proberows > sizeof($array)) $max = sizeof($array);
 			else $max = $this->_proberows;
-			for ($j=($this->_skiprow1)?1:0;$j < $max; $j++) {
+			for ($j=($this->_skiprow1)?1:0; $j < $max; $j++) {
 				$row = $array[$j];
 				if (!$row) break;
 				$i = -1;
@@ -176,32 +179,37 @@ class ADODB_text extends ADOConnection {
 
 	// returns queryID or false
 	// We presume that the select statement is on the same table (what else?),
-	// with the only difference being the order by.
-	//You can filter by using $eval and each clause is stored in $arr .eg. $arr[1] == 'name'
+	// with the only difference being the ORDER BY.
+	// You can filter by using $eval and each clause is stored in $arr .eg. $arr[1] == 'name'
 	// also supports SELECT [DISTINCT] COL FROM ... -- only 1 col supported
-	function _query($sql,$input_arr,$eval=false)
+	function _query($sql, $input_arr, $eval=false)
 	{
 		if ($this->_origarray === false) return false;
 
-		$eval = $this->evalAll;
+		if (!is_string($eval)) {
+			// This looks like a workaround for ADOdb 5 not having a 3rd execute() parameter by setting
+			// that evalAll object variable before calling execute()
+			$eval = $this->evalAll;
+		}
+
 		$usql = strtoupper(trim($sql));
-		$usql = preg_replace("/[\t\n\r]/",' ',$usql);
-		$usql = preg_replace('/ *BY/i',' BY',strtoupper($usql));
+		$usql = preg_replace("/[\t\n\r]/", ' ', $usql);
+		$usql = preg_replace('/ *BY/i', ' BY', strtoupper($usql));
 
 		$eregword ='([A-Z_0-9]*)';
-		//print "<BR> $sql $eval ";
+		//print "sql: $sql\n eval: $eval\n";
 		if ($eval) {
 			$i = 0;
 			foreach($this->_colnames as $n) {
 				$n = strtoupper(trim($n));
-				$eval = str_replace("\$$n","\$arr[$i]",$eval);
+				$eval = str_replace("\$$n", "\$arr[$i]", $eval);
 
 				$i += 1;
 			}
 
 			$i = 0;
 			$eval = "\$rez=($eval);";
-			//print "<p>Eval string = $eval </p>";
+			//print "eval string = $eval\n";
 			$where_arr = array();
 
 			reset($this->_origarray);
@@ -211,25 +219,25 @@ class ADODB_text extends ADOConnection {
 					$where_arr[] = $arr;
 				else {
 					eval($eval);
-					//print " $i: result=$rez arr[0]={$arr[0]} arr[1]={$arr[1]} <BR>\n ";
+					//print " $i: result=$rez arr[0]={$arr[0]} arr[1]={$arr[1]} \n";
 					if ($rez) $where_arr[] = $arr;
 				}
 				$i += 1;
 			}
 			$this->_rezarray = $where_arr;
-		}else
+		} else {
 			$where_arr = $this->_origarray;
-
+		}
 		// THIS PROJECTION CODE ONLY WORKS FOR 1 COLUMN,
 		// OTHERWISE IT RETURNS ALL COLUMNS
 		if (substr($usql,0,7) == 'SELECT ') {
-			$at = strpos($usql,' FROM ');
-			$sel = trim(substr($usql,7,$at-7));
+			$at = strpos($usql, ' FROM ');
+			$sel = trim(substr($usql, 7, $at-7));
 
 			$distinct = false;
 			if (substr($sel,0,8) == 'DISTINCT') {
 				$distinct = true;
-				$sel = trim(substr($sel,8,$at));
+				$sel = trim(substr($sel, 8, $at));
 			}
 
 			// $sel holds the selection clause, comma delimited
@@ -238,7 +246,7 @@ class ADODB_text extends ADOConnection {
 			if (strpos(',',$sel)===false) {
 				$colarr = array();
 
-				preg_match("/$eregword/",$sel,$colarr);
+				preg_match("/$eregword/", $sel, $colarr);
 				$col = $colarr[1];
 				$i = 0;
 				$n = '';
@@ -288,9 +296,9 @@ class ADODB_text extends ADOConnection {
 
 		$pos = strpos($usql,' ORDER BY ');
 		if ($pos === false) return $this;
-		$orderby = trim(substr($usql,$pos+10));
+		$orderby = trim(substr($usql, $pos+10));
 
-		preg_match("/$eregword/",$orderby,$arr);
+		preg_match("/$eregword/", $orderby, $arr);
 		if (sizeof($arr) < 2) return $this; // actually invalid sql
 		$col = $arr[1];
 		$at = (integer) $col;
@@ -320,13 +328,15 @@ class ADODB_text extends ADOConnection {
 		}
 
 		// check for desc sort
-		$orderby = substr($orderby,strlen($col)+1);
+		$orderby = substr($orderby, strlen($col)+1);
 		$arr = array();
-		preg_match('/([A-Z_0-9]*)/i',$orderby,$arr);
+		preg_match('/([A-Z_0-9]*)/i', $orderby, $arr);
 
-		if (trim($arr[1]) == 'DESC') $sortf = 'adodb_cmpr';
-		else $sortf = 'adodb_cmp';
-
+		if (trim($arr[1]) == 'DESC') {
+			$sortf = 'adodb_cmpr';
+		} else {
+			$sortf = 'adodb_cmp';
+		}
 		// hasta la sorta babe
 		usort($sorta, $sortf);
 
@@ -342,13 +352,13 @@ class ADODB_text extends ADOConnection {
 	}
 
 	/*	Returns: the last error message from previous database operation	*/
-	function ErrorMsg()
+	function errorMsg()
 	{
 			return '';
 	}
 
 	/*	Returns: the last error number from previous database operation	*/
-	function ErrorNo()
+	function errorNo()
 	{
 		return 0;
 	}
