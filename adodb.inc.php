@@ -618,7 +618,16 @@ if (!defined('_ADODB_LAYER')) {
 	static function outp($msg,$newline=true) {
 		global $ADODB_FLUSH,$ADODB_OUTP;
 
-		if (defined('ADODB_OUTP')) {
+		if (defined('ADODB_OUTP')) 
+		{
+			if (DEFINED('ADODB_OUTP_OBJECT') && is_string($msg))
+			{
+				$clsLog = new ADODataLoggingObject;
+				$clsLog->errorMessage = $msg;
+				
+				$msg = $clsLog;
+			}
+			
 			$fn = ADODB_OUTP;
 			$fn($msg,$newline);
 			return;
@@ -713,6 +722,7 @@ if (!defined('_ADODB_LAYER')) {
 			}
 		}
 		if (isset($rez)) {
+			print "\nNO REZ";
 			$err = $this->ErrorMsg();
 			$errno = $this->ErrorNo();
 			if (empty($err)) {
@@ -722,6 +732,7 @@ if (!defined('_ADODB_LAYER')) {
 			$err = "Missing extension for ".$this->dataProvider;
 			$errno = 0;
 		}
+		print "\nCALL ERROR {$this->raiseErrorFn}";
 		if ($fn = $this->raiseErrorFn) {
 			$fn($this->databaseType, 'CONNECT', $errno, $err, $this->host, $this->database, $this);
 		}
@@ -5301,4 +5312,51 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return _adodb_backtrace($printOrArr,$levels,0,$ishtml);
 	}
 
+}
+
+/**
+* An object in which to log/store activity data
+*/
+class ADODataLoggingObject
+{
+	/*
+	* The SQL statement(s) processed, if any
+	*/
+	public $sql;
+	
+	/*
+	* The bind data, if any
+	*/
+	public $inputArray;
+	
+	/*
+	* The database driver error
+	*/
+	public $errorNo = 0;
+	
+	/*
+	* The database driver error message
+	*/
+	public $errorMessage;
+	
+	/*
+	* The ADOdb Meta error number
+	*/
+	public $metaErrorNo = 0;
+	
+	/*
+	* The ADOdb Meta error message
+	*/
+	public $metaErrorMessage;
+	
+	/*
+	* The backtrace
+	*/
+	public $backTrace;
+	
+	/*
+	* An error level that can be set if required
+	* default INFO
+	*/
+	public $errorLevel = LOG_INFO;
 }

@@ -1127,6 +1127,17 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 
 function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 {
+	
+	if ($zthis->debug === 2)
+	{
+		/*
+		* Log event
+		*/
+		$clsLog = new ADODataLoggingObject;
+		$clsLog->sql 		= $sql;
+		$clsLog->inputArray = $inputarr;
+	}
+	
 	$ss = '';
 	if ($inputarr) {
 		foreach($inputarr as $kk=>$vv) {
@@ -1154,13 +1165,14 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 			ADOConnection::outp( "<br>\n($dbt): ".htmlspecialchars($sqlTxt)." &nbsp; $ss\n<br>\n",false);
 		else if ($zthis->debug !== -99)
 			ADOConnection::outp( "<hr>\n($dbt): ".htmlspecialchars($sqlTxt)." &nbsp; $ss\n<hr>\n",false);
-	} else {
+	} else if ($zthis->debug !== 2){
 		$ss = "\n   ".$ss;
 		if ($zthis->debug !== -99)
 			ADOConnection::outp("-----<hr>\n($dbt): ".$sqlTxt." $ss\n-----<hr>\n",false);
 	}
 
 	$qID = $zthis->_query($sql,$inputarr);
+
 
 	/*
 		Alexios Fakios notes that ErrorMsg() must be called before ErrorNo() for mssql
@@ -1171,21 +1183,57 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 
 		if($emsg = $zthis->ErrorMsg()) {
 			if ($err = $zthis->ErrorNo()) {
+
+				if ($zthis->debug === 2)
+				{
+					$clsLog->errorNo          = $zthis->errorNo();
+					$clsLog->errorMessage     = $zthis->errorMsg();
+					$clsLog->metaErrorNo	  = $zthis->metaError($clsLog->errorNo);
+					$clsLog->metaErrorMessage = $zthis->metaErrorMsg($clsLog->metaErrorNo);
+					$clsLog->backTrace        = _adodb_backtrace(true,9999,2,false);
+					$clsLog->errorLevel		  = LOG_ERR;
+				
+					ADOConnection::outp($clsLog,false);
+					return;
+				}
+				
 				if ($zthis->debug === -99)
 					ADOConnection::outp( "<hr>\n($dbt): ".htmlspecialchars($sqlTxt)." &nbsp; $ss\n<hr>\n",false);
 
 				ADOConnection::outp($err.': '.$emsg);
+				
 			}
 		}
 	} else if (!$qID) {
 
+		if ($zthis->debug === 2)
+		{
+			$clsLog->errorNo          = $zthis->errorNo();
+			$clsLog->errorMessage     = $zthis->errorMsg();
+			$clsLog->metaErrorNo	  = $zthis->metaError($clsLog->errorNo);
+			$clsLog->metaErrorMessage = $zthis->metaErrorMsg($clsLog->metaErrorNo);
+			$clsLog->backTrace        = _adodb_backtrace(true,9999,2,false);
+			$clsLog->errorLevel		  = LOG_ERR;
+			
+			ADOConnection::outp($clsLog,false);
+			return;
+		}
 		if ($zthis->debug === -99)
 				if ($inBrowser) ADOConnection::outp( "<hr>\n($dbt): ".htmlspecialchars($sqlTxt)." &nbsp; $ss\n<hr>\n",false);
 				else ADOConnection::outp("-----<hr>\n($dbt): ".$sqlTxt."$ss\n-----<hr>\n",false);
 
 		ADOConnection::outp($zthis->ErrorNo() .': '. $zthis->ErrorMsg());
 	}
+	if ($zthis->debug === 2)
+	{
+		/*
+		* Log successful event
+		*/
+		$clsLog->backTrace  = _adodb_backtrace(true,9999,2,false);
+		ADOConnection::outp($clsLog,false);
 
+		return $qID;
+	}
 	if ($zthis->debug === 99) _adodb_backtrace(true,9999,2);
 	return $qID;
 }
