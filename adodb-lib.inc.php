@@ -1128,15 +1128,15 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 {
 	
-	if ($zthis->debug === 2)
-	{
-		/*
-		* Log event
-		*/
-		$clsLog = new ADODataLoggingObject;
-		$clsLog->sql 		= $sql;
-		$clsLog->inputArray = $inputarr;
-	}
+	/*
+	* Log event, whether it is displayed is based on the LOG_LEVEL
+	*/
+	$clsLog = new ADODataLoggingObject($zthis);
+	$clsLog->title      = 'Execution of statement in debugging mode';
+	$clsLog->sql 		= $sql;
+	$clsLog->inputArray = $inputarr;
+	
+	
 	
 	$ss = '';
 	if ($inputarr) {
@@ -1184,14 +1184,16 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 		if($emsg = $zthis->ErrorMsg()) {
 			if ($err = $zthis->ErrorNo()) {
 
+				$clsLog->errorNo          = $zthis->errorNo();
+				$clsLog->errorMessage     = $zthis->errorMsg();
+				$clsLog->metaErrorNo	  = $zthis->metaError($clsLog->errorNo);
+				$clsLog->metaErrorMessage = $zthis->metaErrorMsg($clsLog->metaErrorNo);
+				$clsLog->backTrace        = _adodb_backtrace(true,9999,2,false);
+				$clsLog->errorLevel		  = LOG_ERR;
+				
 				if ($zthis->debug === 2)
 				{
-					$clsLog->errorNo          = $zthis->errorNo();
-					$clsLog->errorMessage     = $zthis->errorMsg();
-					$clsLog->metaErrorNo	  = $zthis->metaError($clsLog->errorNo);
-					$clsLog->metaErrorMessage = $zthis->metaErrorMsg($clsLog->metaErrorNo);
-					$clsLog->backTrace        = _adodb_backtrace(true,9999,2,false);
-					$clsLog->errorLevel		  = LOG_ERR;
+					
 				
 					ADOConnection::outp($clsLog,false);
 					return;

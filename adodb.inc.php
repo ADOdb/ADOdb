@@ -531,6 +531,11 @@ if (!defined('_ADODB_LAYER')) {
 	var $_affected = false;
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
+	
+	/*
+	* A logging tag, inserted into every logging message
+	*/
+	public $logTag;
 
 
 	/**
@@ -568,7 +573,8 @@ if (!defined('_ADODB_LAYER')) {
 		$this->connectionParameters[] = array($parameter=>$value);
 
 	}
-
+	
+	
 	static function Version() {
 		global $ADODB_vers;
 
@@ -5320,6 +5326,15 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 class ADODataLoggingObject
 {
 	/*
+	* An internal description of the event, if any
+	*/
+	public $title;
+	
+	/*
+	* The user defined tag associated with the driver, if any
+	*/
+	public $logTag;
+	/*
 	* The SQL statement(s) processed, if any
 	*/
 	public $sql;
@@ -5359,4 +5374,12 @@ class ADODataLoggingObject
 	* default INFO
 	*/
 	public $errorLevel = LOG_INFO;
+	
+	/*
+	* Auto inserts the logTag
+	*/
+	public function __construct($parent)
+	{
+		$this->logTag = $parent->logTag;
+	}
 }
