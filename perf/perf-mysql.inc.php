@@ -118,6 +118,12 @@ class perf_mysql extends adodb_perf{
 		return $s;
 	}
 
+	/**
+	 * Returns a list of table statuses.
+	 * 
+	 * @param  string  $orderby  Unused (compatibility with parent method)
+	 * @return string A formatted set of recordsets
+	 */
 	function tables($orderby='1')
 	{
 		if (!$this->tablesSQL) return false;
