@@ -44,7 +44,6 @@ Older changelogs:
 - mssql: MetaForeignKeys() not returning all FKs. #486
 - mssql: support for T-SQL-style square brackets. #246
 - mssqlnative: Query not returning id. #185
-- mssqlnative: support SQL Server 2014 databases. #186
 - mssqlnative: add support for 'l' (day of week) format in sqlDate(). #232
 - mssqlnative: fix invalid return value for ErrorNo(). #298
 - mssqlnative: ensure that the bind array is numeric. #336
@@ -149,7 +148,7 @@ Please use version 5.20.12 or later.
 
 ## 5.20.8 - 17-Dec-2016
 
-- mssql: support MSSQL Server 2016 and later #294
+- mssql: support MSSQL Server 2014 and later. #186 #294
 - mssql: fix Find() returning no results. #298
 - mssql: fix Sequence name forced to 'adodbseq'. #295, #300
 - mssql: fix GenId() not returning next sequence value with SQL Server 2005/2008. #302
