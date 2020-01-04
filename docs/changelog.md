@@ -30,7 +30,11 @@ Older changelogs:
 - adodb: add Occitan (#285) and Indonesian (#293) translations.
 - adodb: support use of spaces and reserved keywords in replace function. #390
 - adodb: fix adodb_strip_order_by() to only remove the last order by statement. #549
-- adodb: add control over BLOB data dictionary feature (NOT NULL, DEFAULT). #292, #478 
+- adodb: add control over BLOB data dictionary feature (NOT NULL, DEFAULT). #292, #478
+- adodb: fix field names quoting when setting value to null. #572
+- adodb: Remove unneeded ADODB_str_replace function. #582
+- adodb: Remove needless PHP4 version check. #583
+- adodb: replace _array_change_key_case() by internal PHP function. #587
 - adodb-time: Fix 'Q' (quarter of year) format in adodb_date(). #222
 - adodb-time: Add 'W' (week of year) format support in adodb_date(). #223
 - active record: honor column and table name quoting. #309
@@ -57,8 +61,10 @@ Older changelogs:
 - mysqli: return fields as ADOFieldObject objects. #175
 - mysqli: support SSL connections. #416
 - mysqli (perf): tables() method definition inconsistent with parent. #435, #462
+- mysql: genId() not returning next sequence value. #493
 - oci8: fix syntax error preventing sequence creation. #540
-- oci8: remove use of curly braces in string offsets (deprecated in PHP 7.4). #570 
+- oci8: remove use of curly braces in string offsets (deprecated in PHP 7.4). #570
+- oci8: provide option to create compact trigger/sequence names. #565
 - odbc/mssql: fix null strings concatenation issue with SQL server 2012. #148
 - odbc/mssql: add missing Concat() method. #402
 - odbc: MetaColumns() can optionally be set to return MetaType for backwards compatibility. #184
@@ -77,6 +83,7 @@ Older changelogs:
 - pgsql: optimize version check. #334
 - pgsql: use postgres9 driver by default. #474
 - pgsql: specialized casts for _recreate_copy_table(). #207
+- proxy: the client driver and server.php script are deprecated. #444
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
 - sqlite: Fix Metataypes mapping. #177
@@ -88,7 +95,7 @@ Older changelogs:
 - xml: support table 'opt' attribute with mysqli. #267
 - xml: add support for 'DESCR' tags for tables/fields. #265
 
-# 5.20.16 - 12-Jan-2020
+## 5.20.16 - 12-Jan-2020
 
 - mssql: queries are not correctly closed. #590
 
