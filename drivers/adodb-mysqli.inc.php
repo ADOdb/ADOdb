@@ -386,7 +386,6 @@ class ADODB_mysqli extends ADOConnection {
 	{
 		// mysqli_insert_id does not return the last_insert_id if called after
 		// execution of a stored procedure so we execute this instead.
-		$result = false;
 		if ($this->useLastInsertStatement)
 			$result = ADOConnection::GetOne('SELECT LAST_INSERT_ID()');
 		else
@@ -437,7 +436,6 @@ class ADODB_mysqli extends ADOConnection {
 	function CreateSequence($seqname = 'adodbseq', $startID = 1)
 	{
 		if (empty($this->_genSeqSQL)) return false;
-		$u = strtoupper($seqname);
 
 		$ok = $this->Execute(sprintf($this->_genSeqSQL,$seqname));
 		if (!$ok) return false;
@@ -464,7 +462,6 @@ class ADODB_mysqli extends ADOConnection {
 		$rs = @$this->Execute($getnext);
 		if (!$rs) {
 			if ($holdtransOK) $this->_transOK = true; //if the status was ok before reset
-			$u = strtoupper($seqname);
 			$this->Execute(sprintf($this->_genSeqSQL,$seqname));
 			$cnt = $this->GetOne(sprintf($this->_genSeqCountSQL,$seqname));
 			if (!$cnt) $this->Execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
@@ -663,7 +660,6 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function Concat()
 	{
-		$s = "";
 		$arr = func_get_args();
 
 		// suggestion by andrew005@mnogo.ru
@@ -706,7 +702,6 @@ class ADODB_mysqli extends ADOConnection {
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
 
-		$false = false;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
@@ -1053,7 +1048,7 @@ class ADODB_mysqli extends ADOConnection {
 				$this->useLastInsertStatement = true;
 
 			$fnarr = array_merge( array($stmt,$a) , $inputarr);
-			$ret = call_user_func_array('mysqli_stmt_bind_param',$fnarr);
+			call_user_func_array('mysqli_stmt_bind_param',$fnarr);
 			$ret = mysqli_stmt_execute($stmt);
 			return $ret;
 		}
