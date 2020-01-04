@@ -90,11 +90,11 @@ class ADODB_mysqli extends ADOConnection {
 	{
 		$this->_transmode = $transaction_mode;
 		if (empty($transaction_mode)) {
-			$this->Execute('SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ');
+			$this->execute('SET SESSION TRANSACTION ISOLATION LEVEL REPEATABLE READ');
 			return;
 		}
 		if (!stristr($transaction_mode,'isolation')) $transaction_mode = 'ISOLATION LEVEL '.$transaction_mode;
-		$this->Execute("SET SESSION TRANSACTION ".$transaction_mode);
+		$this->execute("SET SESSION TRANSACTION ".$transaction_mode);
 	}
 
 	/**
@@ -125,7 +125,7 @@ class ADODB_mysqli extends ADOConnection {
 		if (is_null($this->_connectionID)) {
 			// mysqli_init only fails if insufficient memory
 			if ($this->debug) {
-				ADOConnection::outp("mysqli_init() failed : "  . $this->ErrorMsg());
+				ADOConnection::outp("mysqli_init() failed : "  . $this->errorMsg());
 			}
 			return false;
 		}
@@ -168,11 +168,11 @@ class ADODB_mysqli extends ADOConnection {
 					$this->clientFlags);
 
 		if ($ok) {
-			if ($argDatabasename)  return $this->SelectDB($argDatabasename);
+			if ($argDatabasename)  return $this->selectDB($argDatabasename);
 			return true;
 		} else {
 			if ($this->debug) {
-				ADOConnection::outp("Could not connect : "  . $this->ErrorMsg());
+				ADOConnection::outp("Could not connect : "  . $this->errorMsg());
 			}
 			$this->_connectionID = null;
 			return false;
@@ -245,11 +245,11 @@ class ADODB_mysqli extends ADOConnection {
 		global $ADODB_GETONE_EOF;
 
 		$ret = false;
-		$rs = $this->Execute($sql,$inputarr);
+		$rs = $this->execute($sql,$inputarr);
 		if ($rs) {
 			if ($rs->EOF) $ret = $ADODB_GETONE_EOF;
 			else $ret = reset($rs->fields);
-			$rs->Close();
+			$rs->close();
 		}
 		return $ret;
 	}
@@ -261,7 +261,7 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function ServerInfo()
 	{
-		$arr['description'] = $this->GetOne("select version()");
+		$arr['description'] = $this->getOne("select version()");
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
@@ -278,9 +278,9 @@ class ADODB_mysqli extends ADOConnection {
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
 
-		//$this->Execute('SET AUTOCOMMIT=0');
+		//$this->execute('SET AUTOCOMMIT=0');
 		mysqli_autocommit($this->_connectionID, false);
-		$this->Execute('BEGIN');
+		$this->execute('BEGIN');
 		return true;
 	}
 
@@ -296,12 +296,12 @@ class ADODB_mysqli extends ADOConnection {
 	function CommitTrans($ok = true)
 	{
 		if ($this->transOff) return true;
-		if (!$ok) return $this->RollbackTrans();
+		if (!$ok) return $this->rollbackTrans();
 
 		if ($this->transCnt) $this->transCnt -= 1;
-		$this->Execute('COMMIT');
+		$this->execute('COMMIT');
 
-		//$this->Execute('SET AUTOCOMMIT=1');
+		//$this->execute('SET AUTOCOMMIT=1');
 		mysqli_autocommit($this->_connectionID, true);
 		return true;
 	}
@@ -317,8 +317,8 @@ class ADODB_mysqli extends ADOConnection {
 	{
 		if ($this->transOff) return true;
 		if ($this->transCnt) $this->transCnt -= 1;
-		$this->Execute('ROLLBACK');
-		//$this->Execute('SET AUTOCOMMIT=1');
+		$this->execute('ROLLBACK');
+		//$this->execute('SET AUTOCOMMIT=1');
 		mysqli_autocommit($this->_connectionID, true);
 		return true;
 	}
@@ -336,9 +336,9 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function RowLock($tables, $where = '', $col = '1 as adodbignore')
 	{
-		if ($this->transCnt==0) $this->BeginTrans();
+		if ($this->transCnt==0) $this->beginTrans();
 		if ($where) $where = ' where '.$where;
-		$rs = $this->Execute("select $col from $tables $where for update");
+		$rs = $this->execute("select $col from $tables $where for update");
 		return !empty($rs);
 	}
 
@@ -387,13 +387,13 @@ class ADODB_mysqli extends ADOConnection {
 		// mysqli_insert_id does not return the last_insert_id if called after
 		// execution of a stored procedure so we execute this instead.
 		if ($this->useLastInsertStatement)
-			$result = ADOConnection::GetOne('SELECT LAST_INSERT_ID()');
+			$result = ADOConnection::getOne('SELECT LAST_INSERT_ID()');
 		else
 			$result = @mysqli_insert_id($this->_connectionID);
 
 		if ($result == -1) {
 			if ($this->debug)
-				ADOConnection::outp("mysqli_insert_id() failed : "  . $this->ErrorMsg());
+				ADOConnection::outp("mysqli_insert_id() failed : "  . $this->errorMsg());
 		}
 		// reset prepared statement flags
 		$this->usePreparedStatement   = false;
@@ -411,7 +411,7 @@ class ADODB_mysqli extends ADOConnection {
 	{
 		$result =  @mysqli_affected_rows($this->_connectionID);
 		if ($result == -1) {
-			if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->ErrorMsg());
+			if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
 		}
 		return $result;
 	}
@@ -437,9 +437,9 @@ class ADODB_mysqli extends ADOConnection {
 	{
 		if (empty($this->_genSeqSQL)) return false;
 
-		$ok = $this->Execute(sprintf($this->_genSeqSQL,$seqname));
+		$ok = $this->execute(sprintf($this->_genSeqSQL,$seqname));
 		if (!$ok) return false;
-		return $this->Execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
+		return $this->execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
 	}
 
 	/**
@@ -459,13 +459,13 @@ class ADODB_mysqli extends ADOConnection {
 
 		$getnext = sprintf($this->_genIDSQL,$seqname);
 		$holdtransOK = $this->_transOK; // save the current status
-		$rs = @$this->Execute($getnext);
+		$rs = @$this->execute($getnext);
 		if (!$rs) {
 			if ($holdtransOK) $this->_transOK = true; //if the status was ok before reset
-			$this->Execute(sprintf($this->_genSeqSQL,$seqname));
-			$cnt = $this->GetOne(sprintf($this->_genSeqCountSQL,$seqname));
-			if (!$cnt) $this->Execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
-			$rs = $this->Execute($getnext);
+			$this->execute(sprintf($this->_genSeqSQL,$seqname));
+			$cnt = $this->getOne(sprintf($this->_genSeqCountSQL,$seqname));
+			if (!$cnt) $this->execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
+			$rs = $this->execute($getnext);
 		}
 
 		if ($rs) {
@@ -475,7 +475,7 @@ class ADODB_mysqli extends ADOConnection {
 				$rs = $this->execute($getnext);
 				$this->genID = (int)$rs->fields[0];
 			}
-			$rs->Close();
+			$rs->close();
 		} else
 			$this->genID = 0;
 
@@ -490,13 +490,13 @@ class ADODB_mysqli extends ADOConnection {
 	function MetaDatabases()
 	{
 		$query = "SHOW DATABASES";
-		$ret = $this->Execute($query);
+		$ret = $this->execute($query);
 		if ($ret && is_object($ret)){
 			$arr = array();
 			while (!$ret->EOF){
-				$db = $ret->Fields('Database');
+				$db = $ret->fields('Database');
 				if ($db != 'mysql') $arr[] = $db;
-				$ret->MoveNext();
+				$ret->moveNext();
 			}
 			return $arr;
 		}
@@ -521,15 +521,15 @@ class ADODB_mysqli extends ADOConnection {
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== FALSE) {
-			$savem = $this->SetFetchMode(FALSE);
+			$savem = $this->setFetchMode(FALSE);
 		}
 
 		// get index details
-		$rs = $this->Execute(sprintf('SHOW INDEXES FROM %s',$table));
+		$rs = $this->execute(sprintf('SHOW INDEXES FROM %s',$table));
 
 		// restore fetchmode
 		if (isset($savem)) {
-			$this->SetFetchMode($savem);
+			$this->setFetchMode($savem);
 		}
 		$ADODB_FETCH_MODE = $save;
 
@@ -540,7 +540,7 @@ class ADODB_mysqli extends ADOConnection {
 		$indexes = array ();
 
 		// parse index data into array
-		while ($row = $rs->FetchRow()) {
+		while ($row = $rs->fetchRow()) {
 			if ($primary == FALSE AND $row[2] == 'PRIMARY') {
 				continue;
 			}
@@ -706,7 +706,7 @@ class ADODB_mysqli extends ADOConnection {
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
 		if ($this->fetchMode !== FALSE) {
-			$savem = $this->SetFetchMode(FALSE);
+			$savem = $this->setFetchMode(FALSE);
 		}
 
 		$procedures = array ();
@@ -717,11 +717,11 @@ class ADODB_mysqli extends ADOConnection {
 		if ($NamePattern) {
 			$likepattern = " LIKE '".$NamePattern."'";
 		}
-		$rs = $this->Execute('SHOW PROCEDURE STATUS'.$likepattern);
+		$rs = $this->execute('SHOW PROCEDURE STATUS'.$likepattern);
 		if (is_object($rs)) {
 
 			// parse index data into array
-			while ($row = $rs->FetchRow()) {
+			while ($row = $rs->fetchRow()) {
 				$procedures[$row[1]] = array(
 					'type' => 'PROCEDURE',
 					'catalog' => '',
@@ -731,10 +731,10 @@ class ADODB_mysqli extends ADOConnection {
 			}
 		}
 
-		$rs = $this->Execute('SHOW FUNCTION STATUS'.$likepattern);
+		$rs = $this->execute('SHOW FUNCTION STATUS'.$likepattern);
 		if (is_object($rs)) {
 			// parse index data into array
-			while ($row = $rs->FetchRow()) {
+			while ($row = $rs->fetchRow()) {
 				$procedures[$row[1]] = array(
 					'type' => 'FUNCTION',
 					'catalog' => '',
@@ -746,7 +746,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		// restore fetchmode
 		if (isset($savem)) {
-				$this->SetFetchMode($savem);
+				$this->setFetchMode($savem);
 		}
 		$ADODB_FETCH_MODE = $save;
 
@@ -775,7 +775,7 @@ class ADODB_mysqli extends ADOConnection {
 			$mask = $this->qstr($mask);
 			$this->metaTablesSQL .= " AND table_name LIKE $mask";
 		}
-		$ret = ADOConnection::MetaTables($ttype,$showSchema);
+		$ret = ADOConnection::metaTables($ttype,$showSchema);
 
 		$this->metaTablesSQL = $save;
 		return $ret;
@@ -862,9 +862,9 @@ class ADODB_mysqli extends ADOConnection {
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false)
-			$savem = $this->SetFetchMode(false);
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
-		if (isset($savem)) $this->SetFetchMode($savem);
+			$savem = $this->setFetchMode(false);
+		$rs = $this->execute(sprintf($this->metaColumnsSQL,$table));
+		if (isset($savem)) $this->setFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 		if (!is_object($rs))
 			return $false;
@@ -916,10 +916,10 @@ class ADODB_mysqli extends ADOConnection {
 			} else {
 				$retarr[strtoupper($fld->name)] = $fld;
 			}
-			$rs->MoveNext();
+			$rs->moveNext();
 		}
 
-		$rs->Close();
+		$rs->close();
 		return $retarr;
 	}
 
@@ -941,7 +941,7 @@ class ADODB_mysqli extends ADOConnection {
 		if ($this->_connectionID) {
 			$result = @mysqli_select_db($this->_connectionID, $dbName);
 			if (!$result) {
-				ADOConnection::outp("Select of database " . $dbName . " failed. " . $this->ErrorMsg());
+				ADOConnection::outp("Select of database " . $dbName . " failed. " . $this->errorMsg());
 			}
 			return $result;
 		}
@@ -974,9 +974,9 @@ class ADODB_mysqli extends ADOConnection {
 		if ($nrows < 0) $nrows = '18446744073709551615';
 
 		if ($secs)
-			$rs = $this->CacheExecute($secs, $sql . " LIMIT $offsetStr$nrows" , $inputarr );
+			$rs = $this->cacheExecute($secs, $sql . " LIMIT $offsetStr$nrows" , $inputarr );
 		else
-			$rs = $this->Execute($sql . " LIMIT $offsetStr$nrows" , $inputarr );
+			$rs = $this->execute($sql . " LIMIT $offsetStr$nrows" , $inputarr );
 
 		return $rs;
 	}
@@ -1004,7 +1004,7 @@ class ADODB_mysqli extends ADOConnection {
 		return $sql;
 		$stmt = $this->_connectionID->prepare($sql);
 		if (!$stmt) {
-			echo $this->ErrorMsg();
+			echo $this->errorMsg();
 			return $sql;
 		}
 		return array($sql,$stmt);
@@ -1064,7 +1064,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		/*
 		if (!$mysql_res =  mysqli_query($this->_connectionID, $sql, ($ADODB_COUNTRECS) ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT)) {
-			if ($this->debug) ADOConnection::outp("Query: " . $sql . " failed. " . $this->ErrorMsg());
+			if ($this->debug) ADOConnection::outp("Query: " . $sql . " failed. " . $this->errorMsg());
 			return false;
 		}
 
@@ -1084,7 +1084,7 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		if($this->debug)
-			ADOConnection::outp("Query: " . $sql . " failed. " . $this->ErrorMsg());
+			ADOConnection::outp("Query: " . $sql . " failed. " . $this->errorMsg());
 
 		return false;
 
@@ -1192,7 +1192,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		if ($this->charSet !== $charset_name) {
 			$if = @$this->_connectionID->set_charset($charset_name);
-			return ($if === true & $this->GetCharSet() == $charset_name);
+			return ($if === true & $this->getCharSet() == $charset_name);
 		} else {
 			return true;
 		}
@@ -1314,7 +1314,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		if ($this->fetchMode == MYSQLI_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
 			return $this->fields;
 		}
-		$row = ADORecordSet::GetRowAssoc($upper);
+		$row = ADORecordSet::getRowAssoc($upper);
 		return $row;
 	}
 
@@ -1336,7 +1336,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		if (!$this->bind) {
 			$this->bind = array();
 			for ($i = 0; $i < $this->_numOfFields; $i++) {
-				$o = $this->FetchField($i);
+				$o = $this->fetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;
 			}
 		}
@@ -1393,7 +1393,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		$this->_inited     = false;
 		$this->bind        = false;
 		$this->_currentRow = -1;
-		$this->Init();
+		$this->init();
 		return true;
 	}
 
