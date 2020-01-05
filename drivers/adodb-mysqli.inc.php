@@ -146,7 +146,20 @@ class ADODB_mysqli extends ADOConnection {
 			return true;
 		} else {
 			if ($this->debug) {
-				ADOConnection::outp("Could not connect : "  . $this->ErrorMsg());
+				print "\n REAL CONNECT\n";
+				$obj = new ADOdataLoggingObject($this);
+				$obj->errorNo = $this->errorNo();
+				$obj->errorMsg = $this->errorMsg();
+		 
+				$obj->metaErrorNo = $this->errorMsg($obj->errorNo);
+				$obj->metaErrorMessage = $this->metaErrorMsg($obj->metaErrorNo);				
+				//$obj->backTrace        = _adodb_backtrace(true,9999,2,false);
+				$obj->errorLevel       = LOG_ERR;
+				
+				print_r($obj);
+				//exit;
+				ADOConnection::outp($obj);
+				//ADOConnection::outp("Could not connect : "  . $this->ErrorMsg());
 			}
 			$this->_connectionID = null;
 			return false;
