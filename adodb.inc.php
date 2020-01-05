@@ -190,25 +190,6 @@ if (!defined('_ADODB_LAYER')) {
 	unset($_adodb_ver);
 
 
-
-	/**
-		Accepts $src and $dest arrays, replacing string $data
-	*/
-	function ADODB_str_replace($src, $dest, $data) {
-		if (ADODB_PHPVER >= 0x4050) {
-			return str_replace($src,$dest,$data);
-		}
-
-		$s = reset($src);
-		$d = reset($dest);
-		while ($s !== false) {
-			$data = str_replace($s,$d,$data);
-			$s = next($src);
-			$d = next($dest);
-		}
-		return $data;
-	}
-
 	function ADODB_Setup() {
 	GLOBAL
 		$ADODB_vers,		// database version
@@ -475,6 +456,7 @@ if (!defined('_ADODB_LAYER')) {
 	var $hasTransactions = true;	/// has transactions
 	//--
 	var $genID = 0;					/// sequence id used by GenID();
+	/** @var bool|callable  */
 	var $raiseErrorFn = false;		/// error function to call
 	var $isoDates = false;			/// accepts dates in ISO format
 	var $cacheSecs = 3600;			/// cache for 1 hour
@@ -500,8 +482,9 @@ if (!defined('_ADODB_LAYER')) {
 	var $ansiOuter = false; /// whether ansi outer join syntax supported
 	var $autoRollback = false; // autoRollback on PConnect().
 	var $poorAffectedRows = false; // affectedRows not working or unreliable
-
+	/** @var bool|callable  */
 	var $fnExecute = false;
+	/** @var bool|callable  */
 	var $fnCacheExecute = false;
 	var $blobEncodeType = false; // false=not required, 'I'=encode to integer, 'C'=encode to char
 	var $rsPrefix = "ADORecordSet_";
@@ -865,7 +848,7 @@ if (!defined('_ADODB_LAYER')) {
 	 *   $db->Execute($stmt,array(1,'Jill')) or die('insert failed');
 	 *   $db->Execute($stmt,array(2,'Joe')) or die('insert failed');
 	 *
-	 * @param string sql SQL to send to database
+	 * @param string $sql SQL to send to database
 	 *
 	 * @return mixed|false The prepared statement, or the original sql if the
 	 *                     database does not support prepare.
@@ -882,7 +865,8 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * For databases that do not support this, we return the $sql.
 	 *
-	 * @param string sql SQL to send to database
+	 * @param string $sql   SQL to send to database
+	 * @param bool   $param
 	 *
 	 * @return mixed|false The prepared statement, or the original sql if the
 	 *                     database does not support prepare.
@@ -952,8 +936,9 @@ if (!defined('_ADODB_LAYER')) {
 	* The fetch modes for NUMERIC and ASSOC for PEAR DB and ADODB are identical
 	* for easy porting :-)
 	*
-	* @param mode	The fetchmode ADODB_FETCH_ASSOC or ADODB_FETCH_NUM
-	* @returns		The previous fetch mode
+	* @param int $mode The fetchmode ADODB_FETCH_ASSOC or ADODB_FETCH_NUM
+	 *
+	* @return int Previous fetch mode
 	*/
 	function SetFetchMode($mode) {
 		$old = $this->fetchMode;
@@ -969,6 +954,11 @@ if (!defined('_ADODB_LAYER')) {
 
 	/**
 	* PEAR DB Compat - do not use internally.
+	 *
+	 * @param string     $sql
+	 * @param array|bool $inputarr
+	 *
+	 * @return ADORecordSet|bool
 	*/
 	function Query($sql, $inputarr=false) {
 		$rs = $this->Execute($sql, $inputarr);
@@ -980,8 +970,8 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
-	* PEAR DB Compat - do not use internally
-	*/
+	 * PEAR DB Compat - do not use internally
+	 */
 	function LimitQuery($sql, $offset, $count, $params=false) {
 		$rs = $this->SelectLimit($sql, $count, $offset, $params);
 		if (!$rs && defined('ADODB_PEAR')) {
@@ -992,8 +982,8 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
-	* PEAR DB Compat - do not use internally
-	*/
+	 * PEAR DB Compat - do not use internally
+	 */
 	function Disconnect() {
 		return $this->Close();
 	}
@@ -1155,9 +1145,12 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * Execute SQL
 	 *
-	 * @param string $sql SQL statement to execute, or possibly an array holding prepared statement ($sql[0] will hold sql text)
-	 * @param false|array $inputarr holds the input data to bind to. Null elements will be set to null.
-	 * @return false|ADORecordSet
+	 * @param string     $sql      SQL statement to execute, or possibly an array
+	 *                             holding prepared statement ($sql[0] will hold sql text)
+	 * @param array|bool $inputarr holds the input data to bind to.
+	 *                             Null elements will be set to null.
+	 *
+	 * @return ADORecordSet|bool
 	 */
 	public function Execute($sql, $inputarr = false) {
 		if ($this->fnExecute) {
@@ -1290,7 +1283,7 @@ if (!defined('_ADODB_LAYER')) {
 		if( is_string($sql) ) {
 			// Strips keyword used to help generate SELECT COUNT(*) queries
 			// from SQL if it exists.
-			$sql = ADODB_str_replace( '_ADODB_COUNT', '', $sql );
+			$sql = str_replace( '_ADODB_COUNT', '', $sql );
 		}
 
 		if ($this->debug) {
@@ -1374,12 +1367,14 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Generates a sequence id and stores it in $this->genID;
+	 * Generates a sequence id and stores it in $this->genID.
+	 *
 	 * GenID is only available if $this->hasGenID = true;
 	 *
-	 * @param seqname		name of sequence to use
-	 * @param startID		if sequence does not exist, start at this ID
-	 * @return		0 if not supported, otherwise a sequence id
+	 * @param string $seqname Name of sequence to use
+	 * @param int    $startID If sequence does not exist, start at this ID
+	 *
+	 * @return int Sequence id, 0 if not supported
 	 */
 	function GenID($seqname='adodbseq',$startID=1) {
 		if (!$this->hasGenID) {
@@ -1414,9 +1409,15 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * @param $table string name of the table, not needed by all databases (eg. mysql), default ''
-	 * @param $column string name of the column, not needed by all databases (eg. mysql), default ''
-	 * @return  the last inserted ID. Not all databases support this.
+	 * Returns the last inserted ID.
+	 *
+	 * Not all databases support this feature. Some do not require to specify
+	 * table or column name (e.g. MySQL).
+	 *
+	 * @param string $table  Table name, default ''
+	 * @param string $column Column name, default ''
+	 *
+	 * @return int The last inserted ID.
 	 */
 	function Insert_ID($table='',$column='') {
 		if ($this->_logsql && $this->lastInsID) {
@@ -1469,7 +1470,7 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
-	 * @return  the last error message
+	 * @return string the last error message
 	 */
 	function ErrorMsg() {
 		if ($this->_errorMsg) {
@@ -1481,7 +1482,7 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
-	 * @return the last error number. Normally 0 means no error.
+	 * @return int the last error number. Normally 0 means no error.
 	 */
 	function ErrorNo() {
 		return ($this->_errorMsg) ? -1 : 0;
@@ -1539,6 +1540,8 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
+	 * Select a limited number of rows.
+	 *
 	 * Will select, getting rows from $offset (1-based), for $nrows.
 	 * This simulates the MySQL "select * from table limit $offset,$nrows" , and
 	 * the PostgreSQL "select * from table limit $nrows offset $offset". Note that
@@ -1550,12 +1553,13 @@ if (!defined('_ADODB_LAYER')) {
 	 * Uses SELECT TOP for Microsoft databases (when $this->hasTop is set)
 	 * BUG: Currently SelectLimit fails with $sql with LIMIT or TOP clause already set
 	 *
-	 * @param sql
-	 * @param [offset]	is the row to start calculations from (1-based)
-	 * @param [nrows]		is the number of rows to get
-	 * @param [inputarr]	array of bind variables
-	 * @param [secs2cache]		is a private parameter only used by jlim
-	 * @return		the recordset ($rs->databaseType == 'array')
+	 * @param string     $sql
+	 * @param int        $offset     Row to start calculations from (1-based)
+	 * @param int        $nrows      Number of rows to get
+	 * @param array|bool $inputarr   Array of bind variables
+	 * @param int        $secs2cache Private parameter only used by jlim
+	 *
+	 * @return ADORecordSet The recordset ($rs->databaseType == 'array')
 	 */
 	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0) {
 		$nrows = (int)$nrows;
@@ -1642,7 +1646,9 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	* Create serializable recordset. Breaks rs link to connection.
 	*
-	* @param rs			the recordset to serialize
+	* @param ADORecordSet $rs the recordset to serialize
+	 *
+	* @return ADORecordSet_array|bool the new recordset
 	*/
 	function SerializableRS(&$rs) {
 		$rs2 = $this->_rs2rs($rs);
@@ -1653,14 +1659,16 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* Convert database recordset to an array recordset
-	* input recordset's cursor should be at beginning, and
-	* old $rs will be closed.
+	* Convert a database recordset to an array recordset.
+	 *
+	* Input recordset's cursor should be at beginning, and old $rs will be closed.
 	*
-	* @param rs			the recordset to copy
-	* @param [nrows]	number of rows to retrieve (optional)
-	* @param [offset]	offset by number of rows (optional)
-	* @return			the new recordset
+	 * @param ADORecordSet $rs     the recordset to copy
+	 * @param int          $nrows  number of rows to retrieve (optional)
+	 * @param int          $offset offset by number of rows (optional)
+	 * @param bool         $close
+	 *
+	 * @return ADORecordSet_array|ADORecordSet|bool the new recordset
 	*/
 	function &_rs2rs(&$rs,$nrows=-1,$offset=-1,$close=true) {
 		if (! $rs) {
@@ -1699,7 +1707,14 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/*
-	* Return all rows. Compat with PEAR DB
+	 * Return all rows.
+	 *
+	 * Compat with PEAR DB.
+	 *
+	 * @param string     $sql      SQL statement
+	 * @param array|bool $inputarr Input bind array
+	 *
+	 * @return array|false
 	*/
 	function GetAll($sql, $inputarr=false) {
 		$arr = $this->GetArray($sql,$inputarr);
@@ -1707,11 +1722,19 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * @param string $sql
-	 * @param false|array $inputarr
-	 * @param bool $force_array
-	 * @param bool $first2cols
-	 * @return false|array
+	 * Execute statement and return rows in an array.
+	 *
+	 * The function executes a statement and returns all of the returned rows in
+	 * an array, or false if the statement execution fails or if only 1 column
+	 * is requested in the SQL statement.
+	 * If no records match the provided SQL statement, an empty array is returned.
+	 *
+	 * @param string     $sql         SQL statement
+	 * @param array|bool $inputarr    input bind array
+	 * @param bool       $force_array
+	 * @param bool       $first2cols
+	 *
+	 * @return array|bool
 	 */
 	public function GetAssoc($sql, $inputarr = false, $force_array = false, $first2cols = false) {
 		global $ADODB_FETCH_MODE;
@@ -1728,11 +1751,14 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
+	 * Search for the results of an executed query in the cache.
+	 *
 	 * @param int $secs2cache
-	 * @param false|string $sql
-	 * @param false|array $inputarr
-	 * @param bool $force_array
-	 * @param bool $first2cols
+	 * @param string|bool $sql         SQL statement
+	 * @param array|bool  $inputarr    input bind array
+	 * @param bool        $force_array
+	 * @param bool        $first2cols
+	 *
 	 * @return false|array
 	 */
 	public function CacheGetAssoc($secs2cache, $sql = false, $inputarr = false,$force_array = false, $first2cols = false) {
@@ -1809,6 +1835,17 @@ if (!defined('_ADODB_LAYER')) {
 		return $ret;
 	}
 
+	/**
+	 * Executes a statement and returns each row's first column in an array.
+	 *
+	 * @param string     $sql      SQL statement
+	 * @param array|bool $inputarr input bind array
+	 * @param bool       $trim     enables space trimming of the returned value.
+	 *                             This is only relevant if the returned string
+	 *                             is coming from a CHAR type field.
+	 *
+	 * @return array|bool 1D array containning the first row of the query
+	 */
 	function GetCol($sql, $inputarr = false, $trim = false) {
 
 		$rs = $this->Execute($sql, $inputarr);
@@ -1880,10 +1917,13 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
-	*
-	* @param sql			SQL statement
-	* @param [inputarr]		input bind array
-	*/
+	 * Executes a statement and returns a the entire recordset in an array.
+	 *
+	 * @param string     $sql      SQL statement
+	 * @param array|bool $inputarr input bind array
+	 *
+	 * @return array|false
+	 */
 	function GetArray($sql,$inputarr=false) {
 		global $ADODB_COUNTRECS;
 
@@ -1938,8 +1978,10 @@ if (!defined('_ADODB_LAYER')) {
 	* Return one row of sql statement. Recordset is disposed for you.
 	* Note that SelectLimit should not be called.
 	*
-	* @param sql			SQL statement
-	* @param [inputarr]		input bind array
+	* @param string     $sql      SQL statement
+	* @param array|bool $inputarr input bind array
+	 *
+	* @return array|false Array containing the first row of the query
 	*/
 	function GetRow($sql,$inputarr=false) {
 		global $ADODB_COUNTRECS;
@@ -2019,12 +2061,13 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * BUG: Currently CacheSelectLimit fails with $sql with LIMIT or TOP clause already set
 	 *
-	 * @param [secs2cache]	seconds to cache data, set to 0 to force query. This is optional
-	 * @param sql
-	 * @param [offset]	is the row to start calculations from (1-based)
-	 * @param [nrows]	is the number of rows to get
-	 * @param [inputarr]	array of bind variables
-	 * @return		the recordset ($rs->databaseType == 'array')
+	 * @param int    $secs2cache Seconds to cache data, set to 0 to force query. This is optional
+	 * @param string $sql
+	 * @param int    $offset     Row to start calculations from (1-based)
+	 * @param int    $nrows      Number of rows to get
+	 * @param array $inputarr    Array of bind variables
+	 *
+	 * @return ADORecordSet The recordset ($rs->databaseType == 'array')
 	 */
 	function CacheSelectLimit($secs2cache,$sql,$nrows=-1,$offset=-1,$inputarr=false) {
 		if (!is_numeric($secs2cache)) {
@@ -2107,11 +2150,12 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * Execute SQL, caching recordsets.
 	 *
-	 * @param [secs2cache]	seconds to cache data, set to 0 to force query.
-	 *					  This is an optional parameter.
-	 * @param sql		SQL statement to execute
-	 * @param [inputarr]	holds the input data  to bind to
-	 * @return		RecordSet or false
+	 * @param int         $secs2cache Seconds to cache data, set to 0 to force query.
+	 *                                This is an optional parameter.
+	 * @param string|bool $sql        SQL statement to execute
+	 * @param array|bool  $inputarr   Holds the input data to bind
+	 *
+	 * @return ADORecordSet RecordSet or false
 	 */
 	function CacheExecute($secs2cache,$sql=false,$inputarr=false) {
 		global $ADODB_CACHE;
@@ -2503,7 +2547,7 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * Begin a Transaction. Must be followed by CommitTrans() or RollbackTrans().
 	 *
-	 * @return true if succeeded or false if database does not support transactions
+	 * @return bool true if succeeded or false if database does not support transactions
 	 */
 	function BeginTrans() {
 		if ($this->debug) {
@@ -2565,7 +2609,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	/**
 	 * If database does not support transactions, always return true as data always committed
 	 *
-	 * @param $ok  set to false to rollback transaction, true to commit
+	 * @param bool $ok  set to false to rollback transaction, true to commit
 	 *
 	 * @return true/false.
 	 */
@@ -2577,7 +2621,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	/**
 	 * If database does not support transactions, rollbacks always fail, so return false
 	 *
-	 * @return true/false.
+	 * @return bool
 	 */
 	function RollbackTrans() {
 		return false;
@@ -2588,7 +2632,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * return the databases that the driver can connect to.
 	 * Some databases will return an empty array.
 	 *
-	 * @return an array of database names.
+	 * @return array|bool an array of database names.
 	 */
 	function MetaDatabases() {
 		global $ADODB_FETCH_MODE;
@@ -2812,14 +2856,16 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
+	 * Concatenate strings.
+	 *
 	 * Different SQL databases used different methods to combine strings together.
 	 * This function provides a wrapper.
 	 *
-	 * param s	variable number of string parameters
-	 *
 	 * Usage: $db->Concat($str1,$str2);
 	 *
-	 * @return concatenated string
+	 * @param string $s Variable number of string parameters
+	 *
+	 * @return string concatenated string
 	 */
 	function Concat() {
 		$arr = func_get_args();
@@ -2830,9 +2876,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	/**
 	 * Converts a date "d" to a string that the database can understand.
 	 *
-	 * @param d	a date in Unix date time format.
+	 * @param mixed $d a date in Unix date time format.
 	 *
-	 * @return  date string in database date format
+	 * @return string date string in database date format
 	 */
 	function DBDate($d, $isfld=false) {
 		if (empty($d) && $d !== 0) {
@@ -3059,11 +3105,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * to the string single-quotes.
 	 * An example is  $db->qstr("Don't bother",magic_quotes_runtime());
 	 *
-	 * @param s			the string to quote
-	 * @param [magic_quotes]	if $s is GET/POST var, set to get_magic_quotes_gpc().
-	 *				This undoes the stupidity of magic quotes for GPC.
+	 * @param string $s            The string to quote
+	 * @param bool   $magic_quotes If $s is GET/POST var, set to get_magic_quotes_gpc().
+	 *                             This undoes the stupidity of magic quotes for GPC.
 	 *
-	 * @return  quoted string to be sent back to database
+	 * @return string Quoted string to be sent back to database
 	 */
 	function qstr($s,$magic_quotes=false) {
 		if (!$magic_quotes) {
@@ -3338,6 +3384,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		var $databaseType = false;
 		var $EOF = true;
 		var $_numOfRows = 0;
+		/** @var bool|array  */
 		var $fields = false;
 		var $connection = false;
 
@@ -3470,6 +3517,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * public variables
 	 */
 	var $dataProvider = "native";
+	/** @var bool|array  */
 	var $fields = false;	/// holds the current row data
 	var $blobSize = 100;	/// any varchar/char field this size or greater is treated as a blob
 							/// in other words, we use a text area for editing.
@@ -3669,9 +3717,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	/**
 	 * return recordset as a 2-dimensional array.
 	 *
-	 * @param [nRows]  is the number of rows to return. -1 means every row.
+	 * @param int $nRows  Number of rows to return. -1 means every row.
 	 *
-	 * @return an array indexed by the rows (0-based) from the recordset
+	 * @return array indexed by the rows (0-based) from the recordset
 	 */
 	function GetArray($nRows = -1) {
 		$results = array();

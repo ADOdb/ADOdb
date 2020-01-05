@@ -5,7 +5,7 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
-## 5.21.0 - ??-???-2016
+## 5.21.0 - Unreleased
 
 - adodb: Remove useless constructors. #171
 - adodb: Define default constructor in ADOConnection base class. #172
@@ -22,21 +22,32 @@ Older changelogs:
 - adodb: Remove references to obsolete ADOdb Extension. #270
 - adodb: getAssoc() should not change case of result set's outermost key. #335
 - adodb: getAssoc() fix fetch mode. #350
+- adodb: Replace each() with foreach (PHP 7.2 compatibility). #373
 - adodb: Optimize FieldTypesArray with static variable #367
 - adodb: Allow output handler to be callable #312
+- adodb: prevent SQL injection in SelectLimit() #311
 - adodb: fix ADORecordSet constructor signature. #278
 - adodb: add Occitan (#285) and Indonesian (#293) translations.
+- adodb: support use of spaces and reserved keywords in replace function. #390
+- adodb: fix adodb_strip_order_by() to only remove the last order by statement. #549
+- adodb: add control over BLOB data dictionary feature (NOT NULL, DEFAULT). #292, #478 
 - adodb-time: Fix 'Q' (quarter of year) format in adodb_date(). #222
 - adodb-time: Add 'W' (week of year) format support in adodb_date(). #223
+- active record: honor column and table name quoting. #309
 - db2: fix ChangeTableSQL() signature. #338
+- db2: full driver rewrite. #442
 - firebird: updated driver, thanks to Lester Caine. #201
 - mssql: Add charMax() and textMax() methods. #220
+- mssql: Add Convert on SQLDate Method. #304
 - mssql: support alternative port in connect. #314
+- mssql: support Windows authentication. #353
+- mssql: MetaForeignKeys() not returning all FKs. #486
+- mssql: support for T-SQL-style square brackets. #246
 - mssqlnative: Query not returning id. #185
-- mssqlnative: support SQL Server 2014 databases. #186
 - mssqlnative: add support for 'l' (day of week) format in sqlDate(). #232
 - mssqlnative: fix invalid return value for ErrorNo(). #298
 - mssqlnative: ensure that the bind array is numeric. #336
+- mssqlnative: support metaProcedures() method #578
 - mssqlnative: fix crash with driver version 5.6 on queries returning no data. #492
 - mysql: setConnectionParameter() now allows multiple parameters with the same key value. #187
 - mysql: prevent use of driver with PHP >= 7.0. #310
@@ -44,6 +55,10 @@ Older changelogs:
 - mysqli: Insert_ID() did not return correct value after executing stored procedure. #166
 - mysqli: method failed if $associative set true. #181
 - mysqli: return fields as ADOFieldObject objects. #175
+- mysqli: support SSL connections. #416
+- mysqli (perf): tables() method definition inconsistent with parent. #435, #462
+- oci8: fix syntax error preventing sequence creation. #540
+- oci8: remove use of curly braces in string offsets (deprecated in PHP 7.4). #570 
 - odbc/mssql: fix null strings concatenation issue with SQL server 2012. #148
 - odbc/mssql: add missing Concat() method. #402
 - odbc: MetaColumns() can optionally be set to return MetaType for backwards compatibility. #184
@@ -51,17 +66,25 @@ Older changelogs:
 - pdo: add setConnectionParameter support. #247
 - pdo: fix PHP notice. #248
 - pdo: ADORecordSet class loading. #250
+- pdo: add meta extension points. #475
+- pdo/dblib: new driver #496
+- pdo/firebird: new driver #378
+- pdo/mysql: add genID() and createSequence() support. #465
 - pdo/pgsql: Add support for transactions. #363
 - pdo/sqlsrv: fix fetchField() method. #251, #234
 - pdo/sqlsrv: add SetTransactionMode() method. #362
 - pgsql: add CIDR data type to MetaType(). #281
 - pgsql: optimize version check. #334
+- pgsql: use postgres9 driver by default. #474
+- pgsql: specialized casts for _recreate_copy_table(). #207
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
 - sqlite: Fix Metataypes mapping. #177
 - sqlite: driver did not support metaForeignKeys. #179
+- sqlite: metaIndexes() returns column as array instead of CSV. #567
 - memcache: add support for memcached PECL library. #322
 - session: add 'httponly' flag to cookie. #190
+- session: string parameters for `assert` are deprecated in PHP 7.2. #438
 - xml: support table 'opt' attribute with mysqli. #267
 
 ## 5.20.15 - 24-Nov-2019
@@ -125,7 +148,7 @@ Please use version 5.20.12 or later.
 
 ## 5.20.8 - 17-Dec-2016
 
-- mssql: support MSSQL Server 2016 and later #294
+- mssql: support MSSQL Server 2014 and later. #186 #294
 - mssql: fix Find() returning no results. #298
 - mssql: fix Sequence name forced to 'adodbseq'. #295, #300
 - mssql: fix GenId() not returning next sequence value with SQL Server 2005/2008. #302

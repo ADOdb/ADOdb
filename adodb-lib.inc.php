@@ -814,10 +814,10 @@ function adodb_key_exists($key, &$arr,$force=2)
 		return (!empty($arr[$key])) || (isset($arr[$key]) && strlen($arr[$key])>0);
 	}
 
-	if (isset($arr[$key])) return true;
+	if (isset($arr[$key])) 
+		return true;
 	## null check below
-	if (ADODB_PHPVER >= 0x4010) return array_key_exists($key,$arr);
-	return false;
+	return array_key_exists($key,$arr);
 }
 
 /**
