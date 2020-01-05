@@ -190,25 +190,6 @@ if (!defined('_ADODB_LAYER')) {
 	unset($_adodb_ver);
 
 
-
-	/**
-		Accepts $src and $dest arrays, replacing string $data
-	*/
-	function ADODB_str_replace($src, $dest, $data) {
-		if (ADODB_PHPVER >= 0x4050) {
-			return str_replace($src,$dest,$data);
-		}
-
-		$s = reset($src);
-		$d = reset($dest);
-		while ($s !== false) {
-			$data = str_replace($s,$d,$data);
-			$s = next($src);
-			$d = next($dest);
-		}
-		return $data;
-	}
-
 	function ADODB_Setup() {
 	GLOBAL
 		$ADODB_vers,		// database version
@@ -1302,7 +1283,7 @@ if (!defined('_ADODB_LAYER')) {
 		if( is_string($sql) ) {
 			// Strips keyword used to help generate SELECT COUNT(*) queries
 			// from SQL if it exists.
-			$sql = ADODB_str_replace( '_ADODB_COUNT', '', $sql );
+			$sql = str_replace( '_ADODB_COUNT', '', $sql );
 		}
 
 		if ($this->debug) {
