@@ -1287,8 +1287,9 @@ class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
 	// mssql uses a default date like Dec 30 2000 12:00AM
 	static function UnixDate($v)
 	{
-
-		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixDate($v);
+		if (is_numeric(substr($v,0,1))) {
+			return parent::UnixDate($v);
+		}
 
 		global $ADODB_mssql_mths,$ADODB_mssql_date_order;
 
@@ -1318,8 +1319,9 @@ class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
 
 	static function UnixTimeStamp($v)
 	{
-
-		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixTimeStamp($v);
+		if (is_numeric(substr($v,0,1))) {
+			return parent::UnixTimeStamp($v);
+		}
 
 		global $ADODB_mssql_mths,$ADODB_mssql_date_order;
 
