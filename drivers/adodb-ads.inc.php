@@ -68,7 +68,7 @@ class ADODB_ads extends ADOConnection {
   public $_haserrorfunctions = true;
   public $_has_stupid_odbc_fetch_api_change = true;
 
-  function __construct(){}
+  function __construct() {}
 
   // returns true or false
   function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
@@ -111,23 +111,20 @@ class ADODB_ads extends ADOConnection {
   // returns the Server version and Description
   function ServerInfo()
   {
-
-    if (!empty($this->host))
-	{
+	if (!empty($this->host)) {
 		$stmt = $this->Prepare('EXECUTE PROCEDURE sp_mgGetInstallInfo()');
 		$res =  $this->Execute($stmt);
-		if(!$res)
+		if (!$res) {
 			print $this->ErrorMsg();
-		else{
+		}
+		else {
 			$ret["version"]= $res->fields[3];
 			$ret["description"]="Advantage Database Server";
 			return $ret;
 		}
-	}
-	else 
-	{
+	} else {
 		return ADOConnection::ServerInfo();
-    }
+	}
   }
 
 
