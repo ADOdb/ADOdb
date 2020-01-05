@@ -638,7 +638,7 @@ class ADORecordSet_ads extends ADORecordSet {
   var $databaseType = "ads";
   var $dataProvider = "ads";
   var $useFetchArray;
-  var $_has_stupid_odbc_fetch_api_change;
+  var $_has_stupid_odbc_fetch_api_change = true;
 
   function __construct($id,$mode=false)
   {
@@ -696,7 +696,6 @@ class ADORecordSet_ads extends ADORecordSet {
     // some silly drivers such as db2 as/400 and intersystems cache return _numOfRows = 0
     if ($this->_numOfRows == 0) $this->_numOfRows = -1;
     //$this->useFetchArray = $this->connection->useFetchArray;
-    $this->_has_stupid_odbc_fetch_api_change = ADODB_PHPVER >= 0x4200;
   }
 
   function _seek($row)
