@@ -581,14 +581,8 @@ class ADODB_ibase extends ADOConnection {
 
 	function _BlobDecode( $blob )
 	{
-		if  (ADODB_PHPVER >= 0x5000) {
-			$blob_data = ibase_blob_info($this->_connectionID, $blob );
-			$blobid = ibase_blob_open($this->_connectionID, $blob );
-		} else {
-
-			$blob_data = ibase_blob_info( $blob );
-			$blobid = ibase_blob_open( $blob );
-		}
+		$blob_data = ibase_blob_info($this->_connectionID, $blob );
+		$blobid    = ibase_blob_open($this->_connectionID, $blob );
 
 		if( $blob_data[0] > $this->maxblobsize ) {
 
