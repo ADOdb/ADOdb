@@ -574,13 +574,8 @@ class ADODB_firebird extends ADOConnection {
 
 	function _BlobDecode( $blob )
 	{
-		if  (ADODB_PHPVER >= 0x5000) {
-			$blob_data = fbird_blob_info($this->_connectionID, $blob );
-			$blobid = fbird_blob_open($this->_connectionID, $blob );
-		} else {
-			$blob_data = fbird_blob_info( $blob );
-			$blobid = fbird_blob_open( $blob );
-		}
+		$blob_data = fbird_blob_info($this->_connectionID, $blob );
+		$blobid    = fbird_blob_open($this->_connectionID, $blob );
 
 		if( $blob_data[0] > $this->maxblobsize ) {
 			$realblob = fbird_blob_get($blobid, $this->maxblobsize);
