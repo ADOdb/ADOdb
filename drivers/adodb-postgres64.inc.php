@@ -270,16 +270,12 @@ class ADODB_postgres64 extends ADOConnection{
 		if (is_bool($s)) return $s ? 'true' : 'false';
 
 		if (!$magic_quotes) {
-			if (ADODB_PHPVER >= 0x5200 && $this->_connectionID) {
-				return  "'".pg_escape_string($this->_connectionID,$s)."'";
+			if ($this->_connectionID) {
+				return "'" . pg_escape_string($this->_connectionID, $s) . "'";
 			}
-			if (ADODB_PHPVER >= 0x4200) {
-				return  "'".pg_escape_string($s)."'";
+			else {
+				return "'" . pg_escape_string($s) . "'";
 			}
-			if ($this->replaceQuote[0] == '\\'){
-				$s = adodb_str_replace(array('\\',"\0"),array('\\\\',"\\\\000"),$s);
-			}
-			return  "'".str_replace("'",$this->replaceQuote,$s)."'";
 		}
 
 		// undo magic quotes for "
