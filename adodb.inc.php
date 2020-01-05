@@ -616,6 +616,18 @@ if (!defined('_ADODB_LAYER')) {
 			return '';
 		}
 	}
+	
+	protected function messageLogging(
+			$message,
+			$level=LOG_INFO,
+			$errorNo=false,
+			$errorMessage='')
+			{
+		$clsLog = new ADODataLoggingObject($this);
+		$closelog->errorNo = $errorNo;
+		$clsLog->errorMessage = $message;
+		
+	}	
 
 	/**
 	* All error messages go through this bottleneck function.
@@ -628,7 +640,7 @@ if (!defined('_ADODB_LAYER')) {
 		{
 			if (DEFINED('ADODB_OUTP_OBJECT') && is_string($msg))
 			{
-				$clsLog = new ADODataLoggingObject;
+				$clsLog = new ADODataLoggingObject();
 				$clsLog->errorMessage = $msg;
 				
 				$msg = $clsLog;
@@ -5378,8 +5390,9 @@ class ADODataLoggingObject
 	/*
 	* Auto inserts the logTag
 	*/
-	public function __construct($parent)
+	public function __construct($parent=false)
 	{
-		$this->logTag = $parent->logTag;
+		if ($parent)
+			$this->logTag = $parent->logTag;
 	}
 }
