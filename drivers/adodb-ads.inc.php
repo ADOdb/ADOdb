@@ -64,13 +64,11 @@ class ADODB_ads extends ADOConnection {
   var $_has_stupid_odbc_fetch_api_change = true;
   var $_lastAffectedRows = 0;
   var $uCaseTables = true; // for meta* functions, uppercase table names
+  
+  public $_haserrorfunctions = true;
+  public $_has_stupid_odbc_fetch_api_change = true;
 
-
-  function __construct()
-  {
-    $this->_haserrorfunctions = ADODB_PHPVER >= 0x4050;
-    $this->_has_stupid_odbc_fetch_api_change = ADODB_PHPVER >= 0x4200;
-  }
+  function __construct(){}
 
   // returns true or false
   function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
@@ -114,19 +112,21 @@ class ADODB_ads extends ADOConnection {
   function ServerInfo()
   {
 
-    if (!empty($this->host) && ADODB_PHPVER >= 0x4300) {
-      $stmt = $this->Prepare('EXECUTE PROCEDURE sp_mgGetInstallInfo()');
-                        $res =  $this->Execute($stmt);
-                        if(!$res)
-                                print $this->ErrorMsg();
-                        else{
-                                $ret["version"]= $res->fields[3];
-                                $ret["description"]="Advantage Database Server";
-                                return $ret;
-                        }
-                }
-                else {
-            return ADOConnection::ServerInfo();
+    if (!empty($this->host))
+	{
+		$stmt = $this->Prepare('EXECUTE PROCEDURE sp_mgGetInstallInfo()');
+		$res =  $this->Execute($stmt);
+		if(!$res)
+			print $this->ErrorMsg();
+		else{
+			$ret["version"]= $res->fields[3];
+			$ret["description"]="Advantage Database Server";
+			return $ret;
+		}
+	}
+	else 
+	{
+		return ADOConnection::ServerInfo();
     }
   }
 
