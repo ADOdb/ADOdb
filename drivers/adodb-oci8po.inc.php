@@ -30,11 +30,6 @@ class ADODB_oci8po extends ADODB_oci8 {
 	var $metaColumnsSQL = "select lower(cname),coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
 	var $metaTablesSQL = "select lower(table_name),table_type from cat where table_type in ('TABLE','VIEW')";
 
-	function __construct()
-	{
-		$this->_hasOCIFetchStatement = ADODB_PHPVER >= 0x4200;
-	}
-
 	function Param($name,$type='C')
 	{
 		return '?';

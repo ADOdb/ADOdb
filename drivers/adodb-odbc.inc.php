@@ -58,11 +58,7 @@ class ADODB_odbc extends ADOConnection {
 	 */
 	public $metaColumnsReturnType = METACOLUMNS_RETURNS_ACTUAL;
 
-	function __construct()
-	{
-		$this->_haserrorfunctions = ADODB_PHPVER >= 0x4050;
-		$this->_has_stupid_odbc_fetch_api_change = ADODB_PHPVER >= 0x4200;
-	}
+	function __construct() {}
 
 		// returns true or false
 	function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
@@ -110,7 +106,7 @@ class ADODB_odbc extends ADOConnection {
 	function ServerInfo()
 	{
 
-		if (!empty($this->host) && ADODB_PHPVER >= 0x4300) {
+		if (!empty($this->host)) {
 			$dsn = strtoupper($this->host);
 			$first = true;
 			$found = false;
@@ -629,7 +625,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 	var $databaseType = "odbc";
 	var $dataProvider = "odbc";
 	var $useFetchArray;
-	var $_has_stupid_odbc_fetch_api_change;
+	var $_has_stupid_odbc_fetch_api_change = true;
 
 	function __construct($id,$mode=false)
 	{
@@ -687,7 +683,6 @@ class ADORecordSet_odbc extends ADORecordSet {
 		// some silly drivers such as db2 as/400 and intersystems cache return _numOfRows = 0
 		if ($this->_numOfRows == 0) $this->_numOfRows = -1;
 		//$this->useFetchArray = $this->connection->useFetchArray;
-		$this->_has_stupid_odbc_fetch_api_change = ADODB_PHPVER >= 0x4200;
 	}
 
 	function _seek($row)

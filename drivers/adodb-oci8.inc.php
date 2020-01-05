@@ -89,7 +89,7 @@ END;
 	var $connectSID = false;
 	var $_bind = false;
 	var $_nestedSQL = true;
-	var $_hasOciFetchStatement = false;
+	var $_hasOciFetchStatement = true;
 	var $_getarray = false; // currently not working
 	var $leftOuter = '';  // oracle wierdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
 	var $session_sharing_force_blob = false; // alter session on updateblob if set to true
@@ -104,18 +104,18 @@ END;
 	// var $ansiOuter = true; // if oracle9
 
 	/*
-	* Legacy compatibility for sequence names for emulated auto-increments
-	*/
+	 * Legacy compatibility for sequence names for emulated auto-increments
+	 */
 	public $useCompactAutoIncrements = false;
 	
 	/*
-	* Defines the schema name for emulated auto-increment columns
-	*/
+	 * Defines the schema name for emulated auto-increment columns
+	 */
 	public $schema = false;
 	
 	/*
-	* Defines the prefix for emulated auto-increment columns
-	*/
+	 * Defines the prefix for emulated auto-increment columns
+	 */
 	public $seqPrefix = 'SEQ_';
 
 

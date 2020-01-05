@@ -65,9 +65,6 @@ class ADODB_ads extends ADOConnection {
   var $_lastAffectedRows = 0;
   var $uCaseTables = true; // for meta* functions, uppercase table names
   
-  public $_haserrorfunctions = true;
-  public $_has_stupid_odbc_fetch_api_change = true;
-
   function __construct() {}
 
   // returns true or false
