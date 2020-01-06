@@ -656,7 +656,8 @@ class ADODB_DataDict {
 		$pkey = array();
 		$idxs = array();
 		foreach($flds as $fld) {
-			$fld = _array_change_key_case($fld);
+			if (is_array($fld))
+				$fld = array_change_key_case($fld,CASE_UPPER);
 			$fname = false;
 			$fdefault = false;
 			$fautoinc = false;
