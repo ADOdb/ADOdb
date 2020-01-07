@@ -404,8 +404,6 @@ First implementation.
 */
 define('ADODB_DATE_VERSION',0.35);
 
-$ADODB_DATETIME_CLASS = (PHP_VERSION >= 5.2);
-
 /*
 	This code was originally for windows. But apparently this problem happens
 	also with Linux, RH 7.3 and later!
@@ -737,13 +735,12 @@ function adodb_get_gmt_diff_ts($ts)
 */
 function adodb_get_gmt_diff($y,$m,$d)
 {
-static $TZ,$tzo;
-global $ADODB_DATETIME_CLASS;
+	static $TZ,$tzo;
 
 	if (!defined('ADODB_TEST_DATES')) $y = false;
 	else if ($y < 1970 || $y >= 2038) $y = false;
 
-	if ($ADODB_DATETIME_CLASS && $y !== false) {
+	if ($y !== false) {
 		$dt = new DateTime();
 		$dt->setISODate($y,$m,$d);
 		if (empty($tzo)) {
@@ -1081,9 +1078,8 @@ function adodb_date2($fmt, $d=false, $is_gmt=false)
 */
 function adodb_date($fmt,$d=false,$is_gmt=false)
 {
-static $daylight;
-global $ADODB_DATETIME_CLASS;
-static $jan1_1971;
+	static $daylight;
+	static $jan1_1971;
 
 	if (!isset($daylight)) {
 		$daylight = function_exists('adodb_daylight_sv');
@@ -1135,12 +1131,9 @@ static $jan1_1971;
 			$dates .= date('e');
 			break;
 		case 'T':
-			if ($ADODB_DATETIME_CLASS) {
-				$dt = new DateTime();
-				$dt->SetDate($year,$month,$day);
-				$dates .= $dt->Format('T');
-			} else
-				$dates .= date('T');
+			$dt = new DateTime();
+			$dt->SetDate($year,$month,$day);
+			$dates .= $dt->Format('T');
 			break;
 		// YEAR
 		case 'L': $dates .= $arr['leap'] ? '1' : '0'; break;
