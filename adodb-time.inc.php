@@ -1032,20 +1032,12 @@ global $_month_table_normal,$_month_table_leaf, $_adodb_last_date_call_failed;
 		0 => $origd
 	);
 }
-/*
-		if ($isphp5)
-				$dates .= sprintf('%s%04d',($gmt<=0)?'+':'-',abs($gmt)/36);
-			else
-				$dates .= sprintf('%s%04d',($gmt<0)?'+':'-',abs($gmt)/36);
-			break;*/
-function adodb_tz_offset($gmt,$isphp5)
+
+function adodb_tz_offset($gmt,$ignored=true)
 {
 	$zhrs = abs($gmt)/3600;
 	$hrs = floor($zhrs);
-	if ($isphp5)
-		return sprintf('%s%02d%02d',($gmt<=0)?'+':'-',floor($zhrs),($zhrs-$hrs)*60);
-	else
-		return sprintf('%s%02d%02d',($gmt<0)?'+':'-',floor($zhrs),($zhrs-$hrs)*60);
+	return sprintf('%s%02d%02d',($gmt<=0)?'+':'-',floor($zhrs),($zhrs-$hrs)*60);
 }
 
 
@@ -1119,8 +1111,6 @@ function adodb_date($fmt,$d=false,$is_gmt=false)
 	$max = strlen($fmt);
 	$dates = '';
 
-	$isphp5 = PHP_VERSION >= 5;
-
 	/*
 		at this point, we have the following integer vars to manipulate:
 		$year, $month, $day, $hour, $min, $secs
@@ -1152,7 +1142,7 @@ function adodb_date($fmt,$d=false,$is_gmt=false)
 
 			$gmt = adodb_get_gmt_diff($year,$month,$day);
 
-			$dates .= ' '.adodb_tz_offset($gmt,$isphp5);
+			$dates .= ' '.adodb_tz_offset($gmt);
 			break;
 
 		case 'Y': $dates .= $year; break;
@@ -1190,7 +1180,7 @@ function adodb_date($fmt,$d=false,$is_gmt=false)
 		case 'O':
 			$gmt = ($is_gmt) ? 0 : adodb_get_gmt_diff($year,$month,$day);
 
-			$dates .= adodb_tz_offset($gmt,$isphp5);
+			$dates .= adodb_tz_offset($gmt);
 			break;
 
 		case 'H':
