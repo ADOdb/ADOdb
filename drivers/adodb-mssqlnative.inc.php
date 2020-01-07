@@ -43,43 +43,6 @@ if (!function_exists('sqlsrv_log_set_subsystems')) {
 	}
 }
 
-
-//----------------------------------------------------------------
-// MSSQL returns dates with the format Oct 13 2002 or 13 Oct 2002
-// and this causes tons of problems because localized versions of
-// MSSQL will return the dates in dmy or  mdy order; and also the
-// month strings depends on what language has been configured. The
-// following two variables allow you to control the localization
-// settings - Ugh.
-//
-// MORE LOCALIZATION INFO
-// ----------------------
-// To configure datetime, look for and modify sqlcommn.loc,
-//   typically found in c:\mssql\install
-// Also read :
-//   http://support.microsoft.com/default.aspx?scid=kb;EN-US;q220918
-// Alternatively use:
-//   CONVERT(char(12),datecol,120)
-//
-// Also if your month is showing as month-1,
-//   e.g. Jan 13, 2002 is showing as 13/0/2002, then see
-//     http://phplens.com/lens/lensforum/msgs.php?id=7048&x=1
-//   it's a localisation problem.
-//----------------------------------------------------------------
-
-
-// has datetime conversion to YYYY-MM-DD format, and also mssql_fetch_assoc
-if (ADODB_PHPVER >= 0x4300) {
-// docs say 4.2.0, but testing shows only since 4.3.0 does it work!
-	ini_set('mssql.datetimeconvert',0);
-} else {
-	global $ADODB_mssql_mths;		// array, months must be upper-case
-	$ADODB_mssql_date_order = 'mdy';
-	$ADODB_mssql_mths = array(
-		'JAN'=>1,'FEB'=>2,'MAR'=>3,'APR'=>4,'MAY'=>5,'JUN'=>6,
-		'JUL'=>7,'AUG'=>8,'SEP'=>9,'OCT'=>10,'NOV'=>11,'DEC'=>12);
-}
-
 class ADODB_mssqlnative extends ADOConnection {
 	var $databaseType = "mssqlnative";
 	var $dataProvider = "mssqlnative";
@@ -651,17 +614,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		return $rez;
 	}
 
-	// mssql uses a default date like Dec 30 2000 12:00AM
-	static function UnixDate($v)
-	{
-		return ADORecordSet_array_mssqlnative::UnixDate($v);
-	}
-
-	static function UnixTimeStamp($v)
-	{
-		return ADORecordSet_array_mssqlnative::UnixTimeStamp($v);
-	}
-
+	
 	function MetaIndexes($table,$primary=false, $owner = false)
 	{
 		$table = $this->qstr($table);
@@ -1269,96 +1222,11 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		return true;
 	}
 
-	// mssql uses a default date like Dec 30 2000 12:00AM
-	static function UnixDate($v)
-	{
-		return ADORecordSet_array_mssqlnative::UnixDate($v);
-	}
-
-	static function UnixTimeStamp($v)
-	{
-		return ADORecordSet_array_mssqlnative::UnixTimeStamp($v);
-	}
+	
 }
 
 
-class ADORecordSet_array_mssqlnative extends ADORecordSet_array {
-
-	// mssql uses a default date like Dec 30 2000 12:00AM
-	static function UnixDate($v)
-	{
-		if (is_numeric(substr($v,0,1))) {
-			return parent::UnixDate($v);
-		}
-
-		global $ADODB_mssql_mths,$ADODB_mssql_date_order;
-
-		//Dec 30 2000 12:00AM
-		if ($ADODB_mssql_date_order == 'dmy') {
-			if (!preg_match( "|^([0-9]{1,2})[-/\. ]+([A-Za-z]{3})[-/\. ]+([0-9]{4})|" ,$v, $rr)) {
-				return parent::UnixDate($v);
-			}
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[1];
-			$themth =  substr(strtoupper($rr[2]),0,3);
-		} else {
-			if (!preg_match( "|^([A-Za-z]{3})[-/\. ]+([0-9]{1,2})[-/\. ]+([0-9]{4})|" ,$v, $rr)) {
-				return parent::UnixDate($v);
-			}
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[2];
-			$themth = substr(strtoupper($rr[1]),0,3);
-		}
-		$themth = $ADODB_mssql_mths[$themth];
-		if ($themth <= 0) return false;
-		// h-m-s-MM-DD-YY
-		return  adodb_mktime(0,0,0,$themth,$theday,$rr[3]);
-	}
-
-	static function UnixTimeStamp($v)
-	{
-		if (is_numeric(substr($v,0,1))) {
-			return parent::UnixTimeStamp($v);
-		}
-
-		global $ADODB_mssql_mths,$ADODB_mssql_date_order;
-
-		//Dec 30 2000 12:00AM
-		if ($ADODB_mssql_date_order == 'dmy') {
-			if (!preg_match( "|^([0-9]{1,2})[-/\. ]+([A-Za-z]{3})[-/\. ]+([0-9]{4}) +([0-9]{1,2}):([0-9]{1,2}) *([apAP]{0,1})|"
-			,$v, $rr)) return parent::UnixTimeStamp($v);
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[1];
-			$themth =  substr(strtoupper($rr[2]),0,3);
-		} else {
-			if (!preg_match( "|^([A-Za-z]{3})[-/\. ]+([0-9]{1,2})[-/\. ]+([0-9]{4}) +([0-9]{1,2}):([0-9]{1,2}) *([apAP]{0,1})|"
-			,$v, $rr)) return parent::UnixTimeStamp($v);
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[2];
-			$themth = substr(strtoupper($rr[1]),0,3);
-		}
-
-		$themth = $ADODB_mssql_mths[$themth];
-		if ($themth <= 0) return false;
-
-		switch (strtoupper($rr[6])) {
-		case 'P':
-			if ($rr[4]<12) $rr[4] += 12;
-			break;
-		case 'A':
-			if ($rr[4]==12) $rr[4] = 0;
-			break;
-		default:
-			break;
-		}
-		// h-m-s-MM-DD-YY
-		return  adodb_mktime($rr[4],$rr[5],0,$themth,$theday,$rr[3]);
-	}
-}
+class ADORecordSet_array_mssqlnative extends ADORecordSet_array {}
 
 /*
 Code Example 1:
