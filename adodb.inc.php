@@ -4436,11 +4436,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			}
 		}
 		$i = 0;
-		if (PHP_VERSION >= 5) {
-			$o = clone($this->_obj);
-		} else {
-			$o = $this->_obj;
-		}
+		$o = clone($this->_obj);
 
 		for ($i=0; $i <$this->_numOfFields; $i++) {
 			$name = $this->_names[$i];
@@ -5013,9 +5009,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$db = strtolower($dbType);
 		switch ($db) {
 			case 'ado':
-				if (PHP_VERSION >= 5) {
-					$db = 'ado5';
-				}
+				$db = 'ado5';
 				$class = 'ado';
 				break;
 
