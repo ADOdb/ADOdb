@@ -178,18 +178,7 @@ if (!defined('_ADODB_LAYER')) {
 	define('DB_AUTOQUERY_UPDATE', 2);
 
 
-	// PHP's version scheme makes converting to numbers difficult - workaround
-	$_adodb_ver = (float) PHP_VERSION;
-	if ($_adodb_ver >= 5.2) {
-		define('ADODB_PHPVER',0x5200);
-	} else if ($_adodb_ver >= 5.0) {
-		define('ADODB_PHPVER',0x5000);
-	} else {
-		die("PHP5 or later required. You are running ".PHP_VERSION);
-	}
-	unset($_adodb_ver);
-
-
+	
 	function ADODB_Setup() {
 	GLOBAL
 		$ADODB_vers,		// database version
