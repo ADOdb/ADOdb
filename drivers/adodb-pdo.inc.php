@@ -220,10 +220,7 @@ class ADODB_pdo extends ADOConnection {
 			return call_user_func_array(array($this->_driver, 'Concat'), $args);
 		}
 
-		if (PHP_VERSION >= 5.3) {
-			return call_user_func_array('parent::Concat', $args);
-		}
-		return call_user_func_array(array($this,'parent::Concat'), $args);
+		return call_user_func_array('parent::Concat', $args);
 	}
 
 	// returns true or false
