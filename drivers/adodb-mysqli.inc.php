@@ -365,7 +365,7 @@ class ADODB_mysqli extends ADOConnection {
 		if (!$magic_quotes) {
 			// mysqli_real_escape_string() throws a warning when the given
 			// connection is invalid
-			if (PHP_VERSION >= 5 && $this->_connectionID) {
+			if ($this->_connectionID) {
 				return "'" . mysqli_real_escape_string($this->_connectionID, $s) . "'";
 			}
 
