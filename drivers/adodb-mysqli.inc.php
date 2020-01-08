@@ -88,6 +88,8 @@ class ADODB_mysqli extends ADOConnection {
 				$argPassword = NULL,
 				$argDatabasename = NULL, $persist=false)
 	{
+	    global $ADODB_CONNECT_TIMEOUT;
+	    
 		if(!extension_loaded("mysqli")) {
 			return null;
 		}
@@ -108,6 +110,8 @@ class ADODB_mysqli extends ADOConnection {
 		foreach($this->optionFlags as $arr) {
 			mysqli_options($this->_connectionID,$arr[0],$arr[1]);
 		}
+		
+        mysqli_options($this->_connectionID, MYSQLI_OPT_CONNECT_TIMEOUT, $ADODB_CONNECT_TIMEOUT);
 
 		//http ://php.net/manual/en/mysqli.persistconns.php
 		if ($persist && PHP_VERSION > 5.2 && strncmp($argHostname,'p:',2) != 0) $argHostname = 'p:'.$argHostname;
