@@ -1074,7 +1074,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		is running. All associated result memory for the specified result identifier will automatically be freed.	*/
 	function _close()
 	{
-		if(is_object($this->_queryID)) {
+		if(is_resource($this->_queryID)) {
 			$rez = sqlsrv_free_stmt($this->_queryID);
 			$this->_queryID = false;
 			return $rez;
