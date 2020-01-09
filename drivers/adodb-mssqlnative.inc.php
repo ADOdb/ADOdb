@@ -1261,7 +1261,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	 */
 	function _close()
 	{
-		if(is_object($this->_queryID)) {
+		if(is_resource($this->_queryID)) {
 			$rez = sqlsrv_free_stmt($this->_queryID);
 			$this->_queryID = false;
 			return $rez;
