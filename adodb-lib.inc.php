@@ -124,20 +124,6 @@ function  adodb_transpose(&$arr, &$newarr, &$hdr, &$fobjs)
 	}
 }
 
-// Force key to upper.
-// See also http://www.php.net/manual/en/function.array-change-key-case.php
-function _array_change_key_case($an_array)
-{
-	if (is_array($an_array)) {
-		$new_array = array();
-		foreach($an_array as $key=>$value)
-			$new_array[strtoupper($key)] = $value;
-
-	   	return $new_array;
-   }
-
-	return $an_array;
-}
 
 function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_autoinc)
 {
@@ -648,10 +634,18 @@ function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $mag
 {
 	global $ADODB_QUOTE_FIELDNAMES;
 
-	if (!$rs) {
-		printf(ADODB_BAD_RS,'getUpdateSQL');
-		return false;
-	}
+  if (!$rs) {
+			printf(ADODB_BAD_RS,'GetUpdateSQL');
+			return false;
+		}
+
+		$fieldUpdatedCount = 0;
+		if (is_array($arrFields))
+			$arrFields = array_change_key_case($arrFields,CASE_UPPER);
+
+		$hasnumeric = isset($rs->fields[0]);
+		$setFields = '';
+
 
 	$fieldUpdatedCount = 0;
 	$arrFields = _array_change_key_case($arrFields);
@@ -838,7 +832,8 @@ static $cacheCols;
 	$values = '';
 	$fields = '';
 	$recordSet = null;
-	$arrFields = _array_change_key_case($arrFields);
+	if (is_array($arrFields))
+		$arrFields = array_change_key_case($arrFields,CASE_UPPER);
 	$fieldInsertedCount = 0;
 
 	if (is_string($rs)) {
