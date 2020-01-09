@@ -634,21 +634,14 @@ function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $mag
 {
 	global $ADODB_QUOTE_FIELDNAMES;
 
-  if (!$rs) {
-			printf(ADODB_BAD_RS,'GetUpdateSQL');
-			return false;
-		}
-
-		$fieldUpdatedCount = 0;
-		if (is_array($arrFields))
-			$arrFields = array_change_key_case($arrFields,CASE_UPPER);
-
-		$hasnumeric = isset($rs->fields[0]);
-		$setFields = '';
-
+	if (!$rs) {
+		printf(ADODB_BAD_RS,'GetUpdateSQL');
+		return false;
+	}
 
 	$fieldUpdatedCount = 0;
-	$arrFields = _array_change_key_case($arrFields);
+	if (is_array($arrFields))
+		$arrFields = array_change_key_case($arrFields,CASE_UPPER);
 
 	$hasnumeric = isset($rs->fields[0]);
 	$setFields = '';
