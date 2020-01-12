@@ -88,6 +88,10 @@ Older changelogs:
 - xml: support table 'opt' attribute with mysqli. #267
 - xml: add support for 'DESCR' tags for tables/fields. #265
 
+# 5.20.16 - 12-Jan-2020
+
+- mssql: queries are not correctly closed. #590
+
 ## 5.20.15 - 24-Nov-2019
 
 - core: remove unnecessary srand() calls. #532
