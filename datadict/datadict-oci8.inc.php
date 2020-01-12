@@ -26,11 +26,14 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	var $typeX = 'VARCHAR(4000)';
 	var $typeXL = 'CLOB';
 	
-	/*
-	* Legacy compatibility for sequence names for emulated auto-increments
-	* If set to true, creates sequences and triggers as TRIG_394545594
-	* instead of TRIG_possibly_too_long_tablename
-	*/
+	/**
+	 * Legacy compatibility for sequence names for emulated auto-increments.
+	 *
+	 * If set to true, creates sequences and triggers as TRIG_394545594
+	 * instead of TRIG_possibly_too_long_tablename
+	 *
+	 * @var bool $useCompactAutoIncrements
+	 */
 	public $useCompactAutoIncrements = false;
 
 	function metaType($t, $len=-1, $fieldobj=false)
@@ -193,14 +196,14 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	}
 
 	/**
-	* Creates an insert trigger to emulate an auto-increment column
-	* in a table
-	*
-	* @param	str		$tabname		The name of the table
-	* @param	str[]	$tableoptions   Optional configuration items
-	*
-	* @return	str[]	The SQL statements to create the trigger
-	*/
+	 * Creates an insert trigger to emulate an auto-increment column
+	 * in a table
+	 *
+	 * @param string   $tabname       The name of the table
+	 * @param string[] $tableoptions  Optional configuration items
+	 *
+	 * @return string[] The SQL statements to create the trigger
+	 */
 	function _Triggers($tabname,$tableoptions)
 	{
 		
