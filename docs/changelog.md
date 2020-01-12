@@ -5,6 +5,10 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.20.16 - 12-Jan-2020
+
+- mssql: queries are not correctly closed. #590
+
 ## 5.20.15 - 24-Nov-2019
 
 - core: remove unnecessary srand() calls. #532
