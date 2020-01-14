@@ -32,10 +32,6 @@ class ADODB_mssqlpo extends ADODB_mssql {
 
 	function PrepareSP($sql, $param = true)
 	{
-		if (!$this->_has_mssql_init) {
-			ADOConnection::outp( "PrepareSP: mssql_init only available since PHP 4.1.0");
-			return $sql;
-		}
 		if (is_string($sql)) $sql = str_replace('||','+',$sql);
 		$stmt = mssql_init($sql,$this->_connectionID);
 		if (!$stmt)  return $sql;

@@ -62,7 +62,6 @@ class ADODB_mssql extends ADOConnection {
 	var $hasGenID = true;
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
 	var $sysTimeStamp = 'GetDate()';
-	var $_has_mssql_init;
 	var $maxParameterLen = 4000;
 	var $arrayClass = 'ADORecordSet_array_mssql';
 	var $uniqueSort = true;
@@ -74,11 +73,6 @@ class ADODB_mssql extends ADOConnection {
 	var $uniqueOrderBy = true;
 	var $_bindInputArray = true;
 	var $forceNewConnect = false;
-
-	function __construct()
-	{
-		$this->_has_mssql_init = (strnatcmp(PHP_VERSION,'4.1.0')>=0);
-	}
 
 	function ServerInfo()
 	{
@@ -637,10 +631,6 @@ order by constraint_name, referenced_table_name, keyno";
 
 	function PrepareSP($sql,$param=true)
 	{
-		if (!$this->_has_mssql_init) {
-			ADOConnection::outp( "PrepareSP: mssql_init only available since PHP 4.1.0");
-			return $sql;
-		}
 		$stmt = mssql_init($sql,$this->_connectionID);
 		if (!$stmt)  return $sql;
 		return array($sql,$stmt);
@@ -695,11 +685,6 @@ order by constraint_name, referenced_table_name, keyno";
 	*/
 	function Parameter(&$stmt, &$var, $name, $isOutput=false, $maxLen=4000, $type=false)
 	{
-		if (!$this->_has_mssql_init) {
-			ADOConnection::outp( "Parameter: mssql_bind only available since PHP 4.1.0");
-			return false;
-		}
-
 		$isNull = is_null($var); // php 4.0.4 and above...
 
 		if ($type === false)
@@ -709,7 +694,7 @@ order by constraint_name, referenced_table_name, keyno";
 			case 'double': $type = SQLFLT8; break;
 			case 'integer': $type = SQLINT4; break;
 			case 'boolean': $type = SQLINT1; break; # SQLBIT not supported in 4.1.0
-			}
+		}
 
 		if  ($this->debug) {
 			$prefix = ($isOutput) ? 'Out' : 'In';
