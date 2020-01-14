@@ -1033,6 +1033,14 @@ global $_month_table_normal,$_month_table_leaf, $_adodb_last_date_call_failed;
 	);
 }
 
+/**
+ * Compute timezone offset.
+ *
+ * @param int  $gmt     Time offset from GMT, in seconds
+ * @param bool $ignored Param leftover from removed PHP4-compatibility code
+ *                      kept to avoid altering function signature.
+ * @return string
+ */
 function adodb_tz_offset($gmt,$ignored=true)
 {
 	$zhrs = abs($gmt)/3600;
