@@ -20,6 +20,9 @@
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
+/**
+ * Class ADODB_sqlite3
+ */
 class ADODB_sqlite3 extends ADOConnection {
 	var $databaseType = "sqlite3";
 	var $dataProvider = "sqlite";
@@ -90,7 +93,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 
 		$t = strtoupper($t);
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 
@@ -213,7 +216,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			          )
 				WHERE type != 'meta'
 				  AND sql NOTNULL
-		          AND LOWER(name) ='" . strtolower($table) . "'";
+				  AND LOWER(name) ='" . strtolower($table) . "'";
 
 		$tableSql = $this->getOne($sql);
 

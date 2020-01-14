@@ -252,12 +252,25 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 
+	/**
+	 * Parse date string to prevent injection attack.
+	 *
+	 * @param string $s
+	 *
+	 * @return string
+	 */
 	function _adodb_safedate($s) {
 		return str_replace(array("'", '\\'), '', $s);
 	}
 
-	// parse date string to prevent injection attack
-	// date string will have one quote at beginning e.g. '3434343'
+	/**
+	 * Parse date string to prevent injection attack.
+	 * Date string will have one quote at beginning e.g. '3434343'
+	 *
+	 * @param string $s
+	 *
+	 * @return string
+	 */
 	function _adodb_safedateq($s) {
 		$len = strlen($s);
 		if ($s[0] !== "'") {
@@ -281,9 +294,17 @@ if (!defined('_ADODB_LAYER')) {
 		return strlen($s2) == 0 ? 'null' : $s2;
 	}
 
-
-	// for transaction handling
-
+	/**
+	 * For transaction handling.
+	 *
+	 * @param $dbms
+	 * @param $fn
+	 * @param $errno
+	 * @param $errmsg
+	 * @param $p1
+	 * @param $p2
+	 * @param $thisConnection
+	 */
 	function ADODB_TransMonitor($dbms, $fn, $errno, $errmsg, $p1, $p2, &$thisConnection) {
 		//print "Errorno ($fn errno=$errno m=$errmsg) ";
 		$thisConnection->_transOK = false;
@@ -293,8 +314,9 @@ if (!defined('_ADODB_LAYER')) {
 		}
 	}
 
-	//------------------
-	// class for caching
+	/**
+	 * Class ADODB_Cache_File
+	 */
 	class ADODB_Cache_File {
 
 		var $createdir = true; // requires creation of temp dirs
@@ -306,18 +328,42 @@ if (!defined('_ADODB_LAYER')) {
 			}
 		}
 
-		// write serialised recordset to cache item/file
-		function writecache($filename, $contents,  $debug, $secs2cache) {
+		/**
+		 * Write serialised RecordSet to cache item/file.
+		 *
+		 * @param $filename
+		 * @param $contents
+		 * @param $debug
+		 * @param $secs2cache
+		 *
+		 * @return bool|int
+		 */
+		function writecache($filename, $contents, $debug, $secs2cache) {
 			return adodb_write_file($filename, $contents,$debug);
 		}
 
-		// load serialised recordset and unserialise it
+		/**
+		 * load serialised RecordSet and unserialise it
+		 *
+		 * @param $filename
+		 * @param $err
+		 * @param $secs2cache
+		 * @param $rsClass
+		 *
+		 * @return ADORecordSet
+		 */
 		function &readcache($filename, &$err, $secs2cache, $rsClass) {
 			$rs = csv2rs($filename,$err,$secs2cache,$rsClass);
 			return $rs;
 		}
 
-		// flush all items in cache
+		/**
+		 * Flush all items in cache.
+		 *
+		 * @param bool $debug
+		 *
+		 * @return bool|void
+		 */
 		function flushall($debug=false) {
 			global $ADODB_CACHE_DIR;
 
@@ -332,7 +378,12 @@ if (!defined('_ADODB_LAYER')) {
 			return $rez;
 		}
 
-		// flush one file in cache
+		/**
+		 * Flush one file in cache.
+		 *
+		 * @param string $f
+		 * @param bool   $debug
+		 */
 		function flushcache($f, $debug=false) {
 			if (!@unlink($f)) {
 				if ($debug) {
@@ -341,6 +392,11 @@ if (!defined('_ADODB_LAYER')) {
 			}
 		}
 
+		/**
+		 * @param string $hash
+		 *
+		 * @return string
+		 */
 		function getdirname($hash) {
 			global $ADODB_CACHE_DIR;
 			if (!isset($this->notSafeMode)) {
@@ -349,7 +405,14 @@ if (!defined('_ADODB_LAYER')) {
 			return ($this->notSafeMode) ? $ADODB_CACHE_DIR.'/'.substr($hash,0,2) : $ADODB_CACHE_DIR;
 		}
 
-		// create temp directories
+		/**
+		 * Create temp directories.
+		 *
+		 * @param string $hash
+		 * @param bool   $debug
+		 *
+		 * @return string
+		 */
 		function createdir($hash, $debug) {
 			global $ADODB_CACHE_PERMS;
 
@@ -458,33 +521,33 @@ if (!defined('_ADODB_LAYER')) {
 	/*
 	* Should we use memCache instead of caching in files
 	*/
-	public $memCache = false; 
+	public $memCache = false;
 	/*
 	* A string, array of hosts or array of memcache connection
 	* options (see adodb.org)
 	*/
-	public $memCacheHost; 
-	
-	/* 
+	public $memCacheHost;
+
+	/*
 	* Default port, may be ignored if connection object array
 	* is set
 	*/
 	public $memCachePort = 11211;
-	
+
 	/*
-	* Use 'true' to store the item compressed 
+	* Use 'true' to store the item compressed
 	* uses zlib, Direct option for memcache, else
 	* For memcached, use the memcacheOptions feature
 	*/
-	public $memCacheCompress = false; 
+	public $memCacheCompress = false;
 
 	/*
 	* If using mecached, an array of options
 	* @link https://www.php.net/manual/en/memcached.constants.php
 	*/
 	public $memCacheOptions = array();
-	
-	
+
+
 	var $sysDate = false; /// name of function that returns the current date
 	var $sysTimeStamp = false; /// name of function that returns the current timestamp
 	var $sysUTimeStamp = false; // name of function that returns the current timestamp accurate to the microsecond or nearest fraction
@@ -555,10 +618,10 @@ if (!defined('_ADODB_LAYER')) {
 	* A simple associative array of user-defined custom actual/meta types
 	*/
 	public $customActualTypes = array();
-	
+
 	/*
 	* An array of user-defined custom meta/actual types
-	*	
+	*
 	$this->customMetaTypes[$meta] = array(
 			'actual'=>'',
 			'dictionary'=>'',
@@ -567,8 +630,8 @@ if (!defined('_ADODB_LAYER')) {
 			);
 	*/
 	public $customMetaTypes = array();
-	
-	
+
+
 	/**
 	 * Default Constructor.
 	 * We define it even though it does not actually do anything. This avoids
@@ -628,7 +691,7 @@ if (!defined('_ADODB_LAYER')) {
 		}
 		return $matches[1];
 	}
-	
+
 	/**
 	* Set a custom meta type with a corresponding actual
 	*
@@ -646,14 +709,14 @@ if (!defined('_ADODB_LAYER')) {
 		$actualType,
 		$handleAsType=false,
 		$callback=false){
-			
+
 		$this->customMetaTypes[strtoupper($metaType)] = array(
 			'actual'=>$actualType,
 			'dictionary'=>strtoupper($dictionaryType),
 			'handler'=>$handleAsType,
 			'callback'=>$callback
 			);
-		
+
 		/*
 		* Create a reverse lookup for the actualType
 		*/
@@ -661,7 +724,7 @@ if (!defined('_ADODB_LAYER')) {
 
 		return true;
 	}
-	
+
 	/**
 	* Get a list of custom meta types.
 	*
@@ -671,13 +734,12 @@ if (!defined('_ADODB_LAYER')) {
 	{
 		return $this->customMetaTypes;
 	}
-	
+
 
 	/**
 	 * Get server version info.
 	 *
-	 * @return string[] An array with 2 elements: $arr['string'] is the description string,
-	 *				 	and $arr[version] is the version (also a string).
+	 * @return string[] Array with 2 string elements: version and description
 	 */
 	function ServerInfo() {
 		return array('description' => '', 'version' => '');
@@ -692,6 +754,13 @@ if (!defined('_ADODB_LAYER')) {
 		return !empty($this->_connectionID);
 	}
 
+	/**
+	 * Find version string.
+	 *
+	 * @param string $str
+	 *
+	 * @return string
+	 */
 	function _findvers($str) {
 		if (preg_match('/([0-9]+\.([0-9\.])+)/',$str, $arr)) {
 			return $arr[1];
@@ -830,6 +899,16 @@ if (!defined('_ADODB_LAYER')) {
 		return false;
 	}
 
+	/**
+	 * Always force a new connection to database.
+	 *
+	 * @param string $argHostname     Host to connect to
+	 * @param string $argUsername     Userid to login
+	 * @param string $argPassword     Associated password
+	 * @param string $argDatabaseName Database name
+	 *
+	 * @return bool
+	 */
 	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName) {
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName);
 	}
@@ -908,7 +987,13 @@ if (!defined('_ADODB_LAYER')) {
 		return $ret;
 	}
 
-	function outp_throw($msg,$src='WARN',$sql='') {
+	/**
+	 * Throw an exception if the handler is defined or prints the message if not.
+	 * @param string $msg Message
+	 * @param string $src the name of the calling function (in uppercase)
+	 * @param string $sql Optional offending SQL statement
+	 */
+	function outp_throw($msg, $src='WARN', $sql='') {
 		if (defined('ADODB_ERROR_HANDLER') &&  ADODB_ERROR_HANDLER == 'adodb_throw') {
 			adodb_throw($this->databaseType,$src,-9999,$msg,$sql,false,$this);
 			return;
@@ -998,6 +1083,12 @@ if (!defined('_ADODB_LAYER')) {
 		return $this->qstr($s);
 	}
 
+	/**
+	 * Quotes a string so that all strings are escaped.
+	 * Wrapper for qstr with magic_quotes = false.
+	 *
+	 * @param string &$s
+	 */
 	function q(&$s) {
 		//if (!empty($this->qNull && $s == 'null') {
 		//	return $s;
@@ -1006,8 +1097,9 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* PEAR DB Compat - do not use internally.
-	*/
+	 * PEAR DB Compat - do not use internally.
+	 * @return int
+	 */
 	function ErrorNative() {
 		return $this->ErrorNo();
 	}
@@ -1015,18 +1107,23 @@ if (!defined('_ADODB_LAYER')) {
 
 	/**
 	 * PEAR DB Compat - do not use internally.
+	 * @param string $seq_name
+	 * @return int
 	 */
 	function nextId($seq_name) {
 		return $this->GenID($seq_name);
 	}
 
 	/**
-	 * Lock a row, will escalate and lock the table if row locking not supported
-	 * will normally free the lock at the end of the transaction
+	 * Lock a row.
+	 * Will escalate and lock the table if row locking is not supported.
+	 * Will normally free the lock at the end of the transaction.
 	 *
-	 * @param string $table	name of table to lock
-	 * @param string $where	where clause to use, eg: "WHERE row=12". If left empty, will escalate to table lock
-     * @param string $col
+	 * @param string $table name of table to lock
+	 * @param string $where where clause to use, eg: "WHERE row=12". If left empty, will escalate to table lock
+	 * @param string $col
+	 *
+	 * @return bool
 	 */
 	function RowLock($table,$where,$col='1 as adodbignore') {
 		return false;
@@ -1069,7 +1166,6 @@ if (!defined('_ADODB_LAYER')) {
 		return $old;
 	}
 
-
 	/**
 	* PEAR DB Compat - do not use internally.
 	 *
@@ -1085,7 +1181,6 @@ if (!defined('_ADODB_LAYER')) {
 		}
 		return $rs;
 	}
-
 
 	/**
 	 * PEAR DB Compat - do not use internally
@@ -1127,35 +1222,53 @@ if (!defined('_ADODB_LAYER')) {
 		return '?';
 	}
 
-	/*
-		InParameter and OutParameter are self-documenting versions of Parameter().
-	*/
-	function InParameter(&$stmt,&$var,$name,$maxLen=4000,$type=false) {
+	/**
+	 * Self-documenting version of Parameter().
+	 *
+	 * @param $stmt
+	 * @param &$var
+	 * @param $name
+	 * @param int $maxLen
+	 * @param bool $type
+	 *
+	 * @return bool
+	 */
+	function InParameter(&$stmt, &$var, $name, $maxLen=4000, $type=false) {
 		return $this->Parameter($stmt,$var,$name,false,$maxLen,$type);
 	}
 
-	/*
-	*/
+	/**
+	 * Self-documenting version of Parameter().
+	 *
+	 * @param $stmt
+	 * @param $var
+	 * @param $name
+	 * @param int $maxLen
+	 * @param bool $type
+	 *
+	 * @return bool
+	 */
 	function OutParameter(&$stmt,&$var,$name,$maxLen=4000,$type=false) {
 		return $this->Parameter($stmt,$var,$name,true,$maxLen,$type);
 
 	}
 
-
-	/*
-	Usage in oracle
-		$stmt = $db->Prepare('select * from table where id =:myid and group=:group');
-		$db->Parameter($stmt,$id,'myid');
-		$db->Parameter($stmt,$group,'group',64);
-		$db->Execute();
-
-		@param $stmt Statement returned by Prepare() or PrepareSP().
-		@param $var PHP variable to bind to
-		@param $name Name of stored procedure variable name to bind to.
-		@param [$isOutput] Indicates direction of parameter 0/false=IN  1=OUT  2= IN/OUT. This is ignored in oci8.
-		@param [$maxLen] Holds an maximum length of the variable.
-		@param [$type] The data type of $var. Legal values depend on driver.
-
+	/**
+	 *
+	 * Usage in oracle
+	 *   $stmt = $db->Prepare('select * from table where id =:myid and group=:group');
+	 *   $db->Parameter($stmt,$id,'myid');
+	 *   $db->Parameter($stmt,$group,'group',64);
+	 *   $db->Execute();
+	 *
+	 * @param mixed &$stmt Statement returned by Prepare() or PrepareSP().
+	 * @param mixed &$var PHP variable to bind to
+	 * @param string $name Name of stored procedure variable name to bind to.
+	 * @param int|bool $isOutput Indicates direction of parameter 0/false=IN  1=OUT  2= IN/OUT. This is ignored in oci8.
+	 * @param int $maxLen Holds an maximum length of the variable.
+	 * @param mixed $type The data type of $var. Legal values depend on driver.
+	 *
+	 * @return bool
 	*/
 	function Parameter(&$stmt,&$var,$name,$isOutput=false,$maxLen=4000,$type=false) {
 		return false;
@@ -2732,7 +2845,9 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Begin a Transaction. Must be followed by CommitTrans() or RollbackTrans().
+	 * Begin a Transaction.
+	 *
+	 * Must be followed by CommitTrans() or RollbackTrans().
 	 *
 	 * @return bool true if succeeded or false if database does not support transactions
 	 */
@@ -2794,11 +2909,14 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	 * If database does not support transactions, always return true as data always committed
+	 * Commits a transaction.
 	 *
-	 * @param bool $ok  set to false to rollback transaction, true to commit
+	 * If database does not support transactions, return true as data is
+	 * always committed.
 	 *
-	 * @return true/false.
+	 * @param bool $ok True to commit, false to rollback the transaction.
+	 *
+	 * @return bool true if successful
 	 */
 	function CommitTrans($ok=true) {
 		return true;
@@ -2806,9 +2924,12 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	 * If database does not support transactions, rollbacks always fail, so return false
+	 * Rolls back a transaction.
 	 *
-	 * @return bool
+	 * If database does not support transactions, return false as rollbacks
+	 * always fail.
+	 *
+	 * @return bool true if successful
 	 */
 	function RollbackTrans() {
 		return false;
@@ -3507,10 +3628,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	class ADOFetchObj {
 	};
 
-	//==============================================================================================
-	// CLASS ADORecordSet_empty
-	//==============================================================================================
-
+	/**
+	 * Class ADODB_Iterator_empty
+	 */
 	class ADODB_Iterator_empty implements Iterator {
 
 		private $rs;
@@ -3633,10 +3753,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		include_once(ADODB_DIR.'/adodb-time.inc.php');
 	}
 
-	//==============================================================================================
-	// CLASS ADORecordSet
-	//==============================================================================================
-
+	/**
+	 * Class ADODB_Iterator
+	 */
 	class ADODB_Iterator implements Iterator {
 
 		private $rs;
@@ -3727,8 +3846,8 @@ class ADORecordSet implements IteratorAggregate {
 
 	public $customActualTypes;
 	public $customMetaTypes;
-	
-	
+
+
 	/**
 	 * Constructor
 	 *
@@ -4958,7 +5077,7 @@ class ADORecordSet implements IteratorAggregate {
 			$this->fetchMode = $ADODB_FETCH_MODE;
 		}
 
-		
+
 		/**
 		 * Setup the array.
 		 *

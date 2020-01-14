@@ -77,19 +77,19 @@ $ADODB_INCLUDED_CSV = 1;
 		return $line.serialize($rs2);
 	}
 
-
-/**
-* Open CSV file and convert it into Data.
-*
-* @param url  		file/ftp/http url
-* @param err		returns the error message
-* @param timeout	dispose if recordset has been alive for $timeout secs
-*
-* @return		recordset, or false if error occurred. If no
-*			error occurred in sql INSERT/UPDATE/DELETE,
-*			empty recordset is returned
-*/
-	function csv2rs($url,&$err,$timeout=0, $rsclass='ADORecordSet_array')
+	/**
+	 * Open CSV file and convert it into Data.
+	 *
+	 * @param string $url     file/ftp/http url
+	 * @param string &$err    returns the error message
+	 * @param int $timeout    dispose if recordset has been alive for $timeout secs
+	 * @param string $rsclass RecordSet class to return
+	 *
+	 * @return ADORecordSet|false recordset, or false if error occurred.
+	 *                            If no error occurred in sql INSERT/UPDATE/DELETE,
+	 *                            empty recordset is returned.
+	 */
+	function csv2rs($url, &$err, $timeout=0, $rsclass='ADORecordSet_array')
 	{
 		$false = false;
 		$err = false;
