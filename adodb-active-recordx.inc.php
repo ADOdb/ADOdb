@@ -66,19 +66,19 @@ function ADODB_SetDatabaseAdapter(&$db)
 {
 	global $_ADODB_ACTIVE_DBS;
 
-		foreach($_ADODB_ACTIVE_DBS as $k => $d) {
-			if ($d->db === $db) {
-				return $k;
-			}
+	foreach($_ADODB_ACTIVE_DBS as $k => $d) {
+		if ($d->db === $db) {
+			return $k;
 		}
+	}
 
-		$obj = new ADODB_Active_DB();
-		$obj->db = $db;
-		$obj->tables = array();
+	$obj = new ADODB_Active_DB();
+	$obj->db = $db;
+	$obj->tables = array();
 
-		$_ADODB_ACTIVE_DBS[] = $obj;
+	$_ADODB_ACTIVE_DBS[] = $obj;
 
-		return sizeof($_ADODB_ACTIVE_DBS)-1;
+	return sizeof($_ADODB_ACTIVE_DBS)-1;
 }
 
 
