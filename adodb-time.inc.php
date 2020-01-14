@@ -1041,11 +1041,11 @@ global $_month_table_normal,$_month_table_leaf, $_adodb_last_date_call_failed;
  *                      kept to avoid altering function signature.
  * @return string
  */
-function adodb_tz_offset($gmt,$ignored=true)
+function adodb_tz_offset($gmt, $ignored=true)
 {
-	$zhrs = abs($gmt)/3600;
+	$zhrs = abs($gmt) / 3600;
 	$hrs = floor($zhrs);
-	return sprintf('%s%02d%02d',($gmt<=0)?'+':'-',floor($zhrs),($zhrs-$hrs)*60);
+	return sprintf('%s%02d%02d', ($gmt <= 0) ? '+' : '-', floor($zhrs), ($zhrs - $hrs) * 60);
 }
 
 
