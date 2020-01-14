@@ -1045,7 +1045,7 @@ function adodb_tz_offset($gmt, $ignored=true)
 {
 	$zhrs = abs($gmt) / 3600;
 	$hrs = floor($zhrs);
-	return sprintf('%s%02d%02d', ($gmt <= 0) ? '+' : '-', floor($zhrs), ($zhrs - $hrs) * 60);
+	return sprintf('%s%02d%02d', ($gmt <= 0) ? '+' : '-', $hrs, ($zhrs - $hrs) * 60);
 }
 
 
