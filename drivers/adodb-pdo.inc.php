@@ -77,7 +77,6 @@ class ADODB_pdo extends ADOConnection {
 	var $_genSeqSQL = "create table %s (id integer)";
 	var $_dropSeqSQL;
 	var $_autocommit = true;
-	var $_haserrorfunctions = true;
 	var $_lastAffectedRows = 0;
 
 	var $_errormsg = false;

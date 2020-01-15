@@ -48,7 +48,6 @@ class ADODB_odbc extends ADOConnection {
 	var $curmode = SQL_CUR_USE_DRIVER; // See sqlext.h, SQL_CUR_DEFAULT == SQL_CUR_USE_DRIVER == 2L
 	var $_genSeqSQL = "create table %s (id integer)";
 	var $_autocommit = true;
-	var $_haserrorfunctions = true;
 	var $_has_stupid_odbc_fetch_api_change = true;
 	var $_lastAffectedRows = 0;
 	var $uCaseTables = true; // for meta* functions, uppercase table names
@@ -193,30 +192,25 @@ class ADODB_odbc extends ADOConnection {
 
 	function ErrorMsg()
 	{
-		if ($this->_haserrorfunctions) {
-			if ($this->_errorMsg !== false) return $this->_errorMsg;
-			if (empty($this->_connectionID)) return @odbc_errormsg();
-			return @odbc_errormsg($this->_connectionID);
-		} else return ADOConnection::ErrorMsg();
+		if ($this->_errorMsg !== false) return $this->_errorMsg;
+		if (empty($this->_connectionID)) return @odbc_errormsg();
+		return @odbc_errormsg($this->_connectionID);
 	}
 
 	function ErrorNo()
 	{
+		if ($this->_errorCode !== false) {
+			// bug in 4.0.6, error number can be corrupted string (should be 6 digits)
+			return (strlen($this->_errorCode)<=2) ? 0 : $this->_errorCode;
+		}
 
-		if ($this->_haserrorfunctions) {
-			if ($this->_errorCode !== false) {
-				// bug in 4.0.6, error number can be corrupted string (should be 6 digits)
-				return (strlen($this->_errorCode)<=2) ? 0 : $this->_errorCode;
-			}
+		if (empty($this->_connectionID)) $e = @odbc_error();
+		else $e = @odbc_error($this->_connectionID);
 
-			if (empty($this->_connectionID)) $e = @odbc_error();
-			else $e = @odbc_error($this->_connectionID);
-
-			 // bug in 4.0.6, error number can be corrupted string (should be 6 digits)
-			 // so we check and patch
-			if (strlen($e)<=2) return 0;
-			return $e;
-		} else return ADOConnection::ErrorNo();
+		 // bug in 4.0.6, error number can be corrupted string (should be 6 digits)
+		 // so we check and patch
+		if (strlen($e)<=2) return 0;
+		return $e;
 	}
 
 
@@ -538,10 +532,8 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 
 			if (! odbc_execute($stmtid,$inputarr)) {
 				//@odbc_free_result($stmtid);
-				if ($this->_haserrorfunctions) {
-					$this->_errorMsg = odbc_errormsg();
-					$this->_errorCode = odbc_error();
-				}
+				$this->_errorMsg = odbc_errormsg();
+				$this->_errorCode = odbc_error();
 				return false;
 			}
 
@@ -549,10 +541,8 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 			$stmtid = $sql[1];
 			if (!odbc_execute($stmtid)) {
 				//@odbc_free_result($stmtid);
-				if ($this->_haserrorfunctions) {
-					$this->_errorMsg = odbc_errormsg();
-					$this->_errorCode = odbc_error();
-				}
+				$this->_errorMsg = odbc_errormsg();
+				$this->_errorCode = odbc_error();
 				return false;
 			}
 		} else
@@ -569,19 +559,11 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 				odbc_longreadlen($stmtid,$this->maxblobsize);
 			}
 
-			if ($this->_haserrorfunctions) {
-				$this->_errorMsg = '';
-				$this->_errorCode = 0;
-			} else {
-				$this->_errorMsg = $this->getChangedErrorMsg($last_php_error);
-			}
+			$this->_errorMsg = '';
+			$this->_errorCode = 0;
 		} else {
-			if ($this->_haserrorfunctions) {
-				$this->_errorMsg = odbc_errormsg();
-				$this->_errorCode = odbc_error();
-			} else {
-				$this->_errorMsg = $this->getChangedErrorMsg($last_php_error);
-			}
+			$this->_errorMsg = odbc_errormsg();
+			$this->_errorCode = odbc_error();
 		}
 		return $stmtid;
 	}
