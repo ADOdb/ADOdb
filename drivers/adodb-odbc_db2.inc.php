@@ -157,7 +157,6 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 			$false = false;
 			return $false;
 		}
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 
 		$arr = $rs->GetArray();
 		//print_r($arr);

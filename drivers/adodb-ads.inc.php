@@ -63,7 +63,6 @@ class ADODB_ads extends ADOConnection
 	var $curmode = SQL_CUR_USE_DRIVER; // See sqlext.h, SQL_CUR_DEFAULT == SQL_CUR_USE_DRIVER == 2L
 	var $_genSeqSQL = "create table %s (id integer)";
 	var $_autocommit = true;
-	var $_has_stupid_odbc_fetch_api_change = true;
 	var $_lastAffectedRows = 0;
 	var $uCaseTables = true; // for meta* functions, uppercase table names
 
@@ -419,7 +418,6 @@ class ADODB_ads extends ADOConnection
 		  $rs = new ADORecordSet_ads($qid2);
 		  $ADODB_FETCH_MODE = $savem;
 		  if (!$rs) return false;
-		  $rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 		  $rs->_fetch();
 
 		  while (!$rs->EOF) {
@@ -464,7 +462,6 @@ class ADODB_ads extends ADOConnection
 		if (!$rs) {
 			return $false;
 		}
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 		$rs->_fetch();
 
 		$retarr = array();
@@ -677,7 +674,6 @@ class ADORecordSet_ads extends ADORecordSet
 	var $databaseType = "ads";
 	var $dataProvider = "ads";
 	var $useFetchArray;
-	var $_has_stupid_odbc_fetch_api_change = true;
 
 	function __construct($id, $mode = false)
 	{
@@ -794,12 +790,7 @@ class ADORecordSet_ads extends ADORecordSet
 	function _fetch()
 	{
 		$this->fields = false;
-		if ($this->_has_stupid_odbc_fetch_api_change) {
-			$rez = @ads_fetch_into($this->_queryID, $this->fields);
-		} else {
-			$row = 0;
-			$rez = @ads_fetch_into($this->_queryID, $row, $this->fields);
-		}
+		$rez = @ads_fetch_into($this->_queryID, $this->fields);
 		if ($rez) {
 			if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 				$this->fields =& $this->GetRowAssoc();

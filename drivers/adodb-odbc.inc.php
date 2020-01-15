@@ -48,7 +48,6 @@ class ADODB_odbc extends ADOConnection {
 	var $curmode = SQL_CUR_USE_DRIVER; // See sqlext.h, SQL_CUR_DEFAULT == SQL_CUR_USE_DRIVER == 2L
 	var $_genSeqSQL = "create table %s (id integer)";
 	var $_autocommit = true;
-	var $_has_stupid_odbc_fetch_api_change = true;
 	var $_lastAffectedRows = 0;
 	var $uCaseTables = true; // for meta* functions, uppercase table names
 	
@@ -265,7 +264,6 @@ class ADODB_odbc extends ADOConnection {
 		$ADODB_FETCH_MODE = $savem;
 
 		if (!$rs) return false;
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 
 		$arr = $rs->GetArray();
 		$rs->Close();
@@ -294,7 +292,6 @@ class ADODB_odbc extends ADOConnection {
 			$false = false;
 			return $false;
 		}
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 
 		$arr = $rs->GetArray();
 		//print_r($arr);
@@ -402,7 +399,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 			$rs = new ADORecordSet_odbc($qid2);
 			$ADODB_FETCH_MODE = $savem;
 			if (!$rs) return false;
-			$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 			$rs->_fetch();
 
 			while (!$rs->EOF) {
@@ -441,7 +437,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 		$ADODB_FETCH_MODE = $savem;
 
 		if (!$rs) return $false;
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 		$rs->_fetch();
 
 		$retarr = array();
@@ -607,7 +602,6 @@ class ADORecordSet_odbc extends ADORecordSet {
 	var $databaseType = "odbc";
 	var $dataProvider = "odbc";
 	var $useFetchArray;
-	var $_has_stupid_odbc_fetch_api_change = true;
 
 	function __construct($id,$mode=false)
 	{
@@ -715,12 +709,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 	function _fetch()
 	{
 		$this->fields = false;
-		if ($this->_has_stupid_odbc_fetch_api_change)
-			$rez = @odbc_fetch_into($this->_queryID,$this->fields);
-		else {
-			$row = 0;
-			$rez = @odbc_fetch_into($this->_queryID,$row,$this->fields);
-		}
+		$rez = @odbc_fetch_into($this->_queryID,$this->fields);
 		if ($rez) {
 			if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 				$this->fields = $this->GetRowAssoc();
