@@ -28,7 +28,6 @@ function getmicrotime()
 }
 
 
-if (PHP_VERSION < 5) include_once('../adodb-pear.inc.php');
 //--------------------------------------------------------------------------------------
 //define('ADODB_ASSOC_CASE',1);
 //
@@ -1346,11 +1345,6 @@ END Adodb;
 
 	$rs = $db->SelectLimit('select id,firstname,lastname,created,\'The	"young man", he said\' from ADOXYZ',10);
 
-	if (PHP_VERSION < 5) {
-		print "<pre>";
-		rs2tabout($rs);
-		print "</pre>";
-	}
 	#print " CacheFlush ";
 	#$db->CacheFlush();
 
@@ -1645,16 +1639,21 @@ END Adodb;
 	print "<p>Testing Bad Connection</p>";
 	flush();
 
-	if (true || PHP_VERSION < 5)  {
-		if ($db->dataProvider == 'odbtp') $db->databaseType = 'odbtp';
-		$conn = NewADOConnection($db->databaseType);
-		$conn->raiseErrorFn = 'adodb_test_err';
-		if (1) $conn->PConnect('abc','baduser','badpassword');
-		if ($TESTERRS == 2) print "raiseErrorFn tests passed<br>";
-		else print "<b>raiseErrorFn tests failed ($TESTERRS)</b><br>";
-
-		flush();
+	if ($db->dataProvider == 'odbtp') {
+		$db->databaseType = 'odbtp';
 	}
+	$conn = NewADOConnection($db->databaseType);
+	$conn->raiseErrorFn = 'adodb_test_err';
+	$conn->PConnect('abc','baduser','badpassword');
+	if ($TESTERRS == 2) {
+		print "raiseErrorFn tests passed<br>";
+	}
+	else {
+		print "<b>raiseErrorFn tests failed ($TESTERRS)</b><br>";
+	}
+
+	flush();
+
 	////////////////////////////////////////////////////////////////////
 
 	global $nocountrecs;

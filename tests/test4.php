@@ -45,12 +45,11 @@ $conn->PConnect("localhost", "root", "", "test"); // connect to MySQL, testdb
 #$conn = ADONewConnection('oci8po');
 #$conn->Connect('','scott','natsoft');
 
-if (PHP_VERSION  >= 5) {
-	$connstr = "mysql:dbname=northwind";
-	$u = 'root';$p='';
-	$conn = ADONewConnection('pdo');
-	$conn->Connect($connstr, $u, $p);
-}
+$connstr = "mysql:dbname=northwind";
+$u = 'root';$p='';
+$conn = ADONewConnection('pdo');
+$conn->Connect($connstr, $u, $p);
+
 //$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 
 
