@@ -89,7 +89,6 @@ END;
 	var $connectSID = false;
 	var $_bind = false;
 	var $_nestedSQL = true;
-	var $_hasOciFetchStatement = true;
 	var $_getarray = false; // currently not working
 	var $leftOuter = '';  // oracle wierdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
 	var $session_sharing_force_blob = false; // alter session on updateblob if set to true
