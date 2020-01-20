@@ -1768,8 +1768,6 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return array|bool
 	 */
 	public function GetAssoc($sql, $inputarr = false, $force_array = false, $first2cols = false) {
-		global $ADODB_FETCH_MODE;
-
 		$rs = $this->Execute($sql, $inputarr);
 
 		if (!$rs) {
@@ -3846,7 +3844,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function getAssoc($force_array = false, $first2cols = false)
 	{
-		global $ADODB_FETCH_MODE;
 		/*
 		* Insufficient rows to show data
 		*/
@@ -3860,21 +3857,25 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			return array();
 		}
 
+		/*
+		* The number of fields is half the actual returned in BOTH mode
+		*/
 		$numberOfFields = $this->_numOfFields;
-		$fetchMode      = $ADODB_FETCH_MODE;
 
-		if ($fetchMode == ADODB_FETCH_BOTH)
-		{
+		/*
+		* Get the fetch mode when the call was executed, this may be
+		* different than ADODB_FETCH_MODE
+		*/
+		$fetchMode = $this->connection->fetchMode;
+		if ($fetchMode == ADODB_FETCH_BOTH) {
 			/*
-			* build a template of numeric keys. you could improve the
+			* If we are using BOTH, we present the data as if it
+			* was in ASSOC mode. This could be enhanced by adding
+			* a BOTH_ASSOC_MODE class property
+			* We build a template of numeric keys. you could improve the
 			* speed by caching this, indexed by number of keys
 			*/
 			$testKeys = array_fill(0,$numberOfFields,0);
-
-			/*
-			* We use the associative method if ADODB_FETCH_BOTH
-			*/
-			$fetchMode = ADODB_FETCH_ASSOC;
 		}
 
 		$showArrayMethod = 0;
@@ -3914,7 +3915,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			switch ($showArrayMethod) {
 			case 0:
 
-				if ($fetchMode == ADODB_FETCH_ASSOC) {
+				if ($fetchMode == ADODB_FETCH_ASSOC
+				||  $fetchMode == ADODB_FETCH_BOTH)
+				{
 					/*
 					* The driver should have already handled the key
 					* casing, but in case it did not. We will check and force
