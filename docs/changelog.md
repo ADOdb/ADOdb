@@ -35,6 +35,7 @@ Older changelogs:
 - adodb: Remove unneeded ADODB_str_replace function. #582
 - adodb: Remove useless PHP 4 and 5 version checks. #583, #584
 - adodb: replace _array_change_key_case() by internal PHP function. #587
+- adodb: fix getAssoc returning key as value column with ADODB_FETCH_BOTH mode. #600
 - adodb-time: Fix 'Q' (quarter of year) format in adodb_date(). #222
 - adodb-time: Add 'W' (week of year) format support in adodb_date(). #223
 - active record: honor column and table name quoting. #309
@@ -95,6 +96,7 @@ Older changelogs:
 - session: string parameters for `assert` are deprecated in PHP 7.2. #438
 - xml: support table 'opt' attribute with mysqli. #267
 - xml: add support for 'DESCR' tags for tables/fields. #265
+- xml: fix invalid xmlschema03.dtd and descr tag in session schema XML. #595
 
 ## 5.20.16 - 12-Jan-2020
 
