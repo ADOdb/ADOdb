@@ -81,6 +81,7 @@ Older changelogs:
 - pdo/sqlsrv: add SetTransactionMode() method. #362
 - pgsql: add CIDR data type to MetaType(). #281
 - pgsql: optimize version check. #334
+- pgsql: fix param number reset with param(false). #380
 - pgsql: use postgres9 driver by default. #474
 - pgsql: specialized casts for _recreate_copy_table(). #207
 - proxy: the client driver and server.php script are deprecated. #444

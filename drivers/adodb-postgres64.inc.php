@@ -622,12 +622,12 @@ class ADODB_postgres64 extends ADOConnection{
 	function Param($name,$type='C')
 	{
 		if ($name) {
-			$this->_pnum += 1;
+			$this->_pnum++;
 		} else {
 			// Reset param num if $name is false
-			$this->_pnum = 1;
+			$this->_pnum = 0;
 		}
-		return '$'.$this->_pnum;
+		return '$' . $this->_pnum;
 	}
 
 	function MetaIndexes ($table, $primary = FALSE, $owner = false)
