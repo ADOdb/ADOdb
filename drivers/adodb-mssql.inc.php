@@ -39,39 +39,7 @@ if (!defined('ADODB_DIR')) die();
 //----------------------------------------------------------------
 
 
-// has datetime conversion to YYYY-MM-DD format, and also mssql_fetch_assoc
-if (ADODB_PHPVER >= 0x4300) {
-// docs say 4.2.0, but testing shows only since 4.3.0 does it work!
-	ini_set('mssql.datetimeconvert',0);
-} else {
-global $ADODB_mssql_mths;		// array, months must be upper-case
-
-
-	$ADODB_mssql_date_order = 'mdy';
-	$ADODB_mssql_mths = array(
-		'JAN'=>1,'FEB'=>2,'MAR'=>3,'APR'=>4,'MAY'=>5,'JUN'=>6,
-		'JUL'=>7,'AUG'=>8,'SEP'=>9,'OCT'=>10,'NOV'=>11,'DEC'=>12);
-}
-
-//---------------------------------------------------------------------------
-// Call this to autoset $ADODB_mssql_date_order at the beginning of your code,
-// just after you connect to the database. Supports mdy and dmy only.
-// Not required for PHP 4.2.0 and above.
-function AutoDetect_MSSQL_Date_Order($conn)
-{
-global $ADODB_mssql_date_order;
-	$adate = $conn->GetOne('select getdate()');
-	if ($adate) {
-		$anum = (int) $adate;
-		if ($anum > 0) {
-			if ($anum > 31) {
-				//ADOConnection::outp( "MSSQL: YYYY-MM-DD date format not supported currently");
-			} else
-				$ADODB_mssql_date_order = 'dmy';
-		} else
-			$ADODB_mssql_date_order = 'mdy';
-	}
-}
+ini_set('mssql.datetimeconvert',0);
 
 class ADODB_mssql extends ADOConnection {
 	var $databaseType = "mssql";
@@ -94,7 +62,6 @@ class ADODB_mssql extends ADOConnection {
 	var $hasGenID = true;
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
 	var $sysTimeStamp = 'GetDate()';
-	var $_has_mssql_init;
 	var $maxParameterLen = 4000;
 	var $arrayClass = 'ADORecordSet_array_mssql';
 	var $uniqueSort = true;
@@ -106,11 +73,6 @@ class ADODB_mssql extends ADOConnection {
 	var $uniqueOrderBy = true;
 	var $_bindInputArray = true;
 	var $forceNewConnect = false;
-
-	function __construct()
-	{
-		$this->_has_mssql_init = (strnatcmp(PHP_VERSION,'4.1.0')>=0);
-	}
 
 	function ServerInfo()
 	{
@@ -669,10 +631,6 @@ order by constraint_name, referenced_table_name, keyno";
 
 	function PrepareSP($sql,$param=true)
 	{
-		if (!$this->_has_mssql_init) {
-			ADOConnection::outp( "PrepareSP: mssql_init only available since PHP 4.1.0");
-			return $sql;
-		}
 		$stmt = mssql_init($sql,$this->_connectionID);
 		if (!$stmt)  return $sql;
 		return array($sql,$stmt);
@@ -727,11 +685,6 @@ order by constraint_name, referenced_table_name, keyno";
 	*/
 	function Parameter(&$stmt, &$var, $name, $isOutput=false, $maxLen=4000, $type=false)
 	{
-		if (!$this->_has_mssql_init) {
-			ADOConnection::outp( "Parameter: mssql_bind only available since PHP 4.1.0");
-			return false;
-		}
-
 		$isNull = is_null($var); // php 4.0.4 and above...
 
 		if ($type === false)
@@ -741,7 +694,7 @@ order by constraint_name, referenced_table_name, keyno";
 			case 'double': $type = SQLFLT8; break;
 			case 'integer': $type = SQLINT4; break;
 			case 'boolean': $type = SQLINT1; break; # SQLBIT not supported in 4.1.0
-			}
+		}
 
 		if  ($this->debug) {
 			$prefix = ($isOutput) ? 'Out' : 'In';
@@ -877,16 +830,7 @@ order by constraint_name, referenced_table_name, keyno";
 		return $rez;
 	}
 
-	// mssql uses a default date like Dec 30 2000 12:00AM
-	static function UnixDate($v)
-	{
-		return ADORecordSet_array_mssql::UnixDate($v);
-	}
-
-	static function UnixTimeStamp($v)
-	{
-		return ADORecordSet_array_mssql::UnixTimeStamp($v);
-	}
+	
 
 	/**
 	* Returns a substring of a varchar type field
@@ -1118,17 +1062,6 @@ class ADORecordset_mssql extends ADORecordSet {
 		return true;
 	}
 
-	// mssql uses a default date like Dec 30 2000 12:00AM
-	static function UnixDate($v)
-	{
-		return ADORecordSet_array_mssql::UnixDate($v);
-	}
-
-	static function UnixTimeStamp($v)
-	{
-		return ADORecordSet_array_mssql::UnixTimeStamp($v);
-	}
-
 	/**
 	* Returns the maximum size of a MetaType C field. Because of the
 	* database design, SQL Server places no limits on the size of data inserted
@@ -1156,81 +1089,7 @@ class ADORecordset_mssql extends ADORecordSet {
 }
 
 
-class ADORecordSet_array_mssql extends ADORecordSet_array {
-
-	// mssql uses a default date like Dec 30 2000 12:00AM
-	static function UnixDate($v)
-	{
-
-		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixDate($v);
-
-	global $ADODB_mssql_mths,$ADODB_mssql_date_order;
-
-		//Dec 30 2000 12:00AM
-		if ($ADODB_mssql_date_order == 'dmy') {
-			if (!preg_match( "|^([0-9]{1,2})[-/\. ]+([A-Za-z]{3})[-/\. ]+([0-9]{4})|" ,$v, $rr)) {
-				return parent::UnixDate($v);
-			}
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[1];
-			$themth =  substr(strtoupper($rr[2]),0,3);
-		} else {
-			if (!preg_match( "|^([A-Za-z]{3})[-/\. ]+([0-9]{1,2})[-/\. ]+([0-9]{4})|" ,$v, $rr)) {
-				return parent::UnixDate($v);
-			}
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[2];
-			$themth = substr(strtoupper($rr[1]),0,3);
-		}
-		$themth = $ADODB_mssql_mths[$themth];
-		if ($themth <= 0) return false;
-		// h-m-s-MM-DD-YY
-		return  mktime(0,0,0,$themth,$theday,$rr[3]);
-	}
-
-	static function UnixTimeStamp($v)
-	{
-
-		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixTimeStamp($v);
-
-	global $ADODB_mssql_mths,$ADODB_mssql_date_order;
-
-		//Dec 30 2000 12:00AM
-		if ($ADODB_mssql_date_order == 'dmy') {
-			if (!preg_match( "|^([0-9]{1,2})[-/\. ]+([A-Za-z]{3})[-/\. ]+([0-9]{4}) +([0-9]{1,2}):([0-9]{1,2}) *([apAP]{0,1})|"
-			,$v, $rr)) return parent::UnixTimeStamp($v);
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[1];
-			$themth =  substr(strtoupper($rr[2]),0,3);
-		} else {
-			if (!preg_match( "|^([A-Za-z]{3})[-/\. ]+([0-9]{1,2})[-/\. ]+([0-9]{4}) +([0-9]{1,2}):([0-9]{1,2}) *([apAP]{0,1})|"
-			,$v, $rr)) return parent::UnixTimeStamp($v);
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[2];
-			$themth = substr(strtoupper($rr[1]),0,3);
-		}
-
-		$themth = $ADODB_mssql_mths[$themth];
-		if ($themth <= 0) return false;
-
-		switch (strtoupper($rr[6])) {
-		case 'P':
-			if ($rr[4]<12) $rr[4] += 12;
-			break;
-		case 'A':
-			if ($rr[4]==12) $rr[4] = 0;
-			break;
-		default:
-			break;
-		}
-		// h-m-s-MM-DD-YY
-		return  mktime($rr[4],$rr[5],0,$themth,$theday,$rr[3]);
-	}
-}
+class ADORecordSet_array_mssql extends ADORecordSet_array {}
 
 /*
 Code Example 1:

@@ -266,12 +266,6 @@ processes 69293
 		// Algorithm is taken from
 		// http://social.technet.microsoft.com/Forums/en-US/winservergen/thread/414b0e1b-499c-411e-8a02-6a12e339c0f1/
 		if (strncmp(PHP_OS,'WIN',3)==0) {
-			if (PHP_VERSION == '5.0.0') return false;
-			if (PHP_VERSION == '5.0.1') return false;
-			if (PHP_VERSION == '5.0.2') return false;
-			if (PHP_VERSION == '5.0.3') return false;
-			if (PHP_VERSION == '4.3.10') return false; # see http://bugs.php.net/bug.php?id=31737
-
 			static $FAIL = false;
 			if ($FAIL) return false;
 

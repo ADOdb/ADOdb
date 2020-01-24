@@ -167,7 +167,7 @@ class ADODB_sybase extends ADOConnection {
 	{
 	global $ADODB_COUNTRECS;
 
-		if ($ADODB_COUNTRECS == false && ADODB_PHPVER >= 0x4300)
+		if ($ADODB_COUNTRECS == false)
 			return sybase_unbuffered_query($sql,$this->_connectionID);
 		else
 			return sybase_query($sql,$this->_connectionID);

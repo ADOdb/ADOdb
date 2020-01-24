@@ -178,18 +178,7 @@ if (!defined('_ADODB_LAYER')) {
 	define('DB_AUTOQUERY_UPDATE', 2);
 
 
-	// PHP's version scheme makes converting to numbers difficult - workaround
-	$_adodb_ver = (float) PHP_VERSION;
-	if ($_adodb_ver >= 5.2) {
-		define('ADODB_PHPVER',0x5200);
-	} else if ($_adodb_ver >= 5.0) {
-		define('ADODB_PHPVER',0x5000);
-	} else {
-		die("PHP5 or later required. You are running ".PHP_VERSION);
-	}
-	unset($_adodb_ver);
-
-
+	
 	function ADODB_Setup() {
 	GLOBAL
 		$ADODB_vers,		// database version
@@ -4447,11 +4436,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			}
 		}
 		$i = 0;
-		if (PHP_VERSION >= 5) {
-			$o = clone($this->_obj);
-		} else {
-			$o = $this->_obj;
-		}
+		$o = clone($this->_obj);
 
 		for ($i=0; $i <$this->_numOfFields; $i++) {
 			$name = $this->_names[$i];
@@ -5024,9 +5009,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$db = strtolower($dbType);
 		switch ($db) {
 			case 'ado':
-				if (PHP_VERSION >= 5) {
-					$db = 'ado5';
-				}
+				$db = 'ado5';
 				$class = 'ado';
 				break;
 

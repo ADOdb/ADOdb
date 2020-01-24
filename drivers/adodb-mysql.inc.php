@@ -251,10 +251,10 @@ class ADODB_mysql extends ADOConnection {
 		if (is_null($s)) return 'NULL';
 		if (!$magic_quotes) {
 
-			if (ADODB_PHPVER >= 0x4300) {
-				if (is_resource($this->_connectionID))
-					return "'".mysql_real_escape_string($s,$this->_connectionID)."'";
+			if (is_resource($this->_connectionID)) {
+				return "'" . mysql_real_escape_string($s, $this->_connectionID) . "'";
 			}
+
 			if ($this->replaceQuote[0] == '\\'){
 				$s = adodb_str_replace(array('\\',"\0"),array('\\\\',"\\\0"),$s);
 			}
@@ -474,19 +474,23 @@ class ADODB_mysql extends ADOConnection {
 	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
-		if (!empty($this->port)) $argHostname .= ":".$this->port;
+		if (!empty($this->port)) 
+			$argHostname .= ":".$this->port;
 
-		if (ADODB_PHPVER >= 0x4300)
-			$this->_connectionID = mysql_connect($argHostname,$argUsername,$argPassword,
-												$this->forceNewConnect,$this->clientFlags);
-		else if (ADODB_PHPVER >= 0x4200)
-			$this->_connectionID = mysql_connect($argHostname,$argUsername,$argPassword,
-												$this->forceNewConnect);
-		else
-			$this->_connectionID = mysql_connect($argHostname,$argUsername,$argPassword);
+		$this->_connectionID = 
+			mysql_connect($argHostname,
+						  $argUsername,
+						  $argPassword,
+						  $this->forceNewConnect,
+						  $this->clientFlags
+						  );
+		
 
-		if ($this->_connectionID === false) return false;
-		if ($argDatabasename) return $this->SelectDB($argDatabasename);
+		if ($this->_connectionID === false) 
+			return false;
+		if ($argDatabasename) 
+			return $this->SelectDB($argDatabasename);
+		
 		return true;
 	}
 
@@ -495,13 +499,18 @@ class ADODB_mysql extends ADOConnection {
 	{
 		if (!empty($this->port)) $argHostname .= ":".$this->port;
 
-		if (ADODB_PHPVER >= 0x4300)
-			$this->_connectionID = mysql_pconnect($argHostname,$argUsername,$argPassword,$this->clientFlags);
-		else
-			$this->_connectionID = mysql_pconnect($argHostname,$argUsername,$argPassword);
-		if ($this->_connectionID === false) return false;
-		if ($this->autoRollback) $this->RollbackTrans();
-		if ($argDatabasename) return $this->SelectDB($argDatabasename);
+		$this->_connectionID = 
+			mysql_pconnect($argHostname,
+						   $argUsername,
+						   $argPassword,
+						   $this->clientFlags);
+		
+		if ($this->_connectionID === false) 
+			return false;
+		if ($this->autoRollback) 
+			$this->RollbackTrans();
+		if ($argDatabasename) 
+			return $this->SelectDB($argDatabasename);
 		return true;
 	}
 

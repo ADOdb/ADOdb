@@ -77,7 +77,6 @@ class ADODB_pdo extends ADOConnection {
 	var $_genSeqSQL = "create table %s (id integer)";
 	var $_dropSeqSQL;
 	var $_autocommit = true;
-	var $_haserrorfunctions = true;
 	var $_lastAffectedRows = 0;
 
 	var $_errormsg = false;
@@ -220,10 +219,7 @@ class ADODB_pdo extends ADOConnection {
 			return call_user_func_array(array($this->_driver, 'Concat'), $args);
 		}
 
-		if (PHP_VERSION >= 5.3) {
-			return call_user_func_array('parent::Concat', $args);
-		}
-		return call_user_func_array(array($this,'parent::Concat'), $args);
+		return call_user_func_array('parent::Concat', $args);
 	}
 
 	// returns true or false

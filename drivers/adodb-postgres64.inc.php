@@ -270,16 +270,12 @@ class ADODB_postgres64 extends ADOConnection{
 		if (is_bool($s)) return $s ? 'true' : 'false';
 
 		if (!$magic_quotes) {
-			if (ADODB_PHPVER >= 0x5200 && $this->_connectionID) {
-				return  "'".pg_escape_string($this->_connectionID,$s)."'";
+			if ($this->_connectionID) {
+				return "'" . pg_escape_string($this->_connectionID, $s) . "'";
 			}
-			if (ADODB_PHPVER >= 0x4200) {
-				return  "'".pg_escape_string($s)."'";
+			else {
+				return "'" . pg_escape_string($s) . "'";
 			}
-			if ($this->replaceQuote[0] == '\\'){
-				$s = adodb_str_replace(array('\\',"\0"),array('\\\\',"\\\\000"),$s);
-			}
-			return  "'".str_replace("'",$this->replaceQuote,$s)."'";
 		}
 
 		// undo magic quotes for "
@@ -464,15 +460,7 @@ class ADODB_postgres64 extends ADOConnection{
 	 */
 	function BlobEncode($blob)
 	{
-		if (ADODB_PHPVER >= 0x5200) return pg_escape_bytea($this->_connectionID, $blob);
-		if (ADODB_PHPVER >= 0x4200) return pg_escape_bytea($blob);
-
-		/*92=backslash, 0=null, 39=single-quote*/
-		$badch = array(chr(92),chr(0),chr(39)); # \  null  '
-		$fixch = array('\\\\134','\\\\000','\\\\047');
-		return adodb_str_replace($badch,$fixch,$blob);
-
-		// note that there is a pg_escape_bytea function only for php 4.2.0 or later
+		return pg_escape_bytea($this->_connectionID, $blob);
 	}
 
 	// assumes bytea for blob, and varchar for clob
@@ -876,20 +864,23 @@ class ADODB_postgres64 extends ADOConnection{
 	/*	Returns: the last error message from previous database operation	*/
 	function ErrorMsg()
 	{
-		if ($this->_errorMsg !== false) return $this->_errorMsg;
-		if (ADODB_PHPVER >= 0x4300) {
-			if (!empty($this->_resultid)) {
-				$this->_errorMsg = @pg_result_error($this->_resultid);
-				if ($this->_errorMsg) return $this->_errorMsg;
-			}
-
-			if (!empty($this->_connectionID)) {
-				$this->_errorMsg = @pg_last_error($this->_connectionID);
-			} else $this->_errorMsg = $this->_errconnect();
-		} else {
-			if (empty($this->_connectionID)) $this->_errconnect();
-			else $this->_errorMsg = @pg_errormessage($this->_connectionID);
+		if ($this->_errorMsg !== false) {
+			return $this->_errorMsg;
 		}
+		
+		if (!empty($this->_resultid)) {
+			$this->_errorMsg = @pg_result_error($this->_resultid);
+			if ($this->_errorMsg) {
+				return $this->_errorMsg;
+			}
+		}
+
+		if (!empty($this->_connectionID)) {
+			$this->_errorMsg = @pg_last_error($this->_connectionID);
+		} else {
+			$this->_errorMsg = $this->_errconnect();
+		}
+
 		return $this->_errorMsg;
 	}
 

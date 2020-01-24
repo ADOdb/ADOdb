@@ -149,7 +149,9 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		//https://php.net/manual/en/mysqli.persistconns.php
-		if ($persist && PHP_VERSION > 5.2 && strncmp($argHostname,'p:',2) != 0) $argHostname = 'p:'.$argHostname;
+		if ($persist && strncmp($argHostname,'p:',2) != 0) {
+			$argHostname = 'p:' . $argHostname;
+		}
 
 		// SSL Connections for MySQLI
 		if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
@@ -363,7 +365,7 @@ class ADODB_mysqli extends ADOConnection {
 		if (!$magic_quotes) {
 			// mysqli_real_escape_string() throws a warning when the given
 			// connection is invalid
-			if (PHP_VERSION >= 5 && $this->_connectionID) {
+			if ($this->_connectionID) {
 				return "'" . mysqli_real_escape_string($this->_connectionID, $s) . "'";
 			}
 

@@ -404,8 +404,6 @@ First implementation.
 */
 define('ADODB_DATE_VERSION',0.35);
 
-$ADODB_DATETIME_CLASS = (PHP_VERSION >= 5.2);
-
 /*
 	This code was originally for windows. But apparently this problem happens
 	also with Linux, RH 7.3 and later!
@@ -737,13 +735,12 @@ function adodb_get_gmt_diff_ts($ts)
 */
 function adodb_get_gmt_diff($y,$m,$d)
 {
-static $TZ,$tzo;
-global $ADODB_DATETIME_CLASS;
+	static $TZ,$tzo;
 
 	if (!defined('ADODB_TEST_DATES')) $y = false;
 	else if ($y < 1970 || $y >= 2038) $y = false;
 
-	if ($ADODB_DATETIME_CLASS && $y !== false) {
+	if ($y !== false) {
 		$dt = new DateTime();
 		$dt->setISODate($y,$m,$d);
 		if (empty($tzo)) {
@@ -1035,20 +1032,20 @@ global $_month_table_normal,$_month_table_leaf, $_adodb_last_date_call_failed;
 		0 => $origd
 	);
 }
-/*
-		if ($isphp5)
-				$dates .= sprintf('%s%04d',($gmt<=0)?'+':'-',abs($gmt)/36);
-			else
-				$dates .= sprintf('%s%04d',($gmt<0)?'+':'-',abs($gmt)/36);
-			break;*/
-function adodb_tz_offset($gmt,$isphp5)
+
+/**
+ * Compute timezone offset.
+ *
+ * @param int  $gmt     Time offset from GMT, in seconds
+ * @param bool $ignored Param leftover from removed PHP4-compatibility code
+ *                      kept to avoid altering function signature.
+ * @return string
+ */
+function adodb_tz_offset($gmt, $ignored=true)
 {
-	$zhrs = abs($gmt)/3600;
+	$zhrs = abs($gmt) / 3600;
 	$hrs = floor($zhrs);
-	if ($isphp5)
-		return sprintf('%s%02d%02d',($gmt<=0)?'+':'-',floor($zhrs),($zhrs-$hrs)*60);
-	else
-		return sprintf('%s%02d%02d',($gmt<0)?'+':'-',floor($zhrs),($zhrs-$hrs)*60);
+	return sprintf('%s%02d%02d', ($gmt <= 0) ? '+' : '-', $hrs, ($zhrs - $hrs) * 60);
 }
 
 
@@ -1081,9 +1078,8 @@ function adodb_date2($fmt, $d=false, $is_gmt=false)
 */
 function adodb_date($fmt,$d=false,$is_gmt=false)
 {
-static $daylight;
-global $ADODB_DATETIME_CLASS;
-static $jan1_1971;
+	static $daylight;
+	static $jan1_1971;
 
 	if (!isset($daylight)) {
 		$daylight = function_exists('adodb_daylight_sv');
@@ -1123,8 +1119,6 @@ static $jan1_1971;
 	$max = strlen($fmt);
 	$dates = '';
 
-	$isphp5 = PHP_VERSION >= 5;
-
 	/*
 		at this point, we have the following integer vars to manipulate:
 		$year, $month, $day, $hour, $min, $secs
@@ -1135,12 +1129,9 @@ static $jan1_1971;
 			$dates .= date('e');
 			break;
 		case 'T':
-			if ($ADODB_DATETIME_CLASS) {
-				$dt = new DateTime();
-				$dt->SetDate($year,$month,$day);
-				$dates .= $dt->Format('T');
-			} else
-				$dates .= date('T');
+			$dt = new DateTime();
+			$dt->SetDate($year,$month,$day);
+			$dates .= $dt->Format('T');
 			break;
 		// YEAR
 		case 'L': $dates .= $arr['leap'] ? '1' : '0'; break;
@@ -1159,7 +1150,7 @@ static $jan1_1971;
 
 			$gmt = adodb_get_gmt_diff($year,$month,$day);
 
-			$dates .= ' '.adodb_tz_offset($gmt,$isphp5);
+			$dates .= ' '.adodb_tz_offset($gmt);
 			break;
 
 		case 'Y': $dates .= $year; break;
@@ -1197,7 +1188,7 @@ static $jan1_1971;
 		case 'O':
 			$gmt = ($is_gmt) ? 0 : adodb_get_gmt_diff($year,$month,$day);
 
-			$dates .= adodb_tz_offset($gmt,$isphp5);
+			$dates .= adodb_tz_offset($gmt);
 			break;
 
 		case 'H':

@@ -55,8 +55,6 @@ class  ADODB_access extends ADODB_odbc {
 		$ADODB_FETCH_MODE = $savem;
 		if (!$rs) return false;
 
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
-
 		$arr = $rs->GetArray();
 		//print_pre($arr);
 		$arr2 = array();
