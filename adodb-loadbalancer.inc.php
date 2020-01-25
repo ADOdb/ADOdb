@@ -275,7 +275,7 @@ class ADOdbLoadBalancer
      */
     public function getConnection($type = 'write', $pin_connection = null)
     {
-        while ( ($type == 'write' AND $this->total_connections['write'] > 0 ) OR ( $type == 'readonly' AND $this->total_connections['all'] > 0 ) ) {
+        while ( ($type == 'write' && $this->total_connections['write'] > 0 ) || ( $type == 'readonly' && $this->total_connections['all'] > 0 ) ) {
             if ($this->pinned_connection_id !== false ) {
                 $connection_id = $this->pinned_connection_id;
             } else {
@@ -290,7 +290,7 @@ class ADOdbLoadBalancer
                 } catch ( Exception $e ) {
                     //Connection error, see if there are other connections to try still.
                     $this->removeConnection($connection_id);
-                    if (( $type == 'write' AND $this->total_connections['write'] == 0 ) OR ( $type == 'readonly' AND $this->total_connections['all'] == 0 ) ) {
+                    if (( $type == 'write' && $this->total_connections['write'] == 0 ) || ( $type == 'readonly' && $this->total_connections['all'] == 0 ) ) {
                         throw $e;
                     }
                 }
@@ -570,7 +570,7 @@ class ADOdbLoadBalancer
         }
 
         if ($type === false ) {
-            if (is_array($this->connections) AND count($this->connections) > 0 ) {
+            if (is_array($this->connections) && count($this->connections) > 0 ) {
                 foreach( $this->connections as $key => $connection_obj ) {
                     $adodb_obj = $connection_obj->getADOdbObject();
                     return call_user_func_array(array($adodb_obj, $method), $this->makeValuesReferenced($args)); //Just makes the function call on the first object.
@@ -596,7 +596,7 @@ class ADOdbLoadBalancer
      */
     public function __get($property)
     {
-        if (is_array($this->connections) AND count($this->connections) > 0 ) {
+        if (is_array($this->connections) && count($this->connections) > 0 ) {
             foreach ( $this->connections as $key => $connection_obj ) {
                 return $connection_obj->getADOdbObject()->$property; //Just returns the property from the first object.
             }
@@ -616,7 +616,7 @@ class ADOdbLoadBalancer
     public function __set($property, $value)
     {
         //Special function to set object properties on all objects without initiating a connection to the database.
-        if (is_array($this->connections) AND count($this->connections) > 0 ) {
+        if (is_array($this->connections) && count($this->connections) > 0 ) {
             foreach ( $this->connections as $key => $connection_obj ) {
                 $connection_obj->getADOdbObject()->$property = $value;
             }
