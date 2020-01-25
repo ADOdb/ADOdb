@@ -291,7 +291,7 @@ class ADOdbLoadBalancer
 					}
 				}
 			} else {
-				throw Exception('Connection ID is invalid!');
+				throw new Exception('Connection ID is invalid!');
 			}
 		}
 
