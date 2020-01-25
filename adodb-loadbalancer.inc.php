@@ -580,9 +580,8 @@ class ADOdbLoadBalancer
 
 				return $result;
 			}
-
-			return false;
 		}
+		return false;
     }
 
     /**
