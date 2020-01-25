@@ -1,23 +1,28 @@
 <?php
-// Copyright (c) 2015 Mike Benoit, all rights reserved
-/* ******************************************************************************
-    Released under both BSD license and Lesser GPL library license.
- 	Whenever there is any discrepancy between the two licenses,
- 	the BSD license will take precedence.
-*******************************************************************************/
-
-/*
-  @version   v5.21.0-dev	??-???-2016
-  @copyright (c) 2016		Mike Benoit and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence. See License.txt.
-  Set tabs to 4 for best viewing.
-
-  ADOdb loadbalancer is a class that allows the user to do read/write splitting and load balancing across multiple servers.
-  It can handle and load balance any number of write capable (AKA: master) or readonly (AKA: slave) connections, including dealing
-  with connection failures and retrying queries on a different connection instead.
-*/
+/**
+ * ADOdb Load Balancer
+ *
+ * ADOdbLoadBalancer is a class that allows the user to do read/write splitting
+ * and load balancing across multiple servers. It can handle and load balance
+ * any number of write capable (AKA: master) or readonly (AKA: slave) connections,
+ * including dealing with connection failures and retrying queries on a different
+ * connection instead.
+ *
+ * Released under both BSD license and Lesser GPL library license.
+ * Whenever there is any discrepancy between the two licenses,
+ * the BSD license will take precedence. See LICENSE.md.
+ *
+ * Latest version is available at https://adodb.org/
+ *
+ * @package ADOdb
+ * @version v5.21.0-dev ??-???-2016
+ * @author Mike Benoit
+ * @copyright (c) 2016 Mike Benoit and the ADOdb community
+ * @license BSD-3-Clause
+ * @license GNU Lesser General Public License (LGPL) v2.1 or later
+ * @link https://adodb.org/
+ * @since v5.21.0
+ */
 
 /**
  * Class ADOdbLoadBalancer
