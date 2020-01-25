@@ -9,7 +9,7 @@
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Thanks Diogo Toscano (diogo#scriptcase.net) for the code.
 	And also Sid Dunayer [sdunayer#interserv.com] for extensive fixes.

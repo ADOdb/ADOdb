@@ -8,7 +8,7 @@
   the BSD license will take precedence.
 Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Native mssql driver. Requires mssql client. Works on Windows.
     http://www.microsoft.com/sql/technologies/php/default.mspx

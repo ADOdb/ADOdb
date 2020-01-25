@@ -9,7 +9,7 @@
 *
 * Set tabs to 4 for best viewing.
 *
-* Latest version is available at http://adodb.org/
+* Latest version is available at https://adodb.org/
 *
 * Informix 9 driver that supports SELECT FIRST
 *

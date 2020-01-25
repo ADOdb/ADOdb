@@ -8,7 +8,7 @@
 //                                                                       //
 // ADOdb  - Database Abstraction Library for PHP                         //
 //                                                                       //
-// Latest version is available at http://adodb.org                       //
+// Latest version is available at https://adodb.org                       //
 //                                                                       //
 // Copyright (c) 2000-2014 John Lim (jlim\@natsoft.com.my)               //
 //          All rights reserved.                                         //

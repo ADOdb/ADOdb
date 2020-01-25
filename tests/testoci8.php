@@ -10,7 +10,7 @@
   the BSD license will take precedence.
   Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 */
 error_reporting(E_ALL | E_STRICT);
 include("../adodb.inc.php");

@@ -9,7 +9,7 @@
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Code contributed by George Fourlanos <fou@infomap.gr>
 

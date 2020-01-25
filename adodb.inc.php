@@ -2,7 +2,7 @@
 /*
  * Set tabs to 4 for best viewing.
  *
- * Latest version is available at http://adodb.org/
+ * Latest version is available at https://adodb.org/
  *
  * This is the main include file for ADOdb.
  * Database specific drivers are stored in the adodb/drivers/adodb-*.inc.php
@@ -84,7 +84,7 @@ if (!defined('_ADODB_LAYER')) {
 	/*********************************************************
 	* Controls $ADODB_FORCE_TYPE mode. Default is ADODB_FORCE_VALUE (3).
 	* Used in GetUpdateSql and GetInsertSql functions. Thx to Niko, nuko#mbnet.fi
-	* @link http://adodb.org/dokuwiki/doku.php?id=v5:reference:adodb_force_type
+	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:adodb_force_type
 	*
 	* 0 = ignore empty fields. All empty fields in array are ignored.
 	* 1 = force null. All empty, php null and string 'null' fields are
