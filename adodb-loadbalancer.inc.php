@@ -134,7 +134,7 @@ class ADOdbLoadBalancer
      */
     public function removeConnection($i)
     {
-        if (isset($this->connections[$i]) ) {
+        if (isset($this->connections[$i])) {
                $obj = $this->connections[ $i ];
 
                $this->total_connections[ $obj->type ]--;
@@ -143,29 +143,33 @@ class ADOdbLoadBalancer
                $this->total_connection_weights[ $obj->type ] -= abs($obj->weight);
                $this->total_connection_weights['all'] -= abs($obj->weight);
 
-            if ($obj->type == 'write' ) {
+            if ($obj->type == 'write') {
                 unset($this->connections_write[array_search($i, $this->connections_write)]);
-                $this->connections_write = array_values($this->connections_write); //Reindex array.
+                // Reindex array.
+                $this->connections_write = array_values($this->connections_write);
             } else {
                 unset($this->connections_readonly[array_search($i, $this->connections_readonly)]);
-                $this->connections_readonly = array_values($this->connections_readonly); //Reindex array.
+                // Reindex array.
+                $this->connections_readonly = array_values($this->connections_readonly);
             }
 
-               //Remove any sticky connections as well.
-            if ($this->last_connection_id[$obj->type] == $i ) {
+            // Remove any sticky connections as well.
+            if ($this->last_connection_id[$obj->type] == $i) {
                 $this->last_connection_id[$obj->type] = false;
             }
 
-               unset($this->connections[$i]);
+            unset($this->connections[$i]);
 
-               return true;
+            return true;
         }
 
         return false;
     }
 
     /**
-     * Returns a database connection of the specified type, but takes into account the connection weight for load balancing.
+     * Returns a database connection of the specified type.
+     *
+     * Takes into account the connection weight for load balancing.
      *
      * @param  string $type Type of database connection, either: 'write' capable or 'readonly'
      * @return bool|int|string
@@ -221,7 +225,9 @@ class ADOdbLoadBalancer
     }
 
     /**
-     * Returns the ADODB connection object by connection_id and ensures that its connected and the session variables are executed.
+     * Returns the ADODB connection object by connection_id.
+     *
+     * Ensures that it's connected and the session variables are executed.
      *
      * @param  $connection_id
      * @return bool|ADOConnection
@@ -237,18 +243,22 @@ class ADOdbLoadBalancer
                 try {
                     if ($connection_obj->persistent_connection == true) {
                         $adodb_obj->Pconnect(
-                            $connection_obj->host, $connection_obj->user, $connection_obj->password,
+                            $connection_obj->host,
+                            $connection_obj->user,
+                            $connection_obj->password,
                             $connection_obj->database
                         );
                     } else {
                         $adodb_obj->Connect(
-                            $connection_obj->host, $connection_obj->user, $connection_obj->password,
+                            $connection_obj->host,
+                            $connection_obj->user,
+                            $connection_obj->password,
                             $connection_obj->database
                         );
                     }
                 } catch (Exception $e) {
-                    //Connection error, see if there are other connections to try still.
-                    throw $e; //No connections left, reThrow exception so application can catch it.
+                    // Connection error, see if there are other connections to try still.
+                    throw $e; // No connections left, reThrow exception so application can catch it.
                 }
 
                 if (is_array($this->user_defined_session_init_sql)) {
@@ -266,7 +276,9 @@ class ADOdbLoadBalancer
     }
 
     /**
-     * Returns the ADODB connection object by database type and ensures that its connected and the session variables are executed.
+     * Returns the ADODB connection object by database type.
+     *
+     * Ensures that it's connected and the session variables are executed.
      *
      * @param  string $type
      * @param  null   $pin_connection
@@ -275,22 +287,26 @@ class ADOdbLoadBalancer
      */
     public function getConnection($type = 'write', $pin_connection = null)
     {
-        while ( ($type == 'write' && $this->total_connections['write'] > 0 ) || ( $type == 'readonly' && $this->total_connections['all'] > 0 ) ) {
-            if ($this->pinned_connection_id !== false ) {
+        while (($type == 'write' && $this->total_connections['write'] > 0)
+            || ($type == 'readonly' && $this->total_connections['all'] > 0)
+        ) {
+            if ($this->pinned_connection_id !== false) {
                 $connection_id = $this->pinned_connection_id;
             } else {
                 $connection_id = $this->getLoadBalancedConnection($type);
             }
 
-            if ($connection_id !== false ) {
+            if ($connection_id !== false) {
                 try {
                     $adodb_obj = $this->_getConnection($connection_id);
-                    //$connection_obj = $this->connections[$connection_id];
+                    // $connection_obj = $this->connections[$connection_id];
                     break;
-                } catch ( Exception $e ) {
-                    //Connection error, see if there are other connections to try still.
+                } catch (Exception $e) {
+                    // Connection error, see if there are other connections to try still.
                     $this->removeConnection($connection_id);
-                    if (( $type == 'write' && $this->total_connections['write'] == 0 ) || ( $type == 'readonly' && $this->total_connections['all'] == 0 ) ) {
+                    if (   ($type == 'write' && $this->total_connections['write'] == 0)
+                        || ($type == 'readonly' && $this->total_connections['all'] == 0)
+                    ) {
                         throw $e;
                     }
                 }
@@ -303,10 +319,12 @@ class ADOdbLoadBalancer
 
         if ($pin_connection === true) {
             $this->pinned_connection_id = $connection_id;
-        } elseif ($pin_connection === false && $adodb_obj->transOff <= 1) { //UnPin connection only if we are 1 level deep in a transaction.
+        } elseif ($pin_connection === false && $adodb_obj->transOff <= 1) {
+            // UnPin connection only if we are 1 level deep in a transaction.
             $this->pinned_connection_id = false;
 
-            //When unpinning connection, reset last_connection_id so readonly queries don't get stuck on the write capable connection.
+            // When unpinning connection, reset last_connection_id so readonly
+            // queries don't get stuck on the write capable connection.
             $this->last_connection_id['write'] = false;
             $this->last_connection_id['readonly'] = false;
         }
@@ -316,7 +334,9 @@ class ADOdbLoadBalancer
 
     /**
      * This is a hack to work around pass by reference error.
-     * Parameter 1 to ADOConnection::GetInsertSQL() expected to be a reference, value given in adodb-loadbalancer.inc.php on line 83
+     *
+     * Parameter 1 to ADOConnection::GetInsertSQL() expected to be a reference,
+     * value given in adodb-loadbalancer.inc.php on line 83
      *
      * @param  $arr
      * @return array
@@ -335,9 +355,11 @@ class ADOdbLoadBalancer
     /**
      * Allow setting session variables that are maintained across connections.
      *
-     * Its important that these are set using name/value, so it can determine if the same variable is set multiple times
-     * causing bloat/clutter when new connections are established. For example if the time_zone is set to many different
-     * ones through the course of a single connection, a new connection should only set it to the most recent value.
+     * Its important that these are set using name/value, so it can determine
+     * if the same variable is set multiple times causing bloat/clutter when
+     * new connections are established. For example if the time_zone is set to
+     * many different ones through the course of a single connection, a new
+     * connection should only set it to the most recent value.
      *
      * @param  $name
      * @param  $value
@@ -368,11 +390,11 @@ class ADOdbLoadBalancer
         if (is_array($this->session_variables)) {
             $sql = '';
             foreach ($this->session_variables as $name => $value) {
-                //$sql .= 'SET SESSION '. $name .' '. $value;
-                //MySQL uses: SET SESSION foo_bar='foo'
-                //PGSQL uses: SET SESSION foo_bar 'foo'
-                //So leave it up to the user to pass the proper value with '=' if needed.
-                //This may be a candidate to move into ADOdb proper.
+                // $sql .= 'SET SESSION '. $name .' '. $value;
+                // MySQL uses: SET SESSION foo_bar='foo'
+                // PGSQL uses: SET SESSION foo_bar 'foo'
+                // So leave it up to the user to pass the proper value with '=' if needed.
+                // This may be a candidate to move into ADOdb proper.
                 $sql .= 'SET SESSION ' . $name . ' ' . $value;
             }
 
@@ -397,7 +419,7 @@ class ADOdbLoadBalancer
      * @return array|bool|mixed
      * @throws Exception
      */
-    public function ClusterExecute(
+    public function clusterExecute(
         $sql,
         $inputarr = false,
         $return_all_results = false,
@@ -405,7 +427,11 @@ class ADOdbLoadBalancer
     ) {
         if (is_array($this->connections) && count($this->connections) > 0) {
             foreach ($this->connections as $key => $connection_obj) {
-                if ($existing_connections_only == false || ($existing_connections_only == true && $connection_obj->getADOdbObject()->_connectionID !== false)) {
+                if ($existing_connections_only == false
+                    || ($existing_connections_only == true
+                        && $connection_obj->getADOdbObject()->_connectionID !== false
+                    )
+                ) {
                     $adodb_obj = $this->_getConnection($key);
                     if (is_object($adodb_obj)) {
                         $result_arr[] = $adodb_obj->Execute($sql, $inputarr);
@@ -416,8 +442,8 @@ class ADOdbLoadBalancer
             if (isset($result_arr) && $return_all_results == true) {
                 return $result_arr;
             } else {
-                //Loop through all results checking to see if they match, if they do return the first one
-                //otherwise return an array of all results.
+                // Loop through all results checking to see if they match, if they do return the first one
+                // otherwise return an array of all results.
                 if (isset($result_arr)) {
                     foreach ($result_arr as $result) {
                         if ($result == false) {
@@ -427,8 +453,12 @@ class ADOdbLoadBalancer
 
                     return $result_arr[0];
                 } else {
-                    //When using lazy connections, there are cases where setSessionVariable() is called early on, but there are no connections to execute the queries on yet.
-                    //This captures that case and forces a RETURN TRUE to occur. As likely the queries will be exectued as soon as a connection is established.
+                    // When using lazy connections, there are cases where
+                    // setSessionVariable() is called early on, but there are
+                    // no connections to execute the queries on yet.
+                    // This captures that case and forces a RETURN TRUE to occur.
+                    // As likely the queries will be executed as soon as a
+                    // connection is established.
                     return true;
                 }
             }
@@ -445,8 +475,10 @@ class ADOdbLoadBalancer
      */
     public function isReadOnlyQuery($sql)
     {
-        if (stripos($sql, 'SELECT') === 0 && stripos($sql, 'FOR UPDATE') === false && stripos($sql,
-                        ' INTO ') === false && stripos($sql, 'LOCK IN') === false
+        if (   stripos($sql, 'SELECT') === 0
+            && stripos($sql, 'FOR UPDATE') === false
+            && stripos($sql, ' INTO ') === false
+            && stripos($sql, 'LOCK IN') === false
         ) {
             return true;
         }
@@ -462,22 +494,23 @@ class ADOdbLoadBalancer
      * @return array|bool|mixed
      * @throws Exception
      */
-    public function Execute($sql, $inputarr = false)
+    public function execute($sql, $inputarr = false)
     {
         $type = 'write';
         $pin_connection = null;
 
-        $sql = trim($sql); //Prevent leading spaces from causing isReadOnlyQuery/stripos from failing.
+        // Prevent leading spaces from causing isReadOnlyQuery/stripos from failing.
+        $sql = trim($sql);
 
-        //SELECT queries that can write and therefore must be run on a write capable connection.
-        //SELECT ... FOR UPDATE;
-        //SELECT ... INTO ...
-        //SELECT .. LOCK IN ... (MYSQL)
+        // SELECT queries that can write and therefore must be run on a write capable connection.
+        // SELECT ... FOR UPDATE;
+        // SELECT ... INTO ...
+        // SELECT .. LOCK IN ... (MYSQL)
         if ($this->isReadOnlyQuery($sql) == true) {
             $type = 'readonly';
         } elseif (stripos($sql, 'SET') === 0) {
-            //SET SQL statements should likely use setSessionVariable() instead,
-            //so state is properly maintained across connections, especially when they are lazily created.
+            // SET SQL statements should likely use setSessionVariable() instead,
+            // so state is properly maintained across connections, especially when they are lazily created.
             return $this->ClusterExecute($sql, $inputarr);
         }
 
@@ -502,83 +535,84 @@ class ADOdbLoadBalancer
         $type = 'write';
         $pin_connection = null;
 
-        //Intercept specific methods to determine if they are read-only or not.
+        // Intercept specific methods to determine if they are read-only or not.
         $method = strtolower($method);
         switch ($method) {
-            //case 'execute': //This is the direct overloaded function above instead.
-        case 'getone':
-        case 'getrow':
-        case 'getall':
-        case 'getcol':
-        case 'getassoc':
-        case 'selectlimit':
-            if ($this->isReadOnlyQuery(trim($args[0])) == true) {
+            // case 'execute': // This is the direct overloaded function above instead.
+            case 'getone':
+            case 'getrow':
+            case 'getall':
+            case 'getcol':
+            case 'getassoc':
+            case 'selectlimit':
+                if ($this->isReadOnlyQuery(trim($args[0])) == true) {
+                    $type = 'readonly';
+                }
+                break;
+            case 'cachegetone':
+            case 'cachegetrow':
+            case 'cachegetall':
+            case 'cachegetcol':
+            case 'cachegetassoc':
+            case 'cacheexecute':
+            case 'cacheselect':
+            case 'pageexecute':
+            case 'cachepageexecute':
                 $type = 'readonly';
-            }
-            break;
-        case 'cachegetone':
-        case 'cachegetrow':
-        case 'cachegetall':
-        case 'cachegetcol':
-        case 'cachegetassoc':
-        case 'cacheexecute':
-        case 'cacheselect':
-        case 'pageexecute':
-        case 'cachepageexecute':
-            $type = 'readonly';
-            break;
-            //case 'ignoreerrors':
-            //	//When ignoreerrors is called, PIN to the connection until its called again.
-            //	if ( !isset($args[0]) || ( isset($args[0]) && $args[0] == FALSE ) ) {
-            //		$pin_connection = TRUE;
-            //	} else {
-            //		$pin_connection = FALSE;
-            //	}
-            //	break;
+                break;
+                // case 'ignoreerrors':
+                // 	// When ignoreerrors is called, PIN to the connection until its called again.
+                // 	if (!isset($args[0]) || (isset($args[0]) && $args[0] == FALSE)) {
+                // 		$pin_connection = TRUE;
+                // 	} else {
+                // 		$pin_connection = FALSE;
+                // 	}
+                // 	break;
 
-            //Manual transactions
-        case 'begintrans':
-        case 'settransactionmode':
+                // Manual transactions
+            case 'begintrans':
+            case 'settransactionmode':
+                    $pin_connection = true;
+                break;
+            case 'rollbacktrans':
+            case 'committrans':
+                $pin_connection = false;
+                break;
+                // Smart transactions
+            case 'starttrans':
                 $pin_connection = true;
-            break;
-        case 'rollbacktrans':
-        case 'committrans':
-            $pin_connection = false;
-            break;
-            //Smart transactions
-        case 'starttrans':
-            $pin_connection = true;
-            break;
-        case 'completetrans':
-        case 'failtrans':
-            //getConnection() will only unpin the transaction if we're exiting the last nested transaction
-            $pin_connection = false;
-            break;
+                break;
+            case 'completetrans':
+            case 'failtrans':
+                // getConnection() will only unpin the transaction if we're exiting the last nested transaction
+                $pin_connection = false;
+                break;
 
-        //Functions that don't require any connection and therefore shouldn't force a connection be established before they run.
-        case 'qstr':
-        case 'escape':
-        case 'binddate':
-        case 'bindtimestamp':
-        case 'setfetchmode':
-              $type = false; //No connection necessary.
-            break;
+            // Functions that don't require any connection and therefore
+            // shouldn't force a connection be established before they run.
+            case 'qstr':
+            case 'escape':
+            case 'binddate':
+            case 'bindtimestamp':
+            case 'setfetchmode':
+                  $type = false; // No connection necessary.
+                break;
 
-        //Default to assuming write connection is required to be on the safe side.
-        default:
-            break;
+            // Default to assuming write connection is required to be on the safe side.
+            default:
+                break;
         }
 
-        if ($type === false ) {
-            if (is_array($this->connections) && count($this->connections) > 0 ) {
-                foreach( $this->connections as $key => $connection_obj ) {
+        if ($type === false) {
+            if (is_array($this->connections) && count($this->connections) > 0) {
+                foreach ($this->connections as $key => $connection_obj) {
                     $adodb_obj = $connection_obj->getADOdbObject();
-                    return call_user_func_array(array($adodb_obj, $method), $this->makeValuesReferenced($args)); //Just makes the function call on the first object.
+                    return call_user_func_array(array($adodb_obj, $method), $this->makeValuesReferenced($args)); // Just makes the function call on the first object.
                 }
             }
         } else {
                $adodb_obj = $this->getConnection($type, $pin_connection);
-            if (is_object($adodb_obj) ) {
+            if (is_object($adodb_obj)) {
                 $result = call_user_func_array(array($adodb_obj, $method), $this->makeValuesReferenced($args));
 
                 return $result;
@@ -596,9 +630,10 @@ class ADOdbLoadBalancer
      */
     public function __get($property)
     {
-        if (is_array($this->connections) && count($this->connections) > 0 ) {
-            foreach ( $this->connections as $key => $connection_obj ) {
-                return $connection_obj->getADOdbObject()->$property; //Just returns the property from the first object.
+        if (is_array($this->connections) && count($this->connections) > 0) {
+            foreach ($this->connections as $key => $connection_obj) {
+                // Just returns the property from the first object.
+                return $connection_obj->getADOdbObject()->$property;
             }
         }
 
@@ -615,9 +650,10 @@ class ADOdbLoadBalancer
      */
     public function __set($property, $value)
     {
-        //Special function to set object properties on all objects without initiating a connection to the database.
-        if (is_array($this->connections) && count($this->connections) > 0 ) {
-            foreach ( $this->connections as $key => $connection_obj ) {
+        // Special function to set object properties on all objects
+        // without initiating a connection to the database.
+        if (is_array($this->connections) && count($this->connections) > 0) {
+            foreach ($this->connections as $key => $connection_obj) {
                 $connection_obj->getADOdbObject()->$property = $value;
             }
 
