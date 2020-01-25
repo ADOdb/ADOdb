@@ -36,17 +36,17 @@ class ADOdbLoadBalancer
 
 
     /**
-     * @var Bool|Array    All connections to each database.
+     * @var bool|array    All connections to each database.
      */
     protected $connections = false;
 
     /**
-     * @var bool|Array    Just connections to the write capable database.
+     * @var bool|array    Just connections to the write capable database.
      */
     protected $connections_write = false;
 
     /**
-     * @var bool|Array    Just connections to the readonly database.
+     * @var bool|array    Just connections to the readonly database.
      */
     protected $connections_readonly = false;
 
@@ -169,7 +169,7 @@ class ADOdbLoadBalancer
     /**
      * Returns a database connection of the specified type, but takes into account the connection weight for load balancing.
      *
-     * @param $type    Type of database connection, either: 'write' cabable or 'readonly'
+     * @param string $type    Type of database connection, either: 'write' capable or 'readonly'
      * @return bool|int|string
      */
     private function getConnectionByWeight($type)
@@ -226,13 +226,14 @@ class ADOdbLoadBalancer
      * Returns the ADODB connection object by connection_id and ensures that its connected and the session variables are executed.
      *
      * @param $connection_id
-     * @return bool
+     * @return bool|ADOConnection
      * @throws Exception
      */
     private function _getConnection($connection_id)
     {
         if (isset($this->connections[$connection_id])) {
             $connection_obj = $this->connections[$connection_id];
+            /** @var ADOConnection $adodb_obj */
             $adodb_obj = $connection_obj->getADOdbObject();
             if (is_object($adodb_obj) && $adodb_obj->_connectionID == false) {
                 try {
@@ -269,8 +270,7 @@ class ADOdbLoadBalancer
      *
      * @param string $type
      * @param null $pin_connection
-     * @param bool $force_connection_id
-     * @return bool
+     * @return ADOConnection|bool
      * @throws Exception
      */
     public function getConnection($type = 'write', $pin_connection = null)
@@ -344,6 +344,7 @@ class ADOdbLoadBalancer
      * @param $value
      * @param bool $execute_immediately
      * @return array|bool|mixed
+     * @throws Exception
      */
     public function setSessionVariable($name, $value, $execute_immediately = true)
     {
@@ -359,8 +360,9 @@ class ADOdbLoadBalancer
     /**
      * Executes the session variables on a given ADODB object.
      *
-     * @param bool $adodb_obj
+     * @param ADOConnection|bool $adodb_obj
      * @return array|bool|mixed
+     * @throws Exception
      */
     private function executeSessionVariables($adodb_obj = false)
     {
@@ -439,7 +441,7 @@ class ADOdbLoadBalancer
     /**
      * Determines if a SQL query is read-only or not.
      *
-     * @param $sql    SQL Query to test.
+     * @param string $sql    SQL Query to test.
      * @return bool
      */
     public function isReadOnlyQuery($sql)
@@ -491,8 +493,8 @@ class ADOdbLoadBalancer
     /**
      * Magic method to intercept method and callback to the proper ADODB object for write/readonly connections.
      *
-     * @param $method    ADODB method to call.
-     * @param $args        Arguments to the ADODB method.
+     * @param string $method    ADODB method to call.
+     * @param array $args        Arguments to the ADODB method.
      * @return bool|mixed
      * @throws Exception
      */
