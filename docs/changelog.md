@@ -97,6 +97,7 @@ Older changelogs:
 - xml: support table 'opt' attribute with mysqli. #267
 - xml: add support for 'DESCR' tags for tables/fields. #265
 - xml: fix invalid xmlschema03.dtd and descr tag in session schema XML. #595
+- loadbalancer (new feature): read/write splitting and load balancing across multiple connections, thanks to Mike Benoit. #111
 
 ## 5.20.16 - 12-Jan-2020
 
