@@ -124,8 +124,6 @@ class ADOdbLoadBalancer
         }
 
         throw new Exception('Connection object is not an instance of ADOdbLoadBalancerConnection');
-
-        return false;
     }
 
     /**
@@ -261,8 +259,6 @@ class ADOdbLoadBalancer
         } else {
             throw new Exception('Unable to return Connection object...');
         }
-
-        return false;
     }
 
     /**
