@@ -111,7 +111,7 @@ def sed_script(version):
     '''
 
     # Version number and release date
-    script = r"s/{}\s+(-?)\s+{}/v{} \5 {}/".format(
+    script = r"s/{}\s+{}/v{}  {}/".format(
         _version_regex,
         _release_date_regex,
         version,
@@ -129,7 +129,7 @@ def sed_filelist():
         # Filter files by extensions
         files = [
             f for f in files
-            if re.search(r'\.(php|html?)$', f, re.IGNORECASE)
+            if re.search(r'\.php$', f, re.IGNORECASE)
             ]
         for fname in files:
             dirlist.append(path.join(root, fname))
