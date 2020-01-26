@@ -29,6 +29,9 @@ var $database = '';
 
 	function __construct($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
 	{
+		if (is_array($p2) && $fn != 'EXECUTE') {
+			$p2 = var_export($p2, true);
+		}
 		switch($fn) {
 		case 'EXECUTE':
 			$this->sql = is_array($p1) ? $p1[0] : $p1;
