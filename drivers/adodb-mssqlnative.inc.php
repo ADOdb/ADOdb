@@ -93,6 +93,11 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	var $sequences = false;
 	var $mssql_version = '';
+	
+	/*
+	* Stores the affected rows after a query
+	*/
+	private $sqlServerAffectedRows = -1;
 
 	function __construct()
 	{
@@ -162,8 +167,13 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function _affectedrows()
 	{
-		if ($this->_queryID)
-		return sqlsrv_rows_affected($this->_queryID);
+		/*
+		* If a non-update statement, sql server returns
+		* -1, ADODb needs false
+		*/
+		if ($this->sqlServerAffectedRows == -1)
+			return false;
+		return $this->sqlServerAffectedRows;
 	}
 
 	function GenID($seq='adodbseq',$start=1) {
@@ -595,6 +605,12 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		if ($this->debug) ADOConnection::outp("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));
 
+		/*
+		* Store off the affected rows for retrieval later
+		*/
+		$this->sqlServerAffectedRows = sqlsrv_rows_affected($rez);
+		
+		
 		if(!$rez)
 			$rez = false;
 
