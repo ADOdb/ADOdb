@@ -608,7 +608,8 @@ class ADODB_mssqlnative extends ADOConnection {
 		/*
 		* Store off the affected rows for retrieval later
 		*/
-		$this->sqlServerAffectedRows = sqlsrv_rows_affected($rez);
+		if (is_resource($rez))
+			$this->sqlServerAffectedRows = sqlsrv_rows_affected($rez);
 		
 		
 		if(!$rez)
