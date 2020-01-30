@@ -99,6 +99,10 @@ Older changelogs:
 - xml: fix invalid xmlschema03.dtd and descr tag in session schema XML. #595
 - loadbalancer (new feature): read/write splitting and load balancing across multiple connections, thanks to Mike Benoit. #111
 
+## 5.20.17 - Unreleased
+
+- core: fix PHP notice in ADOdb_Exception constructor when using transactions. #601
+
 ## 5.20.16 - 12-Jan-2020
 
 - mssql: queries are not correctly closed. #590

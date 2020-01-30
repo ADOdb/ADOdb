@@ -288,8 +288,8 @@ if (!defined('_ADODB_LAYER')) {
 		//print "Errorno ($fn errno=$errno m=$errmsg) ";
 		$thisConnection->_transOK = false;
 		if ($thisConnection->_oldRaiseFn) {
-			$fn = $thisConnection->_oldRaiseFn;
-			$fn($dbms, $fn, $errno, $errmsg, $p1, $p2,$thisConnection);
+			$errfn = $thisConnection->_oldRaiseFn;
+			$errfn($dbms, $fn, $errno, $errmsg, $p1, $p2,$thisConnection);
 		}
 	}
 
