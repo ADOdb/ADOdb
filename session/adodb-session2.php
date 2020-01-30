@@ -67,23 +67,108 @@ define('ADODB_SESSION', dirname(__FILE__));
 define('ADODB_SESSION2', ADODB_SESSION);
 
 /*
-	Unserialize session data manually. See http://phplens.com/lens/lensforum/msgs.php?id=9821
+	Unserialize session data manually.
 
-	From Kerr Schere, to unserialize session data stored via ADOdb.
-	1. Pull the session data from the db and loop through it.
-	2. Inside the loop, you will need to urldecode the data column.
-	3. After urldecode, run the serialized string through this function:
+    Supports the three types of handlers PHP supports out of the box.
+
 
 */
 function adodb_unserialize( $serialized_string )
 {
-	$variables = array( );
-	$a = preg_split( "/(\w+)\|/", $serialized_string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
-	for( $i = 0; $i < count( $a ); $i = $i+2 ) {
-		$variables[$a[$i]] = unserialize( $a[$i+1] );
-	}
-	return( $variables );
+    $handler_type = ini_get('session.serialize_handler');
+    switch($handler_type) {
+    case 'php_serialize':   // Added in PHP 5.5.4
+        return unserialize($serialized_string);
+        break;
+    case 'php':
+        return _unserialize_handler_php($serialized_string);
+        break;
+    case 'php_binary':
+        return _unserialize_handler_php_binary($serialized_string);
+        break;
+    }
+
+    // This is potentially dangerous as it replaces $_SESSION for a moment and could go badly if we don't recover, but
+    // it should be handled by PHP gracefully. Only works if a session is already started.
+    if (!empty(session_id())) {
+        $orig_session_data = session_encode();
+        
+        if (session_decode($serialized_string) === false) {
+            ADOConnection::outp( __FUNCTION__ . " session.serialize_handler = $handler_type failed to decode session data for unsupported handler" );
+            return null;
+        }
+
+        $sessdata = $_SESSION;
+        if (!session_decode($orig_session_data)) { // Reset $_SESSION to its original value
+            ADOConnection::outp( __FUNCTION__ . " session.serialize_handler = $handler_type failed to restore original session data for unsupported handler" );
+            // We have the data, don't return empty, but this situation would suck for someone.
+        }
+        return $sessdata;
+    }
+
+    // Return empty if the handler is unsupported or no session is currently running.
+    ADOConnection::outp( __FUNCTION__ . " session.serialize_handler = $handler_type unsupported" );
+    return null;
 }
+
+/* 
+    Recursive process taken from @phred on GitHub with light modifications
+    https://gist.github.com/phred/1201412
+ */
+function _unserialize_handler_php($sessdata, $start_index=0, &$dict=null) {
+    isset($dict) || $dict = array();
+
+    $name_end = strpos($session_data, '|', $start_index);
+
+    if ($name_end !== false) {
+       $name = substr($session_data, $start_index, $name_end - $start_index);
+       $rest = substr($session_data, $name_end + 1);
+
+       $value = unserialize($rest);      // PHP will unserialize up to "|" delimiter.
+       $dict[$name] = $value;
+
+       return _unserialize_handler_php($session_data, $name_end + 1 + strlen(serialize($value)), $dict);
+   }
+
+   return $dict;
+}
+
+/*
+    Taken from Wikimedia, GPLv3, may not be OK licensing-wise
+    https://github.com/wikimedia/php-session-serializer/blob/master/src/Wikimedia/PhpSessionSerializer.php
+ */
+function _unserialize_handler_php_binary($sessdata) {
+    if ( !is_string( $data ) ) {
+        ADOConnection::outp( __CLASS__ . ' Session Data must be a string' );
+        return null;
+    }
+    $ret = [];
+    while ( $data !== '' && $data !== false ) {
+        $l = ord( $data[0] );
+        if ( strlen( $data ) < ( $l & 127 ) + 1 ) {
+            ADOConnection::outp( 'Unserialize failed: unexpected end of string' );
+            return null;
+        }
+        // "undefined" marker
+        if ( $l > 127 ) {
+            $data = substr( $data, ( $l & 127 ) + 1 );
+            continue;
+        }
+        $key = substr( $data, 1, $l );
+        $data = substr( $data, $l + 1 );
+        if ( $data === '' || $data === false ) {
+            ADOConnection::outp( 'Unserialize failed: unexpected end of string' );
+            return null;
+        }
+        $value = unserialize( $data );
+        if ($value === false) {
+            return null;
+        }
+        $ret[$key] = $value;
+    }
+    return $ret;
+}
+
 
 /*
 	Thanks Joe Li. See http://phplens.com/lens/lensforum/msgs.php?id=11487&x=1
