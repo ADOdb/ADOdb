@@ -5,6 +5,10 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.20.17 - Unreleased
+
+- core: fix PHP notice in ADOdb_Exception constructor when using transactions. #601
+
 ## 5.20.16 - 12-Jan-2020
 
 - mssql: queries are not correctly closed. #590
