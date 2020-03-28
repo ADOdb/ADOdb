@@ -606,11 +606,21 @@ class ADODB_mssqlnative extends ADOConnection {
 		if ($this->debug) ADOConnection::outp("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));
 
 		/*
-		* Store off the affected rows for retrieval later
+		* Store off the affected rows for retrieval later. There is no
+		* good way of getting a rowcount for a select statement
 		*/
-		if (is_resource($rez))
+		if (is_resource($rez) && !preg_match('/(SELECT COUNT)/',$sql))
+		{
+			//$recordCount = _adodb_getcount($this, $sql,$inputarr);
+			//print "RC=$recordCount"; exit;
+		}
+		else if ($rez === true)
+		{
 			$this->sqlServerAffectedRows = sqlsrv_rows_affected($rez);
-		
+		}
+		//print $rez;
+		//print "SQL=$sql";
+		//exit;
 		
 		if(!$rez)
 			$rez = false;
@@ -812,7 +822,7 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		$retarr = array();
 		while (!$rs->EOF){
-
+			print "METACLOOP";
 			$fld = new ADOFieldObject();
 			if (array_key_exists(0,$rs->fields)) {
 				$fld->name          = $rs->fields[0];
@@ -848,6 +858,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		$rs->Close();
 		$cached_columns[$table] = $retarr;
+		print_r($cached_columns);
 
 		return $retarr;
 	}
@@ -1056,7 +1067,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 
 	function _initrs()
 	{
-		$this->_numOfRows = -1;//not supported
+		$this->_numOfRows = -1;//not supported for most cursor types
 		// Cache the metadata right now
 		$this->_fetchField();
 
@@ -1185,6 +1196,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	// speedup
 	function MoveNext()
 	{
+		print "MN CALLS _FETCH";
 		if ($this->EOF)
 			return false;
 
@@ -1197,8 +1209,17 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		return false;
 	}
 
+	/**
+	* Fetches a single row of data from the the query and returns it
+	* formatted based on the current ADOdb settings
+	*
+	* @param	bool	$ignore_fields	Unused for driver
+	*
+	* @return mixed		bool for EOF or array
+	*/
 	function _fetch($ignore_fields=false)
 	{
+		print " _FEWTCH ";
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 			if ($this->fetchMode & ADODB_FETCH_NUM)
 				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_BOTH);
@@ -1220,8 +1241,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 
 		if (!$this->fields)
 			return false;
-
-		return $this->fields;
+		return true; //$this->fields;
 	}
 
 	/**

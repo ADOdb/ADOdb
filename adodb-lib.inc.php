@@ -431,7 +431,6 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		// also see http://phplens.com/lens/lensforum/msgs.php?id=12752
 		$rewritesql = adodb_strip_order_by($rewritesql);
 	}
-
 	if (isset($rewritesql) && $rewritesql != $sql) {
 		if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) $rewritesql .= $limitarr[0];
 
@@ -441,6 +440,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 			$qryRecs = $zthis->CacheGetOne($secs2cache/2,$rewritesql,$inputarr);
 
 		} else {
+			//print $rewritesql; exit;
 			$qryRecs = $zthis->GetOne($rewritesql,$inputarr);
 	  	}
 		if ($qryRecs !== false) return $qryRecs;

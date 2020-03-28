@@ -405,15 +405,32 @@ class ADODB_mysqli extends ADOConnection {
 
 	/**
 	 * Returns how many rows were effected by the most recently executed SQL statement.
-	 * Only works for INSERT, UPDATE and DELETE queries.
+	 * Only works for INSERT, UPDATE and DELETE queries. mysqli_affected_rows
+	 * also works as mysqli_num_rows if used against a SELECT statement
+	 * but that doesn't comply with ADOdb requirements that it should 
+	 * return false for inappropriate usage
 	 *
-	 * @return int The number of rows affected.
+	 * @return false|int 	The number of rows affected/ invalid type
 	 */
 	function _affectedrows()
 	{
+		
+		if ($this->queryExecutionType <> self::QUERY_TYPE_UPDATE)
+		{
+			/*
+			* Only returns affected rows for an update
+			*/
+			if ($this->debug) 
+				ADOConnection::outp("mysqli_affected_rows() called on invalid or incorrect result set ");
+			return false;
+		}
+
 		$result =  @mysqli_affected_rows($this->_connectionID);
-		if ($result == -1) {
-			if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
+		
+		if ($result == -1) 
+		{
+			if ($this->debug) 
+				ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
 		}
 		return $result;
 	}
@@ -1013,8 +1030,13 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	/**
-	 * Return the query id.
-	 *
+	 * Executes the Query and returns either:
+	 * 1. A boolean false if the query execution fails
+	 * 2. A boolean true if the execution succeeds and the query is an
+	 *    update that does not return a recordset
+	 * 3. An object of type mysqli_result if the execution succeeds and
+	 *    the query is a SELECT type
+	 * 
 	 * @param string|array $sql
 	 * @param array $inputarr
 	 *
@@ -1072,8 +1094,15 @@ class ADODB_mysqli extends ADOConnection {
 
 		return $mysql_res;
 		*/
-
-		if ($this->multiQuery) {
+		
+		/*
+		* MultiQuery is currently undocumented at adodb.org, is not supported
+		* by any other database. Allows execution of multiple concatenated
+		* statements, with are then read back using nextRecordSet(). It
+		* is disabled by default
+		*/
+		if ($this->multiQuery)
+		{
 			$rs = mysqli_multi_query($this->_connectionID, $sql.';');
 			if ($rs) {
 				$rs = ($ADODB_COUNTRECS) ? @mysqli_store_result( $this->_connectionID ) : @mysqli_use_result( $this->_connectionID );
@@ -1234,10 +1263,30 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		parent::__construct($queryID);
 	}
 
+	/**
+	* Driver specific function that provides the correct number of 
+	* rows and columns for a result set.
+	*
+	* @return void
+	*/
 	function _initrs()
 	{
-	global $ADODB_COUNTRECS;
-
+		
+		/*
+		* Tells us to not count
+		*/
+		global $ADODB_COUNTRECS;
+		
+		if ($this->connection->queryExecutionType <> $this->connection::QUERY_TYPE_SELECT)
+		{
+			/*
+			* Only returns affected rows for an update
+			*/
+			if ($this->debug) 
+				ADOConnection::outp("mysqli_num_rows() called on invalid or incorrect result set ");
+			return false;
+		}
+		
 		$this->_numOfRows = $ADODB_COUNTRECS ? @mysqli_num_rows($this->_queryID) : -1;
 		$this->_numOfFields = @mysqli_num_fields($this->_queryID);
 	}

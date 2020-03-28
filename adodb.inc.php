@@ -503,6 +503,23 @@ if (!defined('_ADODB_LAYER')) {
 	var $_affected = false;
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
+	
+	
+	/*
+	* A flag raised when a query is executed, to determine if we need
+	* to execute the affected_rows, or the rowcount
+	* Values are 
+	* -1 - Not executed
+	* 0  - Query failed
+	* 1  - Result is a SELECT
+	* 2  - Result is an UPDATE
+	*/
+	public $queryExecutionType = -1;
+	
+	const QUERY_TYPE_PREPARING = -1;
+	const QUERY_TYPE_FAILED    = 0;
+	const QUERY_TYPE_SELECT    = 1;
+	const QUERY_TYPE_UPDATE    = 2;
 
 
 	/**
@@ -1302,6 +1319,9 @@ if (!defined('_ADODB_LAYER')) {
 			// from SQL if it exists.
 			$sql = str_replace( '_ADODB_COUNT', '', $sql );
 		}
+		
+		$this->queryExecutionType = self::QUERY_TYPE_PREPARING;
+
 
 		if ($this->debug) {
 			global $ADODB_INCLUDED_LIB;
@@ -1309,19 +1329,51 @@ if (!defined('_ADODB_LAYER')) {
 				include_once(ADODB_DIR.'/adodb-lib.inc.php');
 			}
 			$this->_queryID = _adodb_debug_execute($this, $sql,$inputarr);
-		} else {
+		} else 
+		{
+			/*
+			* Execute the statement inside the appropriate driver. The
+			* return value may be one of the following:
+			* 1. A boolean false if the query execution fails
+			* 2. A boolean true if the execution succeeds and the query is an
+			*    UPDATE that does not return a recordset
+			* 3. An object of a type defined by the driver if the 
+			*    execution succeeds and the query is a SELECT type
+			*/
 			$this->_queryID = @$this->_query($sql,$inputarr);
 		}
+
+		if ($this->_queryID === false)
+			/*
+			* Query Failed
+			*/
+			$this->queryExecutionType = self::QUERY_TYPE_FAILED;
+		else if ($this->_queryID === true)
+			/*
+			* Query Succeeded, type is UPDATE
+			*/
+			$this->queryExecutionType = self::QUERY_TYPE_UPDATE;
+		else
+			/*
+			* Query succeeded, type is SELECT
+			*/
+			$this->queryExecutionType = self::QUERY_TYPE_SELECT;
+
 
 		// ************************
 		// OK, query executed
 		// ************************
 
-		// error handling if query fails
+		/*
+		* error handling if query fails
+		*/
 		if ($this->_queryID === false) {
 			if ($this->debug == 99) {
 				adodb_backtrace(true,5);
 			}
+			/*
+			* Do we have a custom error function available?
+			*/
 			$fn = $this->raiseErrorFn;
 			if ($fn) {
 				$fn($this->databaseType,'EXECUTE',$this->ErrorNo(),$this->ErrorMsg(),$sql,$inputarr,$this);
@@ -1329,8 +1381,14 @@ if (!defined('_ADODB_LAYER')) {
 			return false;
 		}
 
-		// return simplified recordset for inserts/updates/deletes with lower overhead
-		if ($this->_queryID === true) {
+		
+		if ($this->_queryID === true) 
+		{
+			/*
+			* return simplified recordset for inserts/updates/deletes with lower overhead
+			* Although we allow use of a custom empty recordset, we never
+			* use it, the class is always ADORecordSet_empty
+			*/
 			$rsclass = $this->rsPrefix.'empty';
 			$rs = (class_exists($rsclass)) ? new $rsclass():  new ADORecordSet_empty();
 
@@ -1349,17 +1407,36 @@ if (!defined('_ADODB_LAYER')) {
 
 		// return real recordset from select statement
 		$rs = new $rsclass($this->_queryID,$this->fetchMode);
+		
+		/*
+		* Pass the ADOconnection object into the recordset
+		*/
 		$rs->connection = $this; // Pablo suggestion
+		/*
+		* The pseudo-constructor
+		*/
 		$rs->Init();
 		if (is_array($sql)) {
 			$rs->sql = $sql[0];
 		} else {
 			$rs->sql = $sql;
 		}
+		
+		/*
+		* If the driver does not support rowcount and we have
+		* to emulate it, we will do it here by retrieving the rows
+		* and counting them. The global $ADODB_COUNTRECS prevents that
+		* happening
+		*/
 		if ($rs->_numOfRows <= 0) {
 			global $ADODB_COUNTRECS;
 			if ($ADODB_COUNTRECS) {
 				if (!$rs->EOF) {
+					/*
+					* Check if $sql is array, because we dont want the 
+					* query to close if there are multiple queries to 
+					* execute
+					*/
 					$rs = $this->_rs2rs($rs,-1,-1,!is_array($sql));
 					$rs->_queryID = $this->_queryID;
 				} else
@@ -1705,17 +1782,29 @@ if (!defined('_ADODB_LAYER')) {
 			$rs = $rs; // required to prevent crashing in 4.2.1, but does not happen in 4.3.1-- why ?
 			return $rs;
 		}
+		/*
+		* Create an array of ADOfieldObject objects that represent each
+		* column
+		*/
 		$flds = array();
 		for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++) {
 			$flds[] = $rs->FetchField($i);
 		}
+		$this->fieldInfo = $flds;
+		
+	print "STOP PRE GETARRAYLIMIT";
 
 		$arr = $rs->GetArrayLimit($nrows,$offset);
-		//print_r($arr);
 		if ($close) {
 			$rs->Close();
 		}
 
+		print_r($arr);
+		/*
+		* The arrayClass is ADORecordSet_array, but may be extended by
+		* the driver, e.g. 'ADORecordSet_array_pdo_sqlsrv' which allows
+		* custom methods
+		*/
 		$arrayClass = $this->arrayClass;
 
 		$rs2 = new $arrayClass();
@@ -1738,6 +1827,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return array|false
 	*/
 	function GetAll($sql, $inputarr=false) {
+		print "STOP PRE GETARRAU";
         return $this->GetArray($sql,$inputarr);
 	}
 
@@ -1865,7 +1955,6 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return array|bool 1D array containning the first row of the query
 	 */
 	function GetCol($sql, $inputarr = false, $trim = false) {
-
 		$rs = $this->Execute($sql, $inputarr);
 		if ($rs) {
 			$rv = array();
@@ -2733,6 +2822,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if ($rs === false) {
 				return false;
 			}
+
 			$arr = $rs->GetArray();
 			$arr2 = array();
 
@@ -2780,7 +2870,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	function MetaColumns($table,$normalize=true) {
 		global $ADODB_FETCH_MODE;
-
 		if (!empty($this->metaColumnsSQL)) {
 			$schema = false;
 			$this->_findschema($table,$schema);
@@ -3401,7 +3490,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	* Lightweight recordset when there are no records to be returned
+	* Lightweight recordset when there are no records to be returned,
+	* that is, an insert/update/delete statement
 	*/
 	class ADORecordSet_empty implements IteratorAggregate
 	{
@@ -3602,19 +3692,38 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return _adodb_export($this,',',',',false,true);
 	}
 
+	/**
+	* A sort of constructor called after the execution of a query type
+	* SELECT that results in a recordset being available
+	*
+	* @return void
+	*/
 	function Init() {
-		if ($this->_inited) {
+		if ($this->_inited) 
+		{
+			/*
+			* Only do once per instantiation of class
+			*/
 			return;
 		}
+
 		$this->_inited = true;
-		if ($this->_queryID) {
+		/*
+		* Initialize the query
+		*/
+		$this->_numOfRows = 0;
+		$this->_numOfFields = 0;
+		
+		if ($this->_queryID) 
+			/*
+			* Gets the number of rows and columns if supported
+			*/
 			@$this->_initrs();
-		} else {
-			$this->_numOfRows = 0;
-			$this->_numOfFields = 0;
-		}
+		
+		print "{$this->_numOfRows} != 0 && {$this->_numOfFields} && {$this->_currentRow} == -1";
 		if ($this->_numOfRows != 0 && $this->_numOfFields && $this->_currentRow == -1) {
 			$this->_currentRow = 0;
+			print "INIT CALLS FETCJH";
 			if ($this->EOF = ($this->_fetch() === false)) {
 				$this->_numOfRows = 0; // _numOfRows could be -1
 			}
@@ -3747,9 +3856,15 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @return array indexed by the rows (0-based) from the recordset
 	 */
 	function GetArray($nRows = -1) {
+		print "AT GET AAR STOP";
+
 		$results = array();
 		$cnt = 0;
 		while (!$this->EOF && $nRows != $cnt) {
+			/*
+			* Read the current recordset into the results array and advance
+			* the pointer
+			*/
 			$results[] = $this->fields;
 			$this->MoveNext();
 			$cnt++;
@@ -3779,6 +3894,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @return array an array indexed by the rows (0-based) from the recordset
 	 */
 	function GetArrayLimit($nrows,$offset=-1) {
+			print "STOP PRE GETARRAU AT LIMIT"; 
+
 		if ($offset <= 0) {
 			return $this->GetArray($nrows);
 		}
@@ -4122,7 +4239,14 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	function MoveNext() {
 		if (!$this->EOF) {
 			$this->_currentRow++;
+			/*
+			* Call a driver specific method to load the next recordset
+			* into $this->fields
+			*/
 			if ($this->_fetch()) {
+				/*
+				* We read a record
+				*/
 				return true;
 			}
 		}
@@ -4286,30 +4410,22 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	/**
 	 * Clean up recordset
+	 * Depending on the driver, this may not only free the reference, but
+	 * kill connection object. May allow you to free up memory in a
+	 * procedure. Use with caution and test.
 	 *
-	 * @return bool
+	 * @return bool Success
 	 */
-	function Close() {
-		// free connection object - this seems to globally free the object
-		// and not merely the reference, so don't do this...
-		// $this->connection = false;
+	function close() {
+		
 		if (!$this->_closed) {
 			$this->_closed = true;
 			return $this->_close();
 		} else
 			return true;
 	}
-
-	/**
-	 * Synonyms RecordCount and RowCount
-	 *
-	 * @return int Number of rows or -1 if this is not supported
-	 */
-	function RecordCount() {
-		return $this->_numOfRows;
-	}
-
-
+	
+	
 	/**
 	 * If we are using PageExecute(), this will return the maximum possible rows
 	 * that can be returned when paging a recordset.
@@ -4321,11 +4437,24 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
+	 * Synonyms RecordCount and RowCount
+	 *
+	 * @return int Number of rows or -1 if this is not supported
+	 */
+	function recordCount() {
+		return $this->rowCount();
+	}
+	
+	/**
 	 * synonyms RecordCount and RowCount
 	 *
 	 * @return the number of rows or -1 if this is not supported
 	 */
-	function RowCount() {
+	function rowCount() 
+	{
+		if ($this->_numOfRows === false)
+			$this->_numOfRows = -1;
+		
 		return $this->_numOfRows;
 	}
 
@@ -4333,10 +4462,12 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 /**
 	 * Portable RecordCount. Pablo Roca <pabloroca@mvps.org>
 	 *
-	 * @return  the number of records from a previous SELECT. All databases support this.
+	 * the number of records from a previous SELECT. All databases support this.
+	 * But aware possible problems in multiuser environments. For better
+	 * speed the table must be indexed by the condition. Heavy test this 
+	 * before deploying. Does not honour the ADODB_RECORDCOUNT flag
 	 *
-	 * But aware possible problems in multiuser environments. For better speed the table
-	 * must be indexed by the condition. Heavy test this before deploying.
+	 * @return  int
 	 */
 	function PO_RecordCount($table="", $condition="") {
 
@@ -4481,6 +4612,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if ($this->_numOfRows != 0 && !$this->EOF) {
 			$o = $this->FetchObject($isupper);
 			$this->_currentRow++;
+
 			if ($this->_fetch()) {
 				return $o;
 			}
@@ -4813,7 +4945,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 
 		/**
-		 * Setup the array.
+		 * Setup the array. This is only ever called by the deprecated
+		 * text driver and may be removed
 		 *
 		 * @param array		is a 2-dimensional array holding the data.
 		 *			The first row should hold the column names
