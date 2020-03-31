@@ -8,6 +8,8 @@ Older changelogs:
 ## 5.20.17 - Unreleased
 
 - core: fix PHP notice in ADOdb_Exception constructor when using transactions. #601
+- mssql: fix PHP notice due to uninitialized array with PHP 7.4. #608
+- active record: Fix UpdateActiveTable failing with mixed case column names. #610
 
 ## 5.20.16 - 12-Jan-2020
 
