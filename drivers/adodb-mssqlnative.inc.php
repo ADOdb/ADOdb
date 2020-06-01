@@ -1080,6 +1080,12 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		is running. All associated result memory for the specified result identifier will automatically be freed.	*/
 	function _close()
 	{
+		/*
+		* If we are closing down a failed query, collect any
+		* error messages. This is a hack fix to the "close too early"
+		* problem so this might go away later
+		*/
+		$this->connection->errorMsg();
 		if(is_resource($this->_queryID)) {
 			$rez = sqlsrv_free_stmt($this->_queryID);
 			$this->_queryID = false;
