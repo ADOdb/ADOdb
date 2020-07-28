@@ -156,6 +156,8 @@ class ADODB_mysqli extends ADOConnection {
 		// SSL Connections for MySQLI
 		if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
 			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cert, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
+  			$this->socket = MYSQLI_CLIENT_SSL;
+  			$this->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
 		}
 
 		#if (!empty($this->port)) $argHostname .= ":".$this->port;
