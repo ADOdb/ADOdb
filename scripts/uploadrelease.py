@@ -207,6 +207,7 @@ def upload_release_files():
     print "Uploading release files..."
     print "  Source:", release_path
     print "  Target: " + target
+    print "  Files:  " + ', '.join(glob.glob('*'))
     print
     call_rsync(
         username,
@@ -214,6 +215,7 @@ def upload_release_files():
         path.join(release_path, "*"),
         target
     )
+    print
 
 
 def set_sourceforge_file_info():
