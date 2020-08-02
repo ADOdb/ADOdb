@@ -5,6 +5,8 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.21.0 - Unreleased
+
 ## 5.20.18 - 28-Jun-2020
 
 - mssql: Retrieve error messages early before connection closed.  #614
