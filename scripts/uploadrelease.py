@@ -29,8 +29,8 @@ sf_api_url = 'https://sourceforge.net/projects/adodb/files/{}/'
 rsync_cmd = "rsync -vP --rsh ssh {opt} {src} {usr}@{dst}"
 
 # Command-line options
-options = "hu:n"
-long_options = ["help", "user=", "dry-run"]
+options = "hu:ns"
+long_options = ["help", "user=", "dry-run", "skip-upload"]
 
 
 def usage():
@@ -156,7 +156,7 @@ def load_env():
 def process_command_line():
     ''' Retrieve command-line options and set global variables accordingly
     '''
-    global dry_run, username, release_path
+    global dry_run, username, release_path, skip_upload
 
     # Get command-line options
     try:
@@ -168,6 +168,7 @@ def process_command_line():
 
     # Default values for flags
     username = getpass.getuser()
+    skip_upload = False
     dry_run = False
 
     for opt, val in opts:
@@ -177,6 +178,9 @@ def process_command_line():
 
         elif opt in ("-u", "--user"):
             username = val
+
+        elif opt in ("-s", "--skip-upload"):
+            skip_upload = True
 
         elif opt in ("-n", "--dry-run"):
             print("Dry-run mode - files will not be uploaded or modified")
@@ -269,7 +273,12 @@ def main():
     load_env()
     process_command_line()
 
-    upload_release_files()
+    global skip_upload
+    if skip_upload:
+        print("Skipping upload of release files")
+    else:
+        upload_release_files()
+
     set_sourceforge_file_info()
 
 # end main()
