@@ -37,7 +37,7 @@ def usage():
     print '''Usage: %s [options] username [release_path]
 
     This script will upload the files in the given directory (or the
-    current one if unspecified) to Sourceforge.
+    current one if unspecified) to SourceForge.
 
     Parameters:
         release_path            Location of the release files to upload
@@ -45,12 +45,12 @@ def usage():
 
     Options:
         -h | --help             Show this usage message
-        -u | --user <name>      Sourceforge account (defaults to current user)
+        -u | --user <name>      SourceForge account (defaults to current user)
         -n | --dry-run          Do not upload the files
 ''' % (
         path.basename(__file__)
     )
-#end usage()
+# end usage()
 
 
 def call_rsync(usr, opt, src, dst):
@@ -106,7 +106,7 @@ def get_release_version():
 
 
 def sourceforge_target_dir(version):
-    ''' Returns the sourceforge target directory, relative to the root
+    ''' Returns the SourceForge target directory, relative to the root
         directory (defined in sf_files global variable): basedir/subdir, with
         basedir:
         - for ADOdb version 5: adodb-php5-only
@@ -156,7 +156,7 @@ def load_env():
 def process_command_line():
     ''' Retrieve command-line options and set global variables accordingly
     '''
-    global upload_files, upload_doc, dry_run, username, release_path
+    global dry_run, username, release_path
 
     # Get command-line options
     try:
@@ -168,7 +168,6 @@ def process_command_line():
 
     # Default values for flags
     username = getpass.getuser()
-    print username
     dry_run = False
 
     for opt, val in opts:
@@ -266,7 +265,7 @@ def main():
     upload_release_files()
     set_sourceforge_file_info()
 
-#end main()
+# end main()
 
 if __name__ == "__main__":
     main()
