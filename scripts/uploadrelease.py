@@ -179,6 +179,7 @@ def process_command_line():
             username = val
 
         elif opt in ("-n", "--dry-run"):
+            print("Dry-run mode - files will not be uploaded or modified")
             dry_run = True
 
     # Mandatory parameters
@@ -212,6 +213,8 @@ def upload_release_files():
 
 
 def set_sourceforge_file_info():
+    global api_key, dry_run
+
     print("Updating uploaded files information")
 
     base_url = sf_api_url.format(
@@ -234,33 +237,37 @@ def set_sourceforge_file_info():
             continue
 
         # SourceForge API request
-        global api_key
         url = path.join(base_url, file)
         payload = {
             'default': defaults,
             'api_key': api_key
             }
-        req = requests.put(url, headers=headers, params=payload)
-
-        # Print results
-        if req.status_code == requests.codes.ok:
-            result = json.loads(req.text)['result']
-            print("    Download default for: " + result['x_sf']['default'])
+        if dry_run:
+            req = requests.Request('PUT', url, headers=headers, params=payload)
+            r = req.prepare()
+            print("    Calling SourceForge Release API: " + r.url)
         else:
-            if req.status_code == requests.codes.unauthorized:
-                err = "access denied"
+            req = requests.put(url, headers=headers, params=payload)
+
+            # Print results
+            if req.status_code == requests.codes.ok:
+                result = json.loads(req.text)['result']
+                print("    Download default for: " + result['x_sf']['default'])
             else:
-                err = "SourceForge API call failed"
-            print("ERROR: {} - check API key".format(err))
-            break
+                if req.status_code == requests.codes.unauthorized:
+                    err = "access denied"
+                else:
+                    err = "SourceForge API call failed"
+                print("ERROR: {} - check API key".format(err))
+                break
 
 
 def main():
-    load_env()
-    process_command_line()
-
     # Start upload process
     print "ADOdb release upload script"
+
+    load_env()
+    process_command_line()
 
     upload_release_files()
     set_sourceforge_file_info()
