@@ -7,16 +7,23 @@ from distutils.version import LooseVersion
 import getopt
 import getpass
 import glob
+import json
 import os
 from os import path
 import re
+import requests
 import subprocess
 import sys
+import yaml
 
 
 # Directories and files to exclude from release tarballs
 # for debugging, set to a local dir e.g. "localhost:/tmp/sf-adodb/"
 sf_files = "frs.sourceforge.net:/home/frs/project/adodb/"
+
+# SourceForge Release API base URL
+# https://sourceforge.net/p/forge/documentation/Using%20the%20Release%20API/
+sf_api_url = 'https://sourceforge.net/projects/adodb/files/{}/'
 
 # rsync command template
 rsync_cmd = "rsync -vP --rsh ssh {opt} {src} {usr}@{dst}"
@@ -127,6 +134,25 @@ def sourceforge_target_dir(version):
     return directory
 
 
+def load_env():
+    global api_key
+
+    # Load the config file
+    env_file = path.join(path.dirname(path.abspath(__file__)), 'env.yml')
+    try:
+        stream = file(env_file, 'r')
+        y = yaml.safe_load(stream)
+    except IOError:
+        print("ERROR: Environment file {} not found".format(env_file))
+        sys.exit(3)
+    except yaml.parser.ParserError as e:
+        print("ERROR: Invalid Environment file")
+        print(e)
+        sys.exit(3)
+
+    api_key = y['api_key']
+
+
 def process_command_line():
     ''' Retrieve command-line options and set global variables accordingly
     '''
@@ -186,13 +212,59 @@ def upload_release_files():
     )
 
 
+def set_sourceforge_file_info():
+    print("Updating uploaded files information")
+
+    base_url = sf_api_url.format(
+        sourceforge_target_dir(get_release_version())
+        )
+    headers = {'Accept': 'application/json"'}
+
+    # Loop through uploaded files
+    for file in glob.glob('adodb-*'):
+        print("  " + file)
+
+        # Determine defaults based on file extension
+        ext = file.split('.', 3)[3]
+        if ext == 'zip':
+            defaults = ['windows']
+        elif ext == 'tar.gz':
+            defaults = ['linux', 'mac', 'bsd', 'solaris', 'others']
+        else:
+            print("WARNING: Unknown extension for file " + file)
+            continue
+
+        # SourceForge API request
+        global api_key
+        url = path.join(base_url, file)
+        payload = {
+            'default': defaults,
+            'api_key': api_key
+            }
+        req = requests.put(url, headers=headers, params=payload)
+
+        # Print results
+        if req.status_code == requests.codes.ok:
+            result = json.loads(req.text)['result']
+            print("    Download default for: " + result['x_sf']['default'])
+        else:
+            if req.status_code == requests.codes.unauthorized:
+                err = "access denied"
+            else:
+                err = "SourceForge API call failed"
+            print("ERROR: {} - check API key".format(err))
+            break
+
+
 def main():
+    load_env()
     process_command_line()
 
     # Start upload process
     print "ADOdb release upload script"
 
     upload_release_files()
+    set_sourceforge_file_info()
 
 #end main()
 
