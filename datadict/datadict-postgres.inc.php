@@ -516,4 +516,47 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 		}
 		return $ftype;
 	}
+	
+	function ChangeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false){
+		global $ADODB_FETCH_MODE;
+		parent::ChangeTableSQL($tablename, $flds);
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		if ($this->connection->fetchMode !== false) 
+			$savem = $this->connection->SetFetchMode(false);
+		
+		// check table exists
+		$save_handler = $this->connection->raiseErrorFn;
+		$this->connection->raiseErrorFn = '';
+		$cols = $this->MetaColumns($tablename);
+		$this->connection->raiseErrorFn = $save_handler;
+		
+		if (isset($savem)) 
+			$this->connection->SetFetchMode($savem);
+		$ADODB_FETCH_MODE = $save;
+		
+		$sqlResult=array();
+		if ( empty($cols)) {
+			$sqlResult=$this->CreateTableSQL($tablename, $flds, $tableoptions);
+		} else {
+			$sqlResult += $this->AddColumnSQL($tablename, $flds);
+			$sqlResult += $this->AlterColumnSQL($tablename, $flds, '', $tableoptions);
+			
+			if ($dropOldFlds) {
+				// already exists, alter table instead
+				list($lines,$pkey,$idxs) = $this->_GenFields($flds);
+				// genfields can return FALSE at times
+				if ($lines == null) 
+					$lines = array();
+				$alter = 'ALTER TABLE ' . $this->TableName($tablename);
+				foreach ( $cols as $id => $v ){
+					if ( !isset($lines[$id]) ){
+						$sqlResult[] = $alter . $this->dropCol . ' ' . $v->name;
+					}
+				}
+			}
+			
+		}
+		return $sqlResult;
+	}
 }
