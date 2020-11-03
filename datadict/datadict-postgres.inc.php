@@ -539,8 +539,9 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 		if ( empty($cols)) {
 			$sqlResult=$this->CreateTableSQL($tablename, $flds, $tableoptions);
 		} else {
-			$sqlResult += $this->AddColumnSQL($tablename, $flds);
-			$sqlResult += $this->AlterColumnSQL($tablename, $flds, '', $tableoptions);
+			$sqlResultAdd = $this->AddColumnSQL($tablename, $flds);
+			$sqlResultAlter = $this->AlterColumnSQL($tablename, $flds, '', $tableoptions);
+			$sqlResult = array_merge((array)$sqlResultAdd, (array)$sqlResultAlter);
 			
 			if ($dropOldFlds) {
 				// already exists, alter table instead
