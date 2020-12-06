@@ -990,7 +990,7 @@ END;
 			$element0 = reset($inputarr);
 			$array2d =  $this->bulkBind && is_array($element0) && !is_object(reset($element0));
 
-			# see http://phplens.com/lens/lensforum/msgs.php?id=18786
+			# see PHPLens Issue No: 18786
 			if ($array2d || !$this->_bindInputArray) {
 
 				# is_object check because oci8 descriptors can be passed in
@@ -1634,7 +1634,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 			/*
 			// based on idea by Gaetano Giunta to detect unusual oracle errors
-			// see http://phplens.com/lens/lensforum/msgs.php?id=6771
+			// see PHPLens Issue No: 6771
 			$err = oci_error($this->_queryID);
 			if ($err && $this->connection->debug) {
 				ADOConnection::outp($err);

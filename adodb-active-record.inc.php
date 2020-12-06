@@ -46,7 +46,7 @@ class ADODB_Active_Table {
 
 // $db = database connection
 // $index = name of index - can be associative, for an example see
-//    http://phplens.com/lens/lensforum/msgs.php?id=17790
+//    PHPLens Issue No: 17790
 // returns index into $_ADODB_ACTIVE_DBS
 function ADODB_SetDatabaseAdapter(&$db, $index=false)
 {
@@ -817,7 +817,7 @@ class ADODB_Active_Record {
 	}
 
 	# useful for multiple record inserts
-	# see http://phplens.com/lens/lensforum/msgs.php?id=17795
+	# see PHPLens Issue No: 17795
 	function Reset()
 	{
 		$this->_where=null;

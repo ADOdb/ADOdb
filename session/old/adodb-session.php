@@ -110,7 +110,7 @@ if (!defined('ADODB_SESSION')) {
  define('ADODB_SESSION_SYNCH_SECS',60);
 
  /*
-	Thanks Joe Li. See http://phplens.com/lens/lensforum/msgs.php?id=11487&x=1
+	Thanks Joe Li. See PHPLens Issue No: 11487&x=1
 */
 function adodb_session_regenerate_id()
 {
