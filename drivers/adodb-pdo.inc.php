@@ -85,6 +85,13 @@ class ADODB_pdo extends ADOConnection {
 	var $dsnType = '';
 	var $stmt = false;
 	var $_driver;
+	
+	/*
+	* Describe parameters passed directly to the PDO driver
+	*
+	* @example $db->pdoOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
+	*/
+	public $pdoParameters = array();
 
 	function _UpdatePDO()
 	{
@@ -145,8 +152,17 @@ class ADODB_pdo extends ADOConnection {
 					$argDSN .= ';dbname='.$argDatabasename;
 			}
 		}
+		/*
+		* Configure for persistent connection if required,
+		* by adding the the pdo parameter into any provided
+		* ones
+		*/
+		if ($persist) {
+			$this->pdoParameters[\PDO::ATTR_PERSISTENT] = true;
+		} 
+		
 		try {
-			$this->_connectionID = new PDO($argDSN, $argUsername, $argPassword);
+			$this->_connectionID = new \PDO($argDSN, $argUsername, $argPassword, $this->pdoParameters);
 		} catch (Exception $e) {
 			$this->_connectionID = false;
 			$this->_errorno = -1;
