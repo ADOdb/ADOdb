@@ -63,7 +63,7 @@ if (!function_exists('sqlsrv_log_set_subsystems')) {
 //
 // Also if your month is showing as month-1,
 //   e.g. Jan 13, 2002 is showing as 13/0/2002, then see
-//     http://phplens.com/lens/lensforum/msgs.php?id=7048&x=1
+//     PHPLens Issue No: 7048&x=1
 //   it's a localisation problem.
 //----------------------------------------------------------------
 

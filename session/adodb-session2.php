@@ -67,7 +67,7 @@ define('ADODB_SESSION', dirname(__FILE__));
 define('ADODB_SESSION2', ADODB_SESSION);
 
 /*
-	Unserialize session data manually. See http://phplens.com/lens/lensforum/msgs.php?id=9821
+	Unserialize session data manually. See PHPLens Issue No: 9821
 
 	From Kerr Schere, to unserialize session data stored via ADOdb.
 	1. Pull the session data from the db and loop through it.
@@ -86,7 +86,7 @@ function adodb_unserialize( $serialized_string )
 }
 
 /*
-	Thanks Joe Li. See http://phplens.com/lens/lensforum/msgs.php?id=11487&x=1
+	Thanks Joe Li. See PHPLens Issue No: 11487&x=1
 	Since adodb 4.61.
 */
 function adodb_session_regenerate_id()
@@ -119,7 +119,7 @@ function adodb_session_regenerate_id()
 
 /*
     Generate database table for session data
-    @see http://phplens.com/lens/lensforum/msgs.php?id=12280
+    @see PHPLens Issue No: 12280
     @return 0 if failure, 1 if errors, 2 if successful.
 	@author Markus Staab http://www.public-4u.de
 */
