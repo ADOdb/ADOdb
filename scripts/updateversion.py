@@ -16,7 +16,7 @@ import sys
 
 # ADOdb version validation regex
 # These are used by sed - they are not PCRE !
-_version_dev = "dev"
+_version_dev = "((dev)|(rc[1-9]))"
 _version_regex = "[Vv]?([0-9]\.[0-9]+)(\.([0-9]+))?(-?%s)?" % _version_dev
 _release_date_regex = "[0-9?]+-.*-[0-9]+"
 _changelog_file = "docs/changelog.md"
