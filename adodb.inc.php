@@ -5084,6 +5084,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (!defined('ADODB_ASSOC_CASE')) {
 			define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_NATIVE);
 		}
+		
+		/*
+		* Are there special characters in the dsn password
+		* that disrupt parse_url
+		*/
+		$needsSpecialCharacterHandling = false;
+		
 		$errorfn = (defined('ADODB_ERROR_HANDLER')) ? ADODB_ERROR_HANDLER : false;
 		if (($at = strpos($db,'://')) !== FALSE) {
 			$origdsn = $db;
@@ -5105,9 +5112,26 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 					$path = substr($path,0,$qmark);
 				}
 				$dsna['path'] = '/' . urlencode($path);
-			} else
+			} else {
+				/*
+				* Stop # character breaking parse_url
+				*/
+				$cFakedsn = str_replace('#','\035',$fakedsn);
+				if (strcmp($fakedsn,$cFakedsn) != 0) 
+				{
+					/*
+					* There is a # in the string
+					*/
+					$needsSpecialCharacterHandling = true;
+					
+					/*
+					* This allows us to successfully parse the url
+					*/
+					$fakedsn = $cFakedsn;
+					
+				}
 				$dsna = @parse_url($fakedsn);
-
+			}
 			if (!$dsna) {
 				return false;
 			}
@@ -5138,6 +5162,14 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$dsna['pass'] = isset($dsna['pass']) ? rawurldecode($dsna['pass']) : '';
 			$dsna['path'] = isset($dsna['path']) ? rawurldecode(substr($dsna['path'],1)) : ''; # strip off initial /
 
+			if ($needsSpecialCharacterHandling) 
+			{
+				/*
+				* Revert back to the original string
+				*/
+				$dsna = str_replace('\035','#',$dsna);
+			}
+			
 			if (isset($dsna['query'])) {
 				$opt1 = explode('&',$dsna['query']);
 				foreach($opt1 as $k => $v) {
