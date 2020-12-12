@@ -454,7 +454,13 @@ class ADODB_mssqlnative extends ADOConnection {
 				ADOConnection::outp('Microsoft SQL Server native driver (mssqlnative) not installed');
 			return null;
 		}
-		
+	
+		if (!empty($this->port))
+			/*
+			* Port uses a comma 
+			*/
+			$argHostname .= ",".$this->port;
+	
 		$connectionInfo 			= $this->connectionInfo;
 		$connectionInfo["Database"]	= $argDatabasename;
 		if ((string)$argUsername != '' || (string)$argPassword != '')
@@ -478,6 +484,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			* to use windows authentication
 			*/
 			if ($this->debug)
+			
 				ADOConnection::outp('No userid or password supplied, attempting connection with Windows Authentication');
 		}
 				
