@@ -617,8 +617,8 @@ class ADODB_mysqli extends ADOConnection {
 
 		return $foreign_keys;
 	}
-		
-	function metaColumns($table, $normalize=true)
+
+	function MetaColumns($table, $normalize=true)
 	{
 		$false = false;
 		if (!$this->metaColumnsSQL)
@@ -629,105 +629,62 @@ class ADODB_mysqli extends ADOConnection {
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false)
 			$savem = $this->SetFetchMode(false);
+		/*
+		* Return assoc array where key is column name, value is column type
+        *    [1] => int unsigned
+		*/
+		
+		$SQL = "SELECT column_name, column_type 
+				  FROM information_schema.columns 
+				 WHERE table_schema='{$this->databaseName}' 
+				   AND table_name='$table'";
+		
+		$schemaArray = $this->getAssoc($SQL);
+		$schemaArray = array_change_key_case($schemaArray,CASE_LOWER);
+	
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 		if (!is_object($rs))
 			return $false;
-		
-		/*
-		* Retrieve query from database, allows 
-		* fetch_field to get field data. We want it to
-		* be backwardly compatible so we overlay the data
-		* we need over the original format. In 
-		* particular we need information about integer formats.
-		* We don't need a recordset, just the query, so it doesnt
-		* matter what the fetch mode
-		*/
-		$SQL = "SELECT * FROM $table";
-		$result = $this->selectLimit($SQL,1);
-		
-		/*
-		* Fetch the field information, we want all the columns so
-		* use the fetch_fields
-		*/
-		$fetchFieldArray =  @mysqli_fetch_fields($this->_queryID);
 
-/*
-		for ($i = 0; $i < $result->_numOfFields; $i++) {
-			$o = $result->fetchField($i);
-			$fetchFieldArray[strtoupper($o->name)] = $o;
-		}	
-*/
-		//print_r($fetchFieldArray);
 		$retarr = array();
 		while (!$rs->EOF) {
-			
-			
-			$fetchFieldItem = array_shift($fetchFieldArray);
-			
-			$fld = new ADOFieldObject;
+			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
-			$type      = $rs->fields[1];
-
-
-			// split type into type(length):
-			$fld->scale    = null;
-			$fld->unsigned = null;
+			$type = $rs->fields[1];
 			
 			/*
-			* We only want to use this for the MySQL 8 style of
-			* type that doesn't conform to the int(11) format
+			* Type from information_schema returns
+			* the same format in V8 mysql as V5
 			*/
-			if (substr($type,0,3) == 'int' && strpos('(',$type) === false) {
-				
-				/*
-				* we must retrieve the length from fetchField
-				*/
-				$fld->type = 'int';
-				
-				if (isset($fetchFieldItem->unsigned))
-					$fld->unsigned = $fetchFieldItem->unsigned ? 1 : 0;
-				
-				$fld->max_length = $fetchFieldItem->length;
+			$type = $schemaArray[strtolower($fld->name)];
 
-				$scale = is_numeric($fetchFieldItem->decimals) ? $fetchFieldItem->decimals : null;
-				$fld->scale = $scale;
-				
-			}
-			else if (preg_match("/^(.+)\((\d+),(\d+)/", $type, $query_array)) {
-				
-				/*
-				* Original expansion
-				*/
-				$fld->type 		 = $query_array[1];
+			// split type into type(length):
+			$fld->scale = null;
+			if (preg_match("/^(.+)\((\d+),(\d+)/", $type, $query_array)) {
+				$fld->type = $query_array[1];
 				$fld->max_length = is_numeric($query_array[2]) ? $query_array[2] : -1;
-				$fld->scale 	 = is_numeric($query_array[3]) ? $query_array[3] : -1;
-				
+				$fld->scale = is_numeric($query_array[3]) ? $query_array[3] : -1;
 			} elseif (preg_match("/^(.+)\((\d+)/", $type, $query_array)) {
-				
 				$fld->type = $query_array[1];
 				$fld->max_length = is_numeric($query_array[2]) ? $query_array[2] : -1;
 			} elseif (preg_match("/^(enum)\((.*)\)$/i", $type, $query_array)) {
-				
 				$fld->type = $query_array[1];
 				$arr = explode(",",$query_array[2]);
 				$fld->enums = $arr;
 				$zlen = max(array_map("strlen",$arr)) - 2; // PHP >= 4.0.6
 				$fld->max_length = ($zlen > 0) ? $zlen : 1;
-				
 			} else {
-				
 				$fld->type = $type;
 				$fld->max_length = -1;
-			
 			}
 			
-			$fld->not_null 		  = ($rs->fields[2] != 'YES');
-			$fld->primary_key 	  = ($rs->fields[3] == 'PRI');
-			$fld->auto_increment  = (strpos($rs->fields[5], 'auto_increment') !== false);
+			$fld->not_null = ($rs->fields[2] != 'YES');
+			$fld->primary_key = ($rs->fields[3] == 'PRI');
+			$fld->auto_increment = (strpos($rs->fields[5], 'auto_increment') !== false);
 			$fld->binary = (strpos($type,'blob') !== false);
-						
+			$fld->unsigned = (strpos($type,'unsigned') !== false);
 			$fld->zerofill = (strpos($type,'zerofill') !== false);
 
 			if (!$fld->binary) {
