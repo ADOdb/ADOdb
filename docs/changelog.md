@@ -4,6 +4,19 @@ Older changelogs:
 [v4.x](changelog_v4.x.md),
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
+## 5.20.19 - 13-Dec-2020
+
+**Implemented enhancements:**
+
+- Add support for persistent connections in PDO driver [\#650](https://github.com/ADOdb/ADOdb/issues/650)
+- Connect to SQL Server database on a specified port. [\#624](https://github.com/ADOdb/ADOdb/issues/624)
+
+**Fixed bugs:**
+
+- DSN database connection with password containing \# fails [\#651](https://github.com/ADOdb/ADOdb/issues/651)
+- Metacolumns returns wrong type for integer fields in Mysql 8 [\#642](https://github.com/ADOdb/ADOdb/issues/642)
+- Uninitialized Variable access in mssqlnative ErrorNo\(\) method [\#637](https://github.com/ADOdb/ADOdb/issues/637)
+
 
 ## 5.20.18 - 28-Jun-2020
 
