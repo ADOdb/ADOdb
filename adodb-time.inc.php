@@ -66,13 +66,6 @@ COPYRIGHT
 jackbbs, which includes adodb_mktime, adodb_get_gmt_diff, adodb_is_leap_year
 and originally found at http://www.php.net/manual/en/function.mktime.php
 
-=============================================================================
-
-BUG REPORTS
-
-These should be posted to the ADOdb forums at
-
-	http://phplens.com/lens/lensforum/topics.php?id=4
 
 =============================================================================
 
@@ -348,7 +341,7 @@ January!!!), changed adodb_get_gmt_diff() to ignore daylight savings.
 
 - 9 Aug 2003 0.10
 Fixed bug with dates after 2038.
-See http://phplens.com/lens/lensforum/msgs.php?id=6980
+See PHPLens Issue No: 6980
 
 - 1 July 2003 0.09
 Added support for Q (Quarter).
@@ -1392,7 +1385,7 @@ global $ADODB_DATE_LOCALE;
 		$sep = substr($tstr,2,1);
 		$hasAM = strrpos($tstr,'M') !== false;
 	*/
-		# see http://phplens.com/lens/lensforum/msgs.php?id=14865 for reasoning, and changelog for version 0.24
+		# see PHPLens Issue No: 14865 for reasoning, and changelog for version 0.24
 		$dstr = gmstrftime('%x',31366800); // 30 Dec 1970, 1 am
 		$sep = substr($dstr,2,1);
 		$tstr = strtoupper(gmstrftime('%X',31366800)); // 30 Dec 1970, 1 am
