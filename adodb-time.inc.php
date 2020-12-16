@@ -4,7 +4,7 @@ ADOdb Date Library, part of the ADOdb abstraction library
 
 Latest version is available at http://adodb.org/
 
-@version   v5.20.19  13-Dec-2020
+@version   v5.21.0-dev  ??-???-2016
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
