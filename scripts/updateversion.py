@@ -153,6 +153,15 @@ def sed_filelist():
     return dirlist
 
 
+def sed_run(script, files):
+    ''' Run sed
+    '''
+    subprocess.call(
+        "sed -r -i '%s' %s " % (script, files),
+        shell=True
+    )
+
+
 def tag_name(version):
     return _tag_prefix + version
 
@@ -328,13 +337,7 @@ def update_changelog(version):
             print "No previous version"
             script = "1,/^## /s/^## .*$/{0}/".format(version_section)
 
-    subprocess.call(
-        "sed -r -i '%s' %s " % (
-            script,
-            _changelog_file
-        ),
-        shell=True
-    )
+    sed_run(script, _changelog_file)
 
     print "  WARNING: review '%s' to ensure added section is correct" % (
         _changelog_file
@@ -351,13 +354,7 @@ def version_set(version, do_commit=True, do_tag=True):
     update_changelog(version)
 
     print "Updating version and date in source files"
-    subprocess.call(
-        "sed -r -i '%s' %s " % (
-            sed_script(version),
-            " ".join(sed_filelist())
-        ),
-        shell=True
-    )
+    sed_run(sed_script(version), " ".join(sed_filelist()))
     print "Version set to %s" % version
 
     if do_commit:
