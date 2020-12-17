@@ -20,7 +20,7 @@ _version_abrc = r"(alpha|beta|rc)(\.([0-9]+))?"
 _version_prerelease = r"(-?(%s|%s))?" % (_version_dev, _version_abrc)
 _version_base = r"[Vv]?([0-9]\.[0-9]+)(\.([0-9]+))?"
 _version_regex = _version_base + _version_prerelease
-_release_date_regex = r"[0-9?]+-.*-[0-9]+"
+_release_date_regex = r"(Unreleased|[0-9?]+-.*-[0-9]+)"
 _changelog_file = "docs/changelog.md"
 
 _tag_prefix = "v"
@@ -106,17 +106,14 @@ def version_check(version):
 
 
 def get_release_date(version):
-    ''' Returns the release date in DD-MMM-YYYY format
-        For development releases, DD-MMM will be ??-???
+    ''' Returns the release date in DD-MMM-YYYY format, or
+        "Unreleased" for development releases.
     '''
     # Development release
     if version_is_dev(version):
-        date_format = "??-???-%Y"
+        return "Unreleased"
     else:
-        date_format = "%d-%b-%Y"
-
-    # Define release date
-    return date.today().strftime(date_format)
+        return date.today().strftime("%d-%b-%Y")
 
 
 def sed_script(version):
