@@ -13,16 +13,17 @@ import re
 import subprocess
 import sys
 
-
 # ADOdb version validation regex
 # These are used by sed - they are not PCRE !
-_version_dev = "((dev)|(rc[1-9]))"
-_version_regex = "[Vv]?([0-9]\.[0-9]+)(\.([0-9]+))?(-?%s)?" % _version_dev
-_release_date_regex = "[0-9?]+-.*-[0-9]+"
+_version_dev = "dev"
+_version_abrc = r"(alpha|beta|rc)(\.([0-9]+))?"
+_version_prerelease = r"(-?(%s|%s))?" % (_version_dev, _version_abrc)
+_version_base = r"[Vv]?([0-9]\.[0-9]+)(\.([0-9]+))?"
+_version_regex = _version_base + _version_prerelease
+_release_date_regex = r"[0-9?]+-.*-[0-9]+"
 _changelog_file = "docs/changelog.md"
 
 _tag_prefix = "v"
-
 
 # Command-line options
 options = "hct"
@@ -42,7 +43,7 @@ def usage():
 ''' % (
         path.basename(__file__)
     )
-#end usage()
+# end usage()
 
 
 def version_is_dev(version):
@@ -51,15 +52,22 @@ def version_is_dev(version):
     return version.endswith(_version_dev)
 
 
+def version_is_prerelease(version):
+    ''' Returns true if version is alpha, beta or release-candidate
+    '''
+    return re.search(_version_abrc, version) is not None
+
+
 def version_is_patch(version):
     ''' Returns true if version is a patch release (i.e. X.Y.Z with Z > 0)
     '''
-    return not version.endswith('.0')
+    return (re.search('^' + _version_base + '$', version) is not None
+            and not version.endswith('.0'))
 
 
 def version_parse(version):
     ''' Breakdown the version into groups (Z and -dev are optional)
-        1:(X.Y), 2:(.Z), 3:(Z), 4:(-dev)
+        1:(X.Y), 2:(.Z), 3:(Z), 4:(-dev or -alpha/beta/rc.N), 8: N
     '''
     return re.match(r'^%s$' % _version_regex, version)
 
@@ -88,6 +96,11 @@ def version_check(version):
     # Normalize version number
     if version_is_dev(version):
         vnorm += '-' + _version_dev
+    elif version_is_prerelease(version):
+        vnorm += '-' + vparse.group(5)
+        # If no alpha/beta/rc version number specified, assume 1
+        if not vparse.group(8):
+            vnorm += ".1"
 
     return vnorm
 
@@ -117,7 +130,6 @@ def sed_script(version):
         version,
         get_release_date(version)
     )
-
     return script
 
 
@@ -192,23 +204,44 @@ def section_exists(filename, version, print_message=True):
     return False
 
 
+class UnsupportedPreviousVersion(Exception):
+    pass
+
+
+class NoPreviousVersion(Exception):
+    pass
+
+
 def version_get_previous(version):
-    ''' Returns the previous version number
-        Don't decrease major versions (raises exception)
+    ''' Returns the previous version number.
+        In pre-releaes scenarios, it would be complex to figure out what the
+        previous version is, so it is not worth the effort to implement as
+        this is a rare usage scenario; we just raise an exception in this case.
+        - 'UnsupportedPreviousVersion' when attempting facing pre-release
+          scenarios (rc -> beta -> alpha)
+        - 'NoPreviousVersion' when processing major version or .1 pre-releases
+          (can't handle e.g. alpha.0)
     '''
     vprev = version.split('.')
     item = len(vprev) - 1
 
     while item > 0:
-        val = int(vprev[item])
+        try:
+            val = int(vprev[item])
+        except ValueError:
+            raise UnsupportedPreviousVersion(
+                "Retrieving pre-release's previous version is not supported")
         if val > 0:
             vprev[item] = str(val - 1)
             break
-        else:
-            item -= 1
+        item -= 1
 
-    if item == 0:
-        raise ValueError('Refusing to decrease major version number')
+    # Unhandled scenarios:
+    # - major version number (item == 0)
+    # - .0 pre-release
+    if (item == 0
+            or version_is_prerelease(version) and vprev[item] == '0'):
+        raise NoPreviousVersion
 
     return '.'.join(vprev)
 
@@ -218,82 +251,78 @@ def update_changelog(version):
     '''
     print "Updating Changelog"
 
-    vparse = version_parse(version)
-
     # Version number without '-dev' suffix
+    vparse = version_parse(version)
     version_release = vparse.group(1) + vparse.group(2)
-    version_previous = version_get_previous(version_release)
 
-    if not section_exists(_changelog_file, version_previous, False):
-        raise ValueError(
-            "ERROR: previous version %s does not exist in changelog" %
-            version_previous
+    # Make sure previous version exists in changelog, ignore .0 pre-releases
+    try:
+        if version_is_dev(version):
+            version_previous = version_get_previous(version_release)
+        else:
+            version_previous = version_get_previous(version)
+        if not section_exists(_changelog_file, version_previous, False):
+            raise ValueError(
+                "ERROR: previous version %s does not exist in changelog" %
+                version_previous
+                )
+    except NoPreviousVersion:
+        if version_is_prerelease(version):
+            version_previous = version_release
+        else:
+            version_previous = False
+
+    # If version exists, update the release date
+    if section_exists(_changelog_file, version):
+        print 'updating release date'
+        script = "s/^## {0} .*$/## {1} - {2}/".format(
+            version.replace('.', r'\.'),
+            version,
+            get_release_date(version)
             )
+    else:
+        # If it's a .0 release, treat it as dev
+        if (not version_is_patch(version)
+                and not version_is_prerelease(version)
+                and not version_is_dev(version)):
+            version += '-' + _version_dev
 
-    # Check if version already exists in changelog
-    version_exists = section_exists(_changelog_file, version_release)
-    if (not version_exists
-            and not version_is_patch(version)
-            and not version_is_dev(version)):
-        version += '-' + _version_dev
-
-    release_date = get_release_date(version)
-
-    # Development release
-    # Insert a new section for next release before the most recent one
-    if version_is_dev(version):
-        # Check changelog file for existing section
-        if version_exists:
+        # If development release already exists, nothing to do
+        if (version_is_dev(version)
+                and section_exists(_changelog_file, version_release)):
             print "nothing to do"
             return
 
-        # No existing section found, insert new one
-        if version_is_patch(version_release):
-            print "  Inserting new section for hotfix release v%s" % version
+        print "  Inserting new section for v%s" % version
+
+        # Prerelease section is inserted after the main version's,
+        # otherwise we insert the new section before it.
+        section_template = "## {0} - {1}"
+        if version_is_prerelease(version):
+            version_section = section_template.format(
+                version,
+                get_release_date(version)
+                )
+            version_section = "\\0\\n\\n" + version_section
         else:
-            print "  Inserting new section for v%s" % version_release
+            version_section = section_template.format(
+                version_release,
+                get_release_date(version)
+                )
+            version_section += "\\n\\n\\0"
+
+        if version_previous:
             # Adjust previous version number (remove patch component)
             version_previous = version_parse(version_previous).group(1)
-        script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
-            version_previous,
-            version_release,
-            release_date
-            )
-
-    # Stable release (X.Y.0)
-    # Replace the 1st occurrence of markdown level 2 header matching version
-    # and release date patterns
-    elif not version_is_patch(version):
-        print "  Updating release date for v%s" % version
-        script = r"s/^(## ){0}(\.0)? - {1}.*$/\1{2} - {3}/".format(
-            vparse.group(1),
-            _release_date_regex,
-            version,
-            release_date
-            )
-
-    # Hotfix release (X.Y.[0-9])
-    # Insert a new section for the hotfix release before the most recent
-    # section for version X.Y and display a warning message
-    else:
-        if version_exists:
-            print 'updating release date'
-            script = "s/^## {0}.*$/## {1} - {2}/".format(
-                version.replace('.', '\.'),
-                version,
-                release_date
-                )
-        else:
-            print "  Inserting new section for hotfix release v%s" % version
-            script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
+            script = "1,/^## {0}/s/^## {0}.*$/{1}/".format(
                 version_previous,
-                version,
-                release_date
+                version_section
                 )
 
-        print "  WARNING: review '%s' to ensure added section is correct" % (
-            _changelog_file
-            )
+        # We don't have a previous version, insert before the first section
+        else:
+            print "No previous version"
+            script = "1,/^## /s/^## .*$/{0}/".format(version_section)
 
     subprocess.call(
         "sed -r -i '%s' %s " % (
@@ -302,7 +331,12 @@ def update_changelog(version):
         ),
         shell=True
     )
-#end update_changelog
+
+    print "  WARNING: review '%s' to ensure added section is correct" % (
+        _changelog_file
+        )
+
+# end update_changelog
 
 
 def version_set(version, do_commit=True, do_tag=True):
@@ -355,7 +389,7 @@ otherwise:
 
     else:
         print "Note: changes have been staged but not committed."
-#end version_set()
+# end version_set()
 
 
 def main():
@@ -392,7 +426,7 @@ def main():
     # Let's do it
     os.chdir(subprocess.check_output('git root', shell=True).rstrip())
     version_set(version, do_commit, do_tag)
-#end main()
+# end main()
 
 
 if __name__ == "__main__":
