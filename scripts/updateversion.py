@@ -116,6 +116,13 @@ def get_release_date(version):
         return date.today().strftime("%d-%b-%Y")
 
 
+def git_root():
+    ''' Returns the git repository's root (top-level) directory
+    '''
+    return subprocess.check_output('git rev-parse --show-toplevel',
+                                   shell=True).rstrip()
+
+
 def sed_script(version):
     ''' Builds sed script to update version information in source files
     '''
@@ -420,8 +427,10 @@ def main():
     # Mandatory parameters
     version = version_check(args[0])
 
+    # Change to Git repo's root directory
+    os.chdir(git_root())
+
     # Let's do it
-    os.chdir(subprocess.check_output('git root', shell=True).rstrip())
     version_set(version, do_commit, do_tag)
 # end main()
 

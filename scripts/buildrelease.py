@@ -173,7 +173,8 @@ def main():
         )
         os.chdir(repo_path)
     else:
-        repo_path = subprocess.check_output('git root', shell=True).rstrip()
+        # Git repo's root directory
+        repo_path = updateversion.git_root()
         os.chdir(repo_path)
 
         # Check for any uncommitted changes
