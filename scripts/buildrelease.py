@@ -147,7 +147,7 @@ def main():
 
     # Default release branch
     if updateversion.version_is_patch(version):
-        release_branch = 'hotfix/' + version
+        release_branch = 'hotfix/' + version.rsplit('.', 1)[0]
 
     # -------------------------------------------------------------------------
     # Start the build
