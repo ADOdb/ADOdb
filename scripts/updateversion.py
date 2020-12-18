@@ -1,9 +1,9 @@
-#!/usr/bin/python -u
-'''
-    ADOdb version update script
+#!/usr/bin/python3 -u
+"""
+ADOdb version update script.
 
-    Updates the version number, and release date in all php and html files
-'''
+Updates the version number, and release date in all php and html files
+"""
 
 from datetime import date
 import getopt
@@ -17,7 +17,7 @@ import sys
 # These are used by sed - they are not PCRE !
 _version_dev = "dev"
 _version_abrc = r"(alpha|beta|rc)(\.([0-9]+))?"
-_version_prerelease = r"(-?(%s|%s))?" % (_version_dev, _version_abrc)
+_version_prerelease = r"(-?({0}|{1}))?".format(_version_dev, _version_abrc)
 _version_base = r"[Vv]?([0-9]\.[0-9]+)(\.([0-9]+))?"
 _version_regex = _version_base + _version_prerelease
 _release_date_regex = r"(Unreleased|[0-9?]+-.*-[0-9]+)"
@@ -31,7 +31,10 @@ long_options = ["help", "commit", "tag"]
 
 
 def usage():
-    print '''Usage: %s version
+    """
+    Print script's command-line arguments help.
+    """
+    print('''Usage: {0} version
 
     Parameters:
         version                 ADOdb version, format: [v]X.YY[a-z|dev]
@@ -40,48 +43,60 @@ def usage():
         -c | --commit           Automatically commit the changes
         -t | --tag              Create a tag for the new release
         -h | --help             Show this usage message
-''' % (
+'''.format(
         path.basename(__file__)
-    )
+    ))
 # end usage()
 
 
 def version_is_dev(version):
-    ''' Returns true if version is a development release
-    '''
+    """
+    Return true if version is a development release.
+    """
     return version.endswith(_version_dev)
 
 
 def version_is_prerelease(version):
-    ''' Returns true if version is alpha, beta or release-candidate
-    '''
+    """
+    Return true if version is alpha, beta or release-candidate.
+    """
     return re.search(_version_abrc, version) is not None
 
 
 def version_is_patch(version):
-    ''' Returns true if version is a patch release (i.e. X.Y.Z with Z > 0)
-    '''
+    """
+    Return true if version is a patch release (i.e. X.Y.Z with Z > 0).
+    """
     return (re.search('^' + _version_base + '$', version) is not None
             and not version.endswith('.0'))
 
 
 def version_parse(version):
-    ''' Breakdown the version into groups (Z and -dev are optional)
-        1:(X.Y), 2:(.Z), 3:(Z), 4:(-dev or -alpha/beta/rc.N), 8: N
-    '''
-    return re.match(r'^%s$' % _version_regex, version)
+    """
+    Breakdown the version into groups (Z and -dev are optional).
+
+    Groups:
+      - 1:(X.Y)
+      - 2:(.Z)
+      - 3:(Z)
+      - 4:(-dev or -alpha/beta/rc.N)
+      - 8: N
+    """
+    return re.match(r'^{0}$'.format(_version_regex), version)
 
 
 def version_check(version):
-    ''' Checks that the given version is valid, exits with error if not.
-        Returns the SemVer-normalized version without the "v" prefix
-        - add '.0' if missing patch bit
-        - add '-' before dev release suffix if needed
-    '''
+    """
+    Check that the given version is valid, exit with error if not.
+
+    Returns the SemVer-normalized version without the "v" prefix
+    - add '.0' if missing patch bit
+    - add '-' before dev release suffix if needed
+    """
     vparse = version_parse(version)
     if not vparse:
         usage()
-        print "ERROR: invalid version ! \n"
+        print("ERROR: invalid version ! \n")
         sys.exit(1)
 
     vnorm = vparse.group(1)
@@ -106,9 +121,10 @@ def version_check(version):
 
 
 def get_release_date(version):
-    ''' Returns the release date in DD-MMM-YYYY format, or
-        "Unreleased" for development releases.
-    '''
+    """
+    Return the release date in DD-MMM-YYYY format, or 'Unreleased' for
+    development releases.
+    """
     # Development release
     if version_is_dev(version):
         return "Unreleased"
@@ -117,18 +133,22 @@ def get_release_date(version):
 
 
 def git_root():
-    ''' Returns the git repository's root (top-level) directory
-    '''
-    return subprocess.check_output('git rev-parse --show-toplevel',
-                                   shell=True).rstrip()
+    """
+    Return the git repository's root (top-level) directory.
+    """
+    return subprocess.check_output(
+        'git rev-parse --show-toplevel',
+        text=True,
+        shell=True
+        ).rstrip()
 
 
 def sed_script(version):
-    ''' Builds sed script to update version information in source files
-    '''
-
+    """
+    Build sed script to update version information in source files.
+    """
     # Version number and release date
-    script = r"s/{}\s+{}/v{}  {}/".format(
+    script = r"s/{0}\s+{1}/v{2}  {3}/".format(
         _version_regex,
         _release_date_regex,
         version,
@@ -138,8 +158,9 @@ def sed_script(version):
 
 
 def sed_filelist():
-    ''' Build list of files to update
-    '''
+    """
+    Build list of files to update.
+    """
     dirlist = []
     for root, dirs, files in os.walk(".", topdown=True):
         # Filter files by extensions
@@ -154,33 +175,38 @@ def sed_filelist():
 
 
 def sed_run(script, files):
-    ''' Run sed
-    '''
+    """
+    Run sed.
+    """
     subprocess.call(
-        "sed -r -i '%s' %s " % (script, files),
+        "sed -r -i '{0}' {1} ".format(script, files),
         shell=True
     )
 
 
 def tag_name(version):
+    """
+    Return tag name (vX.Y.Z)
+    """
     return _tag_prefix + version
 
 
 def tag_check(version):
-    ''' Checks if the tag for the specified version exists in the repository
-        by attempting to check it out
-        Throws exception if not
-    '''
+    """
+    Checks if the tag for the specified version exists in the repository
+    by attempting to check it out, throws exception if not.
+    """
     subprocess.check_call(
         "git checkout --quiet " + tag_name(version),
         stderr=subprocess.PIPE,
         shell=True)
-    print "Tag '%s' already exists" % tag_name(version)
+    print("Tag '{0}' already exists".format(tag_name(version)))
 
 
 def tag_delete(version):
-    ''' Deletes the specified tag
-    '''
+    """
+    Deletes the specified tag
+    """
     subprocess.check_call(
         "git tag --delete " + tag_name(version),
         stderr=subprocess.PIPE,
@@ -188,13 +214,15 @@ def tag_delete(version):
 
 
 def tag_create(version):
-    ''' Creates the tag for the specified version
-        Returns True if tag created
-    '''
-    print "Creating release tag '%s'" % tag_name(version)
+    """
+    Create the tag for the specified version.
+
+    Returns True if tag created.
+    """
+    print("Creating release tag '{0}'".format(tag_name(version)))
     result = subprocess.call(
-        "git tag --sign --message '%s' %s" % (
-            "ADOdb version %s released %s" % (
+        "git tag --sign --message '{0}' {1}".format(
+            "ADOdb version {0} released {1}".format(
                 version,
                 get_release_date(version)
             ),
@@ -206,13 +234,14 @@ def tag_create(version):
 
 
 def section_exists(filename, version, print_message=True):
-    ''' Checks given file for existing section with specified version
-    '''
-    script = True
+    """
+    Check given file for existing section with specified version.
+    """
     for i, line in enumerate(open(filename)):
         if re.search(r'^## ' + version, line):
             if print_message:
-                print "  Existing section for v%s found," % version,
+                print("  Existing section for v{0} found,"
+                      .format(version), end=" ")
             return True
     return False
 
@@ -226,15 +255,17 @@ class NoPreviousVersion(Exception):
 
 
 def version_get_previous(version):
-    ''' Returns the previous version number.
-        In pre-releaes scenarios, it would be complex to figure out what the
-        previous version is, so it is not worth the effort to implement as
-        this is a rare usage scenario; we just raise an exception in this case.
-        - 'UnsupportedPreviousVersion' when attempting facing pre-release
-          scenarios (rc -> beta -> alpha)
-        - 'NoPreviousVersion' when processing major version or .1 pre-releases
-          (can't handle e.g. alpha.0)
-    '''
+    """
+    Returns the previous version number.
+
+    In pre-releaes scenarios, it would be complex to figure out what the
+    previous version is, so it is not worth the effort to implement as
+    this is a rare usage scenario; we just raise an exception in this case.
+    - 'UnsupportedPreviousVersion' when attempting facing pre-release
+      scenarios (rc -> beta -> alpha)
+    - 'NoPreviousVersion' when processing major version or .1 pre-releases
+      (can't handle e.g. alpha.0)
+    """
     vprev = version.split('.')
     item = len(vprev) - 1
 
@@ -260,9 +291,10 @@ def version_get_previous(version):
 
 
 def update_changelog(version):
-    ''' Updates the release date in the Change Log
-    '''
-    print "Updating Changelog"
+    """
+    Update the release date in the Change Log.
+    """
+    print("Updating Changelog")
 
     # Version number without '-dev' suffix
     vparse = version_parse(version)
@@ -276,8 +308,8 @@ def update_changelog(version):
             version_previous = version_get_previous(version)
         if not section_exists(_changelog_file, version_previous, False):
             raise ValueError(
-                "ERROR: previous version %s does not exist in changelog" %
-                version_previous
+                "ERROR: previous version {0} does not exist in changelog"
+                .format(version_previous)
                 )
     except NoPreviousVersion:
         if version_is_prerelease(version):
@@ -287,7 +319,7 @@ def update_changelog(version):
 
     # If version exists, update the release date
     if section_exists(_changelog_file, version):
-        print 'updating release date'
+        print('updating release date')
         script = "s/^## {0} .*$/## {1} - {2}/".format(
             version.replace('.', r'\.'),
             version,
@@ -303,10 +335,10 @@ def update_changelog(version):
         # If development release already exists, nothing to do
         if (version_is_dev(version)
                 and section_exists(_changelog_file, version_release)):
-            print "nothing to do"
+            print("nothing to do")
             return
 
-        print "  Inserting new section for v%s" % version
+        print("  Inserting new section for v{0}".format(version))
 
         # Prerelease section is inserted after the main version's,
         # otherwise we insert the new section before it.
@@ -334,35 +366,36 @@ def update_changelog(version):
 
         # We don't have a previous version, insert before the first section
         else:
-            print "No previous version"
+            print("No previous version")
             script = "1,/^## /s/^## .*$/{0}/".format(version_section)
 
     sed_run(script, _changelog_file)
 
-    print "  WARNING: review '%s' to ensure added section is correct" % (
+    print("  WARNING: review '{0}' to ensure added section is correct".format(
         _changelog_file
-        )
+        ))
 
 # end update_changelog
 
 
 def version_set(version, do_commit=True, do_tag=True):
-    ''' Bump version number and set release date in source files
-    '''
-    print "Preparing version bump commit"
+    """
+    Bump version number and set release date in source files.
+    """
+    print("Preparing version bump commit")
 
     update_changelog(version)
 
-    print "Updating version and date in source files"
+    print("Updating version and date in source files")
     sed_run(sed_script(version), " ".join(sed_filelist()))
-    print "Version set to %s" % version
+    print("Version set to {0}".format(version))
 
     if do_commit:
         # Commit changes
-        print "Committing"
+        print("Committing")
         commit_ok = subprocess.call(
-            "git commit --all --message '%s'" % (
-                "Bump version to %s" % version
+            "git commit --all --message '{0}'".format(
+                "Bump version to {0}".format(version)
             ),
             shell=True
         )
@@ -373,23 +406,21 @@ def version_set(version, do_commit=True, do_tag=True):
             tag_ok = False
 
         if commit_ok == 0:
-            print '''
+            print('''
 NOTE: you should carefully review the new commit, making sure updates
 to the files are correct and no additional changes are required.
 If everything is fine, then the commit can be pushed upstream;
 otherwise:
  - Make the required corrections
- - Amend the commit ('git commit --all --amend' ) or create a new one'''
+ - Amend the commit ('git commit --all --amend' ) or create a new one''')
 
             if tag_ok:
-                print ''' - Drop the tag ('git tag --delete %s')
+                print(''' - Drop the tag ('git tag --delete {0}')
  - run this script again
-''' % (
-                    tag_name(version)
-                )
+'''.format(tag_name(version)))
 
     else:
-        print "Note: changes have been staged but not committed."
+        print("Note: changes have been staged but not committed.")
 # end version_set()
 
 
@@ -397,14 +428,14 @@ def main():
     # Get command-line options
     try:
         opts, args = getopt.gnu_getopt(sys.argv[1:], options, long_options)
-    except getopt.GetoptError, err:
-        print str(err)
+    except getopt.GetoptError as err:
+        print(str(err))
         usage()
         sys.exit(2)
 
     if len(args) < 1:
         usage()
-        print "ERROR: please specify the version"
+        print("ERROR: please specify the version")
         sys.exit(1)
 
     do_commit = False
