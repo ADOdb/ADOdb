@@ -32,12 +32,8 @@ exclude_list = (".git*",
                 "replicate",
                 "scripts",
                 "tests",
-                # There are no png files in there...
-                # "cute_icons_for_site/*.png",
-                "hs~*.*",
-                "adodb-text.inc.php",
-                # This file does not exist in current repo
-                # 'adodb-lite.inc.php'
+                "cute_icons_for_site",
+                ".idea",
                 )
 
 # Command-line options
