@@ -2,7 +2,7 @@
 /**
  * ADOdb PDO Firebird driver
  *
- * @version   v5.21.0-dev  ??-???-2016
+ * @version   v5.21.0-beta.1  20-Dec-2020
  * @copyright (c) 2019      Damien Regad, Mark Newnham and the ADOdb community
  *
  * Released under both BSD license and Lesser GPL library license.

@@ -7,6 +7,8 @@ Older changelogs:
 
 ## 5.21.0 - Unreleased
 
+## 5.21.0-beta.1 - 20-Dec-2020
+
 - adodb: Remove useless constructors. #171
 - adodb: Define default constructor in ADOConnection base class. #172
 - adodb: Reimplement base methods charMax() and textMax(). #183
