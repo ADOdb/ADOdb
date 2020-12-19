@@ -230,7 +230,6 @@ def main():
     # Create tarballs
     print("Creating release tarballs...")
     release_name = release_prefix + '-' + version
-    print(release_prefix, version, release_name)
 
     os.chdir(release_path)
     print("- tar")
