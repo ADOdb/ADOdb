@@ -259,10 +259,10 @@ def set_sourceforge_file_info():
         print("  " + file)
 
         # Determine defaults based on file extension
-        ext = file.split('.', 3)[3]
-        if ext == 'zip':
+        ext = path.splitext(file)[1]
+        if ext == '.zip':
             defaults = ['windows']
-        elif ext == 'tar.gz':
+        elif ext == '.gz':
             defaults = ['linux', 'mac', 'bsd', 'solaris', 'others']
         else:
             print("WARNING: Unknown extension for file", file)
