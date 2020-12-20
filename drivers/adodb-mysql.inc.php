@@ -246,7 +246,7 @@ class ADODB_mysql extends ADOConnection {
 
 
 	// if magic quotes disabled, use mysql_real_escape_string()
-	function qstr($s,$magic_quotes=false)
+	function qstr($s, $magic_quotes=false)
 	{
 		if (is_null($s)) return 'NULL';
 		if (!$magic_quotes) {
@@ -256,9 +256,9 @@ class ADODB_mysql extends ADOConnection {
 			}
 
 			if ($this->replaceQuote[0] == '\\'){
-				$s = adodb_str_replace(array('\\',"\0"),array('\\\\',"\\\0"),$s);
+				$s = str_replace(array('\\',"\0"), array('\\\\',"\\\0"), $s);
 			}
-			return "'".str_replace("'",$this->replaceQuote,$s)."'";
+			return "'".str_replace("'", $this->replaceQuote, $s)."'";
 		}
 
 		// undo magic quotes for "

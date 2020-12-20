@@ -370,7 +370,7 @@ class ADODB_mysqli extends ADOConnection {
 			}
 
 			if ($this->replaceQuote[0] == '\\') {
-				$s = adodb_str_replace(array('\\',"\0"), array('\\\\',"\\\0") ,$s);
+				$s = str_replace(array('\\',"\0"), array('\\\\',"\\\0") ,$s);
 			}
 			return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 		}
