@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.21.0-beta.1  20-Dec-2020
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -8,7 +8,7 @@
   the BSD license will take precedence.
 Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Native mssql driver. Requires mssql client. Works on Windows.
     http://www.microsoft.com/sql/technologies/php/default.mspx
@@ -439,8 +439,10 @@ class ADODB_mssqlnative extends ADOConnection {
 	function ErrorNo()
 	{
 		$err = sqlsrv_errors(SQLSRV_ERR_ALL);
-		if($err[0]) return $err[0]['code'];
-		else return 0;
+		if ($err && $err[0]) 
+			return $err[0]['code'];
+		else 
+			return 0;
 	}
 
 	// returns true or false
@@ -452,7 +454,13 @@ class ADODB_mssqlnative extends ADOConnection {
 				ADOConnection::outp('Microsoft SQL Server native driver (mssqlnative) not installed');
 			return null;
 		}
-		
+	
+		if (!empty($this->port))
+			/*
+			* Port uses a comma 
+			*/
+			$argHostname .= ",".$this->port;
+	
 		$connectionInfo 			= $this->connectionInfo;
 		$connectionInfo["Database"]	= $argDatabasename;
 		if ((string)$argUsername != '' || (string)$argPassword != '')
@@ -476,6 +484,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			* to use windows authentication
 			*/
 			if ($this->debug)
+			
 				ADOConnection::outp('No userid or password supplied, attempting connection with Windows Authentication');
 		}
 				

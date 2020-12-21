@@ -20,14 +20,14 @@
 
 	"keywords" : [ "database", "abstraction", "layer", "library", "php" ],
 
-	"homepage": "http://adodb.org/",
+	"homepage": "https://adodb.org/",
 	"support" : {
 		"issues" : "https://github.com/ADOdb/ADOdb/issues",
 		"source" : "https://github.com/ADOdb/ADOdb"
 	},
 
 	"require" : {
-		"php" : "^5.3.2 || ^7.0"
+		"php" : "^5.5.9 || ^7.0"
 	},
 
 	"autoload" : {

@@ -3,7 +3,7 @@
 * A Program to post-process the dokuwiki document export to clean it up
 * and fix the broken links
 *
-* @link http://adodb.org/dokuwiki/doku.php?id=v6:offline_docs_build
+* @link https://adodb.org/dokuwiki/doku.php?id=v6:offline_docs_build
 * @author Mark Newnham
 * @since 02/13/2015
 */
@@ -138,7 +138,7 @@ foreach ($files as $f) {
 		$newDiv->setAttribute('style','text-align:right');
 		$newChild = $doc->createElement('a','ADOdb Web Site');
 		$newA = $newDiv->appendChild($newChild);
-		$newA->setAttribute('href','http://adodb.org');
+		$newA->setAttribute('href','https://adodb.org');
     }
 	
 	/*

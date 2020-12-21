@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.21.0-beta.1  20-Dec-2020
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -246,7 +246,7 @@ class ADODB_mysql extends ADOConnection {
 
 
 	// if magic quotes disabled, use mysql_real_escape_string()
-	function qstr($s,$magic_quotes=false)
+	function qstr($s, $magic_quotes=false)
 	{
 		if (is_null($s)) return 'NULL';
 		if (!$magic_quotes) {
@@ -256,9 +256,9 @@ class ADODB_mysql extends ADOConnection {
 			}
 
 			if ($this->replaceQuote[0] == '\\'){
-				$s = adodb_str_replace(array('\\',"\0"),array('\\\\',"\\\0"),$s);
+				$s = str_replace(array('\\',"\0"), array('\\\\',"\\\0"), $s);
 			}
-			return "'".str_replace("'",$this->replaceQuote,$s)."'";
+			return "'".str_replace("'", $this->replaceQuote, $s)."'";
 		}
 
 		// undo magic quotes for "
@@ -616,7 +616,7 @@ class ADODB_mysql extends ADOConnection {
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
 		$offsetStr =($offset>=0) ? ((integer)$offset)."," : '';
-		// jason judge, see http://phplens.com/lens/lensforum/msgs.php?id=9220
+		// jason judge, see PHPLens Issue No: 9220
 		if ($nrows < 0) $nrows = '18446744073709551615';
 
 		if ($secs)

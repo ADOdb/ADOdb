@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.21.0-beta.1  20-Dec-2020
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -8,7 +8,7 @@
   the BSD license will take precedence.
 Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Native mssql driver. Requires mssql client. Works on Windows.
   To configure for Unix, see
@@ -702,7 +702,7 @@ order by constraint_name, referenced_table_name, keyno";
 			ADOConnection::outp( "{$prefix}Parameter(\$stmt, \$php_var='$var', \$name='$name', \$maxLen=$maxLen, \$type=$ztype);");
 		}
 		/*
-			See http://phplens.com/lens/lensforum/msgs.php?id=7231
+			See PHPLens Issue No: 7231
 
 			RETVAL is HARD CODED into php_mssql extension:
 			The return value (a long integer value) is treated like a special OUTPUT parameter,
@@ -867,7 +867,7 @@ class ADORecordset_mssql extends ADORecordSet {
 
 	var $databaseType = "mssql";
 	var $canSeek = true;
-	var $hasFetchAssoc; // see http://phplens.com/lens/lensforum/msgs.php?id=6083
+	var $hasFetchAssoc; // see PHPLens Issue No: 6083
 	// _mths works only in non-localised system
 
 	function __construct($id,$mode=false)
