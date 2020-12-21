@@ -76,6 +76,8 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	private $usePreparedStatement = false;
 	private $useLastInsertStatement = false;
+	private $usingBoundVariables = false;
+	private $statementAffectedRows = -1;
 
 	/**
 	 * Sets the isolation level of a transaction.
@@ -411,6 +413,9 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function _affectedrows()
 	{
+		if ($this->usingBoundVariables)
+			return $this->statementAffectedRows;
+		
 		$result =  @mysqli_affected_rows($this->_connectionID);
 		if ($result == -1) {
 			if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
@@ -1033,13 +1038,176 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	/**
-	 * Return the query id.
+	* Counts the true number of placeholders in a statement
+	* working on increasingly complex statements
+	*
+	* @param  string  $sql
+	*
+	* @return int The number of placeholders
+	*/
+	protected function placeHolderCount($sql)
+	{
+		
+		$quotepos = strpos($sql,"'");
+
+		if ($quotepos === false)
+		{
+			/*
+			* No quoted strings, count the placeholders
+			*/
+			return substr_count($sql,'?');
+		}
+		
+		/*
+		* We have a statement with quoted strings,
+		* which may or may not contain the question mark
+		*/
+
+		$tempSql = $sql;
+		/*
+		* Are there any escaped single quotes \' in
+		* the string? If so, remove them
+		*/
+		$tempSql = str_replace('\\\'','',$tempSql);
+		
+		/*
+		* If, after we do this, there are mismatched quotes,
+		* there is a problem with the statement
+		*/
+		$nQuoteTest = fmod(substr_count($tempSql,"'"),2);
+		
+		if ($nQuoteTest)
+		{
+			$this->outp_throw(
+			"Input string '" . htmlspecialchars($sql) . "' has mismatched single quotes. Quotes inside quoted strings must be correctly escaped",
+			'Execute'
+			);
+			return 0;
+		}				
+		/*
+		* Now break out quoted strings
+		*/
+		preg_match_all('/(\'.*?\')/',$tempSql,$quotedStringArray);
+
+		/*
+		* Do any of the quoted strings contain placeholders?
+		*/
+		$placeholderSearch = preg_grep('/\?/',$quotedStringArray[0]);
+		
+		if (count($placeholderSearch) == 0)
+		{
+			/*
+			* No they don't, we've gone far enough
+			*/
+			return substr_count($sql,'?');
+		}
+		
+		/*
+		* Getting to be a bit edge-case here, lets remove
+		* the quoted strings from the statement, and 
+		* check again. We don't care that the sql makes no
+		* sense because we aren't going to use it
+		*/
+		foreach ($quotedStringArray[0] as $qString)
+			$tempSql = str_replace($qString,'',$tempSql);
+
+		return substr_count($tempSql,'?');
+		
+	}
+	/**
+	 * Execute SQL
 	 *
-	 * @param string|array $sql
-	 * @param array $inputarr
+	 * @param string     $sql      SQL statement to execute, or possibly an array
+	 *                             holding prepared statement ($sql[0] will hold sql text)
+	 * @param array|bool $inputarr holds the input data to bind to.
+	 *                             Null elements will be set to null.
 	 *
-	 * @return bool|mysqli_result
+	 * @return ADORecordSet|bool
 	 */
+	public function execute($sql, $inputarr = false) {
+		
+		if ($this->fnExecute) {
+			$fn = $this->fnExecute;
+			$ret = $fn($this,$sql,$inputarr);
+			if (isset($ret)) {
+				return $ret;
+			}
+		}
+		
+		if ($inputarr === false) {
+			return $this->_execute($sql,false);
+		}
+		
+		if (!is_array($inputarr)) {
+			$inputarr = array($inputarr);
+		}
+
+		if (!is_array($sql)) {
+			
+			/* 
+			* Make sure the number of parameters provided in the input
+			* array matches what the query expects
+			*/
+			$nparams = $this->placeHolderCount($sql);
+			
+			if ($nparams != count($inputarr)) {
+				$this->outp_throw(
+					"Input array has " . count($inputarr) .
+					" params, does not match query: '" . htmlspecialchars($sql) . "'",
+					'Execute'
+				);
+				return false;
+			}
+
+			$typeString = '';
+			$typeArray  = array(''); //placeholder for type list
+
+			foreach ($inputarr as $v) 
+			{
+				$typeArray[] = $v;
+				if (is_integer($v) || is_bool($v))
+					$typeString .= 'i';
+				
+				else if (is_float($v))
+					$typeString .= 'd';
+					
+				else if(is_object($v))
+					/*
+					* Assume a blob
+					*/
+					$typeString .= 'b';
+			
+				else
+					$typeString .= 's';
+				
+			} 
+				
+			/*
+			* Place the field type list at the front of the
+			* parameter array. This is the mysql specific
+			* format
+			*/
+			$typeArray[0] = $typeString;
+		
+			$ret = $this->_execute($sql,$typeArray);
+			if (!$ret) {
+				return $ret;
+			}
+			
+		} else {
+			$ret = $this->_execute($sql,$inputarr);
+		}
+		return $ret;
+	}
+	 
+	/** 
+	* Return the query id.
+	*
+	* @param string|array $sql
+	* @param array $inputarr
+	*
+	* @return bool|mysqli_result
+	*/
 	function _query($sql, $inputarr)
 	{
 		global $ADODB_COUNTRECS;
@@ -1074,6 +1242,61 @@ class ADODB_mysqli extends ADOConnection {
 			$ret = mysqli_stmt_execute($stmt);
 			return $ret;
 		}
+		else if (is_string($sql) && is_array($inputarr))
+		{
+			/*
+			* This is support for true prepared queries
+			* with bound parameters
+			*
+			* set prepared statement flags
+			*/
+			$this->usePreparedStatement = true;
+			$this->usingBoundVariables = true;
+
+			/*
+			* Must pass references into call_user_func_array
+			*/
+			$refs = array();
+            foreach($inputarr as $key => $value)
+                $refs[$key] = &$inputarr[$key];
+			
+			/*
+			* Prepare the statement with the placeholders
+			*/
+			$stmt = $this->_connectionID->prepare($sql);
+			/*
+			* Bind the params
+			*/
+			call_user_func_array(array($stmt, 'bind_param'), $refs);
+			/*
+			* Execute
+			*/
+			$ret = mysqli_stmt_execute($stmt);
+			
+			/*
+			* Did we throw an error
+			*/
+			if ($ret == false)
+				return false;
+				
+			/*
+			* Is the statement a non-select
+			*/
+			if ($stmt->affected_rows > -1)
+			{
+				$this->statementAffectedRows = $stmt->affected_rows;
+				return true;
+			}
+			/*
+			* Turn the statement into a result set
+			*/
+			$result = $stmt->get_result();
+			/*
+			* Return the object for the select
+			*/
+			return $result;
+			
+		}										  
 		else
 		{
 			/*
