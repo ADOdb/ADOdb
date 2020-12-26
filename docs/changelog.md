@@ -5,6 +5,8 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
+## 5.22.0 - Unreleased
+
 ## 5.21.0 - Unreleased
 
 ## 5.21.0-beta.1 - 20-Dec-2020
