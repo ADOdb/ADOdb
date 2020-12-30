@@ -1256,10 +1256,17 @@ class ADORecordSet_mysqli extends ADORecordSet{
 
 	function _initrs()
 	{
-	global $ADODB_COUNTRECS;
+		global $ADODB_COUNTRECS;
 
 		$this->_numOfRows = $ADODB_COUNTRECS ? @mysqli_num_rows($this->_queryID) : -1;
 		$this->_numOfFields = @mysqli_num_fields($this->_queryID);
+
+		# forces resetting fieldnames for multiqueries instead reuse from a previous recordset
+		unset($this->_names);
+		for ($i=0; $i < $this->_numOfFields; $i++) {
+			$f = $this->fetchField($i);
+			$this->_names[] = $f->name;
+		}
 	}
 
 /*
