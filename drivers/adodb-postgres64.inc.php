@@ -165,7 +165,7 @@ class ADODB_postgres64 extends ADOConnection{
 	function _insertid($table,$column)
 	{
 		if (!is_resource($this->_resultid) || get_resource_type($this->_resultid) !== 'pgsql result') return false;
-		$oid = pg_getlastoid($this->_resultid);
+		$oid = pg_last_oid($this->_resultid);
 		// to really return the id, we need the table and column-name, else we can only return the oid != id
 		return empty($table) || empty($column) ? $oid : $this->GetOne("SELECT $column FROM $table WHERE oid=".(int)$oid);
 	}
@@ -425,7 +425,7 @@ class ADODB_postgres64 extends ADOConnection{
 		}
 		if (!$maxsize) $maxsize = $this->maxblobsize;
 		$realblob = @pg_lo_read($fd,$maxsize);
-		@pg_loclose($fd);
+		@pg_lo_close($fd);
 		if ($hastrans) pg_query($this->_connectionID,'commit');
 		return $realblob;
 	}
@@ -860,7 +860,7 @@ class ADODB_postgres64 extends ADOConnection{
 			} else $this->_errorMsg = $this->_errconnect();
 		} else {
 			if (empty($this->_connectionID)) $this->_errconnect();
-			else $this->_errorMsg = @pg_errormessage($this->_connectionID);
+			else $this->_errorMsg = @pg_last_error($this->_connectionID);
 		}
 		return $this->_errorMsg;
 	}
@@ -986,7 +986,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		$o= new ADOFieldObject();
 		$o->name = @pg_field_name($this->_queryID,$off);
 		$o->type = @pg_field_type($this->_queryID,$off);
-		$o->max_length = @pg_fieldsize($this->_queryID,$off);
+		$o->max_length = @pg_field_size($this->_queryID,$off);
 		return $o;
 	}
 
