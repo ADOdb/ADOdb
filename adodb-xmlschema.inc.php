@@ -18,20 +18,6 @@
  * @tutorial getting_started.pkg
  */
 
-function _file_get_contents($file)
-{
- 	if (function_exists('file_get_contents')) return file_get_contents($file);
-
-	$f = fopen($file,'r');
-	if (!$f) return '';
-	$t = '';
-
-	while ($s = fread($f,100000)) $t .= $s;
-	fclose($f);
-	return $t;
-}
-
-
 /**
 * Debug on or off
 */
@@ -118,7 +104,7 @@ class dbObject {
 	/**
 	* NOP
 	*/
-	function __construct( &$parent, $attributes = NULL ) {
+	function __construct( $parent, $attributes = NULL ) {
 		$this->parent = $parent;
 	}
 
@@ -247,7 +233,7 @@ class dbTable extends dbObject {
 	* @param string $prefix DB Object prefix
 	* @param array $attributes Array of table attributes.
 	*/
-	function __construct( &$parent, $attributes = NULL ) {
+	function __construct( $parent, $attributes = NULL ) {
 		$this->parent = $parent;
 		$this->name = $this->prefix($attributes['NAME']);
 	}
@@ -643,7 +629,7 @@ class dbIndex extends dbObject {
 	*
 	* @internal
 	*/
-	function __construct( &$parent, $attributes = NULL ) {
+	function __construct( $parent, $attributes = NULL ) {
 		$this->parent = $parent;
 
 		$this->name = $this->prefix ($attributes['NAME']);
@@ -787,7 +773,7 @@ class dbData extends dbObject {
 	*
 	* @internal
 	*/
-	function __construct( &$parent, $attributes = NULL ) {
+	function __construct( $parent, $attributes = NULL ) {
 		$this->parent = $parent;
 	}
 
@@ -986,7 +972,7 @@ class dbQuerySet extends dbObject {
 	* @param object $parent Parent object
 	* @param array $attributes Attributes
 	*/
-	function __construct( &$parent, $attributes = NULL ) {
+	function __construct( $parent, $attributes = NULL ) {
 		$this->parent = $parent;
 
 		// Overrides the manual prefix key
@@ -1726,13 +1712,6 @@ class adoSchema {
 		return $result;
 	}
 
-	// compat for pre-4.3 - jlim
-	function _file_get_contents($path)
-	{
-		if (function_exists('file_get_contents')) return file_get_contents($path);
-		return join('',file($path));
-	}
-
 	/**
 	* Converts an XML schema file to the specified DTD version.
 	*
@@ -1761,7 +1740,7 @@ class adoSchema {
 		}
 
 		if( $version == $newVersion ) {
-			$result = _file_get_contents( $filename );
+			$result = file_get_contents( $filename );
 
 			// remove unicode BOM if present
 			if( substr( $result, 0, 3 ) == sprintf( '%c%c%c', 239, 187, 191 ) ) {
@@ -1800,7 +1779,7 @@ class adoSchema {
 					return FALSE;
 				}
 
-				$schema = _file_get_contents( $schema );
+				$schema = file_get_contents( $schema );
 				break;
 			case 'string':
 			default:
@@ -1811,14 +1790,14 @@ class adoSchema {
 
 		$arguments = array (
 			'/_xml' => $schema,
-			'/_xsl' => _file_get_contents( $xsl_file )
+			'/_xsl' => file_get_contents( $xsl_file )
 		);
 
 		// create an XSLT processor
 		$xh = xslt_create ();
 
 		// set error handler
-		xslt_set_error_handler ($xh, array (&$this, 'xslt_error_handler'));
+		xslt_set_error_handler ($xh, array ($this, 'xslt_error_handler'));
 
 		// process the schema
 		$result = xslt_process ($xh, 'arg:/_xml', 'arg:/_xsl', NULL, $arguments);
