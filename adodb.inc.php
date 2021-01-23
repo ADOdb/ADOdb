@@ -504,7 +504,24 @@ if (!defined('_ADODB_LAYER')) {
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
 
-
+	/*
+	* A simple associative array of user-defined custom actual/meta types
+	*/
+	public $customActualTypes = array();
+	
+	/*
+	* An array of user-defined custom meta/actual types
+	*	
+	$this->customMetaTypes[$meta] = array(
+			'actual'=>'',
+			'dictionary'=>'',
+			'handler'=>'',
+			'callback'=>''
+			);
+	*/
+	public $customMetaTypes = array();
+	
+	
 	/**
 	 * Default Constructor.
 	 * We define it even though it does not actually do anything. This avoids
@@ -564,6 +581,50 @@ if (!defined('_ADODB_LAYER')) {
 		}
 		return $matches[1];
 	}
+	
+	/**
+	* Set a custom meta type with a corresponding actual
+	*
+	* @param	string	$metaType	The Custom ADOdb metatype
+	* @param	string	$dictionaryType	The database dictionary type
+	* @param	string	$actualType	The database actual type
+	* @param	bool	$handleAsType handle like an existing Metatype
+	* @param	mixed	$callBack A pre-processing function
+	*
+	* @return bool success if the actual exists
+	*/
+	final public function setCustomMetaType(
+		$metaType,
+		$dictionaryType,
+		$actualType,
+		$handleAsType=false,
+		$callback=false){
+			
+		$this->customMetaTypes[strtoupper($metaType)] = array(
+			'actual'=>$actualType,
+			'dictionary'=>strtoupper($dictionaryType),
+			'handler'=>$handleAsType,
+			'callback'=>$callback
+			);
+		
+		/*
+		* Create a reverse lookup for the actualType
+		*/
+		$this->customActualTypes[$actualType] = $metaType;
+
+		return true;
+	}
+	
+	/**
+	* Get a list of custom meta types.
+	*
+	* @return string[]
+	*/
+	final public function getCustomMetaTypes()
+	{
+		return $this->customMetaTypes;
+	}
+	
 
 	/**
 	 * Get server version info.
@@ -3574,6 +3635,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	var $_maxRecordCount = 0;
 	var $datetime = false;
 
+	public $customActualTypes;
+	public $customMetaTypes;
+	
+	
 	/**
 	 * Constructor
 	 *

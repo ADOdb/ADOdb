@@ -996,11 +996,52 @@ static $cacheCols;
 function _adodb_column_sql_oci8(&$zthis,$action, $type, $fname, $fnameq, $arrFields, $magicq)
 {
     $sql = '';
+	
+	if (array_key_exists($type,$zthis->customMetaTypes)) 
+	{
+		
+		$customMetaType = $zthis->customMetaTypes[$type];
+		if ($customMetaType['handler'] === false)
+			/*
+			* Pass the value through unchanged
+			*/
+			$type = 'RAW';
+		else if (is_object($customMetaType['handler']))
+		{
+			/*
+			* An anonymous function
+			*/
+			$type = 'CALLBACK';
+			$callback = $customMetaType['handler'];
+		}
+		else
+			/*
+			* Some type of metaType
+			*/
+			$type = $customMetaType['handler'];
+	}
+	
+	print_r($customMetaType); exit;
 
-    // Based on the datatype of the field
-    // Format the value properly for the database
-    switch($type) {
-    case 'B':
+	switch($type) {
+		
+		case 'RAW':
+			/*
+			* Custom field with no handling
+			*/
+			$val = $arrFields[$fname];
+			break;
+		
+		case 'CALLBACK':
+			/*
+			* An anonymous function
+			*/
+			$val = $callback($var);
+			break;
+			
+		// Based on the datatype of the field
+		// Format the value properly for the database
+		case 'B':
         //in order to handle Blobs correctly, we need
         //to do some magic for Oracle
 
@@ -1073,8 +1114,51 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 
 		}
 	}
-
+	
+	/*
+	* Upfront check for custom meta types. We do this
+	* first to allow for overriding of existing types
+	*/
+	if (array_key_exists($type,$zthis->customMetaTypes)) 
+	{
+		
+		$customMetaType = $zthis->customMetaTypes[$type];
+		
+		if ($customMetaType['handler'] === false)
+			/*
+			* Pass the value through unchanged
+			*/
+			$type = -1;
+		else if (is_object($customMetaType['callback']))
+		{
+			/*
+			* An anonymous function
+			*/
+			$type = -1;
+			
+			$callback = $customMetaType['callback'];
+			
+			$val = $arrFields[$fname];
+			$val = $callback($val);
+			if ($customMetaType['handler'])
+				$type = $customMetaType['handler'];
+		}
+		else
+			/*
+			* Some type of metaType
+			*/
+			$type = $customMetaType['handler'];
+	}
+	
 	switch($type) {
+		
+		case -1:
+			/*
+			* Custom field with no handling
+			*/
+			$val = $arrFields[$fname];
+			break;
+		
 		case "C":
 		case "X":
 		case 'B':

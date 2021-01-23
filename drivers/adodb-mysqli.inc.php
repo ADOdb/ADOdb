@@ -1492,6 +1492,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 12 = MYSQLI_TYPE_DATETIME
 13 = MYSQLI_TYPE_YEAR
 14 = MYSQLI_TYPE_NEWDATE
+245 = MYSQLI_TYPE_JSON
 247 = MYSQLI_TYPE_ENUM
 248 = MYSQLI_TYPE_SET
 249 = MYSQLI_TYPE_TINY_BLOB
@@ -1512,7 +1513,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return string The MetaType
 	 */
-	function MetaType($t, $len = -1, $fieldobj = false)
+	function metaType($t, $len = -1, $fieldobj = false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -1520,8 +1521,16 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			$len = $fieldobj->max_length;
 		}
 
+		$t = strtoupper($t);
+		/*
+		* Add support for custom actual types. We do this
+		* first, that allows us to override existing types
+		*/
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
+
 		$len = -1; // mysql max_length is not accurate
-		switch (strtoupper($t)) {
+		switch ($t) {
 			case 'STRING':
 			case 'CHAR':
 			case 'VARCHAR':
@@ -1599,6 +1608,8 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			case 'DEC':
 			case 'FIXED':
 			default:
+				
+
 				//if (!is_numeric($t)) echo "<p>--- Error in type matching $t -----</p>";
 				return 'N';
 		}
@@ -1628,9 +1639,15 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
+		
+		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
 
 		$len = -1; // mysql max_length is not accurate
-		switch (strtoupper($t)) {
+
+		switch ($t) {
 			case 'STRING':
 			case 'CHAR':
 			case 'VARCHAR':

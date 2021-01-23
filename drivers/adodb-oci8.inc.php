@@ -1815,8 +1815,13 @@ class ADORecordset_oci8 extends ADORecordSet {
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
+		
+		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
 
-		switch (strtoupper($t)) {
+		switch ($t) {
 		case 'VARCHAR':
 		case 'VARCHAR2':
 		case 'CHAR':

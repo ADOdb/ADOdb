@@ -90,6 +90,9 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 
 		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
 
 		/*
 		* We are using the Sqlite affinity method here
