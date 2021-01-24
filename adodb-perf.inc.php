@@ -695,8 +695,12 @@ Committed_AS:   348732 kB
 	$this->conn->LogSQL($savelog);
 
 	// magic quotes
-
-	if (isset($_GET['sql']) && get_magic_quotes_gpc()) {
+	// PHP7.4 spits deprecated notice, PHP8 removed magic_* stuff
+	if (isset($_GET['sql']) &&
+		version_compare(PHP_VERSION, '7.4.0', '<')
+		&& function_exists('get_magic_quotes_gpc')
+		&& get_magic_quotes_gpc()
+	) {
 		$_GET['sql'] = $_GET['sql'] = str_replace(array("\\'",'\"'),array("'",'"'),$_GET['sql']);
 	}
 

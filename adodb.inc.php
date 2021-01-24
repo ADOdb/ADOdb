@@ -872,9 +872,16 @@ if (!defined('_ADODB_LAYER')) {
 
 	/**
 	 * Requested by "Karsten Dambekalns" <k.dambekalns@fishfarm.de>
+	 * @deprecated 5.20.20
 	 */
 	function QMagic($s) {
-		return $this->qstr($s,get_magic_quotes_gpc());
+		// magic quotes
+		// PHP7.4 spits deprecated notice, PHP8 removed magic_* stuff
+		$magic_quotes = version_compare(PHP_VERSION, '7.4.0', '<')
+			&& function_exists('get_magic_quotes_gpc')
+			&& get_magic_quotes_gpc();
+
+		return $this->qstr($s, $magic_quotes);
 	}
 
 	function q(&$s) {
@@ -2077,7 +2084,12 @@ if (!defined('_ADODB_LAYER')) {
 		if (!$rs) {
 		// no cached rs found
 			if ($this->debug) {
-				if (get_magic_quotes_runtime() && !$this->memCache) {
+				// PHP7.4 spits deprecated notice, PHP8 removed magic_* stuff
+				if (!$this->memCache
+					&& version_compare(PHP_VERSION, '7.4.0', '<')
+					&& function_exists('get_magic_quotes_runtime')
+					&& get_magic_quotes_runtime()
+				) {
 					ADOConnection::outp("Please disable magic_quotes_runtime - it corrupts cache files :(");
 				}
 				if ($this->debug !== -1) {
