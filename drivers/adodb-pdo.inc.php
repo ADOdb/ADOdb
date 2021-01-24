@@ -496,7 +496,9 @@ class ADODB_pdo extends ADOConnection {
 		#adodb_backtrace();
 		#var_dump($this->_bindInputArray);
 		if ($stmt) {
-			$this->_driver->debug = $this->debug;
+			if ($this->_driver !== null) {
+				$this->_driver->debug = $this->debug;
+			}
 			if ($inputarr) {
 				$ok = $stmt->execute($inputarr);
 			}
