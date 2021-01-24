@@ -445,8 +445,10 @@ if (!defined('_ADODB_LAYER')) {
 	var $hasTransactions = true;	/// has transactions
 	//--
 	var $genID = 0;					/// sequence id used by GenID();
-	/** @var bool|callable  */
-	var $raiseErrorFn = false;		/// error function to call
+
+	/** @var bool|callable Error function to call */
+	var $raiseErrorFn = false;
+
 	var $isoDates = false;			/// accepts dates in ISO format
 	var $cacheSecs = 3600;			/// cache for 1 hour
 
@@ -471,10 +473,13 @@ if (!defined('_ADODB_LAYER')) {
 	var $ansiOuter = false; /// whether ansi outer join syntax supported
 	var $autoRollback = false; // autoRollback on PConnect().
 	var $poorAffectedRows = false; // affectedRows not working or unreliable
-	/** @var bool|callable  */
+
+	/** @var bool|callable Execute function to call */
 	var $fnExecute = false;
-	/** @var bool|callable  */
+
+	/** @var bool|callable Cache execution function to call */
 	var $fnCacheExecute = false;
+
 	var $blobEncodeType = false; // false=not required, 'I'=encode to integer, 'C'=encode to char
 	var $rsPrefix = "ADORecordSet_";
 
@@ -1754,7 +1759,8 @@ if (!defined('_ADODB_LAYER')) {
 	*/
 	function &_rs2rs(&$rs,$nrows=-1,$offset=-1,$close=true) {
 		if (! $rs) {
-			return false;
+			$ret = false;
+			return $ret;
 		}
 		$dbtype = $rs->databaseType;
 		if (!$dbtype) {
