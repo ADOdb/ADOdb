@@ -1356,6 +1356,7 @@ class adoSchema {
 	/**
 	* @var long	Original Magic Quotes Runtime value
 	* @access private
+	* @deprecated
 	*/
 	var $mgq;
 
@@ -1407,8 +1408,8 @@ class adoSchema {
 	* @param object $db ADOdb database connection object.
 	*/
 	function __construct( $db ) {
-		// Initialize the environment
-		$this->mgq = get_magic_quotes_runtime();
+		// PHP7.4 has deprecated notice, PHP8 removed magic_* stuff
+		$this->mgq = version_compare(PHP_VERSION, '7.4.0', '<') && function_exists('get_magic_quotes_runtime') && get_magic_quotes_runtime();
 		if ($this->mgq !== false) {
 			ini_set('magic_quotes_runtime', 0 );
 		}
