@@ -35,10 +35,17 @@ class ADODB2_postgres extends ADODB_DataDict {
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
+		
+		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
+
 		$is_serial = is_object($fieldobj) && !empty($fieldobj->primary_key) && !empty($fieldobj->unique) &&
 			!empty($fieldobj->has_default) && substr($fieldobj->default_value,0,8) == 'nextval(';
 
-		switch (strtoupper($t)) {
+		switch ($t) {
+			
 			case 'INTERVAL':
 			case 'CHAR':
 			case 'CHARACTER':
@@ -94,6 +101,15 @@ class ADODB2_postgres extends ADODB_DataDict {
 
  	function ActualType($meta)
 	{
+		$meta = strtoupper($meta);
+		
+		/*
+		* Add support for custom meta types. We do this
+		* first, that allows us to override existing types
+		*/
+		if (isset($this->connection->customMetaTypes[$meta]))
+			return $this->connection->customMetaTypes[$meta]['actual'];
+		
 		switch($meta) {
 		case 'C': return 'VARCHAR';
 		case 'XL':
@@ -145,7 +161,7 @@ class ADODB2_postgres extends ADODB_DataDict {
 			if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
 				list(,$colname,$default) = $matches;
 				$sql[] = $alter . str_replace('DEFAULT '.$default,'',$v);
-				$sql[] = 'UPDATE '.$tabname.' SET '.$colname.'='.$default;
+				$sql[] = 'UPDATE '.$tabname.' SET '.$colname.'='.$default.' WHERE '.$colname.' IS NULL ';
 				$sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET DEFAULT ' . $default;
 			} else {
 				$sql[] = $alter . $v;

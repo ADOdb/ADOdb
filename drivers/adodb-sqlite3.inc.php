@@ -90,6 +90,9 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 
 		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
 
 		/*
 		* We are using the Sqlite affinity method here
@@ -417,8 +420,8 @@ class ADODB_sqlite3 extends ADOConnection {
 	{
 		return $this->_connectionID->close();
 	}
-
-	function MetaIndexes($table, $primary = FALSE, $owner = false)
+	
+	function metaIndexes($table, $primary = FALSE, $owner = false)
 	{
 		$false = false;
 		// save old fetch mode
@@ -428,8 +431,36 @@ class ADODB_sqlite3 extends ADOConnection {
 		if ($this->fetchMode !== FALSE) {
 			$savem = $this->SetFetchMode(FALSE);
 		}
-		$SQL=sprintf("SELECT name,sql FROM sqlite_master WHERE type='index' AND LOWER(tbl_name)='%s'", strtolower($table));
-		$rs = $this->Execute($SQL);
+		
+		$pragmaData = array();
+		
+		/*
+		* If we want the primary key, we must extract
+		* it from the table statement, and the pragma
+		*/
+		if ($primary)
+		{
+			$sql = sprintf('PRAGMA table_info([%s]);',
+						   strtolower($table)
+						   );
+			$pragmaData = $this->getAll($sql);
+		}
+		
+		/*
+		* Exclude the empty entry for the primary index
+		*/
+		$sqlite = "SELECT name,sql
+					 FROM sqlite_master 
+					WHERE type='index' 
+					  AND sql IS NOT NULL
+					  AND LOWER(tbl_name)='%s'";
+		
+		$SQL = sprintf($sqlite,
+				     strtolower($table)
+					 );
+		
+		$rs = $this->execute($SQL);
+		
 		if (!is_object($rs)) {
 			if (isset($savem)) {
 				$this->SetFetchMode($savem);
@@ -439,10 +470,10 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 
 		$indexes = array ();
-		while ($row = $rs->FetchRow()) {
-			if ($primary && preg_match("/primary/i",$row[1]) == 0) {
-				continue;
-			}
+		
+		while ($row = $rs->FetchRow()) 
+		{
+			
 			if (!isset($indexes[$row[0]])) {
 				$indexes[$row[0]] = array(
 					'unique' => preg_match("/unique/i",$row[1]),
@@ -457,10 +488,46 @@ class ADODB_sqlite3 extends ADOConnection {
 			preg_match_all('/\((.*)\)/',$row[1],$indexExpression);
 			$indexes[$row[0]]['columns'] = array_map('trim',explode(',',$indexExpression[1][0]));
 		}
+		
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
 		}
+		
+		/*
+		* If we want primary, add it here
+		*/
+		if ($primary){
+			
+			/*
+			* Check the previously retrieved pragma to search
+			* with a closure
+			*/
+
+			$pkIndexData = array('unique'=>1,'columns'=>array());
+			
+			$pkCallBack = function ($value, $key) use (&$pkIndexData) {
+				
+				/*
+				* As we iterate the elements check for pk index and sort
+				*/
+				if ($value[5] > 0)
+				{
+					$pkIndexData['columns'][$value[5]] = strtolower($value[1]);
+					ksort($pkIndexData['columns']);
+				}
+			};
+			
+			array_walk($pragmaData,$pkCallBack);
+
+			/*
+			* If we found no columns, there is no
+			* primary index
+			*/
+			if (count($pkIndexData['columns']) > 0)
+				$indexes['PRIMARY'] = $pkIndexData;
+		}
+		
 		return $indexes;
 	}
 

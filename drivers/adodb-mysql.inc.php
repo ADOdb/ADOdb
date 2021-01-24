@@ -855,9 +855,15 @@ class ADORecordSet_mysql extends ADORecordSet{
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
+		
+		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
 
 		$len = -1; // mysql max_length is not accurate
-		switch (strtoupper($t)) {
+
+		switch ($t) {
 		case 'STRING':
 		case 'CHAR':
 		case 'VARCHAR':
