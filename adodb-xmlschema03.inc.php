@@ -145,7 +145,7 @@ class dbObject {
 	*
 	* @access private
 	*/
-	function _tag_open( &$parser, $tag, $attributes ) {
+	function _tag_open( $parser, $tag, $attributes ) {
 
 	}
 
@@ -154,7 +154,7 @@ class dbObject {
 	*
 	* @access private
 	*/
-	function _tag_cdata( &$parser, $cdata ) {
+	function _tag_cdata( $parser, $cdata ) {
 
 	}
 
@@ -163,7 +163,7 @@ class dbObject {
 	*
 	* @access private
 	*/
-	function _tag_close( &$parser, $tag ) {
+	function _tag_close( $parser, $tag ) {
 
 	}
 
@@ -283,7 +283,7 @@ class dbTable extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_open( &$parser, $tag, $attributes ) {
+	function _tag_open( $parser, $tag, $attributes ) {
 		$this->currentElement = strtoupper( $tag );
 
 		switch( $this->currentElement ) {
@@ -345,7 +345,7 @@ class dbTable extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_cdata( &$parser, $cdata ) {
+	function _tag_cdata( $parser, $cdata ) {
 		switch( $this->currentElement ) {
 			// Table or field comment
 			case 'DESCR':
@@ -381,7 +381,7 @@ class dbTable extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_close( &$parser, $tag ) {
+	function _tag_close( $parser, $tag ) {
 		$this->currentElement = '';
 
 		switch( strtoupper( $tag ) ) {
@@ -710,7 +710,7 @@ class dbIndex extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_open( &$parser, $tag, $attributes ) {
+	function _tag_open( $parser, $tag, $attributes ) {
 		$this->currentElement = strtoupper( $tag );
 
 		switch( $this->currentElement ) {
@@ -737,7 +737,7 @@ class dbIndex extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_cdata( &$parser, $cdata ) {
+	function _tag_cdata( $parser, $cdata ) {
 		switch( $this->currentElement ) {
 			// Index field name
 			case 'COL':
@@ -753,7 +753,7 @@ class dbIndex extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_close( &$parser, $tag ) {
+	function _tag_close( $parser, $tag ) {
 		$this->currentElement = '';
 
 		switch( strtoupper( $tag ) ) {
@@ -853,7 +853,7 @@ class dbData extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_open( &$parser, $tag, $attributes ) {
+	function _tag_open( $parser, $tag, $attributes ) {
 		$this->currentElement = strtoupper( $tag );
 
 		switch( $this->currentElement ) {
@@ -875,7 +875,7 @@ class dbData extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_cdata( &$parser, $cdata ) {
+	function _tag_cdata( $parser, $cdata ) {
 		switch( $this->currentElement ) {
 			// Index field name
 			case 'F':
@@ -891,7 +891,7 @@ class dbData extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_close( &$parser, $tag ) {
+	function _tag_close( $parser, $tag ) {
 		$this->currentElement = '';
 
 		switch( strtoupper( $tag ) ) {
@@ -1127,7 +1127,7 @@ class dbQuerySet extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_open( &$parser, $tag, $attributes ) {
+	function _tag_open( $parser, $tag, $attributes ) {
 		$this->currentElement = strtoupper( $tag );
 
 		switch( $this->currentElement ) {
@@ -1149,7 +1149,7 @@ class dbQuerySet extends dbObject {
 	/**
 	* XML Callback to process CDATA elements
 	*/
-	function _tag_cdata( &$parser, $cdata ) {
+	function _tag_cdata( $parser, $cdata ) {
 		switch( $this->currentElement ) {
 			// Line of queryset SQL data
 			case 'QUERY':
@@ -1165,7 +1165,7 @@ class dbQuerySet extends dbObject {
 	*
 	* @access private
 	*/
-	function _tag_close( &$parser, $tag ) {
+	function _tag_close( $parser, $tag ) {
 		$this->currentElement = '';
 
 		switch( strtoupper( $tag ) ) {
@@ -1366,12 +1366,6 @@ class adoSchema {
 	var $objectPrefix = '';
 
 	/**
-	* @var long	Original Magic Quotes Runtime value
-	* @access private
-	*/
-	var $mgq;
-
-	/**
 	* @var long	System debug
 	* @access private
 	*/
@@ -1419,12 +1413,6 @@ class adoSchema {
 	* @param object $db ADOdb database connection object.
 	*/
 	function __construct( $db ) {
-		// Initialize the environment
-		$this->mgq = get_magic_quotes_runtime();
-		if ($this->mgq !== false) {
-			ini_set('magic_quotes_runtime', 0 );
-		}
-
 		$this->db = $db;
 		$this->debug = $this->db->debug;
 		$this->dict = NewDataDictionary( $this->db );
@@ -1818,7 +1806,7 @@ class adoSchema {
 	*
 	* @access private
 	*/
-	function _tag_open( &$parser, $tag, $attributes ) {
+	function _tag_open( $parser, $tag, $attributes ) {
 		switch( strtoupper( $tag ) ) {
 			case 'TABLE':
 				if( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) ) {
@@ -1843,7 +1831,7 @@ class adoSchema {
 	*
 	* @access private
 	*/
-	function _tag_cdata( &$parser, $cdata ) {
+	function _tag_cdata( $parser, $cdata ) {
 	}
 
 	/**
@@ -1852,7 +1840,7 @@ class adoSchema {
 	* @access private
 	* @internal
 	*/
-	function _tag_close( &$parser, $tag ) {
+	function _tag_close( $parser, $tag ) {
 
 	}
 
@@ -2390,9 +2378,6 @@ class adoSchema {
 	* @deprecated adoSchema now cleans up automatically.
 	*/
 	function destroy() {
-		if ($this->mgq !== false) {
-			ini_set('magic_quotes_runtime', $this->mgq );
-		}
 	}
 }
 
