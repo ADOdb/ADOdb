@@ -367,7 +367,7 @@ class ADODB_pdo extends ADOConnection {
 			return $this->_driver->SetTransactionMode($transaction_mode);
 		}
 
-		return parent::SetTransactionMode($seqname);
+		return parent::SetTransactionMode($transaction_mode);
 	}
 
 	function BeginTrans()
@@ -496,7 +496,7 @@ class ADODB_pdo extends ADOConnection {
 		#adodb_backtrace();
 		#var_dump($this->_bindInputArray);
 		if ($stmt) {
-			if ($this->_driver !== null) {
+			if ($this->_driver instanceof ADODB_pdo) {
 				$this->_driver->debug = $this->debug;
 			}
 			if ($inputarr) {
