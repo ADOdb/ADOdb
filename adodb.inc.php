@@ -457,7 +457,11 @@ if (!defined('_ADODB_LAYER')) {
 	var $hasTransactions = true;	/// has transactions
 	//--
 	var $genID = 0;					/// sequence id used by GenID();
-	var $raiseErrorFn = false;		/// error function to call
+
+	/**
+	 * @var string|false Error function to call
+	 */
+	var $raiseErrorFn = false;
 	var $isoDates = false;			/// accepts dates in ISO format
 	var $cacheSecs = 3600;			/// cache for 1 hour
 
@@ -483,8 +487,16 @@ if (!defined('_ADODB_LAYER')) {
 	var $autoRollback = false; // autoRollback on PConnect().
 	var $poorAffectedRows = false; // affectedRows not working or unreliable
 
+	/**
+	 * @var string|false Execute function to call
+	 */
 	var $fnExecute = false;
+
+	/**
+	 * @var string|false Cache execution function to call
+	 */
 	var $fnCacheExecute = false;
+
 	var $blobEncodeType = false; // false=not required, 'I'=encode to integer, 'C'=encode to char
 	var $rsPrefix = "ADORecordSet_";
 
