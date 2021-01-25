@@ -3,9 +3,8 @@
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
-global $ADODB_INCLUDEDmemcacheLibrary;
-$ADODB_INCLUDEDmemcacheLibrary = 1;
-
+global $ADODB_INCLUDED_MEMCACHE;
+$ADODB_INCLUDED_MEMCACHE = 1;
 /*
 
   @version   v5.22.0-dev  Unreleased
@@ -22,8 +21,7 @@ $ADODB_INCLUDEDmemcacheLibrary = 1;
 
   Class instance is stored in $ADODB_CACHE
 */
-
-class ADODB_CachememcacheLibrary 
+class ADODB_Cache_MemCache 
 {
 	/*
 	* Prevents parent class calling non-existant function
