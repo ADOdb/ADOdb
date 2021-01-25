@@ -1,10 +1,10 @@
 <?php
 /*
 
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.22.0-dev  Unreleased
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
@@ -46,35 +46,29 @@ class ADODB_Active_Table {
 
 // $db = database connection
 // $index = name of index - can be associative, for an example see
-//    http://phplens.com/lens/lensforum/msgs.php?id=17790
+//    PHPLens Issue No: 17790
 // returns index into $_ADODB_ACTIVE_DBS
 function ADODB_SetDatabaseAdapter(&$db, $index=false)
 {
 	global $_ADODB_ACTIVE_DBS;
 
-		foreach($_ADODB_ACTIVE_DBS as $k => $d) {
-			if (PHP_VERSION >= 5) {
-				if ($d->db === $db) {
-					return $k;
-				}
-			} else {
-				if ($d->db->_connectionID === $db->_connectionID && $db->database == $d->db->database) {
-					return $k;
-				}
-			}
+	foreach($_ADODB_ACTIVE_DBS as $k => $d) {
+		if($d->db === $db) {
+			return $k;
 		}
+	}
 
-		$obj = new ADODB_Active_DB();
-		$obj->db = $db;
-		$obj->tables = array();
+	$obj = new ADODB_Active_DB();
+	$obj->db = $db;
+	$obj->tables = array();
 
-		if ($index == false) {
-			$index = sizeof($_ADODB_ACTIVE_DBS);
-		}
+	if ($index == false) {
+		$index = sizeof($_ADODB_ACTIVE_DBS);
+	}
 
-		$_ADODB_ACTIVE_DBS[$index] = $obj;
+	$_ADODB_ACTIVE_DBS[$index] = $obj;
 
-		return sizeof($_ADODB_ACTIVE_DBS)-1;
+	return sizeof($_ADODB_ACTIVE_DBS)-1;
 }
 
 
@@ -502,7 +496,6 @@ class ADODB_Active_Record {
 			break;
 		default:
 			foreach($cols as $name => $fldobj) {
-				$name = ($fldobj->name);
 
 				if ($ADODB_ACTIVE_DEFVALS && isset($fldobj->default_value)) {
 					$this->$name = $fldobj->default_value;
@@ -513,7 +506,7 @@ class ADODB_Active_Record {
 				$attr[$name] = $fldobj;
 			}
 			foreach($pkeys as $k => $name) {
-				$keys[$name] = $cols[$name]->name;
+				$keys[$name] = $cols[strtoupper($name)]->name;
 			}
 			break;
 		}
@@ -824,7 +817,7 @@ class ADODB_Active_Record {
 	}
 
 	# useful for multiple record inserts
-	# see http://phplens.com/lens/lensforum/msgs.php?id=17795
+	# see PHPLens Issue No: 17795
 	function Reset()
 	{
 		$this->_where=null;

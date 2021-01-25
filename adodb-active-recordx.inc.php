@@ -1,10 +1,10 @@
 <?php
 /*
 
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.22.0-dev  Unreleased
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
@@ -66,25 +66,19 @@ function ADODB_SetDatabaseAdapter(&$db)
 {
 	global $_ADODB_ACTIVE_DBS;
 
-		foreach($_ADODB_ACTIVE_DBS as $k => $d) {
-			if (PHP_VERSION >= 5) {
-				if ($d->db === $db) {
-					return $k;
-				}
-			} else {
-				if ($d->db->_connectionID === $db->_connectionID && $db->database == $d->db->database) {
-					return $k;
-				}
-			}
+	foreach($_ADODB_ACTIVE_DBS as $k => $d) {
+		if ($d->db === $db) {
+			return $k;
 		}
+	}
 
-		$obj = new ADODB_Active_DB();
-		$obj->db = $db;
-		$obj->tables = array();
+	$obj = new ADODB_Active_DB();
+	$obj->db = $db;
+	$obj->tables = array();
 
-		$_ADODB_ACTIVE_DBS[] = $obj;
+	$_ADODB_ACTIVE_DBS[] = $obj;
 
-		return sizeof($_ADODB_ACTIVE_DBS)-1;
+	return sizeof($_ADODB_ACTIVE_DBS)-1;
 }
 
 

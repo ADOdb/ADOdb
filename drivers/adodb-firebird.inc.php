@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.22.0-dev  Unreleased
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -8,7 +8,7 @@
   the BSD license will take precedence.
 Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   firebird data driver. Requires firebird client. Works on Windows and Unix.
 
@@ -346,45 +346,26 @@ class ADODB_firebird extends ADOConnection {
 			$fn = 'fbird_execute';
 			$sql = $sql[1];
 			if (is_array($iarr)) {
-				if  (ADODB_PHPVER >= 0x4050) { // actually 4.0.4
-					if ( !isset($iarr[0]) ) $iarr[0] = ''; // PHP5 compat hack
-					$fnarr = array_merge( array($sql) , $iarr);
-					$ret = call_user_func_array($fn,$fnarr);
-				} else {
-					switch(sizeof($iarr)) {
-					case 1: $ret = $fn($sql,$iarr[0]); break;
-					case 2: $ret = $fn($sql,$iarr[0],$iarr[1]); break;
-					case 3: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2]); break;
-					case 4: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3]); break;
-					case 5: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4]); break;
-					case 6: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5]); break;
-					case 7: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5],$iarr[6]); break;
-					default: ADOConnection::outp( "Too many parameters to ibase query $sql");
-					case 8: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5],$iarr[6],$iarr[7]); break;
-					}
-				}
-			} else $ret = $fn($sql);
+				if ( !isset($iarr[0]) ) 
+					$iarr[0] = ''; // PHP5 compat hack
+				$fnarr = array_merge( array($sql) , $iarr);
+				$ret = call_user_func_array($fn,$fnarr);
+			}
+			else {
+				$ret = $fn($sql);
+			}
 		} else {
 			$fn = 'fbird_query';
-			if (is_array($iarr)) {
-				if (ADODB_PHPVER >= 0x4050) { // actually 4.0.4
-					if (sizeof($iarr) == 0) $iarr[0] = ''; // PHP5 compat hack
-					$fnarr = array_merge( array($conn,$sql) , $iarr);
-					$ret = call_user_func_array($fn,$fnarr);
-				} else {
-					switch(sizeof($iarr)) {
-					case 1: $ret = $fn($conn,$sql,$iarr[0]); break;
-					case 2: $ret = $fn($conn,$sql,$iarr[0],$iarr[1]); break;
-					case 3: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2]); break;
-					case 4: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3]); break;
-					case 5: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4]); break;
-					case 6: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5]); break;
-					case 7: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5],$iarr[6]); break;
-					default: ADOConnection::outp( "Too many parameters to ibase query $sql");
-					case 8: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5],$iarr[6],$iarr[7]); break;
-					}
-				}
-			} else $ret = $fn($conn,$sql);
+			if (is_array($iarr)) 
+			{
+				if (sizeof($iarr) == 0) 
+					$iarr[0] = ''; // PHP5 compat hack
+				$fnarr = array_merge( array($conn,$sql) , $iarr);
+				$ret = call_user_func_array($fn,$fnarr);
+			}
+			else {
+				$ret = $fn($conn, $sql);
+			}
 		}
 		if ($docommit && $ret === true) {
 			fbird_commit($this->_connectionID);
@@ -593,13 +574,8 @@ class ADODB_firebird extends ADOConnection {
 
 	function _BlobDecode( $blob )
 	{
-		if  (ADODB_PHPVER >= 0x5000) {
-			$blob_data = fbird_blob_info($this->_connectionID, $blob );
-			$blobid = fbird_blob_open($this->_connectionID, $blob );
-		} else {
-			$blob_data = fbird_blob_info( $blob );
-			$blobid = fbird_blob_open( $blob );
-		}
+		$blob_data = fbird_blob_info($this->_connectionID, $blob );
+		$blobid    = fbird_blob_open($this->_connectionID, $blob );
 
 		if( $blob_data[0] > $this->maxblobsize ) {
 			$realblob = fbird_blob_get($blobid, $this->maxblobsize);
@@ -909,7 +885,14 @@ class  ADORecordset_firebird extends ADORecordSet
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		switch (strtoupper($t)) {
+		
+		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
+
+		switch ($t) {
+
 		case 'CHAR':
 			return 'C';
 

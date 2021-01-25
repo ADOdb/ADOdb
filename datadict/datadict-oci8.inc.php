@@ -1,7 +1,7 @@
 <?php
 
 /**
-  @version   v5.21.0-dev  ??-???-2016
+  @version   v5.22.0-dev  Unreleased
   @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -25,15 +25,31 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	var $alterCol = ' MODIFY ';
 	var $typeX = 'VARCHAR(4000)';
 	var $typeXL = 'CLOB';
+	
+	/**
+	 * Legacy compatibility for sequence names for emulated auto-increments.
+	 *
+	 * If set to true, creates sequences and triggers as TRIG_394545594
+	 * instead of TRIG_possibly_too_long_tablename
+	 *
+	 * @var bool $useCompactAutoIncrements
+	 */
+	public $useCompactAutoIncrements = false;
 
-	function MetaType($t, $len=-1, $fieldobj=false)
+	function metaType($t, $len=-1, $fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		switch (strtoupper($t)) {
+		
+		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
+
+		switch ($t) {
 	 	case 'VARCHAR':
 	 	case 'VARCHAR2':
 		case 'CHAR':
@@ -75,6 +91,15 @@ class ADODB2_oci8 extends ADODB_DataDict {
 
  	function ActualType($meta)
 	{
+		$meta = strtoupper($meta);
+		
+		/*
+		* Add support for custom meta types. We do this
+		* first, that allows us to override existing types
+		*/
+		if (isset($this->connection->customMetaTypes[$meta]))
+			return $this->connection->customMetaTypes[$meta]['actual'];
+		
 		switch($meta) {
 		case 'C': return 'VARCHAR';
 		case 'X': return $this->typeX;
@@ -185,32 +210,52 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		return $suffix;
 	}
 
-/*
-CREATE or replace TRIGGER jaddress_insert
-before insert on jaddress
-for each row
-begin
-select seqaddress.nextval into :new.A_ID from dual;
-end;
-*/
+	/**
+	 * Creates an insert trigger to emulate an auto-increment column
+	 * in a table
+	 *
+	 * @param string   $tabname       The name of the table
+	 * @param string[] $tableoptions  Optional configuration items
+	 *
+	 * @return string[] The SQL statements to create the trigger
+	 */
 	function _Triggers($tabname,$tableoptions)
 	{
+		
 		if (!$this->seqField) return array();
 
-		if ($this->schema) {
+		if ($this->schema) 
+		{
 			$t = strpos($tabname,'.');
-			if ($t !== false) $tab = substr($tabname,$t+1);
-			else $tab = $tabname;
+			if ($t !== false) 
+				$tab = substr($tabname,$t+1);
+			else 
+				$tab = $tabname;
+			
+			if ($this->connection->useCompactAutoIncrements)
+				$id = sprintf('%u',crc32(strtolower($tab)));
+			else
+				$id = $tab;
+			
 			$seqname = $this->schema.'.'.$this->seqPrefix.$tab;
 			$trigname = $this->schema.'.'.$this->trigPrefix.$this->seqPrefix.$tab;
-		} else {
-			$seqname = $this->seqPrefix.$tabname;
-			$trigname = $this->trigPrefix.$seqname;
+			
+		} 
+		else 
+		{
+			if ($this->connection->useCompactAutoIncrements)
+				$id = sprintf('%u',crc32(strtolower($tabname)));
+			else
+				$id = $tabname;
+			
+			$seqname = $this->seqPrefix.$id;
+			$trigname = $this->trigPrefix.$id;
 		}
 
 		if (strlen($seqname) > 30) {
 			$seqname = $this->seqPrefix.uniqid('');
 		} // end if
+		
 		if (strlen($trigname) > 30) {
 			$trigname = $this->trigPrefix.uniqid('');
 		} // end if
@@ -222,7 +267,7 @@ end;
 		if (isset($tableoptions['SEQUENCE_INCREMENT'])){$seqIncr = ' INCREMENT BY '.$tableoptions['SEQUENCE_INCREMENT'];}
 		$seqStart = '';
 		if (isset($tableoptions['SEQUENCE_START'])){$seqStart = ' START WITH '.$tableoptions['SEQUENCE_START'];}
-		$sql[] = "CREATE SEQUENCE $seqname $seqStart $seqIncr $seqCache";
+		$sql[] = "CREATE SEQUENCE $seqname MINVALUE 1 $seqStart $seqIncr $seqCache";
 		$sql[] = "CREATE OR REPLACE TRIGGER $trigname BEFORE insert ON $tabname FOR EACH ROW WHEN (NEW.$this->seqField IS NULL OR NEW.$this->seqField = 0) BEGIN select $seqname.nextval into :new.$this->seqField from dual; END;";
 
 		$this->seqField = false;

@@ -1,7 +1,7 @@
 <?php
 
 /**
-  @version   v5.21.0-dev  ??-???-2016
+  @version   v5.22.0-dev  Unreleased
   @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -24,6 +24,15 @@ class ADODB2_sapdb extends ADODB_DataDict {
 
  	function ActualType($meta)
 	{
+		$meta = strtoupper($meta);
+		
+		/*
+		* Add support for custom meta types. We do this
+		* first, that allows us to override existing types
+		*/
+		if (isset($this->connection->customMetaTypes[$meta]))
+			return $this->connection->customMetaTypes[$meta]['actual'];
+		
 		switch($meta) {
 		case 'C': return 'VARCHAR';
 		case 'XL':
@@ -59,6 +68,12 @@ class ADODB2_sapdb extends ADODB_DataDict {
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
+		
+		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
+
 		static $maxdb_type2adodb = array(
 			'VARCHAR'	=> 'C',
 			'CHARACTER'	=> 'C',

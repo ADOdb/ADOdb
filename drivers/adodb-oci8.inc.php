@@ -1,7 +1,7 @@
 <?php
 /*
 
-  @version   v5.21.0-dev  ??-???-2016
+  @version   v5.22.0-dev  Unreleased
   @copyright (c) 2000-2013 John Lim. All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
@@ -9,7 +9,7 @@
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Code contributed by George Fourlanos <fou@infomap.gr>
 
@@ -89,7 +89,6 @@ END;
 	var $connectSID = false;
 	var $_bind = false;
 	var $_nestedSQL = true;
-	var $_hasOciFetchStatement = false;
 	var $_getarray = false; // currently not working
 	var $leftOuter = '';  // oracle wierdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
 	var $session_sharing_force_blob = false; // alter session on updateblob if set to true
@@ -103,10 +102,20 @@ END;
 
 	// var $ansiOuter = true; // if oracle9
 
-	function __construct()
-	{
-		$this->_hasOciFetchStatement = ADODB_PHPVER >= 0x4200;
-	}
+	/*
+	 * Legacy compatibility for sequence names for emulated auto-increments
+	 */
+	public $useCompactAutoIncrements = false;
+	
+	/*
+	 * Defines the schema name for emulated auto-increment columns
+	 */
+	public $schema = false;
+	
+	/*
+	 * Defines the prefix for emulated auto-increment columns
+	 */
+	public $seqPrefix = 'SEQ_';
 
 	/*  function MetaColumns($table, $normalize=true) added by smondino@users.sourceforge.net*/
 	function MetaColumns($table, $normalize=true)
@@ -303,6 +312,43 @@ END;
 	function IfNull( $field, $ifNull )
 	{
 		return " NVL($field, $ifNull) "; // if Oracle
+	}
+	
+	function _insertid($tabname,$column='')
+	{
+		
+		if (!$this->seqField) 
+			return false;
+
+		
+		if ($this->schema) 
+		{
+			$t = strpos($tabname,'.');
+			if ($t !== false) 
+				$tab = substr($tabname,$t+1);
+			else 
+				$tab = $tabname;
+			
+			if ($this->useCompactAutoIncrements)
+				$tab = sprintf('%u',crc32(strtolower($tab)));
+				
+			$seqname = $this->schema.'.'.$this->seqPrefix.$tab;
+		} 
+		else 
+		{
+			if ($this->useCompactAutoIncrements)
+				$tabname = sprintf('%u',crc32(strtolower($tabname)));
+			
+			$seqname = $this->seqPrefix.$tabname;
+		}
+
+		if (strlen($seqname) > 30)
+			/*
+			* We cannot successfully identify the sequence
+			*/
+			return false;
+		
+		return $this->getOne("SELECT $seqname.currval FROM dual");
 	}
 
 	// format and return date string in database date format
@@ -944,7 +990,7 @@ END;
 			$element0 = reset($inputarr);
 			$array2d =  $this->bulkBind && is_array($element0) && !is_object(reset($element0));
 
-			# see http://phplens.com/lens/lensforum/msgs.php?id=18786
+			# see PHPLens Issue No: 18786
 			if ($array2d || !$this->_bindInputArray) {
 
 				# is_object check because oci8 descriptors can be passed in
@@ -1588,7 +1634,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 			/*
 			// based on idea by Gaetano Giunta to detect unusual oracle errors
-			// see http://phplens.com/lens/lensforum/msgs.php?id=6771
+			// see PHPLens Issue No: 6771
 			$err = oci_error($this->_queryID);
 			if ($err && $this->connection->debug) {
 				ADOConnection::outp($err);
@@ -1769,8 +1815,13 @@ class ADORecordset_oci8 extends ADORecordSet {
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
+		
+		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
 
-		switch (strtoupper($t)) {
+		switch ($t) {
 		case 'VARCHAR':
 		case 'VARCHAR2':
 		case 'CHAR':

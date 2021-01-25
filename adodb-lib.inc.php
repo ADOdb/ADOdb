@@ -6,7 +6,7 @@ global $ADODB_INCLUDED_LIB;
 $ADODB_INCLUDED_LIB = 1;
 
 /*
-  @version   v5.21.0-dev  ??-???-2016
+  @version   v5.22.0-dev  Unreleased
   @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -124,20 +124,6 @@ function  adodb_transpose(&$arr, &$newarr, &$hdr, &$fobjs)
 	}
 }
 
-// Force key to upper.
-// See also http://www.php.net/manual/en/function.array-change-key-case.php
-function _array_change_key_case($an_array)
-{
-	if (is_array($an_array)) {
-		$new_array = array();
-		foreach($an_array as $key=>$value)
-			$new_array[strtoupper($key)] = $value;
-
-	   	return $new_array;
-   }
-
-	return $an_array;
-}
 
 function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_autoinc)
 {
@@ -183,7 +169,7 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 		if ($rs) {
 			if ($zthis->poorAffectedRows) {
 				// The Select count(*) wipes out any errors that the update would have returned.
-				// http://phplens.com/lens/lensforum/msgs.php?id=5696
+				// PHPLens Issue No: 5696
 				if ($zthis->ErrorNo()<>0) return 0;
 
 				// affected_rows == 0 if update field values identical to old values
@@ -442,7 +428,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		}
 		// fix by alexander zhukov, alex#unipack.ru, because count(*) and 'order by' fails
 		// with mssql, access and postgresql. Also a good speedup optimization - skips sorting!
-		// also see http://phplens.com/lens/lensforum/msgs.php?id=12752
+		// also see PHPLens Issue No: 12752
 		$rewritesql = adodb_strip_order_by($rewritesql);
 	}
 
@@ -644,58 +630,59 @@ function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr
 	return $rsreturn;
 }
 
-function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq=false,$force=2)
+function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $magicq=false, $force=2)
 {
 	global $ADODB_QUOTE_FIELDNAMES;
 
-		if (!$rs) {
-			printf(ADODB_BAD_RS,'GetUpdateSQL');
-			return false;
-		}
+	if (!$rs) {
+		printf(ADODB_BAD_RS,'GetUpdateSQL');
+		return false;
+	}
 
-		$fieldUpdatedCount = 0;
-		$arrFields = _array_change_key_case($arrFields);
+	$fieldUpdatedCount = 0;
+	if (is_array($arrFields))
+		$arrFields = array_change_key_case($arrFields,CASE_UPPER);
 
-		$hasnumeric = isset($rs->fields[0]);
-		$setFields = '';
+	$hasnumeric = isset($rs->fields[0]);
+	$setFields = '';
 
-		// Loop through all of the fields in the recordset
-		for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++) {
-			// Get the field from the recordset
-			$field = $rs->FetchField($i);
+	// Loop through all of the fields in the recordset
+	for ($i=0, $max=$rs->fieldCount(); $i < $max; $i++) {
+		// Get the field from the recordset
+		$field = $rs->fetchField($i);
 
-			// If the recordset field is one
-			// of the fields passed in then process.
-			$upperfname = strtoupper($field->name);
-			if (adodb_key_exists($upperfname,$arrFields,$force)) {
+		// If the recordset field is one
+		// of the fields passed in then process.
+		$upperfname = strtoupper($field->name);
+		if (adodb_key_exists($upperfname, $arrFields, $force)) {
 
-				// If the existing field value in the recordset
-				// is different from the value passed in then
-				// go ahead and append the field name and new value to
-				// the update query.
+			// If the existing field value in the recordset
+			// is different from the value passed in then
+			// go ahead and append the field name and new value to
+			// the update query.
 
-				if ($hasnumeric) $val = $rs->fields[$i];
-				else if (isset($rs->fields[$upperfname])) $val = $rs->fields[$upperfname];
-				else if (isset($rs->fields[$field->name])) $val =  $rs->fields[$field->name];
-				else if (isset($rs->fields[strtolower($upperfname)])) $val =  $rs->fields[strtolower($upperfname)];
-				else $val = '';
+			if ($hasnumeric) $val = $rs->fields[$i];
+			else if (isset($rs->fields[$upperfname])) $val = $rs->fields[$upperfname];
+			else if (isset($rs->fields[$field->name])) $val =  $rs->fields[$field->name];
+			else if (isset($rs->fields[strtolower($upperfname)])) $val =  $rs->fields[strtolower($upperfname)];
+			else $val = '';
 
+			if ($forceUpdate || strcmp($val, $arrFields[$upperfname])) {
+				// Set the counter for the number of fields that will be updated.
+				$fieldUpdatedCount++;
 
-				if ($forceUpdate || strcmp($val, $arrFields[$upperfname])) {
-					// Set the counter for the number of fields that will be updated.
-					$fieldUpdatedCount++;
+				// Based on the datatype of the field
+				// Format the value properly for the database
+				$type = $rs->metaType($field->type);
 
-					// Based on the datatype of the field
-					// Format the value properly for the database
-					$type = $rs->MetaType($field->type);
+				if ($type == 'null') {
+					$type = 'C';
+				}
 
-
-					if ($type == 'null') {
-						$type = 'C';
-					}
-
-					if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES)) {
-						switch ($ADODB_QUOTE_FIELDNAMES) {
+				if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES)) {
+					switch ($ADODB_QUOTE_FIELDNAMES) {
+						case 'BRACKETS':
+							$fnameq = $zthis->leftBracket.$upperfname.$zthis->rightBracket;break;
 						case 'LOWER':
 							$fnameq = $zthis->nameQuote.strtolower($field->name).$zthis->nameQuote;break;
 						case 'NATIVE':
@@ -703,103 +690,107 @@ function _adodb_getupdatesql(&$zthis,&$rs, $arrFields,$forceUpdate=false,$magicq
 						case 'UPPER':
 						default:
 							$fnameq = $zthis->nameQuote.$upperfname.$zthis->nameQuote;break;
-						}
-					} else
-						$fnameq = $upperfname;
-
-                //********************************************************//
-                if (is_null($arrFields[$upperfname])
-					|| (empty($arrFields[$upperfname]) && strlen($arrFields[$upperfname]) == 0)
-                    || $arrFields[$upperfname] === $zthis->null2null
-                    )
-                {
-                    switch ($force) {
-
-                        //case 0:
-                        //    //Ignore empty values. This is already handled in "adodb_key_exists" function.
-                        //break;
-
-                        case 1:
-                            //Set null
-                            $setFields .= $field->name . " = null, ";
-                        break;
-
-                        case 2:
-                            //Set empty
-                            $arrFields[$upperfname] = "";
-                            $setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,$arrFields, $magicq);
-                        break;
-						default:
-                        case 3:
-                            //Set the value that was given in array, so you can give both null and empty values
-                            if (is_null($arrFields[$upperfname]) || $arrFields[$upperfname] === $zthis->null2null) {
-                                $setFields .= $field->name . " = null, ";
-                            } else {
-                                $setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,$arrFields, $magicq);
-                            }
-                        break;
-		        case ADODB_FORCE_NULL_AND_ZERO:
-					
-			    switch ($type)
-			    {
-				case 'N':
-				case 'I':
-				case 'L':
-				$setFields .= $field->name . ' = 0, ';
-				break;
-				default:
-				$setFields .= $field->name . ' = null, ';
-				break;
-			    }
-			    break;
-                    }
-                //********************************************************//
-                } else {
-						//we do this so each driver can customize the sql for
-						//DB specific column types.
-						//Oracle needs BLOB types to be handled with a returning clause
-						//postgres has special needs as well
-						$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq,
-														  $arrFields, $magicq);
 					}
+				} else {
+					$fnameq = $upperfname;
+				}
+
+				//********************************************************//
+				if (is_null($arrFields[$upperfname])
+					|| (empty($arrFields[$upperfname]) && strlen($arrFields[$upperfname]) == 0)
+					|| $arrFields[$upperfname] === $zthis->null2null
+					) {
+
+					switch ($force) {
+
+						//case 0:
+						//	// Ignore empty values. This is already handled in "adodb_key_exists" function.
+						//	break;
+
+						case 1:
+							// set null
+							$setFields .= $fnameq . " = null, ";
+							break;
+
+						case 2:
+							// set empty
+							$arrFields[$upperfname] = "";
+							$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq, $arrFields, $magicq);
+							break;
+
+						default:
+						case 3:
+							// set the value that was given in array, so you can give both null and empty values
+							if (is_null($arrFields[$upperfname]) || $arrFields[$upperfname] === $zthis->null2null) {
+								$setFields .= $fnameq . " = null, ";
+							} else {
+								$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq, $arrFields, $magicq);
+							}
+							break;
+
+						case ADODB_FORCE_NULL_AND_ZERO:
+
+							switch ($type) {
+								case 'N':
+								case 'I':
+								case 'L':
+									$setFields .= $fnameq . ' = 0, ';
+									break;
+								default:
+									$setFields .= $fnameq . ' = null, ';
+									break;
+							}
+							break;
+
+					}
+				//********************************************************//
+				} else {
+					// we do this so each driver can customize the sql for
+					// DB specific column types.
+					// Oracle needs BLOB types to be handled with a returning clause
+					// postgres has special needs as well
+					$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq, $arrFields, $magicq);
 				}
 			}
 		}
+	}
 
-		// If there were any modified fields then build the rest of the update query.
-		if ($fieldUpdatedCount > 0 || $forceUpdate) {
-					// Get the table name from the existing query.
-			if (!empty($rs->tableName)) $tableName = $rs->tableName;
-			else {
-				preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName);
-				$tableName = $tableName[1];
-			}
-			// Get the full where clause excluding the word "WHERE" from
-			// the existing query.
-			preg_match('/\sWHERE\s(.*)/is', $rs->sql, $whereClause);
-
-			$discard = false;
-			// not a good hack, improvements?
-			if ($whereClause) {
-			#var_dump($whereClause);
-				if (preg_match('/\s(ORDER\s.*)/is', $whereClause[1], $discard));
-				else if (preg_match('/\s(LIMIT\s.*)/is', $whereClause[1], $discard));
-				else if (preg_match('/\s(FOR UPDATE.*)/is', $whereClause[1], $discard));
-				else preg_match('/\s.*(\) WHERE .*)/is', $whereClause[1], $discard); # see https://sourceforge.net/p/adodb/bugs/37/
-			} else
-				$whereClause = array(false,false);
-
-			if ($discard)
-				$whereClause[1] = substr($whereClause[1], 0, strlen($whereClause[1]) - strlen($discard[1]));
-
-			$sql = 'UPDATE '.$tableName.' SET '.substr($setFields, 0, -2);
-			if (strlen($whereClause[1]) > 0)
-				$sql .= ' WHERE '.$whereClause[1];
-
-			return $sql;
-
+	// If there were any modified fields then build the rest of the update query.
+	if ($fieldUpdatedCount > 0 || $forceUpdate) {
+		// Get the table name from the existing query.
+		if (!empty($rs->tableName)) {
+			$tableName = $rs->tableName;
 		} else {
-			return false;
+			preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName);
+			$tableName = $tableName[1];
+		}
+
+		// Get the full where clause excluding the word "WHERE" from the existing query.
+		preg_match('/\sWHERE\s(.*)/is', $rs->sql, $whereClause);
+
+		$discard = false;
+		// not a good hack, improvements?
+		if ($whereClause) {
+			#var_dump($whereClause);
+			if (preg_match('/\s(ORDER\s.*)/is', $whereClause[1], $discard));
+			else if (preg_match('/\s(LIMIT\s.*)/is', $whereClause[1], $discard));
+			else if (preg_match('/\s(FOR UPDATE.*)/is', $whereClause[1], $discard));
+			else preg_match('/\s.*(\) WHERE .*)/is', $whereClause[1], $discard); # see https://sourceforge.net/p/adodb/bugs/37/
+		} else {
+			$whereClause = array(false, false);
+		}
+
+		if ($discard) {
+			$whereClause[1] = substr($whereClause[1], 0, strlen($whereClause[1]) - strlen($discard[1]));
+		}
+
+		$sql = 'UPDATE '.$tableName.' SET '.substr($setFields, 0, -2);
+		if (strlen($whereClause[1]) > 0) {
+			$sql .= ' WHERE '.$whereClause[1];
+		}
+		return $sql;
+	} else {
+		return false;
 	}
 }
 
@@ -810,10 +801,10 @@ function adodb_key_exists($key, &$arr,$force=2)
 		return (!empty($arr[$key])) || (isset($arr[$key]) && strlen($arr[$key])>0);
 	}
 
-	if (isset($arr[$key])) return true;
+	if (isset($arr[$key])) 
+		return true;
 	## null check below
-	if (ADODB_PHPVER >= 0x4010) return array_key_exists($key,$arr);
-	return false;
+	return array_key_exists($key,$arr);
 }
 
 /**
@@ -834,7 +825,8 @@ static $cacheCols;
 	$values = '';
 	$fields = '';
 	$recordSet = null;
-	$arrFields = _array_change_key_case($arrFields);
+	if (is_array($arrFields))
+		$arrFields = array_change_key_case($arrFields,CASE_UPPER);
 	$fieldInsertedCount = 0;
 
 	if (is_string($rs)) {
@@ -880,6 +872,8 @@ static $cacheCols;
 			$bad = false;
 			if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES)) {
 				switch ($ADODB_QUOTE_FIELDNAMES) {
+				case 'BRACKETS':
+					$fnameq = $zthis->leftBracket.$upperfname.$zthis->rightBracket;break;
 				case 'LOWER':
 					$fnameq = $zthis->nameQuote.strtolower($field->name).$zthis->nameQuote;break;
 				case 'NATIVE':
@@ -1002,11 +996,52 @@ static $cacheCols;
 function _adodb_column_sql_oci8(&$zthis,$action, $type, $fname, $fnameq, $arrFields, $magicq)
 {
     $sql = '';
+	
+	if (array_key_exists($type,$zthis->customMetaTypes)) 
+	{
+		
+		$customMetaType = $zthis->customMetaTypes[$type];
+		if ($customMetaType['handler'] === false)
+			/*
+			* Pass the value through unchanged
+			*/
+			$type = 'RAW';
+		else if (is_object($customMetaType['handler']))
+		{
+			/*
+			* An anonymous function
+			*/
+			$type = 'CALLBACK';
+			$callback = $customMetaType['handler'];
+		}
+		else
+			/*
+			* Some type of metaType
+			*/
+			$type = $customMetaType['handler'];
+	}
+	
+	print_r($customMetaType); exit;
 
-    // Based on the datatype of the field
-    // Format the value properly for the database
-    switch($type) {
-    case 'B':
+	switch($type) {
+		
+		case 'RAW':
+			/*
+			* Custom field with no handling
+			*/
+			$val = $arrFields[$fname];
+			break;
+		
+		case 'CALLBACK':
+			/*
+			* An anonymous function
+			*/
+			$val = $callback($var);
+			break;
+			
+		// Based on the datatype of the field
+		// Format the value properly for the database
+		case 'B':
         //in order to handle Blobs correctly, we need
         //to do some magic for Oracle
 
@@ -1079,8 +1114,51 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 
 		}
 	}
-
+	
+	/*
+	* Upfront check for custom meta types. We do this
+	* first to allow for overriding of existing types
+	*/
+	if (array_key_exists($type,$zthis->customMetaTypes)) 
+	{
+		
+		$customMetaType = $zthis->customMetaTypes[$type];
+		
+		if ($customMetaType['handler'] === false)
+			/*
+			* Pass the value through unchanged
+			*/
+			$type = -1;
+		else if (is_object($customMetaType['callback']))
+		{
+			/*
+			* An anonymous function
+			*/
+			$type = -1;
+			
+			$callback = $customMetaType['callback'];
+			
+			$val = $arrFields[$fname];
+			$val = $callback($val);
+			if ($customMetaType['handler'])
+				$type = $customMetaType['handler'];
+		}
+		else
+			/*
+			* Some type of metaType
+			*/
+			$type = $customMetaType['handler'];
+	}
+	
 	switch($type) {
+		
+		case -1:
+			/*
+			* Custom field with no handling
+			*/
+			$val = $arrFields[$fname];
+			break;
+		
 		case "C":
 		case "X":
 		case 'B':

@@ -1,6 +1,6 @@
 <?php
 /**
-	@version   v5.21.0-dev  ??-???-2016
+	@version   v5.22.0-dev  Unreleased
 	@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 	@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
@@ -10,7 +10,7 @@
 
 	Set tabs to 4 for best viewing.
 
-	Latest version is available at http://adodb.org/
+	Latest version is available at https://adodb.org/
 
 	Requires ODBC. Works on Windows and Unix.
 
@@ -77,7 +77,6 @@ class ADODB_pdo extends ADOConnection {
 	var $_genSeqSQL = "create table %s (id integer)";
 	var $_dropSeqSQL;
 	var $_autocommit = true;
-	var $_haserrorfunctions = true;
 	var $_lastAffectedRows = 0;
 
 	var $_errormsg = false;
@@ -86,6 +85,13 @@ class ADODB_pdo extends ADOConnection {
 	var $dsnType = '';
 	var $stmt = false;
 	var $_driver;
+	
+	/*
+	* Describe parameters passed directly to the PDO driver
+	*
+	* @example $db->pdoOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
+	*/
+	public $pdoParameters = array();
 
 	function _UpdatePDO()
 	{
@@ -146,8 +152,17 @@ class ADODB_pdo extends ADOConnection {
 					$argDSN .= ';dbname='.$argDatabasename;
 			}
 		}
+		/*
+		* Configure for persistent connection if required,
+		* by adding the the pdo parameter into any provided
+		* ones
+		*/
+		if ($persist) {
+			$this->pdoParameters[\PDO::ATTR_PERSISTENT] = true;
+		} 
+		
 		try {
-			$this->_connectionID = new PDO($argDSN, $argUsername, $argPassword);
+			$this->_connectionID = new \PDO($argDSN, $argUsername, $argPassword, $this->pdoParameters);
 		} catch (Exception $e) {
 			$this->_connectionID = false;
 			$this->_errorno = -1;
@@ -193,6 +208,7 @@ class ADODB_pdo extends ADOConnection {
 				case 'sqlite':
 				case 'sqlsrv':
 				case 'firebird':
+				case 'dblib':
 					include_once(ADODB_DIR.'/drivers/adodb-pdo_'.$this->dsnType.'.inc.php');
 					break;
 			}
@@ -219,10 +235,7 @@ class ADODB_pdo extends ADOConnection {
 			return call_user_func_array(array($this->_driver, 'Concat'), $args);
 		}
 
-		if (PHP_VERSION >= 5.3) {
-			return call_user_func_array('parent::Concat', $args);
-		}
-		return call_user_func_array(array($this,'parent::Concat'), $args);
+		return call_user_func_array('parent::Concat', $args);
 	}
 
 	// returns true or false
@@ -419,7 +432,7 @@ class ADODB_pdo extends ADOConnection {
 			return $this->_driver->SetTransactionMode($transaction_mode);
 		}
 
-		return parent::SetTransactionMode($seqname);
+		return parent::SetTransactionMode($transaction_mode);
 	}
 
 	function beginTrans()
@@ -548,7 +561,7 @@ class ADODB_pdo extends ADOConnection {
 		}
 		
 		if ($stmt) {
-			if (isset($this->_driver)) {
+			if ($this->_driver instanceof ADODB_pdo) {
 				$this->_driver->debug = $this->debug;
 			}
 			if ($inputarr) {

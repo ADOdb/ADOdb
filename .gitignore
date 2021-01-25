@@ -8,3 +8,6 @@
 /nbproject/
 .idea/
 
+# Composer
+/vendor/
+/composer.lock

@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.22.0-dev  Unreleased
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -8,7 +8,7 @@
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Library for basic performance monitoring and tuning
 
@@ -118,6 +118,12 @@ class perf_mysql extends adodb_perf{
 		return $s;
 	}
 
+	/**
+	 * Returns a list of table statuses.
+	 * 
+	 * @param  string  $orderby  Unused (compatibility with parent method)
+	 * @return string A formatted set of recordsets
+	 */
 	function tables($orderby='1')
 	{
 		if (!$this->tablesSQL) return false;

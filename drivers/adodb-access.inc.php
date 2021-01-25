@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.22.0-dev  Unreleased
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -8,7 +8,7 @@
   the BSD license will take precedence. See License.txt.
   Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Microsoft Access data driver. Requires ODBC. Works only on Microsoft Windows.
 */
@@ -54,8 +54,6 @@ class  ADODB_access extends ADODB_odbc {
 		$rs = new ADORecordSet_odbc($qid);
 		$ADODB_FETCH_MODE = $savem;
 		if (!$rs) return false;
-
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 
 		$arr = $rs->GetArray();
 		//print_pre($arr);

@@ -1,13 +1,13 @@
 <?php
 /*
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.22.0-dev  Unreleased
 @copyright (c) 2000-2013 John Lim. All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
   Whenever there is any discrepancy between the two licenses,
   the BSD license will take precedence.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Portable version of oci8 driver, to make it more similar to other database drivers.
   The main differences are
@@ -29,11 +29,6 @@ class ADODB_oci8po extends ADODB_oci8 {
 	var $dataProvider = 'oci8';
 	var $metaColumnsSQL = "select lower(cname),coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
 	var $metaTablesSQL = "select lower(table_name),table_type from cat where table_type in ('TABLE','VIEW')";
-
-	function __construct()
-	{
-		$this->_hasOCIFetchStatement = ADODB_PHPVER >= 0x4200;
-	}
 
 	function Param($name,$type='C')
 	{

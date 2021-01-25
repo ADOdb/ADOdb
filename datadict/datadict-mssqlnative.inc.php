@@ -1,7 +1,7 @@
 <?php
 
 /**
-  @version   v5.21.0-dev  ??-???-2016
+  @version   v5.22.0-dev  Unreleased
   @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -53,6 +53,9 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 
 	//var $alterCol = ' ALTER COLUMN ';
 
+	public $blobAllowsDefaultValue = true;
+	public $blobAllowsNotNull      = true;
+
 	function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
@@ -60,7 +63,13 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-
+		
+	
+		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
+		
 		$_typeConversion = array(
 			-155 => 'D',
 			  93 => 'D',
@@ -104,7 +113,15 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	function ActualType($meta)
 	{
 		$DATE_TYPE = 'DATETIME';
-
+		$meta = strtoupper($meta);
+		
+		/*
+		* Add support for custom meta types. We do this
+		* first, that allows us to override existing types
+		*/
+		if (isset($this->connection->customMetaTypes[$meta]))
+			return $this->connection->customMetaTypes[$meta]['actual'];
+		
 		switch(strtoupper($meta)) {
 
 		case 'C': return 'VARCHAR';

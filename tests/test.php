@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.22.0-dev  Unreleased
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -8,7 +8,7 @@
   the BSD license will take precedence.
   Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 */
 
 
@@ -28,7 +28,6 @@ function getmicrotime()
 }
 
 
-if (PHP_VERSION < 5) include_once('../adodb-pear.inc.php');
 //--------------------------------------------------------------------------------------
 //define('ADODB_ASSOC_CASE',1);
 //
@@ -1346,11 +1345,6 @@ END Adodb;
 
 	$rs = $db->SelectLimit('select id,firstname,lastname,created,\'The	"young man", he said\' from ADOXYZ',10);
 
-	if (PHP_VERSION < 5) {
-		print "<pre>";
-		rs2tabout($rs);
-		print "</pre>";
-	}
 	#print " CacheFlush ";
 	#$db->CacheFlush();
 
@@ -1645,16 +1639,21 @@ END Adodb;
 	print "<p>Testing Bad Connection</p>";
 	flush();
 
-	if (true || PHP_VERSION < 5)  {
-		if ($db->dataProvider == 'odbtp') $db->databaseType = 'odbtp';
-		$conn = NewADOConnection($db->databaseType);
-		$conn->raiseErrorFn = 'adodb_test_err';
-		if (1) $conn->PConnect('abc','baduser','badpassword');
-		if ($TESTERRS == 2) print "raiseErrorFn tests passed<br>";
-		else print "<b>raiseErrorFn tests failed ($TESTERRS)</b><br>";
-
-		flush();
+	if ($db->dataProvider == 'odbtp') {
+		$db->databaseType = 'odbtp';
 	}
+	$conn = NewADOConnection($db->databaseType);
+	$conn->raiseErrorFn = 'adodb_test_err';
+	$conn->PConnect('abc','baduser','badpassword');
+	if ($TESTERRS == 2) {
+		print "raiseErrorFn tests passed<br>";
+	}
+	else {
+		print "<b>raiseErrorFn tests failed ($TESTERRS)</b><br>";
+	}
+
+	flush();
+
 	////////////////////////////////////////////////////////////////////
 
 	global $nocountrecs;
@@ -1750,7 +1749,7 @@ foreach($_GET as $k=>$v)  {
 
 This script tests the following databases: Interbase, Oracle, Visual FoxPro, Microsoft Access (ODBC and ADO), MySQL, MSSQL (ODBC, native, ADO).
 There is also support for Sybase, PostgreSQL.</p>
-For the latest version of ADODB, visit <a href=http://adodb.org//>adodb.org</a>.</p>
+For the latest version of ADODB, visit <a href=https://adodb.org//>adodb.org</a>.</p>
 
 Test <a href=test4.php>GetInsertSQL/GetUpdateSQL</a> &nbsp;
 	<a href=testsessions.php>Sessions</a> &nbsp;

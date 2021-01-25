@@ -1,7 +1,7 @@
 <?php
 
 /**
- * @version   v5.21.0-dev  ??-???-2016
+ * @version   v5.22.0-dev  Unreleased
  * @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
  * @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
  * Released under both BSD license and Lesser GPL library license.
@@ -9,7 +9,7 @@
   the BSD license will take precedence.
  */
 
-/* Documentation on usage is at http://adodb.org/dokuwiki/doku.php?id=v5:proxy:proxy_index
+/* Documentation on usage is at https://adodb.org/dokuwiki/doku.php?id=v5:proxy:proxy_index
  *
  * Legal query string parameters:
  *
@@ -20,7 +20,7 @@
  *
  * example:
  *
- * http://localhost/php/server.php?select+*+from+table&nrows=10&offset=2
+ * http://localhost/php/server.php?sql=select+*+from+table&nrows=10&offset=2
  */
 
 
@@ -33,7 +33,7 @@ $ACCEPTIP = '127.0.0.1';
 /*
  * Connection parameters
  */
-$driver = 'mysql';
+$driver = 'mysqli';
 $host = 'localhost'; // DSN for odbc
 $uid = 'root';
 $pwd = 'garbase-it-is';
@@ -80,7 +80,7 @@ if (empty($_REQUEST['sql'])) err('No SQL');
 
 $conn = ADONewConnection($driver);
 
-if (!$conn->Connect($host,$uid,$pwd,$database)) err($conn->ErrorNo(). $sep . $conn->ErrorMsg());
+if (!$conn->connect($host,$uid,$pwd,$database)) err($conn->errorNo(). $sep . $conn->errorMsg());
 $sql = undomq($_REQUEST['sql']);
 
 if (isset($_REQUEST['fetch']))
@@ -89,12 +89,12 @@ if (isset($_REQUEST['fetch']))
 if (isset($_REQUEST['nrows'])) {
 	$nrows = $_REQUEST['nrows'];
 	$offset = isset($_REQUEST['offset']) ? $_REQUEST['offset'] : -1;
-	$rs = $conn->SelectLimit($sql,$nrows,$offset);
+	$rs = $conn->selectLimit($sql,$nrows,$offset);
 } else
-	$rs = $conn->Execute($sql);
+	$rs = $conn->execute($sql);
 if ($rs){
 	//$rs->timeToLive = 1;
 	echo _rs2serialize($rs,$conn,$sql);
-	$rs->Close();
+	$rs->close();
 } else
-	err($conn->ErrorNo(). $sep .$conn->ErrorMsg());
+	err($conn->errorNo(). $sep .$conn->errorMsg());

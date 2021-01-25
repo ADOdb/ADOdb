@@ -1,6 +1,6 @@
 <?php
 /*
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.22.0-dev  Unreleased
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -8,7 +8,7 @@
   the BSD license will take precedence.
 Set tabs to 4 for best viewing.
 
-  Latest version is available at http://adodb.org/
+  Latest version is available at https://adodb.org/
 
   Requires ODBC. Works on Windows and Unix.
 */
@@ -48,8 +48,6 @@ class ADODB_odbc extends ADOConnection {
 	var $curmode = SQL_CUR_USE_DRIVER; // See sqlext.h, SQL_CUR_DEFAULT == SQL_CUR_USE_DRIVER == 2L
 	var $_genSeqSQL = "create table %s (id integer)";
 	var $_autocommit = true;
-	var $_haserrorfunctions = true;
-	var $_has_stupid_odbc_fetch_api_change = true;
 	var $_lastAffectedRows = 0;
 	var $uCaseTables = true; // for meta* functions, uppercase table names
 	
@@ -58,11 +56,7 @@ class ADODB_odbc extends ADOConnection {
 	 */
 	public $metaColumnsReturnType = METACOLUMNS_RETURNS_ACTUAL;
 
-	function __construct()
-	{
-		$this->_haserrorfunctions = ADODB_PHPVER >= 0x4050;
-		$this->_has_stupid_odbc_fetch_api_change = ADODB_PHPVER >= 0x4200;
-	}
+	function __construct() {}
 
 		// returns true or false
 	function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
@@ -110,7 +104,7 @@ class ADODB_odbc extends ADOConnection {
 	function ServerInfo()
 	{
 
-		if (!empty($this->host) && ADODB_PHPVER >= 0x4300) {
+		if (!empty($this->host)) {
 			$dsn = strtoupper($this->host);
 			$first = true;
 			$found = false;
@@ -197,30 +191,25 @@ class ADODB_odbc extends ADOConnection {
 
 	function ErrorMsg()
 	{
-		if ($this->_haserrorfunctions) {
-			if ($this->_errorMsg !== false) return $this->_errorMsg;
-			if (empty($this->_connectionID)) return @odbc_errormsg();
-			return @odbc_errormsg($this->_connectionID);
-		} else return ADOConnection::ErrorMsg();
+		if ($this->_errorMsg !== false) return $this->_errorMsg;
+		if (empty($this->_connectionID)) return @odbc_errormsg();
+		return @odbc_errormsg($this->_connectionID);
 	}
 
 	function ErrorNo()
 	{
+		if ($this->_errorCode !== false) {
+			// bug in 4.0.6, error number can be corrupted string (should be 6 digits)
+			return (strlen($this->_errorCode)<=2) ? 0 : $this->_errorCode;
+		}
 
-		if ($this->_haserrorfunctions) {
-			if ($this->_errorCode !== false) {
-				// bug in 4.0.6, error number can be corrupted string (should be 6 digits)
-				return (strlen($this->_errorCode)<=2) ? 0 : $this->_errorCode;
-			}
+		if (empty($this->_connectionID)) $e = @odbc_error();
+		else $e = @odbc_error($this->_connectionID);
 
-			if (empty($this->_connectionID)) $e = @odbc_error();
-			else $e = @odbc_error($this->_connectionID);
-
-			 // bug in 4.0.6, error number can be corrupted string (should be 6 digits)
-			 // so we check and patch
-			if (strlen($e)<=2) return 0;
-			return $e;
-		} else return ADOConnection::ErrorNo();
+		 // bug in 4.0.6, error number can be corrupted string (should be 6 digits)
+		 // so we check and patch
+		if (strlen($e)<=2) return 0;
+		return $e;
 	}
 
 
@@ -275,7 +264,6 @@ class ADODB_odbc extends ADOConnection {
 		$ADODB_FETCH_MODE = $savem;
 
 		if (!$rs) return false;
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 
 		$arr = $rs->GetArray();
 		$rs->Close();
@@ -304,7 +292,6 @@ class ADODB_odbc extends ADOConnection {
 			$false = false;
 			return $false;
 		}
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 
 		$arr = $rs->GetArray();
 		//print_r($arr);
@@ -412,7 +399,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 			$rs = new ADORecordSet_odbc($qid2);
 			$ADODB_FETCH_MODE = $savem;
 			if (!$rs) return false;
-			$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 			$rs->_fetch();
 
 			while (!$rs->EOF) {
@@ -451,7 +437,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 		$ADODB_FETCH_MODE = $savem;
 
 		if (!$rs) return $false;
-		$rs->_has_stupid_odbc_fetch_api_change = $this->_has_stupid_odbc_fetch_api_change;
 		$rs->_fetch();
 
 		$retarr = array();
@@ -542,10 +527,8 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 
 			if (! odbc_execute($stmtid,$inputarr)) {
 				//@odbc_free_result($stmtid);
-				if ($this->_haserrorfunctions) {
-					$this->_errorMsg = odbc_errormsg();
-					$this->_errorCode = odbc_error();
-				}
+				$this->_errorMsg = odbc_errormsg();
+				$this->_errorCode = odbc_error();
 				return false;
 			}
 
@@ -553,10 +536,8 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 			$stmtid = $sql[1];
 			if (!odbc_execute($stmtid)) {
 				//@odbc_free_result($stmtid);
-				if ($this->_haserrorfunctions) {
-					$this->_errorMsg = odbc_errormsg();
-					$this->_errorCode = odbc_error();
-				}
+				$this->_errorMsg = odbc_errormsg();
+				$this->_errorCode = odbc_error();
 				return false;
 			}
 		} else
@@ -573,19 +554,11 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 				odbc_longreadlen($stmtid,$this->maxblobsize);
 			}
 
-			if ($this->_haserrorfunctions) {
-				$this->_errorMsg = '';
-				$this->_errorCode = 0;
-			} else {
-				$this->_errorMsg = $this->getChangedErrorMsg($last_php_error);
-			}
+			$this->_errorMsg = '';
+			$this->_errorCode = 0;
 		} else {
-			if ($this->_haserrorfunctions) {
-				$this->_errorMsg = odbc_errormsg();
-				$this->_errorCode = odbc_error();
-			} else {
-				$this->_errorMsg = $this->getChangedErrorMsg($last_php_error);
-			}
+			$this->_errorMsg = odbc_errormsg();
+			$this->_errorCode = odbc_error();
 		}
 		return $stmtid;
 	}
@@ -629,7 +602,6 @@ class ADORecordSet_odbc extends ADORecordSet {
 	var $databaseType = "odbc";
 	var $dataProvider = "odbc";
 	var $useFetchArray;
-	var $_has_stupid_odbc_fetch_api_change;
 
 	function __construct($id,$mode=false)
 	{
@@ -687,7 +659,6 @@ class ADORecordSet_odbc extends ADORecordSet {
 		// some silly drivers such as db2 as/400 and intersystems cache return _numOfRows = 0
 		if ($this->_numOfRows == 0) $this->_numOfRows = -1;
 		//$this->useFetchArray = $this->connection->useFetchArray;
-		$this->_has_stupid_odbc_fetch_api_change = ADODB_PHPVER >= 0x4200;
 	}
 
 	function _seek($row)
@@ -738,12 +709,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 	function _fetch()
 	{
 		$this->fields = false;
-		if ($this->_has_stupid_odbc_fetch_api_change)
-			$rez = @odbc_fetch_into($this->_queryID,$this->fields);
-		else {
-			$row = 0;
-			$rez = @odbc_fetch_into($this->_queryID,$row,$this->fields);
-		}
+		$rez = @odbc_fetch_into($this->_queryID,$this->fields);
 		if ($rez) {
 			if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 				$this->fields = $this->GetRowAssoc();

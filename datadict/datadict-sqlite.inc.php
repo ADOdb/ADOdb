@@ -1,7 +1,7 @@
 <?php
 
 /**
-  @version   v5.21.0-dev  ??-???-2016
+  @version   v5.22.0-dev  Unreleased
   @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -25,10 +25,21 @@ class ADODB2_sqlite extends ADODB_DataDict {
 	var $dropIndex = 'DROP INDEX IF EXISTS %s';
 	var $renameTable = 'ALTER TABLE %s RENAME TO %s';
 
-
-
+	public $blobAllowsDefaultValue = true;
+	public $blobAllowsNotNull      = true;
+    
 	function ActualType($meta)
 	{
+		
+		$meta = strtoupper($meta);
+		
+		/*
+		* Add support for custom meta types. We do this
+		* first, that allows us to override existing types
+		*/
+		if (isset($this->connection->customMetaTypes[$meta]))
+			return $this->connection->customMetaTypes[$meta]['actual'];
+		
 		switch(strtoupper($meta)) {
 		case 'C': return 'VARCHAR'; //  TEXT , TEXT affinity
 		case 'XL':return 'LONGTEXT'; //  TEXT , TEXT affinity

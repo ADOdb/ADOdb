@@ -2,7 +2,7 @@
 <body bgcolor=white>
 <?php
 /**
- * @version   v5.21.0-dev  ??-???-2016
+ * @version   v5.22.0-dev  Unreleased
  * @copyright (c) 2001-2013 John Lim (jlim#natsoft.com). All rights reserved.
  * @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
  * Released under both BSD license and Lesser GPL library license.
@@ -12,7 +12,7 @@
  * set tabs to 8
  */
 
- // documentation on usage is at http://adodb.org/dokuwiki/doku.php?id=v5:proxy:proxy_index
+ // documentation on usage is at https://adodb.org/dokuwiki/doku.php?id=v5:proxy:proxy_index
 
  echo PHP_VERSION,'<br>';
  var_dump(parse_url('odbc_mssql://userserver/'));

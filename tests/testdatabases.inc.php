@@ -1,7 +1,7 @@
 <?php
 
 /*
-@version   v5.21.0-dev  ??-???-2016
+@version   v5.22.0-dev  Unreleased
 @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -275,8 +275,7 @@ if (!empty($testvfp)) { // ODBC
 if (!empty($testmysql)) { // MYSQL
 
 
-	if (PHP_VERSION >= 5 || $_SERVER['HTTP_HOST'] == 'localhost') $server = 'localhost';
-	else $server = "mangrove";
+	$server = 'localhost';
 	$user = 'root'; $password = ''; $database = 'northwind';
 	$db = ADONewConnection("mysqlt://$user:$password@$server/$database?persist");
 	print "<h1>Connecting $db->databaseType...</h1>";
@@ -294,8 +293,7 @@ if (!empty($testmysqli)) { // MYSQL
 
 	$db = ADONewConnection('mysqli');
 	print "<h1>Connecting $db->databaseType...</h1>";
-	if (PHP_VERSION >= 5 || $_SERVER['HTTP_HOST'] == 'localhost') $server = 'localhost';
-	else $server = "mangrove";
+	$server = 'localhost';
 	if ($db->PConnect($server, "root", "", "northwind")) {
 		//$db->debug=1;$db->Execute('drop table ADOXYZ');
 		testdb($db,
@@ -310,8 +308,7 @@ if (!empty($testmysqlodbc)) { // MYSQL
 	$db = ADONewConnection('odbc');
 	$db->hasTransactions = false;
 	print "<h1>Connecting $db->databaseType...</h1>";
-	if ($_SERVER['HTTP_HOST'] == 'localhost') $server = 'localhost';
-	else $server = "mangrove";
+	$server = 'localhost';
 	if ($db->PConnect('mysql', "root", ""))
 		testdb($db,
 		"create table ADOXYZ (id int, firstname char(24), lastname char(24), created date) type=innodb");
@@ -321,7 +318,7 @@ if (!empty($testmysqlodbc)) { // MYSQL
 if (!empty($testproxy)){
 	$db = ADONewConnection('proxy');
 	print "<h1>Connecting $db->databaseType...</h1>";
-	if ($_SERVER['HTTP_HOST'] == 'localhost') $server = 'localhost';
+	$server = 'localhost';
 
 	if ($db->PConnect('http://localhost/php/phplens/adodb/server.php'))
 		testdb($db,
@@ -358,25 +355,15 @@ if (false && !empty($testoracle)) {
 
 ADOLoadCode("odbc_db2"); // no longer supported
 if (!empty($testdb2)) {
-	if (PHP_VERSION>=5.1) {
-		$db = ADONewConnection("db2");
-		print "<h1>Connecting $db->databaseType...</h1>";
+	$db = ADONewConnection("db2");
+	print "<h1>Connecting $db->databaseType...</h1>";
 
-		#$db->curMode = SQL_CUR_USE_ODBC;
-		#$dsn = "driver={IBM db2 odbc DRIVER};Database=test;hostname=localhost;port=50000;protocol=TCPIP; uid=natsoft; pwd=guest";
-		if ($db->Connect('localhost','natsoft','guest','test')) {
-			testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
-		} else print "ERROR: DB2 test requires an server setup with odbc data source db2_sample".'<BR>'.$db->ErrorMsg();
+	#$db->curMode = SQL_CUR_USE_ODBC;
+	#$dsn = "driver={IBM db2 odbc DRIVER};Database=test;hostname=localhost;port=50000;protocol=TCPIP; uid=natsoft; pwd=guest";
+	if ($db->Connect('localhost','natsoft','guest','test')) {
+		testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
 	} else {
-		$db = ADONewConnection("odbc_db2");
-		print "<h1>Connecting $db->databaseType...</h1>";
-
-		$dsn = "db2test";
-		#$db->curMode = SQL_CUR_USE_ODBC;
-		#$dsn = "driver={IBM db2 odbc DRIVER};Database=test;hostname=localhost;port=50000;protocol=TCPIP; uid=natsoft; pwd=guest";
-		if ($db->Connect($dsn)) {
-			testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
-		} else print "ERROR: DB2 test requires an server setup with odbc data source db2_sample".'<BR>'.$db->ErrorMsg();
+		print "ERROR: DB2 test requires an server setup with odbc data source db2_sample".'<BR>'.$db->ErrorMsg();
 	}
 echo "<hr />";
 flush();

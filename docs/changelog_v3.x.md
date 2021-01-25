@@ -77,7 +77,7 @@ Older changelogs:
 - Fixed CacheFlush() bug - Thx to martin#gmx.de
 - Walt Boring contributed MetaForeignKeys for postgres7.
 - _fetch() called _BlobDecode() wrongly in interbase. Fixed.
-- adodb_time bug fixed with dates after 2038 fixed by Jason Pell. http://phplens.com/lens/lensforum/msgs.php?id=6980
+- adodb_time bug fixed with dates after 2038 fixed by Jason Pell. PHPLens Issue No: 6980
 
 ## 3.71 - 4 Aug 2003
 

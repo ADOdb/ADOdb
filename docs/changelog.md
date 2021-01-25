@@ -5,7 +5,11 @@ Older changelogs:
 [v3.x](changelog_v3.x.md),
 [v2.x](changelog_v2.x.md).
 
-## 5.21.0 - ??-???-2016
+## 5.22.0 - Unreleased
+
+## 5.21.0 - Unreleased
+
+## 5.21.0-beta.1 - 20-Dec-2020
 
 - adodb: Remove useless constructors. #171
 - adodb: Define default constructor in ADOConnection base class. #172
@@ -22,21 +26,37 @@ Older changelogs:
 - adodb: Remove references to obsolete ADOdb Extension. #270
 - adodb: getAssoc() should not change case of result set's outermost key. #335
 - adodb: getAssoc() fix fetch mode. #350
+- adodb: Replace each() with foreach (PHP 7.2 compatibility). #373
 - adodb: Optimize FieldTypesArray with static variable #367
 - adodb: Allow output handler to be callable #312
+- adodb: prevent SQL injection in SelectLimit() #311
 - adodb: fix ADORecordSet constructor signature. #278
 - adodb: add Occitan (#285) and Indonesian (#293) translations.
+- adodb: support use of spaces and reserved keywords in replace function. #390
+- adodb: fix adodb_strip_order_by() to only remove the last order by statement. #549
+- adodb: add control over BLOB data dictionary feature (NOT NULL, DEFAULT). #292, #478
+- adodb: fix field names quoting when setting value to null. #572
+- adodb: Remove unneeded ADODB_str_replace function. #582
+- adodb: Remove useless PHP 4 and 5 version checks. #583, #584
+- adodb: replace _array_change_key_case() by internal PHP function. #587
+- adodb: fix getAssoc returning key as value column with ADODB_FETCH_BOTH mode. #600
 - adodb-time: Fix 'Q' (quarter of year) format in adodb_date(). #222
 - adodb-time: Add 'W' (week of year) format support in adodb_date(). #223
+- active record: honor column and table name quoting. #309
 - db2: fix ChangeTableSQL() signature. #338
+- db2: full driver rewrite. #442
 - firebird: updated driver, thanks to Lester Caine. #201
 - mssql: Add charMax() and textMax() methods. #220
+- mssql: Add Convert on SQLDate Method. #304
 - mssql: support alternative port in connect. #314
+- mssql: support Windows authentication. #353
+- mssql: MetaForeignKeys() not returning all FKs. #486
+- mssql: support for T-SQL-style square brackets. #246
 - mssqlnative: Query not returning id. #185
-- mssqlnative: support SQL Server 2014 databases. #186
 - mssqlnative: add support for 'l' (day of week) format in sqlDate(). #232
 - mssqlnative: fix invalid return value for ErrorNo(). #298
 - mssqlnative: ensure that the bind array is numeric. #336
+- mssqlnative: support metaProcedures() method #578
 - mssqlnative: fix crash with driver version 5.6 on queries returning no data. #492
 - mysql: setConnectionParameter() now allows multiple parameters with the same key value. #187
 - mysql: prevent use of driver with PHP >= 7.0. #310
@@ -44,6 +64,12 @@ Older changelogs:
 - mysqli: Insert_ID() did not return correct value after executing stored procedure. #166
 - mysqli: method failed if $associative set true. #181
 - mysqli: return fields as ADOFieldObject objects. #175
+- mysqli: support SSL connections. #416
+- mysqli (perf): tables() method definition inconsistent with parent. #435, #462
+- mysql: genId() not returning next sequence value. #493
+- oci8: fix syntax error preventing sequence creation. #540
+- oci8: remove use of curly braces in string offsets (deprecated in PHP 7.4). #570
+- oci8: provide option to create compact trigger/sequence names. #565
 - odbc/mssql: fix null strings concatenation issue with SQL server 2012. #148
 - odbc/mssql: add missing Concat() method. #402
 - odbc: MetaColumns() can optionally be set to return MetaType for backwards compatibility. #184
@@ -51,18 +77,58 @@ Older changelogs:
 - pdo: add setConnectionParameter support. #247
 - pdo: fix PHP notice. #248
 - pdo: ADORecordSet class loading. #250
+- pdo: add meta extension points. #475
+- pdo/dblib: new driver #496
+- pdo/firebird: new driver #378
+- pdo/mysql: add genID() and createSequence() support. #465
 - pdo/pgsql: Add support for transactions. #363
 - pdo/sqlsrv: fix fetchField() method. #251, #234
 - pdo/sqlsrv: add SetTransactionMode() method. #362
 - pgsql: add CIDR data type to MetaType(). #281
 - pgsql: optimize version check. #334
+- pgsql: fix param number reset with param(false). #380
+- pgsql: use postgres9 driver by default. #474
+- pgsql: specialized casts for _recreate_copy_table(). #207
+- proxy: the client driver and server.php script are deprecated. #444
 - sqlite: _createSuffix is now compatible with parent. #178
 - sqlite: metaIndexes could not locate indexes on uppercase table name. #176
 - sqlite: Fix Metataypes mapping. #177
 - sqlite: driver did not support metaForeignKeys. #179
+- sqlite: metaIndexes() returns column as array instead of CSV. #567
 - memcache: add support for memcached PECL library. #322
 - session: add 'httponly' flag to cookie. #190
+- session: string parameters for `assert` are deprecated in PHP 7.2. #438
 - xml: support table 'opt' attribute with mysqli. #267
+- xml: add support for 'DESCR' tags for tables/fields. #265
+- xml: fix invalid xmlschema03.dtd and descr tag in session schema XML. #595
+- loadbalancer (new feature): read/write splitting and load balancing across multiple connections, thanks to Mike Benoit. #111
+
+## 5.20.19 - 13-Dec-2020
+
+**Implemented enhancements:**
+
+- Add support for persistent connections in PDO driver [\#650](https://github.com/ADOdb/ADOdb/issues/650)
+- Connect to SQL Server database on a specified port. [\#624](https://github.com/ADOdb/ADOdb/issues/624)
+
+**Fixed bugs:**
+
+- DSN database connection with password containing `#` fails [\#651](https://github.com/ADOdb/ADOdb/issues/651)
+- Metacolumns returns wrong type for integer fields in Mysql 8 [\#642](https://github.com/ADOdb/ADOdb/issues/642)
+- Uninitialized Variable access in mssqlnative ErrorNo() method [\#637](https://github.com/ADOdb/ADOdb/issues/637)
+
+## 5.20.18 - 28-Jun-2020
+
+- mssql: Retrieve error messages early before connection closed.  #614
+
+## 5.20.17 - 31-Mar-2020
+
+- core: fix PHP notice in ADOdb_Exception constructor when using transactions. #601
+- mssql: fix PHP notice due to uninitialized array with PHP 7.4. #608
+- active record: Fix UpdateActiveTable failing with mixed case column names. #610
+
+## 5.20.16 - 12-Jan-2020
+
+- mssql: queries are not correctly closed. #590
 
 ## 5.20.15 - 24-Nov-2019
 
@@ -125,7 +191,7 @@ Please use version 5.20.12 or later.
 
 ## 5.20.8 - 17-Dec-2016
 
-- mssql: support MSSQL Server 2016 and later #294
+- mssql: support MSSQL Server 2014 and later. #186 #294
 - mssql: fix Find() returning no results. #298
 - mssql: fix Sequence name forced to 'adodbseq'. #295, #300
 - mssql: fix GenId() not returning next sequence value with SQL Server 2005/2008. #302
@@ -207,7 +273,7 @@ Please use version 5.20.12 or later.
 - adodb: Release Recordset when raising exception. See Github #143
 - adodb: Added new setConnectionParameter() method, currently implemented in mssqlnative driver only. See Github #158.
 - adodb-lib: Optimize query pagination, thanks to Mike Benoit. See Github #110
-- memcache: use include_once() to avoid issues with PHPUnit. See http://phplens.com/lens/lensforum/msgs.php?id=19489
+- memcache: use include_once() to avoid issues with PHPUnit. See PHPLens Issue No: 19489
 - mssql_n: Allow use of prepared statements with driver. See Github #22
 - mssqlnative: Use ADOConnection::outp instead of error_log. See Github #12
 - mssqlnative: fix failure on Insert_ID() if the insert statement contains a semicolon in a value string, thanks to sketule. See Github #96
@@ -228,7 +294,7 @@ Please use version 5.20.12 or later.
 - postgres: Fix AlterColumnSQL when updating multiple columns, thanks to Jouni Ahto. See Github #72
 - postgres: Fix support for HHVM 3.6, thanks to Mike Benoit. See Github #87
 - postgres: Noblob optimization, thanks to Mike Benoit. See Github #112
-- postgres7: fix system warning in MetaColumns() with schema. See http://phplens.com/lens/lensforum/msgs.php?id=19481
+- postgres7: fix system warning in MetaColumns() with schema. See PHPLens Issue No: 19481
 - sqlite3: ServerInfo() now returns driver's version
 - sqlite3: Fix wrong connection parameter in _connect(), thanks to diogotoscano. See Github #51
 - sqlite3: Fix FetchField, thanks to diogotoscano. See Github #53
@@ -246,16 +312,16 @@ It causes recordsets to return empty strings (no data) when using some database 
 The problem has been reported on MSSQL, Interbase and Foxpro, but possibly affects
 other database types as well; all drivers derived from the above are also impacted.
 
-- adodb: GetRowAssoc will return null as required. See http://phplens.com/lens/lensforum/msgs.php?id=19289
-- adodb: Fix GetRowAssoc bug introduced in 5.17, causing function to return data from previous fetch for NULL fields. See http://phplens.com/lens/lensforum/msgs.php?id=17539
+- adodb: GetRowAssoc will return null as required. See PHPLens Issue No: 19289
+- adodb: Fix GetRowAssoc bug introduced in 5.17, causing function to return data from previous fetch for NULL fields. See PHPLens Issue No: 17539
 - adodb: GetAssoc will return a zero-based array when 2nd column is null. See https://sourceforge.net/p/adodb/bugs/130/
 - adodb: Execute no longer ignores single parameters evaluating to false. See https://sourceforge.net/p/adodb/patches/32/
-- adodb: Fix LIMIT 1 clause in subquery gets stripped off. See http://phplens.com/lens/lensforum/msgs.php?id=17813
+- adodb: Fix LIMIT 1 clause in subquery gets stripped off. See PHPLens Issue No: 17813
 - adodb-lib: Fix columns quoting bug. See https://sourceforge.net/p/adodb/bugs/127/
 - Added new ADODB_ASSOC_CASE_* constants. Thx to Damien Regad.
 - sessions: changed lob handling to detect all variations of oci8 driver.
-- ads: clear fields before fetching. See http://phplens.com/lens/lensforum/msgs.php?id=17539
-- mssqlnative: fixed many FetchField compat issues. See http://phplens.com/lens/lensforum/msgs.php?id=18464. Also date format changed to remove timezone.
+- ads: clear fields before fetching. See PHPLens Issue No: 17539
+- mssqlnative: fixed many FetchField compat issues. See PHPLens Issue No: 18464. Also date format changed to remove timezone.
 - mssqlnative: Numerous fixes and improvements by Mark Newnham
     - Driver supports SQL Server 2005, 2008 and 2012
     - Bigint data types mapped to I8 instead of I
@@ -263,24 +329,24 @@ other database types as well; all drivers derived from the above are also impact
     - On SQL Server 2012, makes use of new CREATE SEQUENCE statement
     - FetchField caches metadata at initialization to improve performance
     - etc.
-- mssqlnative: Fix Insert ID on prepared statement, thanks to Mike Parks. See http://phplens.com/lens/lensforum/msgs.php?id=19079
+- mssqlnative: Fix Insert ID on prepared statement, thanks to Mike Parks. See PHPLens Issue No: 19079
 - mssql: timestamp format changed to `Y-m-d\TH:i:s` (ISO 8601) to make them independent from DATEFORMAT setting, as recommended on
   [Microsoft TechNet](http://technet.microsoft.com/en-us/library/ms180878%28v=sql.105%29.aspx#StringLiteralDateandTimeFormats).
-- mysql/mysqli: Fix ability for MetaTables to filter by table name, broken since 5.15. See http://phplens.com/lens/lensforum/msgs.php?id=19359
+- mysql/mysqli: Fix ability for MetaTables to filter by table name, broken since 5.15. See PHPLens Issue No: 19359
 - odbc: Fixed MetaTables and MetaPrimaryKeys definitions in odbc driver to match adoconnection class.
-- odbc: clear fields before fetching. See http://phplens.com/lens/lensforum/msgs.php?id=17539
+- odbc: clear fields before fetching. See PHPLens Issue No: 17539
 - oci8: GetRowAssoc now works in ADODB_FETCH_ASSOC fetch mode
 - oci8: MetaType and MetaForeignKeys argument count are now strict-standards compliant
 - oci8: Added trailing `;` on trigger creation for sequence fields, prevents occurrence of ORA-24344
 - oci8quercus: new oci8 driver with support for quercus jdbc data types.
-- pdo: Fixed concat recursion bug in 5.3. See http://phplens.com/lens/lensforum/msgs.php?id=19285
+- pdo: Fixed concat recursion bug in 5.3. See PHPLens Issue No: 19285
 - pgsql: Default driver (postgres/pgsql) is now postgres8
 - pgsql: Fix output of BLOB (bytea) columns with PostgreSQL >= 9.0
 - pgsql: Fix handling of DEFAULT NULL columns in AlterColumnSQL
 - pgsql: Fix mapping of error message to ADOdb error codes
 - pgsql: Reset parameter number in Param() method when $name == false
 - postgres8: New class/type with correct behavior for _insertid(). See Github #8
-- postgres9: Fixed assoc problem. See http://phplens.com/lens/lensforum/msgs.php?id=19296
+- postgres9: Fixed assoc problem. See PHPLens Issue No: 19296
 - sybase: Removed redundant sybase_connect() call in _connect(). See Github #3
 - sybase: Allow connection on custom port. See Github #9
 - sybase: Fix null values returned with ASSOC fetch mode. See Github #10
@@ -288,12 +354,12 @@ other database types as well; all drivers derived from the above are also impact
 
 ## 5.18 - 3 Sep 2012
 
-- datadict-postgres: Fixes bug in ALTER COL. See http://phplens.com/lens/lensforum/msgs.php?id=19202.
+- datadict-postgres: Fixes bug in ALTER COL. See PHPLens Issue No: 19202.
 - datadict-postgres: fixed bugs in MetaType() checking $fieldobj properties.
 - GetRowAssoc did not work with null values. Bug in 5.17.
 - postgres9: New driver to better support PostgreSQL 9. Thx Glenn Herteg and Cacti team.
 - sqlite3: Modified to support php 5.4. Thx GÃ¼nter Weber [built.development#googlemail.com]
-- adodb: When fetch mode is ADODB_FETCH_ASSOC, and we execute `$db->GetAssoc("select 'a','0'");` we get an error. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=19190
+- adodb: When fetch mode is ADODB_FETCH_ASSOC, and we execute `$db->GetAssoc("select 'a','0'");` we get an error. Fixed. See PHPLens Issue No: 19190
 - adodb: Caching directory permissions now configurable using global variable $ADODB_CACHE_PERMS. Default value is 0771.
 - mysqli: SetCharSet() did not return true (success) or false (fail) correctly. Fixed.
 - mysqli: changed dataProvider to 'mysql' so that MetaError and other shared functions will work.
@@ -312,19 +378,19 @@ other database types as well; all drivers derived from the above are also impact
 
 ## 5.16 - 26 March 2012
 
-- mysqli: extra mysqli_next_result() in close() removed. See http://phplens.com/lens/lensforum/msgs.php?id=19100
-- datadict-oci8: minor typo in create sequence trigger fixed. See http://phplens.com/lens/lensforum/msgs.php?id=18879.
+- mysqli: extra mysqli_next_result() in close() removed. See PHPLens Issue No: 19100
+- datadict-oci8: minor typo in create sequence trigger fixed. See PHPLens Issue No: 18879.
 - security: safe date parsing changes. Does not impact security, these are code optimisations. Thx Saithis.
 - postgres, oci8, oci8po, db2oci: Param() function parameters inconsistent with base class. $type='C' missing. Fixed.
-- active-record: locked bug fixed. http://phplens.com/lens/lensforum/msgs.php?phplens_forummsg=new&id=19073
-- mysql, mysqli and informix: added MetaProcedures. Metaprocedures allows to retrieve an array list of all procedures in database. http://phplens.com/lens/lensforum/msgs.php?id=18414
+- active-record: locked bug fixed. PHPLens Issue:19073
+- mysql, mysqli and informix: added MetaProcedures. Metaprocedures allows to retrieve an array list of all procedures in database. PHPLens Issue No: 18414
 - Postgres7: added support for serial data type in MetaColumns().
 
 ## 5.15 - 19 Jan 2012
 
 - pdo: fix ErrorMsg() to detect errors correctly. Thx Jens.
 - mssqlnative: added another check for $this->fields array exists.
-- mssqlnative: bugs in FetchField() fixed. See http://phplens.com/lens/lensforum/msgs.php?id=19024
+- mssqlnative: bugs in FetchField() fixed. See PHPLens Issue No: 19024
 - DBDate and DBTimeStamp had sql injection bug. Fixed. Thx Saithis
 - mysql and mysqli: MetaTables() now identifies views and tables correctly.
 - Added function adodb_time() to adodb-time.inc.php. Generates current time in unsigned integer format.
@@ -344,19 +410,19 @@ other database types as well; all drivers derived from the above are also impact
 - GetInsertSQL/GetUpdateSQL: Now $ADODB_QUOTE_FIELDNAMES allows you to define 'NATIVE', 'UPPER', 'LOWER'. If set to true, will default to 'UPPER'.
 - mysqli: added support for persistent connections 'p:'.
 - mssqlnative: ADODB_FETCH_BOTH did not work properly. Fixed.
-- mssqlnative: return values for stored procedures where not returned! Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=18919
-- mssqlnative: timestamp and fetchfield bugs fixed. http ://phplens.com/lens/lensforum/msgs.php?id=18453
+- mssqlnative: return values for stored procedures where not returned! Fixed. See PHPLens Issue No: 18919
+- mssqlnative: timestamp and fetchfield bugs fixed. PHPLens Issue: 18453
 
 ## 5.12 - 30 June 2011
 
 - Postgres: Added information_schema support for postgresql.
 - Postgres: Use pg_unescape_bytea() in _decode.
-- Fix bulk binding with oci8. http://phplens.com/lens/lensforum/msgs.php?id=18786
+- Fix bulk binding with oci8. PHPLens Issue No: 18786
 - oci8 perf: added wait evt monitoring. Also db cache advice now handles multiple buffer pools properly.
 - sessions2: Fixed setFetchMode problem.
 - sqlite: Some DSN connection settings were not parsed correctly.
 - mysqli: now GetOne obeys $ADODB_GETONE_EOF;
-- memcache: compress option did not work. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=18899
+- memcache: compress option did not work. Fixed. See PHPLens Issue No: 18899
 
 ## 5.11 - 5 May 2010
 
@@ -373,21 +439,21 @@ other database types as well; all drivers derived from the above are also impact
 - ado5: Fixed ado5 exceptions to only display errors when $this->debug=true;
 - Added DSN support to sessions2.inc.php.
 - adodb-lib.inc.php. Fixed issue with _adodb_getcount() not using $secs2cache parameter.
-- adodb active record. Fixed caching bug. See http://phplens.com/lens/lensforum/msgs.php?id=18288.
+- adodb active record. Fixed caching bug. See PHPLens Issue No: 18288.
 - db2: fixed ServerInfo().
 - adodb_date: Added support for format 'e' for TZ as in adodb_date('e')
 - Active Record: If you have a field which is a string field (with numbers in) and you add preceding 0's to it the adodb library does not pick up the fact that the field has changed because of the way php's == works (dodgily). The end result is that it never gets updated into the database - fix by Matthew Forrester (MediaEquals). [matthew.forrester#mediaequals.com]
-- Fixes RowLock() and MetaIndexes() inconsistencies. See http://phplens.com/lens/lensforum/msgs.php?id=18236
-- Active record support for postgrseql boolean. See http://phplens.com/lens/lensforum/msgs.php?id=18246
-- By default, Execute 2D array is disabled for security reasons. Set $conn->bulkBind = true to enable. See http://phplens.com/lens/lensforum/msgs.php?id=18270. Note this breaks backward compat.
-- MSSQL: fixes for 5.2 compat. http://phplens.com/lens/lensforum/msgs.php?id=18325
+- Fixes RowLock() and MetaIndexes() inconsistencies. See PHPLens Issue No: 18236
+- Active record support for postgrseql boolean. See PHPLens Issue No: 18246
+- By default, Execute 2D array is disabled for security reasons. Set $conn->bulkBind = true to enable. See PHPLens Issue No: 18270. Note this breaks backward compat.
+- MSSQL: fixes for 5.2 compat. PHPLens Issue No: 18325
 - Changed Version() to return a string instead of a float so it correctly returns 5.10 instead of 5.1.
 
 ## 5.10 - 10 Nov 2009
 
 - Fixed memcache to properly support $rs->timeCreated.
 - adodb-ado.inc.php: Added BigInt support for PHP5. Will return float instead to support large numbers. Thx nasb#mail.goo.ne.jp.
-- adodb-mysqli.inc.php: mysqli_multi_query is now turned off by default. To turn it on, use $conn->multiQuery = true; This is because of the risks of sql injection. See http://phplens.com/lens/lensforum/msgs.php?id=18144
+- adodb-mysqli.inc.php: mysqli_multi_query is now turned off by default. To turn it on, use $conn->multiQuery = true; This is because of the risks of sql injection. See PHPLens Issue No: 18144
 - New db2oci driver for db2 9.7 when using PL/SQL mode. Allows oracle style :0, :1, :2 bind parameters which are remapped to ? ? ?.
 - adodb-db2.inc.php: fixed bugs in MetaTables. SYS owner field not checked properly. Also in $conn->Connect($dsn, null, null, $schema) and PConnect($dsn, null, null, $schema), we do a SET SCHEMA=$schema if successful connection.
 - adodb-mysqli.inc.php: Now $rs->Close() closes all pending next resultsets. Thx Clifton mesmackgod#gmail.com
@@ -409,10 +475,10 @@ other database types as well; all drivers derived from the above are also impact
 - Fixed up MetaColumns and MetaPrimaryIndexes() for php 5.3 compat. Thx http://adodb.pastebin.com/m52082b16
 - The postgresql driver's OffsetDate() apparently does not work with postgres 8.3. Fixed.
 - Added support for magic_quotes_sybase in qstr() and addq(). Thanks Eloy and Sam Moffat.
-- The oci8 driver did not handle LOBs properly when binding. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=17991.
+- The oci8 driver did not handle LOBs properly when binding. Fixed. See PHPLens Issue No: 17991.
 - Datadict: In order to support TIMESTAMP with subsecond accuracy, added to datadict the new TS type. Supported by mssql, postgresql and oci8 (oracle). Also changed oci8 $conn->sysTimeStamp to use 'SYSTIMESTAMP' instead of 'SYSDATE'. Should be backwards compat.
 - Added support for PHP 5.1+ DateTime objects in DBDate and DBTimeStamp. This means that dates and timestamps will be managed by DateTime objects if you are running PHP 5.1+.
-- Added new property to postgres64 driver to support returning I if type is unique int called $db->uniqueIisR, defaulting to true. See http://phplens.com/lens/lensforum/msgs.php?id=17963
+- Added new property to postgres64 driver to support returning I if type is unique int called $db->uniqueIisR, defaulting to true. See PHPLens Issue No: 17963
 - Added support for bindarray in adodb_GetActiveRecordsClass with SelectLimit in adodb-active-record.inc.php.
 - Transactions now allowed in ado_access driver. Thx to petar.petrov.georgiev#gmail.com.
 - Sessions2 garbage collection is now much more robust. We perform ORDER BY to prevent deadlock in adodb-sessions2.inc.php.
@@ -495,8 +561,8 @@ other database types as well; all drivers derived from the above are also impact
 
 Released together with [v4.990](changelog_v4.x.md#4990---11-jul-2008)
 
-- Added support for multiple recordsets in mysqli , thanks to Geisel Sierote geisel#4up.com.br. See http://phplens.com/lens/lensforum/msgs.php?id=15917
-- Malcolm Cook added new Reload() function to Active Record. See http://phplens.com/lens/lensforum/msgs.php?id=17474
+- Added support for multiple recordsets in mysqli , thanks to Geisel Sierote geisel#4up.com.br. See PHPLens Issue No: 15917
+- Malcolm Cook added new Reload() function to Active Record. See PHPLens Issue No: 17474
 - Thanks Zoltan Monori (monzol#fotoprizma.hu) for bug fixes in iterator, SelectLimit, GetRandRow, etc.
 - Under heavy loads, the performance monitor for oci8 disables Ixora views.
 - Fixed sybase driver SQLDate to use str_replace(). Also for adodb5, changed sybase driver UnixDate and UnixTimeStamp calls to static.
@@ -548,8 +614,8 @@ Released together with [v4.97](changelog_v4.x.md#497---22-jan-2008)
 
 - Active Record: $ADODB_ASSOC_CASE=1 did not work properly. Fixed.
 - Modified Fields() in recordset class to support display null fields in FetchNextObject().
-- In ADOdb5, active record implementation, we now support column names with spaces in them - we autoconvert the spaces to _ using __set(). Thx Daniel Cook. http://phplens.com/lens/lensforum/msgs.php?id=17200
-- Removed $arg3 from mysqli SelectLimit. See http://phplens.com/lens/lensforum/msgs.php?id=16243. Thx Zsolt Szeberenyi.
+- In ADOdb5, active record implementation, we now support column names with spaces in them - we autoconvert the spaces to _ using __set(). Thx Daniel Cook. PHPLens Issue No: 17200
+- Removed $arg3 from mysqli SelectLimit. See PHPLens Issue No: 16243. Thx Zsolt Szeberenyi.
 - Changed oci8 FetchField, which returns the max_length of BLOB/CLOB/NCLOB as 4000 (incorrectly) to -1.
 - CacheExecute would sometimes return an error on Windows if it was unable to lock the cache file. This is harmless and has been changed to a warning that can be ignored. Also adodb_write_file() code revised.
 - ADOdb perf code changed to only log sql if execution time >= 0.05 seconds. New $ADODB_PERF_MIN variable holds min sql timing. Any SQL with timing value below this and is not causing an error is not logged.

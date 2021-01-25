@@ -1,7 +1,7 @@
 <?php
 
 /**
-  @version   v5.21.0-dev  ??-???-2016
+  @version   v5.22.0-dev  Unreleased
   @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -23,6 +23,15 @@ class ADODB2_access extends ADODB_DataDict {
 
  	function ActualType($meta)
 	{
+		$meta = strtoupper($meta);
+		
+		/*
+		* Add support for custom meta types. We do this
+		* first, that allows us to override existing types
+		*/
+		if (isset($this->connection->customMetaTypes[$meta]))
+			return $this->connection->customMetaTypes[$meta]['actual'];
+		
 		switch($meta) {
 		case 'C': return 'TEXT';
 		case 'XL':
@@ -34,18 +43,19 @@ class ADODB2_access extends ADODB_DataDict {
 		case 'B': return 'BINARY';
 
 		case 'TS':
-		case 'D': return 'DATETIME';
+		case 'D': 
+		return 'DATETIME';
 		case 'T': return 'DATETIME';
 
-		case 'L': return 'BYTE';
-		case 'I': return 'INTEGER';
+		case 'L':  return 'BYTE';
+		case 'I':  return 'INTEGER';
 		case 'I1': return 'BYTE';
 		case 'I2': return 'SMALLINT';
 		case 'I4': return 'INTEGER';
 		case 'I8': return 'INTEGER';
 
-		case 'F': return 'DOUBLE';
-		case 'N': return 'NUMERIC';
+		case 'F':  return 'DOUBLE';
+		case 'N':  return 'NUMERIC';
 		default:
 			return $meta;
 		}
