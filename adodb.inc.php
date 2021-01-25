@@ -452,12 +452,39 @@ if (!defined('_ADODB_LAYER')) {
 	var $isoDates = false;			/// accepts dates in ISO format
 	var $cacheSecs = 3600;			/// cache for 1 hour
 
-	// memcache
-	var $memCache = false; /// should we use memCache instead of caching in files
-	var $memCacheHost; /// memCache host
-	var $memCachePort = 11211; /// memCache port
-	var $memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib, not supported w/memcached library)
+	/*****************************************
+	* memcached server options
+	******************************************/
+	/*
+	* Should we use memCache instead of caching in files
+	*/
+	public $memCache = false; 
+	/*
+	* A string, array of hosts or array of memcache connection
+	* options (see adodb.org)
+	*/
+	public $memCacheHost; 
+	
+	/* 
+	* Default port, may be ignored if connection object array
+	* is set
+	*/
+	public $memCachePort = 11211;
+	
+	/*
+	* Use 'true' to store the item compressed 
+	* uses zlib, Direct option for memcache, else
+	* For memcached, use the memcacheOptions feature
+	*/
+	public $memCacheCompress = false; 
 
+	/*
+	* If using mecached, an array of options
+	* @link https://www.php.net/manual/en/memcached.constants.php
+	*/
+	public $memCacheOptions = array();
+	
+	
 	var $sysDate = false; /// name of function that returns the current date
 	var $sysTimeStamp = false; /// name of function that returns the current timestamp
 	var $sysUTimeStamp = false; // name of function that returns the current timestamp accurate to the microsecond or nearest fraction
