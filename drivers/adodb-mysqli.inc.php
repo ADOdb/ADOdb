@@ -347,36 +347,31 @@ class ADODB_mysqli extends ADOConnection {
 	/**
 	 * Appropriately quotes strings with ' characters for insertion into the database.
 	 *
+	 * Relies on mysqli_real_escape_string()
 	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:qstr
 	 *
-	 * @param string $s The string to quote
-	 * @param boolean $magic_quotes If false, use mysqli_real_escape_string()
-	 *     if you are quoting a string extracted from a POST/GET variable,
-	 *     then pass get_magic_quotes_gpc() as the second parameter. This will
-	 *     ensure that the variable is not quoted twice, once by qstr() and
-	 *     once by the magic_quotes_gpc.
-	 *     Eg. $s = $db->qstr(_GET['name'],get_magic_quotes_gpc());
+	 * @param string $s            The string to quote
+	 * @param bool   $magic_quotes This param is not used since 5.21.0.
+	 *                             It remains for backwards compatibility.
 	 *
 	 * @return string Quoted string
 	 */
-	function qstr($s, $magic_quotes = false)
+	function qStr($s, $magic_quotes=false)
 	{
-		if (is_null($s)) return 'NULL';
-		if (!$magic_quotes) {
-			// mysqli_real_escape_string() throws a warning when the given
-			// connection is invalid
-			if ($this->_connectionID) {
-				return "'" . mysqli_real_escape_string($this->_connectionID, $s) . "'";
-			}
-
-			if ($this->replaceQuote[0] == '\\') {
-				$s = str_replace(array('\\',"\0"), array('\\\\',"\\\0") ,$s);
-			}
-			return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
+		if (is_null($s)) {
+			return 'NULL';
 		}
-		// undo magic quotes for "
-		$s = str_replace('\\"','"',$s);
-		return "'$s'";
+
+		// mysqli_real_escape_string() throws a warning when the given
+		// connection is invalid
+		if ($this->_connectionID) {
+			return "'" . mysqli_real_escape_string($this->_connectionID, $s) . "'";
+		}
+
+		if ($this->replaceQuote[0] == '\\') {
+			$s = str_replace(array('\\', "\0"), array('\\\\', "\\\0") ,$s);
+		}
+		return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
 
 	/**
