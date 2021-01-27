@@ -2003,16 +2003,6 @@ if (!defined('_ADODB_LAYER')) {
 		return $rv;
 	}
 
-	function Transpose(&$rs,$addfieldnames=true) {
-		$rs2 = $this->_rs2rs($rs);
-		if (!$rs2) {
-			return false;
-		}
-
-		$rs2->_transpose($addfieldnames);
-		return $rs2;
-	}
-
 	/*
 		Calculate the offset of a date for a particular database and generate
 			appropriate SQL. Useful for calculating future/past dates and storing
@@ -4873,39 +4863,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$this->fetchMode = $ADODB_FETCH_MODE;
 		}
 
-		function _transpose($addfieldnames=true) {
-			global $ADODB_INCLUDED_LIB;
-
-			if (empty($ADODB_INCLUDED_LIB)) {
-				include_once(ADODB_DIR.'/adodb-lib.inc.php');
-			}
-			$hdr = true;
-
-			$fobjs = $addfieldnames ? $this->_fieldobjects : false;
-			adodb_transpose($this->_array, $newarr, $hdr, $fobjs);
-			//adodb_pr($newarr);
-
-			$this->_skiprow1 = false;
-			$this->_array = $newarr;
-			$this->_colnames = $hdr;
-
-			adodb_probetypes($newarr,$this->_types);
-
-			$this->_fieldobjects = array();
-
-			foreach($hdr as $k => $name) {
-				$f = new ADOFieldObject();
-				$f->name = $name;
-				$f->type = $this->_types[$k];
-				$f->max_length = -1;
-				$this->_fieldobjects[] = $f;
-			}
-			$this->fields = reset($this->_array);
-
-			$this->_initrs();
-
-		}
-
+		
 		/**
 		 * Setup the array.
 		 *
