@@ -1012,6 +1012,7 @@ class ADODB_mysqli extends ADOConnection {
 
 	/**
 	 * Prepares an SQL statement and returns a handle to use.
+	 * This is not used by bound parameters anymore
 	 *
 	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:prepare
 	 * @todo update this function to handle prepared statements correctly
@@ -1039,83 +1040,6 @@ class ADODB_mysqli extends ADOConnection {
 		return array($sql,$stmt);
 	}
 
-	/**
-	* Counts the true number of placeholders in a statement
-	* working on increasingly complex statements
-	*
-	* @param  string  $sql
-	*
-	* @return int The number of placeholders
-	*/
-	protected function placeHolderCount($sql)
-	{
-		
-		$quotepos = strpos($sql,"'");
-
-		if ($quotepos === false)
-		{
-			/*
-			* No quoted strings, count the placeholders
-			*/
-			return substr_count($sql,'?');
-		}
-		
-		/*
-		* We have a statement with quoted strings,
-		* which may or may not contain the question mark
-		*/
-
-		$tempSql = $sql;
-		/*
-		* Are there any escaped single quotes \' in
-		* the string? If so, remove them
-		*/
-		$tempSql = str_replace('\\\'','',$tempSql);
-		
-		/*
-		* If, after we do this, there are mismatched quotes,
-		* there is a problem with the statement
-		*/
-		$nQuoteTest = fmod(substr_count($tempSql,"'"),2);
-		
-		if ($nQuoteTest)
-		{
-			$this->outp_throw(
-			"Input string '" . htmlspecialchars($sql) . "' has mismatched single quotes. Quotes inside quoted strings must be correctly escaped",
-			'Execute'
-			);
-			return 0;
-		}				
-		/*
-		* Now break out quoted strings
-		*/
-		preg_match_all('/(\'.*?\')/',$tempSql,$quotedStringArray);
-
-		/*
-		* Do any of the quoted strings contain placeholders?
-		*/
-		$placeholderSearch = preg_grep('/\?/',$quotedStringArray[0]);
-		
-		if (count($placeholderSearch) == 0)
-		{
-			/*
-			* No they don't, we've gone far enough
-			*/
-			return substr_count($sql,'?');
-		}
-		
-		/*
-		* Getting to be a bit edge-case here, lets remove
-		* the quoted strings from the statement, and 
-		* check again. We don't care that the sql makes no
-		* sense because we aren't going to use it
-		*/
-		foreach ($quotedStringArray[0] as $qString)
-			$tempSql = str_replace($qString,'',$tempSql);
-
-		return substr_count($tempSql,'?');
-		
-	}
 	/**
 	 * Execute SQL
 	 *
@@ -1146,20 +1070,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		if (!is_array($sql)) {
 			
-			/* 
-			* Make sure the number of parameters provided in the input
-			* array matches what the query expects
-			*/
-			$nparams = $this->placeHolderCount($sql);
 			
-			if ($nparams != count($inputarr)) {
-				$this->outp_throw(
-					"Input array has " . count($inputarr) .
-					" params, does not match query: '" . htmlspecialchars($sql) . "'",
-					'Execute'
-				);
-				return false;
-			}
 
 			$typeString = '';
 			$typeArray  = array(''); //placeholder for type list
@@ -1256,27 +1167,56 @@ class ADODB_mysqli extends ADOConnection {
 			$this->usingBoundVariables = true;
 
 			/*
-			* Must pass references into call_user_func_array
-			*/
-			$refs = array();
-            foreach($inputarr as $key => $value)
-                $refs[$key] = &$inputarr[$key];
-			
-			/*
-			* Prepare the statement with the placeholders
+			* Prepare the statement with the placeholders, 
+			* prepare will fail if the statement is invalid
+			* so we trap and error if necessary. Note that we
+			* are calling MySQL prepare here, not ADOdb
 			*/
 			$stmt = $this->_connectionID->prepare($sql);
+			if ($stmt === false)
+			{
+				$this->outp_throw(
+					"SQL Statement failed on preparation: " . htmlspecialchars($sql) . "'",
+					'Execute'
+				);
+				return false;
+			}
+			/* 
+			* Make sure the number of parameters provided in the input
+			* array matches what the query expects. We must discount
+			* the first parameter which contains the data types in 
+			* our inbound parameters
+			*/
+			$nparams = $stmt->param_count;
+			
+			if ($nparams  != count($inputarr) - 1) {
+				$this->outp_throw(
+					"Input array has " . count($inputarr) .
+					" params, does not match query: '" . htmlspecialchars($sql) . "'",
+					'Execute'
+				);
+				return false;
+			}
+			
+			/*
+			* Must pass references into call_user_func_array
+			*/
+			$paramsByReference = array();
+            foreach($inputarr as $key => $value)
+                $paramsByReference[$key] = &$inputarr[$key];
+						
 			/*
 			* Bind the params
 			*/
-			call_user_func_array(array($stmt, 'bind_param'), $refs);
+			call_user_func_array(array($stmt, 'bind_param'), $paramsByReference);
+			
 			/*
 			* Execute
 			*/
 			$ret = mysqli_stmt_execute($stmt);
 			
 			/*
-			* Did we throw an error
+			* Did we throw an error?
 			*/
 			if ($ret == false)
 				return false;
