@@ -14,6 +14,27 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
+## [5.20.20] - 31-Jan-2021
+
+### Fixed
+
+- Fix usage of get_magic_* functions
+  [#619](https://github.com/ADOdb/ADOdb/issues/657)
+  [#657](https://github.com/ADOdb/ADOdb/issues/657)
+- Fix PHP warning in _rs2rs() function
+  [#679](https://github.com/ADOdb/ADOdb/issues/679)
+- pdo: Fix Fatal error in _query()
+  [#666](https://github.com/ADOdb/ADOdb/issues/666)
+- pdo: Fix undefined variable
+  [#678](https://github.com/ADOdb/ADOdb/issues/678)
+- pgsql: Fix Fatal error in _close() method (PHP8)
+  [#666](https://github.com/ADOdb/ADOdb/issues/666)
+- pgsql: fix deprecated function aliases (PHP8)
+  [#667](https://github.com/ADOdb/ADOdb/issues/667)
+- text: fix Cannot pass parameter by reference
+  [#668](https://github.com/ADOdb/ADOdb/issues/668)
+
+
 ## [5.20.19] - 13-Dec-2020
 
 ### Changed
@@ -786,6 +807,7 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
+[5.20.20]: https://github.com/adodb/adodb/compare/v5.20.19...v5.20.20
 [5.20.19]: https://github.com/adodb/adodb/compare/v5.20.18...v5.20.19
 [5.20.18]: https://github.com/adodb/adodb/compare/v5.20.17...v5.20.18
 [5.20.17]: https://github.com/adodb/adodb/compare/v5.20.16...v5.20.17
