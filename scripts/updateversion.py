@@ -185,7 +185,7 @@ def section_exists(filename, version, print_message=True):
     '''
     script = True
     for i, line in enumerate(open(filename)):
-        if re.search(r'^## ' + version, line):
+        if re.search(r'^## \[?' + version + r'\]', line):
             if print_message:
                 print "  Existing section for v%s found," % version,
             return True
@@ -254,7 +254,7 @@ def update_changelog(version):
             print "  Inserting new section for v%s" % version_release
             # Adjust previous version number (remove patch component)
             version_previous = version_parse(version_previous).group(1)
-        script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
+        script = "1,/^## \[{0}\]/s/^## \[{0}\].*$/## [{1}] - {2}\\n\\n\\0/".format(
             version_previous,
             version_release,
             release_date
@@ -265,7 +265,7 @@ def update_changelog(version):
     # and release date patterns
     elif not version_is_patch(version):
         print "  Updating release date for v%s" % version
-        script = r"s/^(## ){0}(\.0)? - {1}.*$/\1{2} - {3}/".format(
+        script = r"s/^(## )\[{0}\](\.0)? - {1}.*$/\1[{2}] - {3}/".format(
             vparse.group(1),
             _release_date_regex,
             version,
@@ -278,14 +278,14 @@ def update_changelog(version):
     else:
         if version_exists:
             print 'updating release date'
-            script = "s/^## {0}.*$/## {1} - {2}/".format(
+            script = "s/^## \[{0}\].*$/## [{1}] - {2}/".format(
                 version.replace('.', '\.'),
                 version,
                 release_date
                 )
         else:
             print "  Inserting new section for hotfix release v%s" % version
-            script = "1,/^## {0}/s/^## {0}.*$/## {1} - {2}\\n\\n\\0/".format(
+            script = "1,/^## \[{0}\]/s/^## \[{0}\].*$/## [{1}] - {2}\\n\\n\\0/".format(
                 version_previous,
                 version,
                 release_date
@@ -293,6 +293,14 @@ def update_changelog(version):
 
         print "  WARNING: review '%s' to ensure added section is correct" % (
             _changelog_file
+            )
+
+    if not version_exists:
+        # Adding the link to the release's commits list at the bottom
+        # @TODO does not handle the "Unreleased" version case
+        script += ";\n/^\[{0}\]/i[{1}]: https://github.com/adodb/adodb/compare/v{0}...v{1}".format(
+            version_previous,
+            version
             )
 
     subprocess.call(
