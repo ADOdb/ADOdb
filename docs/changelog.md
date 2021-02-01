@@ -14,6 +14,27 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
+## [5.20.20] - 2021-01-31
+
+### Fixed
+
+- Fix usage of get_magic_* functions
+  [#619](https://github.com/ADOdb/ADOdb/issues/657)
+  [#657](https://github.com/ADOdb/ADOdb/issues/657)
+- Fix PHP warning in _rs2rs() function
+  [#679](https://github.com/ADOdb/ADOdb/issues/679)
+- pdo: Fix Fatal error in _query()
+  [#666](https://github.com/ADOdb/ADOdb/issues/666)
+- pdo: Fix undefined variable
+  [#678](https://github.com/ADOdb/ADOdb/issues/678)
+- pgsql: Fix Fatal error in _close() method (PHP8)
+  [#666](https://github.com/ADOdb/ADOdb/issues/666)
+- pgsql: fix deprecated function aliases (PHP8)
+  [#667](https://github.com/ADOdb/ADOdb/issues/667)
+- text: fix Cannot pass parameter by reference
+  [#668](https://github.com/ADOdb/ADOdb/issues/668)
+
+
 ## [5.21.0-beta.1] - 2020-12-20
 
 Includes all fixes from 5.20.19.
@@ -222,27 +243,6 @@ Includes all fixes from 5.20.19.
   [#311](https://github.com/ADOdb/ADOdb/issues/311)
 - session: add 'httponly' flag to cookie
   [#190](https://github.com/ADOdb/ADOdb/issues/190)
-
-
-## [5.20.20] - 2021-01-31
-
-### Fixed
-
-- Fix usage of get_magic_* functions
-  [#619](https://github.com/ADOdb/ADOdb/issues/657)
-  [#657](https://github.com/ADOdb/ADOdb/issues/657)
-- Fix PHP warning in _rs2rs() function
-  [#679](https://github.com/ADOdb/ADOdb/issues/679)
-- pdo: Fix Fatal error in _query()
-  [#666](https://github.com/ADOdb/ADOdb/issues/666)
-- pdo: Fix undefined variable
-  [#678](https://github.com/ADOdb/ADOdb/issues/678)
-- pgsql: Fix Fatal error in _close() method (PHP8)
-  [#666](https://github.com/ADOdb/ADOdb/issues/666)
-- pgsql: fix deprecated function aliases (PHP8)
-  [#667](https://github.com/ADOdb/ADOdb/issues/667)
-- text: fix Cannot pass parameter by reference
-  [#668](https://github.com/ADOdb/ADOdb/issues/668)
 
 
 ## [5.20.19] - 2020-12-13
