@@ -245,25 +245,32 @@ class ADODB_mysql extends ADOConnection {
 	}
 
 
-	// if magic quotes disabled, use mysql_real_escape_string()
-	function qstr($s, $magic_quotes=false)
+	/**
+	 * Appropriately quotes strings with ' characters for insertion into the database.
+	 *
+	 * Relies on mysql_real_escape_string()
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:qstr
+	 *
+	 * @param string $s            The string to quote
+	 * @param bool   $magic_quotes This param is not used since 5.21.0.
+	 *                             It remains for backwards compatibility.
+	 *
+	 * @return string Quoted string
+	 */
+	function qStr($s, $magic_quotes=false)
 	{
-		if (is_null($s)) return 'NULL';
-		if (!$magic_quotes) {
-
-			if (is_resource($this->_connectionID)) {
-				return "'" . mysql_real_escape_string($s, $this->_connectionID) . "'";
-			}
-
-			if ($this->replaceQuote[0] == '\\'){
-				$s = str_replace(array('\\',"\0"), array('\\\\',"\\\0"), $s);
-			}
-			return "'".str_replace("'", $this->replaceQuote, $s)."'";
+		if (is_null($s)) {
+			return 'NULL';
 		}
 
-		// undo magic quotes for "
-		$s = str_replace('\\"','"',$s);
-		return "'$s'";
+		if (is_resource($this->_connectionID)) {
+			return "'" . mysql_real_escape_string($s, $this->_connectionID) . "'";
+		}
+
+		if ($this->replaceQuote[0] == '\\') {
+			$s = str_replace(array('\\', "\0"), array('\\\\', "\\\0"), $s);
+		}
+		return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
 
 	function _insertid()

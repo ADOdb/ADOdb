@@ -1241,13 +1241,6 @@ class adoSchema {
 	var $objectPrefix = '';
 
 	/**
-	* @var long	Original Magic Quotes Runtime value
-	* @access private
-	* @deprecated
-	*/
-	var $mgq;
-
-	/**
 	* @var long	System debug
 	* @access private
 	*/
@@ -1290,12 +1283,6 @@ class adoSchema {
 	* @param object $db ADOdb database connection object.
 	*/
 	function __construct( $db ) {
-		// PHP7.4 spits deprecated notice, PHP8 removed magic_* stuff
-		$this->mgq = version_compare(PHP_VERSION, '7.4.0', '<') && function_exists('get_magic_quotes_runtime') && get_magic_quotes_runtime();
-		if ($this->mgq !== false) {
-			ini_set('magic_quotes_runtime', 0);
-		}
-
 		$this->db = $db;
 		$this->debug = $this->db->debug;
 		$this->dict = NewDataDictionary( $this->db );
@@ -2175,11 +2162,7 @@ class adoSchema {
 	* Call this method to clean up after an adoSchema object that is no longer in use.
 	* @deprecated adoSchema now cleans up automatically.
 	*/
-	function Destroy() {
-		if ($this->mgq !== false) {
-			ini_set('magic_quotes_runtime', $this->mgq );
-		}
-	}
+	function Destroy() {}
 }
 
 /**

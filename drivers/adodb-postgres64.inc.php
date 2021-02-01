@@ -264,25 +264,30 @@ class ADODB_postgres64 extends ADOConnection{
 	}
 
 
-	// if magic quotes disabled, use pg_escape_string()
-	function qstr($s,$magic_quotes=false)
+	/**
+	 * Quotes a string to be sent to the database.
+	 *
+	 * Relies on pg_escape_string()
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:qstr
+	 *
+	 * @param string $s            The string to quote
+	 * @param bool   $magic_quotes This param is not used since 5.21.0.
+	 *                             It remains for backwards compatibility.
+	 *
+	 * @return string Quoted string
+	 */
+	function qStr($s, $magic_quotes=false)
 	{
-		if (is_bool($s)) return $s ? 'true' : 'false';
-
-		if (!$magic_quotes) {
-			if ($this->_connectionID) {
-				return "'" . pg_escape_string($this->_connectionID, $s) . "'";
-			}
-			else {
-				return "'" . pg_escape_string($s) . "'";
-			}
+		if (is_bool($s)) {
+			return $s ? 'true' : 'false';
 		}
 
-		// undo magic quotes for "
-		$s = str_replace('\\"','"',$s);
-		return "'$s'";
+		if ($this->_connectionID) {
+			return "'" . pg_escape_string($this->_connectionID, $s) . "'";
+		} else {
+			return "'" . pg_escape_string($s) . "'";
+		}
 	}
-
 
 
 	// Format date column in sql string given an input format that understands Y M D

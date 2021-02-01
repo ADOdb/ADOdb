@@ -51,19 +51,6 @@ function err($s)
 	die('**** '.$s.' ');
 }
 
-// undo stupid magic quotes
-function undomq(&$m)
-{
-	if (get_magic_quotes_gpc()) {
-		// undo the damage
-		$m = str_replace('\\\\','\\',$m);
-		$m = str_replace('\"','"',$m);
-		$m = str_replace('\\\'','\'',$m);
-
-	}
-	return $m;
-}
-
 ///////////////////////////////////////// DEFINITIONS
 
 
@@ -81,7 +68,7 @@ if (empty($_REQUEST['sql'])) err('No SQL');
 $conn = ADONewConnection($driver);
 
 if (!$conn->connect($host,$uid,$pwd,$database)) err($conn->errorNo(). $sep . $conn->errorMsg());
-$sql = undomq($_REQUEST['sql']);
+$sql = $_REQUEST['sql'];
 
 if (isset($_REQUEST['fetch']))
 	$ADODB_FETCH_MODE = $_REQUEST['fetch'];

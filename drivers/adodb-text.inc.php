@@ -371,7 +371,7 @@ class ADORecordSet_text extends ADORecordSet_array
 
 	var $databaseType = "text";
 
-	function __construct(&$conn,$mode=false)
+	function __construct( $conn,$mode=false)
 	{
 		parent::__construct();
 		$this->InitArray($conn->_rezarray,$conn->_reztypes,$conn->_reznames);

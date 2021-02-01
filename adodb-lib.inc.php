@@ -561,7 +561,7 @@ function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr
 	return $rsreturn;
 }
 
-function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $magicq=false, $force=2)
+function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $force=2)
 {
 	global $ADODB_QUOTE_FIELDNAMES;
 
@@ -646,7 +646,7 @@ function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $mag
 						case 2:
 							// set empty
 							$arrFields[$upperfname] = "";
-							$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq, $arrFields, $magicq);
+							$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq, $arrFields);
 							break;
 
 						default:
@@ -655,7 +655,7 @@ function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $mag
 							if (is_null($arrFields[$upperfname]) || $arrFields[$upperfname] === $zthis->null2null) {
 								$setFields .= $fnameq . " = null, ";
 							} else {
-								$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq, $arrFields, $magicq);
+								$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq, $arrFields);
 							}
 							break;
 
@@ -680,7 +680,7 @@ function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $mag
 					// DB specific column types.
 					// Oracle needs BLOB types to be handled with a returning clause
 					// postgres has special needs as well
-					$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq, $arrFields, $magicq);
+					$setFields .= _adodb_column_sql($zthis, 'U', $type, $upperfname, $fnameq, $arrFields);
 				}
 			}
 		}
@@ -745,7 +745,7 @@ function adodb_key_exists($key, &$arr,$force=2)
  *
  *
  */
-function _adodb_getinsertsql(&$zthis,&$rs,$arrFields,$magicq=false,$force=2)
+function _adodb_getinsertsql(&$zthis, &$rs, $arrFields, $force=2)
 {
 static $cacheRS = false;
 static $cacheSig = 0;
@@ -837,7 +837,7 @@ static $cacheCols;
                         case ADODB_FORCE_EMPTY:
                             //Set empty
                             $arrFields[$upperfname] = "";
-                            $values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq,$arrFields, $magicq);
+							$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields);
                         break;
 
 						default:
@@ -846,7 +846,7 @@ static $cacheCols;
 							if (is_null($arrFields[$upperfname]) || $arrFields[$upperfname] === $zthis->null2null) {
 								$values  .= "null, ";
 							} else {
-                        		$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields, $magicq);
+								$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields);
              				}
               			break;
 
@@ -872,8 +872,7 @@ static $cacheCols;
 				//DB specific column types.
 				//Oracle needs BLOB types to be handled with a returning clause
 				//postgres has special needs as well
-				$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq,
-											   $arrFields, $magicq);
+				$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields);
 			}
 
 			if ($bad) continue;
@@ -924,7 +923,7 @@ static $cacheCols;
  * @return string
  *
  */
-function _adodb_column_sql_oci8(&$zthis,$action, $type, $fname, $fnameq, $arrFields, $magicq)
+function _adodb_column_sql_oci8(&$zthis,$action, $type, $fname, $fnameq, $arrFields)
 {
     $sql = '';
 	
@@ -997,7 +996,7 @@ function _adodb_column_sql_oci8(&$zthis,$action, $type, $fname, $fnameq, $arrFie
         } else {
             //this is to maintain compatibility
             //with older adodb versions.
-            $sql = _adodb_column_sql($zthis, $action, $type, $fname, $fnameq, $arrFields, $magicq,false);
+			$sql = _adodb_column_sql($zthis, $action, $type, $fname, $fnameq, $arrFields, false);
         }
         break;
 
@@ -1020,19 +1019,19 @@ function _adodb_column_sql_oci8(&$zthis,$action, $type, $fname, $fnameq, $arrFie
         } else {
             //this is to maintain compatibility
             //with older adodb versions.
-            $sql = _adodb_column_sql($zthis, $action, $type, $fname, $fnameq, $arrFields, $magicq,false);
+			$sql = _adodb_column_sql($zthis, $action, $type, $fname, $fnameq, $arrFields, false);
         }
         break;
 
     default:
-        $sql = _adodb_column_sql($zthis, $action, $type, $fname, $fnameq,  $arrFields, $magicq,false);
+		$sql = _adodb_column_sql($zthis, $action, $type, $fname, $fnameq,  $arrFields, false);
         break;
     }
 
     return $sql;
 }
 
-function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields, $magicq, $recurse=true)
+function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields, $recurse=true)
 {
 
 	if ($recurse) {
@@ -1041,7 +1040,7 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 			if ($type == 'L') $type = 'C';
 			break;
 		case 'oci8':
-			return _adodb_column_sql_oci8($zthis, $action, $type, $fname, $fnameq, $arrFields, $magicq);
+			return _adodb_column_sql_oci8($zthis, $action, $type, $fname, $fnameq, $arrFields);
 
 		}
 	}
@@ -1093,7 +1092,7 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 		case "C":
 		case "X":
 		case 'B':
-			$val = $zthis->qstr($arrFields[$fname],$magicq);
+			$val = $zthis->qstr($arrFields[$fname]);
 			break;
 
 		case "D":
@@ -1123,9 +1122,7 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 
 	if ($action == 'I') return $val . ", ";
 
-
 	return $fnameq . "=" . $val  . ", ";
-
 }
 
 

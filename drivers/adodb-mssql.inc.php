@@ -127,37 +127,22 @@ class ADODB_mssql extends ADOConnection {
 
 
 	/**
-	* Correctly quotes a string so that all strings are escaped. We prefix and append
-	* to the string single-quotes.
-	* An example is  $db->qstr("Don't bother",magic_quotes_runtime());
-	*
-	* @param s         the string to quote
-	* @param [magic_quotes]    if $s is GET/POST var, set to get_magic_quotes_gpc().
-	*              This undoes the stupidity of magic quotes for GPC.
-	*
-	* @return  quoted string to be sent back to database
-	*/
-	function qstr($s,$magic_quotes=false)
+	 * Correctly quotes a string so that all strings are escaped.
+	 * We prefix and append to the string single-quotes.
+	 * An example is  $db->qstr("Don't bother");
+	 *
+	 * @param string $s            The string to quote
+	 * @param bool   $magic_quotes This param is not used since 5.21.0.
+	 *                             It remains for backwards compatibility.
+	 *
+	 * @return string Quoted string to be sent back to database
+	 *
+	 * @noinspection PhpUnusedParameterInspection
+	 */
+	function qStr($s, $magic_quotes=false)
 	{
-		if (!$magic_quotes) {
-			return  "'".str_replace("'",$this->replaceQuote,$s)."'";
-		}
-
-		// undo magic quotes for " unless sybase is on
-		$sybase = ini_get('magic_quotes_sybase');
-		if (!$sybase) {
-			$s = str_replace('\\"','"',$s);
-			if ($this->replaceQuote == "\\'")  // ' already quoted, no need to change anything
-				return "'$s'";
-			else {// change \' to '' for sybase/mssql
-				$s = str_replace('\\\\','\\',$s);
-				return "'".str_replace("\\'",$this->replaceQuote,$s)."'";
-			}
-		} else {
-			return "'".$s."'";
-		}
+		return  "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
-// moodle change end - see readme_moodle.txt
 
 	function _affectedrows()
 	{

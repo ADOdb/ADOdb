@@ -2071,12 +2071,12 @@ class adoSchema {
 	*
 	* Call this method to create an XML schema string from an existing database.
 	* If the data parameter is set to TRUE, AXMLS will include the data from the database
-	* in the schema.
+	* tables in the schema.
 	*
-	* @param boolean $data Include data in schema dump
-	* @indent string indentation to use
-	* @prefix string extract only tables with given prefix
-	* @stripprefix strip prefix string when storing in XML schema
+	* @param boolean $data include data in schema dump
+	* @param string $indent indentation to use
+	* @param string $prefix extract only tables with given prefix
+	* @param boolean $stripprefix strip prefix string when storing in XML schema
 	* @return string Generated XML schema
 	*/
 	function extractSchema( $data = FALSE, $indent = '  ', $prefix = '' , $stripprefix=false) {

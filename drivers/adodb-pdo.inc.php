@@ -618,25 +618,23 @@ class ADODB_pdo extends ADOConnection {
 
 	/**
 	 * Quotes a string to be sent to the database.
+	 *
 	 * If we have an active connection, delegates quoting to the underlying
-	 * PDO object. Otherwise, replace "'" by the value of $replaceQuote (same
-	 * behavior as mysqli driver)
-	 * @param string  $s            The string to quote
-	 * @param boolean $magic_quotes If false, use PDO::quote().
+	 * PDO object PDO::quote(). Otherwise, replace "'" by the value of
+	 * $replaceQuote (same behavior as mysqli driver).
+	 *
+	 * @param string  $s           The string to quote
+	 * @param bool   $magic_quotes This param is not used since 5.21.0.
+	 *                             It remains for backwards compatibility.
+	 *
 	 * @return string Quoted string
 	 */
-	function qstr($s, $magic_quotes = false)
+	function qStr($s, $magic_quotes = false)
 	{
-		if (!$magic_quotes) {
-			if ($this->_connectionID) {
-				return $this->_connectionID->quote($s);
-			}
-			return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
+		if ($this->_connectionID) {
+			return $this->_connectionID->quote($s);
 		}
-
-		// undo magic quotes for "
-		$s = str_replace('\\"', '"', $s);
-		return "'$s'";
+		return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
 
 }

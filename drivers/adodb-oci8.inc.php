@@ -1540,37 +1540,27 @@ SELECT /*+ RULE */ distinct b.column_name
 	}
 
 	/**
-	 * Quotes a string.
-	 * An example is  $db->qstr("Don't bother",magic_quotes_runtime());
+	 * Correctly quotes a string so that all strings are escaped.
+	 * We prefix and append to the string single-quotes.
+	 * An example is  $db->qstr("Don't bother");
 	 *
-	 * @param string $s the string to quote
-	 * @param bool $magic_quotes if $s is GET/POST var, set to get_magic_quotes_gpc().
-	 *             This undoes the stupidity of magic quotes for GPC.
+	 * @param string $s            The string to quote
+	 * @param bool   $magic_quotes This param is not used since 5.21.0.
+	 *                             It remains for backwards compatibility.
 	 *
-	 * @return string quoted string to be sent back to database
+	 * @return string Quoted string to be sent back to database
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
-	function qstr($s,$magic_quotes=false)
+	function qStr($s, $magic_quotes=false)
 	{
-		//$nofixquotes=false;
-
-		if ($this->noNullStrings && strlen($s)==0) {
+		if ($this->noNullStrings && strlen($s) == 0) {
 			$s = ' ';
 		}
-		if (!$magic_quotes) {
-			if ($this->replaceQuote[0] == '\\'){
-				$s = str_replace('\\','\\\\',$s);
-			}
-			return  "'".str_replace("'",$this->replaceQuote,$s)."'";
+		if ($this->replaceQuote[0] == '\\'){
+			$s = str_replace('\\','\\\\',$s);
 		}
-
-		// undo magic quotes for " unless sybase is on
-		if (!ini_get('magic_quotes_sybase')) {
-			$s = str_replace('\\"','"',$s);
-			$s = str_replace('\\\\','\\',$s);
-			return "'".str_replace("\\'",$this->replaceQuote,$s)."'";
-		} else {
-			return "'".$s."'";
-		}
+		return  "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
 
 }
