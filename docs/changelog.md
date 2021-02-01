@@ -14,14 +14,45 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
-## 5.22.0 - Unreleased
+## [Unreleased]
+
+### Added
+
+- Support for custom MetaTypes, e.g. JSON or GEOMETRY
+  [#602](https://github.com/ADOdb/ADOdb/issues/602)
+  [#626](https://github.com/ADOdb/ADOdb/issues/626)
+  [#649](https://github.com/ADOdb/ADOdb/issues/649)
+- sqlite3 performance monitor stub
+  [#661](https://github.com/ADOdb/ADOdb/issues/661)
+- Use of weighted server groups with Memcached
+  [#676](https://github.com/ADOdb/ADOdb/issues/676)
+
+### Changed
+
+- mysql: Support bound variable statements
+  [#655](https://github.com/ADOdb/ADOdb/issues/655)
+
+### Removed
+
+- Transpose() function and assorted sub-functions 
+  [#586](https://github.com/ADOdb/ADOdb/issues/586)
+
+### Fixed
+
+- metaIndexes does not return primary key correctly
+  [#656](https://github.com/ADOdb/ADOdb/issues/656)
+- mysql: Update socket and client flags for ssl
+  [#622](https://github.com/ADOdb/ADOdb/issues/622)
+- pgsql: prevent AddColumnSQL() from updating existing values when default is changed
+  [#635](https://github.com/ADOdb/ADOdb/issues/635)
+
 
 ## [5.20.20] - 2021-01-31
 
 ### Fixed
 
 - Fix usage of get_magic_* functions
-  [#619](https://github.com/ADOdb/ADOdb/issues/657)
+  [#619](https://github.com/ADOdb/ADOdb/issues/619)
   [#657](https://github.com/ADOdb/ADOdb/issues/657)
 - Fix PHP warning in _rs2rs() function
   [#679](https://github.com/ADOdb/ADOdb/issues/679)
@@ -1018,6 +1049,8 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version, added iterator support for adodb_recordset_empty.
 - Adodb5 version,more error checking code now will use exceptions if available.
 
+
+[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.0-beta.1...master
 
 [5.21.0-beta.1]: https://github.com/adodb/adodb/compare/v5.20.20...v5.21.0-beta.1
 
