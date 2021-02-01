@@ -122,14 +122,14 @@ def version_check(version):
 
 def get_release_date(version):
     """
-    Return the release date in DD-MMM-YYYY format, or 'Unreleased' for
+    Return the release date in YYYY-MM-DD format, or 'Unreleased' for
     development releases.
     """
     # Development release
     if version_is_dev(version):
         return "Unreleased"
     else:
-        return date.today().strftime("%d-%b-%Y")
+        return date.today().strftime("%Y-%m-%d")
 
 
 def git_root():
@@ -238,7 +238,7 @@ def section_exists(filename, version, print_message=True):
     Check given file for existing section with specified version.
     """
     for i, line in enumerate(open(filename)):
-        if re.search(r'^## \[?' + version + r'\]', line):
+        if re.search(r'^## \[?' + version + r']', line):
             if print_message:
                 print("  Existing section for v{0} found,"
                       .format(version), end=" ")
@@ -258,7 +258,7 @@ def version_get_previous(version):
     """
     Returns the previous version number.
 
-    In pre-releaes scenarios, it would be complex to figure out what the
+    In pre-release scenarios, it would be complex to figure out what the
     previous version is, so it is not worth the effort to implement as
     this is a rare usage scenario; we just raise an exception in this case.
     - 'UnsupportedPreviousVersion' when attempting facing pre-release
@@ -320,7 +320,7 @@ def update_changelog(version):
     # If version exists, update the release date
     if section_exists(_changelog_file, version):
         print('updating release date')
-        script = "s/^## \[{0}\] .*$/## [{1}] - {2}/".format(
+        script = r"s/^## \[{0}] .*$/## [{1}] - {2}/".format(
             version.replace('.', r'\.'),
             version,
             get_release_date(version)
@@ -342,7 +342,7 @@ def update_changelog(version):
 
         # Prerelease section is inserted after the main version's,
         # otherwise we insert the new section before it.
-        section_template = "## \[{0}\] - {1}"
+        section_template = r"## \[{0}] - {1}"
         if version_is_prerelease(version):
             version_section = section_template.format(
                 version,
@@ -359,7 +359,7 @@ def update_changelog(version):
         if version_previous:
             # Adjust previous version number (remove patch component)
             version_previous = version_parse(version_previous).group(1)
-            script = "1,/^## \[{0}\]/s/^## \[{0}\].*$/{1}/".format(
+            script = r"1,/^## \[{0}]/s/^## \[{0}].*$/{1}/".format(
                 version_previous,
                 version_section
                 )
