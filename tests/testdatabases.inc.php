@@ -32,7 +32,6 @@
 <input type=checkbox name="testmysqli" value=1 <?php echo !empty($testmysqli) ? 'checked' : '' ?>> <b>MySQLi</b>
 <br>
 <td><input type=checkbox name="testsqlite" value=1 <?php echo !empty($testsqlite) ? 'checked' : '' ?>> <b>SQLite</b><br>
-<input type=checkbox name="testproxy" value=1 <?php echo !empty($testproxy) ? 'checked' : '' ?>> <b>MySQL Proxy</b><br>
 <input type=checkbox name="testoracle" value=1 <?php echo !empty($testoracle) ? 'checked' : '' ?>> <b>Oracle (oci8)</b> <br>
 <input type=checkbox name="testpostgres" value=1 <?php echo !empty($testpostgres) ? 'checked' : '' ?>> <b>PostgreSQL</b><br>
 <input type=checkbox name="testpostgres9" value=1 <?php echo !empty($testpostgres9) ? 'checked' : '' ?>> <b>PostgreSQL 9</b><br>
@@ -323,18 +322,6 @@ if (!empty($testmysqlodbc)) { // MYSQL
 		testdb($db,
 		"create table ADOXYZ (id int, firstname char(24), lastname char(24), created date) type=innodb");
 	else print "ERROR: MySQL test requires a MySQL server on localhost, userid='admin', password='', database='test'".'<BR>'.$db->ErrorMsg();
-}
-
-if (!empty($testproxy)){
-	$db = ADONewConnection('proxy');
-	print "<h1>Connecting $db->databaseType...</h1>";
-	$server = 'localhost';
-
-	if ($db->PConnect('http://localhost/php/phplens/adodb/server.php'))
-		testdb($db,
-		"create table ADOXYZ (id int, firstname char(24), lastname char(24), created date) type=innodb");
-	else print "ERROR: MySQL test requires a MySQL server on localhost, userid='admin', password='', database='test'".'<BR>'.$db->ErrorMsg();
-
 }
 
 ADOLoadCode('oci805');
