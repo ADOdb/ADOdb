@@ -21,6 +21,9 @@ $ADODB_INCLUDED_MEMCACHE = 1;
 
   Class instance is stored in $ADODB_CACHE
 */
+
+//include_once 'adodb-csvlib.inc.php';
+
 class ADODB_Cache_MemCache 
 {
 	/*
@@ -63,7 +66,7 @@ class ADODB_Cache_MemCache
 	/*
 	* Handle for the Memcache library
 	*/
-	private $memcacheLibrary = false
+	private $memcacheLibrary = false;
 	
 	/*
 	* New server feature controller lists available servers
@@ -140,7 +143,9 @@ class ADODB_Cache_MemCache
 			return false;
 		}
 		
-		$this->memCacheLibrary = new {$this->libraries[$libraryFlag]};
+		$usedLibrary = $this->libraries[$this->libraryFlag];
+		
+		$this->memCacheLibrary = new $usedLibrary;
 		if (!$this->memcacheLibrary)
 		{
 			$err = 'Memcache library failed to initialize';
@@ -155,7 +160,7 @@ class ADODB_Cache_MemCache
 			/*
 			* Value of Memcached::OPT_COMPRESSION = 2;
 			*/
-			$this->options[2] == 1
+			$this->options[2] == 1;
 		}
 		/*
 		* Are there any options available for memcached
