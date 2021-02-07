@@ -5,6 +5,10 @@ if (!defined('ADODB_DIR')) die();
 
 global $ADODB_INCLUDED_MEMCACHE;
 $ADODB_INCLUDED_MEMCACHE = 1;
+
+global $ADODB_INCLUDED_CSV;
+if (empty($ADODB_INCLUDED_CSV)) 
+	include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
 /*
 
   @version   v5.22.0-dev  Unreleased
@@ -21,8 +25,6 @@ $ADODB_INCLUDED_MEMCACHE = 1;
 
   Class instance is stored in $ADODB_CACHE
 */
-
-//include_once 'adodb-csvlib.inc.php';
 
 class ADODB_Cache_MemCache 
 {
