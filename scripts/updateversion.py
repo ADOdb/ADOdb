@@ -359,9 +359,10 @@ def update_changelog(version):
         if version_previous:
             # Adjust previous version number (remove patch component)
             version_previous = version_parse(version_previous).group(1)
-            script = r"1,/^## \[{0}]/s/^## \[{0}].*$/{1}/".format(
+            script = r"1,/^## \[({0}|{2})/s/^## \[({0}|{2}).*$/{1}/".format(
                 version_previous,
-                version_section
+                version_section,
+                version_release
                 )
 
         # We don't have a previous version, insert before the first section

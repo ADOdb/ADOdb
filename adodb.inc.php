@@ -1092,15 +1092,19 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Returns a placeholder for query parameters
+	 * Returns a placeholder for query parameters.
+	 *
 	 * e.g. $DB->Param('a') will return
 	 * - '?' for most databases
 	 * - ':a' for Oracle
 	 * - '$1', '$2', etc. for PostgreSQL
-	 * @param string $name parameter's name, false to force a reset of the
-	 *                     number to 1 (for databases that require positioned
-	 *                     params such as PostgreSQL; note that ADOdb will
-	 *                     automatically reset this when executing a query )
+	 *
+	 * @param mixed $name parameter's name.
+	 *                    For databases that require positioned params (e.g. PostgreSQL),
+	 *                    a "falsy" value can be used to force resetting the placeholder
+	 *                    count; using boolean 'false' will reset it without actually
+	 *                    returning a placeholder. ADOdb will also automatically reset
+	 *                    the count when executing a query.
 	 * @param string $type (unused)
 	 * @return string query parameter placeholder
 	 */

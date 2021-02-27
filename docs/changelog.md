@@ -47,6 +47,14 @@ Older changelogs:
   [#635](https://github.com/ADOdb/ADOdb/issues/635)
 
 
+## [5.21.0] - 2021-02-27
+
+### Fixed
+
+- pgsql: param(0) returns invalid `$0` placeholder
+  [#682](https://github.com/ADOdb/ADOdb/issues/682)
+
+
 ## [5.21.0-rc.1] - 2021-02-02
 
 Includes all fixes from 5.20.20.
@@ -1079,8 +1087,9 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.0-rc.1...master
+[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.0...master
 
+[5.21.0]: https://github.com/adodb/adodb/compare/v5.21.0-rc.1...v5.21.0
 [5.21.0-rc.1]: https://github.com/adodb/adodb/compare/v5.21.0-beta.1...v5.21.0-rc.1
 [5.21.0-beta.1]: https://github.com/adodb/adodb/compare/v5.20.20...v5.21.0-beta.1
 
