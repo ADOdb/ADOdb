@@ -6,7 +6,7 @@
  * Whenever there is any discrepancy between the two licenses, the BSD license
  * will take precedence.
  *
- * @version   v5.21.0  2021-02-27
+ * @version   v5.21.1-dev  Unreleased
  * @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
  * @copyright (c) 2019      Damien Regad, Mark Newnham and the ADOdb community
  */
