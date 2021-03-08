@@ -1175,13 +1175,13 @@ class ADODB_mysqli extends ADOConnection {
 
 	function getCharSet()
 	{
-		//we will use ADO's builtin property charSet
-		if (!method_exists($this->_connectionID,'character_set_name'))
+		if (!$this->_connectionID || !method_exists($this->_connectionID,'character_set_name')) {
 			return false;
+		}
 
 		$this->charSet = @$this->_connectionID->character_set_name();
 		if (!$this->charSet) {
-			return false;
+		
 		} else {
 			return $this->charSet;
 		}
@@ -1189,7 +1189,7 @@ class ADODB_mysqli extends ADOConnection {
 
 	function setCharSet($charset)
 	{
-		if (!method_exists($this->_connectionID,'set_charset')) {
+		if (!$this->_connectionID || !method_exists($this->_connectionID,'set_charset')) {
 			return false;
 		}
 

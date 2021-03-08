@@ -14,6 +14,14 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
+## [Unreleased]
+
+### Fixed
+
+- mysql: TypeError when calling get/setChangeSet on unset connection (PHP 8)
+  [#686](https://github.com/ADOdb/ADOdb/issues/686)
+
+
 ## [5.21.0] - 2021-02-27
 
 ### Fixed
@@ -1053,6 +1061,8 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version, added iterator support for adodb_recordset_empty.
 - Adodb5 version,more error checking code now will use exceptions if available.
 
+
+[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.0...hotfix/5.21
 
 [5.21.0]: https://github.com/adodb/adodb/compare/v5.21.0-rc.1...v5.21.0
 [5.21.0-rc.1]: https://github.com/adodb/adodb/compare/v5.21.0-beta.1...v5.21.0-rc.1

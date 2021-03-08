@@ -280,7 +280,9 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	 */
 	function getCharSet()
 	{
-		//we will use ADO's builtin property charSet
+		if (!$this->_connectionID) {
+			return false;
+		}
 		$this->charSet = @pg_client_encoding($this->_connectionID);
 		if (!$this->charSet) {
 			return false;
