@@ -2467,11 +2467,26 @@ if (!defined('_ADODB_LAYER')) {
 		return $blob;
 	}
 
-	function GetCharSet() {
+	/**
+	 * Retrieve the client connection's current character set.
+	 *
+	 * @return string|false The character set, or false if it can't be determined.
+	 */
+	function getCharSet() {
 		return $this->charSet;
 	}
 
-	function SetCharSet($charset) {
+	/**
+	 * Sets the client-side character set.
+	 *
+	 * This is only supported for some databases.
+	 * @see https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:setcharset
+	 *
+	 * @param string $charset The character set to switch to.
+	 *
+	 * @return bool True if the character set was changed successfully, false otherwise.
+	 */
+	function setCharSet($charset) {
 		$this->charSet = $charset;
 		return true;
 	}

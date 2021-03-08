@@ -1173,12 +1173,7 @@ class ADODB_mysqli extends ADOConnection {
 		return 4294967295;
 	}
 
-	/**
-	 * Get the name of the character set the client connection is using now.
-	 *
-	 * @return string|bool The name of the character set, or false if it can't be determined.
-	 */
-	function GetCharSet()
+	function getCharSet()
 	{
 		//we will use ADO's builtin property charSet
 		if (!method_exists($this->_connectionID,'character_set_name'))
@@ -1192,24 +1187,15 @@ class ADODB_mysqli extends ADOConnection {
 		}
 	}
 
-	/**
-	 * Sets the character set for database connections (limited databases).
-	 *
-	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:setcharset
-	 *
-	 * @param string $charset_name The character set to switch to.
-	 *
-	 * @return bool True if the character set was changed successfully, otherwise false.
-	 */
-	function SetCharSet($charset_name)
+	function setCharSet($charset)
 	{
 		if (!method_exists($this->_connectionID,'set_charset')) {
 			return false;
 		}
 
-		if ($this->charSet !== $charset_name) {
-			$if = @$this->_connectionID->set_charset($charset_name);
-			return ($if === true & $this->getCharSet() == $charset_name);
+		if ($this->charSet !== $charset) {
+			$if = @$this->_connectionID->set_charset($charset);
+			return ($if === true & $this->getCharSet() == $charset);
 		} else {
 			return true;
 		}

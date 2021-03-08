@@ -76,17 +76,16 @@ class ADODB_mysql extends ADOConnection {
 		}
 	}
 
-	// SetCharSet - switch the client encoding
-	function setCharSet($charset_name)
+	function setCharSet($charset)
 	{
 		if (!function_exists('mysql_set_charset')) {
 			return false;
 		}
 
-		if ($this->charSet !== $charset_name) {
-			$ok = @mysql_set_charset($charset_name,$this->_connectionID);
+		if ($this->charSet !== $charset) {
+			$ok = @mysql_set_charset($charset,$this->_connectionID);
 			if ($ok) {
-				$this->charSet = $charset_name;
+				$this->charSet = $charset;
 				return true;
 			}
 			return false;

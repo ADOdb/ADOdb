@@ -269,14 +269,16 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		return $rez;
 	}
 
-	// this is a set of functions for managing client encoding - very important if the encodings
-	// of your database and your output target (i.e. HTML) don't match
-	//for instance, you may have UNICODE database and server it on-site as WIN1251 etc.
-	// GetCharSet - get the name of the character set the client is using now
-	// the functions should work with Postgres 7.0 and above, the set of charsets supported
-	// depends on compile flags of postgres distribution - if no charsets were compiled into the server
-	// it will return 'SQL_ANSI' always
-	function GetCharSet()
+	/**
+	 * Retrieve the client connection's current character set.
+
+	 * If no charsets were compiled into the server, the function will always
+	 * return 'SQL_ASCII'.
+	 * @see https://www.php.net/manual/en/function.pg-client-encoding.php
+	 *
+	 * @return string|false The character set, or false if it can't be determined.
+	 */
+	function getCharSet()
 	{
 		//we will use ADO's builtin property charSet
 		$this->charSet = @pg_client_encoding($this->_connectionID);
@@ -285,18 +287,33 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		} else {
 			return $this->charSet;
 		}
+		$this->charSet = pg_client_encoding($this->_connectionID);
+		return $this->charSet ?: false;
 	}
 
-	// SetCharSet - switch the client encoding
-	function SetCharSet($charset_name)
+	/**
+	 * Sets the client-side character set (encoding).
+	 *
+	 * Allows managing client encoding - very important if the database and
+	 * the output target (i.e. HTML) don't match; for instance, you may have a
+	 * UNICODE database and server your pages as WIN1251, etc.
+	 *
+	 * Supported on PostgreSQL 7.0 and above. Available charsets depend on
+	 * PostgreSQL version and the distribution's compile flags.
+	 *
+	 * @param string $charset The character set to switch to.
+	 *
+	 * @return bool True if the character set was changed successfully, false otherwise.
+	 */
+	function setCharSet($charset)
 	{
-		$this->GetCharSet();
-		if ($this->charSet !== $charset_name) {
-			$if = pg_set_client_encoding($this->_connectionID, $charset_name);
-			if ($if == "0" & $this->GetCharSet() == $charset_name) {
-				return true;
-			} else return false;
-		} else return true;
+		if ($this->charSet !== $charset) {
+			if (!$this->_connectionID || pg_set_client_encoding($this->_connectionID, $charset) != 0) {
+				return false;
+			}
+			$this->getCharSet();
+		}
+		return true;
 	}
 
 }
