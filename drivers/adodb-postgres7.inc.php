@@ -283,12 +283,6 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		if (!$this->_connectionID) {
 			return false;
 		}
-		$this->charSet = @pg_client_encoding($this->_connectionID);
-		if (!$this->charSet) {
-			return false;
-		} else {
-			return $this->charSet;
-		}
 		$this->charSet = pg_client_encoding($this->_connectionID);
 		return $this->charSet ?: false;
 	}

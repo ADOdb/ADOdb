@@ -1179,12 +1179,8 @@ class ADODB_mysqli extends ADOConnection {
 			return false;
 		}
 
-		$this->charSet = @$this->_connectionID->character_set_name();
-		if (!$this->charSet) {
-		
-		} else {
-			return $this->charSet;
-		}
+		$this->charSet = $this->_connectionID->character_set_name();
+		return $this->charSet ?: false;
 	}
 
 	function setCharSet($charset)
@@ -1194,11 +1190,12 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		if ($this->charSet !== $charset) {
-			$if = @$this->_connectionID->set_charset($charset);
-			return ($if === true & $this->getCharSet() == $charset);
-		} else {
-			return true;
+			if (!$this->_connectionID->set_charset($charset)) {
+				return false;
+			}
+			$this->getCharSet();
 		}
+		return true;
 	}
 
 }
