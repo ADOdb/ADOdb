@@ -28,7 +28,7 @@ class ADODB2_postgres extends ADODB_DataDict
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull = true;
 	
-	function metaType($t,$len=-1,$fieldobj=false)
+	function metaType($t, $len=-1, $fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -94,7 +94,7 @@ class ADODB2_postgres extends ADODB_DataDict
 
  	function actualType($meta)
 	{
-		switch($meta) {
+		switch ($meta) {
 		case 'C': return 'VARCHAR';
 		case 'XL':
 		case 'X': return 'TEXT';
