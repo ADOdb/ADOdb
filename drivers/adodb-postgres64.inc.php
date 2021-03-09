@@ -114,6 +114,7 @@ class ADODB_postgres64 extends ADOConnection{
 	var $_bindInputArray = false; // requires postgresql 7.3+ and ability to modify database
 	var $disableBlobs = false; // set to true to disable blob checking, resulting in 2-5% improvement in performance.
 
+	/** @var int $_pnum Number of the last assigned query parameter {@see param()} */
 	var $_pnum = 0;
 
 	// The last (fmtTimeStamp is not entirely correct:
@@ -624,15 +625,18 @@ class ADODB_postgres64 extends ADOConnection{
 
 	}
 
-	function Param($name,$type='C')
+	function param($name, $type='C')
 	{
-		if ($name) {
-			$this->_pnum++;
-		} else {
-			// Reset param num if $name is false
+		if (!$name) {
+			// Reset parameter number if $name is falsy
 			$this->_pnum = 0;
+			if ($name === false) {
+				// and don't return placeholder if false (see #380)
+				return '';
+			}
 		}
-		return '$' . $this->_pnum;
+
+		return '$' . ++$this->_pnum;
 	}
 
 	function MetaIndexes ($table, $primary = FALSE, $owner = false)
