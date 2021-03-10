@@ -527,22 +527,24 @@ if (!defined('_ADODB_LAYER')) {
 	protected $connectionParameters = array();
 
 	/**
-	* Adds a parameter to the connection string.
-	*
-	* These parameters are added to the connection string when connecting,
-	* if the driver is coded to use it.
-	*
-	* @param	string	$parameter	The name of the parameter to set
-	* @param	string	$value		The value of the parameter
-	*
-	* @return null
-	*
-	* @example, for mssqlnative driver ('CharacterSet','UTF-8')
-	*/
+	 * Adds a parameter to the connection string.
+	 *
+	 * Parameters must be added before the connection is established;
+	 * they are then passed on to the connect statement.
+	 *
+	 * If used in a portable environment, parameters set in this manner should
+	 * be predicated on the database provider, as unexpected results may occur
+	 * if applied to the wrong database.
+	 *
+	 * @param string $parameter The name of the parameter to set
+	 * @param string $value     The value of the parameter
+	 *
+	 * @return null
+	 *
+	 * @example, for mssqlnative driver ('CharacterSet','UTF-8')
+	 */
 	public function setConnectionParameter($parameter, $value) {
-
-		$this->connectionParameters[] = array($parameter=>$value);
-
+		$this->connectionParameters[] = array($parameter => $value);
 	}
 
 	/**
