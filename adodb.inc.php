@@ -539,7 +539,7 @@ if (!defined('_ADODB_LAYER')) {
 	*
 	* @example, for mssqlnative driver ('CharacterSet','UTF-8')
 	*/
-	final public function setConnectionParameter($parameter,$value) {
+	public function setConnectionParameter($parameter, $value) {
 
 		$this->connectionParameters[] = array($parameter=>$value);
 
