@@ -188,13 +188,13 @@ class ADODB_DataDict {
 
 	/*
 	* Indicates whether a BLOB/CLOB field will allow a NOT NULL setting
-	* The type is whatever is matched to an X or X2 or B type. We must 
+	* The type is whatever is matched to an X or X2 or B type. We must
 	* explicitly set the value in the driver to switch the behaviour on
 	*/
 	public $blobAllowsNotNull;
 	/*
 	* Indicates whether a BLOB/CLOB field will allow a DEFAULT set
-	* The type is whatever is matched to an X or X2 or B type. We must 
+	* The type is whatever is matched to an X or X2 or B type. We must
 	* explicitly set the value in the driver to switch the behaviour on
 	*/
 	public $blobAllowsDefaultValue;
@@ -681,11 +681,11 @@ class ADODB_DataDict {
 			//-----------------
 			// Parse attributes
 			foreach($fld as $attr => $v) {
-				if ($attr == 2 && is_numeric($v)) 
+				if ($attr == 2 && is_numeric($v))
 					$attr = 'SIZE';
-				elseif ($attr == 2 && strtoupper($ftype) == 'ENUM') 
+				elseif ($attr == 2 && strtoupper($ftype) == 'ENUM')
 					$attr = 'ENUM';
-				else if (is_numeric($attr) && $attr > 1 && !is_numeric($v)) 
+				else if (is_numeric($attr) && $attr > 1 && !is_numeric($v))
 					$attr = strtoupper($v);
 
 				switch($attr) {
@@ -747,9 +747,9 @@ class ADODB_DataDict {
 				* some blob types do not accept nulls, so we override the
 				* previously defined value
 				*/
-				$fnotnull = false; 
+				$fnotnull = false;
 
-			if ($fprimary) 
+			if ($fprimary)
 				$pkey[] = $fname;
 
 			if (($ty == 'X' || $ty == 'X2' || $ty == 'XL' || $ty == 'B') && !$this->blobAllowsDefaultValue)
@@ -846,7 +846,7 @@ class ADODB_DataDict {
 			if (strlen($fprec)) $ftype .= ",".$fprec;
 			$ftype .= ')';
 		}
-		
+
 		/*
 		* Handle additional options
 		*/
@@ -859,12 +859,12 @@ class ADODB_DataDict {
 					case 'ENUM':
 					$ftype .= '(' . $value . ')';
 					break;
-					
+
 					default:
 				}
 			}
 		}
-		
+
 		return $ftype;
 	}
 
@@ -927,7 +927,7 @@ class ADODB_DataDict {
 				return $sql;
 			}
 		}
-		
+
 		$s = "CREATE TABLE $tabname (\n";
 		$s .= implode(",\n", $lines);
 		if (sizeof($pkey)>0) {

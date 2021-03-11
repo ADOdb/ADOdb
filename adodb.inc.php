@@ -178,7 +178,7 @@ if (!defined('_ADODB_LAYER')) {
 	define('DB_AUTOQUERY_UPDATE', 2);
 
 
-	
+
 	function ADODB_Setup() {
 	GLOBAL
 		$ADODB_vers,		// database version
@@ -1460,8 +1460,8 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @param string $table
 	 * @param string $id
-	 
-	 * @return mixed The last inserted ID. All databases support this, but be 
+
+	 * @return mixed The last inserted ID. All databases support this, but be
 	 *               aware of possible problems in multiuser environments.
 	 *               Heavily test this before deploying.
 	 */
@@ -5118,13 +5118,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (!defined('ADODB_ASSOC_CASE')) {
 			define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_NATIVE);
 		}
-		
+
 		/*
 		* Are there special characters in the dsn password
 		* that disrupt parse_url
 		*/
 		$needsSpecialCharacterHandling = false;
-		
+
 		$errorfn = (defined('ADODB_ERROR_HANDLER')) ? ADODB_ERROR_HANDLER : false;
 		if (($at = strpos($db,'://')) !== FALSE) {
 			$origdsn = $db;
@@ -5151,23 +5151,23 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				* Stop # character breaking parse_url
 				*/
 				$cFakedsn = str_replace('#','\035',$fakedsn);
-				if (strcmp($fakedsn,$cFakedsn) != 0) 
+				if (strcmp($fakedsn,$cFakedsn) != 0)
 				{
 					/*
 					* There is a # in the string
 					*/
 					$needsSpecialCharacterHandling = true;
-					
+
 					/*
 					* This allows us to successfully parse the url
 					*/
 					$fakedsn = $cFakedsn;
-					
+
 				}
-				
+
 				$dsna = parse_url($fakedsn);
 			}
-			
+
 			if (!$dsna) {
 				return false;
 			}
@@ -5193,13 +5193,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if (!$db) {
 				return false;
 			}
-			
+
 			$dsna['host'] = isset($dsna['host']) ? rawurldecode($dsna['host']) : '';
 			$dsna['user'] = isset($dsna['user']) ? rawurldecode($dsna['user']) : '';
 			$dsna['pass'] = isset($dsna['pass']) ? rawurldecode($dsna['pass']) : '';
 			$dsna['path'] = isset($dsna['path']) ? rawurldecode(substr($dsna['path'],1)) : ''; # strip off initial /
 
-			if ($needsSpecialCharacterHandling) 
+			if ($needsSpecialCharacterHandling)
 			{
 				/*
 				* Revert back to the original string
@@ -5439,8 +5439,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		return $dict;
 	}
-
-
 
 	/*
 		Perform a print_r, with pre tags for better formatting.
