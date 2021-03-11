@@ -153,17 +153,10 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 
 	function DefaultConstraintname($tabname, $colname)
 	{
-		$constraintname = false;
-		$rs = $this->connection->Execute(
-			"SELECT name FROM sys.default_constraints
-			WHERE object_name(parent_object_id) = '$tabname'
-			AND col_name(parent_object_id, parent_column_id) = '$colname'"
-		);
-		if ( is_object($rs) ) {
-			$row = $rs->FetchRow();
-			$constraintname = $row['name'];
-		}
-		return $constraintname;
+		$sql = "SELECT name FROM sys.default_constraints
+			WHERE object_name(parent_object_id) = ?
+			AND col_name(parent_object_id, parent_column_id) = ?";
+		return $this->connection->getOne($sql, [$tabname, $colname]);
 	}
   
 	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')

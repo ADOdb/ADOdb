@@ -18,6 +18,8 @@ Older changelogs:
 
 ### Fixed
 
+- mssql: PHP warnings in dropColumnSQL()
+  [#696](https://github.com/ADOdb/ADOdb/issues/696)
 - mysql: TypeError when calling get/setChangeSet on unset connection (PHP 8)
   [#686](https://github.com/ADOdb/ADOdb/issues/686)
 
