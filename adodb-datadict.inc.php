@@ -164,6 +164,7 @@ function lens_ParseArgs($args,$endstmtchar=',',$tokenchars='_.-')
 
 
 class ADODB_DataDict {
+	/** @var ADOConnection */
 	var $connection;
 	var $debug = false;
 	var $dropTable = 'DROP TABLE %s';
@@ -182,6 +183,8 @@ class ADODB_DataDict {
 	var $invalidResizeTypes4 = array('CLOB','BLOB','TEXT','DATE','TIME'); // for changeTableSQL
 	var $blobSize = 100; 	/// any varchar/char field this size or greater is treated as a blob
 							/// in other words, we use a text area for editing.
+	/** @var string Uppercase driver name */
+	var $upperName;
 
 	/*
 	* Indicates whether a BLOB/CLOB field will allow a NOT NULL setting

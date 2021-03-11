@@ -45,7 +45,7 @@ if (!defined('ADODB_DIR')) die();
 
 class ADODB2_mssqlnative extends ADODB_DataDict {
 	var $databaseType = 'mssqlnative';
-	var $dropIndex = 'DROP INDEX %1$s ON %2$s';
+	var $dropIndex = /** @lang text */ 'DROP INDEX %1$s ON %2$s';
 	var $renameTable = "EXEC sp_rename '%s','%s'";
 	var $renameColumn = "EXEC sp_rename '%s.%s','%s'";
 	var $typeX = 'TEXT';  ## Alternatively, set it to VARCHAR(4000)
@@ -61,7 +61,6 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		if (is_object($t)) {
 			$fieldobj = $t;
 			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
 		}
 
 		$_typeConversion = array(
@@ -97,11 +96,11 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 			  -3 => 'X'
 			);
 
-		if (isset($_typeConversion[$t]))
-		return $_typeConversion[$t];
-		
-		return ADODB_DEFAULT_METATYPE;
+		if (isset($_typeConversion[$t])) {
+			return $_typeConversion[$t];
+		}
 
+		return ADODB_DEFAULT_METATYPE;
 	}
 
 	function ActualType($meta)
@@ -141,7 +140,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName ($tabname);
 		$f = array();
-		list($lines,$pkey) = $this->_GenFields($flds);
+		list($lines,) = $this->_GenFields($flds);
 		$s = "ALTER TABLE $tabname $this->addCol";
 		foreach($lines as $v) {
 			$f[] = "\n $v";
@@ -171,10 +170,9 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
 
-		list($lines,$pkey,$idxs) = $this->_GenFields($flds);
+		list($lines,,$idxs) = $this->_GenFields($flds);
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 		foreach($lines as $v) {
-			$not_null = false;
 			if ($not_null = preg_match('/NOT NULL/i',$v)) {
 				$v = preg_replace('/NOT NULL/i','',$v);
 			}
@@ -223,13 +221,15 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	 * @param string   $tableflds    Throwaway value to make the function match the parent
 	 * @param string   $tableoptions Throway value to make the function match the parent
 	 *
-	 * @return string  The SQL necessary to drop the column
+	 * @return string[]  The SQL necessary to drop the column
 	 */
 	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
-		if (!is_array($flds))
-			$flds = explode(',',$flds);
+		if (!is_array($flds)) {
+			/** @noinspection PhpParamsInspection */
+			$flds = explode(',', $flds);
+		}
 		$f = array();
 		$s = 'ALTER TABLE ' . $tabname;
 		foreach($flds as $v) {
@@ -244,6 +244,8 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	}
 
 	// return string must begin with space
+
+	/** @noinspection DuplicatedCode */
 	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
 	{
 		$suffix = '';
@@ -327,6 +329,7 @@ CREATE TABLE
 		    SORT_IN_TEMPDB
 		}
 */
+	/** @noinspection DuplicatedCode */
 	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
@@ -358,17 +361,18 @@ CREATE TABLE
 	}
 
 
-	function _GetSize($ftype, $ty, $fsize, $fprec,$options=false)
+	function _GetSize($ftype, $ty, $fsize, $fprec, $options=false)
 	{
 		switch ($ftype) {
-		case 'INT':
-		case 'SMALLINT':
-		case 'TINYINT':
-		case 'BIGINT':
+			case 'INT':
+			case 'SMALLINT':
+			case 'TINYINT':
+			case 'BIGINT':
+				return $ftype;
+		}
+		if ($ty == 'T') {
 			return $ftype;
 		}
-    	if ($ty == 'T') return $ftype;
-    	return parent::_GetSize($ftype, $ty, $fsize, $fprec, $options);
-
+		return parent::_GetSize($ftype, $ty, $fsize, $fprec, $options);
 	}
 }
