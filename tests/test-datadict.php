@@ -18,7 +18,7 @@ include_once('../adodb.inc.php');
 foreach(array('sapdb','sybase','mysql','access','oci8po','odbc_mssql','odbc','db2','firebird','postgres','informix') as $dbType) {
 	echo "<h3>$dbType</h3><p>";
 	$db = NewADOConnection($dbType);
-	$dict = NewDataDictionary($db);
+	$dict = newDataDictionary($db);
 
 	if (!$dict) continue;
 	$dict->debug = 1;

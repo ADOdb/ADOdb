@@ -114,8 +114,8 @@ class ADODB_Replicate {
 		$this->connSrc2 = ($connSrc2) ? $connSrc2 : $connSrc;
 		$this->connDest2 = ($connDest2) ? $connDest2 : $connDest;
 
-		$this->ddSrc = NewDataDictionary($connSrc);
-		$this->ddDest = NewDataDictionary($connDest);
+		$this->ddSrc = newDataDictionary($connSrc);
+		$this->ddDest = newDataDictionary($connDest);
 		$this->htmlSpecialChars = isset($_SERVER['HTTP_HOST']);
 	}
 
