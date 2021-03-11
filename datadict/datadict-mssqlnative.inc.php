@@ -151,14 +151,21 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		return $sql;
 	}
 
-	function DefaultConstraintname($tabname, $colname)
+	/**
+	 * Get a column's default constraint.
+	 *
+	 * @param string $tabname
+	 * @param string $colname
+	 * @return string|null The Constraint's name, or null if there is none.
+	 */
+	function defaultConstraintName($tabname, $colname)
 	{
 		$sql = "SELECT name FROM sys.default_constraints
 			WHERE object_name(parent_object_id) = ?
 			AND col_name(parent_object_id, parent_column_id) = ?";
 		return $this->connection->getOne($sql, [$tabname, $colname]);
 	}
-  
+
 	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
@@ -175,7 +182,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 				list(,$colname,$default) = $matches;
 				$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
 				$t = trim(str_replace('DEFAULT '.$default,'',$v));
-				if ( $constraintname = $this->DefaultConstraintname($tabname,$colname) ) {
+				if ( $constraintname = $this->defaultConstraintName($tabname,$colname) ) {
 					$sql[] = 'ALTER TABLE '.$tabname.' DROP CONSTRAINT '. $constraintname;
 				}
 				if ($not_null) {
@@ -188,7 +195,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 					. ' DEFAULT ' . $default . ' FOR ' . $colname;
 			} else {
 				$colname = strtok($v," ");
-				if ( $constraintname = $this->DefaultConstraintname($tabname,$colname) ) {
+				if ( $constraintname = $this->defaultConstraintName($tabname,$colname) ) {
 					$sql[] = 'ALTER TABLE '.$tabname.' DROP CONSTRAINT '. $constraintname;
 				}
 				if ($not_null) {
@@ -226,7 +233,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		$f = array();
 		$s = 'ALTER TABLE ' . $tabname;
 		foreach($flds as $v) {
-			if ( $constraintname = $this->DefaultConstraintname($tabname,$v) ) {
+			if ( $constraintname = $this->defaultConstraintName($tabname,$v) ) {
 				$sql[] = 'ALTER TABLE ' . $tabname . ' DROP CONSTRAINT ' . $constraintname;
 			}
 			$f[] = ' DROP COLUMN ' . $this->NameQuote($v);
