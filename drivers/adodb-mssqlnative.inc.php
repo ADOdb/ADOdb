@@ -49,7 +49,13 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $fmtDate = "'Y-m-d'";
 	var $fmtTimeStamp = "'Y-m-d\TH:i:s'";
-	var $hasInsertID = true;
+	/**
+	 * While the driver does have InsertID capability, the functionality is
+	 * turned off by default for performance reasons.
+	 * Switch it on as needed by calling {@see enableLastInsertID()}.
+	 * @var bool $hasInsertID
+	 */
+	var $hasInsertID = false;
 	var $substr = "substring";
 	var $length = 'len';
 	var $hasAffectedRows = true;
@@ -152,12 +158,23 @@ class ADODB_mssqlnative extends ADOConnection {
 		return " ISNULL($field, $ifNull) "; // if MS SQL Server
 	}
 
-	function _insertid()
+	public function enableLastInsertID($enable = true) {
+		$this->hasInsertID = $enable;
+		$this->lastInsID = false;
+	}
+
+	/**
+	 * Get the last value inserted into an IDENTITY column.
+	 *
+	 * The value will actually be set in {@see _query()} when executing an
+	 * INSERT statement, but only if the connection's $hasInsertId property
+	 * is true; this can be set with {@see enableLastInsertId()}.
+	 *
+	 * @inheritDoc
+	 */
+	protected function _insertID($table = '', $column = '')
 	{
-		$rez = sqlsrv_query($this->_connectionID,$this->identitySQL);
-		sqlsrv_fetch($rez);
-		$this->lastInsertID = sqlsrv_get_field($rez, 0);
-		return $this->lastInsertID;
+		return $this->lastInsID;
 	}
 
 	function _affectedrows()
@@ -576,38 +593,66 @@ class ADODB_mssqlnative extends ADOConnection {
 		return $this->Execute($sql) != false;
 	}
 
-	// returns query ID if successful, otherwise false
-	function _query($sql,$inputarr=false)
+	/**
+	 * Execute a query.
+	 *
+	 * If executing an INSERT statement and $hasInsertId is true, will set
+	 * $lastInsId.
+	 *
+	 * @param string $sql
+	 * @param array $inputarr
+	 * @return resource|false Query Id if successful, otherwise false
+	 */
+	function _query($sql, $inputarr = false)
 	{
 		$this->_errorMsg = false;
 
-		if (is_array($sql))
+		if (is_array($sql)) {
 			$sql = $sql[1];
-
-		$insert = false;
-		// handle native driver flaw for retrieving the last insert ID
-		if(preg_match('/^\W*insert[\s\w()[\]",.]+values\s*\((?:[^;\']|\'\'|(?:(?:\'\')*\'[^\']+\'(?:\'\')*))*;?$/i', $sql)) {
-			$insert = true;
-			$sql .= '; '.$this->identitySQL; // select scope_identity()
 		}
-		if($inputarr)
-		{
-			/*
-			* Ensure that the input array is numeric, as required by
-			* sqlsrv_query. If param() was used to create portable binds
-			* then the array might be associative
-			*/
+
+		// Handle native driver flaw for retrieving the last insert ID
+		if ($this->hasInsertID) {
+			// Check if it's an INSERT statement
+			$retrieveLastInsertID = preg_match(
+				'/^\W*insert[\s\w()[\]",.]+values\s*\((?:[^;\']|\'\'|(?:(?:\'\')*\'[^\']+\'(?:\'\')*))*;?$/i',
+				$sql
+			);
+			if ($retrieveLastInsertID) {
+				// Append the identity SQL, so it is executed in the same
+				// scope as the insert query.
+				$sql .= '; ' . $this->identitySQL;
+			}
+		} else {
+			$retrieveLastInsertID = false;
+		}
+
+		if ($inputarr) {
+			// Ensure that the input array is indexed numerically, as required
+			// by sqlsrv_query(). If param() was used to create portable binds
+			// then the array might be associative.
 			$inputarr = array_values($inputarr);
 			$rez = sqlsrv_query($this->_connectionID, $sql, $inputarr);
 		} else {
-			$rez = sqlsrv_query($this->_connectionID,$sql);
+			$rez = sqlsrv_query($this->_connectionID, $sql);
 		}
 
-		if ($this->debug) ADOConnection::outp("<hr>running query: ".var_export($sql,true)."<hr>input array: ".var_export($inputarr,true)."<hr>result: ".var_export($rez,true));
+		if ($this->debug) {
+			ADOConnection::outp("<hr>running query: " . var_export($sql, true)
+				. "<hr>input array: " . var_export($inputarr, true)
+				. "<hr>result: " . var_export($rez, true)
+			);
+		}
 
-		if(!$rez)
+		$this->lastInsID = false;
+		if (!$rez) {
 			$rez = false;
-
+		} elseif ($retrieveLastInsertID) {
+			// Get the inserted id from the 2nd result
+			if (sqlsrv_next_result($rez) && sqlsrv_fetch($rez)) {
+				$this->lastInsID = sqlsrv_get_field($rez, 0, SQLSRV_PHPTYPE_INT);
+			}
+		}
 		return $rez;
 	}
 

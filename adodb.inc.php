@@ -1467,6 +1467,15 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
+	 * Enable or disable the Last Insert Id functionality.
+	 *
+	 * If the Driver supports it, this function allows setting {@see $hasInsertID}.
+	 *
+	 * @param bool $enable False to disable
+	 */
+	public function enableLastInsertID($enable = true) {}
+
+	/**
 	 * Return the id of the last row that has been inserted in a table.
 	 *
 	 * @param string $table
