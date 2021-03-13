@@ -4562,7 +4562,6 @@ class ADORecordSet implements IteratorAggregate {
 				$this->_names[] = $f->name;
 			}
 		}
-		$i = 0;
 		$o = clone($this->_obj);
 
 		for ($i=0; $i <$this->_numOfFields; $i++) {
@@ -4746,7 +4745,6 @@ class ADORecordSet implements IteratorAggregate {
 			"SQLBOOL" => 'L'
 		);
 
-		$tmap = false;
 		$t = strtoupper($t);
 		$tmap = (isset($typeMap[$t])) ? $typeMap[$t] : ADODB_DEFAULT_METATYPE;
 		switch ($tmap) {
