@@ -864,15 +864,15 @@ class ADODB_mysqli extends ADOConnection {
 		* Return assoc array where key is column name, value is column type
 		*    [1] => int unsigned
 		*/
-		
-		$SQL = "SELECT column_name, column_type 
-				  FROM information_schema.columns 
-				 WHERE table_schema='{$this->databaseName}' 
+
+		$SQL = "SELECT column_name, column_type
+				  FROM information_schema.columns
+				 WHERE table_schema='{$this->databaseName}'
 				   AND table_name='$table'";
-		
+
 		$schemaArray = $this->getAssoc($SQL);
 		$schemaArray = array_change_key_case($schemaArray,CASE_LOWER);
-	
+
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
@@ -884,7 +884,7 @@ class ADODB_mysqli extends ADOConnection {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
 			$type = $rs->fields[1];
-			
+
 			/*
 			* Type from information_schema returns
 			* the same format in V8 mysql as V5
@@ -910,7 +910,7 @@ class ADODB_mysqli extends ADOConnection {
 				$fld->type = $type;
 				$fld->max_length = -1;
 			}
-			
+
 			$fld->not_null = ($rs->fields[2] != 'YES');
 			$fld->primary_key = ($rs->fields[3] == 'PRI');
 			$fld->auto_increment = (strpos($rs->fields[5], 'auto_increment') !== false);
