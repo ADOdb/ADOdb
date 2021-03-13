@@ -537,7 +537,12 @@ if (!defined('_ADODB_LAYER')) {
 	 * Adds a parameter to the connection string.
 	 *
 	 * Parameters must be added before the connection is established;
-	 * they are then passed on to the connect statement.
+	 * they are then passed on to the connect statement, which will.
+	 * process them if the driver supports this feature.
+	 *
+	 * Example usage:
+	 * - mssqlnative: setConnectionParameter('CharacterSet','UTF-8');
+	 * - mysqli: setConnectionParameter(MYSQLI_SET_CHARSET_NAME,'utf8mb4');
 	 *
 	 * If used in a portable environment, parameters set in this manner should
 	 * be predicated on the database provider, as unexpected results may occur
@@ -545,13 +550,9 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @param string $parameter The name of the parameter to set
 	 * @param string $value     The value of the parameter
-	 *
-	 * @return null
-	 *
-	 * @example, for mssqlnative driver ('CharacterSet','UTF-8')
 	 */
 	public function setConnectionParameter($parameter, $value) {
-		$this->connectionParameters[] = array($parameter => $value);
+		$this->connectionParameters[] = array($parameter=>$value);
 	}
 
 	/**
