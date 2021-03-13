@@ -160,13 +160,15 @@ class ADODB_mysqli extends ADOConnection {
 			mysqli_options($this->_connectionID,$arr[0],$arr[1]);
 		}
 
-		/*
-		* Now merge in the standard connection parameters setting
-		*/
-		foreach ($this->connectionParameters as $options)
-		{
-			foreach($options as $k=>$v)
-				$ok = mysqli_options($this->_connectionID,$k,$v);
+		// Now merge in the standard connection parameters setting
+		foreach ($this->connectionParameters as $parameter => $value) {
+			// Make sure parameter is numeric before calling mysqli_options()
+			// that to avoid Warning (or TypeError exception on PHP 8).
+			if (!is_numeric($parameter)
+				|| !mysqli_options($this->_connectionID, $parameter, $value)
+			) {
+				$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
+			}
 		}
 
 		//https://php.net/manual/en/mysqli.persistconns.php
