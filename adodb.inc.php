@@ -3635,6 +3635,12 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	var $datetime = false;
 
 	/**
+	 * @var ADOFieldObject[] Field metadata cache
+	 * @see fieldTypesArray()
+	 */
+	protected $fieldObjectsCache;
+
+	/**
 	 * Constructor
 	 *
 	 * @param resource|int queryID	this is the queryID returned by ADOConnection->_query()
@@ -4454,14 +4460,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * Get the ADOFieldObjects of all columns in an array.
 	 *
 	 */
-	function FieldTypesArray() {
-		static $arr = array();
-		if (empty($arr)) {
-			for ($i=0, $max=$this->_numOfFields; $i < $max; $i++) {
-				$arr[] = $this->FetchField($i);
+	function fieldTypesArray() {
+		if (empty($this->fieldObjectsCache)) {
+			for ($i = 0; $i < $this->_numOfFields; $i++) {
+				$this->fieldObjectsCache[] = $this->fetchField($i);
 			}
 		}
-		return $arr;
+		return $this->fieldObjectsCache;
 	}
 
 	/**

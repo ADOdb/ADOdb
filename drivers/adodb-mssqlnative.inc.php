@@ -1022,13 +1022,8 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	var $fieldOffset = 0;
 	// _mths works only in non-localised system
 
-	/*
-	 * Holds a cached version of the metadata
-	 */
-	private $fieldObjects = false;
-
-	/*
-	 * Flags if we have retrieved the metadata
+	/**
+	 * @var bool True if we have retrieved the fields metadata
 	 */
 	private $fieldObjectsRetrieved = false;
 
@@ -1152,13 +1147,13 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	*/
 	private function _fetchField($fieldOffset = -1)
 	{
-		if ($this->fieldObjectsRetrieved){
-			if ($this->fieldObjects) {
+		if ($this->fieldObjectsRetrieved) {
+			if ($this->fieldObjectsCache) {
 				// Already got the information
 				if ($fieldOffset == -1) {
-					return $this->fieldObjects;
+					return $this->fieldObjectsCache;
 				} else {
-					return $this->fieldObjects[$fieldOffset];
+					return $this->fieldObjectsCache[$fieldOffset];
 				}
 			} else {
 				// No metadata available
@@ -1187,14 +1182,14 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			$fld->column_source = $value['Name'];
 			$fld->type          = $this->_typeConversion[$value['Type']];
 
-			$this->fieldObjects[$key] = $fld;
+			$this->fieldObjectsCache[$key] = $fld;
 			$this->fieldObjectsIndex[$fld->name] = $key;
 		}
 		if ($fieldOffset == -1) {
-			return $this->fieldObjects;
+			return $this->fieldObjectsCache;
 		}
 
-		return $this->fieldObjects[$fieldOffset];
+		return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 	/*
@@ -1211,7 +1206,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	 */
 	function fetchField($fieldOffset = -1)
 	{
-		return $this->fieldObjects[$fieldOffset];
+		return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 	function _seek($row)
