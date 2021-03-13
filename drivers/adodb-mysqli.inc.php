@@ -98,6 +98,27 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	/**
+	 * Adds a parameter to the connection string.
+	 *
+	 * Parameter must be one of the the constants listed in mysqli_options().
+	 * @see https://www.php.net/manual/en/mysqli.options.php
+	 *
+	 * @param int $parameter The parameter to set
+	 * @param string $value The value of the parameter
+	 *
+	 * @example, for mssqlnative driver ('CharacterSet','UTF-8')
+	 * @return bool
+	 */
+	public function setConnectionParameter($parameter, $value) {
+		if(!is_numeric($parameter)) {
+			$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
+			return false;
+		}
+		$this->connectionParameters[$parameter] = $value;
+		return true;
+	}
+
+	/**
 	 * Connect to a database.
 	 *
 	 * @todo add: parameter int $port, parameter string $socket

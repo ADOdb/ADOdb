@@ -550,9 +550,12 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @param string $parameter The name of the parameter to set
 	 * @param string $value     The value of the parameter
+	 *
+	 * @return bool True if success, false otherwise (e.g. parameter is not valid)
 	 */
 	public function setConnectionParameter($parameter, $value) {
 		$this->connectionParameters[] = array($parameter=>$value);
+		return true;
 	}
 
 	/**
