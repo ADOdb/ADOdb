@@ -3640,13 +3640,14 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 
-	/**
-	 * RecordSet class that represents the dataset returned by the database.
-	 * To keep memory overhead low, this class holds only the current row in memory.
-	 * No prefetching of data is done, so the RecordCount() can return -1 ( which
-	 * means recordcount not known).
-	 */
-	class ADORecordSet implements IteratorAggregate {
+/**
+ * RecordSet class that represents the dataset returned by the database.
+ *
+ * To keep memory overhead low, this class holds only the current row in memory.
+ * No prefetching of data is done, so the RecordCount() can return -1 (which
+ * means recordcount not known).
+ */
+class ADORecordSet implements IteratorAggregate {
 
 	/**
 	 * public variables
@@ -3667,8 +3668,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	var $bind = false;		/// used by Fields() to hold array - should be private?
 	var $fetchMode;			/// default fetch mode
-	var $connection = false; /// the parent connection
-
+	/** @var ADOConnection The parent connection */
+	var $connection = false;
 	/**
 	 *	private variables
 	 */
@@ -3691,11 +3692,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	public $customActualTypes;
 	public $customMetaTypes;
 	
-	
+	/** @var array Field Types cache, used in {@see fieldTypesArray()} */
+	protected $cacheFieldTypes;
+
 	/**
 	 * Constructor
 	 *
-	 * @param resource|int queryID	this is the queryID returned by ADOConnection->_query()
+	 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
 	 *
 	 */
 	function __construct($queryID) {
@@ -3722,7 +3725,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 		$this->_inited = true;
 		if ($this->_queryID) {
-			@$this->_initrs();
+			@$this->_initRS();
 		} else {
 			$this->_numOfRows = 0;
 			$this->_numOfFields = 0;
@@ -3875,24 +3878,28 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return $this->GetArray($nRows);
 	}
 
-	/*
-	* Some databases allow multiple recordsets to be returned. This function
-	* will return true if there is a next recordset, or false if no more.
-	*/
+	/**
+	 * Checks if there is another available recordset.
+	 *
+	 * Some databases allow multiple recordsets to be returned.
+	 *
+	 * @return boolean true if there is a next recordset, or false if no more
+	 */
 	function NextRecordSet() {
 		return false;
 	}
 
 	/**
-	 * return recordset as a 2-dimensional array.
+	 * Return recordset as a 2-dimensional array.
+	 *
 	 * Helper function for ADOConnection->SelectLimit()
 	 *
-	 * @param offset	is the row to start calculations from (1-based)
-	 * @param [nrows]	is the number of rows to return
+	 * @param int $nrows  Number of rows to return
+	 * @param int $offset Starting row (1-based)
 	 *
 	 * @return array an array indexed by the rows (0-based) from the recordset
 	 */
-	function GetArrayLimit($nrows,$offset=-1) {
+	function getArrayLimit($nrows, $offset=-1) {
 		if ($offset <= 0) {
 			return $this->GetArray($nrows);
 		}
@@ -3913,11 +3920,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	/**
 	 * Synonym for GetArray() for compatibility with ADO.
 	 *
-	 * @param [nRows]  is the number of rows to return. -1 means every row.
+	 * @param int $nRows Number of rows to return. -1 means every row.
 	 *
 	 * @return array an array indexed by the rows (0-based) from the recordset
 	 */
-	function GetRows($nRows = -1) {
+	function getRows($nRows = -1) {
 		return $this->GetArray($nRows);
 	}
 
@@ -4130,8 +4137,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	* PEAR DB Compat - do not use internally
-	*/
+	 * PEAR DB Compat - do not use internally
+	 */
 	function Free() {
 		return $this->Close();
 	}
@@ -4378,8 +4385,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * Use associative array to get fields array for databases that do not support
 	 * associative arrays. Submitted by Paolo S. Asioli paolo.asioli#libero.it
 	 *
-	 * @param int [$upper] Case for the array keys, defaults to uppercase
+	 * @param int $upper Case for the array keys, defaults to uppercase
 	 *                   (see ADODB_ASSOC_CASE_xxx constants)
+	 * @return array
 	 */
 	function GetRowAssoc($upper = ADODB_ASSOC_CASE) {
 		$record = array();
@@ -4415,14 +4423,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	 * Synonyms RecordCount and RowCount
+	 * Number of rows in recordset.
 	 *
 	 * @return int Number of rows or -1 if this is not supported
 	 */
-	function RecordCount() {
+	function recordCount() {
 		return $this->_numOfRows;
 	}
-
 
 	/**
 	 * If we are using PageExecute(), this will return the maximum possible rows
@@ -4431,26 +4438,32 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @return int
 	 */
 	function MaxRecordCount() {
-		return ($this->_maxRecordCount) ? $this->_maxRecordCount : $this->RecordCount();
+		return ($this->_maxRecordCount) ? $this->_maxRecordCount : $this->recordCount();
 	}
 
 	/**
-	 * synonyms RecordCount and RowCount
+	 * Number of rows in recordset.
+	 * Alias for {@see recordCount()}
 	 *
-	 * @return the number of rows or -1 if this is not supported
+	 * @return int Number of rows or -1 if this is not supported
 	 */
-	function RowCount() {
-		return $this->_numOfRows;
+	function rowCount() {
+		return $this->recordCount();
 	}
 
-
-	 /**
-	 * Portable RecordCount. Pablo Roca <pabloroca@mvps.org>
+	/**
+	 * Portable RecordCount.
 	 *
-	 * @return  the number of records from a previous SELECT. All databases support this.
+	 * Be aware of possible problems in multiuser environments.
+	 * For better speed the table must be indexed by the condition.
+	 * Heavy test this before deploying.
 	 *
-	 * But aware possible problems in multiuser environments. For better speed the table
-	 * must be indexed by the condition. Heavy test this before deploying.
+	 * @param string $table
+	 * @param string $condition
+	 *
+	 * @return int Number of records from a previous SELECT. All databases support this.
+	 *
+	 * @author Pablo Roca <pabloroca@mvps.org>
 	 */
 	function PO_RecordCount($table="", $condition="") {
 
@@ -4496,30 +4509,30 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	 * Get the ADOFieldObject of a specific column.
+	 * Get Field metadata for of a specific column.
 	 *
-	 * @param fieldoffset	is the column position to access(0-based).
+	 * @param fieldoffset is the column position to access(0-based).
 	 *
-	 * @return the ADOFieldObject for that column, or false.
+	 * @return ADOFieldObject|false for that column, or false.
 	 */
-	function FetchField($fieldoffset = -1) {
+	function fetchField($fieldoffset = -1) {
 		// must be defined by child class
 
 		return false;
 	}
 
 	/**
-	 * Get the ADOFieldObjects of all columns in an array.
+	 * Get Field metadata for all the recordset's columns in an array.
 	 *
+	 * @return ADOFieldObject[]
 	 */
-	function FieldTypesArray() {
-		static $arr = array();
-		if (empty($arr)) {
-			for ($i=0, $max=$this->_numOfFields; $i < $max; $i++) {
-				$arr[] = $this->FetchField($i);
+	function fieldTypesArray() {
+		if (empty($this->cacheFieldTypes)) {
+			for ($i = 0; $i < $this->_numOfFields; $i++) {
+				$this->cacheFieldTypes[] = $this->fetchField($i);
 			}
 		}
-		return $arr;
+		return $this->cacheFieldTypes;
 	}
 
 	/**
@@ -4536,11 +4549,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	* Return the fields array of the current row as an object for convenience.
 	* The default case is uppercase.
 	*
-	* @param $isupper to set the object property names to uppercase
+	* @param bool $isUpper to set the object property names to uppercase
 	*
-	* @return the object with the properties set to the fields of the current row
+	* @return ADOFetchObj The object with properties set to the fields of the current row
 	*/
-	function FetchObject($isupper=true) {
+	function FetchObject($isUpper=true) {
 		if (empty($this->_obj)) {
 			$this->_obj = new ADOFetchObj();
 			$this->_names = array();
@@ -4554,7 +4567,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		for ($i=0; $i <$this->_numOfFields; $i++) {
 			$name = $this->_names[$i];
-			if ($isupper) {
+			if ($isUpper) {
 				$n = strtoupper($name);
 			} else {
 				$n = $name;
@@ -4569,8 +4582,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	* Return the fields array of the current row as an object for convenience.
 	* The default is lower-case field names.
 	*
-	* @return the object with the properties set to the fields of the current row,
-	*	or false if EOF
+	* @return ADOFetchObj|false The object with properties set to the fields of the current row
+	*                           or false if EOF.
 	*
 	* Fixed bug reported by tim@orotech.net
 	*/
@@ -4583,17 +4596,17 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	* Return the fields array of the current row as an object for convenience.
 	* The default is upper case field names.
 	*
-	* @param $isupper to set the object property names to uppercase
+	* @param bool $isUpper to set the object property names to uppercase
 	*
-	* @return the object with the properties set to the fields of the current row,
-	*	or false if EOF
+	* @return ADOFetchObj|false The object with properties set to the fields of the current row
+	*                           or false if EOF.
 	*
 	* Fixed bug reported by tim@orotech.net
 	*/
-	function FetchNextObject($isupper=true) {
+	function FetchNextObject($isUpper=true) {
 		$o = false;
 		if ($this->_numOfRows != 0 && !$this->EOF) {
-			$o = $this->FetchObject($isupper);
+			$o = $this->FetchObject($isUpper);
 			$this->_currentRow++;
 			if ($this->_fetch()) {
 				return $o;
@@ -4604,36 +4617,28 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	 * Get the metatype of the column. This is used for formatting. This is because
-	 * many databases use different names for the same type, so we transform the original
-	 * type to our standardised version which uses 1 character codes:
+	 * Get the ADOdb metatype.
 	 *
-	 * @param t  is the type passed in. Normally is ADOFieldObject->type.
-	 * @param len is the maximum length of that field. This is because we treat character
-	 *	fields bigger than a certain size as a 'B' (blob).
-	 * @param fieldobj is the field object returned by the database driver. Can hold
-	 *	additional info (eg. primary_key for mysql).
+	 * Many databases use different names for the same type, so we transform
+	 * the native type to our standardised one, which uses 1 character codes.
+	 * @see https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:dictionary_index#portable_data_types
 	 *
-	 * @return the general type of the data:
-	 *	C for character < 250 chars
-	 *	X for teXt (>= 250 chars)
-	 *	B for Binary
-	 *	N for numeric or floating point
-	 *	D for date
-	 *	T for timestamp
-	 *	L for logical/Boolean
-	 *	I for integer
-	 *	R for autoincrement counter/integer
+	 * @param string|ADOFieldObject $t  Native type (usually ADOFieldObject->type)
+	 *                                  It is also possible to provide an
+	 *                                  ADOFieldObject here.
+	 * @param int $len The field's maximum length. This is because we treat
+	 *                 character fields bigger than a certain size as a 'B' (blob).
+	 * @param ADOFieldObject $fieldObj Field object returned by the database driver;
+	 *                                 can hold additional info (eg. primary_key for mysql).
 	 *
-	 *
-	*/
-	function MetaType($t,$len=-1,$fieldobj=false) {
-		if (is_object($t)) {
-			$fieldobj = $t;
-			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
+	 * @return string The ADOdb Standard type
+	 */
+	function metaType($t, $len = -1, $fieldObj = false) {
+		if ($t instanceof ADOFieldObject) {
+			$fieldObj = $t;
+			$t = $fieldObj->type;
+			$len = $fieldObj->max_length;
 		}
-
 
 		// changed in 2.32 to hashing instead of switch stmt for speed...
 		static $typeMap = array(
@@ -4741,7 +4746,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			"SQLBOOL" => 'L'
 		);
 
-
 		$tmap = false;
 		$t = strtoupper($t);
 		$tmap = (isset($typeMap[$t])) ? $typeMap[$t] : ADODB_DEFAULT_METATYPE;
@@ -4758,7 +4762,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				return 'C';
 
 			case 'I':
-				if (!empty($fieldobj->primary_key)) {
+				if (!empty($fieldObj->primary_key)) {
 					return 'R';
 				}
 				return 'I';
@@ -4767,8 +4771,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				return 'N';
 
 			case 'B':
-				if (isset($fieldobj->binary)) {
-					return ($fieldobj->binary) ? 'B' : 'X';
+				if (isset($fieldObj->binary)) {
+					return ($fieldObj->binary) ? 'B' : 'X';
 				}
 				return 'B';
 
@@ -4819,8 +4823,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	/**
 	 * set/returns the current recordset page when paginating
+	 * @param int $page
+	 * @return int
 	 */
-	function AbsolutePage($page=-1) {
+	function absolutePage($page=-1) {
 		if ($page != -1) {
 			$this->_currentPage = $page;
 		}
@@ -4829,6 +4835,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	/**
 	 * set/returns the status of the atFirstPage flag when paginating
+	 * @param bool $status
+	 * @return bool
 	 */
 	function AtFirstPage($status=false) {
 		if ($status != false) {
@@ -4837,6 +4845,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return $this->_atFirstPage;
 	}
 
+	/**
+	 * @param bool $page
+	 * @return bool
+	 */
 	function LastPageNo($page = false) {
 		if ($page != false) {
 			$this->_lastPageNo = $page;
@@ -4846,6 +4858,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	/**
 	 * set/returns the status of the atLastPage flag when paginating
+	 * @param bool $status
+	 * @return bool
 	 */
 	function AtLastPage($status=false) {
 		if ($status != false) {
