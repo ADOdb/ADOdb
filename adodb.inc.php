@@ -3740,6 +3740,16 @@ class ADORecordSet implements IteratorAggregate {
 		}
 	}
 
+	/**
+	 * Recordset initialization stub
+	 */
+	protected function _initRS() {}
+
+	/**
+	 * Row fetch stub
+	 * @return bool
+	 */
+	protected function _fetch() {}
 
 	/**
 	 * Generate a SELECT tag from a recordset, and return the HTML markup.
@@ -4312,6 +4322,14 @@ class ADORecordSet implements IteratorAggregate {
 		return false;
 	}
 
+	/**
+	 * Adjusts the result pointer to an arbitrary row in the result.
+	 *
+	 * @param int $row The row to seek to.
+	 *
+	 * @return bool False if the recordset contains no rows, otherwise true.
+	 */
+	function _seek($row) {}
 
 	/**
 	 * Get the value of a field in the current row by column name.
