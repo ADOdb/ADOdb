@@ -509,6 +509,19 @@ if (!defined('_ADODB_LAYER')) {
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
 
+	/**
+	 * Additional parameters that may be passed to drivers in the connect string.
+	 *
+	 * Data is stored as an array of arrays and not a simple associative array,
+	 * because some drivers (e.g. mysql) allow multiple parameters with the same
+	 * key to be set.
+	 * @link https://github.com/ADOdb/ADOdb/issues/187
+	 *
+	 * @see setConnectionParameter()
+	 *
+	 * @var array $connectionParameters Set of ParameterName => Value pairs
+	 */
+	protected $connectionParameters = array();
 
 	/**
 	 * Default Constructor.
@@ -519,12 +532,6 @@ if (!defined('_ADODB_LAYER')) {
 	public function __construct()
 	{
 	}
-
-	/*
-	 * Additional parameters that may be passed to drivers in the connect string
-	 * Driver must be coded to accept the parameters
-	 */
-	protected $connectionParameters = array();
 
 	/**
 	 * Adds a parameter to the connection string.
