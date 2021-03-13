@@ -3692,9 +3692,7 @@ class ADORecordSet implements IteratorAggregate {
 	public $customActualTypes;
 	public $customMetaTypes;
 	
-	/** @var array Field Types cache, used in {@see fieldTypesArray()} */
-	protected $cacheFieldTypes;
-
+	
 	/**
 	 * Constructor
 	 *
@@ -4545,12 +4543,13 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return ADOFieldObject[]
 	 */
 	function fieldTypesArray() {
-		if (empty($this->cacheFieldTypes)) {
-			for ($i = 0; $i < $this->_numOfFields; $i++) {
-				$this->cacheFieldTypes[] = $this->fetchField($i);
+		static $arr = array();
+		if (empty($arr)) {
+			for ($i=0, $max=$this->_numOfFields; $i < $max; $i++) {
+				$arr[] = $this->FetchField($i);
 			}
 		}
-		return $this->cacheFieldTypes;
+		return $arr;
 	}
 
 	/**
