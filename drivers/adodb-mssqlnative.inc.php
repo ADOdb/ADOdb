@@ -50,12 +50,13 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $fmtDate = "'Y-m-d'";
 	var $fmtTimeStamp = "'Y-m-d\TH:i:s'";
 	/**
-	 * While the driver does have InsertID capability, the functionality is
-	 * turned off by default for performance reasons.
-	 * Switch it on as needed by calling {@see enableLastInsertID()}.
+	 * Enabling InsertID capability will cause execution of an extra query
+	 * {@see $identitySQL} after each INSERT statement. To improve performance
+	 * when inserting a large number of records, you should switch this off by
+	 * calling {@see enableLastInsertID enableLastInsertID(false)}.
 	 * @var bool $hasInsertID
 	 */
-	var $hasInsertID = false;
+	var $hasInsertID = true;
 	var $substr = "substring";
 	var $length = 'len';
 	var $hasAffectedRows = true;
