@@ -565,6 +565,10 @@ class ADODB_pdo extends ADOConnection {
 				$this->_driver->debug = $this->debug;
 			}
 			if ($inputarr) {
+				/*
+				* inputarr must be numeric
+				*/
+				$inputarr = array_values($inputarr);
 				$ok = $stmt->execute($inputarr);
 			}
 			else {
