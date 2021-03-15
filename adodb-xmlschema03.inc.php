@@ -1401,7 +1401,7 @@ class adoSchema {
 	function __construct( $db ) {
 		$this->db = $db;
 		$this->debug = $this->db->debug;
-		$this->dict = NewDataDictionary( $this->db );
+		$this->dict = newDataDictionary( $this->db );
 		$this->sqlArray = array();
 		$this->schemaVersion = XMLS_SCHEMA_VERSION;
 		$this->executeInline( XMLS_EXECUTE_INLINE );

@@ -178,7 +178,7 @@ if (!defined('_ADODB_LAYER')) {
 	define('DB_AUTOQUERY_UPDATE', 2);
 
 
-	
+
 	function ADODB_Setup() {
 	GLOBAL
 		$ADODB_vers,		// database version
@@ -571,22 +571,24 @@ if (!defined('_ADODB_LAYER')) {
 	protected $connectionParameters = array();
 
 	/**
-	* Adds a parameter to the connection string.
-	*
-	* These parameters are added to the connection string when connecting,
-	* if the driver is coded to use it.
-	*
-	* @param	string	$parameter	The name of the parameter to set
-	* @param	string	$value		The value of the parameter
-	*
-	* @return null
-	*
-	* @example, for mssqlnative driver ('CharacterSet','UTF-8')
-	*/
-	final public function setConnectionParameter($parameter,$value) {
-
-		$this->connectionParameters[] = array($parameter=>$value);
-
+	 * Adds a parameter to the connection string.
+	 *
+	 * Parameters must be added before the connection is established;
+	 * they are then passed on to the connect statement.
+	 *
+	 * If used in a portable environment, parameters set in this manner should
+	 * be predicated on the database provider, as unexpected results may occur
+	 * if applied to the wrong database.
+	 *
+	 * @param string $parameter The name of the parameter to set
+	 * @param string $value     The value of the parameter
+	 *
+	 * @return null
+	 *
+	 * @example, for mssqlnative driver ('CharacterSet','UTF-8')
+	 */
+	public function setConnectionParameter($parameter, $value) {
+		$this->connectionParameters[] = array($parameter => $value);
 	}
 
 	/**
@@ -1546,8 +1548,8 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @param string $table
 	 * @param string $id
-	 
-	 * @return mixed The last inserted ID. All databases support this, but be 
+
+	 * @return mixed The last inserted ID. All databases support this, but be
 	 *               aware of possible problems in multiuser environments.
 	 *               Heavily test this before deploying.
 	 */
@@ -5195,13 +5197,13 @@ class ADORecordSet implements IteratorAggregate {
 		if (!defined('ADODB_ASSOC_CASE')) {
 			define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_NATIVE);
 		}
-		
+
 		/*
 		* Are there special characters in the dsn password
 		* that disrupt parse_url
 		*/
 		$needsSpecialCharacterHandling = false;
-		
+
 		$errorfn = (defined('ADODB_ERROR_HANDLER')) ? ADODB_ERROR_HANDLER : false;
 		if (($at = strpos($db,'://')) !== FALSE) {
 			$origdsn = $db;
@@ -5228,23 +5230,23 @@ class ADORecordSet implements IteratorAggregate {
 				* Stop # character breaking parse_url
 				*/
 				$cFakedsn = str_replace('#','\035',$fakedsn);
-				if (strcmp($fakedsn,$cFakedsn) != 0) 
+				if (strcmp($fakedsn,$cFakedsn) != 0)
 				{
 					/*
 					* There is a # in the string
 					*/
 					$needsSpecialCharacterHandling = true;
-					
+
 					/*
 					* This allows us to successfully parse the url
 					*/
 					$fakedsn = $cFakedsn;
-					
+
 				}
-				
+
 				$dsna = parse_url($fakedsn);
 			}
-			
+
 			if (!$dsna) {
 				return false;
 			}
@@ -5270,13 +5272,13 @@ class ADORecordSet implements IteratorAggregate {
 			if (!$db) {
 				return false;
 			}
-			
+
 			$dsna['host'] = isset($dsna['host']) ? rawurldecode($dsna['host']) : '';
 			$dsna['user'] = isset($dsna['user']) ? rawurldecode($dsna['user']) : '';
 			$dsna['pass'] = isset($dsna['pass']) ? rawurldecode($dsna['pass']) : '';
 			$dsna['path'] = isset($dsna['path']) ? rawurldecode(substr($dsna['path'],1)) : ''; # strip off initial /
 
-			if ($needsSpecialCharacterHandling) 
+			if ($needsSpecialCharacterHandling)
 			{
 				/*
 				* Revert back to the original string
@@ -5482,7 +5484,15 @@ class ADORecordSet implements IteratorAggregate {
 		return new $class($conn);
 	}
 
-	function NewDataDictionary(&$conn,$drivername=false) {
+	/**
+	 * Get a new Data Dictionary object for the connection.
+	 *
+	 * @param ADOConnection $conn
+	 * @param string        $drivername
+	 *
+	 * @return ADODB_DataDict|false
+	 */
+	function newDataDictionary(&$conn, $drivername='') {
 		if (!$drivername) {
 			$drivername = _adodb_getdriver($conn->dataProvider,$conn->databaseType);
 		}
@@ -5508,8 +5518,6 @@ class ADORecordSet implements IteratorAggregate {
 
 		return $dict;
 	}
-
-
 
 	/*
 		Perform a print_r, with pre tags for better formatting.

@@ -439,9 +439,9 @@ class ADODB_mssqlnative extends ADOConnection {
 	function ErrorNo()
 	{
 		$err = sqlsrv_errors(SQLSRV_ERR_ALL);
-		if ($err && $err[0]) 
+		if ($err && $err[0])
 			return $err[0]['code'];
-		else 
+		else
 			return 0;
 	}
 
@@ -454,13 +454,13 @@ class ADODB_mssqlnative extends ADOConnection {
 				ADOConnection::outp('Microsoft SQL Server native driver (mssqlnative) not installed');
 			return null;
 		}
-	
+
 		if (!empty($this->port))
 			/*
-			* Port uses a comma 
+			* Port uses a comma
 			*/
 			$argHostname .= ",".$this->port;
-	
+
 		$connectionInfo 			= $this->connectionInfo;
 		$connectionInfo["Database"]	= $argDatabasename;
 		if ((string)$argUsername != '' || (string)$argPassword != '')
@@ -471,12 +471,12 @@ class ADODB_mssqlnative extends ADOConnection {
 			*/
 			$connectionInfo["UID"]		= $argUsername;
 			$connectionInfo["PWD"]		= $argPassword;
-			
+
 			if ($this->debug)
 				ADOConnection::outp('userid or password supplied, attempting connection with SQL Server Authentication');
-			
+
 		}
-		else 
+		else
 		{
 			/*
 			* If they don't pass either value, we won't add them to the
@@ -484,11 +484,11 @@ class ADODB_mssqlnative extends ADOConnection {
 			* to use windows authentication
 			*/
 			if ($this->debug)
-			
+
 				ADOConnection::outp('No userid or password supplied, attempting connection with Windows Authentication');
 		}
-				
-		
+
+
 		/*
 		* Now merge in the passed connection parameters setting
 		*/
@@ -501,7 +501,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		if ($this->debug) ADOConnection::outp("connecting to host: $argHostname params: ".var_export($connectionInfo,true));
 		if(!($this->_connectionID = @sqlsrv_connect($argHostname,$connectionInfo)))
 		{
-			if ($this->debug) 
+			if ($this->debug)
 				ADOConnection::outp( 'Connection Failed: '.print_r( sqlsrv_errors(), true));
 			return false;
 		}
@@ -517,6 +517,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		//return null;//not implemented. NOTE: Persistent connections have no effect if PHP is used as a CGI program. (FastCGI!)
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename);
 	}
+
 
 	function Prepare($sql)
 	{
@@ -623,7 +624,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		return $rez;
 	}
 
-	
+
 	function MetaIndexes($table,$primary=false, $owner = false)
 	{
 		$table = $this->qstr($table);
@@ -899,51 +900,48 @@ class ADODB_mssqlnative extends ADOConnection {
 	 * @param	string $procedureNamePattern (optional)
 	 * @param	string $catalog				 (optional)
 	 * @param	string $schemaPattern		 (optional)
-	 
+
 	 * @return array of stored objects in current database.
 	 *
 	 */
 	public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null)
 	{
-		
 		$metaProcedures = array();
 		$procedureSQL   = '';
 		$catalogSQL     = '';
 		$schemaSQL      = '';
-				
+
 		if ($procedureNamePattern)
 			$procedureSQL = "AND ROUTINE_NAME LIKE " . strtoupper($this->qstr($procedureNamePattern));
-		
+
 		if ($catalog)
 			$catalogSQL = "AND SPECIFIC_SCHEMA=" . strtoupper($this->qstr($catalog));
-		
+
 		if ($schemaPattern)
 			$schemaSQL = "AND ROUTINE_SCHEMA LIKE {$this->qstr($schemaPattern)}";
-		
-				
+
 		$fields = "	ROUTINE_NAME,ROUTINE_TYPE,ROUTINE_SCHEMA,ROUTINE_CATALOG";
-		
+
 		$SQL = "SELECT $fields
-		          FROM {$this->database}.information_schema.routines
-				 WHERE 1=1
-				  $procedureSQL
-				  $catalogSQL
-				  $schemaSQL
-				ORDER BY ROUTINE_NAME
-				";
-		
+			FROM {$this->database}.information_schema.routines
+			WHERE 1=1
+				$procedureSQL
+				$catalogSQL
+				$schemaSQL
+			ORDER BY ROUTINE_NAME
+			";
+
 		$result = $this->execute($SQL);
-		
+
 		if (!$result)
 			return false;
 		while ($r = $result->fetchRow()){
-			
 			if (!isset($r[0]))
 				/*
 				* Convert to numeric
 				*/
 				$r = array_values($r);
-			
+
 			$procedureName = $r[0];
 			$schemaName    = $r[2];
 			$routineCatalog= $r[3];
@@ -952,13 +950,11 @@ class ADODB_mssqlnative extends ADOConnection {
 												   'schema'  => $schemaName,
 												   'remarks' => '',
 												    );
-													
 		}
-		
+
 		return $metaProcedures;
-		
 	}
-	
+
 }
 
 /*--------------------------------------------------------------------------------------
@@ -1075,9 +1071,9 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			* Too early
 			*/
 			return;
-		if ($this->fetchMode != ADODB_FETCH_NUM) 
+		if ($this->fetchMode != ADODB_FETCH_NUM)
 			return $this->fields[$colname];
-		
+
 		if (!$this->bind) {
 			$this->bind = array();
 			for ($i=0; $i < $this->_numOfFields; $i++) {
@@ -1243,7 +1239,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			$this->_queryID = false;
 			return $rez;
 		}
-		
+
 		return true;
 	}
 
