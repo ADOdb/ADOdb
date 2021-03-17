@@ -707,10 +707,14 @@ class ADODB_sqlite3 extends ADOConnection {
 	*/
 	function updateBlobFile($table,$column,$val,$where,$blobtype='BLOB')
 	{
-		$fileContents = file_get_contents($val);
+		
+		if (!file_exists($val))
+			return false;
 		/*
 		* Read file information
 		*/
+		$fileContents = file_get_contents($val);
+		
 		return $this->updateBlob($table,$column,$fileContents,$where,$blobtype); 
 	
 	}
