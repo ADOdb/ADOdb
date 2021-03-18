@@ -2114,7 +2114,7 @@ class adoSchema {
 					. '">' . "\n";
 
 				// grab details from database
-				$rs = $this->db->execute( 'SELECT * FROM ' . $table . ' WHERE -1' );
+				$rs = $this->db->execute('SELECT * FROM ' . $table . ' WHERE 0=1');
 				$fields = $this->db->metaColumns( $table );
 				$indexes = $this->db->metaIndexes( $table );
 
