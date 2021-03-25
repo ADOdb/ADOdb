@@ -35,8 +35,10 @@ class ADODB_firebird extends ADOConnection {
 	var $fmtTimeStamp = "'Y-m-d, H:i:s'";
 	var $concat_operator='||';
 	var $_transactionID;
-	var $metaTablesSQL = "select lower(rdb\$relation_name) from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
+	
+	public $metaTablesSQL = "SELECT LOWER(rdb\$relation_name) FROM rdb\$relations";
 	//OPN STUFF start
+	
 	var $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
 	//OPN STUFF end
 	var $ibasetrans;
@@ -500,20 +502,29 @@ class ADODB_firebird extends ADOConnection {
 	}
 	//OPN STUFF end
 
-	// returns array of ADOFieldObjects for current table
-	function MetaColumns($table, $normalize=true)
+	/**
+	* Return an array of information about a table's columns.
+	*
+	* @param string $table The name of the table to get the column info for.
+	* @param bool $normalize (Optional) Unused.
+	*
+	* @return ADOFieldObject[]|bool An array of info for each column, 
+	* or false if it could not determine the info.
+	*/
+	public function metaColumns($table, $normalize = true)
 	{
-	global $ADODB_FETCH_MODE;
+	
+		global $ADODB_FETCH_MODE;
 
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
+		$rs = $this->execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
 
 		$ADODB_FETCH_MODE = $save;
-		$false = false;
+		
 		if ($rs === false) {
-			return $false;
+			return false;
 		}
 
 		$retarr = array();
@@ -558,9 +569,40 @@ class ADODB_firebird extends ADOConnection {
 			$rs->MoveNext();
 		}
 		$rs->Close();
-		if ( empty($retarr)) return $false;
+		if ( empty($retarr)) 
+			return false;
 		else return $retarr;
 	}
+	
+	/**
+	 * Retrieves a list of tables based on given criteria
+	 *
+	 * @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
+	 * @param string|bool $showSchema (Optional) schema name, false = current schema (default)
+	 * @param string|bool $mask (Optional) filters the table by name
+	 *
+	 * @return array list of tables
+	 */
+	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	{
+		$save = $this->metaTablesSQL;
+		if (!$showSchema) {
+			$this->metaTablesSQL .= " WHERE (rdb\$relation_name NOT LIKE 'RDB\$%' AND rdb\$relation_name NOT LIKE 'MON\$%' AND rdb\$relation_name NOT LIKE 'SEC\$%')";
+		
+		} else if ($showSchema && is_string($showSchema)) {
+			$this->metaTablesSQL .= $this->qstr($showSchema);
+		} 
+
+		if ($mask) {
+			$mask = $this->qstr($mask);
+			$this->metaTablesSQL .= " AND table_name LIKE $mask";
+		}
+		$ret = ADOConnection::metaTables($ttype,$showSchema);
+
+		$this->metaTablesSQL = $save;
+		return $ret;
+	}
+	
 
 	function BlobEncode( $blob )
 	{
@@ -639,45 +681,37 @@ class ADODB_firebird extends ADOConnection {
 	*/
 	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
-	$blob_id = fbird_blob_create($this->_connectionID);
-
-	// fbird_blob_add($blob_id, $val);
-
-	// replacement that solves the problem by which only the first modulus 64K /
-	// of $val are stored at the blob field ////////////////////////////////////
-	// Thx Abel Berenstein  aberenstein#afip.gov.ar
-	$len = strlen($val);
-	$chunk_size = 32768;
-	$tail_size = $len % $chunk_size;
-	$n_chunks = ($len - $tail_size) / $chunk_size;
-
-	for ($n = 0; $n < $n_chunks; $n++) {
-		$start = $n * $chunk_size;
-		$data = substr($val, $start, $chunk_size);
-		fbird_blob_add($blob_id, $data);
-	}
-
-	if ($tail_size) {
-		$start = $n_chunks * $chunk_size;
-		$data = substr($val, $start, $tail_size);
-		fbird_blob_add($blob_id, $data);
-	}
-	// end replacement /////////////////////////////////////////////////////////
-
-	$blob_id_str = fbird_blob_close($blob_id);
-
-	return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blob_id_str)) != false;
-
-	}
-
-
-	function OldUpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
-	{
 		$blob_id = fbird_blob_create($this->_connectionID);
-		fbird_blob_add($blob_id, $val);
+
+		// fbird_blob_add($blob_id, $val);
+
+		// replacement that solves the problem by which only the first modulus 64K /
+		// of $val are stored at the blob field ////////////////////////////////////
+		// Thx Abel Berenstein  aberenstein#afip.gov.ar
+		$len = strlen($val);
+		$chunk_size = 32768;
+		$tail_size = $len % $chunk_size;
+		$n_chunks = ($len - $tail_size) / $chunk_size;
+
+		for ($n = 0; $n < $n_chunks; $n++) {
+			$start = $n * $chunk_size;
+			$data = substr($val, $start, $chunk_size);
+			fbird_blob_add($blob_id, $data);
+		}
+
+		if ($tail_size) {
+			$start = $n_chunks * $chunk_size;
+			$data = substr($val, $start, $tail_size);
+			fbird_blob_add($blob_id, $data);
+		}
+		// end replacement /////////////////////////////////////////////////////////
+
 		$blob_id_str = fbird_blob_close($blob_id);
-		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blob_id_str)) != false;
+
+		return $this->execute("UPDATE $table SET $column=(?) WHERE $where",array($blob_id_str)) != false;
+
 	}
+
 
 	// Format date column in sql string given an input format that understands Y M D
 	// Only since Interbase 6.0 - uses EXTRACT
@@ -742,7 +776,21 @@ class ADODB_firebird extends ADOConnection {
 	// Note that Interbase 6.5 uses this ROWS instead - don't you love forking wars!
 	// 		SELECT col1, col2 FROM table ROWS 5 -- get 5 rows
 	//		SELECT col1, col2 FROM TABLE ORDER BY col1 ROWS 3 TO 7 -- first 5 skip 2
-	function &SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $secs=0)
+	/**
+	* Executes a provided SQL statement and returns a handle to the result, with the ability to supply a starting
+	* offset and record count.
+	*
+	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:selectlimit
+	*
+	* @param string $sql The SQL to execute.
+	* @param int $nrows (Optional) The limit for the number of records you want returned. By default, all results.
+	* @param int $offset (Optional) The offset to use when selecting the results. By default, no offset.
+	* @param array|bool $inputarr (Optional) Any parameter values required by the SQL statement, or false if none.
+	* @param int $secs (Optional) If greater than 0, perform a cached execute. By default, normal execution.
+	*
+	* @return ADORecordSet|false The query results, or false if the query failed to execute.
+	*/
+	public function selectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $secs=0)
 	{
 		$nrows = (integer) $nrows;
 		$offset = (integer) $offset;
@@ -752,9 +800,9 @@ class ADODB_firebird extends ADOConnection {
 
 		$sql = preg_replace('/^[ \t]*select/i',$str,$sql);
 		if ($secs)
-			$rs = $this->CacheExecute($secs,$sql,$inputarr);
+			$rs = $this->cacheExecute($secs,$sql,$inputarr);
 		else
-			$rs = $this->Execute($sql,$inputarr);
+			$rs = $this->execute($sql,$inputarr);
 
 		return $rs;
 	}
