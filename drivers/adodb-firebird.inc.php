@@ -575,15 +575,15 @@ class ADODB_firebird extends ADOConnection {
 	}
 	
 	/**
-	 * Retrieves a list of tables based on given criteria
-	 *
-	 * @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
-	 * @param string|bool $showSchema (Optional) schema name, false = current schema (default)
-	 * @param string|bool $mask (Optional) filters the table by name
-	 *
-	 * @return array list of tables
-	 */
-	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	* Retrieves a list of tables based on given criteria
+	*
+	* @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
+	* @param string|bool $showSchema (Optional) schema name, false = current schema (default)
+	* @param string|bool $mask (Optional) filters the table by name
+	*
+	* @return array list of tables
+	*/
+	public function metaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$save = $this->metaTablesSQL;
 		if (!$showSchema) {
@@ -772,6 +772,7 @@ class ADODB_firebird extends ADOConnection {
 		}
 		return $s;
 	}
+	
 
 	// Note that Interbase 6.5 uses this ROWS instead - don't you love forking wars!
 	// 		SELECT col1, col2 FROM table ROWS 5 -- get 5 rows
