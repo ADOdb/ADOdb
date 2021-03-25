@@ -773,6 +773,25 @@ class ADODB_firebird extends ADOConnection {
 		return $s;
 	}
 	
+	/**
+	 * Creates a portable date offset field, for use in SQL statements.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:offsetdate
+	 *
+	 * @param float $dayFraction A day in floating point
+	 * @param string|bool $date (Optional) The date to offset. If false, uses CURDATE()
+	 *
+	 * @return string
+	 */
+	public function offsetDate($dayFraction, $date=false)
+	{
+		if (!$date) 
+			$date = $this->sysTimeStamp;
+		
+		$fraction = $dayFraction * 24 * 3600;
+		return sprintf("DATEADD (second, %s, %s)  FROM RDB\$DATABASE",$fraction,$date);
+	}
+	
 
 	// Note that Interbase 6.5 uses this ROWS instead - don't you love forking wars!
 	// 		SELECT col1, col2 FROM table ROWS 5 -- get 5 rows
