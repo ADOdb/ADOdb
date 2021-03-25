@@ -206,16 +206,26 @@ class ADODB_firebird extends ADOConnection {
 		return $ret;
 	}
 
-	function metaIndexes ($table, $primary = FALSE, $owner=false)
+	/**
+	* Get a list of indexes on the specified table.
+	*
+	* @param string $table The name of the table to get indexes for.
+	* @param bool $primary (Optional) Whether or not to include the primary key.
+	* @param bool $owner (Optional) Unused.
+	*
+	* @return array|bool An array of the indexes, or false if the query to get the indexes failed.
+	*/
+	function metaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
-		$false = false;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		
 		if ($this->fetchMode !== FALSE) {
 				$savem = $this->SetFetchMode(FALSE);
 		}
+		
 		$table = strtoupper($table);
 		$sql = "SELECT * FROM RDB\$INDICES WHERE RDB\$RELATION_NAME = '".$table."'";
 		if (!$primary) {
@@ -224,18 +234,19 @@ class ADODB_firebird extends ADOConnection {
 			$sql .= " AND RDB\$INDEX_NAME NOT LIKE 'RDB\$FOREIGN%'";
 		}
 		// get index details
-		$rs = $this->Execute($sql);
+		$rs = $this->execute($sql);
 		if (!is_object($rs)) {
 			// restore fetchmode
 			if (isset($savem)) {
 				$this->SetFetchMode($savem);
 			}
 			$ADODB_FETCH_MODE = $save;
-			return $false;
+			return false;
 		}
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
-			$index = trim(preg_replace("/[\n\r]+/",'',$row[0]));
+			
+			$index = trim($row[0]);
 			if (!isset($indexes[$index])) {
 				if (is_null($row[3])) {
 					$row[3] = 0;
@@ -245,12 +256,13 @@ class ADODB_firebird extends ADOConnection {
 					'columns' => array()
 				);
 			}
-			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '".$index."' ORDER BY RDB\$FIELD_POSITION ASC";
-			$rs1 = $this->Execute($sql);
+			$sql = sprintf("SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '%s' ORDER BY RDB\$FIELD_POSITION ASC",$index);
+			$rs1 = $this->execute($sql);
 			while ($row1 = $rs1->FetchRow()) {
-				$indexes[$index]['columns'][$row1[2]] = $row1[1];
+				$indexes[$index]['columns'][$row1[2]] = trim($row1[1]);
 			}
 		}
+		
 		// restore fetchmode
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
