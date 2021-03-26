@@ -713,54 +713,61 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 
-	// Format date column in sql string given an input format that understands Y M D
-	// Only since Interbase 6.0 - uses EXTRACT
-	// problem - does not zero-fill the day and month yet
-	function SQLDate($fmt, $col=false)
+	/**
+	* Returns a portably-formatted date string from a timestamp database column.
+	*
+	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:sqldate
+	*
+	* Firebird does not support an AM/PM format, so the A indicator is discarded
+	*
+	* @param string $fmt The date format to use.
+	* @param string|bool $col (Optional) The table column to date format, or if false, use NOW().
+	*
+	* @return bool|string The SQL DATE_FORMAT() string, or false if the provided date format was empty.
+	*/
+	public function sqlDate($fmt, $col=false)
 	{
-		if (!$col) $col = $this->sysDate;
+		if (!$col) 
+			$col = 'CURRENT_TIMESTAMP';
+		
 		$s = '';
 
 		$len = strlen($fmt);
 		for ($i=0; $i < $len; $i++) {
 			if ($s) $s .= '||';
 			$ch = $fmt[$i];
-			switch($ch) {
+			$choice = strtoupper($ch);
+			switch($choice) {
 			case 'Y':
-			case 'y':
-				$s .= "extract(year from $col)";
+				$s .= "EXTRACT(YEAR FROM $col)";
 				break;
 			case 'M':
-			case 'm':
-				$s .= "extract(month from $col)";
+				$s .= "RIGHT('0' || TRIM(EXTRACT(MONTH FROM $col)),2)";
 				break;
 			case 'W':
-			case 'w':
 				// The more accurate way of doing this is with a stored procedure
 				// See http://wiki.firebirdsql.org/wiki/index.php?page=DATE+Handling+Functions for details
-				$s .= "((extract(yearday from $col) - extract(weekday from $col - 1) + 7) / 7)";
+				$s .= "((EXTRACT(YEARDAY FROM $col) - EXTRACT(WEEKDAY FROM $col - 1) + 7) / 7)";
 				break;
 			case 'Q':
-			case 'q':
-				$s .= "cast(((extract(month from $col)+2) / 3) as integer)";
+				$s .= "CAST(((EXTRACT(MONTH FROM $col)+2) / 3) AS INTEGER)";
 				break;
 			case 'D':
-			case 'd':
-				$s .= "(extract(day from $col))";
+				$s .= "RIGHT('0' || TRIM(EXTRACT(DAY FROM $col)),2)";
 				break;
 			case 'H':
-			case 'h':
-				$s .= "(extract(hour from $col))";
+				$s .= "RIGHT('0' || TRIM(EXTRACT(HOUR FROM $col)),2)";
 				break;
 			case 'I':
-			case 'i':
-				$s .= "(extract(minute from $col))";
+				$s .= "RIGHT('0' || TRIM(EXTRACT(MINUTE FROM $col)),2)";
 				break;
 			case 'S':
-			case 's':
-				$s .= "CAST((extract(second from $col)) AS INTEGER)";
+				//$s .= "CAST((EXTRACT(SECOND FROM $col)) AS INTEGER)";
+				$s .= "RIGHT('0' || TRIM(EXTRACT(SECOND FROM $col)),2)";
 				break;
-
+			case 'A':
+				$s .= $this->qstr('AM');
+				break;
 			default:
 				if ($ch == '\\') {
 					$i++;
