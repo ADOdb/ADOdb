@@ -214,11 +214,19 @@ class ADODB_firebird extends ADOConnection {
 		return $arr;
 	}
 
-	function BeginTrans()
+	/**
+	* Begin a Transaction. Must be followed by CommitTrans() or RollbackTrans().
+	*
+	* @return bool true if succeeded or false if database does not support transactions
+	*/
+	public function beginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
 		$this->autoCommit = false;
+		/*
+		* We manage the transaction mode via fbird_trans 
+		*/
 		$this->_transactionID = fbird_trans( $this->_transmode, $this->_connectionID );
 		return $this->_transactionID;
 	}
