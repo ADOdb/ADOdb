@@ -41,7 +41,7 @@ class ADODB_firebird extends ADOConnection {
 	
 	var $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
 	//OPN STUFF end
-	var $ibasetrans;
+
 	var $hasGenID = true;
 	var $_bindInputArray = true;
 	var $buffers = 0;
@@ -57,10 +57,29 @@ class ADODB_firebird extends ADOConnection {
 
 	function __construct()
 	{
-	// Ignore IBASE_DEFAULT we want a more practical transaction!
-	//	if (defined('IBASE_DEFAULT')) $this->ibasetrans = IBASE_DEFAULT;
-	//	else
-		$this->ibasetrans = IBASE_WAIT | IBASE_REC_VERSION | IBASE_COMMITTED;
+		$this->settransactionMode('');
+	}
+
+    /**
+	* Sets the isolation level of a transaction.
+	*
+	* The default behavior is a more practical IBASE_WAIT | IBASE_REC_VERSION | IBASE_COMMITTED 	
+	* instead of IBASE_DEFAULT
+	*
+	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:settransactionmode
+	*
+	* @param string $transaction_mode The transaction mode to set.
+	*
+	* @return void
+	*/
+	public function setTransactionMode($transaction_mode)
+	{
+		$this->_transmode = $transaction_mode;
+		
+		if (empty($transaction_mode)) {
+			$this->_transmode = IBASE_WAIT | IBASE_REC_VERSION | IBASE_COMMITTED;
+		}
+		
 	}
 
 
@@ -148,7 +167,7 @@ class ADODB_firebird extends ADOConnection {
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
 		$this->autoCommit = false;
-		$this->_transactionID = fbird_trans( $this->ibasetrans, $this->_connectionID );
+		$this->_transactionID = fbird_trans( $this->_transmode, $this->_connectionID );
 		return $this->_transactionID;
 	}
 
@@ -718,7 +737,7 @@ class ADODB_firebird extends ADOConnection {
 	*
 	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:sqldate
 	*
-	* Firebird does not support an AM/PM format, so the A indicator is discarded
+	* Firebird does not support an AM/PM format, so the A indicator always shows AM
 	*
 	* @param string $fmt The date format to use.
 	* @param string|bool $col (Optional) The table column to date format, or if false, use NOW().
