@@ -44,15 +44,26 @@ class ADODB_firebird extends ADOConnection {
 
 	var $hasGenID = true;
 	var $_bindInputArray = true;
-	var $buffers = 0;
-	var $dialect = 3;
 	var $sysDate = "cast('TODAY' as timestamp)";
 	var $sysTimeStamp = "CURRENT_TIMESTAMP"; //"cast('NOW' as timestamp)";
 	var $ansiOuter = true;
 	var $hasAffectedRows = true;
 	var $poorAffectedRows = false;
 	var $blobEncodeType = 'C';
-	var $role = false;
+	/*
+	* firebird custom optionally specifies the user role
+	*/
+	public $role = false;
+	/*
+	* firebird custom optionally specifies the connection buffers
+	*/
+	public $buffers = 0;
+	
+	/*
+	* firebird custom optionally specifies database dialect
+	*/
+	public $dialect = 3;
+	
 	var $nameQuote = '';		/// string to use to quote identifiers and names
 
 	function __construct()
@@ -82,13 +93,50 @@ class ADODB_firebird extends ADOConnection {
 		
 	}
 
-
-	// returns true or false
-	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$persist=false)
+	/**
+	 * Connect to a database.
+	 *
+	 * @todo add: parameter int $port, parameter string $socket
+	 *
+	 * @param string|null $argHostname (Optional) The host to connect to.
+	 * @param string|null $argUsername (Optional) The username to connect as.
+	 * @param string|null $argPassword (Optional) The password to connect with.
+	 * @param string|null $argDatabasename (Optional) The name of the database to start in when connected.
+	 * @param bool $persist (Optional) Whether or not to use a persistent connection.
+	 *
+	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
+	 * isn't currently loaded.
+	 */	
+	public function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$persist=false)
 	{
-		if (!function_exists('fbird_pconnect')) return null;
-		if ($argDatabasename) $argHostname .= ':'.$argDatabasename;
+		if (!function_exists('fbird_pconnect')) 
+			return null;
+		
+		if ($argDatabasename) 
+			$argHostname .= ':'.$argDatabasename;
+		
 		$fn = ($persist) ? 'fbird_pconnect':'fbird_connect';
+		
+		/*
+		* Now merge in the standard connection parameters setting
+		*/
+		foreach ($this->connectionParameters as $options)
+		{
+			foreach($options as $k=>$v)
+			{
+				switch($k){
+				case 'role':
+					$this->role = $v;
+					break;
+				case 'dialect':
+					$this->dialect = $v;
+					break;
+				case 'buffers':
+					$this->buffers = $v;
+				}
+			}
+		}
+		
 		if ($this->role)
 			$this->_connectionID = $fn($argHostname,$argUsername,$argPassword,
 					$this->charSet,$this->buffers,$this->dialect,$this->role);
@@ -96,33 +144,32 @@ class ADODB_firebird extends ADOConnection {
 			$this->_connectionID = $fn($argHostname,$argUsername,$argPassword,
 					$this->charSet,$this->buffers,$this->dialect);
 
-		if ($this->dialect != 1) { // http://www.ibphoenix.com/ibp_60_del_id_ds.html
-			$this->replaceQuote = "''";
+		if ($this->dialect == 1) { // http://www.ibphoenix.com/ibp_60_del_id_ds.html
+			$this->replaceQuote = "";
 		}
 		if ($this->_connectionID === false) {
 			$this->_handleerror();
 			return false;
 		}
 
-		// PHP5 change.
-		if (function_exists('fbird_timefmt')) {
-			fbird_timefmt($this->fbird_datefmt,fbird_DATE );
-			if ($this->dialect == 1) {
-				fbird_timefmt($this->fbird_datefmt,fbird_TIMESTAMP );
-			} else {
-				fbird_timefmt($this->fbird_timestampfmt,fbird_TIMESTAMP );
-			}
-			fbird_timefmt($this->fbird_timefmt,fbird_TIME );
-
-		} else {
-			ini_set("ibase.timestampformat", $this->fbird_timestampfmt);
-			ini_set("ibase.dateformat", $this->fbird_datefmt);
-			ini_set("ibase.timeformat", $this->fbird_timefmt);
-		}
+		ini_set("ibase.timestampformat", $this->fbird_timestampfmt);
+		ini_set("ibase.dateformat", $this->fbird_datefmt);
+		ini_set("ibase.timeformat", $this->fbird_timefmt);
+		
 		return true;
 	}
 
-	// returns true or false
+	/**
+	 * Connect to a database with a persistent connection.
+	 *
+	 * @param string|null $argHostname The host to connect to.
+	 * @param string|null $argUsername The username to connect as.
+	 * @param string|null $argPassword The password to connect with.
+	 * @param string|null $argDatabasename The name of the database to start in when connected.
+	 *
+	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
+	 * isn't currently loaded.
+	 */	
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename,true);
