@@ -176,7 +176,7 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 
-	function MetaPrimaryKeys($table,$owner_notused=false,$internalKey=false)
+	public function metaPrimaryKeys($table,$owner_notused=false,$internalKey=false)
 	{
 		if ($internalKey) {
 			return array('RDB$DB_KEY');
@@ -194,7 +194,12 @@ class ADODB_firebird extends ADOConnection {
 		return false;
 	}
 
-	function ServerInfo()
+	/**
+	* Get information about the current Firebird server.
+	*
+	* @return array
+	*/
+	public function ServerInfo()
 	{
 		$arr['dialect'] = $this->dialect;
 		switch($arr['dialect']) {
