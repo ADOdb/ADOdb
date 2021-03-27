@@ -404,13 +404,22 @@ class ADODB_firebird extends ADOConnection {
 			return false;
 	} 
 	
+	/**
+	 * A portable method of creating sequence numbers.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:genid
+	 *
+	 * @param string $seqname (Optional) The name of the sequence to use.
+	 * @param int $startID (Optional) The point to start at in the sequence.
+	 *
+	 * @return bool|int|string
+	 */
 	function GenID($seqname='adodbseq',$startID=1)
 	{
 		$getnext = ("SELECT Gen_ID($seqname,1) FROM RDB\$DATABASE");
 		$rs = @$this->Execute($getnext);
 		if (!$rs) {
-			$this->Execute(("CREATE GENERATOR $seqname" ));
-			$this->Execute("SET GENERATOR $seqname TO ".($startID-1).';');
+			$this->Execute("CREATE SEQUENCE $seqname START WITH $startID");
 			$rs = $this->Execute($getnext);
 		}
 		if ($rs && !$rs->EOF) {
