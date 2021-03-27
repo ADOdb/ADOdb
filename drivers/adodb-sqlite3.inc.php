@@ -30,8 +30,8 @@ class ADODB_sqlite3 extends ADOConnection {
 	var $hasInsertID = true; 		/// supports autoincrement ID?
 	var $hasAffectedRows = true; 	/// supports affected rows for update/delete?
 	var $metaTablesSQL = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
-	var $sysDate = "adodb_date('Y-m-d')";
-	var $sysTimeStamp = "adodb_date('Y-m-d H:i:s')";
+	var $sysDate = "DATE('now','localtime')";
+	var $sysTimeStamp = "DATETIME('now','localtime')";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 
 	function ServerInfo()
