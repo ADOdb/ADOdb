@@ -44,6 +44,8 @@ class ADODB_firebird extends ADOConnection {
 	
 	public $genSeqSQL = "CREATE SEQUENCE %s START WITH %s";
 
+	public $_dropSeqSQL = "DROP SEQUENCE %s";
+
 	var $hasGenID = true;
 	var $_bindInputArray = true;
 	var $sysDate = "cast('TODAY' as timestamp)";
@@ -401,13 +403,7 @@ class ADODB_firebird extends ADOConnection {
 		if (!$ok) 
 			return false;
 	} 
-
-	function DropSequence($seqname = 'adodbseq')
-	{
-		$seqname = strtoupper($seqname);
-		return $this->Execute("DROP GENERATOR $seqname");
-	}
-
+	
 	function GenID($seqname='adodbseq',$startID=1)
 	{
 		$getnext = ("SELECT Gen_ID($seqname,1) FROM RDB\$DATABASE");
