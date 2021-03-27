@@ -272,7 +272,7 @@ class ADODB_mysql extends ADOConnection {
 		return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 		return ADOConnection::GetOne('SELECT LAST_INSERT_ID()');
 		//return mysql_insert_id($this->_connectionID);

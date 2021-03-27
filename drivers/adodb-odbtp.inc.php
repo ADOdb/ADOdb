@@ -76,7 +76,7 @@ class ADODB_odbtp extends ADOConnection{
 	}
 */
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 	// SCOPE_IDENTITY()
 	// Returns the last IDENTITY value inserted into an IDENTITY column in

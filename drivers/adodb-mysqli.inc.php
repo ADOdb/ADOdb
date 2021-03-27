@@ -400,9 +400,9 @@ class ADODB_mysqli extends ADOConnection {
 	/**
 	 * Return the AUTO_INCREMENT id of the last row that has been inserted or updated in a table.
 	 *
-	 * @return int|string
+	 * @inheritDoc
 	 */
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 		// mysqli_insert_id does not return the last_insert_id if called after
 		// execution of a stored procedure so we execute this instead.

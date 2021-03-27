@@ -58,9 +58,10 @@ if (!defined('ADODB_SYBASE_SQLANYWHERE')){
   	var $databaseType = "sqlanywhere";
 	var $hasInsertID = true;
 
-	 function _insertid() {
-  	   return $this->GetOne('select @@identity');
-	 }
+	protected function _insertID($table = '', $column = '')
+	{
+		return $this->GetOne('select @@identity');
+	}
 
   function create_blobvar($blobVarName) {
    $this->Execute("create variable $blobVarName long binary");

@@ -110,7 +110,7 @@ class ADODB_mssql extends ADOConnection {
 		return " ISNULL($field, $ifNull) "; // if MS SQL Server
 	}
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 	// SCOPE_IDENTITY()
 	// Returns the last IDENTITY value inserted into an IDENTITY column in

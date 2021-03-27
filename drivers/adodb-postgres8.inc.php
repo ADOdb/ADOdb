@@ -37,7 +37,7 @@ class ADODB_postgres8 extends ADODB_postgres7
 	 * @return int last inserted ID for given table/column, or the most recently
 	 *             returned one if $table or $column are empty
 	 */
-	function _insertid($table, $column)
+	protected function _insertID($table = '', $column = '')
 	{
 		return empty($table) || empty($column)
 			? $this->GetOne("SELECT lastval()")

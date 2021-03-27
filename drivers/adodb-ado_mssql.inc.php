@@ -40,7 +40,7 @@ class  ADODB_ado_mssql extends ADODB_ado {
 
 	//var $_inTransaction = 1; // always open recordsets, so no transaction problems.
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 			return $this->GetOne('select SCOPE_IDENTITY()');
 	}

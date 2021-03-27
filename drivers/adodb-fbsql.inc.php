@@ -25,7 +25,7 @@ class ADODB_fbsql extends ADOConnection {
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $hasLimit = false;
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 			return fbsql_insert_id($this->_connectionID);
 	}

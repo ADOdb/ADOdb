@@ -615,7 +615,7 @@ class ADODB_pdo extends ADOConnection {
 		return ($this->_stmt) ? $this->_stmt->rowCount() : 0;
 	}
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 		return ($this->_connectionID) ? $this->_connectionID->lastInsertId() : 0;
 	}

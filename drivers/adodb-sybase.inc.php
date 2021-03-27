@@ -44,11 +44,15 @@ class ADODB_sybase extends ADOConnection {
 
 	var $port;
 
-	// might require begintrans -- committrans
-	function _insertid()
+	/**
+	 * might require begintrans -- committrans
+	 * @inheritDoc
+	 */
+	protected function _insertID($table = '', $column = '')
 	{
 		return $this->GetOne('select @@identity');
 	}
+
 	  // might require begintrans -- committrans
 	function _affectedrows()
 	{

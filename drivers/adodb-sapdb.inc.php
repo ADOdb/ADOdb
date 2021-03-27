@@ -144,7 +144,7 @@ class ADODB_SAPDB extends ADODB_odbc {
 	}
 
 	// unlike it seems, this depends on the db-session and works in a multiuser environment
-	function _insertid($table,$column)
+	protected function _insertID($table = '', $column = '')
 	{
 		return empty($table) ? False : $this->GetOne("SELECT $table.CURRVAL FROM DUAL");
 	}

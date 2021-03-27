@@ -183,8 +183,10 @@ class ADODB_postgres64 extends ADOConnection{
 	 * Using a OID as a unique identifier is not generally wise.
 	 * Unless you are very careful, you might end up with a tuple having
 	 * a different OID if a database must be reloaded.
+	 *
+	 * @inheritDoc
 	 */
-	function _insertid($table,$column)
+	protected function _insertID($table = '', $column = '')
 	{
 		if (!is_resource($this->_resultid) || get_resource_type($this->_resultid) !== 'pgsql result') return false;
 		$oid = pg_last_oid($this->_resultid);

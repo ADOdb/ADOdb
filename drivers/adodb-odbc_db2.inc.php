@@ -131,7 +131,7 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 		return array('description'=>'DB2 ODBC driver', 'version'=>$vers);
 	}
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 		return $this->GetOne($this->identitySQL);
 	}

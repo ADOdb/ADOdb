@@ -314,20 +314,19 @@ END;
 		return " NVL($field, $ifNull) "; // if Oracle
 	}
 	
-	function _insertid($tabname,$column='')
+	protected function _insertID($table = '', $column = '')
 	{
 		
 		if (!$this->seqField) 
 			return false;
 
-		
-		if ($this->schema) 
+		if ($this->schema)
 		{
-			$t = strpos($tabname,'.');
-			if ($t !== false) 
-				$tab = substr($tabname,$t+1);
-			else 
-				$tab = $tabname;
+			$t = strpos($table,'.');
+			if ($t !== false)
+				$tab = substr($table,$t+1);
+			else
+				$tab = $table;
 			
 			if ($this->useCompactAutoIncrements)
 				$tab = sprintf('%u',crc32(strtolower($tab)));
@@ -337,9 +336,9 @@ END;
 		else 
 		{
 			if ($this->useCompactAutoIncrements)
-				$tabname = sprintf('%u',crc32(strtolower($tabname)));
-			
-			$seqname = $this->seqPrefix.$tabname;
+				$table = sprintf('%u',crc32(strtolower($table)));
+
+			$seqname = $this->seqPrefix.$table;
 		}
 
 		if (strlen($seqname) > 30)

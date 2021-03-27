@@ -92,7 +92,7 @@ class ADODB_db2 extends ADOConnection {
 	
 	function __construct() {}
 
-    function _insertid()
+	protected function _insertID($table = '', $column = '')
     {
         return ADOConnection::GetOne('VALUES IDENTITY_VAL_LOCAL()');
     }

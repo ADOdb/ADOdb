@@ -1457,7 +1457,7 @@ if (!defined('_ADODB_LAYER')) {
 			return $this->lastInsID;
 		}
 		if ($this->hasInsertID) {
-			return $this->_insertid($table,$column);
+			return $this->_insertID($table,$column);
 		}
 		if ($this->debug) {
 			ADOConnection::outp( '<p>Insert_ID error</p>');
@@ -1466,6 +1466,18 @@ if (!defined('_ADODB_LAYER')) {
 		return false;
 	}
 
+	/**
+	 * Return the id of the last row that has been inserted in a table.
+	 *
+	 * @param string $table
+	 * @param string $column
+	 *
+	 * @return int|false
+	 */
+	protected function _insertID($table = '', $column = '')
+	{
+		return false;
+	}
 
 	/**
 	 * Portable Insert ID. Pablo Roca <pabloroca#mvps.org>
