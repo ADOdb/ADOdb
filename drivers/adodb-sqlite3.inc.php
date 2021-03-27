@@ -599,124 +599,99 @@ class ADODB_sqlite3 extends ADOConnection {
 		$x = "strftime('%Y',$fld)";
 		return $x;
 	}
-	
+
 	/**
-	* SQLite update for blob 
-	*
-	* SQLite must be a fully prepared statement (all variables must
-	* be bound), so where can either be an array (array params) 
-	* or a string that we will do our best to unpack and 
-	* turn into a prepared statement
-	*
-	* @param string $table
-	* @param string $column
-	* @param string $val
-	* @param mixed  $where
-	* @param string $blobtype ignored
-	*
-	* @return bool success 
-	*/
-	function updateBlob($table,$column,$val,$where,$blobtype='BLOB') 
+	 * SQLite update for blob
+	 *
+	 * SQLite must be a fully prepared statement (all variables must be bound),
+	 * so $where can either be an array (array params) or a string that we will
+	 * do our best to unpack and turn into a prepared statement.
+	 *
+	 * @param string $table
+	 * @param string $column
+	 * @param string $val      Blob value to set
+	 * @param mixed  $where    An array of parameters (key => value pairs),
+	 *                         or a string (where clause).
+	 * @param string $blobtype ignored
+	 *
+	 * @return bool success
+	 */
+	function updateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
 	{
-		if (is_array($where))
-		{
-			/*
-			* We were passed a key=>value pair set
-			*/
+		if (is_array($where)) {
+			// We were passed a set of key=>value pairs
 			$params = $where;
-		}
-		else
-		{
-			/*
-			* We have to disasemble the statements into keys
-			* and values
-			*/
+		} else {
+			// Given a where clause string, we have to disassemble the
+			// statements into keys and values
 			$params = array();
-			$temp   = preg_split('/(where|and)+/i',$where);
-			$where  = array_filter($temp);
-			
-			foreach($where as $wValue)
-			{
-				$wTemp = preg_split('/[= \']+/',$wValue);
+			$temp = preg_split('/(where|and)+/i', $where);
+			$where = array_filter($temp);
+
+			foreach ($where as $wValue) {
+				$wTemp = preg_split('/[= \']+/', $wValue);
 				$wTemp = array_filter($wTemp);
 				$wTemp = array_values($wTemp);
 				$params[$wTemp[0]] = $wTemp[1];
 			}
 		}
+
 		$paramWhere = array();
-		
-		foreach ($params as $bindKey=>$bindValue) 
-		{
+		foreach ($params as $bindKey => $bindValue) {
 			$paramWhere[] = $bindKey . '=?';
 		}
 		
 		$where = 'WHERE ' . implode(' AND ' , $paramWhere);
 		
 		$sql = "UPDATE $table SET $column=? $where";
-		
-		/*
-		* Prepare the statement
-		*/
+
+		// Prepare the statement
 		$stmt = $this->_connectionID->prepare($sql);
-		
-		/*
-		* Set the first bind value equal to value we want to update
-		*/
+
+		// Set the first bind value equal to value we want to update
 		$bindOk = $stmt->bindValue(1, $val, SQLITE3_BLOB);
-		
-		/*
-		* Build as many keys as available
-		*/
+
+		// Build as many keys as available
 		$bindIndex = 2;
-		foreach ($params as $bindKey=>$bindValue) 
-		{
-			
-			if (is_integer($v) || is_bool($v) || is_float($v))
+		foreach ($params as $bindKey => $bindValue) {
+			if (is_integer($v) || is_bool($v) || is_float($v)) {
 				$bindOk = $stmt->bindValue($bindIndex, $bindValue, SQLITE3_NUM);
-					
-			else if(is_object($v))
-				/*
-				* Assume a blob, this should never appear in
-				* the binding for a where statement anyway
-				*/
+			} elseif (is_object($bindValue)) {
+				// Assume a blob, this should never appear in
+				// the binding for a where statement anyway
 				$bindOk = $stmt->bindValue($bindIndex, $bindValue, SQLITE3_BLOB);
-			else
+			} else {
 				$bindOk = $stmt->bindValue($bindIndex, $bindValue, SQLITE3_TEXT);
-				
+			}
 			$bindIndex++;
 		}
-		
-		/*
-		* Now execute the update. NB this is SQLite execute,
-		* not ADOdb
-		*/
+
+		// Now execute the update. NB this is SQLite execute, not ADOdb
 		$ok = $stmt->execute();
 		return is_object($ok);
 	}
-	
+
 	/**
-	* SQLite update for blob from a file
-	*
-	* @param string $table
-	* @param string $column
-	* @param string $val filename
-	* @param mixed  $where
-	* @param string $blobtype ignored
-	*
-	* @return bool success
-	*/
-	function updateBlobFile($table,$column,$val,$where,$blobtype='BLOB')
+	 * SQLite update for blob from a file
+	 *
+	 * @param string $table
+	 * @param string $column
+	 * @param string $val      Filename containing blob data
+	 * @param mixed  $where    {@see updateBlob()}
+	 * @param string $blobtype ignored
+	 *
+	 * @return bool success
+	 */
+	function updateBlobFile($table, $column, $val, $where, $blobtype = 'BLOB')
 	{
-		
-		if (!file_exists($val))
+		if (!file_exists($val)) {
 			return false;
-		/*
-		* Read file information
-		*/
+		}
+
+		// Read file information
 		$fileContents = file_get_contents($val);
-		
-		return $this->updateBlob($table,$column,$fileContents,$where,$blobtype); 
-	
+
+		return $this->updateBlob($table, $column, $fileContents, $where, $blobtype);
 	}
 
 }
