@@ -265,13 +265,23 @@ class ADODB_firebird extends ADOConnection {
 			return fbird_affected_rows( $this->_transactionID ? $this->_transactionID : $this->_connectionID );
 	}
 
-	
-	function RollbackTrans()
+	/**
+	* Rollback a smart transaction.
+	*
+	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:rollbacktrans
+	*
+	* @return bool
+	*/
+	public function rollbackTrans()
 	{
-		if ($this->transOff) return true;
-		if ($this->transCnt) $this->transCnt -= 1;
+		if ($this->transOff) 
+			return true;
+		if ($this->transCnt) 
+			$this->transCnt -= 1;
+		
 		$ret = false;
 		$this->autoCommit = true;
+		
 		if ($this->_transactionID) {
 			$ret = fbird_rollback($this->_transactionID);
 		}
