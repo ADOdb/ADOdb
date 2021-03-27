@@ -299,7 +299,7 @@ class ADODB_firebird extends ADOConnection {
 	*
 	* @return array|bool An array of the indexes, or false if the query to get the indexes failed.
 	*/
-	function metaIndexes($table, $primary = false, $owner = false)
+	public function metaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -357,14 +357,28 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 
-	// See http://community.borland.com/article/0,1410,25844,00.html
-	function RowLock($tables,$where,$col=false)
+	 // See http://community.borland.com/article/0,1410,25844,00.html
+	/**
+	 * Lock a table row for a duration of a transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:rowlock
+	 * @link https://firebirdsql.org/refdocs/langrefupd21-notes-withlock.html
+	 *
+	 * @param string $tables The table(s) to lock rows for.
+	 * @param string $where (Optional) The WHERE clause to use to determine which rows to lock.
+	 * @param string $col (Optional) The columns to select.
+	 *
+	 * @return bool True if the locking SQL statement executed successfully, otherwise false.
+	 */
+	public function rowLock($tables,$where,$col=false)
 	{
-		if ($this->autoCommit) {
-			$this->BeginTrans();
-		}
-		$this->Execute("UPDATE $table SET $col=$col WHERE $where "); // is this correct - jlim?
-		return 1;
+		if ($this->transCnt==0) 
+			$this->beginTrans();
+		
+		if ($where) $where = ' where '.$where;
+		$rs = $this->execute("SELECT $col FROM $tables $where FOR UPDATE WITH LOCK");
+		return 
+			!empty($rs);
 	}
 
 
