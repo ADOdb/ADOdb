@@ -231,7 +231,15 @@ class ADODB_firebird extends ADOConnection {
 		return $this->_transactionID;
 	}
 
-	function CommitTrans($ok=true)
+	
+	/**
+	* Commits a transaction
+	*
+	* @param bool $ok  set to false to rollback transaction, true to commit
+	*
+	* @return true/false.
+	*/
+	public function commitTrans($ok=true)
 	{
 		if (!$ok) {
 			return $this->RollbackTrans();
@@ -257,22 +265,7 @@ class ADODB_firebird extends ADOConnection {
 			return fbird_affected_rows( $this->_transactionID ? $this->_transactionID : $this->_connectionID );
 	}
 
-	// there are some compat problems with ADODB_COUNTRECS=false and $this->_logsql currently.
-	// it appears that ibase extension cannot support multiple concurrent queryid's
-	function _Execute($sql,$inputarr=false) {
-	global $ADODB_COUNTRECS;
-
-		if ($this->_logsql) {
-			$savecrecs = $ADODB_COUNTRECS;
-			$ADODB_COUNTRECS = true; // force countrecs
-			$ret =& ADOConnection::_Execute($sql,$inputarr);
-			$ADODB_COUNTRECS = $savecrecs;
-		} else {
-			$ret = ADOConnection::_Execute($sql,$inputarr);
-		}
-		return $ret;
-	}
-
+	
 	function RollbackTrans()
 	{
 		if ($this->transOff) return true;
