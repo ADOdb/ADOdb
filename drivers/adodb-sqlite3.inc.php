@@ -37,6 +37,9 @@ class ADODB_sqlite3 extends ADOConnection {
 	var $sysTimeStamp = "adodb_date('Y-m-d H:i:s')";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 
+	/** @var SQLite3 */
+	var $_connectionID;
+
 	function ServerInfo()
 	{
 		$version = SQLite3::version();
@@ -50,7 +53,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		if ($this->transOff) {
 			return true;
 		}
-		$ret = $this->Execute("BEGIN TRANSACTION");
+		$this->Execute("BEGIN TRANSACTION");
 		$this->transCnt += 1;
 		return true;
 	}
@@ -306,8 +309,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		$this->_connectionID->createFunction('adodb_date2', 'adodb_date2', 2);
 	}
 
-
-	// returns true or false
+	/** @noinspection PhpUnusedParameterInspection */
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (empty($argHostname) && $argDatabasename) {
@@ -319,7 +321,6 @@ class ADODB_sqlite3 extends ADOConnection {
 		return true;
 	}
 
-	// returns true or false
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		// There's no permanent connect in SQLite3
@@ -396,7 +397,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		return false;
 	}
 
-	function CreateSequence($seqname='adodbseq',$start=1)
+	function createSequence($seqname='adodbseq', $startID=1)
 	{
 		if (empty($this->_genSeqSQL)) {
 			return false;
@@ -405,8 +406,8 @@ class ADODB_sqlite3 extends ADOConnection {
 		if (!$ok) {
 			return false;
 		}
-		$start -= 1;
-		return $this->Execute("insert into $seqname values($start)");
+		$startID -= 1;
+		return $this->Execute("insert into $seqname values($startID)");
 	}
 
 	var $_dropSeqSQL = 'drop table %s';
@@ -561,14 +562,13 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * This uses the more efficient strftime native function to process
 	 *
-	 * @param 	str		$fld	The name of the field to process
+	 * @param string $fld	The name of the field to process
 	 *
-	 * @return	str				The SQL Statement
+	 * @return string The SQL Statement
 	 */
 	function month($fld)
 	{
-		$x = "strftime('%m',$fld)";
-		return $x;
+		return "strftime('%m',$fld)";
 	}
 
 	/**
@@ -576,13 +576,12 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * This uses the more efficient strftime native function to process
 	 *
-	 * @param 	str		$fld	The name of the field to process
+	 * @param string $fld	The name of the field to process
 	 *
-	 * @return	str				The SQL Statement
+	 * @return string The SQL Statement
 	 */
 	function day($fld) {
-		$x = "strftime('%d',$fld)";
-		return $x;
+		return "strftime('%d',$fld)";
 	}
 
 	/**
@@ -590,14 +589,13 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * This uses the more efficient strftime native function to process
 	 *
-	 * @param 	str		$fld	The name of the field to process
+	 * @param string $fld	The name of the field to process
 	 *
-	 * @return	str				The SQL Statement
+	 * @return string The SQL Statement
 	 */
 	function year($fld)
 	{
-		$x = "strftime('%Y',$fld)";
-		return $x;
+		return "strftime('%Y',$fld)";
 	}
 
 	/**
@@ -652,7 +650,7 @@ class ADODB_sqlite3 extends ADOConnection {
 
 		// Build as many keys as available
 		$bindIndex = 2;
-		foreach ($params as $bindKey => $bindValue) {
+		foreach ($params as $bindValue) {
 			if (is_integer($bindValue) || is_bool($bindValue) || is_float($bindValue)) {
 				$type = SQLITE3_NUM;
 			} elseif (is_object($bindValue)) {
@@ -676,20 +674,20 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @param string $table
 	 * @param string $column
-	 * @param string $val      Filename containing blob data
+	 * @param string $path      Filename containing blob data
 	 * @param mixed  $where    {@see updateBlob()}
 	 * @param string $blobtype ignored
 	 *
 	 * @return bool success
 	 */
-	function updateBlobFile($table, $column, $val, $where, $blobtype = 'BLOB')
+	function updateBlobFile($table, $column, $path, $where, $blobtype = 'BLOB')
 	{
-		if (!file_exists($val)) {
+		if (!file_exists($path)) {
 			return false;
 		}
 
 		// Read file information
-		$fileContents = file_get_contents($val);
+		$fileContents = file_get_contents($path);
 
 		return $this->updateBlob($table, $column, $fileContents, $where, $blobtype);
 	}
@@ -705,9 +703,12 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	var $databaseType = "sqlite3";
 	var $bind = false;
 
+	/** @var SQLite3Result */
+	var $_queryID;
+
+	/** @noinspection PhpMissingParentConstructorInspection */
 	function __construct($queryID,$mode=false)
 	{
-
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
 			$mode = $ADODB_FETCH_MODE;
