@@ -1142,7 +1142,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	* the next field that wasn't yet retrieved by fetchField()
 	* is retrieved.
 	*
-	* $param int $fieldOffset (optional default=-1 for all
+	* @param int $fieldOffset (optional default=-1 for all
 	* @return mixed an ADOFieldObject, or array of objects
 	*/
 	private function _fetchField($fieldOffset = -1)

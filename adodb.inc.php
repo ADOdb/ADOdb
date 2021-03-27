@@ -3620,7 +3620,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	var $_numOfRows = -1;	/** number of rows, or -1 */
 	var $_numOfFields = -1;	/** number of fields in recordset */
-	var $_queryID = -1;		/** This variable keeps the result link identifier.	*/
+	/** @var resource result link identifier */
+	var $_queryID = -1;
 	var $_currentRow = -1;	/** This variable keeps the current row in the Recordset.	*/
 	var $_closed = false;	/** has recordset been closed */
 	var $_inited = false;	/** Init() should only be called once */
@@ -4444,21 +4445,23 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	 * Get the ADOFieldObject of a specific column.
+	 * Get a Field's metadata from database.
 	 *
-	 * @param fieldoffset	is the column position to access(0-based).
+	 * Must be defined by child class.
 	 *
-	 * @return the ADOFieldObject for that column, or false.
+	 * @param int $fieldOffset
+	 *
+	 * @return ADOFieldObject|false
 	 */
-	function FetchField($fieldoffset = -1) {
-		// must be defined by child class
-
+	function fetchField($fieldOffset)
+	{
 		return false;
 	}
 
 	/**
-	 * Get the ADOFieldObjects of all columns in an array.
+	 * Get Field metadata for all the recordset's columns in an array.
 	 *
+	 * @return ADOFieldObject[]
 	 */
 	function fieldTypesArray() {
 		if (empty($this->fieldObjectsCache)) {
