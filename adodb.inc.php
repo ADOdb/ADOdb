@@ -536,6 +536,20 @@ if (!defined('_ADODB_LAYER')) {
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
 
+	/**
+	 * Additional parameters that may be passed to drivers in the connect string.
+	 *
+	 * Data is stored as an array of arrays and not a simple associative array,
+	 * because some drivers (e.g. mysql) allow multiple parameters with the same
+	 * key to be set.
+	 * @link https://github.com/ADOdb/ADOdb/issues/187
+	 *
+	 * @see setConnectionParameter()
+	 *
+	 * @var array $connectionParameters Set of ParameterName => Value pairs
+	 */
+	protected $connectionParameters = array();
+
 	/*
 	* A simple associative array of user-defined custom actual/meta types
 	*/
@@ -564,17 +578,16 @@ if (!defined('_ADODB_LAYER')) {
 	{
 	}
 
-	/*
-	 * Additional parameters that may be passed to drivers in the connect string
-	 * Driver must be coded to accept the parameters
-	 */
-	protected $connectionParameters = array();
-
 	/**
 	 * Adds a parameter to the connection string.
 	 *
 	 * Parameters must be added before the connection is established;
-	 * they are then passed on to the connect statement.
+	 * they are then passed on to the connect statement, which will.
+	 * process them if the driver supports this feature.
+	 *
+	 * Example usage:
+	 * - mssqlnative: setConnectionParameter('CharacterSet','UTF-8');
+	 * - mysqli: setConnectionParameter(MYSQLI_SET_CHARSET_NAME,'utf8mb4');
 	 *
 	 * If used in a portable environment, parameters set in this manner should
 	 * be predicated on the database provider, as unexpected results may occur
@@ -583,12 +596,11 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param string $parameter The name of the parameter to set
 	 * @param string $value     The value of the parameter
 	 *
-	 * @return null
-	 *
-	 * @example, for mssqlnative driver ('CharacterSet','UTF-8')
+	 * @return bool True if success, false otherwise (e.g. parameter is not valid)
 	 */
 	public function setConnectionParameter($parameter, $value) {
-		$this->connectionParameters[] = array($parameter => $value);
+		$this->connectionParameters[] = array($parameter=>$value);
+		return true;
 	}
 
 	/**
