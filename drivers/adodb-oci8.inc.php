@@ -106,12 +106,12 @@ END;
 	 * Legacy compatibility for sequence names for emulated auto-increments
 	 */
 	public $useCompactAutoIncrements = false;
-	
+
 	/*
 	 * Defines the schema name for emulated auto-increment columns
 	 */
 	public $schema = false;
-	
+
 	/*
 	 * Defines the prefix for emulated auto-increment columns
 	 */
@@ -313,11 +313,11 @@ END;
 	{
 		return " NVL($field, $ifNull) "; // if Oracle
 	}
-	
+
 	protected function _insertID($table = '', $column = '')
 	{
-		
-		if (!$this->seqField) 
+
+		if (!$this->seqField)
 			return false;
 
 		if ($this->schema)
@@ -327,13 +327,13 @@ END;
 				$tab = substr($table,$t+1);
 			else
 				$tab = $table;
-			
+
 			if ($this->useCompactAutoIncrements)
 				$tab = sprintf('%u',crc32(strtolower($tab)));
-				
+
 			$seqname = $this->schema.'.'.$this->seqPrefix.$tab;
-		} 
-		else 
+		}
+		else
 		{
 			if ($this->useCompactAutoIncrements)
 				$table = sprintf('%u',crc32(strtolower($table)));
@@ -346,7 +346,7 @@ END;
 			* We cannot successfully identify the sequence
 			*/
 			return false;
-		
+
 		return $this->getOne("SELECT $seqname.currval FROM dual");
 	}
 
@@ -1597,7 +1597,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 		$this->adodbFetchMode = $mode;
 		$this->_queryID = $queryID;
 	}
-	
+
 	/**
 	* Overrides the core destructor method as that causes problems here
 	*

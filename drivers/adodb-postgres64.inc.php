@@ -878,7 +878,7 @@ class ADODB_postgres64 extends ADOConnection{
 		if ($this->_errorMsg !== false) {
 			return $this->_errorMsg;
 		}
-		
+
 		if (!empty($this->_resultid)) {
 			$this->_errorMsg = @pg_result_error($this->_resultid);
 			if ($this->_errorMsg) {

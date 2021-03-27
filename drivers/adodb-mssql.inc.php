@@ -765,7 +765,7 @@ order by constraint_name, referenced_table_name, keyno";
 						$inputVar = $db->this($v);
 
 					$params .= "@P$i=N" . $inputVar;
-					
+
 				} else if (is_integer($v)) {
 					$decl .= "@P$i INT";
 					$params .= "@P$i=".$v;
@@ -815,7 +815,7 @@ order by constraint_name, referenced_table_name, keyno";
 		return $rez;
 	}
 
-	
+
 
 	/**
 	* Returns a substring of a varchar type field

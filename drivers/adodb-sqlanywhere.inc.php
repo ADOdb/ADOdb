@@ -54,13 +54,14 @@ if (!defined('ADODB_SYBASE_SQLANYWHERE')){
 
  define('ADODB_SYBASE_SQLANYWHERE',1);
 
- class ADODB_sqlanywhere extends ADODB_odbc {
-  	var $databaseType = "sqlanywhere";
-	var $hasInsertID = true;
+ class ADODB_sqlanywhere extends ADODB_odbc
+ {
+	 var $databaseType = "sqlanywhere";
+	 var $hasInsertID = true;
 
 	protected function _insertID($table = '', $column = '')
 	{
-		return $this->GetOne('select @@identity');
+		 return $this->GetOne('select @@identity');
 	}
 
   function create_blobvar($blobVarName) {

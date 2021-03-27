@@ -480,23 +480,23 @@ class ADODB_mysql extends ADOConnection {
 	// returns true or false
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
-		if (!empty($this->port)) 
+		if (!empty($this->port))
 			$argHostname .= ":".$this->port;
 
-		$this->_connectionID = 
+		$this->_connectionID =
 			mysql_connect($argHostname,
 						  $argUsername,
 						  $argPassword,
 						  $this->forceNewConnect,
 						  $this->clientFlags
 						  );
-		
 
-		if ($this->_connectionID === false) 
+
+		if ($this->_connectionID === false)
 			return false;
-		if ($argDatabasename) 
+		if ($argDatabasename)
 			return $this->SelectDB($argDatabasename);
-		
+
 		return true;
 	}
 
@@ -505,17 +505,17 @@ class ADODB_mysql extends ADOConnection {
 	{
 		if (!empty($this->port)) $argHostname .= ":".$this->port;
 
-		$this->_connectionID = 
+		$this->_connectionID =
 			mysql_pconnect($argHostname,
 						   $argUsername,
 						   $argPassword,
 						   $this->clientFlags);
-		
-		if ($this->_connectionID === false) 
+
+		if ($this->_connectionID === false)
 			return false;
-		if ($this->autoRollback) 
+		if ($this->autoRollback)
 			$this->RollbackTrans();
-		if ($argDatabasename) 
+		if ($argDatabasename)
 			return $this->SelectDB($argDatabasename);
 		return true;
 	}

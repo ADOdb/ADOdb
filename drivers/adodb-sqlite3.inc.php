@@ -417,7 +417,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	{
 		return $this->_connectionID->close();
 	}
-	
+
 	function metaIndexes($table, $primary = FALSE, $owner = false)
 	{
 		$false = false;
@@ -428,9 +428,9 @@ class ADODB_sqlite3 extends ADOConnection {
 		if ($this->fetchMode !== FALSE) {
 			$savem = $this->SetFetchMode(FALSE);
 		}
-		
+
 		$pragmaData = array();
-		
+
 		/*
 		* If we want the primary key, we must extract
 		* it from the table statement, and the pragma
@@ -442,22 +442,22 @@ class ADODB_sqlite3 extends ADOConnection {
 						   );
 			$pragmaData = $this->getAll($sql);
 		}
-		
+
 		/*
 		* Exclude the empty entry for the primary index
 		*/
 		$sqlite = "SELECT name,sql
-					 FROM sqlite_master 
-					WHERE type='index' 
+					 FROM sqlite_master
+					WHERE type='index'
 					  AND sql IS NOT NULL
 					  AND LOWER(tbl_name)='%s'";
-		
+
 		$SQL = sprintf($sqlite,
 				     strtolower($table)
 					 );
-		
+
 		$rs = $this->execute($SQL);
-		
+
 		if (!is_object($rs)) {
 			if (isset($savem)) {
 				$this->SetFetchMode($savem);
@@ -467,10 +467,10 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 
 		$indexes = array ();
-		
-		while ($row = $rs->FetchRow()) 
+
+		while ($row = $rs->FetchRow())
 		{
-			
+
 			if (!isset($indexes[$row[0]])) {
 				$indexes[$row[0]] = array(
 					'unique' => preg_match("/unique/i",$row[1]),
@@ -485,26 +485,26 @@ class ADODB_sqlite3 extends ADOConnection {
 			preg_match_all('/\((.*)\)/',$row[1],$indexExpression);
 			$indexes[$row[0]]['columns'] = array_map('trim',explode(',',$indexExpression[1][0]));
 		}
-		
+
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
 		}
-		
+
 		/*
 		* If we want primary, add it here
 		*/
 		if ($primary){
-			
+
 			/*
 			* Check the previously retrieved pragma to search
 			* with a closure
 			*/
 
 			$pkIndexData = array('unique'=>1,'columns'=>array());
-			
+
 			$pkCallBack = function ($value, $key) use (&$pkIndexData) {
-				
+
 				/*
 				* As we iterate the elements check for pk index and sort
 				*/
@@ -514,7 +514,7 @@ class ADODB_sqlite3 extends ADOConnection {
 					ksort($pkIndexData['columns']);
 				}
 			};
-			
+
 			array_walk($pragmaData,$pkCallBack);
 
 			/*
@@ -524,7 +524,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			if (count($pkIndexData['columns']) > 0)
 				$indexes['PRIMARY'] = $pkIndexData;
 		}
-		
+
 		return $indexes;
 	}
 
