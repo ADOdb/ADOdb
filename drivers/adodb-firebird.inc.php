@@ -414,7 +414,7 @@ class ADODB_firebird extends ADOConnection {
 	 *
 	 * @return bool|int|string
 	 */
-	function GenID($seqname='adodbseq',$startID=1)
+	public function genID($seqname='adodbseq',$startID=1)
 	{
 		$getnext = ("SELECT Gen_ID($seqname,1) FROM RDB\$DATABASE");
 		$rs = @$this->Execute($getnext);
@@ -441,15 +441,17 @@ class ADODB_firebird extends ADOConnection {
 		return false;
 	}
 
+
 	function _handleerror()
 	{
-		$this->_errorMsg = fbird_errmsg();
+		$this->_errorCode = fbird_errcode();
+		$this->_errorMsg  = fbird_errmsg();
 	}
 
-	function ErrorNo()
+
+	public function errorNo()
 	{
-		if (preg_match('/error code = ([\-0-9]*)/i', $this->_errorMsg,$arr)) return (integer) $arr[1];
-		else return 0;
+		return (integer) $this->_errorCode;
 	}
 
 	function ErrorMsg()
@@ -457,7 +459,18 @@ class ADODB_firebird extends ADOConnection {
 			return $this->_errorMsg;
 	}
 
-	function Prepare($sql)
+	/**
+	 * Prepares an SQL statement and returns a handle to use.
+	 * This is not used by bound parameters anymore
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:prepare
+	 * @todo update this function to handle prepared statements correctly
+	 *
+	 * @param string $sql The SQL to prepare.
+	 *
+	 * @return string The original SQL that was provided.
+	 */
+	public function prepare($sql)
 	{
 		$stmt = fbird_prepare($this->_connectionID,$sql);
 		if (!$stmt) return false;
