@@ -538,93 +538,93 @@ class ADODB_firebird extends ADOConnection {
 		$fld->max_length = $flen;
 		$fld->scale = null;
 		switch($ftype){
-			case 7:
-			case 8:
-				if ($dialect3) {
-					switch($fsubtype){
-						case 0:
-							$fld->type = ($ftype == 7 ? 'smallint' : 'integer');
-							break;
-						case 1:
-							$fld->type = 'numeric';
-							$fld->max_length = $fprecision;
-							$fld->scale = $fscale;
-							break;
-						case 2:
-							$fld->type = 'decimal';
-							$fld->max_length = $fprecision;
-							$fld->scale = $fscale;
-							break;
-					} // switch
-				} else {
-					if ($fscale !=0) {
-						$fld->type = 'decimal';
-						$fld->scale = $fscale;
-						$fld->max_length = ($ftype == 7 ? 4 : 9);
-					} else {
+		case 7:
+		case 8:
+			if ($dialect3) {
+				switch($fsubtype){
+					case 0:
 						$fld->type = ($ftype == 7 ? 'smallint' : 'integer');
-					}
-				}
-				break;
-			case 16:
-				if ($dialect3) {
-					switch($fsubtype){
-						case 0:
-							$fld->type = 'decimal';
-							$fld->max_length = 18;
-							$fld->scale = 0;
-							break;
-						case 1:
-							$fld->type = 'numeric';
-							$fld->max_length = $fprecision;
-							$fld->scale = $fscale;
-							break;
-						case 2:
-							$fld->type = 'decimal';
-							$fld->max_length = $fprecision;
-							$fld->scale = $fscale;
-							break;
-					} // switch
-				}
-				break;
-			case 10:
-				$fld->type = 'float';
-				break;
-			case 14:
-				$fld->type = 'char';
-				break;
-			case 27:
+						break;
+					case 1:
+						$fld->type = 'numeric';
+						$fld->max_length = $fprecision;
+						$fld->scale = $fscale;
+						break;
+					case 2:
+						$fld->type = 'decimal';
+						$fld->max_length = $fprecision;
+						$fld->scale = $fscale;
+						break;
+				} // switch
+			} else {
 				if ($fscale !=0) {
 					$fld->type = 'decimal';
-					$fld->max_length = 15;
-					$fld->scale = 5;
+					$fld->scale = $fscale;
+					$fld->max_length = ($ftype == 7 ? 4 : 9);
 				} else {
-					$fld->type = 'double';
+					$fld->type = ($ftype == 7 ? 'smallint' : 'integer');
 				}
-				break;
-			case 35:
-				if ($dialect3) {
-					$fld->type = 'timestamp';
-				} else {
-					$fld->type = 'date';
-				}
-				break;
-			case 12:
+			}
+			break;
+		case 16:
+			if ($dialect3) {
+				switch($fsubtype){
+				case 0:
+					$fld->type = 'decimal';
+					$fld->max_length = 18;
+					$fld->scale = 0;
+					break;
+				case 1:
+					$fld->type = 'numeric';
+					$fld->max_length = $fprecision;
+					$fld->scale = $fscale;
+					break;
+				case 2:
+					$fld->type = 'decimal';
+					$fld->max_length = $fprecision;
+					$fld->scale = $fscale;
+					break;
+				} // switch
+			}
+			break;
+		case 10:
+			$fld->type = 'float';
+			break;
+		case 14:
+			$fld->type = 'char';
+			break;
+		case 27:
+			if ($fscale !=0) {
+				$fld->type = 'decimal';
+				$fld->max_length = 15;
+				$fld->scale = 5;
+			} else {
+				$fld->type = 'double';
+			}
+			break;
+		case 35:
+			if ($dialect3) {
+				$fld->type = 'timestamp';
+			} else {
 				$fld->type = 'date';
-				break;
-			case 13:
-				$fld->type = 'time';
-				break;
-			case 37:
-				$fld->type = 'varchar';
-				break;
-			case 40:
-				$fld->type = 'cstring';
-				break;
-			case 261:
-				$fld->type = 'blob';
-				$fld->max_length = -1;
-				break;
+			}
+			break;
+		case 12:
+			$fld->type = 'date';
+			break;
+		case 13:
+			$fld->type = 'time';
+			break;
+		case 37:
+			$fld->type = 'varchar';
+			break;
+		case 40:
+			$fld->type = 'cstring';
+			break;
+		case 261:
+			$fld->type = 'blob';
+			$fld->max_length = -1;
+			break;
 		} // switch
 	}
 	//OPN STUFF end
@@ -662,7 +662,9 @@ class ADODB_firebird extends ADOConnection {
 			$fld = new ADOFieldObject();
 			$fld->name = trim($rs->fields[0]);
 			//OPN STUFF start
-			$this->_ConvertFieldType($fld, $rs->fields[7], $rs->fields[3], $rs->fields[4], $rs->fields[5], $rs->fields[6], $dialect3);
+				//print_r($rs->fields);
+			$this->_ConvertFieldType(
+				$fld, $rs->fields[7], $rs->fields[3], $rs->fields[4], $rs->fields[5], $rs->fields[6], $dialect3);
 			if (isset($rs->fields[1]) && $rs->fields[1]) {
 				$fld->not_null = true;
 			}
@@ -730,37 +732,46 @@ class ADODB_firebird extends ADOConnection {
 		return $ret;
 	}
 	
-
-	function BlobEncode( $blob )
+	/**
+	* Encodes a blob, then assigns an id ready to be used
+	*
+	* @param string $blob The blob to be encoded
+	*
+	* @return bool success
+	*/
+	public function blobEncode( $blob )
 	{
 		$blobid = fbird_blob_create( $this->_connectionID);
 		fbird_blob_add( $blobid, $blob );
 		return fbird_blob_close( $blobid );
 	}
 
-	// since we auto-decode all blob's since 2.42,
-	// BlobDecode should not do any transforms
-	function BlobDecode($blob)
+	/**
+	* Manually decode a blob 
+	*
+	* since we auto-decode all blob's since 2.42,
+	* BlobDecode should not do any transforms
+	*
+	* @param string $blob
+	*
+	* @return string the same blob
+	*/
+	public function blobDecode($blob)
 	{
 		return $blob;
 	}
 
-	// old blobdecode function
-	// still used to auto-decode all blob's
-	function _BlobDecode_old( $blob )
+	
+	/**
+	* Auto function called on read of blob to decode
+	*
+	* @param string $blob Value to decode
+	*
+	* @return string Decoded blob
+	*/
+	public function _blobDecode( $blob )
 	{
-		$blobid = fbird_blob_open($this->_connectionID, $blob );
-		$realblob = fbird_blob_get( $blobid,$this->maxblobsize); // 2nd param is max size of blob -- Kevin Boillet <kevinboillet@yahoo.fr>
-		while($string = fbird_blob_get($blobid, 8192)){
-			$realblob .= $string;
-		}
-		fbird_blob_close( $blobid );
-
-		return( $realblob );
-	}
-
-	function _BlobDecode( $blob )
-	{
+		
 		$blob_data = fbird_blob_info($this->_connectionID, $blob );
 		$blobid    = fbird_blob_open($this->_connectionID, $blob );
 
@@ -778,10 +789,24 @@ class ADODB_firebird extends ADOConnection {
 		return( $realblob );
 	}
 
-	function UpdateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
+	/**
+	* Insert blob data into a database column directly
+	* from file
+	*
+	* @param string $table table to insert
+	* @param string $column column to insert
+	* @param string $path  physical file name
+	* @param string $where string to find unique record
+	* @param string $blobType BLOB or CLOB
+	*
+	* @return bool success
+	*/
+	public function updateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
 	{
 		$fd = fopen($path,'rb');
-		if ($fd === false) return false;
+		if ($fd === false) 
+			return false;
+		
 		$blob_id = fbird_blob_create($this->_connectionID);
 
 		/* fill with data */
@@ -797,16 +822,18 @@ class ADODB_firebird extends ADOConnection {
 		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blob_id_str)) != false;
 	}
 
-	/*
-		Insert a null into the blob field of the table first.
-		Then use UpdateBlob to store the blob.
-
-		Usage:
-
-		$conn->Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');
-		$conn->UpdateBlob('blobtable','blobcol',$blob,'id=1');
+	/**
+	* Insert blob data into a database column
+	*
+	* @param string $table table to insert
+	* @param string $column column to insert
+	* @param string $val    value to insert
+	* @param string $where string to find unique record
+	* @param string $blobType BLOB or CLOB
+	*
+	* @return bool success
 	*/
-	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
+	public function updateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
 		$blob_id = fbird_blob_create($this->_connectionID);
 
@@ -974,6 +1001,22 @@ class  ADORecordset_firebird extends ADORecordSet
 	var $bind=false;
 	var $_cacheType;
 
+	/*
+	 * Holds a cached version of the metadata
+	 */
+	private $fieldObjects = false;
+
+	/*
+	 * Flags if we have retrieved the metadata
+	 */
+	private $fieldObjectsRetrieved = false;
+
+	/*
+	* Cross-reference the objects by name for easy access
+	*/
+	private $fieldObjectsIndex = array();
+
+
 	function __construct($id,$mode=false)
 	{
 	global $ADODB_FETCH_MODE;
@@ -981,18 +1024,54 @@ class  ADORecordset_firebird extends ADORecordSet
 			$this->fetchMode = ($mode === false) ? $ADODB_FETCH_MODE : $mode;
 			parent::__construct($id);
 	}
-
+	
+	
 	/**
-	 * Get column information in the Recordset object.
-	 * fetchField() can be used in order to obtain information about fields in
-	 * a certain query result. If the field offset isn't specified, the next
-	 * field that wasn't yet retrieved by fetchField() is retrieved.
-	 * @return object containing field information.
+	* Returns: an object containing field information.
+	*
+	* Get column information in the Recordset object. fetchField()
+	
+	* can be used in order to obtain information about fields in a
+	* certain query result. If the field offset isn't specified,
+	* the next field that wasn't yet retrieved by fetchField()
+	* is retrieved.
+	*
+	* $param int $fieldOffset (optional default=-1 for all
+	* @return mixed an ADOFieldObject, or array of objects
 	*/
-	function FetchField($fieldOffset = -1)
+	private function _fetchField($fieldOffset = -1)
 	{
+		if ($this->fieldObjectsRetrieved){
+			if ($this->fieldObjects) {
+				/*
+				 * Already got the information
+				 */
+				if ($fieldOffset == -1)
+					return $this->fieldObjects;
+				else
+					return $this->fieldObjects[$fieldOffset];
+			}
+			else
+				/*
+			     * No metadata available
+				 */
+				return false;
+		}
+
+		$this->fieldObjectsRetrieved = true;
+		/*
+		* 
+		*/
+			
+		$this->_numOfFields = fbird_num_fields($this->_queryID);
+		for ($fieldOffset=0; $fieldOffset < $this->_numOfFields; $fieldOffset++) 
+		{
+
 			$fld = new ADOFieldObject;
-			 $ibf = fbird_field_info($this->_queryID,$fieldOffset);
+			/*
+			 * 
+			 */
+			$ibf = fbird_field_info($this->_queryID,$fieldOffset);
 
 			$name = empty($ibf['alias']) ? $ibf['name'] : $ibf['alias'];
 
@@ -1009,26 +1088,62 @@ class  ADORecordset_firebird extends ADORecordSet
 					break;
 			}
 
-			$fld->type = $ibf['type'];
+			$fld->type 		 = $ibf['type'];
 			$fld->max_length = $ibf['length'];
 
-			/*       This needs to be populated from the metadata */
-			$fld->not_null = false;
-			$fld->has_default = false;
+			/*       
+			* This needs to be populated from the metadata 
+			*/
+			$fld->not_null 		= false;
+			$fld->has_default 	= false;
 			$fld->default_value = 'null';
-			return $fld;
+			
+			$this->fieldObjects[$fieldOffset] = $fld;
+
+			$this->fieldObjectsIndex[$fld->name] = $fieldOffset;
+
+			/* 
+			*cache types for blob decode check. We could look
+			* at $fieldObjects instead
+			*/
+			$this->_cacheType[] = $ibf['type'];
+
+		}
+		
+		if ($fieldOffset == -1)
+			return $this->fieldObjects;
+
+		return $this->fieldObjects[$fieldOffset];
+	}
+	
+	/*
+	 * Fetchfield copies the oracle method, it loads the field information
+	 * into the _fieldobjs array once, to save multiple calls to the
+	 * fbird_ function
+	 *
+	 * @param int $fieldOffset	(optional)
+	 *
+	 * @return adoFieldObject
+	 */
+	public function fetchField($fieldOffset = -1)
+	{
+			
+		if ($fieldOffset == -1)
+			return $this->fieldObjects;
+		
+		return $this->fieldObjects[$fieldOffset];
 	}
 
 	function _initrs()
 	{
 		$this->_numOfRows = -1;
-		$this->_numOfFields = @fbird_num_fields($this->_queryID);
+		
+		/*
+		* Retrieve all of the column information first. We copy
+		* this method from oracle
+		*/
+		$this->_fetchField();
 
-		// cache types for blob decode check
-		for ($i=0, $max = $this->_numOfFields; $i < $max; $i++) {
-			$f1 = $this->FetchField($i);
-			$this->_cacheType[] = $f1->type;
-		}
 	}
 
 	function _seek($row)
