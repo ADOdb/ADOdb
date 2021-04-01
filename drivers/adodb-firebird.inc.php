@@ -1015,6 +1015,11 @@ class  ADORecordset_firebird extends ADORecordSet
 	*/
 	private $fieldObjectsIndex = array();
 
+	/*
+	* Flag to indicate if the result has a blob 
+	*/
+	private $fieldObjectsHaveBlob = false;
+	
 
 	function __construct($id,$mode=false)
 	{
@@ -1057,7 +1062,9 @@ class  ADORecordset_firebird extends ADORecordSet
 				return false;
 		}
 
+
 		$this->fieldObjectsRetrieved = true;
+		$this->fieldObjectsHaveBlob  = false;
 		/*
 		* 
 		*/
@@ -1100,6 +1107,9 @@ class  ADORecordset_firebird extends ADORecordSet
 			$this->fieldObjects[$fieldOffset] = $fld;
 
 			$this->fieldObjectsIndex[$fld->name] = $fieldOffset;
+			
+			if ($fld->type == 'BLOB')
+				$this->fieldObjectsHaveBlob = true;
 		}
 		
 		if ($fieldOffset == -1)
@@ -1142,10 +1152,63 @@ class  ADORecordset_firebird extends ADORecordSet
 	{
 		return false;
 	}
+	
+	function x_fetch($ignore_fields=false)
+	{
+		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
+			if ($this->fetchMode & ADODB_FETCH_NUM)
+				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_BOTH);
+			else
+				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_ASSOC);
+
+			if (is_array($this->fields))
+			{
+
+				if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER)
+					$this->fields = array_change_key_case($this->fields,CASE_LOWER);
+				else if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER)
+					$this->fields = array_change_key_case($this->fields,CASE_UPPER);
+
+			}
+		}
+		else
+			$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_NUMERIC);
+
+		if (!$this->fields)
+			return false;
+
+		return $this->fields;
+	}
 
 	function _fetch()
 	{
-		$f = @fbird_fetch_row($this->_queryID);
+	
+		$localNumeric = true;;
+		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
+			/*
+			* Handle either associative or fetch both
+			*/
+			$localNumeric = false;
+			
+			$f = @fbird_fetch_assoc($this->_queryID);
+			if (is_array($f))
+			{
+				/*
+				* Optimally do the case_upper or case_lower
+				*/
+				if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER)
+					$f = array_change_key_case($f,CASE_LOWER);
+				else if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER)
+					$f = array_change_key_case($f,CASE_UPPER);
+
+			}
+		}
+		else
+			/*
+			* Humeric result
+			*/
+			$f = @fbird_fetch_row($this->_queryID);
+		
 		if ($f === false) {
 			$this->fields = false;
 			return false;
@@ -1154,45 +1217,108 @@ class  ADORecordset_firebird extends ADORecordSet
 		// fix missing nulls and decode blobs automatically
 
 		global $ADODB_ANSI_PADDING_OFF;
-		//$ADODB_ANSI_PADDING_OFF=1;
 		$rtrim = !empty($ADODB_ANSI_PADDING_OFF);
-
-		for ($i=0, $max = $this->_numOfFields; $i < $max; $i++) {
-			if ($this->fieldObjects[$i]->type=="BLOB") {
-				if (isset($f[$i])) {
-					$f[$i] = $this->connection->_BlobDecode($f[$i]);
-				} else {
-					$f[$i] = null;
-				}
-			} else {
-				if (!isset($f[$i])) {
-					$f[$i] = null;
-				} else if ($rtrim && is_string($f[$i])) {
-					$f[$i] = rtrim($f[$i]);
-				}
-			}
+		
+		/*
+		* Fix missing nulls, not sure why they would be missing
+		* 
+		*
+		$nullTemplate = array_fill(0,$this->_numOfFields,null);
+		*/
+		/*
+		* Retrieved record is alway numeric, use array_replace
+		* to inject missing keys
+		*/
+		//$f = array_replace($nullTemplate,$f);
+		
+		/*
+		* For optimal performance, only process if there
+		* is a possiblity of something to do
+		*/
+		if ($this->fieldObjectsHaveBlob || $rtrim)
+		{
+			/*
+			* Create a closure for an efficient method of
+			* iterating over the elements
+			*/
+			$localFieldObjects 		= $this->fieldObjects;
+			$localFieldObjectIndex 	= $this->fieldObjectsIndex;
+			$localConnection   		= &$this->connection;
+			
+			$rowTransform = function ($value, $key) use (&$f,$rtrim, $localFieldObjects,$localConnection, $localNumeric, $localFieldObjectIndex) 
+			{
+				if ($localNumeric)
+					$localKey = $key;
+				else
+					/*
+					* Cross reference the associative key back to numeric
+					*/
+					$localKey = $localFieldObjectIndex[strtolower($key)];
+				
+				/*
+				* As we iterate the elements check for blobs and padding
+				*/
+				if ($localFieldObjects[$localKey]->type == 'BLOB')
+					$f[$key] = $localConnection->_BlobDecode($value);
+				
+				else if ($rtrim && is_string($value))
+						$f[$key] = rtrim($value);
+				
+			};
+			/*
+			* Walk the array, applying the above closure
+			*/
+			array_walk($f,$rowTransform);
 		}
-		// OPN stuff end
-
+		
+		if (!$localNumeric && $this->fetchMode & ADODB_FETCH_NUM)
+		{
+			/*
+			* Creates a fetch both
+			*/
+			$fNum = array_values($f);
+			$f = array_merge($f,$fNum);
+		}
+		
 		$this->fields = $f;
-		if ($this->fetchMode == ADODB_FETCH_ASSOC) {
+		/*
+		if ($this->fetchModse == ADODB_FETCH_ASSOC) {
 			$this->fields = $this->GetRowAssoc();
 		} else if ($this->fetchMode == ADODB_FETCH_BOTH) {
 			$this->fields = array_merge($this->fields,$this->GetRowAssoc());
 		}
+		*/
 		return true;
 	}
 
-	/* Use associative array to get fields array */
-	function Fields($colname)
+	/**
+	* Get the value of a field in the current row by column name.
+	* Will not work if ADODB_FETCH_MODE is set to ADODB_FETCH_NUM.
+	*
+	* @param string $colname is the field to access
+	*
+	* @return mixed the value of $colname column
+	*/
+	public function fields($colname)
 	{
-		if ($this->fetchMode & ADODB_FETCH_ASSOC) return $this->fields[$colname];
-		if (!$this->bind) {
-			$this->bind = array();
+		if ($this->fetchMode & ADODB_FETCH_ASSOC) 
+			return $this->fields[$colname];
+		
+		if (!$this->bind) 
+		{
+			/*
+			* fieldsObjectIndex populated by the recordset load
+			*/
+			$this->bind = array_change_key_case($this->fieldObjectsIndex,CASE_UPPER);
+			
+			print_r($this->bind); exit;
+			/*
+
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;
 			}
+			*/
 		}
 
 		return $this->fields[$this->bind[strtoupper($colname)]];
