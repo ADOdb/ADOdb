@@ -1281,13 +1281,7 @@ class  ADORecordset_firebird extends ADORecordSet
 		}
 		
 		$this->fields = $f;
-		/*
-		if ($this->fetchModse == ADODB_FETCH_ASSOC) {
-			$this->fields = $this->GetRowAssoc();
-		} else if ($this->fetchMode == ADODB_FETCH_BOTH) {
-			$this->fields = array_merge($this->fields,$this->GetRowAssoc());
-		}
-		*/
+		
 		return true;
 	}
 
@@ -1311,14 +1305,6 @@ class  ADORecordset_firebird extends ADORecordSet
 			*/
 			$this->bind = array_change_key_case($this->fieldObjectsIndex,CASE_UPPER);
 			
-			print_r($this->bind); exit;
-			/*
-
-			for ($i=0; $i < $this->_numOfFields; $i++) {
-				$o = $this->FetchField($i);
-				$this->bind[strtoupper($o->name)] = $i;
-			}
-			*/
 		}
 
 		return $this->fields[$this->bind[strtoupper($colname)]];
