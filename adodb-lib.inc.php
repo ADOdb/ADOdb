@@ -395,6 +395,12 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	$qryRecs = 0;
 	
 	/*
+	* Quick clean up to make the regexps work easier. Removes tabs and newlines 
+	* replaces them with whitespace
+	*/
+	$sql = preg_replace("/[\r|\n|\t]+/",' ',$sql);
+	
+	/*
 	* These databases require a "SELECT * FROM (SELECT" type
 	* statement to have an alias for the result
 	*/
@@ -425,6 +431,24 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		if ( strpos($sql, '_ADODB_COUNT') !== FALSE ) {
 			$rewritesql = preg_replace('/^\s*?SELECT\s+_ADODB_COUNT(.*)_ADODB_COUNT\s/is','SELECT COUNT(*) ',$sql);
 		} else {
+			
+			$ssMatches = false;
+			/*
+			* subselect will either end in , or from, which will 
+			* include either an alias or not
+			*/
+			$subSelect = preg_match_all ('/(\(SELECT\s.*\s+FROM\s.*\)\s.*\w.*\s)(,|FROM)/i',$sql,$ssMatches);
+			
+			/*
+			* Remove all the internal subselects that will break the count
+			* statement
+			*/
+			for ($ss=0;$ss<count($ssMatches[1]);$ss++)
+				$sql = str_replace($ssMatches[1][$ss],'',$sql);
+			
+			/*
+			* Now replace the outer fields with the count
+			*/
 			$rewritesql = preg_replace('/^\s*SELECT\s.*\s+FROM\s/Uis','SELECT COUNT(*) FROM ',$sql);
 		}
 		// fix by alexander zhukov, alex#unipack.ru, because count(*) and 'order by' fails
