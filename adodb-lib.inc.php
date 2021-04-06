@@ -393,6 +393,15 @@ function _adodb_getmenu_option($defstr, $compare, $value, $display)
 function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 {
 	$qryRecs = 0;
+	
+	/*
+	* These databases require a "SELECT * FROM (SELECT" type
+	* statement to have an alias for the result
+	*/
+	$requiresAlias      = '';
+	$requiresAliasArray = array('postgres','mysql','mysqli','mssql','mssqlnative','sqlsrv');
+	if (in_array($zthis->databaseType,$requiresAliasArray) || in_array($zthis->dsnType,$requiresAliasArray))
+		$requiresAlias = '_ADODB_ALIAS_';
 
 	 if (!empty($zthis->_nestedSQL) || preg_match("/^\s*SELECT\s+DISTINCT/is", $sql) ||
 	 	preg_match('/\s+GROUP\s+BY\s+/is',$sql) ||
@@ -408,17 +417,9 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 				$rewritesql = "SELECT ".$hint[0]." COUNT(*) FROM (".$rewritesql.")";
 			} else
 				$rewritesql = "SELECT COUNT(*) FROM (".$rewritesql.")";
-
-		} else if (strncmp($zthis->databaseType,'postgres',8) == 0
-			|| strncmp($zthis->databaseType,'mysql',5) == 0
-		|| strncmp($zthis->databaseType,'mssql',5) == 0
-			|| strncmp($zthis->dsnType,'sqlsrv',5) == 0
-			|| strncmp($zthis->dsnType,'mssql',5) == 0
-		){
-			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
-		} else {
-			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql)";
-		}
+		} else 
+			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) $requiresAlias";
+	
 	} else {
 		// now replace SELECT ... FROM with SELECT COUNT(*) FROM
 		if ( strpos($sql, '_ADODB_COUNT') !== FALSE ) {
