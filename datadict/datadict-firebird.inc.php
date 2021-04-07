@@ -209,27 +209,39 @@ end;
 	}
 
 	/**
-	 * Change the definition of one column
-	 *
-	 * As some DBM's can't do that on there own, you need to supply the complete definition of the new table,
-	 * to allow, recreating the table and copying the content over to the new table
-	 * @param string $tabname table-name
-	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds='' complete definition of the new table, eg. for postgres, default ''
-	 * @param array/string $tableoptions='' options for the new table see CreateTableSQL, default ''
-	 * @return array with SQL strings
-	 */
-	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	* Change the definition of one column
+	*
+	* @param string $tabname table-name
+	* @param string $flds column-name and type for the changed column
+	* @param string $tableflds=''
+	* @param array/string $tableoptions='' options for the new table
+	*
+	* @return array with SQL strings
+	*/
+	public function alterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
 		list($lines,$pkey,$idxs) = $this->_GenFields($flds);
 		// genfields can return FALSE at times
-		if ($lines == null) $lines = array();
+		
+		if ($lines == null) 
+			$lines = array();
+		
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
-		foreach($lines as $v) {
+		
+		foreach($lines as $v) 
+		{
+			/*
+			* The type must be preceded by the keyword 'TYPE'
+			*/
+			$vExplode = explode(' ',$v);
+			$vExplode = array_filter($vExplode);
+			array_splice($vExplode,1,0,array('TYPE'));
+			$v = implode(' ',$vExplode);
 			$sql[] = $alter . $v;
 		}
+		
 		if (is_array($idxs)) {
 			foreach($idxs as $idx => $idxdef) {
 				$sql_idxs = $this->CreateIndexSql($idx, $tabname, $idxdef['cols'], $idxdef['opts']);

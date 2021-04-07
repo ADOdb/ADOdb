@@ -1153,34 +1153,7 @@ class  ADORecordset_firebird extends ADORecordSet
 		return false;
 	}
 	
-	function x_fetch($ignore_fields=false)
-	{
-		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-			if ($this->fetchMode & ADODB_FETCH_NUM)
-				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_BOTH);
-			else
-				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_ASSOC);
-
-			if (is_array($this->fields))
-			{
-
-				if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER)
-					$this->fields = array_change_key_case($this->fields,CASE_LOWER);
-				else if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER)
-					$this->fields = array_change_key_case($this->fields,CASE_UPPER);
-
-			}
-		}
-		else
-			$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_NUMERIC);
-
-		if (!$this->fields)
-			return false;
-
-		return $this->fields;
-	}
-
-	function _fetch()
+	public function _fetch()
 	{
 	
 		$localNumeric = true;;
@@ -1205,7 +1178,7 @@ class  ADORecordset_firebird extends ADORecordSet
 		}
 		else
 			/*
-			* Humeric result
+			* Numeric result
 			*/
 			$f = @fbird_fetch_row($this->_queryID);
 		
@@ -1317,7 +1290,7 @@ class  ADORecordset_firebird extends ADORecordSet
 			return @fbird_free_result($this->_queryID);
 	}
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+	public function metaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -1344,15 +1317,19 @@ class  ADORecordset_firebird extends ADORecordSet
 			return 'B';
 
 		case 'TIMESTAMP':
-		case 'DATE': return 'D';
-		case 'TIME': return 'T';
+		case 'DATE': 
+			return 'D';
+		case 'TIME': 
+			return 'T';
 				//case 'T': return 'T';
 
 				//case 'L': return 'L';
 		case 'INT':
 		case 'SHORT':
-		case 'INTEGER': return 'I';
-		default: return ADODB_DEFAULT_METATYPE;
+		case 'INTEGER': 
+			return 'I';
+		default: 
+			return ADODB_DEFAULT_METATYPE;
 		}
 	}
 
