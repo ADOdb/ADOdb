@@ -116,9 +116,9 @@ class ADODB2_firebird extends ADODB_DataDict {
 	{
 		if (strpos($t,'.') !== false) {
 			$tarr = explode('.',$t);
-			return 'DROP GENERATOR '.$tarr[0].'."s_'.$tarr[1].'"';
+			return 'DROP SEQUENCE '.$tarr[0].'."s_'.$tarr[1].'"';
 		}
-		return 'DROP GENERATOR s_'.$t;
+		return 'DROP SEQUENCE s_'.$t;
 	}
 
 
@@ -192,15 +192,15 @@ end;
 		}
 
 		if (isset($tableoptions['DROP']))
-		{ $sql[] = "DROP GENERATOR $seqname";
+		{ $sql[] = "DROP SEQUENCE $seqname";
 		}
 		elseif (isset($tableoptions['REPLACE']))
-		{ $sql[] = "DROP GENERATOR \"$seqname\"";
-		  $sql[] = "CREATE GENERATOR \"$seqname\"";
+		{ $sql[] = "DROP SEQUENCE \"$seqname\"";
+		  $sql[] = "CREATE SEQUENCE \"$seqname\"";
 		  $sql[] = "ALTER TRIGGER \"$trigname\" BEFORE INSERT OR UPDATE AS BEGIN IF ( NEW.$seqField IS NULL OR NEW.$seqField = 0 ) THEN NEW.$seqField = GEN_ID(\"$seqname\", 1); END";
 		}
 		else
-		{ $sql[] = "CREATE GENERATOR $seqname";
+		{ $sql[] = "CREATE SEQUENCE $seqname";
 		  $sql[] = "CREATE TRIGGER $trigname FOR $tabname BEFORE INSERT OR UPDATE AS BEGIN IF ( NEW.$seqField IS NULL OR NEW.$seqField = 0 ) THEN NEW.$seqField = GEN_ID($seqname, 1); END";
 		}
 
