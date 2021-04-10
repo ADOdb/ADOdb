@@ -426,12 +426,32 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 		}
 
 	} else {
-		// now replace SELECT ... FROM with SELECT COUNT(*) FROM
-		if ( strpos($sql, '_ADODB_COUNT') !== FALSE ) {
-			$rewritesql = preg_replace('/^\s*?SELECT\s+_ADODB_COUNT(.*)_ADODB_COUNT\s/is','SELECT COUNT(*) ',$sql);
-		} else {
-			$rewritesql = preg_replace('/^\s*SELECT\s.*\s+FROM\s/Uis','SELECT COUNT(*) FROM ',$sql);
+		// Replace 'SELECT ... FROM' with 'SELECT COUNT(*) FROM'
+		// Parse the query one char at a time starting after the SELECT
+		// to find the FROM clause's position, ignoring any sub-queries.
+		$start = stripos($sql, 'SELECT') + 7;
+		if ($start === false) {
+			// Not a SELECT statement - probably should trigger an exception here
+			return 0;
 		}
+		$len = strlen($sql);
+		$numParentheses = 0;
+		for ($pos = $start; $pos < $len; $pos++) {
+			switch ($sql[$pos]) {
+				case '(': $numParentheses++; continue 2;
+				case ')': $numParentheses--; continue 2;
+			}
+			// Ignore whatever is between parentheses (sub-queries)
+			if ($numParentheses > 0) {
+				continue;
+			}
+			// Exit loop if 'FROM' keyword was found
+			if (strtoupper(substr($sql, $pos, 4)) == 'FROM')  {
+				break;
+			}
+		}
+		$rewritesql = 'SELECT COUNT(*) ' . substr($sql, $pos);
+
 		// fix by alexander zhukov, alex#unipack.ru, because count(*) and 'order by' fails
 		// with mssql, access and postgresql. Also a good speedup optimization - skips sorting!
 		// also see PHPLens Issue No: 12752
