@@ -393,20 +393,24 @@ function _adodb_getmenu_option($defstr, $compare, $value, $display)
 function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 {
 	$qryRecs = 0;
-	
+
 	/*
 	* These databases require a "SELECT * FROM (SELECT" type
 	* statement to have an alias for the result
 	*/
-	$requiresAlias      = '';
+	$requiresAlias = '';
 	$requiresAliasArray = array('postgres','mysql','mysqli','mssql','mssqlnative','sqlsrv');
-	if (in_array($zthis->databaseType,$requiresAliasArray) || in_array($zthis->dsnType,$requiresAliasArray))
+	if (in_array($zthis->databaseType,$requiresAliasArray)
+		|| in_array($zthis->dsnType,$requiresAliasArray)
+	) {
 		$requiresAlias = '_ADODB_ALIAS_';
+	}
 
-	 if (!empty($zthis->_nestedSQL) || preg_match("/^\s*SELECT\s+DISTINCT/is", $sql) ||
-	 	preg_match('/\s+GROUP\s+BY\s+/is',$sql) ||
-		preg_match('/\s+UNION\s+/is',$sql)) {
-
+	if (!empty($zthis->_nestedSQL)
+		|| preg_match("/^\s*SELECT\s+DISTINCT/is", $sql)
+		|| preg_match('/\s+GROUP\s+BY\s+/is',$sql)
+		|| preg_match('/\s+UNION\s+/is',$sql)
+	) {
 		$rewritesql = adodb_strip_order_by($sql);
 
 		// ok, has SELECT DISTINCT or GROUP BY so see if we can use a table alias
@@ -417,9 +421,10 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 				$rewritesql = "SELECT ".$hint[0]." COUNT(*) FROM (".$rewritesql.")";
 			} else
 				$rewritesql = "SELECT COUNT(*) FROM (".$rewritesql.")";
-		} else 
+		} else {
 			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) $requiresAlias";
-	
+		}
+
 	} else {
 		// now replace SELECT ... FROM with SELECT COUNT(*) FROM
 		if ( strpos($sql, '_ADODB_COUNT') !== FALSE ) {
@@ -434,7 +439,9 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	}
 
 	if (isset($rewritesql) && $rewritesql != $sql) {
-		if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) $rewritesql .= $limitarr[0];
+		if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) {
+			$rewritesql .= $limitarr[0];
+		}
 
 		if ($secs2cache) {
 			// we only use half the time of secs2cache because the count can quickly
@@ -443,18 +450,23 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 
 		} else {
 			$qryRecs = $zthis->GetOne($rewritesql,$inputarr);
-	  	}
+		}
 		if ($qryRecs !== false) return $qryRecs;
 	}
+
 	//--------------------------------------------
 	// query rewrite failed - so try slower way...
 
-
 	// strip off unneeded ORDER BY if no UNION
-	if (preg_match('/\s*UNION\s*/is', $sql)) $rewritesql = $sql;
-	else $rewritesql = $rewritesql = adodb_strip_order_by($sql);
+	if (preg_match('/\s*UNION\s*/is', $sql)) {
+		$rewritesql = $sql;
+	} else {
+		$rewritesql = $rewritesql = adodb_strip_order_by($sql);
+	}
 
-	if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) $rewritesql .= $limitarr[0];
+	if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) {
+		$rewritesql .= $limitarr[0];
+	}
 
 	if ($secs2cache) {
 		$rstest = $zthis->CacheExecute($secs2cache,$rewritesql,$inputarr);
