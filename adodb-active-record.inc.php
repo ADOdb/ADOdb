@@ -880,7 +880,7 @@ class ADODB_Active_Record {
 				$cnt += 1;
 			}
 		}
-		
+
 		$tableName = $this->nameQuoter($db,$this->_table);
 		$sql = sprintf('INSERT INTO %s (%s) VALUES (%s)',
 					   $tableName,
@@ -919,7 +919,7 @@ class ADODB_Active_Record {
 		$where = $this->GenWhere($db,$table);
 
 		$tableName = $this->nameQuoter($db,$this->_table);
-		
+
 		$sql = sprintf('DELETE FROM %s WHERE %s',
 					   $tableName,
 					   $where
@@ -995,19 +995,19 @@ class ADODB_Active_Record {
 				}
 				break;
 		}
-		
+
 		$newArr = array();
 		foreach($arr as $k=>$v)
 			$newArr[$this->nameQuoter($db,$k)] = $v;
 		$arr = $newArr;
-		
+
 		$newPkey = array();
 		foreach($pkey as $k=>$v)
 			$newPkey[$k] = $this->nameQuoter($db,$v);
 		$pkey = $newPkey;
-		
+
 		$tableName = $this->nameQuoter($db,$this->_table);
-		
+
 		$ok = $db->Replace($tableName,$arr,$pkey);
 		if ($ok) {
 			$this->_saved = true; // 1= update 2=insert
@@ -1095,7 +1095,7 @@ class ADODB_Active_Record {
 					   $tableName,
 					   implode(',',$pairs),
 					   $where);
-		
+
 		$ok = $db->Execute($sql,$valarr);
 		if ($ok) {
 			$this->_original = $neworig;
@@ -1182,7 +1182,7 @@ global $_ADODB_ACTIVE_DBS;
 
 
 	$save = $db->SetFetchMode(ADODB_FETCH_NUM);
-	
+
 	$qry = "select * from ".$table;
 
 	if (!empty($whereOrderBy)) {
