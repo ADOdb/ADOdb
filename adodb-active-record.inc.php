@@ -19,6 +19,8 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
+include_once(ADODB_DIR.'/adodb-lib.inc.php');
+
 global $_ADODB_ACTIVE_DBS;
 global $ADODB_ACTIVE_CACHESECS; // set to true to enable caching of metadata such as field info
 global $ACTIVE_RECORD_SAFETY; // set to false to disable safety checks
@@ -74,10 +76,9 @@ function ADODB_SetDatabaseAdapter(&$db, $index=false)
 
 class ADODB_Active_Record {
 	static $_changeNames = true; // dynamically pluralize table names
-	/*
-	* Optional parameter that duplicates the ADODB_QUOTE_FIELDNAMES
-	*/
-	static $_quoteNames = false;
+
+	/** @var bool|string Allows override of global $ADODB_QUOTE_FIELDNAMES */
+	public $_quoteNames;
 
 	static $_foreignSuffix = '_id'; //
 	var $_dbat; // associative index pointing to ADODB_Active_DB eg. $ADODB_Active_DBS[_dbat]
@@ -117,7 +118,12 @@ class ADODB_Active_Record {
 	// php5 constructor
 	function __construct($table = false, $pkeyarr=false, $db=false)
 	{
-	global $_ADODB_ACTIVE_DBS;
+		global $_ADODB_ACTIVE_DBS, $ADODB_QUOTE_FIELDNAMES;
+
+		// Set the local override for field quoting, only if not defined yet
+		if (!isset($this->_quoteNames)) {
+			$this->_quoteNames = $ADODB_QUOTE_FIELDNAMES;
+		}
 
 		if ($db == false && is_object($pkeyarr)) {
 			$db = $pkeyarr;
@@ -1114,62 +1120,27 @@ class ADODB_Active_Record {
 	}
 
 	/**
-	* Quotes the table and column and field names
-	*
-	* this honours the ADODB_QUOTE_FIELDNAMES directive. The routines that
-	* use it should really just call _adodb_getinsertsql and _adodb_getupdatesql
-	* which is a nice easy project if you are interested
-	*
-	* @param	obj		$db		The database connection
-	* @param	string	$name	The table or column name to quote
-	*
-	* @return	string	The quoted name
-	*/
-	private function nameQuoter($db,$string)
+	 * Quotes the table, column and field names.
+	 *
+	 * This honours the internal {@see $_quoteNames} property, which overrides
+	 * the global $ADODB_QUOTE_FIELDNAMES directive.
+	 *
+	 * @param ADOConnection $db   The database connection
+	 * @param string        $name The table or column name to quote
+	 *
+	 * @return string The quoted name
+	 */
+	private function nameQuoter($db, $name)
 	{
 		global $ADODB_QUOTE_FIELDNAMES;
-		
-		if (!$ADODB_QUOTE_FIELDNAMES && !$this->_quoteNames)
-			/*
-			* Nothing to be done
-			*/
-			return $string;
-		
-		if ($this->_quoteNames == 'NONE')
-			/*
-			* Force no quoting when ADODB_QUOTE_FIELDNAMES is set
-			*/
-			return $string;
-		
-		if ($this->_quoteNames)
-			/*
-			* Internal setting takes precedence
-			*/
-			$quoteMethod = $this->_quoteNames;
-			
-		else
-			$quoteMethod = $ADODB_QUOTE_FIELDNAMES;
-		
-		switch ($quoteMethod)
-		{
-		case 'LOWER':
-			$string = strtolower($string);
-			break;
-		case 'NATIVE':
-			/*
-			* Nothing to be done
-			*/
-			break;
-		case 'UPPER':
-		default:
-			$string = strtoupper($string);
-		}
-			
-		$string = sprintf(	'%s%s%s',
-							$db->nameQuote,
-							$string,
-							$db->nameQuote
-					  );
+
+		$save = $ADODB_QUOTE_FIELDNAMES;
+		$ADODB_QUOTE_FIELDNAMES = $this->_quoteNames;
+
+		$string = _adodb_quote_fieldname($db, $name);
+
+		$ADODB_QUOTE_FIELDNAMES = $save;
+
 		return $string;
 	}
 
