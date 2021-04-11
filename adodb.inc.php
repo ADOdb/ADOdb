@@ -523,7 +523,8 @@ if (!defined('_ADODB_LAYER')) {
 	//
 	var $_oldRaiseFn =  false;
 	var $_transOK = null;
-	var $_connectionID	= false;	/// The returned link identifier whenever a successful database connection is made.
+	/** @var resource Identifier for the native database connection */
+	var $_connectionID = false;
 	var $_errorMsg = false;		/// A variable which was used to keep the returned last error message.  The value will
 								/// then returned by the errorMsg() function
 	var $_errorCode = false;	/// Last error code, not guaranteed to be used - only by oci8
@@ -1545,7 +1546,7 @@ if (!defined('_ADODB_LAYER')) {
 			return $this->lastInsID;
 		}
 		if ($this->hasInsertID) {
-			return $this->_insertid($table,$column);
+			return $this->_insertID($table,$column);
 		}
 		if ($this->debug) {
 			ADOConnection::outp( '<p>Insert_ID error</p>');
@@ -1554,6 +1555,27 @@ if (!defined('_ADODB_LAYER')) {
 		return false;
 	}
 
+	/**
+	 * Enable or disable the Last Insert Id functionality.
+	 *
+	 * If the Driver supports it, this function allows setting {@see $hasInsertID}.
+	 *
+	 * @param bool $enable False to disable
+	 */
+	public function enableLastInsertID($enable = true) {}
+
+	/**
+	 * Return the id of the last row that has been inserted in a table.
+	 *
+	 * @param string $table
+	 * @param string $column
+	 *
+	 * @return int|false
+	 */
+	protected function _insertID($table = '', $column = '')
+	{
+		return false;
+	}
 
 	/**
 	 * Portable Insert ID. Pablo Roca <pabloroca#mvps.org>

@@ -97,11 +97,6 @@ class ADODB_text extends ADOConnection {
 		return sizeof($this->_origarray);
 	}
 
-	function _insertid()
-	{
-			return false;
-	}
-
 	function _affectedrows()
 	{
 			return false;
