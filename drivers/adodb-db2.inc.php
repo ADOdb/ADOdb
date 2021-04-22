@@ -1606,9 +1606,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 			$setOption = @db2_set_option($this->_connectionID,$db2Options,1);
 		}
 
-		$db2Options = array('db2_attr_case'=>DB2_CASE_LOWER);
-		$setOption = @db2_set_option($this->_connectionID,$db2Options,1);
-
 		if ($inputarr)
 		{
 			if (is_array($sql))
