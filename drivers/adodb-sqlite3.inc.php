@@ -646,7 +646,9 @@ class ADODB_sqlite3 extends ADOConnection {
 		$stmt = $this->_connectionID->prepare($sql);
 
 		// Set the first bind value equal to value we want to update
-		$bindOk = $stmt->bindValue(1, $val, SQLITE3_BLOB);
+		if (!$stmt->bindValue(1, $val, SQLITE3_BLOB)) {
+			return false;
+		}
 
 		// Build as many keys as available
 		$bindIndex = 2;
@@ -660,7 +662,11 @@ class ADODB_sqlite3 extends ADOConnection {
 			} else {
 				$type = SQLITE3_TEXT;
 			}
-			$stmt->bindValue($bindIndex, $bindValue, $type);
+
+			if (!$stmt->bindValue($bindIndex, $bindValue, $type)) {
+				return false;
+			}
+
 			$bindIndex++;
 		}
 
@@ -688,6 +694,9 @@ class ADODB_sqlite3 extends ADOConnection {
 
 		// Read file information
 		$fileContents = file_get_contents($path);
+		if ($fileContents === false)
+			// Distinguish between an empty file and failure
+			return false;
 
 		return $this->updateBlob($table, $column, $fileContents, $where, $blobtype);
 	}
