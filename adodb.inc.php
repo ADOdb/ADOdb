@@ -2647,37 +2647,47 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
-	* Update a blob column, given a where clause. There are more sophisticated
-	* blob handling functions that we could have implemented, but all require
-	* a very complex API. Instead we have chosen something that is extremely
-	* simple to understand and use.
-	*
-	* Note: $blobtype supports 'BLOB' and 'CLOB', default is BLOB of course.
-	*
-	* Usage to update a $blobvalue which has a primary key blob_id=1 into a
-	* field blobtable.blobcolumn:
-	*
-	*	UpdateBlob('blobtable', 'blobcolumn', $blobvalue, 'blob_id=1');
-	*
-	* Insert example:
-	*
-	*	$conn->Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');
-	*	$conn->UpdateBlob('blobtable','blobcol',$blob,'id=1');
-	*/
-	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB') {
+	 * Update a BLOB column, given a where clause.
+	 *
+	 * There are more sophisticated blob handling functions that we could have
+	 * implemented, but all require a very complex API. Instead we have chosen
+	 * something that is extremely simple to understand and use.
+	 *
+	 * Sample usage:
+	 * - update a BLOB in field table.blob_col with value $blobValue, for a
+	 *   record having primary key id=1
+	 *   $conn->updateBlob('table', 'blob_col', $blobValue, 'id=1');
+	 * - insert example:
+	 *   $conn->execute('INSERT INTO table (id, blob_col) VALUES (1, null)');
+	 *   $conn->updateBlob('table', 'blob_col', $blobValue, 'id=1');
+	 *
+	 * @param string $table
+	 * @param string $column
+	 * @param string $val      Filename containing blob data
+	 * @param mixed  $where    {@see updateBlob()}
+	 * @param string $blobtype supports 'BLOB' (default) and 'CLOB'
+	 *
+	 * @return bool success
+	 */
+	function updateBlob($table, $column, $val, $where, $blobtype='BLOB') {
 		return $this->Execute("UPDATE $table SET $column=? WHERE $where",array($val)) != false;
 	}
 
 	/**
-	* Usage:
-	*	UpdateBlob('TABLE', 'COLUMN', '/path/to/file', 'ID=1');
-	*
-	*	$blobtype supports 'BLOB' and 'CLOB'
-	*
-	*	$conn->Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');
-	*	$conn->UpdateBlob('blobtable','blobcol',$blobpath,'id=1');
-	*/
-	function UpdateBlobFile($table,$column,$path,$where,$blobtype='BLOB') {
+	 * Update a BLOB from a file.
+	 *
+	 * Usage example:
+	 * $conn->updateBlobFile('table', 'blob_col', '/path/to/file', 'id=1');
+	 *
+	 * @param string $table
+	 * @param string $column
+	 * @param string $path     Filename containing blob data
+	 * @param mixed  $where    {@see updateBlob()}
+	 * @param string $blobtype supports 'BLOB' and 'CLOB'
+	 *
+	 * @return bool success
+	 */
+	function updateBlobFile($table, $column, $path, $where, $blobtype='BLOB') {
 		$fd = fopen($path,'rb');
 		if ($fd === false) {
 			return false;
