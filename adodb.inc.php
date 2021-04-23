@@ -1518,6 +1518,7 @@ if (!defined('_ADODB_LAYER')) {
 		if( is_string($sql) ) {
 			// Strips keyword used to help generate SELECT COUNT(*) queries
 			// from SQL if it exists.
+			// TODO: obsoleted by #715 - kept for backwards-compatibility
 			$sql = str_replace( '_ADODB_COUNT', '', $sql );
 		}
 
