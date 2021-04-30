@@ -289,4 +289,24 @@ select viewname,'V' from pg_views where viewname like $mask";
 		if (!stristr($transaction_mode,'isolation')) $transaction_mode = 'ISOLATION LEVEL '.$transaction_mode;
 		$this->_connectionID->query("SET TRANSACTION ".$transaction_mode);
 	}
+
+	/**
+	 * Returns a driver-specific format for a bind parameter
+	 *
+	 * Unlike the native driver, we use :name parameters
+	 * instead of offsets
+	 *
+	 * @param string $name
+	 * @param string $type (ignored in driver)
+	 *
+	 * @return string
+	 */
+	public function param($name,$type='C') {
+
+		if (!$name) {
+			return '';
+		}
+
+		return sprintf(':%s', $name);
+	}
 }

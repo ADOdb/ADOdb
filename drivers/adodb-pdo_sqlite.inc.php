@@ -203,4 +203,17 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		}
 		return $ret;
    }
+
+	/**
+	 * Returns a driver-specific format for a bind parameter
+	 *
+	 * @param string $name
+	 * @param string $type (ignored in driver)
+	 *
+	 * @return string
+	 */
+	public function param($name,$type='C')
+	{
+		return sprintf(':%s', $name);
+	}
 }

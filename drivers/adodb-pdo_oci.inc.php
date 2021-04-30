@@ -99,4 +99,17 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
     {
         $this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
     }
+
+	/**
+	 * Returns a driver-specific format for a bind parameter
+	 *
+	 * @param string $name
+	 * @param string $type (ignored in driver)
+	 *
+	 * @return string
+	 */
+	public function param($name,$type='C')
+	{
+		return sprintf(':%s', $name);
+	}
 }
