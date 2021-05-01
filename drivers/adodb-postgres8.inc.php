@@ -23,8 +23,8 @@ class ADODB_postgres8 extends ADODB_postgres7
 	// From PostgreSQL 8.0 onwards, the adsrc column used in earlier versions to
 	// retrieve the default value is obsolete and should not be used (see #562).
 	var $metaDefaultsSQL = "SELECT d.adnum as num, pg_get_expr(d.adbin, d.adrelid) as def
-		FROM pg_attrdef d, pg_class c 
-		WHERE d.adrelid=c.oid AND c.relname='%s' 
+		FROM pg_attrdef d, pg_class c
+		WHERE d.adrelid=c.oid AND c.relname='%s'
 		ORDER BY d.adnum";
 
 	/**
@@ -37,7 +37,7 @@ class ADODB_postgres8 extends ADODB_postgres7
 	 * @return int last inserted ID for given table/column, or the most recently
 	 *             returned one if $table or $column are empty
 	 */
-	function _insertid($table, $column)
+	protected function _insertID($table = '', $column = '')
 	{
 		return empty($table) || empty($column)
 			? $this->GetOne("SELECT lastval()")

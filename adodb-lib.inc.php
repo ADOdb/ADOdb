@@ -325,10 +325,23 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 {
 	$qryRecs = 0;
 
-	 if (!empty($zthis->_nestedSQL) || preg_match("/^\s*SELECT\s+DISTINCT/is", $sql) ||
-	 	preg_match('/\s+GROUP\s+BY\s+/is',$sql) ||
-		preg_match('/\s+UNION\s+/is',$sql)) {
+	/*
+	* These databases require a "SELECT * FROM (SELECT" type
+	* statement to have an alias for the result
+	*/
+	$requiresAlias = '';
+	$requiresAliasArray = array('postgres','mysql','mysqli','mssql','mssqlnative','sqlsrv');
+	if (in_array($zthis->databaseType,$requiresAliasArray)
+		|| in_array($zthis->dsnType,$requiresAliasArray)
+	) {
+		$requiresAlias = '_ADODB_ALIAS_';
+	}
 
+	if (!empty($zthis->_nestedSQL)
+		|| preg_match("/^\s*SELECT\s+DISTINCT/is", $sql)
+		|| preg_match('/\s+GROUP\s+BY\s+/is',$sql)
+		|| preg_match('/\s+UNION\s+/is',$sql)
+	) {
 		$rewritesql = adodb_strip_order_by($sql);
 
 		// ok, has SELECT DISTINCT or GROUP BY so see if we can use a table alias
@@ -339,24 +352,37 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 				$rewritesql = "SELECT ".$hint[0]." COUNT(*) FROM (".$rewritesql.")";
 			} else
 				$rewritesql = "SELECT COUNT(*) FROM (".$rewritesql.")";
+		} else {
+			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) $requiresAlias";
+		}
 
-		} else if (strncmp($zthis->databaseType,'postgres',8) == 0
-			|| strncmp($zthis->databaseType,'mysql',5) == 0
-		|| strncmp($zthis->databaseType,'mssql',5) == 0
-			|| strncmp($zthis->dsnType,'sqlsrv',5) == 0
-			|| strncmp($zthis->dsnType,'mssql',5) == 0
-		){
-			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql) _ADODB_ALIAS_";
-		} else {
-			$rewritesql = "SELECT COUNT(*) FROM ($rewritesql)";
-		}
 	} else {
-		// now replace SELECT ... FROM with SELECT COUNT(*) FROM
-		if ( strpos($sql, '_ADODB_COUNT') !== FALSE ) {
-			$rewritesql = preg_replace('/^\s*?SELECT\s+_ADODB_COUNT(.*)_ADODB_COUNT\s/is','SELECT COUNT(*) ',$sql);
-		} else {
-			$rewritesql = preg_replace('/^\s*SELECT\s.*\s+FROM\s/Uis','SELECT COUNT(*) FROM ',$sql);
+		// Replace 'SELECT ... FROM' with 'SELECT COUNT(*) FROM'
+		// Parse the query one char at a time starting after the SELECT
+		// to find the FROM clause's position, ignoring any sub-queries.
+		$start = stripos($sql, 'SELECT') + 7;
+		if ($start === false) {
+			// Not a SELECT statement - probably should trigger an exception here
+			return 0;
 		}
+		$len = strlen($sql);
+		$numParentheses = 0;
+		for ($pos = $start; $pos < $len; $pos++) {
+			switch ($sql[$pos]) {
+				case '(': $numParentheses++; continue 2;
+				case ')': $numParentheses--; continue 2;
+			}
+			// Ignore whatever is between parentheses (sub-queries)
+			if ($numParentheses > 0) {
+				continue;
+			}
+			// Exit loop if 'FROM' keyword was found
+			if (strtoupper(substr($sql, $pos, 4)) == 'FROM')  {
+				break;
+			}
+		}
+		$rewritesql = 'SELECT COUNT(*) ' . substr($sql, $pos);
+
 		// fix by alexander zhukov, alex#unipack.ru, because count(*) and 'order by' fails
 		// with mssql, access and postgresql. Also a good speedup optimization - skips sorting!
 		// also see PHPLens Issue No: 12752
@@ -364,7 +390,9 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	}
 
 	if (isset($rewritesql) && $rewritesql != $sql) {
-		if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) $rewritesql .= $limitarr[0];
+		if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) {
+			$rewritesql .= $limitarr[0];
+		}
 
 		if ($secs2cache) {
 			// we only use half the time of secs2cache because the count can quickly
@@ -373,18 +401,23 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 
 		} else {
 			$qryRecs = $zthis->GetOne($rewritesql,$inputarr);
-	  	}
+		}
 		if ($qryRecs !== false) return $qryRecs;
 	}
+
 	//--------------------------------------------
 	// query rewrite failed - so try slower way...
 
-
 	// strip off unneeded ORDER BY if no UNION
-	if (preg_match('/\s*UNION\s*/is', $sql)) $rewritesql = $sql;
-	else $rewritesql = $rewritesql = adodb_strip_order_by($sql);
+	if (preg_match('/\s*UNION\s*/is', $sql)) {
+		$rewritesql = $sql;
+	} else {
+		$rewritesql = $rewritesql = adodb_strip_order_by($sql);
+	}
 
-	if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) $rewritesql .= $limitarr[0];
+	if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) {
+		$rewritesql .= $limitarr[0];
+	}
 
 	if ($secs2cache) {
 		$rstest = $zthis->CacheExecute($secs2cache,$rewritesql,$inputarr);

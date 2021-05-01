@@ -66,7 +66,7 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 		return " ISNULL($field, $ifNull) "; // if MS SQL Server
 	}
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 	// SCOPE_IDENTITY()
 	// Returns the last IDENTITY value inserted into an IDENTITY column in
@@ -345,7 +345,7 @@ order by constraint_name, referenced_table_name, keyno";
 		}
 		return $s;
 	}
-	
+
 	/**
 	* Returns a substring of a varchar type field
 	*
@@ -363,17 +363,17 @@ order by constraint_name, referenced_table_name, keyno";
 		if ($length == 0)
 			/*
 		     * The length available to varchar is 2GB, but that makes no
-			 * sense in a substring, so I'm going to arbitrarily limit 
+			 * sense in a substring, so I'm going to arbitrarily limit
 			 * the length to 1K, but you could change it if you want
 			 */
 			$length = 1024;
-		
+
 		$text = "SUBSTRING($fld,$start,$length)";
 		return $text;
 	}
-	
+
 	/**
-	* Returns the maximum size of a MetaType C field. Because of the 
+	* Returns the maximum size of a MetaType C field. Because of the
 	* database design, SQL Server places no limits on the size of data inserted
 	* Although the actual limit is 2^31-1 bytes.
 	*
@@ -385,7 +385,7 @@ order by constraint_name, referenced_table_name, keyno";
 	}
 
 	/**
-	* Returns the maximum size of a MetaType X field. Because of the 
+	* Returns the maximum size of a MetaType X field. Because of the
 	* database design, SQL Server places no limits on the size of data inserted
 	* Although the actual limit is 2^31-1 bytes.
 	*
@@ -395,7 +395,7 @@ order by constraint_name, referenced_table_name, keyno";
 	{
 		return ADODB_STRINGMAX_NOLIMIT;
 	}
-	
+
 	// returns concatenated string
 	// MSSQL requires integers to be cast as strings
 	// automatically cast every datatype to VARCHAR(255)

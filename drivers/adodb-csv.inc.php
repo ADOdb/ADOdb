@@ -38,7 +38,7 @@ class ADODB_csv extends ADOConnection {
 	var $hasTransactions = false;
 	var $_errorNo = false;
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 		return $this->_insertid;
 	}

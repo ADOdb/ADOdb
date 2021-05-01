@@ -83,7 +83,7 @@ class ADODB_informix72 extends ADOConnection {
 
 
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 		$sqlca =ifx_getsqlca($this->lastQuery);
 		return @$sqlca["sqlerrd1"];

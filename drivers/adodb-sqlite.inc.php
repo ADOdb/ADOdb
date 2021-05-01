@@ -132,7 +132,7 @@ class ADODB_sqlite extends ADOConnection {
 		$parentDriver->hasInsertID = true;
 	}
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 		return sqlite_last_insert_rowid($this->_connectionID);
 	}
