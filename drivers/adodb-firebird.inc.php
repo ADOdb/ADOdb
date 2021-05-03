@@ -465,17 +465,25 @@ class ADODB_firebird extends ADOConnection {
 	 *
 	 * @param string $sql The SQL to prepare.
 	 *
-	 * @return string The original SQL that was provided.
+	 * @return bool|array The SQL that was provided and the prepared parameters,
+	 *                    or false if the preparation fails
 	 */
 	public function prepare($sql)
 	{
 		$stmt = fbird_prepare($this->_connectionID,$sql);
-		if (!$stmt) return false;
+		if (!$stmt) 
+			return false;
 		return array($sql,$stmt);
 	}
 
-	   // returns query ID if successful, otherwise false
-	   // there have been reports of problems with nested queries - the code is probably not re-entrant?
+	/** 
+	* Return the query id.
+	*
+	* @param string|array $sql
+	* @param array $inputarr
+	*
+	* @return bool|object
+	*/	
 	function _query($sql,$iarr=false)
 	{
 		if ( !$this->isConnected() ) return false;
@@ -874,7 +882,7 @@ class ADODB_firebird extends ADOConnection {
 	* @param string $fmt The date format to use.
 	* @param string|bool $col (Optional) The table column to date format, or if false, use NOW().
 	*
-	* @return bool|string The SQL DATE_FORMAT() string, or false if the provided date format was empty.
+	* @return string The SQL DATE_FORMAT() string, or empty if the provided date format was empty.
 	*/
 	public function sqlDate($fmt, $col=false)
 	{
