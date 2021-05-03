@@ -409,7 +409,7 @@ class ADODB_firebird extends ADOConnection {
 	 * @param string $seqname (Optional) The name of the sequence to use.
 	 * @param int $startID (Optional) The point to start at in the sequence.
 	 *
-	 * @return bool|int|string
+	 * @return int
 	 */
 	public function genID($seqname='adodbseq',$startID=1)
 	{
