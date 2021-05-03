@@ -42,7 +42,7 @@ class ADODB_firebird extends ADOConnection {
 	var $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
 	//OPN STUFF end
 	
-	public $genSeqSQL = "CREATE SEQUENCE %s START WITH %s";
+	public $_genSeqSQL = "CREATE SEQUENCE %s START WITH %s";
 
 	public $_dropSeqSQL = "DROP SEQUENCE %s";
 
@@ -398,10 +398,7 @@ class ADODB_firebird extends ADOConnection {
 	public function createSequence($seqname='adodbseq', $startID = 1)
 	{
 		$sql = sprintf($this->_genSeqSQL,$seqname,$startID);
-		$ok = $this->Execute($sql);
-		
-		if (!$ok) 
-			return false;
+		return $this->execute($sql);
 	} 
 	
 	/**
