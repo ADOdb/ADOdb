@@ -3646,6 +3646,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	var $_maxRecordCount = 0;
 	var $datetime = false;
 
+	/*
+	* Holds a cached version of the metadata, used by fetchfield
+	*/
+	protected $fieldObjects = false;
+
 	/**
 	 * Constructor
 	 *
