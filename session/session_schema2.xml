@@ -2,36 +2,28 @@
 <schema version="0.3">
   <table name="sessions2">
     <descr>table for ADOdb session-management</descr>
-
     <field name="SESSKEY" type="C" size="64">
-      <descr>session key</descr>
+      <descr>session key to identify a browser session of a user</descr>
       <KEY/>
       <NOTNULL/>
     </field>
-
-
-
     <field name="EXPIRY" type="T">
-      <descr></descr>
+      <descr>slightly redundant as it can be dynamically calculated by NOW() and MODIFIED field, but it enables forcing a fixed timeout for specific sessions.</descr>
       <NOTNULL/>
     </field>
-
-	 	<field name="CREATED" type="T">
-	     <descr></descr>
+    <field name="CREATED" type="T">
+      <descr>a timestamp when a new session was created.</descr>
       <NOTNULL/>
     </field>
-
-	 	<field name="MODIFIED" type="T">
-	     <descr></descr>
+    <field name="MODIFIED" type="T">
+      <descr>a timestamp which usually is updated when user interacts with a site to prolong the expire time.</descr>
       <NOTNULL/>
     </field>
-
     <field name="EXPIREREF" type="C" size="250">
-      <descr></descr>
+      <descr>usually a userid or unique username of your application, the name EXPIREREF is a bit weird. Better name it USERREF?</descr>
     </field>
-
     <field name="SESSDATA" type="XL">
-      <descr></descr>
+      <descr>PHP's serialized session data or encrypted serialized session data</descr>
       <NOTNULL/>
     </field>
   </table>
