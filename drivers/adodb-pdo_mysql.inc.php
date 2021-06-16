@@ -48,6 +48,67 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $date . ' + INTERVAL ' .	$fraction . ' SECOND';
 //		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
+	
+	/**
+	 * Get a list of indexes on the specified table.
+	 *
+	 * @param string $table The name of the table to get indexes for.
+	 * @param bool $primary (Optional) Whether or not to include the primary key.
+	 * @param bool $owner (Optional) Unused.
+	 *
+	 * @return array|bool An array of the indexes, or false if the query to get the indexes failed.
+	 */
+	function MetaIndexes($table, $primary = false, $owner = false)
+	{
+		// save old fetch mode
+		global $ADODB_FETCH_MODE;
+
+		$false = false;
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($this->fetchMode !== FALSE) {
+			$savem = $this->setFetchMode(FALSE);
+		}
+
+		// get index details
+		$rs = $this->execute(sprintf('SHOW INDEXES FROM %s',$table));
+
+		// restore fetchmode
+		if (isset($savem)) {
+			$this->setFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
+
+		if (!is_object($rs)) {
+			return $false;
+		}
+
+		$indexes = array ();
+
+		// parse index data into array
+		while ($row = $rs->fetchRow()) {
+			if ($primary == FALSE AND $row[2] == 'PRIMARY') {
+				continue;
+			}
+
+			if (!isset($indexes[$row[2]])) {
+				$indexes[$row[2]] = array(
+					'unique' => ($row[1] == 0),
+					'columns' => array()
+				);
+			}
+
+			$indexes[$row[2]]['columns'][$row[3] - 1] = $row[4];
+		}
+
+		// sort columns by order in the index
+		foreach ( array_keys ($indexes) as $index )
+		{
+			ksort ($indexes[$index]['columns']);
+		}
+
+		return $indexes;
+	}
 
 	function Concat()
 	{
