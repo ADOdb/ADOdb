@@ -1167,7 +1167,14 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 		foreach($inputarr as $kk=>$vv) {
 			if (is_string($vv) && strlen($vv)>64) $vv = substr($vv,0,64).'...';
 			if (is_null($vv)) $ss .= "($kk=>null) ";
-			else $ss .= "($kk=>'$vv') ";
+			else 
+			{
+				if (is_array($vv))
+				{
+					$vv = sprintf("Array Of Values: [%s]", implode(',',$vv));
+				}
+				$ss .= "($kk=>'$vv') ";
+			}		
 		}
 		$ss = "[ $ss ]";
 	}
