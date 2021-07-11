@@ -399,7 +399,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	* statement to have an alias for the result
 	*/
 	$requiresAlias = '';
-	$requiresAliasArray = array('postgres','mysql','mysqli','mssql','mssqlnative','sqlsrv');
+	$requiresAliasArray = array('postgres9','postgres','mysql','mysqli','mssql','mssqlnative','sqlsrv');
 	if (in_array($zthis->databaseType,$requiresAliasArray)
 		|| in_array($zthis->dsnType,$requiresAliasArray)
 	) {
