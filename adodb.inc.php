@@ -3646,6 +3646,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	var $_maxRecordCount = 0;
 	var $datetime = false;
 
+	/*
+	* Holds a cached version of the metadata, used by fetchfield
+	*/
+	protected $fieldObjects = false;
+
 	/**
 	 * Constructor
 	 *
@@ -4467,13 +4472,15 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *
 	 */
 	function FieldTypesArray() {
-		static $arr = array();
-		if (empty($arr)) {
-			for ($i=0, $max=$this->_numOfFields; $i < $max; $i++) {
-				$arr[] = $this->FetchField($i);
-			}
+		
+		if ($this->fieldObjects)
+			return $this->fieldObjects;
+		
+		for ($i=0, $max=$this->_numOfFields; $i < $max; $i++) {
+			$this->fieldObjects[] = $this->FetchField($i);
 		}
-		return $arr;
+		
+		return $this->fieldObjects;
 	}
 
 	/**
