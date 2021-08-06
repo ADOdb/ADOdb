@@ -199,7 +199,7 @@ class ADODB_firebird extends ADOConnection {
 		return $ret;
 	}
 
-	function &MetaIndexes ($table, $primary = FALSE, $owner=false)
+	function metaIndexes ($table, $primary = FALSE, $owner=false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -226,10 +226,9 @@ class ADODB_firebird extends ADOConnection {
 			$ADODB_FETCH_MODE = $save;
 			return $false;
 		}
-
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
-			$index = $row[0];
+			$index = trim(preg_replace("/[\n\r]+/",'',$row[0]));
 			if (!isset($indexes[$index])) {
 				if (is_null($row[3])) {
 					$row[3] = 0;
@@ -829,10 +828,14 @@ class  ADORecordset_firebird extends ADORecordSet
 		global $ADODB_ANSI_PADDING_OFF;
 		//$ADODB_ANSI_PADDING_OFF=1;
 		$rtrim = !empty($ADODB_ANSI_PADDING_OFF);
+		
+		//print_r($this->_cacheType);
 
 		for ($i=0, $max = $this->_numOfFields; $i < $max; $i++) {
 			if ($this->_cacheType[$i]=="BLOB") {
-				if (isset($f[$i])) {
+				if (isset($f[$i])) 
+				{
+					print "CALL BDC";
 					$f[$i] = $this->connection->_BlobDecode($f[$i]);
 				} else {
 					$f[$i] = null;
