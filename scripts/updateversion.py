@@ -464,5 +464,8 @@ def main():
 # end main()
 
 
+if sys.version_info < (3, 7):
+    print("ERROR: Python 3.7 or later is required")
+    sys.exit(1)
 if __name__ == "__main__":
     main()
