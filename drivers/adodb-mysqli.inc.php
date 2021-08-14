@@ -81,6 +81,12 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	private $usePreparedStatement = false;
 	private $useLastInsertStatement = false;
+	
+	/*
+	* Set by _query to flag if the last executed statement
+	* is a SELECT
+	*/
+	private $isSelectStatement = false;
 
 	/**
 	 * Sets the isolation level of a transaction.
@@ -434,6 +440,14 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function _affectedrows()
 	{
+		
+		if ($this->isSelectStatement)
+			/*
+			* Affected rows works fine against selects, returning
+			* the rowcount, but ADOdb does not do that.
+			*/
+			return false;
+
 		$result =  @mysqli_affected_rows($this->_connectionID);
 		if ($result == -1) {
 			if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
@@ -1115,7 +1129,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		return $mysql_res;
 		*/
-
+		
 		if ($this->multiQuery) {
 			$rs = mysqli_multi_query($this->_connectionID, $sql.';');
 			if ($rs) {
@@ -1124,8 +1138,17 @@ class ADODB_mysqli extends ADOConnection {
 			}
 		} else {
 			$rs = mysqli_query($this->_connectionID, $sql, $ADODB_COUNTRECS ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT);
-
-			if ($rs) return $rs;
+			if ($rs){
+				if (is_object($rs))
+				{
+					$this->isSelectStatement = true;
+				}
+				else
+				{
+					$this->isSelectStatement = false;
+				}
+				return $rs;
+			}
 		}
 
 		if($this->debug)
