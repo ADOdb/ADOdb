@@ -15,7 +15,7 @@ class LibTest extends TestCase
 	/** @var ADOConnection Database connection for tests */
 	private $db;
 
-	public function setUp()
+	public function setUp(): void
 	{
 		$this->db = ADONewConnection('mysqli');
 	}
