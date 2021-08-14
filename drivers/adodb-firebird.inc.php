@@ -829,13 +829,10 @@ class  ADORecordset_firebird extends ADORecordSet
 		//$ADODB_ANSI_PADDING_OFF=1;
 		$rtrim = !empty($ADODB_ANSI_PADDING_OFF);
 		
-		//print_r($this->_cacheType);
-
 		for ($i=0, $max = $this->_numOfFields; $i < $max; $i++) {
 			if ($this->_cacheType[$i]=="BLOB") {
 				if (isset($f[$i])) 
 				{
-					print "CALL BDC";
 					$f[$i] = $this->connection->_BlobDecode($f[$i]);
 				} else {
 					$f[$i] = null;
