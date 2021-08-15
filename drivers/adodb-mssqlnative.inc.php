@@ -303,7 +303,7 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		$ConvertableFmt=array(
 		       "m/d/Y"=>101,"m/d/y"=>101 // US
-		      ,"Y.m.d"=>102,"y/m/d"=>102 // ANSI
+		      ,"Y.m.d"=>102,"y.m.d"=>102 // ANSI
 		      ,"d/m/Y"=>103,"d/m/y"=>103 // French /english
 		      ,"d.m.Y"=>104,"d.m.y"=>104 // German
 		      ,"d-m-Y"=>105,"d-m-y"=>105 // Italian
