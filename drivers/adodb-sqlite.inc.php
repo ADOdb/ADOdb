@@ -1,6 +1,10 @@
 <?php
 /**
- * FileDescription
+ * SQLite driver
+ *
+ * @link https://www.sqlite.org/
+ *
+ * @deprecated Use SQLite3 driver instead
  *
  * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
  *
@@ -18,23 +22,6 @@
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
-/*
-@version   v5.21.1-dev  Unreleased
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-
-  Latest version is available at https://adodb.org/
-
-  SQLite info: http://www.hwaci.com/sw/sqlite/
-
-  Install Instructions:
-  ====================
-  1. Place this in adodb/drivers
-  2. Rename the file, remove the .txt prefix.
-*/
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
