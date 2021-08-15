@@ -766,7 +766,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	function MetaDatabases()
 	{
 		$this->SelectDB("master");
-		$rs =& $this->Execute($this->metaDatabasesSQL);
+		$rs = $this->Execute($this->metaDatabasesSQL);
 		$rows = $rs->GetRows();
 		$ret = array();
 		for($i=0;$i<count($rows);$i++) {
