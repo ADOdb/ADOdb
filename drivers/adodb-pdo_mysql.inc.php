@@ -1,14 +1,23 @@
 <?php
-/*
-@version   v5.22.0-dev  Unreleased
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-  Set tabs to 8.
-
-*/
+/**
+ * PDO MySQL driver
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ */
 
 class ADODB_pdo_mysql extends ADODB_pdo {
 
@@ -49,16 +58,8 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 //		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
 	
-	/**
-	 * Get a list of indexes on the specified table.
-	 *
-	 * @param string $table The name of the table to get indexes for.
-	 * @param bool $primary (Optional) Whether or not to include the primary key.
-	 * @param bool $owner (Optional) Unused.
-	 *
-	 * @return array|bool An array of the indexes, or false if the query to get the indexes failed.
-	 */
-	function metaIndexes($table, $primary = false, $owner = false)
+	
+	function metaIndexes ($table, $primary = FALSE, $owner=false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -67,15 +68,15 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== FALSE) {
-			$savem = $this->setFetchMode(FALSE);
+			$savem = $this->SetFetchMode(FALSE);
 		}
 
 		// get index details
-		$rs = $this->execute(sprintf('SHOW INDEXES FROM %s',$table));
+		$rs = $this->Execute(sprintf('SHOW INDEX FROM %s',$table));
 
 		// restore fetchmode
 		if (isset($savem)) {
-			$this->setFetchMode($savem);
+			$this->SetFetchMode($savem);
 		}
 		$ADODB_FETCH_MODE = $save;
 
@@ -86,7 +87,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		$indexes = array ();
 
 		// parse index data into array
-		while ($row = $rs->fetchRow()) {
+		while ($row = $rs->FetchRow()) {
 			if ($primary == FALSE AND $row[2] == 'PRIMARY') {
 				continue;
 			}

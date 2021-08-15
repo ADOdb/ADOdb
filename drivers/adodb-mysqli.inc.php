@@ -1,23 +1,28 @@
 <?php
-/*
-@version   v5.22.0-dev  Unreleased
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-  Set tabs to 8.
-
-  This is the preferred driver for MySQL connections, and supports both transactional
-  and non-transactional table types. You can use this as a drop-in replacement for both
-  the mysql and mysqlt drivers. As of ADOdb Version 5.20.0, all other native MySQL drivers
-  are deprecated
-
-  Requires mysql client. Works on Windows and Unix.
-
-21 October 2003: MySQLi extension implementation by Arjen de Rijke (a.de.rijke@xs4all.nl)
-Based on adodb 3.40
-*/
+/**
+ * MySQL improved driver (mysqli)
+ *
+ * This is the preferred driver for MySQL connections. It  supports both
+ * transactional and non-transactional table types. You can use this as a
+ * drop-in replacement for both the mysql and mysqlt drivers.
+ * As of ADOdb Version 5.20.0, all other native MySQL drivers are deprecated.
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ */
 
 // security - hide paths
 if (!defined('ADODB_DIR')) {
@@ -76,8 +81,6 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	private $usePreparedStatement = false;
 	private $useLastInsertStatement = false;
-	private $usingBoundVariables = false;
-	private $statementAffectedRows = -1;
 
 	/**
 	 * Sets the isolation level of a transaction.
@@ -181,8 +184,6 @@ class ADODB_mysqli extends ADOConnection {
 		// SSL Connections for MySQLI
 		if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
 			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cert, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
-  			$this->socket = MYSQLI_CLIENT_SSL;
-  			$this->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
 		}
 
 		#if (!empty($this->port)) $argHostname .= ":".$this->port;
@@ -433,9 +434,6 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function _affectedrows()
 	{
-		if ($this->usingBoundVariables)
-			return $this->statementAffectedRows;
-		
 		$result =  @mysqli_affected_rows($this->_connectionID);
 		if ($result == -1) {
 			if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
@@ -1030,7 +1028,6 @@ class ADODB_mysqli extends ADOConnection {
 
 	/**
 	 * Prepares an SQL statement and returns a handle to use.
-	 * This is not used by bound parameters anymore
 	 *
 	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:prepare
 	 * @todo update this function to handle prepared statements correctly
@@ -1059,86 +1056,13 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	/**
-	 * Execute SQL
+	 * Return the query id.
 	 *
-	 * @param string     $sql      SQL statement to execute, or possibly an array
-	 *                             holding prepared statement ($sql[0] will hold sql text)
-	 * @param array|bool $inputarr holds the input data to bind to.
-	 *                             Null elements will be set to null.
+	 * @param string|array $sql
+	 * @param array $inputarr
 	 *
-	 * @return ADORecordSet|bool
+	 * @return bool|mysqli_result
 	 */
-	public function execute($sql, $inputarr = false) {
-		
-		if ($this->fnExecute) {
-			$fn = $this->fnExecute;
-			$ret = $fn($this,$sql,$inputarr);
-			if (isset($ret)) {
-				return $ret;
-			}
-		}
-		
-		if ($inputarr === false) {
-			return $this->_execute($sql,false);
-		}
-		
-		if (!is_array($inputarr)) {
-			$inputarr = array($inputarr);
-		}
-
-		if (!is_array($sql)) {
-			
-			
-
-			$typeString = '';
-			$typeArray  = array(''); //placeholder for type list
-
-			foreach ($inputarr as $v) 
-			{
-				$typeArray[] = $v;
-				if (is_integer($v) || is_bool($v))
-					$typeString .= 'i';
-				
-				else if (is_float($v))
-					$typeString .= 'd';
-					
-				else if(is_object($v))
-					/*
-					* Assume a blob
-					*/
-					$typeString .= 'b';
-			
-				else
-					$typeString .= 's';
-				
-			} 
-				
-			/*
-			* Place the field type list at the front of the
-			* parameter array. This is the mysql specific
-			* format
-			*/
-			$typeArray[0] = $typeString;
-		
-			$ret = $this->_execute($sql,$typeArray);
-			if (!$ret) {
-				return $ret;
-			}
-			
-		} else {
-			$ret = $this->_execute($sql,$inputarr);
-		}
-		return $ret;
-	}
-	 
-	/** 
-	* Return the query id.
-	*
-	* @param string|array $sql
-	* @param array $inputarr
-	*
-	* @return bool|mysqli_result
-	*/
 	function _query($sql, $inputarr)
 	{
 		global $ADODB_COUNTRECS;
@@ -1173,90 +1097,6 @@ class ADODB_mysqli extends ADOConnection {
 			$ret = mysqli_stmt_execute($stmt);
 			return $ret;
 		}
-		else if (is_string($sql) && is_array($inputarr))
-		{
-			/*
-			* This is support for true prepared queries
-			* with bound parameters
-			*
-			* set prepared statement flags
-			*/
-			$this->usePreparedStatement = true;
-			$this->usingBoundVariables = true;
-
-			/*
-			* Prepare the statement with the placeholders, 
-			* prepare will fail if the statement is invalid
-			* so we trap and error if necessary. Note that we
-			* are calling MySQL prepare here, not ADOdb
-			*/
-			$stmt = $this->_connectionID->prepare($sql);
-			if ($stmt === false)
-			{
-				$this->outp_throw(
-					"SQL Statement failed on preparation: " . htmlspecialchars($sql) . "'",
-					'Execute'
-				);
-				return false;
-			}
-			/* 
-			* Make sure the number of parameters provided in the input
-			* array matches what the query expects. We must discount
-			* the first parameter which contains the data types in 
-			* our inbound parameters
-			*/
-			$nparams = $stmt->param_count;
-			
-			if ($nparams  != count($inputarr) - 1) {
-				$this->outp_throw(
-					"Input array has " . count($inputarr) .
-					" params, does not match query: '" . htmlspecialchars($sql) . "'",
-					'Execute'
-				);
-				return false;
-			}
-			
-			/*
-			* Must pass references into call_user_func_array
-			*/
-			$paramsByReference = array();
-            foreach($inputarr as $key => $value)
-                $paramsByReference[$key] = &$inputarr[$key];
-						
-			/*
-			* Bind the params
-			*/
-			call_user_func_array(array($stmt, 'bind_param'), $paramsByReference);
-			
-			/*
-			* Execute
-			*/
-			$ret = mysqli_stmt_execute($stmt);
-			
-			/*
-			* Did we throw an error?
-			*/
-			if ($ret == false)
-				return false;
-				
-			/*
-			* Is the statement a non-select
-			*/
-			if ($stmt->affected_rows > -1)
-			{
-				$this->statementAffectedRows = $stmt->affected_rows;
-				return true;
-			}
-			/*
-			* Turn the statement into a result set
-			*/
-			$result = $stmt->get_result();
-			/*
-			* Return the object for the select
-			*/
-			return $result;
-			
-		}										  
 		else
 		{
 			/*
@@ -1658,7 +1498,6 @@ class ADORecordSet_mysqli extends ADORecordSet{
 12 = MYSQLI_TYPE_DATETIME
 13 = MYSQLI_TYPE_YEAR
 14 = MYSQLI_TYPE_NEWDATE
-245 = MYSQLI_TYPE_JSON
 247 = MYSQLI_TYPE_ENUM
 248 = MYSQLI_TYPE_SET
 249 = MYSQLI_TYPE_TINY_BLOB
@@ -1679,7 +1518,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return string The MetaType
 	 */
-	function metaType($t, $len = -1, $fieldobj = false)
+	function MetaType($t, $len = -1, $fieldobj = false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -1687,16 +1526,8 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			$len = $fieldobj->max_length;
 		}
 
-		$t = strtoupper($t);
-		/*
-		* Add support for custom actual types. We do this
-		* first, that allows us to override existing types
-		*/
-		if (array_key_exists($t,$this->connection->customActualTypes))
-			return  $this->connection->customActualTypes[$t];
-
 		$len = -1; // mysql max_length is not accurate
-		switch ($t) {
+		switch (strtoupper($t)) {
 			case 'STRING':
 			case 'CHAR':
 			case 'VARCHAR':
@@ -1774,8 +1605,6 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			case 'DEC':
 			case 'FIXED':
 			default:
-				
-
 				//if (!is_numeric($t)) echo "<p>--- Error in type matching $t -----</p>";
 				return 'N';
 		}
@@ -1805,15 +1634,9 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
-		$t = strtoupper($t);
-		
-		if (array_key_exists($t,$this->connection->customActualTypes))
-			return  $this->connection->customActualTypes[$t];
 
 		$len = -1; // mysql max_length is not accurate
-
-		switch ($t) {
+		switch (strtoupper($t)) {
 			case 'STRING':
 			case 'CHAR':
 			case 'VARCHAR':

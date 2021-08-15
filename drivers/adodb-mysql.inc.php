@@ -1,22 +1,30 @@
 <?php
-/*
-@version   v5.22.0-dev  Unreleased
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-  Set tabs to 8.
-
-  This driver only supports the original non-transactional MySQL driver. It
-  is deprecated in PHP version 5.5 and removed in PHP version 7. It is deprecated
-  as of ADOdb version 5.20.0. Use the mysqli driver instead, which supports both
-  transactional and non-transactional updates
-
-  Requires mysql client. Works on Windows and Unix.
-
- 28 Feb 2001: MetaColumns bug fix - suggested by  Freek Dijkstra (phpeverywhere@macfreek.com)
-*/
+/**
+ * MySQL driver
+ *
+ * @deprecated
+ *
+ * This driver only supports the original non-transactional MySQL driver,
+ * which was deprecated in PHP version 5.5 and removed in PHP version 7.
+ * It is deprecated as of ADOdb version 5.20.0, use the mysqli driver
+ * instead, which supports both transactional and non-transactional updates.
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ */
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
@@ -861,15 +869,9 @@ class ADORecordSet_mysql extends ADORecordSet{
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
-		$t = strtoupper($t);
-		
-		if (array_key_exists($t,$this->connection->customActualTypes))
-			return  $this->connection->customActualTypes[$t];
 
 		$len = -1; // mysql max_length is not accurate
-
-		switch ($t) {
+		switch (strtoupper($t)) {
 		case 'STRING':
 		case 'CHAR':
 		case 'VARCHAR':

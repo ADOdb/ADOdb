@@ -1,24 +1,26 @@
 <?php
-/*
-@version   v5.22.0-dev  Unreleased
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-Set tabs to 4 for best viewing.
-
-  Latest version is available at https://adodb.org/
-
-  Native mssql driver. Requires mssql client. Works on Windows.
-    http://www.microsoft.com/sql/technologies/php/default.mspx
-  To configure for Unix, see
-   	http://phpbuilder.com/columns/alberto20000919.php3
-
-    $stream = sqlsrv_get_field($stmt, $index, SQLSRV_SQLTYPE_STREAM(SQLSRV_ENC_BINARY));
-    stream_filter_append($stream, "convert.iconv.ucs-2/utf-8"); // Voila, UTF-8 can be read directly from $stream
-
-*/
+/**
+ * Native MSSQL driver.
+ *
+ * Requires mssql client. Works on Windows.
+ * https://docs.microsoft.com/sql/connect/php
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ */
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
@@ -1003,37 +1005,6 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		return $metaProcedures;
 	}
-	
-	/**
-	* An SQL Statement that adds a specific number of 
-	* days or part to local datetime
-	* 
-	* @param float $dayFraction
-	* @param string $date
-	*
-	* @return string
-	*/
-	public function offsetDate($dayFraction, $date = false)
-	{
-		if (!$date)
-			/*
-			* Use GETDATE() via systTimestamp;
-			*/
-			$date = $this->sysTimeStamp;
-		
-		/*
-		* seconds, number of seconds, date base
-		*/
-		$dateFormat = "DATEADD(s, %s, %s)";
-
-		/*
-		* Adjust the offset back to seconds
-		*/
-		$fraction = $dayFraction * 24 * 3600;
-		
-		return sprintf($dateFormat,$fraction,$date);
-
-	}
 
 }
 
@@ -1175,46 +1146,65 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	* is retrieved.
 	*
 	* $param int $fieldOffset (optional default=-1 for all
-	* @return ADOFieldObject|ADOFieldObject[]|false
+	* @return mixed an ADOFieldObject, or array of objects
 	*/
 	private function _fetchField($fieldOffset = -1)
 	{
-		if (!$this->fieldObjectsRetrieved) {
-			// Retrieve all metadata in one go
-			$fieldMetaData = sqlsrv_field_metadata($this->_queryID);
-			if ($fieldMetaData) {
-				$this->_numOfFields = count($fieldMetaData);
-				foreach ($fieldMetaData as $key => $value) {
-					$fld = new ADOFieldObject;
-					// Caution - keys are case-sensitive, must respect casing of values
-					$fld->name          = $value['Name'];
-					$fld->max_length    = $value['Size'];
-					$fld->column_source = $value['Name'];
-					$fld->type          = $this->_typeConversion[$value['Type']];
-
-					$this->fieldObjects[$key] = $fld;
-					$this->fieldObjectsIndex[$fld->name] = $key;
-				}
-			} else {
-				$this->_numOfFields = -1;
-				$this->fieldObjects = false;
-				$this->fieldObjectsIndex = array();
+		if ($this->fieldObjectsRetrieved){
+			if ($this->fieldObjects) {
+				/*
+				 * Already got the information
+				 */
+				if ($fieldOffset == -1)
+					return $this->fieldObjects;
+				else
+					return $this->fieldObjects[$fieldOffset];
 			}
-			$this->fieldObjectsRetrieved = true;
+			else
+				/*
+			     * No metadata available
+				 */
+				return false;
 		}
 
-		if ($this->fieldObjects) {
-			if ($fieldOffset == -1) {
-				return $this->fieldObjects;
-			} else {
-				return $this->fieldObjects[$fieldOffset];
-			}
-		}
+		$this->fieldObjectsRetrieved = true;
+		/*
+		 * Retrieve all metadata in one go. This is always returned as a
+		 * numeric array.
+		 */
+		$fieldMetaData = sqlsrv_field_metadata($this->_queryID);
 
-		// No metadata available
-		return false;
+		if (!$fieldMetaData)
+			/*
+		     * Not a statement that gives us metaData
+			 */
+			return false;
+
+		$this->_numOfFields = count($fieldMetaData);
+		foreach ($fieldMetaData as $key=>$value)
+		{
+
+			$fld = new ADOFieldObject;
+			/*
+			 * Caution - keys are case-sensitive, must respect
+			 * casing of values
+			 */
+
+			$fld->name          = $value['Name'];
+			$fld->max_length    = $value['Size'];
+			$fld->column_source = $value['Name'];
+			$fld->type          = $this->_typeConversion[$value['Type']];
+
+			$this->fieldObjects[$key] = $fld;
+
+			$this->fieldObjectsIndex[$fld->name] = $key;
+
+		}
+		if ($fieldOffset == -1)
+			return $this->fieldObjects;
+
+		return $this->fieldObjects[$fieldOffset];
 	}
-
 
 	/*
 	 * Fetchfield copies the oracle method, it loads the field information
