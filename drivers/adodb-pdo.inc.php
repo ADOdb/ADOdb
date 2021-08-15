@@ -630,9 +630,6 @@ class ADODB_pdo extends ADOConnection {
 
 	function _affectedrows()
 	{
-		if(method_exists($this->_driver, '_affectedrows'))
-			return $this->_driver->_affectedrows();
-
 		return ($this->_stmt) ? $this->_stmt->rowCount() : 0;
 	}
 

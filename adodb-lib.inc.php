@@ -6,7 +6,7 @@ global $ADODB_INCLUDED_LIB;
 $ADODB_INCLUDED_LIB = 1;
 
 /*
-  @version   v5.22.0-dev  Unreleased
+  @version   v5.21.1-dev  Unreleased
   @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
   @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
   Released under both BSD license and Lesser GPL library license.
@@ -54,6 +54,75 @@ if (false) {
 	die(adodb_strip_order_by($sql));
 }
 
+function adodb_probetypes(&$array,&$types,$probe=8)
+{
+// probe and guess the type
+	$types = array();
+	if ($probe > sizeof($array)) $max = sizeof($array);
+	else $max = $probe;
+
+
+	for ($j=0;$j < $max; $j++) {
+		$row = $array[$j];
+		if (!$row) break;
+		$i = -1;
+		foreach($row as $v) {
+			$i += 1;
+
+			if (isset($types[$i]) && $types[$i]=='C') continue;
+
+			//print " ($i ".$types[$i]. "$v) ";
+			$v = trim($v);
+
+			if (!preg_match('/^[+-]{0,1}[0-9\.]+$/',$v)) {
+				$types[$i] = 'C'; // once C, always C
+
+				continue;
+			}
+			if ($j == 0) {
+			// If empty string, we presume is character
+			// test for integer for 1st row only
+			// after that it is up to testing other rows to prove
+			// that it is not an integer
+				if (strlen($v) == 0) $types[$i] = 'C';
+				if (strpos($v,'.') !== false) $types[$i] = 'N';
+				else  $types[$i] = 'I';
+				continue;
+			}
+
+			if (strpos($v,'.') !== false) $types[$i] = 'N';
+
+		}
+	}
+
+}
+
+function  adodb_transpose(&$arr, &$newarr, &$hdr, &$fobjs)
+{
+	$oldX = sizeof(reset($arr));
+	$oldY = sizeof($arr);
+
+	if ($hdr) {
+		$startx = 1;
+		$hdr = array('Fields');
+		for ($y = 0; $y < $oldY; $y++) {
+			$hdr[] = $arr[$y][0];
+		}
+	} else
+		$startx = 0;
+
+	for ($x = $startx; $x < $oldX; $x++) {
+		if ($fobjs) {
+			$o = $fobjs[$x];
+			$newarr[] = array($o->name);
+		} else
+			$newarr[] = array();
+
+		for ($y = 0; $y < $oldY; $y++) {
+			$newarr[$x-$startx][] = $arr[$y][$x];
+		}
+	}
+}
 
 
 function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_autoinc)
@@ -330,7 +399,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	* statement to have an alias for the result
 	*/
 	$requiresAlias = '';
-	$requiresAliasArray = array('postgres','postgres9','mysql','mysqli','mssql','mssqlnative','sqlsrv');
+	$requiresAliasArray = array('postgres9','postgres','mysql','mysqli','mssql','mssqlnative','sqlsrv');
 	if (in_array($zthis->databaseType,$requiresAliasArray)
 		|| in_array($zthis->dsnType,$requiresAliasArray)
 	) {
@@ -959,52 +1028,11 @@ static $cacheCols;
 function _adodb_column_sql_oci8(&$zthis,$action, $type, $fname, $fnameq, $arrFields)
 {
     $sql = '';
-	
-	if (array_key_exists($type,$zthis->customMetaTypes)) 
-	{
-		
-		$customMetaType = $zthis->customMetaTypes[$type];
-		if ($customMetaType['handler'] === false)
-			/*
-			* Pass the value through unchanged
-			*/
-			$type = 'RAW';
-		else if (is_object($customMetaType['handler']))
-		{
-			/*
-			* An anonymous function
-			*/
-			$type = 'CALLBACK';
-			$callback = $customMetaType['handler'];
-		}
-		else
-			/*
-			* Some type of metaType
-			*/
-			$type = $customMetaType['handler'];
-	}
-	
-	print_r($customMetaType); exit;
 
-	switch($type) {
-		
-		case 'RAW':
-			/*
-			* Custom field with no handling
-			*/
-			$val = $arrFields[$fname];
-			break;
-		
-		case 'CALLBACK':
-			/*
-			* An anonymous function
-			*/
-			$val = $callback($var);
-			break;
-			
-		// Based on the datatype of the field
-		// Format the value properly for the database
-		case 'B':
+    // Based on the datatype of the field
+    // Format the value properly for the database
+    switch($type) {
+    case 'B':
         //in order to handle Blobs correctly, we need
         //to do some magic for Oracle
 
@@ -1077,51 +1105,8 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 
 		}
 	}
-	
-	/*
-	* Upfront check for custom meta types. We do this
-	* first to allow for overriding of existing types
-	*/
-	if (array_key_exists($type,$zthis->customMetaTypes)) 
-	{
-		
-		$customMetaType = $zthis->customMetaTypes[$type];
-		
-		if ($customMetaType['handler'] === false)
-			/*
-			* Pass the value through unchanged
-			*/
-			$type = -1;
-		else if (is_object($customMetaType['callback']))
-		{
-			/*
-			* An anonymous function
-			*/
-			$type = -1;
-			
-			$callback = $customMetaType['callback'];
-			
-			$val = $arrFields[$fname];
-			$val = $callback($val);
-			if ($customMetaType['handler'])
-				$type = $customMetaType['handler'];
-		}
-		else
-			/*
-			* Some type of metaType
-			*/
-			$type = $customMetaType['handler'];
-	}
-	
+
 	switch($type) {
-		
-		case -1:
-			/*
-			* Custom field with no handling
-			*/
-			$val = $arrFields[$fname];
-			break;
-		
 		case "C":
 		case "X":
 		case 'B':
@@ -1174,8 +1159,9 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 					$vv = sprintf("Array Of Values: [%s]", implode(',',$vv));
 				}
 				$ss .= "($kk=>'$vv') ";
-			}		
+			}
 		}
+		
 		$ss = "[ $ss ]";
 	}
 	$sqlTxt = is_array($sql) ? $sql[0] : $sql;

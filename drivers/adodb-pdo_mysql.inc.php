@@ -58,7 +58,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	 *
 	 * @return array|bool An array of the indexes, or false if the query to get the indexes failed.
 	 */
-	function MetaIndexes($table, $primary = false, $owner = false)
+	function metaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
