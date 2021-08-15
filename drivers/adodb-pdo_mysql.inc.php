@@ -58,8 +58,16 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 //		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
 	
-	
-	function metaIndexes ($table, $primary = FALSE, $owner=false)
+	/**
+	 * Get a list of indexes on the specified table.
+	 *
+	 * @param string $table The name of the table to get indexes for.
+	 * @param bool $primary (Optional) Whether or not to include the primary key.
+	 * @param bool $owner (Optional) Unused.
+	 *
+	 * @return array|bool An array of the indexes, or false if the query to get the indexes failed.
+	 */
+	function metaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -68,15 +76,15 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== FALSE) {
-			$savem = $this->SetFetchMode(FALSE);
+			$savem = $this->setFetchMode(FALSE);
 		}
 
 		// get index details
-		$rs = $this->Execute(sprintf('SHOW INDEX FROM %s',$table));
+		$rs = $this->execute(sprintf('SHOW INDEXES FROM %s',$table));
 
 		// restore fetchmode
 		if (isset($savem)) {
-			$this->SetFetchMode($savem);
+			$this->setFetchMode($savem);
 		}
 		$ADODB_FETCH_MODE = $save;
 
@@ -87,7 +95,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		$indexes = array ();
 
 		// parse index data into array
-		while ($row = $rs->FetchRow()) {
+		while ($row = $rs->fetchRow()) {
 			if ($primary == FALSE AND $row[2] == 'PRIMARY') {
 				continue;
 			}

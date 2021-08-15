@@ -298,22 +298,25 @@ class ADODB_mssqlnative extends ADOConnection {
 	// Format date column in sql string given an input format that understands Y M D
 	function SQLDate($fmt, $col=false)
 	{
-		if (!$col) $col = $this->sysTimeStamp;
+		if (!$col) {
+			$col = $this->sysTimeStamp;
+		}
 		$s = '';
 
 		$ConvertableFmt=array(
-		       "m/d/Y"=>101,"m/d/y"=>101 // US
-		      ,"Y.m.d"=>102,"y/m/d"=>102 // ANSI
-		      ,"d/m/Y"=>103,"d/m/y"=>103 // French /english
-		      ,"d.m.Y"=>104,"d.m.y"=>104 // German
-		      ,"d-m-Y"=>105,"d-m-y"=>105 // Italian
-		      ,"m-d-Y"=>110,"m-d-y"=>110 // US Dash
-		      ,"Y/m/d"=>111,"y/m/d"=>111 // Japan
-		      ,"Ymd"=>112,"ymd"=>112 // ISO
-		      ,"H:i:s"=>108 // Time
+			"m/d/Y"=>101,  "m/d/y"=>101 // US
+			,"Y.m.d"=>102, "y.m.d"=>102 // ANSI
+			,"d/m/Y"=>103, "d/m/y"=>103 // French /english
+			,"d.m.Y"=>104, "d.m.y"=>104 // German
+			,"d-m-Y"=>105, "d-m-y"=>105 // Italian
+			,"m-d-Y"=>110, "m-d-y"=>110 // US Dash
+			,"Y/m/d"=>111, "y/m/d"=>111 // Japan
+			,"Ymd"=>112,   "ymd"=>112   // ISO
+			,"H:i:s"=>108 // Time
 		);
-		if(key_exists($fmt,$ConvertableFmt))
-		  return  "convert (varchar ,$col,".$ConvertableFmt[$fmt].")";
+		if (key_exists($fmt,$ConvertableFmt)) {
+			return "convert (varchar ,$col," . $ConvertableFmt[$fmt] . ")";
+		}
 
 		$len = strlen($fmt);
 		for ($i=0; $i < $len; $i++) {
@@ -763,7 +766,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	function MetaDatabases()
 	{
 		$this->SelectDB("master");
-		$rs =& $this->Execute($this->metaDatabasesSQL);
+		$rs = $this->Execute($this->metaDatabasesSQL);
 		$rows = $rs->GetRows();
 		$ret = array();
 		for($i=0;$i<count($rows);$i++) {
@@ -1019,13 +1022,8 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	var $fieldOffset = 0;
 	// _mths works only in non-localised system
 
-	/*
-	 * Holds a cached version of the metadata
-	 */
-	private $fieldObjects = false;
-
-	/*
-	 * Flags if we have retrieved the metadata
+	/**
+	 * @var bool True if we have retrieved the fields metadata
 	 */
 	private $fieldObjectsRetrieved = false;
 
@@ -1033,7 +1031,6 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	* Cross-reference the objects by name for easy access
 	*/
 	private $fieldObjectsIndex = array();
-
 
 	/*
 	 * Cross references the dateTime objects for faster decoding
@@ -1145,26 +1142,23 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	* the next field that wasn't yet retrieved by fetchField()
 	* is retrieved.
 	*
-	* $param int $fieldOffset (optional default=-1 for all
+	* @param int $fieldOffset (optional default=-1 for all
 	* @return mixed an ADOFieldObject, or array of objects
 	*/
 	private function _fetchField($fieldOffset = -1)
 	{
-		if ($this->fieldObjectsRetrieved){
-			if ($this->fieldObjects) {
-				/*
-				 * Already got the information
-				 */
-				if ($fieldOffset == -1)
-					return $this->fieldObjects;
-				else
-					return $this->fieldObjects[$fieldOffset];
-			}
-			else
-				/*
-			     * No metadata available
-				 */
+		if ($this->fieldObjectsRetrieved) {
+			if ($this->fieldObjectsCache) {
+				// Already got the information
+				if ($fieldOffset == -1) {
+					return $this->fieldObjectsCache;
+				} else {
+					return $this->fieldObjectsCache[$fieldOffset];
+				}
+			} else {
+				// No metadata available
 				return false;
+			}
 		}
 
 		$this->fieldObjectsRetrieved = true;
@@ -1174,36 +1168,28 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		 */
 		$fieldMetaData = sqlsrv_field_metadata($this->_queryID);
 
-		if (!$fieldMetaData)
-			/*
-		     * Not a statement that gives us metaData
-			 */
+		if (!$fieldMetaData) {
+			// Not a statement that gives us metaData
 			return false;
+		}
 
 		$this->_numOfFields = count($fieldMetaData);
-		foreach ($fieldMetaData as $key=>$value)
-		{
-
+		foreach ($fieldMetaData as $key=>$value) {
 			$fld = new ADOFieldObject;
-			/*
-			 * Caution - keys are case-sensitive, must respect
-			 * casing of values
-			 */
-
+			// Caution - keys are case-sensitive, must respect casing of values
 			$fld->name          = $value['Name'];
 			$fld->max_length    = $value['Size'];
 			$fld->column_source = $value['Name'];
 			$fld->type          = $this->_typeConversion[$value['Type']];
 
-			$this->fieldObjects[$key] = $fld;
-
+			$this->fieldObjectsCache[$key] = $fld;
 			$this->fieldObjectsIndex[$fld->name] = $key;
-
 		}
-		if ($fieldOffset == -1)
-			return $this->fieldObjects;
+		if ($fieldOffset == -1) {
+			return $this->fieldObjectsCache;
+		}
 
-		return $this->fieldObjects[$fieldOffset];
+		return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 	/*
@@ -1220,7 +1206,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	 */
 	function fetchField($fieldOffset = -1)
 	{
-		return $this->fieldObjects[$fieldOffset];
+		return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 	function _seek($row)

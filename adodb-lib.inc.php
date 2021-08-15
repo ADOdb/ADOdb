@@ -673,10 +673,50 @@ function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr
 	return $rsreturn;
 }
 
-function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $force=2)
+/**
+ * Performs case conversion and quoting of the given field name.
+ *
+ * See Global variable $ADODB_QUOTE_FIELDNAMES.
+ *
+ * @param ADOConnection $zthis
+ * @param string $fieldName
+ *
+ * @return string Quoted field name
+ */
+function _adodb_quote_fieldname($zthis, $fieldName)
 {
 	global $ADODB_QUOTE_FIELDNAMES;
 
+	// Case conversion - defaults to UPPER
+	$case = is_bool($ADODB_QUOTE_FIELDNAMES) ? 'UPPER' : $ADODB_QUOTE_FIELDNAMES;
+	switch ($case) {
+		case 'LOWER':
+			$fieldName = strtolower($fieldName);
+			break;
+		case 'NATIVE':
+			// Do nothing
+			break;
+		case 'UPPER':
+		case 'BRACKETS':
+		default:
+			$fieldName = strtoupper($fieldName);
+			break;
+	}
+
+	// Quote field if requested, or necessary (field contains space)
+	if ($ADODB_QUOTE_FIELDNAMES || strpos($fieldName, ' ') !== false ) {
+		if ($ADODB_QUOTE_FIELDNAMES === 'BRACKETS') {
+			return $zthis->leftBracket . $fieldName . $zthis->rightBracket;
+		} else {
+			return $zthis->nameQuote . $fieldName . $zthis->nameQuote;
+		}
+	} else {
+		return $fieldName;
+	}
+}
+
+function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $force=2)
+{
 	if (!$rs) {
 		printf(ADODB_BAD_RS,'GetUpdateSQL');
 		return false;
@@ -722,21 +762,7 @@ function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $for
 					$type = 'C';
 				}
 
-				if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES)) {
-					switch ($ADODB_QUOTE_FIELDNAMES) {
-						case 'BRACKETS':
-							$fnameq = $zthis->leftBracket.$upperfname.$zthis->rightBracket;break;
-						case 'LOWER':
-							$fnameq = $zthis->nameQuote.strtolower($field->name).$zthis->nameQuote;break;
-						case 'NATIVE':
-							$fnameq = $zthis->nameQuote.$field->name.$zthis->nameQuote;break;
-						case 'UPPER':
-						default:
-							$fnameq = $zthis->nameQuote.$upperfname.$zthis->nameQuote;break;
-					}
-				} else {
-					$fnameq = $upperfname;
-				}
+				$fnameq = _adodb_quote_fieldname($zthis, $field->name);
 
 				//********************************************************//
 				if (is_null($arrFields[$upperfname])
@@ -862,7 +888,6 @@ function _adodb_getinsertsql(&$zthis, &$rs, $arrFields, $force=2)
 static $cacheRS = false;
 static $cacheSig = 0;
 static $cacheCols;
-	global $ADODB_QUOTE_FIELDNAMES;
 
 	$tableName = '';
 	$values = '';
@@ -913,21 +938,7 @@ static $cacheCols;
 		$upperfname = strtoupper($field->name);
 		if (adodb_key_exists($upperfname,$arrFields,$force)) {
 			$bad = false;
-			if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES)) {
-				switch ($ADODB_QUOTE_FIELDNAMES) {
-				case 'BRACKETS':
-					$fnameq = $zthis->leftBracket.$upperfname.$zthis->rightBracket;break;
-				case 'LOWER':
-					$fnameq = $zthis->nameQuote.strtolower($field->name).$zthis->nameQuote;break;
-				case 'NATIVE':
-					$fnameq = $zthis->nameQuote.$field->name.$zthis->nameQuote;break;
-				case 'UPPER':
-				default:
-					$fnameq = $zthis->nameQuote.$upperfname.$zthis->nameQuote;break;
-				}
-			} else
-				$fnameq = $upperfname;
-
+			$fnameq = _adodb_quote_fieldname($zthis, $field->name);
 			$type = $recordSet->MetaType($field->type);
 
             /********************************************************/
