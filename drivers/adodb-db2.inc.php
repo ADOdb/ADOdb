@@ -1,40 +1,36 @@
 <?php
 /**
- * IBM DB2 Native Client driver.
- *
- * Originally DB2 drivers were dependent on an ODBC driver, and some installations
- * may still use that. To use an ODBC driver connection, use the odbc_db2
- * ADOdb driver. For Linux, you need the 'ibm_db2' PECL extension for PHP,
- * For Windows, you need to locate an appropriate version of the php_ibm_db2.dll,
- * as well as the IBM data server client software.
- * This is basically a full rewrite of the original driver, for information
- * about all the changes, see the update information on the ADOdb website
- * for version 5.21.0.
- *
- * @link http://pecl.php.net/package/ibm_db2 PECL Extension For DB2
- *
- * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
- *
- * @package ADOdb
- * @link https://adodb.org Project's web site and documentation
- * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
- *
- * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
- * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
- * any later version. This means you can use it in proprietary products.
- * See the LICENSE.md file distributed with this source code for details.
- * @license BSD-3-Clause
- * @license LGPL-2.1-or-later
- *
- * @copyright 2000-2013 John Lim
- * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
- * @author Mark Newnham
- */
+  @version   v5.22.0-dev  Unreleased
+  @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+  Released under both BSD license and Lesser GPL library license.
+  Whenever there is any discrepancy between the two licenses,
+  the BSD license will take precedence.
+
+  Set tabs to 4 for best viewing.
+
+* Driver for use with IBM DB2 Native Client
+*
+* Originally DB2 drivers were dependent on an ODBC driver, and some installations
+* may still use that. To use an ODBC driver connection, use the odbc_db2
+* ADOdb driver. For Linux, you need the 'ibm_db2' PECL extension for PHP,
+* For Windows, you need to locate an appropriate version of the php_ibm_db2.dll,
+* as well as the IBM data server client software.
+* This is basically a full rewrite of the original driver, for information
+* about all the changes, see the update information on the ADOdb website
+* for version 5.21.0
+*
+* @link http://pecl.php.net/package/ibm_db2 Pecl Extension For DB2
+* @author Mark Newnham
+*/
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
-define("_ADODB_DB2_LAYER", 2 );
+  define("_ADODB_DB2_LAYER", 2 );
+
+/*--------------------------------------------------------------------
+----------------------------------------------------------------------*/
 
 
 class ADODB_db2 extends ADOConnection {

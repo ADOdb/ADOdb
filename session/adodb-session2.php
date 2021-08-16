@@ -1,23 +1,61 @@
 <?php
-/**
- * ADOdb Session Management
- *
- * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
- *
- * @package ADOdb
- * @link https://adodb.org Project's web site and documentation
- * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
- *
- * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
- * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
- * any later version. This means you can use it in proprietary products.
- * See the LICENSE.md file distributed with this source code for details.
- * @license BSD-3-Clause
- * @license LGPL-2.1-or-later
- *
- * @copyright 2000-2013 John Lim
- * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
- */
+
+
+/*
+@version   v5.22.0-dev  Unreleased
+@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+         Contributed by Ross Smith (adodb@netebb.com).
+  Released under both BSD license and Lesser GPL library license.
+  Whenever there is any discrepancy between the two licenses,
+  the BSD license will take precedence.
+	  Set tabs to 4 for best viewing.
+
+
+*/
+
+/*
+
+CREATE Table SCripts
+
+Oracle
+======
+
+CREATE TABLE SESSIONS2
+(
+  SESSKEY    VARCHAR2(48 BYTE)                  NOT NULL,
+  EXPIRY     DATE                               NOT NULL,
+  EXPIREREF  VARCHAR2(200 BYTE),
+  CREATED    DATE                               NOT NULL,
+  MODIFIED   DATE                               NOT NULL,
+  SESSDATA   CLOB,
+  PRIMARY KEY(SESSKEY)
+);
+
+
+CREATE INDEX SESS2_EXPIRY ON SESSIONS2(EXPIRY);
+CREATE UNIQUE INDEX SESS2_PK ON SESSIONS2(SESSKEY);
+CREATE INDEX SESS2_EXP_REF ON SESSIONS2(EXPIREREF);
+
+
+
+ MySQL
+ =====
+
+CREATE TABLE sessions2(
+	sesskey VARCHAR( 64 ) NOT NULL DEFAULT '',
+	expiry TIMESTAMP NOT NULL ,
+	expireref VARCHAR( 250 ) DEFAULT '',
+	created TIMESTAMP NOT NULL ,
+	modified TIMESTAMP NOT NULL ,
+	sessdata LONGTEXT DEFAULT '',
+	PRIMARY KEY ( sesskey ) ,
+	INDEX sess2_expiry( expiry ),
+	INDEX sess2_expireref( expireref )
+)
+
+
+*/
 
 if (!defined('_ADODB_LAYER')) {
 	require realpath(dirname(__FILE__) . '/../adodb.inc.php');

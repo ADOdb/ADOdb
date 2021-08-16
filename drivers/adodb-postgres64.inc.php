@@ -1,23 +1,48 @@
 <?php
-/**
- * ADOdb PostgreSQL 6.4 driver
- *
- * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
- *
- * @package ADOdb
- * @link https://adodb.org Project's web site and documentation
- * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
- *
- * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
- * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
- * any later version. This means you can use it in proprietary products.
- * See the LICENSE.md file distributed with this source code for details.
- * @license BSD-3-Clause
- * @license LGPL-2.1-or-later
- *
- * @copyright 2000-2013 John Lim
- * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
- */
+/*
+ @version   v5.22.0-dev  Unreleased
+ @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+ @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+  Released under both BSD license and Lesser GPL library license.
+  Whenever there is any discrepancy between the two licenses,
+  the BSD license will take precedence.
+  Set tabs to 8.
+
+  Original version derived from Alberto Cerezal (acerezalp@dbnet.es) - DBNet Informatica & Comunicaciones.
+  08 Nov 2000 jlim - Minor corrections, removing mysql stuff
+  09 Nov 2000 jlim - added insertid support suggested by "Christopher Kings-Lynne" <chriskl@familyhealth.com.au>
+			  jlim - changed concat operator to || and data types to MetaType to match documented pgsql types
+					 see http://www.postgresql.org/devel-corner/docs/postgres/datatype.htm
+  22 Nov 2000 jlim - added changes to FetchField() and MetaTables() contributed by "raser" <raser@mail.zen.com.tw>
+  27 Nov 2000 jlim - added changes to _connect/_pconnect from ideas by "Lennie" <leen@wirehub.nl>
+  15 Dec 2000 jlim - added changes suggested by Additional code changes by "Eric G. Werk" egw@netguide.dk.
+  31 Jan 2002 jlim - finally installed postgresql. testing
+  01 Mar 2001 jlim - Freek Dijkstra changes, also support for text type
+
+  See http://www.varlena.com/varlena/GeneralBits/47.php
+
+	-- What indexes are on my table?
+	select * from pg_indexes where tablename = 'tablename';
+
+	-- What triggers are on my table?
+	select c.relname as "Table", t.tgname as "Trigger Name",
+	   t.tgconstrname as "Constraint Name", t.tgenabled as "Enabled",
+	   t.tgisconstraint as "Is Constraint", cc.relname as "Referenced Table",
+	   p.proname as "Function Name"
+	from pg_trigger t, pg_class c, pg_class cc, pg_proc p
+	where t.tgfoid = p.oid and t.tgrelid = c.oid
+	   and t.tgconstrrelid = cc.oid
+	   and c.relname = 'tablename';
+
+	-- What constraints are on my table?
+	select r.relname as "Table", c.conname as "Constraint Name",
+	   contype as "Constraint Type", conkey as "Key Columns",
+	   confkey as "Foreign Columns", consrc as "Source"
+	from pg_class r, pg_constraint c
+	where r.oid = c.conrelid
+	   and relname = 'tablename';
+
+*/
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
@@ -951,9 +976,10 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $row;
 	}
 
-	function _initRS()
+
+	function _initrs()
 	{
-		global $ADODB_COUNTRECS;
+	global $ADODB_COUNTRECS;
 		$qid = $this->_queryID;
 		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($qid):-1;
 		$this->_numOfFields = @pg_num_fields($qid);
@@ -968,11 +994,10 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		}
 	}
 
-	function fields($colname)
+		/* Use associative array to get fields array */
+	function Fields($colname)
 	{
-		if ($this->fetchMode != PGSQL_NUM) {
-			return @$this->fields[$colname];
-		}
+		if ($this->fetchMode != PGSQL_NUM) return @$this->fields[$colname];
 
 		if (!$this->bind) {
 			$this->bind = array();
@@ -984,7 +1009,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-	function fetchField($fieldOffset)
+	function FetchField($off = 0)
 	{
 		// offsets begin at 0
 
@@ -1069,7 +1094,14 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		switch (strtoupper($t)) {
+		
+		$t = strtoupper($t);
+		
+		if (array_key_exists($t,$this->connection->customActualTypes))
+			return  $this->connection->customActualTypes[$t];
+
+		switch ($t) {
+		
 				case 'MONEY': // stupid, postgres expects money to be a string
 				case 'INTERVAL':
 				case 'CHAR':

@@ -1,56 +1,59 @@
 <?php
-/**
- * Replication engine
- *
- * - Copy table structures and data from different databases
- *   (e.g. mysql to oracle)
- * - Generate CREATE TABLE, CREATE INDEX, INSERT for installation scripts
- *
- * Note: this code assumes that comments such as  / *    * / are allowed,
- * which works with: mssql, postgresql, oracle, mssql
- *
- * Table Structure copying includes
- * - fields and limited subset of types
- * - optional default values
- * - indexes
- * - but not constraints
- *
- * Two modes of data copy:
- * 1. ReplicateData - Copy from src to dest, with update of status of copy
- *    back to src, with configurable src SELECT where clause
- * 2. MergeData - Copy from src to dest based on last mod date field and/or
- *    copied flag field
- *
- * Default settings are
- * - do not execute, generate sql ($rep->execute = false)
- * - do not delete records in dest table first ($rep->deleteFirst = false).
- *   if $rep->deleteFirst is true and primary keys are defined,
- *   then no deletion will occur unless *INSERTONLY* is defined in pkey array
- * - only commit once at the end of every ReplicateData ($rep->commitReplicate = true)
- * - do not autocommit every x records processed ($rep->commitRecs = -1)
- * - even if error occurs on one record, continue copying remaining records ($rep->neverAbort = true)
- * - debugging turned off ($rep->debug = false)
- *
- * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
- *
- * @package ADOdb
- * @link https://adodb.org Project's web site and documentation
- * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
- *
- * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
- * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
- * any later version. This means you can use it in proprietary products.
- * See the LICENSE.md file distributed with this source code for details.
- * @license BSD-3-Clause
- * @license LGPL-2.1-or-later
- *
- * @copyright 2000-2013 John Lim
- * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
- */
 
 define('ADODB_REPLICATE',1.2);
 
 include_once(ADODB_DIR.'/adodb-datadict.inc.php');
+
+/*
+1.2		9 June 2009
+Minor patches
+
+1.1		8 June 2009
+Added $lastUpdateFld to replicatedata
+Added $rep->compat. If compat set to 1.0, then $lastUpdateFld not used during MergeData.
+
+1.0		Apr 2009
+Added support for MFFA
+
+0.9 	? 2008
+First release
+
+
+	Note: this code assumes that comments such as  / *    * / ar`e allowed which works with:
+	Note: this code assumes that comments such as  / *    * / are allowed which works with:
+		 mssql, postgresql, oracle, mssql
+
+	Replication engine to
+	 	- copy table structures and data from different databases (e.g. mysql to oracle)
+		  for replication purposes
+		- generate CREATE TABLE, CREATE INDEX, INSERT ... for installation scripts
+
+	Table Structure copying includes
+		- fields and limited subset of types
+		- optional default values
+		- indexes
+		- but not constraints
+
+
+	Two modes of data copy:
+
+	ReplicateData
+		- Copy from src to dest, with update of status of copy back to src,
+		  with configurable src SELECT where clause
+
+	MergeData
+		- Copy from src to dest based on last mod date field and/or copied flag field
+
+	Default settings are
+		- do not execute, generate sql ($rep->execute = false)
+		- do not delete records in dest table first ($rep->deleteFirst = false).
+			if $rep->deleteFirst is true and primary keys are defined,
+			then no deletion will occur unless *INSERTONLY* is defined in pkey array
+		- only commit once at the end of every ReplicateData ($rep->commitReplicate = true)
+		- do not autocommit every x records processed ($rep->commitRecs = -1)
+		- even if error occurs on one record, continue copying remaining records ($rep->neverAbort = true)
+		- debugging turned off ($rep->debug = false)
+*/
 
 class ADODB_Replicate {
 	var $connSrc;

@@ -1,31 +1,21 @@
 <?php
-/**
- * Helper functions.
- *
- * Less commonly used functions are placed here to reduce size of adodb.inc.php.
- *
- * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
- *
- * @package ADOdb
- * @link https://adodb.org Project's web site and documentation
- * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
- *
- * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
- * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
- * any later version. This means you can use it in proprietary products.
- * See the LICENSE.md file distributed with this source code for details.
- * @license BSD-3-Clause
- * @license LGPL-2.1-or-later
- *
- * @copyright 2000-2013 John Lim
- * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
- */
-
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
 global $ADODB_INCLUDED_LIB;
 $ADODB_INCLUDED_LIB = 1;
+
+/*
+  @version   v5.21.1-dev  Unreleased
+  @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+  Released under both BSD license and Lesser GPL library license.
+  Whenever there is any discrepancy between the two licenses,
+  the BSD license will take precedence. See License.txt.
+  Set tabs to 4 for best viewing.
+
+  Less commonly used functions are placed here to reduce size of adodb.inc.php.
+*/
 
 function adodb_strip_order_by($sql)
 {
@@ -673,50 +663,10 @@ function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr
 	return $rsreturn;
 }
 
-/**
- * Performs case conversion and quoting of the given field name.
- *
- * See Global variable $ADODB_QUOTE_FIELDNAMES.
- *
- * @param ADOConnection $zthis
- * @param string $fieldName
- *
- * @return string Quoted field name
- */
-function _adodb_quote_fieldname($zthis, $fieldName)
+function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $force=2)
 {
 	global $ADODB_QUOTE_FIELDNAMES;
 
-	// Case conversion - defaults to UPPER
-	$case = is_bool($ADODB_QUOTE_FIELDNAMES) ? 'UPPER' : $ADODB_QUOTE_FIELDNAMES;
-	switch ($case) {
-		case 'LOWER':
-			$fieldName = strtolower($fieldName);
-			break;
-		case 'NATIVE':
-			// Do nothing
-			break;
-		case 'UPPER':
-		case 'BRACKETS':
-		default:
-			$fieldName = strtoupper($fieldName);
-			break;
-	}
-
-	// Quote field if requested, or necessary (field contains space)
-	if ($ADODB_QUOTE_FIELDNAMES || strpos($fieldName, ' ') !== false ) {
-		if ($ADODB_QUOTE_FIELDNAMES === 'BRACKETS') {
-			return $zthis->leftBracket . $fieldName . $zthis->rightBracket;
-		} else {
-			return $zthis->nameQuote . $fieldName . $zthis->nameQuote;
-		}
-	} else {
-		return $fieldName;
-	}
-}
-
-function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $force=2)
-{
 	if (!$rs) {
 		printf(ADODB_BAD_RS,'GetUpdateSQL');
 		return false;
@@ -762,7 +712,21 @@ function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $for
 					$type = 'C';
 				}
 
-				$fnameq = _adodb_quote_fieldname($zthis, $field->name);
+				if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES)) {
+					switch ($ADODB_QUOTE_FIELDNAMES) {
+						case 'BRACKETS':
+							$fnameq = $zthis->leftBracket.$upperfname.$zthis->rightBracket;break;
+						case 'LOWER':
+							$fnameq = $zthis->nameQuote.strtolower($field->name).$zthis->nameQuote;break;
+						case 'NATIVE':
+							$fnameq = $zthis->nameQuote.$field->name.$zthis->nameQuote;break;
+						case 'UPPER':
+						default:
+							$fnameq = $zthis->nameQuote.$upperfname.$zthis->nameQuote;break;
+					}
+				} else {
+					$fnameq = $upperfname;
+				}
 
 				//********************************************************//
 				if (is_null($arrFields[$upperfname])
@@ -888,6 +852,7 @@ function _adodb_getinsertsql(&$zthis, &$rs, $arrFields, $force=2)
 static $cacheRS = false;
 static $cacheSig = 0;
 static $cacheCols;
+	global $ADODB_QUOTE_FIELDNAMES;
 
 	$tableName = '';
 	$values = '';
@@ -938,7 +903,21 @@ static $cacheCols;
 		$upperfname = strtoupper($field->name);
 		if (adodb_key_exists($upperfname,$arrFields,$force)) {
 			$bad = false;
-			$fnameq = _adodb_quote_fieldname($zthis, $field->name);
+			if ((strpos($upperfname,' ') !== false) || ($ADODB_QUOTE_FIELDNAMES)) {
+				switch ($ADODB_QUOTE_FIELDNAMES) {
+				case 'BRACKETS':
+					$fnameq = $zthis->leftBracket.$upperfname.$zthis->rightBracket;break;
+				case 'LOWER':
+					$fnameq = $zthis->nameQuote.strtolower($field->name).$zthis->nameQuote;break;
+				case 'NATIVE':
+					$fnameq = $zthis->nameQuote.$field->name.$zthis->nameQuote;break;
+				case 'UPPER':
+				default:
+					$fnameq = $zthis->nameQuote.$upperfname.$zthis->nameQuote;break;
+				}
+			} else
+				$fnameq = $upperfname;
+
 			$type = $recordSet->MetaType($field->type);
 
             /********************************************************/

@@ -1,29 +1,28 @@
 <?php
-/**
- * SQLite3 driver
- *
- * @link https://www.sqlite.org/
- *
- * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
- *
- * @package ADOdb
- * @link https://adodb.org Project's web site and documentation
- * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
- *
- * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
- * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
- * any later version. This means you can use it in proprietary products.
- * See the LICENSE.md file distributed with this source code for details.
- * @license BSD-3-Clause
- * @license LGPL-2.1-or-later
- *
- * @copyright 2000-2013 John Lim
- * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
- */
+/*
+@version   v5.22.0-dev  Unreleased
+@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+  Released under both BSD license and Lesser GPL library license.
+  Whenever there is any discrepancy between the two licenses,
+  the BSD license will take precedence.
+
+  Latest version is available at https://adodb.org/
+
+  SQLite info: http://www.hwaci.com/sw/sqlite/
+
+  Install Instructions:
+  ====================
+  1. Place this in adodb/drivers
+  2. Rename the file, remove the .txt prefix.
+*/
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
+/**
+ * Class ADODB_sqlite3
+ */
 class ADODB_sqlite3 extends ADOConnection {
 	var $databaseType = "sqlite3";
 	var $dataProvider = "sqlite";
@@ -34,9 +33,12 @@ class ADODB_sqlite3 extends ADOConnection {
 	var $hasInsertID = true; 		/// supports autoincrement ID?
 	var $hasAffectedRows = true; 	/// supports affected rows for update/delete?
 	var $metaTablesSQL = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
-	var $sysDate = "adodb_date('Y-m-d')";
-	var $sysTimeStamp = "adodb_date('Y-m-d H:i:s')";
+	var $sysDate = "DATE('now','localtime')";
+	var $sysTimeStamp = "DATETIME('now','localtime')";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
+
+	/** @var SQLite3 */
+	var $_connectionID;
 
 	function ServerInfo()
 	{
@@ -51,7 +53,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		if ($this->transOff) {
 			return true;
 		}
-		$ret = $this->Execute("BEGIN TRANSACTION");
+		$this->Execute("BEGIN TRANSACTION");
 		$this->transCnt += 1;
 		return true;
 	}
@@ -94,6 +96,9 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 
 		$t = strtoupper($t);
+
+		if (array_key_exists($t,$this->customActualTypes))
+			return  $this->customActualTypes[$t];
 
 		/*
 		* We are using the Sqlite affinity method here
@@ -214,7 +219,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			          )
 				WHERE type != 'meta'
 				  AND sql NOTNULL
-		          AND LOWER(name) ='" . strtolower($table) . "'";
+				  AND LOWER(name) ='" . strtolower($table) . "'";
 
 		$tableSql = $this->getOne($sql);
 
@@ -304,8 +309,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		$this->_connectionID->createFunction('adodb_date2', 'adodb_date2', 2);
 	}
 
-
-	// returns true or false
+	/** @noinspection PhpUnusedParameterInspection */
 	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (empty($argHostname) && $argDatabasename) {
@@ -317,7 +321,6 @@ class ADODB_sqlite3 extends ADOConnection {
 		return true;
 	}
 
-	// returns true or false
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		// There's no permanent connect in SQLite3
@@ -394,7 +397,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		return false;
 	}
 
-	function CreateSequence($seqname='adodbseq',$start=1)
+	function createSequence($seqname='adodbseq', $startID=1)
 	{
 		if (empty($this->_genSeqSQL)) {
 			return false;
@@ -403,8 +406,8 @@ class ADODB_sqlite3 extends ADOConnection {
 		if (!$ok) {
 			return false;
 		}
-		$start -= 1;
-		return $this->Execute("insert into $seqname values($start)");
+		$startID -= 1;
+		return $this->Execute("insert into $seqname values($startID)");
 	}
 
 	var $_dropSeqSQL = 'drop table %s';
@@ -559,14 +562,13 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * This uses the more efficient strftime native function to process
 	 *
-	 * @param 	str		$fld	The name of the field to process
+	 * @param string $fld	The name of the field to process
 	 *
-	 * @return	str				The SQL Statement
+	 * @return string The SQL Statement
 	 */
 	function month($fld)
 	{
-		$x = "strftime('%m',$fld)";
-		return $x;
+		return "strftime('%m',$fld)";
 	}
 
 	/**
@@ -574,13 +576,12 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * This uses the more efficient strftime native function to process
 	 *
-	 * @param 	str		$fld	The name of the field to process
+	 * @param string $fld	The name of the field to process
 	 *
-	 * @return	str				The SQL Statement
+	 * @return string The SQL Statement
 	 */
 	function day($fld) {
-		$x = "strftime('%d',$fld)";
-		return $x;
+		return "strftime('%d',$fld)";
 	}
 
 	/**
@@ -588,14 +589,116 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * This uses the more efficient strftime native function to process
 	 *
-	 * @param 	str		$fld	The name of the field to process
+	 * @param string $fld	The name of the field to process
 	 *
-	 * @return	str				The SQL Statement
+	 * @return string The SQL Statement
 	 */
 	function year($fld)
 	{
-		$x = "strftime('%Y',$fld)";
-		return $x;
+		return "strftime('%Y',$fld)";
+	}
+
+	/**
+	 * SQLite update for blob
+	 *
+	 * SQLite must be a fully prepared statement (all variables must be bound),
+	 * so $where can either be an array (array params) or a string that we will
+	 * do our best to unpack and turn into a prepared statement.
+	 *
+	 * @param string $table
+	 * @param string $column
+	 * @param string $val      Blob value to set
+	 * @param mixed  $where    An array of parameters (key => value pairs),
+	 *                         or a string (where clause).
+	 * @param string $blobtype ignored
+	 *
+	 * @return bool success
+	 */
+	function updateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
+	{
+		if (is_array($where)) {
+			// We were passed a set of key=>value pairs
+			$params = $where;
+		} else {
+			// Given a where clause string, we have to disassemble the
+			// statements into keys and values
+			$params = array();
+			$temp = preg_split('/(where|and)/i', $where);
+			$where = array_filter($temp);
+
+			foreach ($where as $wValue) {
+				$wTemp = preg_split('/[= \']+/', $wValue);
+				$wTemp = array_filter($wTemp);
+				$wTemp = array_values($wTemp);
+				$params[$wTemp[0]] = $wTemp[1];
+			}
+		}
+
+		$paramWhere = array();
+		foreach ($params as $bindKey => $bindValue) {
+			$paramWhere[] = $bindKey . '=?';
+		}
+
+		$sql = "UPDATE $table SET $column=? WHERE "
+			. implode(' AND ', $paramWhere);
+
+		// Prepare the statement
+		$stmt = $this->_connectionID->prepare($sql);
+
+		// Set the first bind value equal to value we want to update
+		if (!$stmt->bindValue(1, $val, SQLITE3_BLOB)) {
+			return false;
+		}
+
+		// Build as many keys as available
+		$bindIndex = 2;
+		foreach ($params as $bindValue) {
+			if (is_integer($bindValue) || is_bool($bindValue) || is_float($bindValue)) {
+				$type = SQLITE3_NUM;
+			} elseif (is_object($bindValue)) {
+				// Assume a blob, this should never appear in
+				// the binding for a where statement anyway
+				$type = SQLITE3_BLOB;
+			} else {
+				$type = SQLITE3_TEXT;
+			}
+
+			if (!$stmt->bindValue($bindIndex, $bindValue, $type)) {
+				return false;
+			}
+
+			$bindIndex++;
+		}
+
+		// Now execute the update. NB this is SQLite execute, not ADOdb
+		$ok = $stmt->execute();
+		return is_object($ok);
+	}
+
+	/**
+	 * SQLite update for blob from a file
+	 *
+	 * @param string $table
+	 * @param string $column
+	 * @param string $path      Filename containing blob data
+	 * @param mixed  $where    {@see updateBlob()}
+	 * @param string $blobtype ignored
+	 *
+	 * @return bool success
+	 */
+	function updateBlobFile($table, $column, $path, $where, $blobtype = 'BLOB')
+	{
+		if (!file_exists($path)) {
+			return false;
+		}
+
+		// Read file information
+		$fileContents = file_get_contents($path);
+		if ($fileContents === false)
+			// Distinguish between an empty file and failure
+			return false;
+
+		return $this->updateBlob($table, $column, $fileContents, $where, $blobtype);
 	}
 
 }
@@ -609,9 +712,12 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	var $databaseType = "sqlite3";
 	var $bind = false;
 
+	/** @var SQLite3Result */
+	var $_queryID;
+
+	/** @noinspection PhpMissingParentConstructorInspection */
 	function __construct($queryID,$mode=false)
 	{
-
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
 			$mode = $ADODB_FETCH_MODE;

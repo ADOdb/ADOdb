@@ -1,23 +1,23 @@
 <?php
 /**
- * ADOdb base PDO driver
- *
- * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
- *
- * @package ADOdb
- * @link https://adodb.org Project's web site and documentation
- * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
- *
- * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
- * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
- * any later version. This means you can use it in proprietary products.
- * See the LICENSE.md file distributed with this source code for details.
- * @license BSD-3-Clause
- * @license LGPL-2.1-or-later
- *
- * @copyright 2000-2013 John Lim
- * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
- */
+	@version   v5.22.0-dev  Unreleased
+	@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
+	@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
+
+	Released under both BSD license and Lesser GPL library license.
+	Whenever there is any discrepancy between the two licenses,
+	the BSD license will take precedence.
+
+	Set tabs to 4 for best viewing.
+
+	Latest version is available at https://adodb.org/
+
+	Requires ODBC. Works on Windows and Unix.
+
+	Problems:
+		Where is float/decimal type in pdo_param_type
+		LOB handling for CLOB/BLOB differs significantly
+*/
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
@@ -238,6 +238,26 @@ class ADODB_pdo extends ADOConnection {
 		return call_user_func_array('parent::Concat', $args);
 	}
 
+	/**
+	 * Triggers a driver-specific request for a bind parameter
+	 *
+	 * @param string $name
+	 * @param string $type
+	 *
+	 * @return string
+	 */
+	public function param($name,$type='C') {
+
+		$args = func_get_args();
+		if(method_exists($this->_driver, 'param')) {
+			// Return the driver specific entry, that mimics the native driver
+			return call_user_func_array(array($this->_driver, 'param'), $args);
+		}
+
+		// No driver specific method defined, use mysql format '?'
+		return call_user_func_array('parent::param', $args);
+	}
+
 	// returns true or false
 	function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
@@ -273,10 +293,10 @@ class ADODB_pdo extends ADOConnection {
 		return $this->_driver->MetaColumns($table,$normalize);
 	}
 
-	public function metaIndexes($table,$normalize=true)
+	public function metaIndexes($table,$normalize=true,$owner=false)
 	{
 		if (method_exists($this->_driver,'metaIndexes'))
-			return $this->_driver->metaIndexes($table,$normalize);
+			return $this->_driver->metaIndexes($table,$normalize,$owner);
 	}
 
 	/**
@@ -565,6 +585,7 @@ class ADODB_pdo extends ADOConnection {
 				$this->_driver->debug = $this->debug;
 			}
 			if ($inputarr) {
+
 				/*
 				* inputarr must be numeric
 				*/

@@ -47,57 +47,14 @@ Older changelogs:
   [#635](https://github.com/ADOdb/ADOdb/issues/635)
 
 
-## [5.21.1] - 2021-08-15
-
-### Changed
-
-- Standardized source code file headers
-  [#728](https://github.com/ADOdb/ADOdb/issues/728)
-- Code cleanup: PHPDoc, code style, whitespace, etc.
-  [#691](https://github.com/ADOdb/ADOdb/issues/691) 
-  (and others)
+## [5.21.1] - Unreleased
 
 ### Fixed
 
-- Caching in FieldTypesArray() causes problems
-  [#687](https://github.com/ADOdb/ADOdb/issues/687)
-- setConnectionParameter() method should not be final
-  [#694](https://github.com/ADOdb/ADOdb/issues/694)
-- Final private methods throw warning (PHP 8)
-  [#711](https://github.com/ADOdb/ADOdb/issues/711)
-- Fix record count when executing SQL with subqueries
-  [#715](https://github.com/ADOdb/ADOdb/issues/715)
-- Incorrect handling of $ADODB_QUOTE_FIELDNAMES = true
-  [#721](https://github.com/ADOdb/ADOdb/issues/721)
-- db2: fix columns always returned in lowercase
-  [#719](https://github.com/ADOdb/ADOdb/issues/719)
-- PDO: Bind parameters fail if sent in associative array
-  [#705](https://github.com/ADOdb/ADOdb/issues/705)
-- mssql: _insertid() doesn't work anymore  
-  [#692](https://github.com/ADOdb/ADOdb/issues/692)
 - mssql: PHP warnings in dropColumnSQL()
   [#696](https://github.com/ADOdb/ADOdb/issues/696)
-- mssql: duplicate key in SQLDate convert formats
-  [#748](https://github.com/ADOdb/ADOdb/issues/748)
-- mysql: affected_rows() returns number instead of false
-  [#604](https://github.com/ADOdb/ADOdb/issues/604)
 - mysql: TypeError when calling get/setChangeSet on unset connection (PHP 8)
   [#686](https://github.com/ADOdb/ADOdb/issues/686)
-- mysql: TypeError when calling setConnectionParameter() with non-numeric value (PHP 8)
-  [#693](https://github.com/ADOdb/ADOdb/issues/693)
-- pdo: Affected_Rows() throws Notice and returns 0 when rows affected
-  [#733](https://github.com/ADOdb/ADOdb/issues/733)
-- pgsql: sub-selects require aliasing
-  [#736](https://github.com/ADOdb/ADOdb/issues/736)
-- xml: Invalid SQL in extractSchema()
-  [#707](https://github.com/ADOdb/ADOdb/issues/707)
-
-### Removed
-
-- Use of _ADODB_COUNT as workaround for counting in complex queries
-  (introduced in [#88](https://github.com/ADOdb/ADOdb/issues/88))
-  [#715](https://github.com/ADOdb/ADOdb/issues/715)
-
 
 
 ## [5.21.0] - 2021-02-27
@@ -1140,9 +1097,9 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.1...master
+[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.0...master
 
-[5.21.1]: https://github.com/adodb/adodb/compare/v5.21.0...v5.21.1
+[5.21.1]: https://github.com/adodb/adodb/compare/v5.21.0...hotfix/5.21
 [5.21.0]: https://github.com/adodb/adodb/compare/v5.21.0-rc.1...v5.21.0
 [5.21.0-rc.1]: https://github.com/adodb/adodb/compare/v5.21.0-beta.1...v5.21.0-rc.1
 [5.21.0-beta.1]: https://github.com/adodb/adodb/compare/v5.20.20...v5.21.0-beta.1
