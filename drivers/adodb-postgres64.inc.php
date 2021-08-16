@@ -951,10 +951,9 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $row;
 	}
 
-
-	function _initrs()
+	function _initRS()
 	{
-	global $ADODB_COUNTRECS;
+		global $ADODB_COUNTRECS;
 		$qid = $this->_queryID;
 		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($qid):-1;
 		$this->_numOfFields = @pg_num_fields($qid);
@@ -969,10 +968,11 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		}
 	}
 
-		/* Use associative array to get fields array */
-	function Fields($colname)
+	function fields($colname)
 	{
-		if ($this->fetchMode != PGSQL_NUM) return @$this->fields[$colname];
+		if ($this->fetchMode != PGSQL_NUM) {
+			return @$this->fields[$colname];
+		}
 
 		if (!$this->bind) {
 			$this->bind = array();
@@ -984,7 +984,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-	function FetchField($off = 0)
+	function fetchField($fieldOffset)
 	{
 		// offsets begin at 0
 

@@ -198,7 +198,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'v5.21.1-dev  Unreleased';
+		$ADODB_vers = 'v5.22.0-dev  Unreleased';
 
 		/**
 		 * Determines whether recordset->RecordCount() is used.
@@ -3829,7 +3829,8 @@ class ADORecordSet implements IteratorAggregate {
 	 */
 	var $_numOfRows = -1;	/** number of rows, or -1 */
 	var $_numOfFields = -1;	/** number of fields in recordset */
-	var $_queryID = -1;		/** This variable keeps the result link identifier.	*/
+	/** @var resource result link identifier */
+	var $_queryID = -1;
 	var $_currentRow = -1;	/** This variable keeps the current row in the Recordset.	*/
 	var $_closed = false;	/** has recordset been closed */
 	var $_inited = false;	/** Init() should only be called once */
@@ -3846,6 +3847,12 @@ class ADORecordSet implements IteratorAggregate {
 	public $customActualTypes;
 	public $customMetaTypes;
 
+
+	/**
+	 * @var ADOFieldObject[] Field metadata cache
+	 * @see fieldTypesArray()
+	 */
+	protected $fieldObjectsCache;
 
 	/**
 	 * Constructor
@@ -4679,15 +4686,16 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 	/**
-	 * Get Field metadata for of a specific column.
+	 * Get a Field's metadata from database.
 	 *
-	 * @param fieldoffset is the column position to access(0-based).
+	 * Must be defined by child class.
 	 *
-	 * @return ADOFieldObject|false for that column, or false.
+	 * @param int $fieldOffset
+	 *
+	 * @return ADOFieldObject|false
 	 */
-	function fetchField($fieldoffset = -1) {
-		// must be defined by child class
-
+	function fetchField($fieldOffset)
+	{
 		return false;
 	}
 
@@ -4697,13 +4705,12 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return ADOFieldObject[]
 	 */
 	function fieldTypesArray() {
-		static $arr = array();
-		if (empty($arr)) {
-			for ($i=0, $max=$this->_numOfFields; $i < $max; $i++) {
-				$arr[] = $this->FetchField($i);
+		if (empty($this->fieldObjectsCache)) {
+			for ($i = 0; $i < $this->_numOfFields; $i++) {
+				$this->fieldObjectsCache[] = $this->fetchField($i);
 			}
 		}
-		return $arr;
+		return $this->fieldObjectsCache;
 	}
 
 	/**
