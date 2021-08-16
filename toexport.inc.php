@@ -31,7 +31,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-/ returns a recordset as a csv string
+// returns a recordset as a csv string
 function rs2csv(&$rs,$addtitles=true)
 {
 	return _adodb_export($rs,',',',',false,$addtitles);
