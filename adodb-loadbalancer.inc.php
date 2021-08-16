@@ -15,7 +15,7 @@
  * Latest version is available at https://adodb.org/
  *
  * @package   ADOdb
- * @version   v5.22.0-dev  Unreleased
+ * @version   v5.21.1-dev  Unreleased
  * @author    Mike Benoit
  * @copyright (c) 2016 Mike Benoit and the ADOdb community
  * @license   BSD-3-Clause
