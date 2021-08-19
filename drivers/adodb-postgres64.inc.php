@@ -738,11 +738,11 @@ class ADODB_postgres64 extends ADOConnection{
 		# PHP does not handle 'hex' properly ('x74657374' is returned as 't657374')
 		# https://bugs.php.net/bug.php?id=59831 states this is in fact not a bug,
 		# so we manually set bytea_output
-		if (!empty($this->connection->noBlobs) && version_compare($info['version'], '9.0', '>=')) {
-			$version = pg_version($this->connectionID);
-			if (version_compare($info['client'], '9.2', '<')) {
-				$this->Execute('set bytea_output=escape');
-			}
+		if (!empty($this->connection->noBlobs)
+			&& version_compare($info['version'], '9.0', '>=')
+			&& version_compare($info['client'], '9.2', '<')
+		) {
+			$this->Execute('set bytea_output=escape');
 		}
 
 		return true;
@@ -984,14 +984,14 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-	function fetchField($fieldOffset)
+	function fetchField($fieldOffset = 0)
 	{
 		// offsets begin at 0
 
-		$o= new ADOFieldObject();
-		$o->name = @pg_field_name($this->_queryID,$off);
-		$o->type = @pg_field_type($this->_queryID,$off);
-		$o->max_length = @pg_field_size($this->_queryID,$off);
+		$o = new ADOFieldObject();
+		$o->name = @pg_field_name($this->_queryID, $fieldOffset);
+		$o->type = @pg_field_type($this->_queryID, $fieldOffset);
+		$o->max_length = @pg_field_size($this->_queryID, $fieldOffset);
 		return $o;
 	}
 
