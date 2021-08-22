@@ -118,7 +118,6 @@ class ADODB2_firebird extends ADODB_DataDict
 
 	function createDatabase($dbname, $options = false)
 	{
-		$options = $this->_Options($options);
 		$sql = array();
 
 		$sql[] = "DECLARE EXTERNAL FUNCTION LOWER CSTRING(80) RETURNS CSTRING(80) FREE_IT ENTRY_POINT 'IB_UDF_lower' MODULE_NAME 'ib_udf'";
@@ -251,7 +250,7 @@ class ADODB2_firebird extends ADODB_DataDict
 	{
 		$tabname = $this->TableName($tabname);
 		$sql = array();
-		list($lines, $pkey, $idxs) = $this->_GenFields($flds);
+		list($lines, , $idxs) = $this->_GenFields($flds);
 		// genfields can return FALSE at times
 
 		if ($lines == null) {
