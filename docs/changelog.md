@@ -47,6 +47,16 @@ Older changelogs:
   [#635](https://github.com/ADOdb/ADOdb/issues/635)
 
 
+## [5.21.2] - 2021-08-22
+
+### Fixed
+
+- Fix syntax error in toexport.inc.php
+  [#749](https://github.com/ADOdb/ADOdb/issues/749)
+- pgsql: fix fetchField() parameter naming
+  [#752](https://github.com/ADOdb/ADOdb/issues/752)
+
+
 ## [5.21.1] - 2021-08-15
 
 ### Changed
@@ -1142,6 +1152,7 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 
 [Unreleased]: https://github.com/adodb/adodb/compare/v5.21.1...master
 
+[5.21.2]: https://github.com/adodb/adodb/compare/v5.21.1...v5.21.2
 [5.21.1]: https://github.com/adodb/adodb/compare/v5.21.0...v5.21.1
 [5.21.0]: https://github.com/adodb/adodb/compare/v5.21.0-rc.1...v5.21.0
 [5.21.0-rc.1]: https://github.com/adodb/adodb/compare/v5.21.0-beta.1...v5.21.0-rc.1
