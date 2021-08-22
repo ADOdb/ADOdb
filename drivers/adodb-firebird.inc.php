@@ -35,13 +35,13 @@ class ADODB_firebird extends ADOConnection {
 	var $fmtTimeStamp = "'Y-m-d, H:i:s'";
 	var $concat_operator='||';
 	var $_transactionID;
-	
+
 	public $metaTablesSQL = "SELECT LOWER(rdb\$relation_name) FROM rdb\$relations";
 	//OPN STUFF start
-	
+
 	var $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
 	//OPN STUFF end
-	
+
 	public $_genSeqSQL = "CREATE SEQUENCE %s START WITH %s";
 
 	public $_dropSeqSQL = "DROP SEQUENCE %s";
@@ -62,39 +62,40 @@ class ADODB_firebird extends ADOConnection {
 	* firebird custom optionally specifies the connection buffers
 	*/
 	public $buffers = 0;
-	
+
 	/*
 	* firebird custom optionally specifies database dialect
 	*/
 	public $dialect = 3;
-	
+
 	var $nameQuote = '';		/// string to use to quote identifiers and names
 
 	function __construct()
 	{
-		$this->settransactionMode('');
+		parent::__construct();
+		$this->setTransactionMode('');
 	}
 
-    /**
-	* Sets the isolation level of a transaction.
-	*
-	* The default behavior is a more practical IBASE_WAIT | IBASE_REC_VERSION | IBASE_COMMITTED 	
-	* instead of IBASE_DEFAULT
-	*
-	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:settransactionmode
-	*
-	* @param string $transaction_mode The transaction mode to set.
-	*
-	* @return void
-	*/
+	/**
+	 * Sets the isolation level of a transaction.
+	 *
+	 * The default behavior is a more practical IBASE_WAIT | IBASE_REC_VERSION | IBASE_COMMITTED
+	 * instead of IBASE_DEFAULT
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:settransactionmode
+	 *
+	 * @param string $transaction_mode The transaction mode to set.
+	 *
+	 * @return void
+	 */
 	public function setTransactionMode($transaction_mode)
 	{
 		$this->_transmode = $transaction_mode;
-		
+
 		if (empty($transaction_mode)) {
 			$this->_transmode = IBASE_WAIT | IBASE_REC_VERSION | IBASE_COMMITTED;
 		}
-		
+
 	}
 
 	/**
@@ -110,17 +111,17 @@ class ADODB_firebird extends ADOConnection {
 	 *
 	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
 	 * isn't currently loaded.
-	 */	
+	 */
 	public function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$persist=false)
 	{
-		if (!function_exists('fbird_pconnect')) 
+		if (!function_exists('fbird_pconnect'))
 			return null;
-		
-		if ($argDatabasename) 
+
+		if ($argDatabasename)
 			$argHostname .= ':'.$argDatabasename;
-		
+
 		$fn = ($persist) ? 'fbird_pconnect':'fbird_connect';
-		
+
 		/*
 		* Now merge in the standard connection parameters setting
 		*/
@@ -140,7 +141,7 @@ class ADODB_firebird extends ADOConnection {
 				}
 			}
 		}
-		
+
 		if ($this->role)
 			$this->_connectionID = $fn($argHostname,$argUsername,$argPassword,
 					$this->charSet,$this->buffers,$this->dialect,$this->role);
@@ -152,14 +153,14 @@ class ADODB_firebird extends ADOConnection {
 			$this->replaceQuote = "";
 		}
 		if ($this->_connectionID === false) {
-			$this->_handleerror();
+			$this->_handleError();
 			return false;
 		}
 
 		ini_set("ibase.timestampformat", $this->fbird_timestampfmt);
 		ini_set("ibase.dateformat", $this->fbird_datefmt);
 		ini_set("ibase.timeformat", $this->fbird_timefmt);
-		
+
 		return true;
 	}
 
@@ -173,7 +174,7 @@ class ADODB_firebird extends ADOConnection {
 	 *
 	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
 	 * isn't currently loaded.
-	 */	
+	 */
 	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename,true);
@@ -199,19 +200,25 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 	/**
-	* Get information about the current Firebird server.
-	*
-	* @return array
-	*/
-	public function ServerInfo()
+	 * Get information about the current Firebird server.
+	 *
+	 * @return array
+	 */
+	public function serverInfo()
 	{
 		$arr['dialect'] = $this->dialect;
 		switch($arr['dialect']) {
-		case '':
-		case '1': $s = 'Firebird Dialect 1'; break;
-		case '2': $s = 'Firebird Dialect 2'; break;
-		default:
-		case '3': $s = 'Firebird Dialect 3'; break;
+			case '':
+			case '1':
+				$s = 'Firebird Dialect 1';
+				break;
+			case '2':
+				$s = 'Firebird Dialect 2';
+				break;
+			default:
+			case '3':
+				$s = 'Firebird Dialect 3';
+				break;
 		}
 		$arr['version'] = ADOConnection::_findvers($s);
 		$arr['description'] = $s;
@@ -219,30 +226,30 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 	/**
-	* Begin a Transaction. Must be followed by CommitTrans() or RollbackTrans().
-	*
-	* @return bool true if succeeded or false if database does not support transactions
-	*/
+	 * Begin a Transaction. Must be followed by CommitTrans() or RollbackTrans().
+	 *
+	 * @return bool true if succeeded or false if database does not support transactions
+	 */
 	public function beginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
 		$this->autoCommit = false;
 		/*
-		* We manage the transaction mode via fbird_trans 
+		* We manage the transaction mode via fbird_trans
 		*/
 		$this->_transactionID = fbird_trans( $this->_transmode, $this->_connectionID );
 		return $this->_transactionID;
 	}
 
-	
+
 	/**
-	* Commits a transaction
-	*
-	* @param bool $ok  set to false to rollback transaction, true to commit
-	*
-	* @return true/false.
-	*/
+	 * Commits a transaction
+	 *
+	 * @param bool $ok  set to false to rollback transaction, true to commit
+	 *
+	 * @return true/false.
+	 */
 	public function commitTrans($ok=true)
 	{
 		if (!$ok) {
@@ -266,26 +273,26 @@ class ADODB_firebird extends ADOConnection {
 
 	function _affectedrows()
 	{
-			return fbird_affected_rows( $this->_transactionID ? $this->_transactionID : $this->_connectionID );
+		return fbird_affected_rows( $this->_transactionID ? $this->_transactionID : $this->_connectionID );
 	}
 
 	/**
-	* Rollback a smart transaction.
-	*
-	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:rollbacktrans
-	*
-	* @return bool
-	*/
+	 * Rollback a smart transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:rollbacktrans
+	 *
+	 * @return bool
+	 */
 	public function rollbackTrans()
 	{
-		if ($this->transOff) 
+		if ($this->transOff)
 			return true;
-		if ($this->transCnt) 
+		if ($this->transCnt)
 			$this->transCnt -= 1;
-		
+
 		$ret = false;
 		$this->autoCommit = true;
-		
+
 		if ($this->_transactionID) {
 			$ret = fbird_rollback($this->_transactionID);
 		}
@@ -295,25 +302,25 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 	/**
-	* Get a list of indexes on the specified table.
-	*
-	* @param string $table The name of the table to get indexes for.
-	* @param bool $primary (Optional) Whether or not to include the primary key.
-	* @param bool $owner (Optional) Unused.
-	*
-	* @return array|bool An array of the indexes, or false if the query to get the indexes failed.
-	*/
+	 * Get a list of indexes on the specified table.
+	 *
+	 * @param string $table The name of the table to get indexes for.
+	 * @param bool $primary (Optional) Whether or not to include the primary key.
+	 * @param bool $owner (Optional) Unused.
+	 *
+	 * @return array|bool An array of the indexes, or false if the query to get the indexes failed.
+	 */
 	public function metaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		
+
 		if ($this->fetchMode !== FALSE) {
 				$savem = $this->SetFetchMode(FALSE);
 		}
-		
+
 		$table = strtoupper($table);
 		$sql = "SELECT * FROM RDB\$INDICES WHERE RDB\$RELATION_NAME = '".$table."'";
 		if (!$primary) {
@@ -333,7 +340,7 @@ class ADODB_firebird extends ADOConnection {
 		}
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
-			
+
 			$index = trim($row[0]);
 			if (!isset($indexes[$index])) {
 				if (is_null($row[3])) {
@@ -350,7 +357,7 @@ class ADODB_firebird extends ADOConnection {
 				$indexes[$index]['columns'][$row1[2]] = trim($row1[1]);
 			}
 		}
-		
+
 		// restore fetchmode
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
@@ -360,29 +367,26 @@ class ADODB_firebird extends ADOConnection {
 		return $indexes;
 	}
 
-
-	 // See http://community.borland.com/article/0,1410,25844,00.html
 	/**
 	 * Lock a table row for a duration of a transaction.
 	 *
 	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:rowlock
 	 * @link https://firebirdsql.org/refdocs/langrefupd21-notes-withlock.html
 	 *
-	 * @param string $tables The table(s) to lock rows for.
+	 * @param string $table The table(s) to lock rows for.
 	 * @param string $where (Optional) The WHERE clause to use to determine which rows to lock.
 	 * @param string $col (Optional) The columns to select.
 	 *
 	 * @return bool True if the locking SQL statement executed successfully, otherwise false.
 	 */
-	public function rowLock($tables,$where,$col=false)
+	public function rowLock($table,$where,$col=false)
 	{
-		if ($this->transCnt==0) 
+		if ($this->transCnt==0)
 			$this->beginTrans();
-		
+
 		if ($where) $where = ' where '.$where;
-		$rs = $this->execute("SELECT $col FROM $tables $where FOR UPDATE WITH LOCK");
-		return 
-			!empty($rs);
+		$rs = $this->execute("SELECT $col FROM $table $where FOR UPDATE WITH LOCK");
+		return !empty($rs);
 	}
 
 	/**
@@ -399,8 +403,8 @@ class ADODB_firebird extends ADOConnection {
 	{
 		$sql = sprintf($this->_genSeqSQL,$seqname,$startID);
 		return $this->execute($sql);
-	} 
-	
+	}
+
 	/**
 	 * A portable method of creating sequence numbers.
 	 *
@@ -433,13 +437,12 @@ class ADODB_firebird extends ADOConnection {
 		return $this->genID;
 	}
 
-	function SelectDB($dbName)
+	function selectDB($dbName)
 	{
 		return false;
 	}
 
-
-	function _handleerror()
+	function _handleError()
 	{
 		$this->_errorCode = fbird_errcode();
 		$this->_errorMsg  = fbird_errmsg();
@@ -451,7 +454,7 @@ class ADODB_firebird extends ADOConnection {
 		return (integer) $this->_errorCode;
 	}
 
-	function ErrorMsg()
+	function errorMsg()
 	{
 			return $this->_errorMsg;
 	}
@@ -471,19 +474,19 @@ class ADODB_firebird extends ADOConnection {
 	public function prepare($sql)
 	{
 		$stmt = fbird_prepare($this->_connectionID,$sql);
-		if (!$stmt) 
+		if (!$stmt)
 			return false;
 		return array($sql,$stmt);
 	}
 
-	/** 
+	/**
 	* Return the query id.
 	*
 	* @param string|array $sql
-	* @param array $inputarr
+	* @param array $iarr
 	*
 	* @return bool|object
-	*/	
+	*/
 	function _query($sql,$iarr=false)
 	{
 		if ( !$this->isConnected() ) return false;
@@ -498,7 +501,7 @@ class ADODB_firebird extends ADOConnection {
 			$fn = 'fbird_execute';
 			$sql = $sql[1];
 			if (is_array($iarr)) {
-				if ( !isset($iarr[0]) ) 
+				if ( !isset($iarr[0]) )
 					$iarr[0] = ''; // PHP5 compat hack
 				$fnarr = array_merge( array($sql) , $iarr);
 				$ret = call_user_func_array($fn,$fnarr);
@@ -508,9 +511,9 @@ class ADODB_firebird extends ADOConnection {
 			}
 		} else {
 			$fn = 'fbird_query';
-			if (is_array($iarr)) 
+			if (is_array($iarr))
 			{
-				if (sizeof($iarr) == 0) 
+				if (sizeof($iarr) == 0)
 					$iarr[0] = ''; // PHP5 compat hack
 				$fnarr = array_merge( array($conn,$sql) , $iarr);
 				$ret = call_user_func_array($fn,$fnarr);
@@ -523,7 +526,7 @@ class ADODB_firebird extends ADOConnection {
 			fbird_commit($this->_connectionID);
 		}
 
-		$this->_handleerror();
+		$this->_handleError();
 		return $ret;
 	}
 
@@ -635,17 +638,17 @@ class ADODB_firebird extends ADOConnection {
 	//OPN STUFF end
 
 	/**
-	* Return an array of information about a table's columns.
-	*
-	* @param string $table The name of the table to get the column info for.
-	* @param bool $normalize (Optional) Unused.
-	*
-	* @return ADOFieldObject[]|bool An array of info for each column, 
-	* or false if it could not determine the info.
-	*/
+	 * Return an array of information about a table's columns.
+	 *
+	 * @param string $table The name of the table to get the column info for.
+	 * @param bool $normalize (Optional) Unused.
+	 *
+	 * @return ADOFieldObject[]|bool An array of info for each column,
+	 * or false if it could not determine the info.
+	 */
 	public function metaColumns($table, $normalize = true)
 	{
-	
+
 		global $ADODB_FETCH_MODE;
 
 		$save = $ADODB_FETCH_MODE;
@@ -654,14 +657,14 @@ class ADODB_firebird extends ADOConnection {
 		$rs = $this->execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
 
 		$ADODB_FETCH_MODE = $save;
-		
+
 		if ($rs === false) {
 			return false;
 		}
 
 		$retarr = array();
 		//OPN STUFF start
-		$dialect3 = ($this->dialect==3 ? true : false);
+		$dialect3 = $this->dialect == 3;
 		//OPN STUFF end
 		while (!$rs->EOF) { //print_r($rs->fields);
 			$fld = new ADOFieldObject();
@@ -677,17 +680,24 @@ class ADODB_firebird extends ADOConnection {
 
 				$fld->has_default = true;
 				$d = substr($rs->fields[2],strlen('default '));
-				switch ($fld->type)
-				{
-				case 'smallint':
-				case 'integer': $fld->default_value = (int) $d; break;
-				case 'char':
-				case 'blob':
-				case 'text':
-				case 'varchar': $fld->default_value = (string) substr($d,1,strlen($d)-2); break;
-				case 'double':
-				case 'float': $fld->default_value = (float) $d; break;
-				default: $fld->default_value = $d; break;
+				switch ($fld->type) {
+					case 'smallint':
+					case 'integer':
+						$fld->default_value = (int)$d;
+						break;
+					case 'char':
+					case 'blob':
+					case 'text':
+					case 'varchar':
+						$fld->default_value = (string)substr($d, 1, strlen($d) - 2);
+						break;
+					case 'double':
+					case 'float':
+						$fld->default_value = (float)$d;
+						break;
+					default:
+						$fld->default_value = $d;
+						break;
 				}
 		//	case 35:$tt = 'TIMESTAMP'; break;
 			}
@@ -703,29 +713,28 @@ class ADODB_firebird extends ADOConnection {
 			$rs->MoveNext();
 		}
 		$rs->Close();
-		if ( empty($retarr)) 
+		if ( empty($retarr))
 			return false;
 		else return $retarr;
 	}
-	
+
 	/**
-	* Retrieves a list of tables based on given criteria
-	*
-	* @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
-	* @param string|bool $showSchema (Optional) schema name, false = current schema (default)
-	* @param string|bool $mask (Optional) filters the table by name
-	*
-	* @return array list of tables
-	*/
+	 * Retrieves a list of tables based on given criteria
+	 *
+	 * @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
+	 * @param string|bool $showSchema (Optional) schema name, false = current schema (default)
+	 * @param string|bool $mask (Optional) filters the table by name
+	 *
+	 * @return array list of tables
+	 */
 	public function metaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$save = $this->metaTablesSQL;
 		if (!$showSchema) {
 			$this->metaTablesSQL .= " WHERE (rdb\$relation_name NOT LIKE 'RDB\$%' AND rdb\$relation_name NOT LIKE 'MON\$%' AND rdb\$relation_name NOT LIKE 'SEC\$%')";
-		
-		} else if ($showSchema && is_string($showSchema)) {
+		} elseif (is_string($showSchema)) {
 			$this->metaTablesSQL .= $this->qstr($showSchema);
-		} 
+		}
 
 		if ($mask) {
 			$mask = $this->qstr($mask);
@@ -736,14 +745,14 @@ class ADODB_firebird extends ADOConnection {
 		$this->metaTablesSQL = $save;
 		return $ret;
 	}
-	
+
 	/**
-	* Encodes a blob, then assigns an id ready to be used
-	*
-	* @param string $blob The blob to be encoded
-	*
-	* @return bool success
-	*/
+	 * Encodes a blob, then assigns an id ready to be used
+	 *
+	 * @param string $blob The blob to be encoded
+	 *
+	 * @return bool success
+	 */
 	public function blobEncode( $blob )
 	{
 		$blobid = fbird_blob_create( $this->_connectionID);
@@ -752,31 +761,31 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 	/**
-	* Manually decode a blob 
-	*
-	* since we auto-decode all blob's since 2.42,
-	* BlobDecode should not do any transforms
-	*
-	* @param string $blob
-	*
-	* @return string the same blob
-	*/
+	 * Manually decode a blob
+	 *
+	 * since we auto-decode all blob's since 2.42,
+	 * BlobDecode should not do any transforms
+	 *
+	 * @param string $blob
+	 *
+	 * @return string the same blob
+	 */
 	public function blobDecode($blob)
 	{
 		return $blob;
 	}
 
-	
+
 	/**
-	* Auto function called on read of blob to decode
-	*
-	* @param string $blob Value to decode
-	*
-	* @return string Decoded blob
-	*/
+	 * Auto function called on read of blob to decode
+	 *
+	 * @param string $blob Value to decode
+	 *
+	 * @return string Decoded blob
+	 */
 	public function _blobDecode( $blob )
 	{
-		
+
 		$blob_data = fbird_blob_info($this->_connectionID, $blob );
 		$blobid    = fbird_blob_open($this->_connectionID, $blob );
 
@@ -795,23 +804,23 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 	/**
-	* Insert blob data into a database column directly
-	* from file
-	*
-	* @param string $table table to insert
-	* @param string $column column to insert
-	* @param string $path  physical file name
-	* @param string $where string to find unique record
-	* @param string $blobType BLOB or CLOB
-	*
-	* @return bool success
-	*/
+	 * Insert blob data into a database column directly
+	 * from file
+	 *
+	 * @param string $table table to insert
+	 * @param string $column column to insert
+	 * @param string $path  physical file name
+	 * @param string $where string to find unique record
+	 * @param string $blobtype BLOB or CLOB
+	 *
+	 * @return bool success
+	 */
 	public function updateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
 	{
 		$fd = fopen($path,'rb');
-		if ($fd === false) 
+		if ($fd === false)
 			return false;
-		
+
 		$blob_id = fbird_blob_create($this->_connectionID);
 
 		/* fill with data */
@@ -828,16 +837,16 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 	/**
-	* Insert blob data into a database column
-	*
-	* @param string $table table to insert
-	* @param string $column column to insert
-	* @param string $val    value to insert
-	* @param string $where string to find unique record
-	* @param string $blobType BLOB or CLOB
-	*
-	* @return bool success
-	*/
+	 * Insert blob data into a database column
+	 *
+	 * @param string $table table to insert
+	 * @param string $column column to insert
+	 * @param string $val    value to insert
+	 * @param string $where string to find unique record
+	 * @param string $blobtype BLOB or CLOB
+	 *
+	 * @return bool success
+	 */
 	public function updateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
 		$blob_id = fbird_blob_create($this->_connectionID);
@@ -873,22 +882,22 @@ class ADODB_firebird extends ADOConnection {
 
 
 	/**
-	* Returns a portably-formatted date string from a timestamp database column.
-	*
-	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:sqldate
-	*
-	* Firebird does not support an AM/PM format, so the A indicator always shows AM
-	*
-	* @param string $fmt The date format to use.
-	* @param string|bool $col (Optional) The table column to date format, or if false, use NOW().
-	*
-	* @return string The SQL DATE_FORMAT() string, or empty if the provided date format was empty.
-	*/
+	 * Returns a portably-formatted date string from a timestamp database column.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:sqldate
+	 *
+	 * Firebird does not support an AM/PM format, so the A indicator always shows AM
+	 *
+	 * @param string $fmt The date format to use.
+	 * @param string|bool $col (Optional) The table column to date format, or if false, use NOW().
+	 *
+	 * @return string The SQL DATE_FORMAT() string, or empty if the provided date format was empty.
+	 */
 	public function sqlDate($fmt, $col=false)
 	{
-		if (!$col) 
+		if (!$col)
 			$col = 'CURRENT_TIMESTAMP';
-		
+
 		$s = '';
 
 		$len = strlen($fmt);
@@ -938,7 +947,7 @@ class ADODB_firebird extends ADOConnection {
 		}
 		return $s;
 	}
-	
+
 	/**
 	 * Creates a portable date offset field, for use in SQL statements.
 	 *
@@ -951,32 +960,32 @@ class ADODB_firebird extends ADOConnection {
 	 */
 	public function offsetDate($dayFraction, $date=false)
 	{
-		if (!$date) 
+		if (!$date)
 			$date = $this->sysTimeStamp;
-		
+
 		$fraction = $dayFraction * 24 * 3600;
 		return sprintf("DATEADD (second, %s, %s)  FROM RDB\$DATABASE",$fraction,$date);
 	}
-	
+
 
 	// Note that Interbase 6.5 uses this ROWS instead - don't you love forking wars!
 	// 		SELECT col1, col2 FROM table ROWS 5 -- get 5 rows
 	//		SELECT col1, col2 FROM TABLE ORDER BY col1 ROWS 3 TO 7 -- first 5 skip 2
 	/**
-	* Executes a provided SQL statement and returns a handle to the result, with the ability to supply a starting
-	* offset and record count.
-	*
-	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:selectlimit
-	*
-	* @param string $sql The SQL to execute.
-	* @param int $nrows (Optional) The limit for the number of records you want returned. By default, all results.
-	* @param int $offset (Optional) The offset to use when selecting the results. By default, no offset.
-	* @param array|bool $inputarr (Optional) Any parameter values required by the SQL statement, or false if none.
-	* @param int $secs (Optional) If greater than 0, perform a cached execute. By default, normal execution.
-	*
-	* @return ADORecordSet|false The query results, or false if the query failed to execute.
-	*/
-	public function selectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $secs=0)
+	 * Executes a provided SQL statement and returns a handle to the result, with the ability to supply a starting
+	 * offset and record count.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:selectlimit
+	 *
+	 * @param string $sql The SQL to execute.
+	 * @param int $nrows (Optional) The limit for the number of records you want returned. By default, all results.
+	 * @param int $offset (Optional) The offset to use when selecting the results. By default, no offset.
+	 * @param array|bool $inputarr (Optional) Any parameter values required by the SQL statement, or false if none.
+	 * @param int $secs2cache (Optional) If greater than 0, perform a cached execute. By default, normal execution.
+	 *
+	 * @return ADORecordSet|false The query results, or false if the query failed to execute.
+	 */
+	public function selectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $secs2cache=0)
 	{
 		$nrows = (integer) $nrows;
 		$offset = (integer) $offset;
@@ -985,8 +994,8 @@ class ADODB_firebird extends ADOConnection {
 		$str .=($offset>=0) ? "SKIP $offset " : '';
 
 		$sql = preg_replace('/^[ \t]*select/i',$str,$sql);
-		if ($secs)
-			$rs = $this->cacheExecute($secs,$sql,$inputarr);
+		if ($secs2cache)
+			$rs = $this->cacheExecute($secs2cache,$sql,$inputarr);
 		else
 			$rs = $this->execute($sql,$inputarr);
 
@@ -995,94 +1004,79 @@ class ADODB_firebird extends ADOConnection {
 
 }
 
-/*--------------------------------------------------------------------------------------
-		 Class Name: Recordset
---------------------------------------------------------------------------------------*/
-
-class  ADORecordset_firebird extends ADORecordSet
+/**
+ * Class ADORecordset_firebird
+ */
+class ADORecordset_firebird extends ADORecordSet
 {
-
 	var $databaseType = "firebird";
-	var $bind=false;
+	var $bind = false;
 
-	/*
-	 * Holds a cached version of the metadata
+	/**
+	 * @var ADOFieldObject[] Holds a cached version of the metadata
 	 */
 	private $fieldObjects = false;
 
-	/*
-	 * Flags if we have retrieved the metadata
+	/**
+	 * @var bool Flags if we have retrieved the metadata
 	 */
 	private $fieldObjectsRetrieved = false;
 
-	/*
-	* Cross-reference the objects by name for easy access
-	*/
+	/**
+	 * @var array Cross-reference the objects by name for easy access
+	 */
 	private $fieldObjectsIndex = array();
 
-	/*
-	* Flag to indicate if the result has a blob 
-	*/
-	private $fieldObjectsHaveBlob = false;
-	
-
-	function __construct($id,$mode=false)
-	{
-	global $ADODB_FETCH_MODE;
-
-			$this->fetchMode = ($mode === false) ? $ADODB_FETCH_MODE : $mode;
-			parent::__construct($id);
-	}
-	
-	
 	/**
-	* Returns: an object containing field information.
-	*
-	* Get column information in the Recordset object. fetchField()
-	
-	* can be used in order to obtain information about fields in a
-	* certain query result. If the field offset isn't specified,
-	* the next field that wasn't yet retrieved by fetchField()
-	* is retrieved.
-	*
-	* $param int $fieldOffset (optional default=-1 for all
-	* @return mixed an ADOFieldObject, or array of objects
-	*/
+	 * @var bool Flag to indicate if the result has a blob
+	 */
+	private $fieldObjectsHaveBlob = false;
+
+	function __construct($id, $mode = false)
+	{
+		global $ADODB_FETCH_MODE;
+
+		$this->fetchMode = ($mode === false) ? $ADODB_FETCH_MODE : $mode;
+		parent::__construct($id);
+	}
+
+
+	/**
+	 * Returns: an object containing field information.
+	 *
+	 * Get column information in the Recordset object. fetchField()
+	 * can be used in order to obtain information about fields in a
+	 * certain query result. If the field offset isn't specified,
+	 * the next field that wasn't yet retrieved by fetchField()
+	 * is retrieved.
+	 *
+	 * $param int $fieldOffset (optional default=-1 for all
+	 * @return mixed an ADOFieldObject, or array of objects
+	 */
 	private function _fetchField($fieldOffset = -1)
 	{
-		if ($this->fieldObjectsRetrieved){
+		if ($this->fieldObjectsRetrieved) {
 			if ($this->fieldObjects) {
-				/*
-				 * Already got the information
-				 */
-				if ($fieldOffset == -1)
+				// Already got the information
+				if ($fieldOffset == -1) {
 					return $this->fieldObjects;
-				else
+				} else {
 					return $this->fieldObjects[$fieldOffset];
-			}
-			else
-				/*
-			     * No metadata available
-				 */
+				}
+			} else {
+				// No metadata available
 				return false;
+			}
 		}
 
-
 		$this->fieldObjectsRetrieved = true;
-		$this->fieldObjectsHaveBlob  = false;
-		/*
-		* 
-		*/
-			
+		$this->fieldObjectsHaveBlob = false;
+
 		$this->_numOfFields = fbird_num_fields($this->_queryID);
-		for ($fieldOffset=0; $fieldOffset < $this->_numOfFields; $fieldOffset++) 
-		{
+		for ($fieldOffset = 0; $fieldOffset < $this->_numOfFields; $fieldOffset++) {
 
 			$fld = new ADOFieldObject;
-			/*
-			 * 
-			 */
-			$ibf = fbird_field_info($this->_queryID,$fieldOffset);
+			$ibf = fbird_field_info($this->_queryID, $fieldOffset);
 
 			$name = empty($ibf['alias']) ? $ibf['name'] : $ibf['alias'];
 
@@ -1099,52 +1093,52 @@ class  ADORecordset_firebird extends ADORecordSet
 					break;
 			}
 
-			$fld->type 		 = $ibf['type'];
+			$fld->type = $ibf['type'];
 			$fld->max_length = $ibf['length'];
 
-			/*       
-			* This needs to be populated from the metadata 
-			*/
-			$fld->not_null 		= false;
-			$fld->has_default 	= false;
+			// This needs to be populated from the metadata
+			$fld->not_null = false;
+			$fld->has_default = false;
 			$fld->default_value = 'null';
-			
+
 			$this->fieldObjects[$fieldOffset] = $fld;
 
 			$this->fieldObjectsIndex[$fld->name] = $fieldOffset;
-			
-			if ($fld->type == 'BLOB')
+
+			if ($fld->type == 'BLOB') {
 				$this->fieldObjectsHaveBlob = true;
+			}
 		}
-		
-		if ($fieldOffset == -1)
+
+		if ($fieldOffset == -1) {
 			return $this->fieldObjects;
+		}
 
 		return $this->fieldObjects[$fieldOffset];
 	}
-	
-	/*
+
+	/**
 	 * Fetchfield copies the oracle method, it loads the field information
 	 * into the _fieldobjs array once, to save multiple calls to the
 	 * fbird_ function
 	 *
-	 * @param int $fieldOffset	(optional)
+	 * @param int $fieldOffset (optional)
 	 *
-	 * @return adoFieldObject
+	 * @return adoFieldObject|false
 	 */
 	public function fetchField($fieldOffset = -1)
 	{
-			
-		if ($fieldOffset == -1)
+		if ($fieldOffset == -1) {
 			return $this->fieldObjects;
-		
+		}
+
 		return $this->fieldObjects[$fieldOffset];
 	}
 
 	function _initrs()
 	{
 		$this->_numOfRows = -1;
-		
+
 		/*
 		* Retrieve all of the column information first. We copy
 		* this method from oracle
@@ -1157,36 +1151,31 @@ class  ADORecordset_firebird extends ADORecordSet
 	{
 		return false;
 	}
-	
+
 	public function _fetch()
 	{
-	
-		$localNumeric = true;;
+		$localNumeric = true;
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-			/*
-			* Handle either associative or fetch both
-			*/
+			// Handle either associative or fetch both
 			$localNumeric = false;
-			
+
 			$f = @fbird_fetch_assoc($this->_queryID);
-			if (is_array($f))
-			{
-				/*
-				* Optimally do the case_upper or case_lower
-				*/
-				if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER)
-					$f = array_change_key_case($f,CASE_LOWER);
-				else if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER)
-					$f = array_change_key_case($f,CASE_UPPER);
+			if (is_array($f)) {
+				// Optimally do the case_upper or case_lower
+				if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
+					$f = array_change_key_case($f, CASE_LOWER);
+				} else {
+					if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
+						$f = array_change_key_case($f, CASE_UPPER);
+					}
+				}
 
 			}
-		}
-		else
-			/*
-			* Numeric result
-			*/
+		} else {
+			// Numeric result
 			$f = @fbird_fetch_row($this->_queryID);
-		
+		}
+
 		if ($f === false) {
 			$this->fields = false;
 			return false;
@@ -1196,145 +1185,142 @@ class  ADORecordset_firebird extends ADORecordSet
 
 		global $ADODB_ANSI_PADDING_OFF;
 		$rtrim = !empty($ADODB_ANSI_PADDING_OFF);
-		
+
 		/*
 		* Fix missing nulls, not sure why they would be missing
-		* 
+		*
 		*
 		$nullTemplate = array_fill(0,$this->_numOfFields,null);
 		*/
 		/*
-		* Retrieved record is alway numeric, use array_replace
+		* Retrieved record is always numeric, use array_replace
 		* to inject missing keys
 		*/
 		//$f = array_replace($nullTemplate,$f);
-		
+
 		/*
 		* For optimal performance, only process if there
 		* is a possiblity of something to do
 		*/
-		if ($this->fieldObjectsHaveBlob || $rtrim)
-		{
+		if ($this->fieldObjectsHaveBlob || $rtrim) {
 			/*
 			* Create a closure for an efficient method of
 			* iterating over the elements
 			*/
-			$localFieldObjects 		= $this->fieldObjects;
-			$localFieldObjectIndex 	= $this->fieldObjectsIndex;
-			$localConnection   		= &$this->connection;
-			
-			$rowTransform = function ($value, $key) use (&$f,$rtrim, $localFieldObjects,$localConnection, $localNumeric, $localFieldObjectIndex) 
-			{
-				if ($localNumeric)
+			$localFieldObjects = $this->fieldObjects;
+			$localFieldObjectIndex = $this->fieldObjectsIndex;
+			$localConnection = &$this->connection;
+
+			$rowTransform = function ($value, $key) use (
+				&$f,
+				$rtrim,
+				$localFieldObjects,
+				$localConnection,
+				$localNumeric,
+				$localFieldObjectIndex
+			) {
+				if ($localNumeric) {
 					$localKey = $key;
-				else
-					/*
-					* Cross reference the associative key back to numeric
-					*/
+				} else {
+					// Cross reference the associative key back to numeric
 					$localKey = $localFieldObjectIndex[strtolower($key)];
-				
-				/*
-				* As we iterate the elements check for blobs and padding
-				*/
-				if ($localFieldObjects[$localKey]->type == 'BLOB')
+				}
+
+				// As we iterate the elements check for blobs and padding
+				if ($localFieldObjects[$localKey]->type == 'BLOB') {
 					$f[$key] = $localConnection->_BlobDecode($value);
-				
-				else if ($rtrim && is_string($value))
+				} else {
+					if ($rtrim && is_string($value)) {
 						$f[$key] = rtrim($value);
-				
+					}
+				}
+
 			};
-			/*
-			* Walk the array, applying the above closure
-			*/
-			array_walk($f,$rowTransform);
+			// Walk the array, applying the above closure
+			array_walk($f, $rowTransform);
 		}
-		
-		if (!$localNumeric && $this->fetchMode & ADODB_FETCH_NUM)
-		{
-			/*
-			* Creates a fetch both
-			*/
+
+		if (!$localNumeric && $this->fetchMode & ADODB_FETCH_NUM) {
+			// Creates a fetch both
 			$fNum = array_values($f);
-			$f = array_merge($f,$fNum);
+			$f = array_merge($f, $fNum);
 		}
-		
+
 		$this->fields = $f;
-		
+
 		return true;
 	}
 
 	/**
-	* Get the value of a field in the current row by column name.
-	* Will not work if ADODB_FETCH_MODE is set to ADODB_FETCH_NUM.
-	*
-	* @param string $colname is the field to access
-	*
-	* @return mixed the value of $colname column
-	*/
+	 * Get the value of a field in the current row by column name.
+	 * Will not work if ADODB_FETCH_MODE is set to ADODB_FETCH_NUM.
+	 *
+	 * @param string $colname is the field to access
+	 *
+	 * @return mixed the value of $colname column
+	 */
 	public function fields($colname)
 	{
-		if ($this->fetchMode & ADODB_FETCH_ASSOC) 
+		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 			return $this->fields[$colname];
-		
-		if (!$this->bind) 
-		{
-			/*
-			* fieldsObjectIndex populated by the recordset load
-			*/
-			$this->bind = array_change_key_case($this->fieldObjectsIndex,CASE_UPPER);
-			
+		}
+
+		if (!$this->bind) {
+			// fieldsObjectIndex populated by the recordset load
+			$this->bind = array_change_key_case($this->fieldObjectsIndex, CASE_UPPER);
 		}
 
 		return $this->fields[$this->bind[strtoupper($colname)]];
-
 	}
 
 
 	function _close()
 	{
-			return @fbird_free_result($this->_queryID);
+		return @fbird_free_result($this->_queryID);
 	}
 
-	public function metaType($t,$len=-1,$fieldobj=false)
+	public function metaType($t, $len = -1, $fieldobj = false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		$t = strtoupper($t);
-		
-		if (array_key_exists($t,$this->connection->customActualTypes))
-			return  $this->connection->customActualTypes[$t];
+
+		if (array_key_exists($t, $this->connection->customActualTypes)) {
+			return $this->connection->customActualTypes[$t];
+		}
 
 		switch ($t) {
+			case 'CHAR':
+				return 'C';
 
-		case 'CHAR':
-			return 'C';
+			case 'TEXT':
+			case 'VARCHAR':
+			case 'VARYING':
+				if ($len <= $this->blobSize) {
+					return 'C';
+				}
+				return 'X';
+			case 'BLOB':
+				return 'B';
 
-		case 'TEXT':
-		case 'VARCHAR':
-		case 'VARYING':
-		if ($len <= $this->blobSize) return 'C';
-			return 'X';
-		case 'BLOB':
-			return 'B';
+			case 'TIMESTAMP':
+			case 'DATE':
+				return 'D';
+			case 'TIME':
+				return 'T';
+			//case 'T': return 'T';
 
-		case 'TIMESTAMP':
-		case 'DATE': 
-			return 'D';
-		case 'TIME': 
-			return 'T';
-				//case 'T': return 'T';
-
-				//case 'L': return 'L';
-		case 'INT':
-		case 'SHORT':
-		case 'INTEGER': 
-			return 'I';
-		default: 
-			return ADODB_DEFAULT_METATYPE;
+			//case 'L': return 'L';
+			case 'INT':
+			case 'SHORT':
+			case 'INTEGER':
+				return 'I';
+			default:
+				return ADODB_DEFAULT_METATYPE;
 		}
 	}
 
