@@ -112,7 +112,7 @@ class ADODB_mysqli extends ADOConnection {
 	/**
 	 * Adds a parameter to the connection string.
 	 *
-	 * Parameter must be one of the the constants listed in mysqli_options().
+	 * Parameter must be one of the constants listed in mysqli_options().
 	 * @see https://www.php.net/manual/en/mysqli.options.php
 	 *
 	 * @param int $parameter The parameter to set
@@ -1082,7 +1082,7 @@ class ADODB_mysqli extends ADOConnection {
 	 * @return ADORecordSet|bool
 	 */
 	public function execute($sql, $inputarr = false) {
-		
+
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
 			$ret = $fn($this,$sql,$inputarr);
@@ -1090,61 +1090,48 @@ class ADODB_mysqli extends ADOConnection {
 				return $ret;
 			}
 		}
-		
+
 		if ($inputarr === false) {
 			return $this->_execute($sql,false);
 		}
-		
+
 		if (!is_array($inputarr)) {
 			$inputarr = array($inputarr);
 		}
 
 		if (!is_array($sql)) {
-			
-			
-
 			$typeString = '';
 			$typeArray  = array(''); //placeholder for type list
 
-			foreach ($inputarr as $v) 
-			{
+			foreach ($inputarr as $v) {
 				$typeArray[] = $v;
-				if (is_integer($v) || is_bool($v))
+				if (is_integer($v) || is_bool($v)) {
 					$typeString .= 'i';
-				
-				else if (is_float($v))
+				} elseif (is_float($v)) {
 					$typeString .= 'd';
-					
-				else if(is_object($v))
-					/*
-					* Assume a blob
-					*/
+				} elseif (is_object($v)) {
+					// Assume a blob
 					$typeString .= 'b';
-			
-				else
+				} else {
 					$typeString .= 's';
-				
-			} 
-				
-			/*
-			* Place the field type list at the front of the
-			* parameter array. This is the mysql specific
-			* format
-			*/
+				}
+			}
+
+			// Place the field type list at the front of the parameter array.
+			// This is the mysql specific format
 			$typeArray[0] = $typeString;
-		
+
 			$ret = $this->_execute($sql,$typeArray);
 			if (!$ret) {
 				return $ret;
 			}
-			
 		} else {
 			$ret = $this->_execute($sql,$inputarr);
 		}
 		return $ret;
 	}
-	 
-	/** 
+
+	/**
 	* Return the query id.
 	*
 	* @param string|array $sql
@@ -1198,7 +1185,7 @@ class ADODB_mysqli extends ADOConnection {
 			$this->usingBoundVariables = true;
 
 			/*
-			* Prepare the statement with the placeholders, 
+			* Prepare the statement with the placeholders,
 			* prepare will fail if the statement is invalid
 			* so we trap and error if necessary. Note that we
 			* are calling MySQL prepare here, not ADOdb
@@ -1212,14 +1199,14 @@ class ADODB_mysqli extends ADOConnection {
 				);
 				return false;
 			}
-			/* 
+			/*
 			* Make sure the number of parameters provided in the input
 			* array matches what the query expects. We must discount
-			* the first parameter which contains the data types in 
+			* the first parameter which contains the data types in
 			* our inbound parameters
 			*/
 			$nparams = $stmt->param_count;
-			
+
 			if ($nparams  != count($inputarr) - 1) {
 				$this->outp_throw(
 					"Input array has " . count($inputarr) .
@@ -1228,30 +1215,31 @@ class ADODB_mysqli extends ADOConnection {
 				);
 				return false;
 			}
-			
+
 			/*
 			* Must pass references into call_user_func_array
 			*/
 			$paramsByReference = array();
-            foreach($inputarr as $key => $value)
-                $paramsByReference[$key] = &$inputarr[$key];
-						
+			foreach($inputarr as $key => $value) {
+				$paramsByReference[$key] = &$inputarr[$key];
+			}
+
 			/*
 			* Bind the params
 			*/
 			call_user_func_array(array($stmt, 'bind_param'), $paramsByReference);
-			
+
 			/*
 			* Execute
 			*/
 			$ret = mysqli_stmt_execute($stmt);
-			
+
 			/*
 			* Did we throw an error?
 			*/
 			if ($ret == false)
 				return false;
-				
+
 			/*
 			* Is the statement a non-select
 			*/
@@ -1268,8 +1256,8 @@ class ADODB_mysqli extends ADOConnection {
 			* Return the object for the select
 			*/
 			return $result;
-			
-		}										  
+
+		}
 		else
 		{
 			/*
@@ -1288,7 +1276,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		return $mysql_res;
 		*/
-		
+
 		if ($this->multiQuery) {
 			$rs = mysqli_multi_query($this->_connectionID, $sql.';');
 			if ($rs) {
@@ -1789,7 +1777,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			case 'DEC':
 			case 'FIXED':
 			default:
-				
+
 
 				//if (!is_numeric($t)) echo "<p>--- Error in type matching $t -----</p>";
 				return 'N';
@@ -1820,9 +1808,9 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		$t = strtoupper($t);
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 

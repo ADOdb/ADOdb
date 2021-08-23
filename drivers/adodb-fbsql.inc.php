@@ -232,11 +232,11 @@ class ADORecordSet_fbsql extends ADORecordSet{
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		$t = strtoupper($t);
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
-			return  $this->connection->customActualTypes[$t];
+			return $this->connection->customActualTypes[$t];
 
 		$len = -1; // fbsql max_length is not accurate
 
