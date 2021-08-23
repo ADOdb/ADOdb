@@ -131,7 +131,6 @@ class ADODB_mysqli extends ADOConnection {
 	 * @param int $parameter The parameter to set
 	 * @param string $value The value of the parameter
 	 *
-	 * @example, for mssqlnative driver ('CharacterSet','UTF-8')
 	 * @return bool
 	 */
 	public function setConnectionParameter($parameter, $value) {
