@@ -11,3 +11,6 @@
 # Composer
 /vendor/
 /composer.lock
+
+# phpDocumentor
+phpdoc.xml
