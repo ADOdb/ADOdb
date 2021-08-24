@@ -241,11 +241,6 @@ class ADORecordSet_fbsql extends ADORecordSet{
 		$len = -1; // fbsql max_length is not accurate
 
 		switch ($t) {
-
-		
-		
-		
-		switch (strtoupper($t)) {
 		case 'CHARACTER':
 		case 'CHARACTER VARYING':
 		case 'BLOB':
