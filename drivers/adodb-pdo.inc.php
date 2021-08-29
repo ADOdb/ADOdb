@@ -230,7 +230,8 @@ class ADODB_pdo extends ADOConnection {
 
 	function Concat()
 	{
-		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
+		$args = func_get_args();
+		$res = $this->_callChildMethodIfExists(__FUNCTION__, $args);
 		if ($res !== false) {
 			return $res;
 		}
