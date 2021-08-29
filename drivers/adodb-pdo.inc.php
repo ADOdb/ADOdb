@@ -228,6 +228,17 @@ class ADODB_pdo extends ADOConnection {
 		return false;
 	}
 
+	protected function _callChildMethodIfExists($func, $args)
+	{
+		$refl = new \ReflectionMethod($this->_driver, $func);
+		if ($refl->getDeclaringClass()->getName() == get_class($this->_driver)) {
+			return call_user_func_array(array($this->_driver, $func), $args);
+		}
+		// Return something else by default? what is expected? False is returned by ADOConnection abstract
+		return false;
+	}
+
+
 	function Concat()
 	{
 		$args = func_get_args();
@@ -293,17 +304,6 @@ class ADODB_pdo extends ADOConnection {
 	{
 		return $this->_driver->MetaColumns($table,$normalize);
 	}
-
-	function _callChildMethodIfExists($func, $args)
-	{
-		$refl = new \ReflectionMethod($this->_driver, $func);
-		if ($refl->getDeclaringClass()->getName() == get_class($this->_driver)) {
-			return call_user_func_array(array($this->_driver, $func), $args);
-		}
-		// Return something else by default? what is expected? False is returned by ADOConnection abstract
-		return false;
-	}
-
 
 	public function metaIndexes($table,$normalize=true)
 	{
