@@ -773,6 +773,14 @@ if (!defined('_ADODB_LAYER')) {
 			$fn($msg,$newline);
 			return;
 		} else if (isset($ADODB_OUTP)) {
+			{
+				$myArgs = func_get_args();
+				if (!isset($myArgs[2]))
+					$myArgs[2] = 100; //LOG_DEBUG
+				$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
+				call_user_func($outpObject,$msg,$newline,$myArgs[2]);
+				return;
+			}
 			call_user_func($ADODB_OUTP,$msg,$newline);
 			return;
 		}
@@ -2005,7 +2013,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param array|bool  $inputarr    input bind array
 	 * @param bool        $force_array
 	 * @param bool        $first2cols
-
+ 	 * @param obj|null    $obj   	  Holds the custom cache parameter class	
 	 *
 	 * @return false|array
 	 */
@@ -2065,8 +2073,18 @@ if (!defined('_ADODB_LAYER')) {
 		return false;
 	}
 
-
-	function CacheGetOne($secs2cache,$sql=false,$inputarr=false,$obj) {
+	/**
+	 * Return first element of first row of sql statement from a cached result. 
+	 * Recordset is disposed for you.
+	 *
+	 * @param int			$secs2cache		
+	 * @param string		$sql		SQL statement
+	 * @param array|bool	$inputarr	input bind array
+	 * @param obj|null      $obj        Additional parametes as object
+	 *
+	 * @return mixed
+	 */
+	function CacheGetOne($secs2cache,$sql=false,$inputarr=false,$obj=null) {
 		global $ADODB_GETONE_EOF;
 
 		$ret = false;
@@ -2117,6 +2135,17 @@ if (!defined('_ADODB_LAYER')) {
 		return $rv;
 	}
 
+	/**
+	* Returns the first column of a cached recordset
+	*
+	* @param int 			$secs
+	* @param string|false 	$sql
+	* @param mixed[]|bool 	$inputarr
+	* @return mixed[]|bool	$trim
+	* @param obj|null      	$obj        Additional parametes as object
+	*
+	* @return mixed
+	*/
 	function CacheGetCol($secs, $sql = false, $inputarr = false,$trim=false,$obj) {
 		$rs = $this->CacheExecute($secs, $sql, $inputarr,$obj);
 		if ($rs) {
@@ -2180,10 +2209,32 @@ if (!defined('_ADODB_LAYER')) {
 		return $arr;
 	}
 
-	function CacheGetAll($secs2cache,$sql=false,$inputarr=false,$obj=null) {
+	/**
+	* Returns all rows of a cached recordset
+	* Alias of cacheGetArray
+	*
+	* @param int $secs2cache
+	* @param string|false $sql
+	* @param mixed[]|bool $inputarr
+	* @param obj|null      $obj        Additional parametes as object
+	*
+	* @return mixed
+	*/
+	function cacheGetAll($secs2cache,$sql=false,$inputarr=false,$obj=null) {
 		return $this->CacheGetArray($secs2cache,$sql,$inputarr,$obj);
 	}
 
+	/**
+	* Returns all rows of a cached recordset
+	* Alias of cacheGetAll
+	*
+	* @param int $secs2cache
+	* @param string|false $sql
+	* @param mixed[]|bool $inputarr
+	* @param obj|null      $obj        Additional parametes as object
+	*
+	* @return mixed
+	*/
 	function CacheGetArray($secs2cache,$sql=false,$inputarr=false,$obj=null) {
 		global $ADODB_COUNTRECS;
 
@@ -2241,11 +2292,16 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * @param int $secs2cache
-	 * @param string|false $sql
-	 * @param mixed[]|bool $inputarr
-	 * @return mixed[]|bool
-	 */
+	* Returns the first row of a cached recordset
+	*
+	* @param int $secs2cache
+	* @param string|false $sql
+	* @param mixed[]|bool $inputarr
+	* @return mixed[]|bool
+	* @param obj|null      $obj        Additional parametes as object
+	*
+	* @return mixed
+	*/
 	function CacheGetRow($secs2cache,$sql=false,$inputarr=false,$obj=null) {
 		$rs = $this->CacheExecute($secs2cache,$sql,$inputarr,$obj);
 		if ($rs) {
@@ -2307,10 +2363,21 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param int    $offset     Row to start calculations from (1-based)
 	 * @param int    $nrows      Number of rows to get
 	 * @param array $inputarr    Array of bind variables
+	 * @param obj|null      $obj        Additional parametes as object
 	 *
 	 * @return ADORecordSet The recordset ($rs->databaseType == 'array')
 	 */
 	function CacheSelectLimit($secs2cache,$sql,$nrows=-1,$offset=-1,$inputarr=false,$obj=null) {
+		
+		if (is_object($inputarr) && $obj == null)
+		{
+			/*
+			* No secs2cache passed, tweak the input parameters
+			*/
+			$obj = $inputarr;
+			$inputarr = false;
+		}
+		
 		if (!is_numeric($secs2cache)) {
 			if ($sql === false) {
 				$sql = -1;
@@ -2396,7 +2463,6 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param string|bool $sql        SQL statement to execute
 	 * @param array|bool  $inputarr   Holds the input data to bind
 	 * @param obj|null    $obj   	  Holds the custom cache parameter class	
-	 * @param obj|null 
 	 *
 	 * @return ADORecordSet RecordSet or false
 	 */
@@ -2405,6 +2471,12 @@ if (!defined('_ADODB_LAYER')) {
 
 		if (empty($ADODB_CACHE)) {
 			$this->_CreateCache();
+		}
+		
+		if (is_object($inputarr) && $obj == null)
+		{
+			$obj = $inputarr;
+			$inputarr=false;
 		}
 
 		if (!is_numeric($secs2cache)) {
@@ -2419,6 +2491,12 @@ if (!defined('_ADODB_LAYER')) {
 		} else
 			$sqlparam = $sql;
 
+		/*
+		* If we used an object for the server information,
+		* that takes precedence
+		*/
+		if (is_object($obj) && isset($obj->ttl))
+			$secs2cache = $obj->ttl;
 
 		$md5file = $this->_gencachename($sql.serialize($inputarr),true);
 		$err = '';
@@ -2446,7 +2524,10 @@ if (!defined('_ADODB_LAYER')) {
 				$eof = $rs->EOF;
 				$rs = $this->_rs2rs($rs); // read entire recordset into memory immediately
 				$rs->timeCreated = time(); // used by caching
-				$txt = _rs2serialize($rs,false,$sql); // serialize
+				if (is_object($ADODB_CACHE) && method_exists($ADODB_CACHE,'_rs2serialize'))
+					$txt = $ADODB_CACHE->_rs2serialize($rs,false,$sql); // serialize
+				else
+					$txt = _rs2serialize($rs,false,$sql); // serialize
 
 				$ok = $ADODB_CACHE->writecache($md5file,$txt,$this->debug, $secs2cache,$obj);
 				if (!$ok) {
@@ -3453,7 +3534,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *
 	 * @return mixed		the recordset ($rs->databaseType == 'array')
 	 */
-	function PageExecute($sql, $nrows, $page, $inputarr=false, $secs2cache=0) {
+	function PageExecute($sql, $nrows, $page, $inputarr=false, $secs2cache=0,$obj=null) {
 		global $ADODB_INCLUDED_LIB;
 		if (empty($ADODB_INCLUDED_LIB)) {
 			include_once(ADODB_DIR.'/adodb-lib.inc.php');
@@ -3479,14 +3560,14 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	* @param mixed[]|bool $inputarr	array of bind variables
 	* @return mixed	the recordset ($rs->databaseType == 'array')
 	*/
-	function CachePageExecute($secs2cache, $sql, $nrows, $page,$inputarr=false) {
+	function CachePageExecute($secs2cache, $sql, $nrows, $page,$inputarr=false,$obj=null) {
 		/*switch($this->dataProvider) {
 		case 'postgres':
 		case 'mysql':
 			break;
 		default: $secs2cache = 0; break;
 		}*/
-		return $this->PageExecute($sql,$nrows,$page,$inputarr,$secs2cache);
+		return $this->PageExecute($sql,$nrows,$page,$inputarr,$secs2cache,$obj);
 	}
 
 	/**
@@ -5702,18 +5783,37 @@ class ADORecordSet implements IteratorAggregate {
 		}
 	}
 
-	/*
-		Perform a stack-crawl and pretty print it.
-
-		@param printOrArr  Pass in a boolean to indicate print, or an $exception->trace array (assumes that print is true then).
-		@param levels Number of levels to display
+	/** 
+	*	Perform a stack-crawl and pretty print it.
+	*
+	*	@param mixed $printOrArr  	Pass in a boolean to indicate print, 
+	*								or an $exception->trace array
+	*	@param int	 $levels 		Number of levels to display
+	*   @param mixed $ishtml 
 	*/
-	function adodb_backtrace($printOrArr=true,$levels=9999,$ishtml=null) {
+	function adodb_backtrace($printOrArr=true,$levels=9999,$ishtml=null)
+	{
+		
+		global $ADODB_OUTP;
+		/*
+		* This is how we link in the ADOdb\addins\logger logging class
+		*/
+		if( is_object($ADODB_OUTP) && isset($ADODB_OUTP->backtraceMethod))
+		{
+			$btObject = array($ADODB_OUTP,$ADODB_OUTP->backtraceMethod);
+			/*
+			* Ishtml is ignored by the logger class.
+			*/
+			call_user_func($btObject,$printOrArr,$levels,$ishtml);
+			return;
+		}
+		
 		global $ADODB_INCLUDED_LIB;
 		if (empty($ADODB_INCLUDED_LIB)) {
 			include_once(ADODB_DIR.'/adodb-lib.inc.php');
 		}
 		return _adodb_backtrace($printOrArr,$levels,0,$ishtml);
 	}
+
 
 }
