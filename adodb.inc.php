@@ -773,6 +773,7 @@ if (!defined('_ADODB_LAYER')) {
 			$fn($msg,$newline);
 			return;
 		} else if (isset($ADODB_OUTP)) {
+			if (is_object($ADODB_OUTP) && isset($ADODB_OUTP->outpMethod))
 			{
 				$myArgs = func_get_args();
 				if (!isset($myArgs[2]))
