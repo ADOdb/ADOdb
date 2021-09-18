@@ -3849,10 +3849,21 @@ class ADORecordSet implements IteratorAggregate {
 
 
 	/**
-	 * @var ADOFieldObject[] Field metadata cache
-	 * @see fieldTypesArray()
+	* @var ADOFieldObject[] Field metadata cache
+	* @see fieldTypesArray()
 	 */
 	protected $fieldObjectsCache;
+	
+	/**
+	* @var bool True if we have retrieved the fields metadata
+	*/
+	protected $fieldObjectsRetrieved = false;
+
+	/*
+	* Cross-reference the objects by name for easy access
+	*/
+	protected $fieldObjectsIndex = array();
+
 
 	/**
 	 * Constructor
