@@ -46,6 +46,14 @@ Older changelogs:
 - pgsql: prevent AddColumnSQL() from updating existing values when default is changed
   [#635](https://github.com/ADOdb/ADOdb/issues/635)
 
+  
+## [5.21.3] - Unreleased
+
+### Fixed
+
+- pdo: fix metaIndexes declaration to match parent
+  [#717](https://github.com/ADOdb/ADOdb/issues/749)
+
 
 ## [5.21.2] - 2021-08-22
 
@@ -1150,8 +1158,9 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.1...master
+[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.2...master
 
+[5.21.3]: https://github.com/adodb/adodb/compare/v5.21.2...hotfix/5.21
 [5.21.2]: https://github.com/adodb/adodb/compare/v5.21.1...v5.21.2
 [5.21.1]: https://github.com/adodb/adodb/compare/v5.21.0...v5.21.1
 [5.21.0]: https://github.com/adodb/adodb/compare/v5.21.0-rc.1...v5.21.0
