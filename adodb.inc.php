@@ -3850,7 +3850,7 @@ class ADORecordSet implements IteratorAggregate {
 
 	/**
 	* @var ADOFieldObject[] Field metadata cache
-	* @see fieldTypesArray()
+	* @see fieldTypesArray(), _initRS()
 	 */
 	protected $fieldObjectsCache;
 	
@@ -3860,7 +3860,8 @@ class ADORecordSet implements IteratorAggregate {
 	protected $fieldObjectsRetrieved = false;
 
 	/*
-	* Cross-reference the objects by name for easy access
+	* Cross-reference the objects by name for easy access. This is used
+	* by the legacy $bind array
 	*/
 	protected $fieldObjectsIndex = array();
 
@@ -4507,9 +4508,18 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * @param string $colname is the field to access
 	 *
-	 * @return mixed the value of $colname column
+	 * @return mixed the value of $colname column or false if error
 	 */
-	function Fields($colname) {
+	public function fields($colname)
+	{
+		global $ADODB_FETCH_MODE;
+
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM)
+			return false;
+
+		if (!array_key_exists($colname, $this->fields))
+			return false;
+
 		return $this->fields[$colname];
 	}
 

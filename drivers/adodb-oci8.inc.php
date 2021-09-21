@@ -1577,7 +1577,6 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 	var $databaseType = 'oci8';
 	var $bind=false;
-	var $_fieldobjs;
 
 	function __construct($queryID,$mode=false)
 	{
@@ -1651,10 +1650,19 @@ class ADORecordset_oci8 extends ADORecordSet {
 	{
 		$this->_numOfRows = -1;
 		$this->_numOfFields = oci_num_fields($this->_queryID);
-		if ($this->_numOfFields>0) {
-			$this->_fieldobjs = array();
+		if ($this->_numOfFields>0) 
+		{
+			$this->fieldObjectsCache = array();
 			$max = $this->_numOfFields;
-			for ($i=0;$i<$max; $i++) $this->_fieldobjs[] = $this->_FetchField($i);
+			for ($i=0;$i<$max; $i++){ 
+				$this->fieldObjectsCache[] = $this->_fetchField($i);
+			}
+			/*
+			* Now set, the field objects are always retrieved
+			* from the cache
+			*/
+			$this->fieldObjectsRetrieved = true;
+			
 		}
 	}
 
@@ -1666,8 +1674,27 @@ class ADORecordset_oci8 extends ADORecordSet {
 	 *
 	 * @return object containing field information
 	 */
-	function _FetchField($fieldOffset = -1)
+	private function _fetchField($fieldOffset = -1)
 	{
+		/*
+		* This is only triggered after _initrs has read all the
+		* columns in the recordset
+		*/
+		if ($this->fieldObjectsRetrieved) {
+			if ($this->fieldObjectsCache) {
+				// Already got the information
+				if ($fieldOffset == -1) {
+					return $this->fieldObjectsCache;
+				} else {
+					return $this->fieldObjectsCache[$fieldOffset];
+				}
+			} else {
+				// No metadata available
+				return false;
+			}
+		}
+
+		
 		$fld = new ADOFieldObject;
 		$fieldOffset += 1;
 		$fld->name =oci_field_name($this->_queryID, $fieldOffset);
@@ -1696,10 +1723,17 @@ class ADORecordset_oci8 extends ADORecordSet {
 		return $fld;
 	}
 
-	/* For some reason, oci_field_name fails when called after _initrs() so we cache it */
-	function FetchField($fieldOffset = -1)
+	/**
+	* Returns the field objects cached when the recordset was initialized.
+	* For some reason, oci_field_name fails when called after _initrs()
+	* 
+	* @param int $fieldOffset	(optional)
+	*
+	* @return adoFieldObject
+	*/
+	public function fetchField($fieldOffset = -1)
 	{
-		return $this->_fieldobjs[$fieldOffset];
+		return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 

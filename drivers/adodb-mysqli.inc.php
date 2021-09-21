@@ -1518,12 +1518,16 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return mixed
 	 */
-	function Fields($colname)
+	function xFields($colname)
 	{
+		print "FETCH={$this->fetchMode}";
+
 		if ($this->fetchMode != MYSQLI_NUM) {
 			return @$this->fields[$colname];
 		}
 
+		print "DO NUM------>";
+		
 		if (!$this->bind) {
 			$this->bind = array();
 			for ($i = 0; $i < $this->_numOfFields; $i++) {

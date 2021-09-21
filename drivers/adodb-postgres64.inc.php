@@ -92,6 +92,12 @@ class ADODB_postgres64 extends ADOConnection{
 	/** @var int $_pnum Number of the last assigned query parameter {@see param()} */
 	var $_pnum = 0;
 
+	/*
+	* May be manually set to prevent the postgres driver indexing any blobs
+	* probably a performance improver
+	*/
+	public $noBlobs;
+	
 	// The last (fmtTimeStamp is not entirely correct:
 	// PostgreSQL also has support for time zones,
 	// and writes these time in this format: "2001-03-01 18:59:26+02".
@@ -951,50 +957,130 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $row;
 	}
 
-	function _initRS()
+	/**
+	* Called when we obtain a recordset
+	*
+	* @return void
+	*/
+	public function _initRs()
 	{
 		global $ADODB_COUNTRECS;
+		
 		$qid = $this->_queryID;
-		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($qid):-1;
+		$this->_numOfRows 	= ($ADODB_COUNTRECS)? @pg_num_rows($qid):-1;
 		$this->_numOfFields = @pg_num_fields($qid);
 
-		// cache types for blob decode check
-		// apparently pg_field_type actually performs an sql query on the database to get the type.
-		if (empty($this->connection->noBlobs))
-		for ($i=0, $max = $this->_numOfFields; $i < $max; $i++) {
-			if (pg_field_type($qid,$i) == 'bytea') {
-				$this->_blobArr[$i] = pg_field_name($qid,$i);
-			}
+		$this->fieldObjectsCache = array();
+		$max = $this->_numOfFields;
+		for ($i=0;$i<$max; $i++)
+		{ 
+			$this->fieldObjectsCache[] = $this->_fetchField($i);
+
+			/*
+			* If we haven't told it not to check, build the array that holds
+			* any blob data in the recordset
+			*/			
+			if (empty($this->connection->noBlobs))
+				/*
+				* cache types for blob decode check
+				* apparently pg_field_type actually performs an sql query 
+				* on the database to get the type.
+				*/
+				if (pg_field_type($qid,$i) == 'bytea') {
+					$this->_blobArr[$i] = pg_field_name($qid,$i);
+				}
 		}
 	}
-
-	function fields($colname)
+	
+	/**
+	 * Get column information in the Recordset object.
+	 * fetchField() can be used in order to obtain information about fields
+	 * in a certain query result. If the field offset isn't specified, the next
+	 * field that wasn't yet retrieved by fetchField() is retrieved
+	 *
+	 * @return object containing field information
+	 */
+	private function _fetchField($fieldOffset = -1)
 	{
+		/*
+		* This is only triggered after _initrs has read all the
+		* columns in the recordset
+		*/
+		if ($this->fieldObjectsRetrieved) {
+			if ($this->fieldObjectsCache) {
+				// Already got the information
+				if ($fieldOffset == -1) {
+					return $this->fieldObjectsCache;
+				} else {
+					return $this->fieldObjectsCache[$fieldOffset];
+				}
+			} else {
+				// No metadata available
+				return false;
+			}
+		}
+
+		/*
+		* Construct the base fields array entry
+		*/
+		$fld 		= new ADOFieldObject();
+		$fld->name 	= @pg_field_name($this->_queryID, $fieldOffset);
+		$fld->type 	= @pg_field_type($this->_queryID, $fieldOffset);
+		
+		$fld->max_length = @pg_field_size($this->_queryID, $fieldOffset);
+		
+		/*
+		* Build the index for use in fetchField() 
+		*/
+		$this->fieldObjectsIndex[strtoupper($fld->name)] = $fld;
+		
+		
+		return $fld;
+		
+		
+	}
+
+	/**
+	* Retrieve field value from column name
+	*
+	* @param string $colname
+	* 
+	* @return mixed
+	*/
+	public function xfields($colname)
+	{
+		print "FETCH={$this->fetchMode}";
+		print_r($this->fieldObjectsIndex);
 		if ($this->fetchMode != PGSQL_NUM) {
 			return @$this->fields[$colname];
 		}
 
-		if (!$this->bind) {
-			$this->bind = array();
-			for ($i=0; $i < $this->_numOfFields; $i++) {
-				$o = $this->FetchField($i);
-				$this->bind[strtoupper($o->name)] = $i;
-			}
-		}
-		return $this->fields[$this->bind[strtoupper($colname)]];
+		//return $this->fieldObjectsIndex[strtoupper($colname)];
+
 	}
 
-	function fetchField($fieldOffset = 0)
+	/**
+	* Returns the field object cached when the recordset was initialized.
+	* 
+	* @param int $fieldOffset	(optional)
+	*
+	* @return adoFieldObject
+	*/	
+	public function fetchField($fieldOffset = 0)
 	{
-		// offsets begin at 0
-
-		$o = new ADOFieldObject();
-		$o->name = @pg_field_name($this->_queryID, $fieldOffset);
-		$o->type = @pg_field_type($this->_queryID, $fieldOffset);
-		$o->max_length = @pg_field_size($this->_queryID, $fieldOffset);
-		return $o;
+		/*
+		* Retrieve cached value
+		*/
+		return $this->_fetchField($fieldOffset);
 	}
 
+	/**
+	* Move cursor to the requested row and return the array
+	*
+	* @param int $row  The requested row
+	*
+	* @return string[]
+	*/
 	function _seek($row)
 	{
 		return @pg_fetch_row($this->_queryID,$row);
