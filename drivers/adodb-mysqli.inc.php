@@ -565,7 +565,7 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		// get index details
-		$rs = $this->execute(sprintf('SHOW INDEXES FROM %s',$table));
+		$rs = $this->execute(sprintf('SHOW INDEXES FROM `%s`',$table));
 
 		// restore fetchmode
 		if (isset($savem)) {
