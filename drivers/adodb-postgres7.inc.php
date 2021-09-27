@@ -336,8 +336,8 @@ class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
 				$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
 
-				if (is_array($this->fields)) {
-					if ($this->fields && isset($this->_blobArr)) $this->_fixblobs();
+				if ($this->fields !== false) {
+					if (isset($this->_blobArr)) $this->_fixblobs();
 					return true;
 				}
 			}
