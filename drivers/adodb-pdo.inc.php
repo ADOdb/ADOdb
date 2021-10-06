@@ -228,11 +228,23 @@ class ADODB_pdo extends ADOConnection {
 		return false;
 	}
 
+	protected function _callChildMethodIfExists($func, $args)
+	{
+		$refl = new \ReflectionMethod($this->_driver, $func);
+		if ($refl->getDeclaringClass()->getName() == get_class($this->_driver)) {
+			return call_user_func_array(array($this->_driver, $func), $args);
+		}
+		// Return something else by default? what is expected? False is returned by ADOConnection abstract
+		return false;
+	}
+
+
 	function Concat()
 	{
 		$args = func_get_args();
-		if(method_exists($this->_driver, 'Concat')) {
-			return call_user_func_array(array($this->_driver, 'Concat'), $args);
+		$res = $this->_callChildMethodIfExists(__FUNCTION__, $args);
+		if ($res !== false) {
+			return $res;
 		}
 
 		return call_user_func_array('parent::Concat', $args);
@@ -293,10 +305,9 @@ class ADODB_pdo extends ADOConnection {
 		return $this->_driver->MetaColumns($table,$normalize);
 	}
 
-	public function metaIndexes($table,$normalize=true,$owner=false)
+	public function metaIndexes($table,$normalize=true)
 	{
-		if (method_exists($this->_driver,'metaIndexes'))
-			return $this->_driver->metaIndexes($table,$normalize,$owner);
+		return $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
 	}
 
 	/**
@@ -309,8 +320,7 @@ class ADODB_pdo extends ADOConnection {
 	 */
 	public function metaPrimaryKeys($table,$owner=false)
 	{
-		if (method_exists($this->_driver,'metaPrimaryKeys'))
-			return $this->_driver->metaPrimaryKeys($table,$owner);
+		return $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
 	}
 
 	/**
@@ -324,8 +334,7 @@ class ADODB_pdo extends ADOConnection {
 	 * @return string[] where keys are tables, and values are foreign keys
 	 */
 	public function metaForeignKeys($table, $owner=false, $upper=false,$associative=false) {
-		if (method_exists($this->_driver,'metaForeignKeys'))
-			return $this->_driver->metaForeignKeys($table,$owner,$upper,$associative);
+		return $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
 	}
 
 	/**
@@ -346,9 +355,7 @@ class ADODB_pdo extends ADOConnection {
 	 *         )
 	 */
 	public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
-		if (method_exists($this->_driver,'metaProcedures'))
-			return $this->_driver->metaProcedures($procedureNamePattern,$catalog,$schemaPattern);
-		return false;
+		return $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
 	}
 
 	function InParameter(&$stmt,&$var,$name,$maxLen=4000,$type=false)
@@ -441,24 +448,23 @@ class ADODB_pdo extends ADOConnection {
 	 */
 	function SetAutoCommit($auto_commit)
 	{
-		if(method_exists($this->_driver, 'SetAutoCommit')) {
-			$this->_driver->SetAutoCommit($auto_commit);
-		}
+		return $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
 	}
 
 	function SetTransactionMode($transaction_mode)
 	{
-		if(method_exists($this->_driver, 'SetTransactionMode')) {
-			return $this->_driver->SetTransactionMode($transaction_mode);
+		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
+		if ($res !== false) {
+			return $res;
 		}
-
 		return parent::SetTransactionMode($transaction_mode);
 	}
 
 	function beginTrans()
 	{
-		if(method_exists($this->_driver, 'beginTrans')) {
-			return $this->_driver->beginTrans();
+		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
+		if ($res !== false) {
+			return $res;
 		}
 
 		if (!$this->hasTransactions) {
@@ -477,8 +483,9 @@ class ADODB_pdo extends ADOConnection {
 	function commitTrans($ok=true)
 	{
 
-		if(method_exists($this->_driver, 'commitTrans')) {
-			return $this->_driver->commitTrans($ok);
+		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
+		if ($res !== false) {
+			return $res;
 		}
 
 		if (!$this->hasTransactions) {
@@ -502,8 +509,9 @@ class ADODB_pdo extends ADOConnection {
 
 	function RollbackTrans()
 	{
-		if(method_exists($this->_driver, 'RollbackTrans')) {
-			return $this->_driver->RollbackTrans();
+		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
+		if ($res !== false) {
+			return $res;
 		}
 
 		if (!$this->hasTransactions) {
@@ -544,8 +552,9 @@ class ADODB_pdo extends ADOConnection {
 
 	public function createSequence($seqname='adodbseq',$startID=1)
 	{
-		if(method_exists($this->_driver, 'createSequence')) {
-			return $this->_driver->createSequence($seqname, $startID);
+		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
+		if ($res !== false) {
+			return $res;
 		}
 
 		return parent::CreateSequence($seqname, $startID);
@@ -553,8 +562,9 @@ class ADODB_pdo extends ADOConnection {
 
 	function DropSequence($seqname='adodbseq')
 	{
-		if(method_exists($this->_driver, 'DropSequence')) {
-			return $this->_driver->DropSequence($seqname);
+		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
+		if ($res !== false) {
+			return $res;
 		}
 
 		return parent::DropSequence($seqname);
@@ -562,8 +572,9 @@ class ADODB_pdo extends ADOConnection {
 
 	function GenID($seqname='adodbseq',$startID=1)
 	{
-		if(method_exists($this->_driver, 'GenID')) {
-			return $this->_driver->GenID($seqname, $startID);
+		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
+		if ($res !== false) {
+			return $res;
 		}
 
 		return parent::GenID($seqname, $startID);
