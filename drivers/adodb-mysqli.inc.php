@@ -448,10 +448,17 @@ class ADODB_mysqli extends ADOConnection {
 			// the rowcount, but ADOdb does not do that.
 			return false;
 		}
-
-		$result =  @mysqli_affected_rows($this->_connectionID);
-		if ($result == -1) {
-			if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
+		else if ($this->statementAffectedRows >= 0)
+		{
+			$result = $this->statementAffectedRows;
+			$this->statementAffectedRows = -1;
+		}
+		else
+		{
+			$result =  @mysqli_affected_rows($this->_connectionID);
+			if ($result == -1) {
+				if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
+			}
 		}
 		return $result;
 	}
@@ -1248,6 +1255,11 @@ class ADODB_mysqli extends ADOConnection {
 				$this->statementAffectedRows = $stmt->affected_rows;
 				return true;
 			}
+			
+			/*
+			* Tells affected_rows to be compliant
+			*/
+			$this->isSelectStatement = true;
 			/*
 			* Turn the statement into a result set
 			*/
