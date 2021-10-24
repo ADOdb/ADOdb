@@ -81,7 +81,9 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	private $usePreparedStatement = false;
 	private $useLastInsertStatement = false;
-	
+	private $usingBoundVariables = false;
+	private $statementAffectedRows = -1;
+
 	/**
 	 * @var bool True if the last executed statement is a SELECT {@see _query()}
 	 */
@@ -440,14 +442,21 @@ class ADODB_mysqli extends ADOConnection {
 	function _affectedrows()
 	{
 		if ($this->isSelectStatement) {
-			// Affected rows works fine against selects, returning
+		// Affected rows works fine against selects, returning
 			// the rowcount, but ADOdb does not do that.
 			return false;
 		}
-
-		$result =  @mysqli_affected_rows($this->_connectionID);
-		if ($result == -1) {
-			if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
+		else if ($this->statementAffectedRows >= 0)
+		{
+			$result = $this->statementAffectedRows;
+			$this->statementAffectedRows = -1;
+		}
+		else
+		{
+			$result =  @mysqli_affected_rows($this->_connectionID);
+			if ($result == -1) {
+				if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
+			}
 		}
 		return $result;
 	}
@@ -1065,6 +1074,66 @@ class ADODB_mysqli extends ADOConnection {
 		}
 		return array($sql,$stmt);
 	}
+	
+	/**
+	 * Execute SQL
+	 *
+	 * @param string     $sql      SQL statement to execute, or possibly an array
+	 *                             holding prepared statement ($sql[0] will hold sql text)
+	 * @param array|bool $inputarr holds the input data to bind to.
+	 *                             Null elements will be set to null.
+	 *
+	 * @return ADORecordSet|bool
+	 */
+	public function execute($sql, $inputarr = false) {
+
+		if ($this->fnExecute) {
+			$fn = $this->fnExecute;
+			$ret = $fn($this,$sql,$inputarr);
+			if (isset($ret)) {
+				return $ret;
+			}
+		}
+
+		if ($inputarr === false) {
+			return $this->_execute($sql,false);
+		}
+
+		if (!is_array($inputarr)) {
+			$inputarr = array($inputarr);
+		}
+
+		if (!is_array($sql)) {
+			$typeString = '';
+			$typeArray  = array(''); //placeholder for type list
+
+			foreach ($inputarr as $v) {
+				$typeArray[] = $v;
+				if (is_integer($v) || is_bool($v)) {
+					$typeString .= 'i';
+				} elseif (is_float($v)) {
+					$typeString .= 'd';
+				} elseif (is_object($v)) {
+					// Assume a blob
+					$typeString .= 'b';
+				} else {
+					$typeString .= 's';
+				}
+			}
+
+			// Place the field type list at the front of the parameter array.
+			// This is the mysql specific format
+			$typeArray[0] = $typeString;
+
+			$ret = $this->_execute($sql,$typeArray);
+			if (!$ret) {
+				return $ret;
+			}
+		} else {
+			$ret = $this->_execute($sql,$inputarr);
+		}
+		return $ret;
+	}
 
 	/**
 	 * Return the query id.
@@ -1107,6 +1176,96 @@ class ADODB_mysqli extends ADOConnection {
 			call_user_func_array('mysqli_stmt_bind_param',$fnarr);
 			$ret = mysqli_stmt_execute($stmt);
 			return $ret;
+		}
+		else if (is_string($sql) && is_array($inputarr))
+		{
+			/*
+			* This is support for true prepared queries
+			* with bound parameters
+			*
+			* set prepared statement flags
+			*/
+			$this->usePreparedStatement = true;
+			$this->usingBoundVariables = true;
+
+			/*
+			* Prepare the statement with the placeholders,
+			* prepare will fail if the statement is invalid
+			* so we trap and error if necessary. Note that we
+			* are calling MySQL prepare here, not ADOdb
+			*/
+			$stmt = $this->_connectionID->prepare($sql);
+			if ($stmt === false)
+			{
+				$this->outp_throw(
+					"SQL Statement failed on preparation: " . htmlspecialchars($sql) . "'",
+					'Execute'
+				);
+				return false;
+			}
+			/*
+			* Make sure the number of parameters provided in the input
+			* array matches what the query expects. We must discount
+			* the first parameter which contains the data types in
+			* our inbound parameters
+			*/
+			$nparams = $stmt->param_count;
+
+			if ($nparams  != count($inputarr) - 1) {
+				$this->outp_throw(
+					"Input array has " . count($inputarr) .
+					" params, does not match query: '" . htmlspecialchars($sql) . "'",
+					'Execute'
+				);
+				return false;
+			}
+
+			/*
+			* Must pass references into call_user_func_array
+			*/
+			$paramsByReference = array();
+			foreach($inputarr as $key => $value) {
+				$paramsByReference[$key] = &$inputarr[$key];
+			}
+
+			/*
+			* Bind the params
+			*/
+			call_user_func_array(array($stmt, 'bind_param'), $paramsByReference);
+
+			/*
+			* Execute
+			*/
+			$ret = mysqli_stmt_execute($stmt);
+
+			/*
+			* Did we throw an error?
+			*/
+			if ($ret == false)
+				return false;
+
+			/*
+			* Is the statement a non-select
+			*/
+			if ($stmt->affected_rows > -1)
+			{
+				$this->statementAffectedRows = $stmt->affected_rows;
+				return true;
+			}
+			
+			/*
+			* Tells affected_rows to be compliant
+			*/
+			$this->isSelectStatement = true;
+			/*
+			* Turn the statement into a result set
+			*/
+			$result = $stmt->get_result();
+			/*
+			* Return the object for the select
+			*/
+			return $result;
+
 		}
 		else
 		{
