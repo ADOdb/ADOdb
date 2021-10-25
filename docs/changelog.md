@@ -51,8 +51,10 @@ Older changelogs:
 
 ### Fixed
 
+- mysqli: force error reporting mode to OFF (PHP 8.1 compatibility) 
+  [#755](https://github.com/ADOdb/ADOdb/issues/755)
 - pdo: fix metaIndexes declaration to match parent
-  [#717](https://github.com/ADOdb/ADOdb/issues/749)
+  [#717](https://github.com/ADOdb/ADOdb/issues/717)
 
 
 ## [5.21.2] - 2021-08-22

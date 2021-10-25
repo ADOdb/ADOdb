@@ -90,6 +90,19 @@ class ADODB_mysqli extends ADOConnection {
 	private $isSelectStatement = false;
 
 	/**
+	 * ADODB_mysqli constructor.
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+
+		// Forcing error reporting mode to OFF, which is no longer the default
+		// starting with PHP 8.1 (see #755)
+		mysqli_report(MYSQLI_REPORT_OFF);
+	}
+
+
+	/**
 	 * Sets the isolation level of a transaction.
 	 *
 	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:settransactionmode
