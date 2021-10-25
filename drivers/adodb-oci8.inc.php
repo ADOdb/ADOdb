@@ -973,9 +973,12 @@ END;
 	/**
 	 * Execute SQL
 	 *
-	 * @param sql		SQL statement to execute, or possibly an array holding prepared statement ($sql[0] will hold sql text)
-	 * @param [inputarr]	holds the input data to bind to. Null elements will be set to null.
-	 * @return 		RecordSet or false
+	 * @param string|array $sql     SQL statement to execute, or possibly an array holding
+	 *                              prepared statement ($sql[0] will hold sql text).
+	 * @param array|false $inputarr holds the input data to bind to.
+	 *                              Null elements will be set to null.
+	 *
+	 * @return ADORecordSet|false
 	 */
 	function Execute($sql,$inputarr=false)
 	{
@@ -1257,12 +1260,12 @@ END;
 	 *    $db->Parameter($stmt,$group,'group');
 	 *    $db->Execute($stmt);
 	 *
-	 * @param $stmt Statement returned by Prepare() or PrepareSP().
+	 * @param $stmt Statement returned by {@see Prepare()} or {@see PrepareSP()}.
 	 * @param $var PHP variable to bind to
 	 * @param $name Name of stored procedure variable name to bind to.
-	 * @param [$isOutput] Indicates direction of parameter 0/false=IN  1=OUT  2= IN/OUT. This is ignored in oci8.
-	 * @param [$maxLen] Holds an maximum length of the variable.
-	 * @param [$type] The data type of $var. Legal values depend on driver.
+	 * @param bool $isOutput Indicates direction of parameter 0/false=IN  1=OUT  2= IN/OUT. This is ignored in oci8.
+	 * @param int $maxLen Holds an maximum length of the variable.
+	 * @param mixed $type The data type of $var. Legal values depend on driver.
 	 *
 	 * @link http://php.net/oci_bind_by_name
 	*/

@@ -507,7 +507,7 @@ class ADODB_DataDict {
 	 * @param string $tabname table-name
 	 * @param string $flds column-name and type for the changed column
 	 * @param string $tableflds='' complete definition of the new table, eg. for postgres, default ''
-	 * @param array/string $tableoptions='' options for the new table see createTableSQL, default ''
+	 * @param array|string $tableoptions='' options for the new table see createTableSQL, default ''
 	 * @return array with SQL strings
 	 */
 	function alterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
@@ -562,7 +562,7 @@ class ADODB_DataDict {
 	 * @param string $tabname table-name
 	 * @param string $flds column-name and type for the changed column
 	 * @param string $tableflds='' complete definition of the new table, eg. for postgres, default ''
-	 * @param array/string $tableoptions='' options for the new table see createTableSQL, default ''
+	 * @param array|string $tableoptions='' options for the new table see createTableSQL, default ''
 	 * @return array with SQL strings
 	 */
 	function dropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')

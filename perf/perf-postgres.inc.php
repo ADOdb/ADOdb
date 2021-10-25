@@ -102,7 +102,7 @@ class perf_postgres extends adodb_perf{
 	var $optimizeTableHigh = 'VACUUM ANALYZE %s';
 
 /**
- * @see adodb_perf#optimizeTable
+ * @see adodb_perf::optimizeTable()
  */
 
 	function optimizeTable($table, $mode = ADODB_OPT_LOW)
