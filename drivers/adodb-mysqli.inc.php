@@ -81,11 +81,24 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	private $usePreparedStatement = false;
 	private $useLastInsertStatement = false;
-	
+
 	/**
 	 * @var bool True if the last executed statement is a SELECT {@see _query()}
 	 */
 	private $isSelectStatement = false;
+
+	/**
+	 * ADODB_mysqli constructor.
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+
+		// Forcing error reporting mode to OFF, which is no longer the default
+		// starting with PHP 8.1 (see #755)
+		mysqli_report(MYSQLI_REPORT_OFF);
+	}
+
 
 	/**
 	 * Sets the isolation level of a transaction.
@@ -1126,7 +1139,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		return $mysql_res;
 		*/
-		
+
 		if ($this->multiQuery) {
 			$rs = mysqli_multi_query($this->_connectionID, $sql.';');
 			if ($rs) {
