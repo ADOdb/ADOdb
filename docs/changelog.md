@@ -18,6 +18,8 @@ Older changelogs:
 
 ### Fixed
 
+- core: Ensure temp $ADODB_COUNTRECS changes really are temporary
+  [#761](https://github.com/ADOdb/ADOdb/issues/761)
 - mysqli: force error reporting mode to OFF (PHP 8.1 compatibility) 
   [#755](https://github.com/ADOdb/ADOdb/issues/755)
 - pdo: fix metaIndexes declaration to match parent
