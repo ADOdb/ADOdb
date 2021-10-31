@@ -198,7 +198,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'v5.21.2  2021-08-22';
+		$ADODB_vers = 'v5.21.3  2021-10-31';
 
 		/**
 		 * Determines whether recordset->RecordCount() is used.
