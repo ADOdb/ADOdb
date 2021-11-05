@@ -1009,6 +1009,10 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 	function _fixblobs()
 	{
+		// Check prerequisites and bail early if we do not have what we need.
+		if (!isset($this->_blobArr)) return false;
+		if ($this->fields === false) return false;
+
 		if ($this->fetchMode == PGSQL_NUM || $this->fetchMode == PGSQL_BOTH) {
 			foreach($this->_blobArr as $k => $v) {
 				$this->fields[$k] = ADORecordSet_postgres64::_decode($this->fields[$k]);
@@ -1019,6 +1023,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				$this->fields[$v] = ADORecordSet_postgres64::_decode($this->fields[$v]);
 			}
 		}
+		return true;
 	}
 
 	// 10% speedup to move MoveNext to child class
@@ -1028,10 +1033,8 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			$this->_currentRow++;
 			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
 				$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-				if (is_array($this->fields) && $this->fields) {
-					if (isset($this->_blobArr)) $this->_fixblobs();
-					return true;
-				}
+				$this->_fixblobs();
+				if ($this->fields !== false) return true;
 			}
 			$this->fields = false;
 			$this->EOF = true;
@@ -1046,8 +1049,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			return false;
 
 		$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-
-		if ($this->fields && isset($this->_blobArr)) $this->_fixblobs();
+		$this->_fixblobs();
 
 		return (is_array($this->fields));
 	}
