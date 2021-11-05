@@ -334,9 +334,7 @@ class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 		if (!$this->EOF) {
 			$this->_currentRow++;
 			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
-				$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-
-				$this->_fixblobs();
+				$this->_prepfields();
 				if ($this->fields !== false) return true;
 			}
 			$this->fields = false;
@@ -358,9 +356,7 @@ class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 			return false;
 		}
 
-		$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-
-		if ($this->_fixblobs()) $this->_updatefields();
+		if ($this->_prepfields()) $this->_updatefields();
 
 		return (is_array($this->fields));
 	}
@@ -370,9 +366,7 @@ class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 		if (!$this->EOF) {
 			$this->_currentRow++;
 			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
-				$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-
-				$this->_fixblobs();
+				$this->_prepfields();
 				if ($this->fields !== false) {
 					$this->_updatefields();
 					return true;
