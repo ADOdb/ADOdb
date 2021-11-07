@@ -190,11 +190,14 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 
 		$a = array();
 		while (!$rs->EOF) {
+			$lookup_table = $rs->fields('lookup_table');
+			$fields = $rs->fields('dep_field') . '=' . $rs->fields('lookup_field');
 			if ($upper) {
-				$a[strtoupper($rs->Fields('lookup_table'))][] = strtoupper(str_replace('"','',$rs->Fields('dep_field').'='.$rs->Fields('lookup_field')));
-			} else {
-				$a[$rs->Fields('lookup_table')][] = str_replace('"','',$rs->Fields('dep_field').'='.$rs->Fields('lookup_field'));
+				$lookup_table = strtoupper($lookup_table);
+				$fields = strtoupper($fields);
 			}
+			$a[$lookup_table][] = str_replace('"','', $fields);
+
 			$rs->MoveNext();
 		}
 
