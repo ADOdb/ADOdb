@@ -846,7 +846,6 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function MetaForeignKeys($table, $owner = false, $upper = false, $associative = false)
 	{
-
 		global $ADODB_FETCH_MODE;
 
 		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC

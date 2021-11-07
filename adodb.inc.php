@@ -1781,6 +1781,7 @@ if (!defined('_ADODB_LAYER')) {
 	function MetaForeignKeys($table, $owner=false, $upper=false) {
 		return false;
 	}
+
 	/**
 	 * Choose a database to connect to. Many databases do not support this.
 	 *

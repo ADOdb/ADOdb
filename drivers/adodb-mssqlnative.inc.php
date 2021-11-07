@@ -1008,11 +1008,11 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		return $metaProcedures;
 	}
-	
+
 	/**
-	* An SQL Statement that adds a specific number of 
+	* An SQL Statement that adds a specific number of
 	* days or part to local datetime
-	* 
+	*
 	* @param float $dayFraction
 	* @param string $date
 	*
@@ -1025,7 +1025,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			* Use GETDATE() via systTimestamp;
 			*/
 			$date = $this->sysTimeStamp;
-		
+
 		/*
 		* seconds, number of seconds, date base
 		*/
@@ -1035,7 +1035,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		* Adjust the offset back to seconds
 		*/
 		$fraction = $dayFraction * 24 * 3600;
-		
+
 		return sprintf($dateFormat,$fraction,$date);
 
 	}
