@@ -154,10 +154,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		}
 	}
 
-	/**
-	 * @returns array where keys are tables, and values are foreign keys
-	 */
-	function MetaForeignKeys($table, $owner=false, $upper=false)
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
 		# Regex isolates the 2 terms between parenthesis using subexpressions
 		$regex = '^.*\((.*)\).*\((.*)\).*$';

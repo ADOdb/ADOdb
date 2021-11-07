@@ -844,7 +844,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return array|bool An array of foreign keys, or false no foreign keys could be found.
 	 */
-	function MetaForeignKeys($table, $owner = false, $upper = false, $associative = false)
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
 		global $ADODB_FETCH_MODE;
 

@@ -719,7 +719,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		return $indexes;
 	}
 
-	function MetaForeignKeys($table, $owner=false, $upper=false)
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
 		global $ADODB_FETCH_MODE;
 
