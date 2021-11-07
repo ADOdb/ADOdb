@@ -388,7 +388,7 @@ class ADODB_postgres64 extends ADOConnection{
 	function BlobDelete( $blob )
 	{
 		pg_query($this->_connectionID, 'begin');
-		$result = @pg_lo_unlink($blob);
+		$result = @pg_lo_unlink($this->_connectionID, $blob);
 		pg_query($this->_connectionID, 'commit');
 		return( $result );
 	}
