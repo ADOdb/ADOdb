@@ -796,8 +796,7 @@ class ADODB_postgres64 extends ADOConnection{
 			if ($execp) $exsql = "EXECUTE $plan ($execp)";
 			else $exsql = "EXECUTE $plan";
 
-
-			$rez = @pg_execute($this->_connectionID,$exsql);
+			$rez = @pg_query($this->_connectionID, $exsql);
 			if (!$rez) {
 			# Perhaps plan does not exist? Prepare/compile plan.
 				$params = '';
@@ -821,14 +820,14 @@ class ADODB_postgres64 extends ADOConnection{
 				}
 				$s = "PREPARE $plan ($params) AS ".substr($sql,0,strlen($sql)-2);
 				//adodb_pr($s);
-				$rez = pg_execute($this->_connectionID,$s);
+				$rez = pg_query($this->_connectionID, $s);
 				//echo $this->ErrorMsg();
 			}
 			if ($rez)
-				$rez = pg_execute($this->_connectionID,$exsql);
+				$rez = pg_query($this->_connectionID, $exsql);
 		} else {
 			//adodb_backtrace();
-			$rez = pg_query($this->_connectionID,$sql);
+			$rez = pg_query($this->_connectionID, $sql);
 		}
 		// check if no data returned, then no need to create real recordset
 		if ($rez && pg_num_fields($rez) <= 0) {
