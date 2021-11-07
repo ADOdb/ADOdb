@@ -155,7 +155,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	}
 
 	/**
-	 * @returns assoc array where keys are tables, and values are foreign keys
+	 * @returns array where keys are tables, and values are foreign keys
 	 */
 	function MetaForeignKeys($table, $owner=false, $upper=false)
 	{

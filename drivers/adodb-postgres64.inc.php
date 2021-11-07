@@ -35,6 +35,7 @@ class ADODB_postgres64 extends ADOConnection{
 	var $databaseType = 'postgres64';
 	var $dataProvider = 'postgres';
 	var $hasInsertID = true;
+	/** @var bool|resource */
 	var $_resultid = false;
 	var $concat_operator='||';
 	var $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
@@ -177,7 +178,7 @@ class ADODB_postgres64 extends ADOConnection{
 
 
 	/**
-	 * @return true/false
+	 * @return bool
 	 */
 	function BeginTrans()
 	{
@@ -1041,9 +1042,9 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 	function _fetch()
 	{
-
-		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0)
+		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0) {
 			return false;
+		}
 
 		$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
 
@@ -1069,14 +1070,13 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		$t = strtoupper($t);
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 
 		switch ($t) {
-		
 				case 'MONEY': // stupid, postgres expects money to be a string
 				case 'INTERVAL':
 				case 'CHAR':
