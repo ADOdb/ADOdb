@@ -202,41 +202,6 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		}
 
 		return $a;
-
-	}
-
-	// from  Edward Jaramilla, improved version - works on pg 7.4
-	function _old_MetaForeignKeys($table, $owner=false, $upper=false)
-	{
-		$sql = 'SELECT t.tgargs as args
-		FROM
-		pg_trigger t,pg_class c,pg_proc p
-		WHERE
-		t.tgenabled AND
-		t.tgrelid = c.oid AND
-		t.tgfoid = p.oid AND
-		p.proname = \'RI_FKey_check_ins\' AND
-		c.relname = \''.strtolower($table).'\'
-		ORDER BY
-			t.tgrelid';
-
-		$rs = $this->Execute($sql);
-
-		if (!$rs || $rs->EOF) return false;
-
-		$arr = $rs->GetArray();
-		$a = array();
-		foreach($arr as $v) {
-			$data = explode(chr(0), $v['args']);
-			$size = count($data)-1; //-1 because the last node is empty
-			for($i = 4; $i < $size; $i++) {
-				if ($upper)
-					$a[strtoupper($data[2])][] = strtoupper($data[$i].'='.$data[++$i]);
-				else
-					$a[$data[2]][] = $data[$i].'='.$data[++$i];
-			}
-		}
-		return $a;
 	}
 
 	function _query($sql,$inputarr=false)
