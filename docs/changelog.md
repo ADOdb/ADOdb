@@ -59,6 +59,12 @@ Older changelogs:
 - [#759](https://github.com/ADOdb/ADOdb/issues/759)
 - pgsql: prevent AddColumnSQL() from updating existing values when default is changed
   [#635](https://github.com/ADOdb/ADOdb/issues/635)
+- pgsql: Refactored _fixblobs() and replaced it with new _prepFields() method
+  [#767](https://github.com/ADOdb/ADOdb/issues/767)
+- pgsql: Incorrect pg_execute() api calls
+  [#768](https://github.com/ADOdb/ADOdb/issues/768)
+- pgsql: blobDelete() could silently fail with multiple connections
+  [#769](https://github.com/ADOdb/ADOdb/issues/769)
 - pdo: ensure bound statements are correctly formatted
   [#695](https://github.com/ADOdb/ADOdb/issues/695)
 - perf: fix invalid SQL
