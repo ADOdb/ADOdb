@@ -300,7 +300,9 @@ class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 			$this->_currentRow++;
 			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
 				$this->_prepfields();
-				if ($this->fields !== false) return true;
+				if ($this->fields !== false) {
+					return true;
+				}
 			}
 			$this->fields = false;
 			$this->EOF = true;
@@ -321,9 +323,13 @@ class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 			return false;
 		}
 
-		if ($this->_prepfields()) $this->_updatefields();
+		$this->_prepfields();
+		if ($this->fields !== false) {
+			$this->_updatefields();
+			return true;
+		}
 
-		return (is_array($this->fields));
+		return false;
 	}
 
 	function MoveNext()

@@ -1007,17 +1007,19 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return pg_unescape_bytea($blob);
 	}
 
-	function _prepfields()
+	/**
+	 * Fetches and prepares the RecordSet's fields.
+	 *
+	 * Fixes the blobs if there are any.
+	 */
+	protected function _prepFields()
 	{
 		$this->fields = @pg_fetch_array($this->_queryID,$this->_currentRow,$this->fetchMode);
-		return $this->_fixblobs();
-	}
 
-	function _fixblobs()
-	{
 		// Check prerequisites and bail early if we do not have what we need.
-		if (!isset($this->_blobArr)) return false;
-		if ($this->fields === false) return false;
+		if (!isset($this->_blobArr) || $this->fields === false) {
+			return;
+		}
 
 		if ($this->fetchMode == PGSQL_NUM || $this->fetchMode == PGSQL_BOTH) {
 			foreach($this->_blobArr as $k => $v) {
@@ -1029,7 +1031,6 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				$this->fields[$v] = ADORecordSet_postgres64::_decode($this->fields[$v]);
 			}
 		}
-		return true;
 	}
 
 	// 10% speedup to move MoveNext to child class
@@ -1039,7 +1040,9 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			$this->_currentRow++;
 			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
 				$this->_prepfields();
-				if ($this->fields !== false) return true;
+				if ($this->fields !== false) {
+					return true;
+				}
 			}
 			$this->fields = false;
 			$this->EOF = true;
@@ -1054,8 +1057,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		}
 
 		$this->_prepfields();
-
-		return (is_array($this->fields));
+		return $this->fields !== false;
 	}
 
 	function _close()
