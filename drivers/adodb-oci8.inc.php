@@ -1484,16 +1484,17 @@ SELECT /*+ RULE */ distinct b.column_name
 	}
 
 	/**
-	 * returns assoc array where keys are tables, and values are foreign keys
+	 * Returns a list of Foreign Keys associated with a specific table.
 	 *
-	 * @param	str		$table
-	 * @param	str		$owner	[optional][default=NULL]
-	 * @param	bool	$upper	[optional][discarded]
-	 * @return	mixed[]			Array of foreign key information
+	 * @param string $table
+	 * @param string $owner
+	 * @param bool   $upper       discarded
+	 * @param bool   $associative discarded
 	 *
-	 * @link http://gis.mit.edu/classes/11.521/sqlnotes/referential_integrity.html
+	 * @return string[]|false An array where keys are tables, and values are foreign keys;
+	 *                        false if no foreign keys could be found.
 	 */
-	function MetaForeignKeys($table, $owner=false, $upper=false)
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -1809,9 +1810,9 @@ class ADORecordset_oci8 extends ADORecordSet {
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		$t = strtoupper($t);
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 

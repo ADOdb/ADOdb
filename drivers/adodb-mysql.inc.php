@@ -698,8 +698,7 @@ class ADODB_mysql extends ADOConnection {
 		return 4294967295;
 	}
 
-	// "Innox - Juan Carlos Gonzalez" <jgonzalez#innox.com.mx>
-	function metaForeignKeys( $table, $owner = FALSE, $upper = FALSE, $associative = FALSE )
+	public function metaForeignKeys($table, $owner = '', $upper =  false, $associativee =  false)
 	{
 	 global $ADODB_FETCH_MODE;
 		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC || $this->fetchMode == ADODB_FETCH_ASSOC) $associative = true;
@@ -869,9 +868,9 @@ class ADORecordSet_mysql extends ADORecordSet{
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		$t = strtoupper($t);
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 

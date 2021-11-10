@@ -34,7 +34,7 @@ class ADODB2_postgres extends ADODB_DataDict
 
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull = true;
-	
+
 	function metaType($t, $len=-1, $fieldobj=false)
 	{
 		if (is_object($t)) {
@@ -42,9 +42,9 @@ class ADODB2_postgres extends ADODB_DataDict
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		$t = strtoupper($t);
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 
@@ -52,13 +52,13 @@ class ADODB2_postgres extends ADODB_DataDict
 			!empty($fieldobj->has_default) && substr($fieldobj->default_value,0,8) == 'nextval(';
 
 		switch ($t) {
-			
+
 			case 'INTERVAL':
 			case 'CHAR':
 			case 'CHARACTER':
 			case 'VARCHAR':
 			case 'NAME':
-	   		case 'BPCHAR':
+			case 'BPCHAR':
 				if ($len <= $this->blobSize) return 'C';
 
 			case 'TEXT':
@@ -101,22 +101,22 @@ class ADODB2_postgres extends ADODB_DataDict
 			case 'REAL':
 				return 'F';
 
-			 default:
-			 	return ADODB_DEFAULT_METATYPE;
+			default:
+				return ADODB_DEFAULT_METATYPE;
 		}
 	}
 
 	function actualType($meta)
 	{
 		$meta = strtoupper($meta);
-		
+
 		/*
 		* Add support for custom meta types. We do this
 		* first, that allows us to override existing types
 		*/
 		if (isset($this->connection->customMetaTypes[$meta]))
 			return $this->connection->customMetaTypes[$meta]['actual'];
-		
+
 		switch ($meta) {
 		case 'C': return 'VARCHAR';
 		case 'XL':
@@ -184,7 +184,7 @@ class ADODB2_postgres extends ADODB_DataDict
 
 	function dropIndexSQL($idxname, $tabname = NULL)
 	{
-	   return array(sprintf($this->dropIndex, $this->tableName($idxname), $this->tableName($tabname)));
+		return array(sprintf($this->dropIndex, $this->tableName($idxname), $this->tableName($tabname)));
 	}
 
 	/**
@@ -213,9 +213,9 @@ class ADODB2_postgres extends ADODB_DataDict
 				if ($not_null = preg_match('/NOT NULL/i',$v)) {
 					$v = preg_replace('/NOT NULL/i','',$v);
 				}
-				 // this next block doesn't work - there is no way that I can see to
-				 // explicitly ask a column to be null using $flds
-				else if ($set_null = preg_match('/NULL/i',$v)) {
+				// this next block doesn't work - there is no way that I can see to
+				// explicitly ask a column to be null using $flds
+				elseif ($set_null = preg_match('/NULL/i',$v)) {
 					// if they didn't specify not null, see if they explicitly asked for null
 					// Lookbehind pattern covers the case 'fieldname NULL datatype DEFAULT NULL'
 					// only the first NULL should be removed, not the one specifying
@@ -493,11 +493,11 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 		if (isset($idxoptions['HASH'])) {
 			$s .= 'USING HASH ';
 		}
-		
+
 		if (isset($idxoptions[$this->upperName])) {
 			$s .= $idxoptions[$this->upperName];
 		}
-		
+
 		if (is_array($flds)) {
 			$flds = implode(', ', $flds);
 		}
@@ -530,7 +530,7 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 		}
 		return $ftype;
 	}
-	
+
 	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
 	{
 		global $ADODB_FETCH_MODE;
@@ -540,18 +540,18 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 		if ($this->connection->fetchMode !== false) {
 			$savem = $this->connection->setFetchMode(false);
 		}
-		
+
 		// check table exists
 		$save_handler = $this->connection->raiseErrorFn;
 		$this->connection->raiseErrorFn = '';
 		$cols = $this->metaColumns($tablename);
 		$this->connection->raiseErrorFn = $save_handler;
-		
+
 		if (isset($savem)) {
 			$this->connection->setFetchMode($savem);
 		}
 		$ADODB_FETCH_MODE = $save;
-		
+
 		$sqlResult=array();
 		if ( empty($cols)) {
 			$sqlResult=$this->createTableSQL($tablename, $flds, $tableoptions);
@@ -559,7 +559,7 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 			$sqlResultAdd = $this->addColumnSQL($tablename, $flds);
 			$sqlResultAlter = $this->alterColumnSQL($tablename, $flds, '', $tableoptions);
 			$sqlResult = array_merge((array)$sqlResultAdd, (array)$sqlResultAlter);
-			
+
 			if ($dropOldFlds) {
 				// already exists, alter table instead
 				list($lines,$pkey,$idxs) = $this->_genFields($flds);
@@ -574,7 +574,7 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 					}
 				}
 			}
-			
+
 		}
 		return $sqlResult;
 	}

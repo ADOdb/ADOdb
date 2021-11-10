@@ -14,7 +14,7 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
-## [Unreleased]
+## [5.22.0] - Unreleased
 
 ### Added
 
@@ -22,20 +22,32 @@ Older changelogs:
   [#602](https://github.com/ADOdb/ADOdb/issues/602)
   [#626](https://github.com/ADOdb/ADOdb/issues/626)
   [#649](https://github.com/ADOdb/ADOdb/issues/649)
-- sqlite3 performance monitor stub
-  [#661](https://github.com/ADOdb/ADOdb/issues/661)
 - Use of weighted server groups with Memcached
   [#676](https://github.com/ADOdb/ADOdb/issues/676)
+- mssql: implement offsetDate() method
+  [#698](https://github.com/ADOdb/ADOdb/issues/698)
+- sqlite3 performance monitor stub
+  [#661](https://github.com/ADOdb/ADOdb/issues/661)
+- sqlite: support blob handling
+  [#702](https://github.com/ADOdb/ADOdb/issues/702)
 
 ### Changed
 
+- firebird: complete overhaul to support latest PHP drivers
+  [#710](https://github.com/ADOdb/ADOdb/issues/710)
+- mssql: Refactor _fetchField() method 
+  [#725](https://github.com/ADOdb/ADOdb/issues/725)
 - mysql: Support bound variable statements
   [#655](https://github.com/ADOdb/ADOdb/issues/655)
+- xml: add field comments
+  [#732](https://github.com/ADOdb/ADOdb/issues/732)
 
 ### Removed
 
 - Transpose() function and assorted sub-functions 
   [#586](https://github.com/ADOdb/ADOdb/issues/586)
+- "proxy" server and client scripts
+  [#680](https://github.com/ADOdb/ADOdb/issues/680)
 
 ### Fixed
 
@@ -43,8 +55,36 @@ Older changelogs:
   [#656](https://github.com/ADOdb/ADOdb/issues/656)
 - mysql: Update socket and client flags for ssl
   [#622](https://github.com/ADOdb/ADOdb/issues/622)
+- mysql: Handle tables that are reserved words
+- [#759](https://github.com/ADOdb/ADOdb/issues/759)
 - pgsql: prevent AddColumnSQL() from updating existing values when default is changed
   [#635](https://github.com/ADOdb/ADOdb/issues/635)
+- pgsql: Refactored _fixblobs() and replaced it with new _prepFields() method
+  [#767](https://github.com/ADOdb/ADOdb/issues/767)
+- pgsql: Incorrect pg_execute() api calls
+  [#768](https://github.com/ADOdb/ADOdb/issues/768)
+- pgsql: blobDelete() could silently fail with multiple connections
+  [#769](https://github.com/ADOdb/ADOdb/issues/769)
+- pdo: ensure bound statements are correctly formatted
+  [#695](https://github.com/ADOdb/ADOdb/issues/695)
+- perf: fix invalid SQL
+  [#753](https://github.com/ADOdb/ADOdb/issues/753)
+- sqlite: driver returns incorrect time when using $sysTimeStamp
+  [#697](https://github.com/ADOdb/ADOdb/issues/697)
+- sqlite: undeclared connection property
+  [#713](https://github.com/ADOdb/ADOdb/issues/713)
+
+  
+## [5.21.3] - 2021-10-31
+
+### Fixed
+
+- core: Ensure temp $ADODB_COUNTRECS changes really are temporary
+  [#761](https://github.com/ADOdb/ADOdb/issues/761)
+- mysqli: force error reporting mode to OFF (PHP 8.1 compatibility) 
+  [#755](https://github.com/ADOdb/ADOdb/issues/755)
+- pdo: fix metaIndexes declaration to match parent
+  [#717](https://github.com/ADOdb/ADOdb/issues/717)
 
 
 ## [5.21.2] - 2021-08-22
@@ -79,6 +119,8 @@ Older changelogs:
   [#715](https://github.com/ADOdb/ADOdb/issues/715)
 - Incorrect handling of $ADODB_QUOTE_FIELDNAMES = true
   [#721](https://github.com/ADOdb/ADOdb/issues/721)
+- array to string conversion in adodb_debug_execute()
+  [#737](https://github.com/ADOdb/ADOdb/issues/737)
 - db2: fix columns always returned in lowercase
   [#719](https://github.com/ADOdb/ADOdb/issues/719)
 - PDO: Bind parameters fail if sent in associative array
@@ -1150,8 +1192,9 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.1...master
+[5.22.0]: https://github.com/adodb/adodb/compare/v5.21.3...master
 
+[5.21.3]: https://github.com/adodb/adodb/compare/v5.21.2...v5.21.3
 [5.21.2]: https://github.com/adodb/adodb/compare/v5.21.1...v5.21.2
 [5.21.1]: https://github.com/adodb/adodb/compare/v5.21.0...v5.21.1
 [5.21.0]: https://github.com/adodb/adodb/compare/v5.21.0-rc.1...v5.21.0

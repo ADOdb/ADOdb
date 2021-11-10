@@ -684,16 +684,17 @@ class ADODB_db2 extends ADOConnection {
 	}
 
 	/**
-	 * returns assoc array where keys are tables, and values are foreign keys
+	 * Returns a list of Foreign Keys associated with a specific table.
 	 *
-	 * @param	string	$table
-	 * @param	string	$owner		[optional][discarded]
-	 * @param	bool	$upper		[optional][discarded]
-	 * @param	bool	$associative[optional][discarded]
+	 * @param string $table
+	 * @param string $owner       discarded
+	 * @param bool   $upper       discarded
+	 * @param bool   $associative discarded
 	 *
-	 * @return	mixed[]			Array of foreign key information
+	 * @return string[]|false An array where keys are tables, and values are foreign keys;
+	 *                        false if no foreign keys could be found.
 	 */
-	public function metaForeignKeys($table, $owner = FALSE, $upper = FALSE, $asociative = FALSE )
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
 
 		global $ADODB_FETCH_MODE;
