@@ -3638,26 +3638,32 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$this->rs = $rs;
 		}
 
+		#[\ReturnTypeWillChange]
 		function rewind() {}
 
+		#[\ReturnTypeWillChange]
 		function valid() {
 			return !$this->rs->EOF;
 		}
 
+		#[\ReturnTypeWillChange]
 		function key() {
 			return false;
 		}
 
+		#[\ReturnTypeWillChange]
 		function current() {
 			return false;
 		}
 
+		#[\ReturnTypeWillChange]
 		function next() {}
 
 		function __call($func, $params) {
 			return call_user_func_array(array($this->rs, $func), $params);
 		}
 
+		#[\ReturnTypeWillChange]
 		function hasMore() {
 			return false;
 		}
@@ -3704,6 +3710,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		function Init() {}
 
+		#[\ReturnTypeWillChange]
 		function getIterator() {
 			return new ADODB_Iterator_empty($this);
 		}
@@ -3763,22 +3770,27 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$this->rs = $rs;
 		}
 
+		#[\ReturnTypeWillChange]
 		function rewind() {
 			$this->rs->MoveFirst();
 		}
 
+		#[\ReturnTypeWillChange]
 		function valid() {
 			return !$this->rs->EOF;
 		}
 
+		#[\ReturnTypeWillChange]
 		function key() {
 			return $this->rs->_currentRow;
 		}
 
+		#[\ReturnTypeWillChange]
 		function current() {
 			return $this->rs->fields;
 		}
 
+		#[\ReturnTypeWillChange]
 		function next() {
 			$this->rs->MoveNext();
 		}
@@ -3868,6 +3880,7 @@ class ADORecordSet implements IteratorAggregate {
 		$this->Close();
 	}
 
+	#[\ReturnTypeWillChange]
 	function getIterator() {
 		return new ADODB_Iterator($this);
 	}
