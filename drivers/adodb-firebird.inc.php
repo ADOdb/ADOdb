@@ -1053,7 +1053,7 @@ class ADORecordset_firebird extends ADORecordSet
 	 * @param int $fieldOffset (optional default=-1 for all
 	 * @return mixed an ADOFieldObject, or array of objects
 	 */
-	protected function _fetchField($fieldOffset = -1)
+	protected function setFieldObjectsCache($fieldOffset = -1)
 	{
 		if ($this->fieldObjectsRetrieved) {
 			if ($this->fieldObjects) {
@@ -1143,7 +1143,7 @@ class ADORecordset_firebird extends ADORecordSet
 		* Retrieve all of the column information first. We copy
 		* this method from oracle
 		*/
-		$this->_fetchField();
+		$this->setFieldObjectsCache();
 
 	}
 
