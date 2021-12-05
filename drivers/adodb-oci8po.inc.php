@@ -187,24 +187,54 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		 return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-	// lowercase field names...
-	function _FetchField($fieldOffset = -1)
+	/**
+	 * Get column information in the Recordset object.
+	 * fetchField() can be used in order to obtain information about fields
+	 * in a certain query result. If the field offset isn't specified, the next
+	 * field that wasn't yet retrieved by fetchField() is retrieved
+	 *
+	 * @param int		$fieldOffset
+	 * @return object 	containing field information
+	 */
+	protected function setFieldObjectsCache($fieldOffset = -1)
 	{
-		$fld = new ADOFieldObject;
-		$fieldOffset += 1;
-		$fld->name = OCIcolumnname($this->_queryID, $fieldOffset);
-		if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
-			$fld->name = strtolower($fld->name);
-		}
-		$fld->type = OCIcolumntype($this->_queryID, $fieldOffset);
-		$fld->max_length = OCIcolumnsize($this->_queryID, $fieldOffset);
-		if ($fld->type == 'NUMBER') {
-			$sc = OCIColumnScale($this->_queryID, $fieldOffset);
-			if ($sc == 0) {
-				$fld->type = 'INT';
+
+		if ($this->fieldObjectsRetrieved) {
+			if ($this->fieldObjectsCache) {
+				// Already got the information
+				if ($fieldOffset == -1) {
+					return $this->fieldObjectsCache;
+				} else {
+					return $this->fieldObjectsCache[$fieldOffset];
+				}
+			} else {
+				// No metadata available
+				return false;
 			}
 		}
-		return $fld;
+
+
+		$this->fieldObjectsCache = array();
+		$max = $this->_numOfFields;
+		for ($i=0;$i<$max; $i++)
+		{
+			$fld = new ADOFieldObject;
+			$fieldOffset += 1;
+			$fld->name = OCIcolumnname($this->_queryID, $fieldOffset);
+			if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
+				$fld->name = strtolower($fld->name);
+			}
+			$fld->type = OCIcolumntype($this->_queryID, $fieldOffset);
+			$fld->max_length = OCIcolumnsize($this->_queryID, $fieldOffset);
+			if ($fld->type == 'NUMBER') {
+				$sc = OCIColumnScale($this->_queryID, $fieldOffset);
+				if ($sc == 0) {
+					$fld->type = 'INT';
+				}
+			}
+			$this->fieldObjectsCache[] = $fld;
+		}
+		$this->fieldObjectsRetrieved = true;
 	}
 
 	// 10% speedup to move MoveNext to child class

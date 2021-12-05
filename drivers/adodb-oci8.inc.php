@@ -1597,7 +1597,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 	var $databaseType = 'oci8';
 	var $bind=false;
-	var $_fieldobjs;
+	
 
 	function __construct($queryID,$mode=false)
 	{
@@ -1667,14 +1667,19 @@ class ADORecordset_oci8 extends ADORecordSet {
 		}
 	}
 
+	/**
+	 * Initializes Recordset and metadata
+	 *
+	 * @return void
+	 */
 	function _initrs()
 	{
 		$this->_numOfRows = -1;
 		$this->_numOfFields = oci_num_fields($this->_queryID);
-		if ($this->_numOfFields>0) {
-			$this->_fieldobjs = array();
-			$max = $this->_numOfFields;
-			for ($i=0;$i<$max; $i++) $this->_fieldobjs[] = $this->_FetchField($i);
+		
+		if ($this->_numOfFields>0) 
+		{
+			$this->setFieldObjectsCache();
 		}
 	}
 
@@ -1684,42 +1689,75 @@ class ADORecordset_oci8 extends ADORecordSet {
 	 * in a certain query result. If the field offset isn't specified, the next
 	 * field that wasn't yet retrieved by fetchField() is retrieved
 	 *
-	 * @return object containing field information
+	 * @param int		$fieldOffset
+	 * @return object 	containing field information
 	 */
-	function _FetchField($fieldOffset = -1)
+	protected function setFieldObjectsCache($fieldOffset = -1)
 	{
-		$fld = new ADOFieldObject;
-		$fieldOffset += 1;
-		$fld->name =oci_field_name($this->_queryID, $fieldOffset);
-		if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
-			$fld->name = strtolower($fld->name);
-		}
-		$fld->type = oci_field_type($this->_queryID, $fieldOffset);
-		$fld->max_length = oci_field_size($this->_queryID, $fieldOffset);
-
-		switch($fld->type) {
-			case 'NUMBER':
-				$p = oci_field_precision($this->_queryID, $fieldOffset);
-				$sc = oci_field_scale($this->_queryID, $fieldOffset);
-				if ($p != 0 && $sc == 0) {
-					$fld->type = 'INT';
+		
+		if ($this->fieldObjectsRetrieved) {
+			if ($this->fieldObjectsCache) {
+				// Already got the information
+				if ($fieldOffset == -1) {
+					return $this->fieldObjectsCache;
+				} else {
+					return $this->fieldObjectsCache[$fieldOffset];
 				}
-				$fld->scale = $p;
-				break;
-
-			case 'CLOB':
-			case 'NCLOB':
-			case 'BLOB':
-				$fld->max_length = -1;
-				break;
+			} else {
+				// No metadata available
+				return false;
+			}
 		}
-		return $fld;
+
+
+		$this->fieldObjectsCache = array();
+		$max = $this->_numOfFields;
+		for ($i=0;$i<$max; $i++)
+		{
+				
+			$fld = new ADOFieldObject;
+
+			$fieldOffset += 1;
+			$fld->name =oci_field_name($this->_queryID, $fieldOffset);
+			if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
+				$fld->name = strtolower($fld->name);
+			}
+			$fld->type = oci_field_type($this->_queryID, $fieldOffset);
+			$fld->max_length = oci_field_size($this->_queryID, $fieldOffset);
+
+			switch($fld->type) {
+				case 'NUMBER':
+					$p = oci_field_precision($this->_queryID, $fieldOffset);
+					$sc = oci_field_scale($this->_queryID, $fieldOffset);
+					if ($p != 0 && $sc == 0) {
+						$fld->type = 'INT';
+					}
+					$fld->scale = $p;
+					break;
+
+				case 'CLOB':
+				case 'NCLOB':
+				case 'BLOB':
+					$fld->max_length = -1;
+					break;
+			}
+			$this->fieldObjectsCache[] = $fld;
+		}
+		$this->fieldObjectsRetrieved = true;
 	}
 
-	/* For some reason, oci_field_name fails when called after _initrs() so we cache it */
-	function FetchField($fieldOffset = -1)
+	/**
+	 * Returns the metadata for a specific field
+	 * for some reason, oci_field_name fails when called after _initrs() so we cache it 
+	 * 
+	 * @param integer $fieldOffset
+	 * 
+	 * @return bool|ADOFieldObject
+	 */
+	function fetchField($fieldOffset = -1)
 	{
-		return $this->_fieldobjs[$fieldOffset];
+		if (array_key_exists($fieldOffset,$this->fieldObjectsCache))
+			return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 

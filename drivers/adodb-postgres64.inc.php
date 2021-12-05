@@ -930,6 +930,10 @@ class ADODB_postgres64 extends ADOConnection{
 --------------------------------------------------------------------------------------*/
 
 class ADORecordSet_postgres64 extends ADORecordSet{
+	
+	/*
+	* Holds what fields as blob
+	*/
 	var $_blobArr;
 	var $databaseType = "postgres64";
 	var $canSeek = true;
@@ -964,21 +968,78 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $row;
 	}
 
-	function _initRS()
+	/**
+	 * Initializes Recordset and metadata
+	 *
+	 * @return void
+	 */
+	function _initrs()
 	{
 		global $ADODB_COUNTRECS;
 		$qid = $this->_queryID;
 		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($qid):-1;
 		$this->_numOfFields = @pg_num_fields($qid);
 
-		// cache types for blob decode check
-		// apparently pg_field_type actually performs an sql query on the database to get the type.
-		if (empty($this->connection->noBlobs))
-		for ($i=0, $max = $this->_numOfFields; $i < $max; $i++) {
-			if (pg_field_type($qid,$i) == 'bytea') {
-				$this->_blobArr[$i] = pg_field_name($qid,$i);
+		$this->setFieldObjectsCache();
+
+	}
+
+	/**
+	 * Get column information in the Recordset object.
+	 * fetchField() can be used in order to obtain information about fields
+	 * in a certain query result. If the field offset isn't specified, the next
+	 * field that wasn't yet retrieved by fetchField() is retrieved
+	 *
+	 * @param int		$fieldOffset
+	 * @return object 	containing field information
+	 */
+	protected function setFieldObjectsCache($fieldOffset = -1)
+	{
+		
+		if ($this->fieldObjectsRetrieved) {
+			if ($this->fieldObjectsCache) {
+				// Already got the information
+				if ($fieldOffset == -1) {
+					return $this->fieldObjectsCache;
+				} else {
+					return $this->fieldObjectsCache[$fieldOffset];
+				}
+			} else {
+				// No metadata available
+				return false;
 			}
 		}
+
+
+		$this->fieldObjectsCache = array();
+		$max = $this->_numOfFields;
+		for ($i=0;$i<$max; $i++)
+		{
+				
+			$o = new ADOFieldObject();
+			$o->name = @pg_field_name($this->_queryID, $fieldOffset);
+			$o->type = @pg_field_type($this->_queryID, $fieldOffset);
+			$o->max_length = @pg_field_size($this->_queryID, $fieldOffset);
+			
+			$this->fieldObjectsCache[] = $o;
+
+			
+			/*
+			* cache types for blob decode check
+			* apparently pg_field_type actually performs an sql query on the database to get the type.
+			*/
+			if (empty($this->connection->noBlobs))
+			{
+				if (pg_field_type($qid,$i) == 'bytea') 
+				{
+					$this->_blobArr[$i] = pg_field_name($qid,$i);
+				}
+			}
+
+
+		}
+		$this->fieldObjectsRetrieved = true;
+
 	}
 
 	function fields($colname)
@@ -997,6 +1058,19 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
+	/**
+	 * Returns the metadata for a specific field
+	 * 
+	 * @param integer $fieldOffset
+	 * 
+	 * @return bool|ADOFieldObject
+	 */
+	function fetchField($fieldOffset = -1)
+	{
+		if (array_key_exists($fieldOffset,$this->fieldObjectsCache))
+			return $this->fieldObjectsCache[$fieldOffset];
+	}
+	/*
 	function fetchField($fieldOffset = 0)
 	{
 		// offsets begin at 0
@@ -1007,6 +1081,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		$o->max_length = @pg_field_size($this->_queryID, $fieldOffset);
 		return $o;
 	}
+	*/
 
 	function _seek($row)
 	{

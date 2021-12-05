@@ -1856,25 +1856,13 @@ class ADORecordSet_db2 extends ADORecordSet {
 		$this->_queryID = $id;
 	}
 
-
-	// returns the field object
-	function fetchField($offset = 0)
-	{
-		$o			   = new ADOFieldObject();
-		$o->name 	   = @db2_field_name($this->_queryID,$offset);
-		$o->type 	   = @db2_field_type($this->_queryID,$offset);
-		$o->max_length = @db2_field_width($this->_queryID,$offset);
-
-		/*
-		if (ADODB_ASSOC_CASE == 0)
-			$o->name = strtolower($o->name);
-		else if (ADODB_ASSOC_CASE == 1)
-			$o->name = strtoupper($o->name);
-		*/
-		return $o;
-	}
-
-	/* Use associative array to get fields array */
+	/*
+	* Use associative array to get fields array 
+	 *
+	 * @param string $colname
+	 * 
+	 * @return ADOFieldObject
+	 */
 	function fields($colname)
 	{
 
@@ -1893,7 +1881,11 @@ class ADORecordSet_db2 extends ADORecordSet {
 		 return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-
+	/**
+	 * Initializes Recordset and metadata
+	 *
+	 * @return void
+	 */
 	function _initrs()
 	{
 		global $ADODB_COUNTRECS;
@@ -1905,6 +1897,66 @@ class ADORecordSet_db2 extends ADORecordSet {
 
 		if ($this->_numOfRows == 0)
 			$this->_numOfRows = -1;
+
+		$this->_fetchField();
+
+	}
+
+	/**
+	 * Get column information in the Recordset object.
+	 * fetchField() can be used in order to obtain information about fields
+	 * in a certain query result. If the field offset isn't specified, the next
+	 * field that wasn't yet retrieved by fetchField() is retrieved
+	 *
+	 * @param int		$fieldOffset
+	 * @return object 	containing field information
+	 */
+	protected function _fetchField($fieldOffset = -1)
+	{
+		
+		if ($this->fieldObjectsRetrieved) {
+			if ($this->fieldObjectsCache) {
+				// Already got the information
+				if ($fieldOffset == -1) {
+					return $this->fieldObjectsCache;
+				} else {
+					return $this->fieldObjectsCache[$fieldOffset];
+				}
+			} else {
+				// No metadata available
+				return false;
+			}
+		}
+
+
+		$this->fieldObjectsCache = array();
+		$max = $this->_numOfFields;
+		for ($i=0;$i<$max; $i++)
+		{
+				
+			$o			   = new ADOFieldObject();
+			$o->name 	   = @db2_field_name($this->_queryID,$offset);
+			$o->type 	   = @db2_field_type($this->_queryID,$offset);
+			$o->max_length = @db2_field_width($this->_queryID,$offset);
+			
+			$this->fieldObjectsCache[] = $o;
+
+		}
+		$this->fieldObjectsRetrieved = true;
+
+	}
+
+	/**
+	 * Returns the metadata for a specific field
+	 * 
+	 * @param integer $fieldOffset
+	 * 
+	 * @return bool|ADOFieldObject
+	 */
+	function fetchField($fieldOffset = -1)
+	{
+		if (array_key_exists($fieldOffset,$this->fieldObjectsCache))
+			return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 	function _seek($row)
