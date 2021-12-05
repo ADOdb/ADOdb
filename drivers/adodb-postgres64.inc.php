@@ -1070,19 +1070,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		if (array_key_exists($fieldOffset,$this->fieldObjectsCache))
 			return $this->fieldObjectsCache[$fieldOffset];
 	}
-	/*
-	function fetchField($fieldOffset = 0)
-	{
-		// offsets begin at 0
-
-		$o = new ADOFieldObject();
-		$o->name = @pg_field_name($this->_queryID, $fieldOffset);
-		$o->type = @pg_field_type($this->_queryID, $fieldOffset);
-		$o->max_length = @pg_field_size($this->_queryID, $fieldOffset);
-		return $o;
-	}
-	*/
-
+	
 	function _seek($row)
 	{
 		return @pg_fetch_row($this->_queryID,$row);
