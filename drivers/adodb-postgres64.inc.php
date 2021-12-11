@@ -1013,7 +1013,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 		$this->fieldObjectsCache = array();
 		$max = $this->_numOfFields;
-		for ($i=0;$i<$max; $i++)
+		for ($fieldOffset=0;$fieldOffset<$max; $fieldOffset++)
 		{
 				
 			$o = new ADOFieldObject();
@@ -1022,7 +1022,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			$o->max_length = @pg_field_size($this->_queryID, $fieldOffset);
 			
 			$this->fieldObjectsCache[] = $o;
-
+			
 			
 			/*
 			* cache types for blob decode check
