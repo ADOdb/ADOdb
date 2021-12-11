@@ -1336,7 +1336,7 @@ if (!defined('_ADODB_LAYER')) {
 			$this->_transOK = false;
 			$this->RollbackTrans();
 			if ($this->debug) {
-				ADOCOnnection::outp("Smart Rollback occurred");
+				ADOConnection::outp("Smart Rollback occurred");
 			}
 		}
 
