@@ -1053,11 +1053,6 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	var $fieldOffset = 0;
 	// _mths works only in non-localised system
 
-	/**
-	 * @var bool True if we have retrieved the fields metadata
-	 */
-	private $fieldObjectsRetrieved = false;
-
 	/*
 	* Cross-reference the objects by name for easy access
 	*/
