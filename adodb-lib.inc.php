@@ -1193,8 +1193,22 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 	// check if running from browser or command-line
 	$inBrowser = isset($_SERVER['HTTP_USER_AGENT']);
 
-	$dbt = $zthis->databaseType;
-	if (isset($zthis->dsnType)) $dbt .= '-'.$zthis->dsnType;
+	/*
+	* Get driver from class name
+	*/
+	$dsnType = '';
+	$classExp = explode('_',get_class($zthis));
+	$dbt = $classExp[1];
+	
+	if (count($classExp) == 3)
+	{
+		/*
+		* The driver is PDO, get the db sub-type
+		*/
+		$dsnType = $classExp[2];
+		$dbt .= '-'.$dsnType;
+	}
+
 	if ($inBrowser) {
 		if ($ss) {
 			$ss = '<code>'.htmlspecialchars($ss).'</code>';
