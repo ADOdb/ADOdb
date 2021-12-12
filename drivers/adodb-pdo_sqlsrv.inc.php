@@ -69,105 +69,35 @@ class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 
 	public $databaseType = "pdo_sqlsrv";
 
+
 	/**
-	 * returns the field object
+	 * Decodes the special PDO sqlsrv types
 	 *
-	 * @param  int $fieldOffset Optional field offset
-	 *
-	 * @return object The ADOFieldObject describing the field
+	 * @param string[] $arr 	The raw column data
+	 * @return string	The column type
 	 */
-	public function fetchField($fieldOffset = 0)
+	protected function decodePdoType($arr)
 	{
 
-		// Default behavior allows passing in of -1 offset, which crashes the method
-		if ($fieldOffset == -1) {
-			$fieldOffset++;
-		}
-
-		$o = new ADOFieldObject();
-		$arr = @$this->_queryID->getColumnMeta($fieldOffset);
-
-		if (!$arr) {
-			$o->name = 'bad getColumnMeta()';
-			$o->max_length = -1;
-			$o->type = 'VARCHAR';
-			$o->precision = 0;
-			return $o;
-		}
-		$o->name = $arr['name'];
 		if (isset($arr['sqlsrv:decl_type']) && $arr['sqlsrv:decl_type'] <> "null") {
-			// Use the SQL Server driver specific value
-			$o->type = $arr['sqlsrv:decl_type'];
-		} else {
-			$o->type = adodb_pdo_type($arr['pdo_type']);
-		}
-		$o->max_length = $arr['len'];
-		$o->precision = $arr['precision'];
-
-		switch (ADODB_ASSOC_CASE) {
-			case ADODB_ASSOC_CASE_LOWER:
-				$o->name = strtolower($o->name);
-				break;
-			case ADODB_ASSOC_CASE_UPPER:
-				$o->name = strtoupper($o->name);
-				break;
+			/* 
+			* Use the SQL Server driver specific value
+			*/
+			$type = $arr['sqlsrv:decl_type'];
 		}
 
-		return $o;
+		else 
+			$type = parent::decodePdoType($arr);
+	
+		return $type;
 	}
+	
 }
 
 class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo
 {
 
-	/**
-	 * returns the field object
-	 *
-	 * Note that this is a direct copy of the ADORecordSet_pdo_sqlsrv method
-	 *
-	 * @param  int $fieldOffset Optional field offset
-	 *
-	 * @return object The ADOfieldobject describing the field
-	 */
-	public function fetchField($fieldOffset = 0)
-	{
-		// Default behavior allows passing in of -1 offset, which crashes the method
-		if ($fieldOffset == -1) {
-			$fieldOffset++;
-		}
-
-		$o = new ADOFieldObject();
-		$arr = @$this->_queryID->getColumnMeta($fieldOffset);
-
-		if (!$arr) {
-			$o->name = 'bad getColumnMeta()';
-			$o->max_length = -1;
-			$o->type = 'VARCHAR';
-			$o->precision = 0;
-			return $o;
-		}
-		$o->name = $arr['name'];
-		if (isset($arr['sqlsrv:decl_type']) && $arr['sqlsrv:decl_type'] <> "null") {
-			// Use the SQL Server driver specific value
-			$o->type = $arr['sqlsrv:decl_type'];
-		} else {
-			$o->type = adodb_pdo_type($arr['pdo_type']);
-		}
-		$o->max_length = $arr['len'];
-		$o->precision = $arr['precision'];
-
-		switch (ADODB_ASSOC_CASE) {
-			case ADODB_ASSOC_CASE_LOWER:
-				$o->name = strtolower($o->name);
-				break;
-			case ADODB_ASSOC_CASE_UPPER:
-				$o->name = strtoupper($o->name);
-				break;
-		}
-
-		return $o;
-	}
-	
+		
 	function SetTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;
