@@ -32,9 +32,9 @@ class ADODB_pdo_firebird extends ADODB_pdo
 
 	var $arrayClass = 'ADORecordSet_array_pdo_firebird';
 
-	function _init($parentDriver)
+	function _init(ADODB_pdo $parentDriver)
 	{
-		$this->pdoDriver = $parentDriver;
+		//$this->pdoDriver = $parentDriver;
 		//$parentDriver->_bindInputArray = true;
 		//$parentDriver->hasTransactions = false; // // should be set to false because of PDO SQLite driver not supporting changing autocommit mode
 		//$parentDriver->hasInsertID = true;
@@ -89,7 +89,7 @@ class ADODB_pdo_firebird extends ADODB_pdo
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL, strtoupper($table)));
+		$rs = ADOConnection::execute(sprintf($this->metaColumnsSQL, strtoupper($table)));
 
 		$ADODB_FETCH_MODE = $save;
 
@@ -170,7 +170,7 @@ class ADODB_pdo_firebird extends ADODB_pdo
 		}
 
 		// get index details
-		$rs = $this->Execute($sql);
+		$rs = ADOConnection::execute($sql);
 		if (!is_object($rs)) {
 			// restore fetchmode
 			if (isset($savem)) {
@@ -193,7 +193,7 @@ class ADODB_pdo_firebird extends ADODB_pdo
 				);
 			}
 			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '" . $index . "' ORDER BY RDB\$FIELD_POSITION ASC";
-			$rs1 = $this->Execute($sql);
+			$rs1 = ADOConnection::execute($sql);
 			while ($row1 = $rs1->FetchRow()) {
 				$indexes[$index]['columns'][$row1[2]] = $row1[1];
 			}
@@ -229,18 +229,18 @@ class ADODB_pdo_firebird extends ADODB_pdo
 
 	public function createSequence($seqname = 'adodbseq', $startID = 1)
 	{
-		$ok = $this->execute("CREATE SEQUENCE $seqname");
+		$ok = ADOConnection::execute("CREATE SEQUENCE $seqname");
 		if (!$ok) {
 			return false;
 		}
 
-		return $this->execute("ALTER SEQUENCE $seqname RESTART WITH " . ($startID - 1));
+		return ADOConnection::execute("ALTER SEQUENCE $seqname RESTART WITH " . ($startID - 1));
 	}
 
 	public function dropSequence($seqname = 'adodbseq')
 	{
 		$seqname = strtoupper($seqname);
-		return $this->Execute("DROP SEQUENCE $seqname");
+		return ADOConnection::execute("DROP SEQUENCE $seqname");
 	}
 
 
@@ -252,11 +252,11 @@ class ADODB_pdo_firebird extends ADODB_pdo
 	public function genId($seqname = 'adodbseq', $startID = 1)
 	{
 		$getnext = ("SELECT Gen_ID($seqname,1) FROM RDB\$DATABASE");
-		$rs = @$this->execute($getnext);
+		$rs = @ADOConnection::execute($getnext);
 		if (!$rs) {
-			$this->execute(("CREATE SEQUENCE $seqname"));
-			$this->execute("ALTER SEQUENCE $seqname RESTART WITH " . ($startID - 1) . ';');
-			$rs = $this->execute($getnext);
+			ADOConnection::execute(("CREATE SEQUENCE $seqname"));
+			ADOConnection::execute("ALTER SEQUENCE $seqname RESTART WITH " . ($startID - 1) . ';');
+			$rs = ADOConnection::execute($getnext);
 		}
 		if ($rs && !$rs->EOF) {
 			$this->genID = (integer)reset($rs->fields);
@@ -283,9 +283,9 @@ class ADODB_pdo_firebird extends ADODB_pdo
 
 		$sql = preg_replace('/^[ \t]*select/i', $str, $sql);
 		if ($secs) {
-			$rs = $this->cacheExecute($secs, $sql, $inputarr);
+			$rs = ADOConnection::cacheExecute($secs, $sql, $inputarr);
 		} else {
-			$rs = $this->execute($sql, $inputarr);
+			$rs = ADOConnection::execute($sql, $inputarr);
 		}
 
 		return $rs;
@@ -404,19 +404,8 @@ class ADODB_pdo_firebird extends ADODB_pdo
  */
 class ADORecordSet_pdo_firebird extends ADORecordSet_pdo
 {
-
 	public $databaseType = "pdo_firebird";
 
-	/**
-	 * returns the field object
-	 *
-	 * @param int $fieldOffset Optional field offset
-	 *
-	 * @return object The ADOFieldObject describing the field
-	 */
-	public function fetchField($fieldOffset = 0)
-	{
-	}
 }
 
 /**
@@ -426,27 +415,5 @@ class ADORecordSet_array_pdo_firebird extends ADORecordSet_array_pdo
 {
 	public $databaseType = "pdo_firebird";
 	public $canSeek = true;
-
-	/**
-	 * returns the field object
-	 *
-	 * @param int $fieldOffset Optional field offset
-	 *
-	 * @return object The ADOFieldObject describing the field
-	 */
-	public function fetchField($fieldOffset = 0)
-	{
-
-		$fld = new ADOFieldObject;
-		$fld->name = $fieldOffset;
-		$fld->type = 'C';
-		$fld->max_length = 0;
-
-		// This needs to be populated from the metadata
-		$fld->not_null = false;
-		$fld->has_default = false;
-		$fld->default_value = 'null';
-
-		return $fld;
-	}
+	
 }
