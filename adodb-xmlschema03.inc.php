@@ -216,6 +216,8 @@ class dbObject {
  */
 class dbTable extends dbObject {
 
+	var $data;
+
 	/**
 	 * @var string Table name
 	 */
@@ -473,6 +475,8 @@ class dbTable extends dbObject {
 		} else {
 			$this->fields[$field_id]['OPTS'] = array();
 		}
+
+		return $this->fields[$field_id];
 	}
 
 	/**
@@ -495,6 +499,8 @@ class dbTable extends dbObject {
 			$this->fields[$this->FieldID( $field )]['OPTS'][] = array( $opt => $value );
 		}
 	}
+
+	return $this->fields[$this->FieldID( $field )];
 	}
 
 	/**
@@ -601,15 +607,15 @@ class dbTable extends dbObject {
 			logMsg( end( $sql ), 'Generated createTableSQL' );
 		} else {
 			// Upgrade an existing table
-			logMsg( "Upgrading {$this->name} using '{$xmls->upgrade}'" );
+			logMsg( "Upgrading {$this->name} using '{$xmls->upgrade}'", $this );
 			switch( $xmls->upgrade ) {
 				// Use ChangeTableSQL
 				case 'ALTER':
-					logMsg( 'Generated changeTableSQL (ALTERing table)' );
+					logMsg( 'Generated changeTableSQL (ALTERing table)', $this );
 					$sql[] = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
 					break;
 				case 'REPLACE':
-					logMsg( 'Doing upgrade REPLACE (testing)' );
+					logMsg( 'Doing upgrade REPLACE (testing)', $this );
 					$sql[] = $xmls->dict->dropTableSQL( $this->name );
 					$sql[] = $xmls->dict->createTableSQL( $this->name, $fldarray, $this->opts );
 					break;
@@ -636,12 +642,12 @@ class dbTable extends dbObject {
 	function drop() {
 		if( isset( $this->current_field ) ) {
 			// Drop the current field
-			logMsg( "Dropping field '{$this->current_field}' from table '{$this->name}'" );
+			logMsg( "Dropping field '{$this->current_field}' from table '{$this->name}'", $this );
 			// $this->drop_field[$this->current_field] = $xmls->dict->DropColumnSQL( $this->name, $this->current_field );
 			$this->drop_field[$this->current_field] = $this->current_field;
 		} else {
 			// Drop the current table
-			logMsg( "Dropping table '{$this->name}'" );
+			logMsg( "Dropping table '{$this->name}'", $this );
 			// $this->drop_table = $xmls->dict->DropTableSQL( $this->name );
 			$this->drop_table = TRUE;
 		}
@@ -827,6 +833,8 @@ class dbData extends dbObject {
 
 	var $row;
 
+	var $current_field;
+
 	/**
 	 * Initializes the new dbData object.
 	 *
@@ -896,11 +904,11 @@ class dbData extends dbObject {
 	}
 
 	/**
-	 * Adds a field to the insert
-	 *
-	 * @param string $name Field name
-	 * @return string Field list
-	 */
+	* Adds a field to the insert
+	*
+	* @param array $attributes Attributes
+	* @return void
+	*/
 	function addField( $attributes ) {
 		// check we're in a valid row
 		if( !isset( $this->row ) || !isset( $this->data[$this->row] ) ) {
@@ -921,11 +929,11 @@ class dbData extends dbObject {
 	}
 
 	/**
-	 * Adds options to the index
-	 *
-	 * @param string $opt Comma-separated list of index options.
-	 * @return string Option list
-	 */
+	* Adds options to the index
+	*
+	* @param string $cdata XML cdata
+	* @return void
+	*/
 	function addData( $cdata ) {
 		// check we're in a valid field
 		if ( isset( $this->data[$this->row][$this->current_field] ) ) {
@@ -1009,7 +1017,7 @@ class dbData extends dbObject {
 
 			if( !in_array( $table, $tables ) or ( $mode = $xmls->existingData() ) == XMLS_MODE_INSERT ) {
 				// Table doesn't yet exist, so it's safe to insert.
-				logMsg( "$table doesn't exist, inserting or mode is INSERT" );
+				logMsg( "$table doesn't exist, inserting or mode is INSERT", $this );
 			$sql[] = 'INSERT INTO '. $table .' ('. implode( ',', array_keys( $fields ) ) .') VALUES ('. implode( ',', $fields ) .')';
 				continue;
 		}
@@ -1020,7 +1028,7 @@ class dbData extends dbObject {
 
 			if( empty( $ukeys ) or count( $keyFields ) == 0 ) {
 				// No unique keys in schema, so safe to insert
-				logMsg( "Either schema or data has no unique keys, so safe to insert" );
+				logMsg( "Either schema or data has no unique keys, so safe to insert", $this );
 				$sql[] = 'INSERT INTO '. $table .' ('. implode( ',', array_keys( $fields ) ) .') VALUES ('. implode( ',', $fields ) .')';
 				continue;
 			}
@@ -1037,20 +1045,20 @@ class dbData extends dbObject {
 			switch( $records->recordCount() ) {
 				case 0:
 					// No matching record, so safe to insert.
-					logMsg( "No matching records. Inserting new row with unique data" );
+					logMsg( "No matching records. Inserting new row with unique data", $this );
 					$sql[] = $xmls->db->getInsertSQL( $records, $mfields );
 					break;
 				case 1:
 					// Exactly one matching record, so we can update if the mode permits.
 					logMsg( "One matching record..." );
 					if( $mode == XMLS_MODE_UPDATE ) {
-						logMsg( "...Updating existing row from unique data" );
+						logMsg( "...Updating existing row from unique data", $this );
 						$sql[] = $xmls->db->getUpdateSQL( $records, $mfields );
 					}
 					break;
 				default:
 					// More than one matching record; the result is ambiguous, so we must ignore the row.
-					logMsg( "More than one matching record. Ignoring row." );
+					logMsg( "More than one matching record. Ignoring row.", $this );
 			}
 		}
 		return $sql;
@@ -1324,9 +1332,14 @@ class dbQuerySet extends dbObject {
 class adoSchema {
 
 	/**
-	 * @var array	Array containing SQL queries to generate all objects
-	 * @access private
-	 */
+	* @var object
+	*/
+	var $obj;
+
+	/**
+	* @var array	Array containing SQL queries to generate all objects
+	* @access private
+	*/
 	var $sqlArray;
 
 	/**
@@ -1590,13 +1603,13 @@ class adoSchema {
 	function parseSchemaFile( $filename, $returnSchema = FALSE ) {
 		// Open the file
 		if( !($fp = fopen( $filename, 'r' )) ) {
-			logMsg( 'Unable to open file' );
+			logMsg( 'Unable to open file', $this );
 			return FALSE;
 		}
 
 		// do version detection here
 		if( $this->schemaFileVersion( $filename ) != $this->schemaVersion ) {
-			logMsg( 'Invalid Schema Version' );
+			logMsg( 'Invalid Schema Version', $this );
 			return FALSE;
 		}
 
@@ -1641,13 +1654,13 @@ class adoSchema {
 	 */
 	function parseSchemaString( $xmlstring, $returnSchema = FALSE ) {
 		if( !is_string( $xmlstring ) OR empty( $xmlstring ) ) {
-			logMsg( 'Empty or Invalid Schema' );
+			logMsg( 'Empty or Invalid Schema', $this );
 			return FALSE;
 		}
 
 		// do version detection here
 		if( $this->SchemaStringVersion( $xmlstring ) != $this->schemaVersion ) {
-			logMsg( 'Invalid Schema Version' );
+			logMsg( 'Invalid Schema Version', $this );
 			return FALSE;
 		}
 
@@ -1776,9 +1789,12 @@ class adoSchema {
 		$fp = fopen( $filename, "w" );
 
 		foreach( $sqlArray as $key => $query ) {
-			fwrite( $fp, $query . ";\n" );
+			if (fwrite( $fp, $query . ";\n" ) === FALSE) {
+				return FALSE;
+			};
 		}
-		fclose( $fp );
+		return fclose( $fp );
+
 	}
 
 	/**
@@ -2213,14 +2229,14 @@ class adoSchema {
 		switch( TRUE ) {
 			// clear prefix
 			case empty( $prefix ):
-				logMsg( 'Cleared prefix' );
+				logMsg( 'Cleared prefix', $this );
 				$this->objectPrefix = '';
 				return TRUE;
 			// prefix too long
 			case strlen( $prefix ) > XMLS_PREFIX_MAXLEN:
 			// prefix contains invalid characters
 			case !preg_match( '/^[a-z][a-z0-9_]+$/i', $prefix ):
-				logMsg( 'Invalid prefix: ' . $prefix );
+				logMsg( 'Invalid prefix: ' . $prefix, $this );
 				return FALSE;
 		}
 
@@ -2229,7 +2245,7 @@ class adoSchema {
 		}
 
 		// prefix valid
-		logMsg( 'Set prefix: ' . $prefix );
+		logMsg( 'Set prefix: ' . $prefix, $this );
 		$this->objectPrefix = $prefix;
 		return TRUE;
 	}
@@ -2268,18 +2284,18 @@ class adoSchema {
 
 			if( preg_match( '/^- /', $platform ) ) {
 				if (preg_match ( $regex, substr( $platform, 2 ) ) ) {
-					logMsg( 'Platform ' . $platform . ' is NOT supported' );
+					logMsg( 'Platform ' . $platform . ' is NOT supported', $this );
 					return FALSE;
 				}
 		} else {
 				if( !preg_match ( $regex, $platform ) ) {
-					logMsg( 'Platform ' . $platform . ' is NOT supported' );
+					logMsg( 'Platform ' . $platform . ' is NOT supported', $this );
 			return FALSE;
 		}
 	}
 		}
 
-		logMsg( 'Platform ' . $platform . ' is supported' );
+		logMsg( 'Platform ' . $platform . ' is supported', $this );
 		return TRUE;
 	}
 
@@ -2373,11 +2389,11 @@ class adoSchema {
 }
 
 /**
- * Message logging function
- *
- * @access private
- */
-function logMsg( $msg, $title = NULL, $force = FALSE ) {
+* Message logging function
+*
+* @access private
+*/
+function logMsg( $msg, $obj, $title = NULL, $force = FALSE ) {
 	if( XMLS_DEBUG or $force ) {
 		echo '<pre>';
 
@@ -2385,8 +2401,8 @@ function logMsg( $msg, $title = NULL, $force = FALSE ) {
 			echo '<h3>' . htmlentities( $title ) . '</h3>';
 		}
 
-		if( @is_object( $this ) ) {
-			echo '[' . get_class( $this ) . '] ';
+		if( @is_object( $obj ) ) {
+			echo '[' . get_class( $obj ) . '] ';
 		}
 
 		print_r( $msg );

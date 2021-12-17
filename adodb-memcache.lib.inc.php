@@ -401,6 +401,9 @@ class ADODB_Cache_MemCache
 			return false;
 
 		$del = $this->memcacheLibrary->flush();
+			if ($debug)
+				if (!$del) ADOConnection::outp("flushcache: $filename entry doesn't exist on memcache server!<br>\n");
+				else ADOConnection::outp("flushcache: $filename entry flushed from memcache server!<br>\n");
 
 		if ($debug)
 			if (!$del) 

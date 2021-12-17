@@ -204,8 +204,13 @@ class dbTable extends dbObject {
 	var $name;
 
 	/**
-	 * @var array Field specifier: Meta-information about each field
-	 */
+	* @var object Data object
+	*/
+	var $data;
+
+	/**
+	* @var array Field specifier: Meta-information about each field
+	*/
 	var $fields = array();
 
 	/**
@@ -426,6 +431,8 @@ class dbTable extends dbObject {
 		if( isset( $opts ) ) {
 			$this->fields[$field_id]['OPTS'][] = $opts;
 		}
+
+		return $this->fields;
 	}
 
 	/**
@@ -446,6 +453,8 @@ class dbTable extends dbObject {
 		} else {
 			$this->fields[$this->FieldID( $field )]['OPTS'][] = array( $opt => $value );
 		}
+
+		return $this->fields;
 	}
 
 	/**
@@ -545,18 +554,18 @@ class dbTable extends dbObject {
 		if( empty( $legacy_fields ) ) {
 			// Create the new table
 			$sql[] = $xmls->dict->CreateTableSQL( $this->name, $fldarray, $this->opts );
-			logMsg( end( $sql ), 'Generated CreateTableSQL' );
+			logMsg( end( $sql ), $this, 'Generated CreateTableSQL', FALSE );
 		} else {
 			// Upgrade an existing table
-			logMsg( "Upgrading {$this->name} using '{$xmls->upgrade}'" );
+			logMsg( "Upgrading {$this->name} using '{$xmls->upgrade}'", $this );
 			switch( $xmls->upgrade ) {
 				// Use ChangeTableSQL
 				case 'ALTER':
-					logMsg( 'Generated ChangeTableSQL (ALTERing table)' );
+					logMsg( 'Generated ChangeTableSQL (ALTERing table)', $this );
 					$sql[] = $xmls->dict->ChangeTableSQL( $this->name, $fldarray, $this->opts );
 					break;
 				case 'REPLACE':
-					logMsg( 'Doing upgrade REPLACE (testing)' );
+					logMsg( 'Doing upgrade REPLACE (testing)', $this );
 					$sql[] = $xmls->dict->DropTableSQL( $this->name );
 					$sql[] = $xmls->dict->CreateTableSQL( $this->name, $fldarray, $this->opts );
 					break;
@@ -583,12 +592,12 @@ class dbTable extends dbObject {
 	function drop() {
 		if( isset( $this->current_field ) ) {
 			// Drop the current field
-			logMsg( "Dropping field '{$this->current_field}' from table '{$this->name}'" );
+			logMsg( "Dropping field '{$this->current_field}' from table '{$this->name}'", $this );
 			// $this->drop_field[$this->current_field] = $xmls->dict->DropColumnSQL( $this->name, $this->current_field );
 			$this->drop_field[$this->current_field] = $this->current_field;
 		} else {
 			// Drop the current table
-			logMsg( "Dropping table '{$this->name}'" );
+			logMsg( "Dropping table '{$this->name}'", $this );
 			// $this->drop_table = $xmls->dict->DropTableSQL( $this->name );
 			$this->drop_table = TRUE;
 		}
@@ -774,14 +783,19 @@ class dbData extends dbObject {
 	var $row;
 
 	/**
-	 * Initializes the new dbIndex object.
-	 *
-	 * @param object $parent Parent object
-	 * @param array $attributes Attributes
-	 *
-	 * @internal
-	 */
-	function __construct( $parent, $attributes = NULL ) {
+	* @var string Field index: Keeps track of which field is currently being processed
+	*/
+	var $current_field;
+
+	/**
+	* Initializes the new dbIndex object.
+	*
+	* @param object $parent Parent object
+	* @param array $attributes Attributes
+	*
+	* @internal
+	*/
+	function __construct( &$parent, $attributes = NULL ) {
 		$this->parent = $parent;
 	}
 
@@ -842,11 +856,11 @@ class dbData extends dbObject {
 	}
 
 	/**
-	 * Adds a field to the index
-	 *
-	 * @param string $name Field name
-	 * @return string Field list
-	 */
+	* Adds a field to the index
+	*
+	* @param string $name Field name
+	* @return void
+	*/
 	function addField( $attributes ) {
 		if( isset( $attributes['NAME'] ) ) {
 			$name = $attributes['NAME'];
@@ -859,11 +873,11 @@ class dbData extends dbObject {
 	}
 
 	/**
-	 * Adds options to the index
-	 *
-	 * @param string $opt Comma-separated list of index options.
-	 * @return string Option list
-	 */
+	* Adds data
+	*
+	* @param $string $cdata
+	* @return void
+	*/
 	function addData( $cdata ) {
 		if( !isset( $this->data[$this->row] ) ) {
 			$this->data[$this->row] = array();
@@ -1211,6 +1225,8 @@ class dbQuerySet extends dbObject {
  * @package axmls
  */
 class adoSchema {
+
+	var $obj;
 
 	/**
 	 * @var array	Array containing SQL queries to generate all objects
@@ -1607,9 +1623,11 @@ class adoSchema {
 		$fp = fopen( $filename, "w" );
 
 		foreach( $sqlArray as $key => $query ) {
-			fwrite( $fp, $query . ";\n" );
+			if (fwrite( $fp, $query . ";\n" ) === FALSE) {
+				return FALSE;
+			};
 		}
-		fclose( $fp );
+		return fclose( $fp );
 	}
 
 	/**
@@ -2029,14 +2047,14 @@ class adoSchema {
 		switch( TRUE ) {
 			// clear prefix
 			case empty( $prefix ):
-				logMsg( 'Cleared prefix' );
+				logMsg( 'Cleared prefix', $this );
 				$this->objectPrefix = '';
 				return TRUE;
 			// prefix too long
 			case strlen( $prefix ) > XMLS_PREFIX_MAXLEN:
 			// prefix contains invalid characters
 			case !preg_match( '/^[a-z][a-z0-9_]+$/i', $prefix ):
-				logMsg( 'Invalid prefix: ' . $prefix );
+				logMsg( 'Invalid prefix: ' . $prefix, $this );
 				return FALSE;
 		}
 
@@ -2045,7 +2063,7 @@ class adoSchema {
 		}
 
 		// prefix valid
-		logMsg( 'Set prefix: ' . $prefix );
+		logMsg( 'Set prefix: ' . $prefix, $this );
 		$this->objectPrefix = $prefix;
 		return TRUE;
 	}
@@ -2082,10 +2100,10 @@ class adoSchema {
 		$regex = '/^(\w*\|)*' . $this->db->databaseType . '(\|\w*)*$/';
 
 		if( !isset( $platform ) OR preg_match( $regex, $platform ) ) {
-			logMsg( "Platform $platform is supported" );
+			logMsg( "Platform $platform is supported", $this );
 			return TRUE;
 		} else {
-			logMsg( "Platform $platform is NOT supported" );
+			logMsg( "Platform $platform is NOT supported", $this );
 			return FALSE;
 		}
 	}
@@ -2179,11 +2197,11 @@ class adoSchema {
 }
 
 /**
- * Message logging function
- *
- * @access private
- */
-function logMsg( $msg, $title = NULL, $force = FALSE ) {
+* Message logging function
+*
+* @access private
+*/
+function logMsg( $msg, $obj, $title = NULL, $force = FALSE ) {
 	if( XMLS_DEBUG or $force ) {
 		echo '<pre>';
 
@@ -2191,8 +2209,8 @@ function logMsg( $msg, $title = NULL, $force = FALSE ) {
 			echo '<h3>' . htmlentities( $title ) . '</h3>';
 		}
 
-		if( is_object( $this ) ) {
-			echo '[' . get_class( $this ) . '] ';
+		if( is_object( $obj ) ) {
+			echo '[' . get_class( $obj ) . '] ';
 		}
 
 		print_r( $msg );

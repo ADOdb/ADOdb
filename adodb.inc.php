@@ -308,6 +308,7 @@ if (!defined('_ADODB_LAYER')) {
 	class ADODB_Cache_File {
 
 		var $createdir = true; // requires creation of temp dirs
+		var $notSafeMode;
 
 		function __construct() {
 			global $ADODB_INCLUDED_CSV;
@@ -493,6 +494,8 @@ if (!defined('_ADODB_LAYER')) {
 	var $readOnly = false;			/// this is a readonly database - used by phpLens
 	var $hasMoveFirst = false;		/// has ability to run MoveFirst(), scrolling backwards
 	var $hasGenID = false;			/// can generate sequences using GenID();
+	var $_genIDSQL = null;					/// GenID is only available if $this->hasGenID = true;
+	var $_genSeqSQL = null;
 	var $hasTransactions = true;	/// has transactions
 	//--
 	var $genID = 0;					/// sequence id used by GenID();
@@ -549,7 +552,7 @@ if (!defined('_ADODB_LAYER')) {
 	var $leftOuter = false; /// operator to use for left outer join in WHERE clause
 	var $rightOuter = false; /// operator to use for right outer join in WHERE clause
 	var $ansiOuter = false; /// whether ansi outer join syntax supported
-	var $autoRollback = false; // autoRollback on PConnect().
+	var $autoRollback = false; // autoRollback on _pconnect().
 	var $poorAffectedRows = false; // affectedRows not working or unreliable
 
 	/** @var bool|callable Execute function to call */
@@ -587,6 +590,8 @@ if (!defined('_ADODB_LAYER')) {
 	var $_affected = false;
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
+	var $_metars; // meta record set
+	var $locale = ''; // SQL connection locale
 
 	/**
 	 * Additional parameters that may be passed to drivers in the connect string.
@@ -837,7 +842,7 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @return bool
 	 */
-	function Connect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "", $forceNew = false) {
+	function _connect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "", $forceNew = false) {
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
@@ -889,20 +894,6 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * Always force a new connection to database.
 	 *
-	 * @param string $argHostname     Host to connect to
-	 * @param string $argUsername     Userid to login
-	 * @param string $argPassword     Associated password
-	 * @param string $argDatabaseName Database name
-	 *
-	 * @return bool
-	 */
-	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName) {
-		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName);
-	}
-
-	/**
-	 * Always force a new connection to database.
-	 *
 	 * Currently this only works with Oracle.
 	 *
 	 * @param string $argHostname     Host to connect to
@@ -912,8 +903,8 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @return bool
 	 */
-	function NConnect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "") {
-		return $this->Connect($argHostname, $argUsername, $argPassword, $argDatabaseName, true);
+	function _nconnect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "") {
+		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName, true);
 	}
 
 	/**
@@ -926,10 +917,10 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @return bool
 	 */
-	function PConnect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "") {
+	function _pconnect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "") {
 
 		if (defined('ADODB_NEVER_PERSIST')) {
-			return $this->Connect($argHostname,$argUsername,$argPassword,$argDatabaseName);
+			return $this->_connect($argHostname,$argUsername,$argPassword,$argDatabaseName);
 		}
 
 		if ($argHostname != "") {
@@ -950,7 +941,7 @@ if (!defined('_ADODB_LAYER')) {
 
 		$this->_isPersistentConnection = true;
 
-		if ($rez = $this->_pconnect($this->host, $this->user, $argPassword, $this->database)) {
+		if ($rez = $this->Pconnect($this->host, $this->user, $argPassword, $this->database)) {
 			return true;
 		}
 		if (isset($rez)) {
@@ -1519,7 +1510,7 @@ if (!defined('_ADODB_LAYER')) {
 			}
 			$this->_queryID = _adodb_debug_execute($this, $sql,$inputarr);
 		} else {
-			$this->_queryID = @$this->_query($sql,$inputarr);
+			$this->_queryID = @$this->Query($sql,$inputarr);
 		}
 
 		// ************************
@@ -2845,7 +2836,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param array $extra Query extras: limit, offset...
 	 * @param mixed $relations Associative array: table's foreign name, "hasMany", "belongsTo"
 	 * @access public
-	 * @return void
+	 * @return array
 	 */
 	function GetActiveRecordsClass(
 			$class, $table,$whereOrderBy=false,$bindarr=false, $primkeyArr=false,
@@ -3646,6 +3637,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return '';
 	}
 
+	function _close() {}
+
 } // end class ADOConnection
 
 
@@ -3923,6 +3916,36 @@ class ADORecordSet implements IteratorAggregate {
 	function __toString() {
 		include_once(ADODB_DIR.'/toexport.inc.php');
 		return _adodb_export($this,',',',',false,true);
+	}
+
+	function _initrs() {
+		$this->_numOfRows =  sizeof($this->_array);
+		if ($this->_skiprow1) {
+			$this->_numOfRows -= 1;
+		}
+
+		$this->_numOfFields = (isset($this->_fieldobjects))
+			? sizeof($this->_fieldobjects)
+			: sizeof($this->_types);
+	}
+
+	/**
+	 * @return bool
+	 */
+	function _fetch() {
+		$pos = $this->_currentRow;
+
+		if ($this->_numOfRows <= $pos) {
+			if (!$this->compat) {
+				$this->fields = false;
+			}
+			return false;
+		}
+		if ($this->_skiprow1) {
+			$pos += 1;
+		}
+		$this->fields = $this->_array[$pos];
+		return true;
 	}
 
 	function Init() {
@@ -5201,7 +5224,6 @@ class ADORecordSet implements IteratorAggregate {
 				? sizeof($this->_fieldobjects)
 				: sizeof($this->_types);
 		}
-
 		/**
 		 * Use associative array to get fields array
 		 *
@@ -5615,11 +5637,11 @@ class ADORecordSet implements IteratorAggregate {
 					}
 				}
 				if (empty($persist)) {
-					$ok = $obj->Connect($dsna['host'], $dsna['user'], $dsna['pass'], $dsna['path']);
+					$ok = $obj->_connect($dsna['host'], $dsna['user'], $dsna['pass'], $dsna['path']);
 				} else if (empty($nconnect)) {
-					$ok = $obj->PConnect($dsna['host'], $dsna['user'], $dsna['pass'], $dsna['path']);
+					$ok = $obj->_pconnect($dsna['host'], $dsna['user'], $dsna['pass'], $dsna['path']);
 				} else {
-					$ok = $obj->NConnect($dsna['host'], $dsna['user'], $dsna['pass'], $dsna['path']);
+					$ok = $obj->_nconnect($dsna['host'], $dsna['user'], $dsna['pass'], $dsna['path']);
 				}
 
 				if (!$ok) {

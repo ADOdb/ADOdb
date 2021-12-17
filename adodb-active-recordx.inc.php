@@ -883,7 +883,7 @@ class ADODB_Active_Record {
 			$index++;
 		}
 		if(!$found) {
-			$this->outp_throw("Unable to locate key $myId for $class in Load()",'Load');
+			$db->outp_throw("Unable to locate key $myId for $class in Load()",'Load');
 		}
 
 		foreach($rows as $row) {

@@ -78,7 +78,7 @@ class ADODB_Active_Record {
 	static $_changeNames = true; // dynamically pluralize table names
 
 	/** @var bool|string Allows override of global $ADODB_QUOTE_FIELDNAMES */
-	public $_quoteNames;
+	static $_quoteNames;
 
 	static $_foreignSuffix = '_id'; //
 	var $_dbat; // associative index pointing to ADODB_Active_DB eg. $ADODB_Active_DBS[_dbat]
@@ -194,7 +194,7 @@ class ADODB_Active_Record {
 	{
 
 		if (!ADODB_Active_Record::$_changeNames) {
-			return $table;
+			return $tables;
 		}
 
 		$ut = strtoupper($tables);

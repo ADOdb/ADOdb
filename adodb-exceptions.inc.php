@@ -25,6 +25,7 @@ define('ADODB_ERROR_HANDLER','adodb_throw');
 class ADODB_Exception extends Exception {
 var $dbms;
 var $fn;
+var $msg;
 var $sql = '';
 var $params = '';
 var $host = '';
