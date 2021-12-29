@@ -174,7 +174,7 @@ class ADOdbLoadBalancer
      * @param  string $type Type of database connection, either: 'write' capable or 'readonly'
      * @return bool|int|string
      */
-    private function getConnectionByWeight($type)
+    public function getConnectionByWeight($type)
     {
         if ($type == 'readonly') {
             $total_weight = $this->total_connection_weights['all'];
@@ -233,7 +233,7 @@ class ADOdbLoadBalancer
      * @return bool|ADOConnection
      * @throws Exception
      */
-    private function _getConnection($connection_id)
+    public function _getConnection($connection_id)
     {
         if (isset($this->connections[$connection_id])) {
             $connection_obj = $this->connections[$connection_id];
@@ -324,6 +324,10 @@ class ADOdbLoadBalancer
                 throw new Exception('Connection ID is invalid!');
             }
         }
+
+		if ( !isset( $connection_id) ) {
+			throw new Exception('No connection available to use at this time! Type: '. $type );
+		}
 
         $this->last_connection_id[$type] = $connection_id;
 
@@ -605,6 +609,7 @@ class ADOdbLoadBalancer
             case 'binddate':
             case 'bindtimestamp':
             case 'setfetchmode':
+			case 'setcustommetatype':
                   $type = false; // No connection necessary.
                 break;
 
