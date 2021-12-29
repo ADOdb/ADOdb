@@ -261,6 +261,13 @@ class ADOdbLoadBalancer
                     throw $e; // No connections left, reThrow exception so application can catch it.
                 }
 
+				//Check to see if a connection test callback was defined, and if so execute it.
+				//  This is useful for testing replication lag and such to ensure the connection is suitable to be used.
+				$test_connection_callback = $connection_obj->getConnectionTestCallback();
+				if ( is_callable( $test_connection_callback ) AND $test_connection_callback( $connection_obj, $adodb_obj ) !== TRUE ) {
+					return FALSE;
+				}
+
                 if (is_array($this->user_defined_session_init_sql)) {
                     foreach ($this->user_defined_session_init_sql as $session_init_sql) {
                         $adodb_obj->Execute($session_init_sql);
@@ -299,8 +306,11 @@ class ADOdbLoadBalancer
             if ($connection_id !== false) {
                 try {
                     $adodb_obj = $this->_getConnection($connection_id);
-                    // $connection_obj = $this->connections[$connection_id];
-                    break;
+					if ( is_object( $adodb_obj ) ) {
+						break; //Found valid connection, continue with it.
+					} else {
+						throw new Exception('ADODB Connection Object does not exist. Perhaps LoadBalancer Database Connection Test Failed?');
+					}
                 } catch (Exception $e) {
                     // Connection error, see if there are other connections to try still.
                     $this->removeConnection($connection_id);
@@ -686,6 +696,11 @@ class ADOdbLoadBalancerConnection
      */
     protected $adodb_obj = false;
 
+	/**
+	 * @var callable    Closure
+	 */
+	protected $connection_test_callback = NULL;
+
     /**
      * @var string    Type of connection, either 'write' capable or 'readonly'
      */
@@ -760,6 +775,24 @@ class ADOdbLoadBalancerConnection
 
         return true;
     }
+
+	/**
+	 * Anonymous function that is called and must return TRUE for the connection to be usable.
+	 *   The first argument is the type of connection to test.
+	 *   Useful to check things like replication lag.
+	 * @param $callback
+	 * @return void
+	 */
+	function setConnectionTestCallback( $callback ) {
+		$this->connection_test_callback = $callback;
+	}
+
+	/**
+	 * @return callable|null
+	 */
+	function getConnectionTestCallback() {
+		return $this->connection_test_callback;
+	}
 
     /**
      * Returns the ADODB object for this connection.
