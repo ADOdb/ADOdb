@@ -1095,6 +1095,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				case 'CIDR':
 				case 'INET':
 				case 'MACADDR':
+				case 'UUID':
 					if ($len <= $this->blobSize) return 'C';
 
 				case 'TEXT':
@@ -1134,6 +1135,12 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				case 'OID':
 				case 'SERIAL':
 					return 'R';
+
+				case 'NUMERIC':
+				case 'DECIMAL':
+				case 'FLOAT4':
+				case 'FLOAT8':
+					return 'N';
 
 				default:
 					return ADODB_DEFAULT_METATYPE;
