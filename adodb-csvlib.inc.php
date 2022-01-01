@@ -29,11 +29,13 @@ global $ADODB_INCLUDED_CSV;
 $ADODB_INCLUDED_CSV = 1;
 
 	/**
- 	 * convert a recordset into special format
+ 	 * Convert a recordset into special format
 	 *
-	 * @param rs	the recordset
+	 * @param ADORecordSet  $rs the recordset
+	 * @param ADOConnection $conn
+	 * @param string        $sql
 	 *
-	 * @return	the CSV formatted data
+	 * @return string the CSV formatted data
 	 */
 	function _rs2serialize(&$rs,$conn=false,$sql='')
 	{

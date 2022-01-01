@@ -3903,8 +3903,7 @@ class ADORecordSet implements IteratorAggregate {
 	 * Constructor
 	 *
 	 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
-	 * @param int|bool	   $mode    The ADODB_FETCH_MODE value
-	 *
+	 * @param int|bool     $mode    The ADODB_FETCH_MODE value
 	 */
 	function __construct($queryID,$mode=false) {
 		$this->_queryID = $queryID;
@@ -5120,21 +5119,19 @@ class ADORecordSet implements IteratorAggregate {
 
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * The parameters passed to this recordset are always fake because
 		 * this class does not use the queryID
 		 *
-		 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
-		 * @param int|bool	   $mode    The ADODB_FETCH_MODE value
-		 *
+		 * @param resource|int $queryID Ignored
+		 * @param int|bool     $mode    The ADODB_FETCH_MODE value
 		 */
-		function __construct($queryId,$mode=false) {
-			
+		function __construct($queryID, $mode=false) {
 			global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
 
 			// fetch() on EOF does not delete $this->fields
 			$this->compat = !empty($ADODB_COMPAT_FETCH);
-			parent::__construct($queryId); // fake queryID
+			parent::__construct($queryID); // fake queryID
 			$this->fetchMode = $ADODB_FETCH_MODE;
 		}
 
