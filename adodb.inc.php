@@ -4876,7 +4876,10 @@ class ADORecordSet implements IteratorAggregate {
 			'BPCHAR' => 'C',
 			'CHARACTER' => 'C',
 			'INTERVAL' => 'C',  # Postgres
-			'MACADDR' => 'C', # postgres
+			'MACADDR' => 'C', # Postgres
+			'JSON' => 'C', # Postgres/MySQL
+			'JSONB' => 'C', # Postgres
+			'UUID' => 'C',
 			'VAR_STRING' => 'C', # mysql
 			##
 			'LONGCHAR' => 'X',
@@ -4940,6 +4943,9 @@ class ADORecordSet implements IteratorAggregate {
 			'DOUBLE PRECISION' => 'N',
 			'SMALLFLOAT' => 'N',
 			'FLOAT' => 'N',
+			'FLOAT4' => 'N', # Postgres
+			'FLOAT8' => 'N', # Postgres
+
 			'NUMBER' => 'N',
 			'NUM' => 'N',
 			'NUMERIC' => 'N',

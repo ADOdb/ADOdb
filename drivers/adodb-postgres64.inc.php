@@ -1096,6 +1096,8 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 				case 'INET':
 				case 'MACADDR':
 				case 'UUID':
+				case 'JSON':
+				case 'JSONB':
 					if ($len <= $this->blobSize) return 'C';
 
 				case 'TEXT':
