@@ -1898,7 +1898,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 		if ($this->_numOfRows == 0)
 			$this->_numOfRows = -1;
 
-		$this->_fetchField();
+		$this->setFieldObjectsCache();
 
 	}
 
@@ -1911,9 +1911,9 @@ class ADORecordSet_db2 extends ADORecordSet {
 	 * @param int		$fieldOffset
 	 * @return object 	containing field information
 	 */
-	protected function _fetchField($fieldOffset = -1)
+	protected function setFieldObjectsCache($fieldOffset = -1)
 	{
-		
+	
 		if ($this->fieldObjectsRetrieved) {
 			if ($this->fieldObjectsCache) {
 				// Already got the information
@@ -1931,7 +1931,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 
 		$this->fieldObjectsCache = array();
 		$max = $this->_numOfFields;
-		for ($i=0;$i<$max; $i++)
+		for ($offset=0;$offset<$max; $offset++)
 		{
 				
 			$o			   = new ADOFieldObject();
@@ -1943,7 +1943,6 @@ class ADORecordSet_db2 extends ADORecordSet {
 
 		}
 		$this->fieldObjectsRetrieved = true;
-
 	}
 
 	/**
@@ -1953,7 +1952,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 	 * 
 	 * @return bool|ADOFieldObject
 	 */
-	function fetchField($fieldOffset = -1)
+	function xfetchField($fieldOffset = -1)
 	{
 		if (array_key_exists($fieldOffset,$this->fieldObjectsCache))
 			return $this->fieldObjectsCache[$fieldOffset];
@@ -1998,6 +1997,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 
 	private function processCoreFetch()
 	{
+		
 		switch ($this->fetchMode){
 		case ADODB_FETCH_ASSOC:
 
@@ -2034,6 +2034,10 @@ class ADORecordSet_db2 extends ADORecordSet {
 
 	function _fetch()
 	{
+		if ($this->recordSetIsArray)
+		{
+			return $this->fetchFromArray();
+		}
 		$this->processCoreFetch();
 		if ($this->fields)
 			return true;
@@ -2058,3 +2062,129 @@ class ADORecordSet_db2 extends ADORecordSet {
 	}
 
 }
+
+/**
+	 * This class encapsulates the concept of a recordset created in memory
+	 * as an array. This is useful for the creation of cached recordsets.
+	 *
+	 * Note that the constructor is different from the standard ADORecordSet
+	 */
+	class ADORecordSet_array_db2 extends ADORecordSet_db2
+	{
+		var $databaseType = 'array';
+
+		
+		var $_types;	// the array of types of each column (C B I L M)
+		var $_colnames;	// names of each column in array
+		var $_fieldobjects; // holds array of field objects
+		
+		/*
+		* We can use the seek option
+		*/
+		public $canSeek = true;
+		
+		//var $affectedrows = false;
+		//var $insertid = false;
+		//var $sql = '';
+		
+
+		/**
+		 * Constructor
+		 * 
+		 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
+		 * @param int|bool	   $mode    The ADODB_FETCH_MODE value
+		 *
+		 */
+		public function __construct($queryId,$mode=false) {
+			
+			global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
+
+			/*
+			* Configure out of range handling for pointer
+			*/
+			$this->compat = !empty($ADODB_COMPAT_FETCH);
+			parent::__construct($queryId); 
+			$this->fetchMode = $ADODB_FETCH_MODE;
+		}
+		
+		/**
+		 * @param int [$nRows]
+		 * @return array
+		 */
+		public function GetArray($nRows=-1) {
+			if ($nRows == -1 && $this->_currentRow <= 0 && !$this->_skiprow1) {
+				return $this->_array;
+			} else {
+				return ADORecordSet::GetArray($nRows);
+			}
+		}
+
+		/**
+		 * Initialize the various variables if provided a recordset as an array
+		 * 
+		 * @return void
+		 */
+		public function _initrs() {
+			$this->initRecordsetFromArray();
+		}
+
+		/**
+		 * Use associative array to get fields array
+		 *
+		 * @param string $colname
+		 * @return mixed
+		 */
+		public function Fields($colname) 
+		{
+			return $this->getFieldsFromArray($colname);
+		}
+
+		
+		/**
+		 * Seeks a row when the recordset is an array and
+		 * places the result in the _currentRow variable
+		 * 
+		 * @param int $row
+		 * @return bool
+		 */
+		public function _seek($row) 
+		{
+			return $this->seekFromArray($row);
+		}
+
+		/**
+		* Moves to the next row when the recordset is an array and
+		* places the result in the fields variable
+		* Triggered by ADORecordset_array::moveNext()
+		* 
+		* @return bool success
+		*/
+		public function moveNext() 
+		{
+			return $this->moveNextInArray();
+		}
+
+		/**
+		 * Returns the current record into the fields[] 
+		 * variable if the recordset is array. Does not
+		 * advance the pointer
+		 * 
+		 * @return bool
+		 */
+		public function _fetch()
+		{
+			return $this->fetchFromArray();
+			
+		}
+
+		/**
+		 * Overrides the standard recordset close
+		 * 
+		 * @return bool true
+		 */
+		public function _close() 
+		{
+			return true;
+		}
+
+	} // ADORecordSet_array
