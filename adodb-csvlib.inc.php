@@ -83,7 +83,122 @@ $ADODB_INCLUDED_CSV = 1;
 		$rs2->InitArrayFields($rows,$flds);
 		$rs2->fetchMode = $savefetch;
 		return $line.serialize($rs2);
+		
 	}
+
+
+	/**
+	 * Unpack Json encoded data from a text file
+	 * 
+	 * We insert the decoded data into a pre-existing recordset
+	 * 
+	 * @param obj 		&$rs
+	 * @param string 	$url
+	 * @param string 	&$err
+	 * @param int 		$timeout
+	 * 
+	 * @return bool
+	 */
+	function json2rs(&$rs,$url, &$err, $timeout=0)
+	{
+		$false = false;
+		$err = false;
+		$fp = @fopen($url,'rb');
+		if (!$fp) {
+			$err = $url.' file/URL not found';
+			return false;
+		}
+		@flock($fp, LOCK_SH);
+		$arr = array();
+		$ttl = 0;
+
+		/*
+		* To use the json, we read in the entire file set
+		*/
+		$text = '';
+		while ($data = fgets($fp,128000))
+			$text .= $data;
+
+		fclose($fp);
+
+		$cacheObject = json_decode($text);
+
+		if ($cacheObject->errorNo > 0)
+			return false;
+
+		if ($cacheObject->modeIsSelect == 0)
+		{	
+
+			if ($timeout > 0) {
+				$err = " Illegal Timeout $timeout ";
+				return false;
+			}
+
+			$rs->timeCreated = $cacheObject->timeCreated;
+			$rs->sql         = $cacheObject->sql;
+			$rs->EOF 		 = 1;
+			$rs->affectedRows= $cacheObject->affectedRows;
+			$rs->insertId    = $cacheObject->insertId;
+			return true;
+		}
+		
+		# Under high volume loads, we want only 1 thread/process to _write_file
+		# so that we don't have 50 processes queueing to write the same data.
+		# We use probabilistic timeout, ahead of time.
+		#
+		# -4 sec before timeout, give processes 1/32 chance of timing out
+		# -2 sec before timeout, give processes 1/16 chance of timing out
+		# -1 sec after timeout give processes 1/4 chance of timing out
+		# +0 sec after timeout, give processes 100% chance of timing out
+
+		/*
+		* Valid Json with a select recordset
+		*/
+			
+		if($timeout >0)
+		{
+			
+			$tdiff = (integer)( $cacheObject->timeCreated + $timeout - time());
+			if ($tdiff <= 2) {
+				switch($tdiff) {
+				case 4:
+				case 3:
+					if ((rand() & 31) == 0) {
+						$err = "Timeout 3";
+						return false;
+					}
+					break;
+				case 2:
+					if ((rand() & 15) == 0) {
+						//	fclose($fp);
+						$err = "Timeout 2";
+						return false;
+					}
+					break;
+				case 1:
+					if ((rand() & 3) == 0) {
+						$err = "Timeout 1";
+						return false;
+					}
+					break;
+				default:
+					$err = "Timeout 0";
+					return false;
+				} // switch
+
+			} // if check flush cache
+		}// (timeout>0)
+		
+		$rs->timeCreated = $cacheObject->timeCreated;
+		$rs->sql         = $cacheObject->sql;
+	
+		$rs->_array		 = $cacheObject->cachedRecordset;
+		$rs->_numOfRows  = $cacheObject->numberOfRows;
+		$rs->storefieldObjectsCache($cacheObject->fieldObjectsCache);
+		$rs->recordSetIsArray     = 1;
+		return true;
+	}
+
 
 	/**
 	 * Open CSV file and convert it into Data.

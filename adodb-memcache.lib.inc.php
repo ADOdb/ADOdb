@@ -138,7 +138,7 @@ class ADODB_Cache_MemCache
 		* do we have memcache or memcached? see the note
 		* at adodb.org on memcache
 		*/
-		if (class_exists('Memcache')) 
+		if (class_exists('Memcache'))
 			$this->libraryFlag = self::MCLIB;
 		elseif (class_exists('Memcached'))
 			$this->libraryFlag = self::MCLIB;
@@ -148,7 +148,9 @@ class ADODB_Cache_MemCache
 			return false;
 		}
 		
+
 		$usedLibrary = $this->libraries[$this->libraryFlag];
+
 		
 		$memCache = new $usedLibrary;
 		if (!$memCache)
@@ -385,6 +387,66 @@ class ADODB_Cache_MemCache
 		}
 		return $rs;
 	}
+
+	/**
+	* Reads a cached query to the server
+	*
+	* @param string $filename The MD5 of the query to read
+	* @param string $err The query results
+	* @param int	$secs2cache
+	* @param obj	$rsClass **UNUSED**
+	
+	* @return the record or false.
+	*/
+	public function readCachedJson($filename, &$err, $secs2cache, $rsClass)
+	{
+		if (!$this->isConnected) $this->connect($err);
+		if (!$this->memcacheLibrary) 
+			return false;
+
+		$json = $this->memcacheLibrary->get($filename);
+		if (!$json) 
+		{
+			$err = 'Item with such key doesn\'t exist on the memcache server.';
+			return false;
+		}
+
+		$rs = json_decode($json);
+
+		$rsclass = 'ADORecordset_' . $this->connection->databaseType;
+		$rs = new $rsclass($this->connection);
+
+		if (json2rs($rs,$filename,$err,$secs2cache,$rsClass))
+			return $rs;
+		
+		if ($rs->timeCreated == 0) 
+			return $rs; // apparently have been reports that timeCreated was set to 0 somewhere
+
+		$tdiff = intval($rs->timeCreated+$secs2cache - time());
+		if ($tdiff <= 2) 
+		{
+			switch($tdiff)
+			{
+				case 2:
+					if ((rand() & 15) == 0) {
+						$err = "Timeout 2";
+						return false;
+					}
+					break;
+				case 1:
+					if ((rand() & 3) == 0) {
+						$err = "Timeout 1";
+						return false;
+					}
+					break;
+				default:
+					$err = "Timeout 0";
+					return false;
+			}
+		}
+		return $rs;
+	}
+
 
 	/**
 	* Flushes all of the stored memcache data
