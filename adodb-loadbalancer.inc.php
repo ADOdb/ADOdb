@@ -233,7 +233,7 @@ class ADOdbLoadBalancer
      * @return bool|ADOConnection
      * @throws Exception
      */
-    public function _getConnection($connection_id)
+    public function getConnectionById( $connection_id)
     {
         if (isset($this->connections[$connection_id])) {
             $connection_obj = $this->connections[$connection_id];
@@ -305,7 +305,7 @@ class ADOdbLoadBalancer
 
             if ($connection_id !== false) {
                 try {
-                    $adodb_obj = $this->_getConnection($connection_id);
+                    $adodb_obj = $this->getConnectionById($connection_id);
 					if ( is_object( $adodb_obj ) ) {
 						break; //Found valid connection, continue with it.
 					} else {
@@ -325,7 +325,7 @@ class ADOdbLoadBalancer
             }
         }
 
-		if ( !isset( $connection_id) ) {
+		if ( !isset($connection_id) ) {
 			throw new Exception('No connection available to use at this time! Type: '. $type );
 		}
 
@@ -446,7 +446,7 @@ class ADOdbLoadBalancer
                         && $connection_obj->getADOdbObject()->_connectionID !== false
                     )
                 ) {
-                    $adodb_obj = $this->_getConnection($key);
+                    $adodb_obj = $this->getConnectionById( $key);
                     if (is_object($adodb_obj)) {
                         $result_arr[] = $adodb_obj->Execute($sql, $inputarr);
                     }
