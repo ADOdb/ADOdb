@@ -302,13 +302,172 @@ if (!defined('_ADODB_LAYER')) {
 		}
 	}
 
+
+class ADOCacheMethods
+{
+	/**
+	 * Unpack Json encoded data from a text file
+	 * 
+	 * We insert the decoded data into a pre-existing recordset
+	 * 
+	 * @param obj 		&$rs
+	 * @param string 	$url
+	 * @param string 	&$err
+	 * @param int 		$timeout
+	 * 
+	 * @return bool
+	 */
+	protected function jsonDecodeRecordset(&$rs,$jsonText, &$err, $timeout=0)
+	{
+		$false = false;
+		$err = false;
+		
+		$cacheObject = json_decode($jsonText);
+
+		if ($cacheObject->errorNo > 0)
+			return false;
+
+		if ($cacheObject->modeIsSelect == 0)
+		{	
+
+			if ($timeout > 0) {
+				$err = " Illegal Timeout $timeout ";
+				return false;
+			}
+
+			$rs->timeCreated = $cacheObject->timeCreated;
+			$rs->sql         = $cacheObject->sql;
+			$rs->EOF 		 = 1;
+			$rs->affectedRows= $cacheObject->affectedRows;
+			$rs->insertId    = $cacheObject->insertId;
+			return true;
+		}
+		
+		# Under high volume loads, we want only 1 thread/process to _write_file
+		# so that we don't have 50 processes queueing to write the same data.
+		# We use probabilistic timeout, ahead of time.
+		#
+		# -4 sec before timeout, give processes 1/32 chance of timing out
+		# -2 sec before timeout, give processes 1/16 chance of timing out
+		# -1 sec after timeout give processes 1/4 chance of timing out
+		# +0 sec after timeout, give processes 100% chance of timing out
+
+		/*
+		* Valid Json with a select recordset
+		*/
+			
+		if($timeout >0)
+		{
+			
+			$tdiff = (integer)( $cacheObject->timeCreated + $timeout - time());
+			if ($tdiff <= 2) {
+				switch($tdiff) {
+				case 4:
+				case 3:
+					if ((rand() & 31) == 0) {
+						$err = "Timeout 3";
+						return false;
+					}
+					break;
+				case 2:
+					if ((rand() & 15) == 0) {
+						//	fclose($fp);
+						$err = "Timeout 2";
+						return false;
+					}
+					break;
+				case 1:
+					if ((rand() & 3) == 0) {
+						$err = "Timeout 1";
+						return false;
+					}
+					break;
+				default:
+					$err = "Timeout 0";
+					return false;
+				} // switch
+
+			} // if check flush cache
+		}// (timeout>0)
+		
+		$rs->timeCreated = $cacheObject->timeCreated;
+		$rs->sql         = $cacheObject->sql;
+	
+		$rs->_array		 = $cacheObject->cachedRecordset;
+		$rs->_numOfRows  = $cacheObject->numberOfRows;
+		$rs->storefieldObjectsCache($cacheObject->fieldObjectsCache);
+		$rs->recordSetIsArray     = 1;
+		return true;
+	}
+
+	/**
+	 * Convert a database recordset to an ADOdbCacheData recordset.
+	 *
+	 * Input recordset's cursor should be at beginning, and old $rs will be closed.
+	 *
+	 * @param ADORecordSet $rs     the recordset to copy
+	 * @param string       $sql  The SQL Statement
+	 *
+	 * @return string The json encoded set
+	 */
+	public function jsonEncodeRecordset($rs,$sql) 
+	{
+	
+		if (! $rs) {
+			return false;
+		}
+
+		$max = ($rs) ? $rs->FieldCount() : 0;
+
+		$conn = $rs->connection;
+
+		$cls = new ADORecordSetCacheData();
+
+		if ($sql) 
+			$sql = urlencode($sql);
+		
+		$cls->sql = $sql;		
+		
+		$cls->timeCreated = $rs->timeCreated;
+
+		if ($max <= 0 || $rs->dataProvider == 'empty') { // is insert/update/delete
+			
+			$cls->modeIsSelect = 0;	
+	
+			if (is_object($conn)) 
+			{
+				$cls->affectedRows = $conn->AffectedRows();
+				$cls->lastInsertId = $conn->Insert_ID();
+			} 
+		}
+		else
+		{
+
+			$cls->cachedRecordset 		= $rs->_array;
+			$cls->numberOfRows 			= $rs->_numOfRows;
+			$cls->fieldObjectsCache 	= $rs->fetchField(-1);
+			$cls->fieldObjectsRetrieved = 1;
+		}
+		return json_encode($cls);
+
+	}
+
+}
+
+
 	/**
 	 * Class ADODB_Cache_File
+	 * 
+	 * Handles recordset caching via a disk based directory/file system
 	 */
-	class ADODB_Cache_File {
+	class ADODB_Cache_File extends ADOCacheMethods
+	{
 
 		var $createdir = true; // requires creation of temp dirs
 		
+		/*
+		* Stores the connection
+		*/
 		public $connection;
 
 		function __construct($connection) {
@@ -368,12 +527,34 @@ if (!defined('_ADODB_LAYER')) {
 
 			$rsclass = 'ADORecordset_' . $this->connection->databaseType;
 			$rs = new $rsclass($this->connection);
+			
+			$false = false;
+			$err = false;
+			$fp = @fopen($filename,'rb');
+			if (!$fp) {
+				$err = $filename.' file/URL not found';
+				return false;
+			}
+			
+			@flock($fp, LOCK_SH);
+			
+			/*
+			* To use the json, we read in the entire file set
+			*/
+			$text = '';
+			while ($data = fgets($fp,128000))
+				$text .= $data;
 
-			if (json2rs($rs,$filename,$err,$secs2cache,$rsClass))
+			fclose($fp);
+
+
+			if ($this->jsonDecodeRecordset($rs,$text,$err,$secs2cache,$rsClass))
 				return $rs;
 
 			return $false;
 		}
+
+		
 
 
 		/**
@@ -2030,7 +2211,8 @@ if (!defined('_ADODB_LAYER')) {
 
 	
 	/**
-	 * Convert a database recordset to an Array Based recordset.
+	 * Convert a database recordset to an Array Based recordset. This version only
+	 * works with Json based cache storage
 	 *
 	 * Input recordset's cursor should be at beginning, and old $rs will be closed.
 	 *
@@ -2077,8 +2259,6 @@ if (!defined('_ADODB_LAYER')) {
 		$rs->_currentRow = 0;
 		$rs->EOF = 0;
 
-		$max = ($rs) ? $rs->FieldCount() : 0;		
-
 		if (!$rs->timeCreated)
 			$rs->timeCreated = time();
 
@@ -2087,86 +2267,11 @@ if (!defined('_ADODB_LAYER')) {
 
 	}
 
-	/**
-	 * Convert a database recordset to an ADOdb_Cache recordset.
-	 *
-	 * Input recordset's cursor should be at beginning, and old $rs will be closed.
-	 *
-	 * @param ADORecordSet $rs     the recordset to copy
-	 * @param string       $sql  The SQL Statement
-	 *
-	 * @return string The json encoded set
-	 */
-	protected function jsonEncodeRecordset($rs,$sql) 
-	{
 	
-		if (! $rs) {
-			return false;
-		}
 
-		$dbtype = $rs->databaseType;
-		if (!$dbtype) {
-			return $rs;
-		}
-		if (($dbtype == 'array' || $dbtype == 'csv') && $nrows == -1 && $offset == -1) {
-			$rs->MoveFirst();
-			return $rs;
-		}
-		/*
-		* Return an array of records 
-		*/
-		$arr = $rs->GetArrayLimit($nrows,$offset);
-		if ($close) {
-			$rs->Close();
-		}
-
-		$conn = $rs->connection;
-
-		/*
-		*Set up the recordset as an array
-		*/
-		$rs->_array = $arr;
-		$rs->databaseType = 'array';
-		$rs->recordSetIsArray = 1;
-		$rs->_numOfRows = count($rs->_array);
-		$rs->fields = $rs->_array[0];
-		$rs->_currentRow = 0;
-		$rs->EOF = 0;
-
-		$max = ($rs) ? $rs->FieldCount() : 0;		
-
-		if (!$rs->timeCreated)
-			$rs->timeCreated = time();
-
-		$cls = new ADORecordSet_cache();
-
-		if ($sql) 
-			$sql = urlencode($sql);
-		$cls->sql = $sql;		
-		
-		$cls->timeCreated = $rs->timeCreated;
-
-		if ($max <= 0 || $rs->dataProvider == 'empty') { // is insert/update/delete
-			
-			$cls->modeIsSelect = 0;	
 	
-			if (is_object($conn)) 
-			{
-				$cls->affectedRows = $conn->AffectedRows();
-				$cls->lastInsertId = $conn->Insert_ID();
-			} 
-		}
-		else
-		{
 
-			$cls->cachedRecordset 		= $rs->_array;
-			$cls->numberOfRows 			= $rs->_numOfRows;
-			$cls->fieldObjectsCache 	= $rs->fetchField(-1);
-			$cls->fieldObjectsRetrieved = 1;
-		}
-		return json_encode($cls);
 
-	}
 
 	/**
 	 * Return all rows.
@@ -2690,7 +2795,7 @@ if (!defined('_ADODB_LAYER')) {
 					* ADOdb_cached recordset
 					* by reading entire recordset into memory immediately
 					*/ 
-					$txt = $this->jsonEncodeRecordset($rs,$sql);
+					$txt = $ADODB_CACHE->jsonEncodeRecordset($rs,$sql);
 					
 				}
 				else
@@ -6251,22 +6356,57 @@ class ADORecordSet implements IteratorAggregate {
 
 
 /**
-	 * Lightweight recordset to store cached sets
-	 */
-	class ADORecordSet_cache
-	{
-		public $timeCreated;
-		public $sql;
-		public $cachedRecordset = array();
-		public $recordSetIsArray = 1;
-		public $numberOfRows = 0;
-		public $fieldObjectsCache = array();
-		public $fieldObjectsRetrieved = 0;
-		public $errorMessage;
-		public $errorNo = 0;
-		public $modeIsSelect = 1;
-		public $affectedRows = 0;
-		public $lastInsertId = 0;
+ * Lightweight recordset to store cached sets. 
+ * 
+ * This class cannot be used by the driver itself. Its only role
+ * is to store data for Cached execute functions. It is handled
+ * by json encoding/decoding into the cache storage method. When we want
+ * to use it, we push it back into the ADORecordSet_array_<driver> class
+ */
+class ADORecordSetCacheData
+{
+	/*
+	* The expiry of the recordset is determined here
+	*/
+	public $timeCreated;
+
+	/*
+	* The sql that generated the md5 for the cache lookup
+	*/
+	public $sql;
+
+	/*
+	* The statement results are stored here
+	*/
+	public $cachedRecordset = array();
+	public $recordSetIsArray = 1;
+
+	/*
+	* The result set rowcount
+	*/
+	public $numberOfRows = 0;
+
+	/*
+	* We store the fieldobjects so that if we retrieve
+	* the recordset from cache, we do not need to interact
+	* with the database at all
+	*/
+	public $fieldObjectsCache = array();
+	public $fieldObjectsRetrieved = 0;
+
+	/*
+	* Generic error usage
+	*/
+	public $errorMessage;
+	public $errorNo = 0;
+
+	/*
+	* If the cached recordset is a non-select, we store
+	* the results into the variables
+	*/
+	public $modeIsSelect = 1;
+	public $affectedRows = 0;
+	public $lastInsertId = 0;
 
 	}
 

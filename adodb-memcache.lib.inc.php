@@ -29,7 +29,7 @@ global $ADODB_INCLUDED_CSV;
 if (empty($ADODB_INCLUDED_CSV)) 
 	include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
 
-class ADODB_Cache_MemCache 
+class ADODB_Cache_MemCache extends ADOCacheMethods
 {
 	/*
 	* Prevents parent class calling non-existant function
@@ -108,6 +108,12 @@ class ADODB_Cache_MemCache
 	* An indicator of which library we are using
 	*/
 	private $libraryFlag;
+
+	/*
+	* Holds a copy of the database connection
+	*/
+	public $connection;
+
 	
 	/**
 	* constructor passes in a ADONewConnection Object
@@ -116,12 +122,14 @@ class ADODB_Cache_MemCache
 	*
 	* @return obj
 	*/
-	public function __construct(&$db)
+	public function __construct(&$connection)
 	{
-		$this->hosts 	= $db->memCacheHost;
-		$this->port  	= $db->memCachePort;
-		$this->compress = $db->memCacheCompress;
-		$this->options  = $db->memCacheOptions;
+		$this->hosts 	= $connection->memCacheHost;
+		$this->port  	= $connection->memCachePort;
+		$this->compress = $connection->memCacheCompress;
+		$this->options  = $connection->memCacheOptions;
+
+		$this->connection = $connection;
 		
 	}
 
@@ -147,7 +155,7 @@ class ADODB_Cache_MemCache
 			$err = 'Neither the Memcache nor Memcached PECL extensions were found!';
 			return false;
 		}
-		
+
 
 		$usedLibrary = $this->libraries[$this->libraryFlag];
 
@@ -158,7 +166,7 @@ class ADODB_Cache_MemCache
 			$err = 'Memcache library failed to initialize';
 			return false;
 		}
-		
+
 		/*
 		* Convert simple compression flag for memcached
 		*/
@@ -264,7 +272,7 @@ class ADODB_Cache_MemCache
 			return false;
 
 		}
-		
+
 		$this->memcacheLibrary = $memCache;
 
 		/*
@@ -411,40 +419,15 @@ class ADODB_Cache_MemCache
 			return false;
 		}
 
-		$rs = json_decode($json);
-
 		$rsclass = 'ADORecordset_' . $this->connection->databaseType;
 		$rs = new $rsclass($this->connection);
 
-		if (json2rs($rs,$filename,$err,$secs2cache,$rsClass))
-			return $rs;
-		
-		if ($rs->timeCreated == 0) 
-			return $rs; // apparently have been reports that timeCreated was set to 0 somewhere
 
-		$tdiff = intval($rs->timeCreated+$secs2cache - time());
-		if ($tdiff <= 2) 
-		{
-			switch($tdiff)
-			{
-				case 2:
-					if ((rand() & 15) == 0) {
-						$err = "Timeout 2";
-						return false;
-					}
-					break;
-				case 1:
-					if ((rand() & 3) == 0) {
-						$err = "Timeout 1";
-						return false;
-					}
-					break;
-				default:
-					$err = "Timeout 0";
-					return false;
-			}
-		}
-		return $rs;
+		if ($this->jsonDecodeRecordset($rs,$json,$err,$secs2cache,$rsClass))
+			return $rs;
+
+		return false;
+		
 	}
 
 
