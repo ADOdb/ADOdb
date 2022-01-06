@@ -459,6 +459,12 @@ if (!defined('_ADODB_LAYER')) {
 	var $dataProvider = 'native';
 	var $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
 	var $database = '';			/// Name of database to be used.
+
+	/*
+	* If the driver is PDO, then the dsnType is e.g. sqlsrv, otherwise empty
+	*/
+	public $dsnType = '';
+
 	var $host = '';				/// The hostname of the database server
 	var $port = '';				/// The port of the database server
 	var $user = '';				/// The username which is used to connect to the database server.
