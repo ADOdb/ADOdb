@@ -45,6 +45,8 @@ Older changelogs:
   [#732](https://github.com/ADOdb/ADOdb/issues/732)
 - Code cleanup: PHPDoc, code style, whitespace, PHPStan errors, etc.
   [#774](https://github.com/ADOdb/ADOdb/issues/774)
+- loadbalancer: support calling a function upon connection
+  [#784](https://github.com/ADOdb/ADOdb/issues/784)
 
 ### Deprecated
 
