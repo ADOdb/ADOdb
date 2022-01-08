@@ -42,6 +42,11 @@ Older changelogs:
 - xml: add field comments
   [#732](https://github.com/ADOdb/ADOdb/issues/732)
 
+### Deprecated
+
+- Database Replication add-on
+  [#780](https://github.com/ADOdb/ADOdb/issues/780)
+
 ### Removed
 
 - Transpose() function and assorted sub-functions 
