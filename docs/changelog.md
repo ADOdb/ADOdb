@@ -26,6 +26,8 @@ Older changelogs:
   [#676](https://github.com/ADOdb/ADOdb/issues/676)
 - mssql: implement offsetDate() method
   [#698](https://github.com/ADOdb/ADOdb/issues/698)
+- oci8: new ADOConnection::releaseStatement() method
+  [#770](https://github.com/ADOdb/ADOdb/issues/770)
 - sqlite3 performance monitor stub
   [#661](https://github.com/ADOdb/ADOdb/issues/661)
 - sqlite: support blob handling

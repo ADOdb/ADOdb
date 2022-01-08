@@ -1050,6 +1050,17 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
+	 * Releases a previously prepared statement.
+	 *
+	 * @param mixed $stmt Statement resource, as returned by {@see prepare()}
+	 *
+	 * @return bool
+	 */
+	function releaseStatement($stmt) {
+		return true;
+	}
+
+	/**
 	 * Prepare a Stored Procedure and return the statement resource.
 	 *
 	 * Some databases, eg. mssql require a different function for preparing

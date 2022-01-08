@@ -1094,6 +1094,16 @@ END;
 		return array($sql,$stmt,0,$BINDNUM);
 	}
 
+	function releaseStatement($stmt)
+	{
+		if (is_array($stmt) && is_resource($stmt[1])) {
+			return oci_free_statement($stmt[1]);
+		}
+
+		// Not a valid prepared statement
+		return false;
+	}
+
 	/*
 		Call an oracle stored procedure and returns a cursor variable as a recordset.
 		Concept by Robert Tuttle robert@ud.com
