@@ -460,9 +460,9 @@ if (!defined('_ADODB_LAYER')) {
 	var $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
 	var $database = '';			/// Name of database to be used.
 
-	/*
-	* If the driver is PDO, then the dsnType is e.g. sqlsrv, otherwise empty
-	*/
+	/**
+	 * @var string If the driver is PDO, then the dsnType is e.g. sqlsrv, otherwise empty
+	 */
 	public $dsnType = '';
 
 	var $host = '';				/// The hostname of the database server
