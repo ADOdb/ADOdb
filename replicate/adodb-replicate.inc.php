@@ -2,6 +2,8 @@
 /**
  * Replication engine
  *
+ * @deprecated 5.22.0 Will be removed in 5.23.0 {@link https://github.com/ADOdb/ADOdb/issues/780)
+ *
  * - Copy table structures and data from different databases
  *   (e.g. mysql to oracle)
  * - Generate CREATE TABLE, CREATE INDEX, INSERT for installation scripts

@@ -39,8 +39,19 @@ Older changelogs:
   [#725](https://github.com/ADOdb/ADOdb/issues/725)
 - mysql: Support bound variable statements
   [#655](https://github.com/ADOdb/ADOdb/issues/655)
+- pgsql: missing standard datatypes
+  [#782](https://github.com/ADOdb/ADOdb/issues/782)
 - xml: add field comments
   [#732](https://github.com/ADOdb/ADOdb/issues/732)
+- Code cleanup: PHPDoc, code style, whitespace, PHPStan errors, etc.
+  [#774](https://github.com/ADOdb/ADOdb/issues/774)
+- loadbalancer: support calling a function upon connection
+  [#784](https://github.com/ADOdb/ADOdb/issues/784)
+
+### Deprecated
+
+- Database Replication add-on
+  [#780](https://github.com/ADOdb/ADOdb/issues/780)
 
 ### Removed
 
@@ -53,6 +64,14 @@ Older changelogs:
 
 - metaIndexes does not return primary key correctly
   [#656](https://github.com/ADOdb/ADOdb/issues/656)
+- Methods return E_DEPRECATED with PHP8.1
+  [#771](https://github.com/ADOdb/ADOdb/issues/771)
+- Uniformize ADOrecordSet::__construct() parameters
+  [#772](https://github.com/ADOdb/ADOdb/issues/772)
+- Prevent PHP warning when throwing exception with P1 or P2 parameter as array
+  [#783](https://github.com/ADOdb/ADOdb/issues/783)
+- $dsnType property not defined before use
+  [#789](https://github.com/ADOdb/ADOdb/issues/789)
 - mysql: Update socket and client flags for ssl
   [#622](https://github.com/ADOdb/ADOdb/issues/622)
 - mysql: Handle tables that are reserved words
@@ -73,8 +92,12 @@ Older changelogs:
   [#697](https://github.com/ADOdb/ADOdb/issues/697)
 - sqlite: undeclared connection property
   [#713](https://github.com/ADOdb/ADOdb/issues/713)
+- xml: Undefined array key error
+  [#775](https://github.com/ADOdb/ADOdb/issues/775)
+- memcache: library does not initialize correctly
+  [#788](https://github.com/ADOdb/ADOdb/issues/788)
 
-  
+
 ## [5.21.3] - 2021-10-31
 
 ### Fixed

@@ -460,9 +460,9 @@ if (!defined('_ADODB_LAYER')) {
 	var $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
 	var $database = '';			/// Name of database to be used.
 
-	/*
-	* If the driver is PDO, then the dsnType is e.g. sqlsrv, otherwise empty
-	*/
+	/**
+	 * @var string If the driver is PDO, then the dsnType is e.g. sqlsrv, otherwise empty
+	 */
 	public $dsnType = '';
 
 	var $host = '';				/// The hostname of the database server
@@ -1031,14 +1031,14 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Prepare an sql statement and return the statement resource.
+	 * Prepare an SQL statement and return the statement resource.
 	 *
-	 * For databases that do not support this, we return the $sql. To ensure
-	 * compatibility with databases that do not support prepare:
+	 * For databases that do not support prepared statements, we return the
+	 * provided SQL statement as-is, to ensure compatibility:
 	 *
-	 *   $stmt = $db->Prepare("insert into table (id, name) values (?,?)");
-	 *   $db->Execute($stmt,array(1,'Jill')) or die('insert failed');
-	 *   $db->Execute($stmt,array(2,'Joe')) or die('insert failed');
+	 *   $stmt = $db->prepare("insert into table (id, name) values (?,?)");
+	 *   $db->execute($stmt, array(1,'Jill')) or die('insert failed');
+	 *   $db->execute($stmt, array(2,'Joe')) or die('insert failed');
 	 *
 	 * @param string $sql SQL to send to database
 	 *
