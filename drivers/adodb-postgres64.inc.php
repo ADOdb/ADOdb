@@ -22,15 +22,6 @@
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
-function adodb_addslashes($s)
-{
-	$len = strlen($s);
-	if ($len == 0) return "''";
-	if (strncmp($s,"'",1) === 0 && substr($s,$len-1) == "'") return $s; // already quoted
-
-	return "'".addslashes($s)."'";
-}
-
 class ADODB_postgres64 extends ADOConnection{
 	var $databaseType = 'postgres64';
 	var $dataProvider = 'postgres';
@@ -693,21 +684,33 @@ class ADODB_postgres64 extends ADOConnection{
 
 		$this->_errorMsg = false;
 
+		// If $user, $pwd and $db are all null, then $str is a pg_connect()
+		// connection string. Otherwise we expect it to be a hostname,
+		// with optional port separated by ':'
 		if ($user || $pwd || $db) {
-			$user = adodb_addslashes($user);
-			$pwd = adodb_addslashes($pwd);
-			if (strlen($db) == 0) $db = 'template1';
-			$db = adodb_addslashes($db);
-			if ($str)  {
-				$host = explode(":", $str);
-				if ($host[0]) $str = "host=".adodb_addslashes($host[0]);
-				else $str = '';
-				if (isset($host[1])) $str .= " port=$host[1]";
-				else if (!empty($this->port)) $str .= " port=".$this->port;
+			// Hostname & port
+			if ($str) {
+				$host = explode(':', $str);
+				if ($host[0]) {
+					$conn['host'] = $host[0];
+				}
+				if (isset($host[1])) {
+					$conn['port'] = (int)$host[1];
+				} elseif (!empty($this->port)) {
+					$conn['port'] = $this->port;
+				}
 			}
-			if ($user) $str .= " user=".$user;
-			if ($pwd)  $str .= " password=".$pwd;
-			if ($db)   $str .= " dbname=".$db;
+			$conn['user'] = $user;
+			$conn['password'] = $pwd;
+			// @TODO not sure why we default to 'template1', pg_connect() uses the username when dbname is empty
+			$conn['dbname'] = $db ?: 'template1';
+
+			// Generate connection string
+			$str = '';
+			foreach ($conn as $param => $value) {
+				// Escaping single quotes and backslashes per pg_connect() documentation
+				$str .= $param . "='" . addcslashes($value, "'\\") . "' ";
+			}
 		}
 
 		//if ($user) $linea = "user=$user host=$linea password=$pwd dbname=$db port=5432";
