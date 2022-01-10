@@ -1056,7 +1056,7 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @return bool
 	 */
-	function releaseStatement($stmt) {
+	function releaseStatement(&$stmt) {
 		return true;
 	}
 

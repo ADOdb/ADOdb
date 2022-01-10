@@ -1094,10 +1094,16 @@ END;
 		return array($sql,$stmt,0,$BINDNUM);
 	}
 
-	function releaseStatement($stmt)
+	function releaseStatement(&$stmt)
 	{
-		if (is_array($stmt) && is_resource($stmt[1])) {
-			return oci_free_statement($stmt[1]);
+		if (is_array($stmt)
+			&& isset($stmt[1])
+			&& is_resource($stmt[1])
+			&& oci_free_statement($stmt[1])
+		) {
+			// Clearing the resource to avoid it being of type Unknown
+			$stmt[1] = null;
+			return true;
 		}
 
 		// Not a valid prepared statement
