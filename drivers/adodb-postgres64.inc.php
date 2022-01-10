@@ -673,14 +673,26 @@ class ADODB_postgres64 extends ADOConnection{
 		return $indexes;
 	}
 
-	// returns true or false
-	//
-	// examples:
-	// 	$db->Connect("host=host1 user=user1 password=secret port=4341");
-	// 	$db->Connect('host1','user1','secret');
-	function _connect($str,$user='',$pwd='',$db='',$ctype=0)
+	/**
+	 * Connect to a database.
+	 *
+	 * Examples:
+	 *   $db->Connect("host=host1 user=user1 password=secret port=4341");
+	 *   $db->Connect('host1:4341', 'user1', 'secret');
+	 *
+	 * @param string $str  pg_connect() Connection string or Hostname[:port]
+	 * @param string $user (Optional) The username to connect as.
+	 * @param string $pwd  (Optional) The password to connect with.
+	 * @param string $db   (Optional) The name of the database to start in when connected.
+	 * @param int $ctype   Connection type
+	 * @return bool|null   True if connected successfully, false if connection failed, or
+	 *                     null if the PostgreSQL extension is not loaded.
+	 */
+	function _connect($str, $user='', $pwd='', $db='', $ctype=0)
 	{
-		if (!function_exists('pg_connect')) return null;
+		if (!function_exists('pg_connect')) {
+			return null;
+		}
 
 		$this->_errorMsg = false;
 
@@ -712,8 +724,6 @@ class ADODB_postgres64 extends ADOConnection{
 				$str .= $param . "='" . addcslashes($value, "'\\") . "' ";
 			}
 		}
-
-		//if ($user) $linea = "user=$user host=$linea password=$pwd dbname=$db port=5432";
 
 		if ($ctype === 1) { // persistent
 			$this->_connectionID = pg_pconnect($str);
