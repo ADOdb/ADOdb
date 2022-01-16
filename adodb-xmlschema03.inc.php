@@ -1320,7 +1320,7 @@ class dbQuerySet extends dbObject {
  * @tutorial getting_started.pkg
  *
  * @author Richard Tango-Lowy & Dan Cech
- * @version $Revision: 1.62 $
+ * @version 1.62
  *
  * @package axmls
  */
