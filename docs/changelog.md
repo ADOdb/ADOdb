@@ -14,6 +14,19 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
+## [5.21.4] - 2022-01-22
+
+### Fixed
+
+- Methods return E_DEPRECATED with PHP8.1
+  [#771](https://github.com/ADOdb/ADOdb/issues/771)
+
+### Security
+
+- pgsql: authentication bypass in connect functions (CVE-2021-3850)
+  [#793](https://github.com/ADOdb/ADOdb/issues/793)
+
+
 ## [5.21.3] - 2021-10-31
 
 ### Fixed
@@ -1129,8 +1142,9 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.3...master
+[Unreleased]: https://github.com/adodb/adodb/compare/v5.21.4...hotfix/5.21
 
+[5.21.4]: https://github.com/adodb/adodb/compare/v5.21.3...v5.21.4
 [5.21.3]: https://github.com/adodb/adodb/compare/v5.21.2...v5.21.3
 [5.21.2]: https://github.com/adodb/adodb/compare/v5.21.1...v5.21.2
 [5.21.1]: https://github.com/adodb/adodb/compare/v5.21.0...v5.21.1
