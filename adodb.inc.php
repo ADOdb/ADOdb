@@ -14,7 +14,7 @@
 /**
 	\mainpage
 
-	@version   v5.20.20  01-Feb-2021
+	@version   v5.20.21  22-Jan-2022
 	@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
 	@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
 
@@ -224,7 +224,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'v5.20.20  01-Feb-2021';
+		$ADODB_vers = 'v5.20.21  22-Jan-2022';
 
 		/**
 		 * Determines whether recordset->RecordCount() is used.
