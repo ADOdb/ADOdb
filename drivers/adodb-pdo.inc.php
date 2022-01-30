@@ -92,26 +92,6 @@ class ADODB_pdo extends ADOConnection {
 	*/
 	public $pdoParameters = array();
 
-	function _UpdatePDO()
-	{
-		$d = $this->_driver;
-		$this->fmtDate = $d->fmtDate;
-		$this->fmtTimeStamp = $d->fmtTimeStamp;
-		$this->replaceQuote = $d->replaceQuote;
-		$this->sysDate = $d->sysDate;
-		$this->sysTimeStamp = $d->sysTimeStamp;
-		$this->random = $d->random;
-		$this->concat_operator = $d->concat_operator;
-		$this->nameQuote = $d->nameQuote;
-		$this->arrayClass = $d->arrayClass;
-
-		$this->hasGenID = $d->hasGenID;
-		$this->_genIDSQL = $d->_genIDSQL;
-		$this->_genSeqSQL = $d->_genSeqSQL;
-		$this->_dropSeqSQL = $d->_dropSeqSQL;
-
-		$d->_init($this);
-	}
 
 	function Time()
 	{
@@ -197,37 +177,13 @@ class ADODB_pdo extends ADOConnection {
 				}
 			}
 
-			$class = 'ADODB_pdo_'.$this->dsnType;
-			//$this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT,true);
-			switch($this->dsnType) {
-				case 'mssql':
-				case 'mysql':
-				case 'oci':
-				case 'pgsql':
-				case 'sqlite':
-				case 'sqlsrv':
-				case 'firebird':
-				case 'dblib':
-					include_once(ADODB_DIR.'/drivers/adodb-pdo_'.$this->dsnType.'.inc.php');
-					break;
-			}
-			if (class_exists($class)) {
-				$this->_driver = new $class();
-			}
-			else {
-				$this->_driver = new ADODB_pdo_base();
-			}
-
-			$this->_driver->_connectionID = $this->_connectionID;
-			$this->_UpdatePDO();
-			$this->_driver->database = $this->database;
 			return true;
 		}
 		$this->_driver = new ADODB_pdo_base();
 		return false;
 	}
 
-	function Concat()
+	function xConcat()
 	{
 		$args = func_get_args();
 		if(method_exists($this->_driver, 'Concat')) {
@@ -245,7 +201,7 @@ class ADODB_pdo extends ADOConnection {
 	 *
 	 * @return string
 	 */
-	public function param($name,$type='C') {
+	public function xparam($name,$type='C') {
 
 		$args = func_get_args();
 		if(method_exists($this->_driver, 'param')) {
@@ -308,8 +264,8 @@ class ADODB_pdo extends ADOConnection {
 	 */
 	public function metaPrimaryKeys($table,$owner=false)
 	{
-		if (method_exists($this->_driver,'metaPrimaryKeys'))
-			return $this->_driver->metaPrimaryKeys($table,$owner);
+		//if (method_exists($this->_driver,'metaPrimaryKeys'))
+		//	return $this->_driver->metaPrimaryKeys($table,$owner);
 	}
 
 	/**
@@ -324,8 +280,8 @@ class ADODB_pdo extends ADOConnection {
 	 *                        false if no foreign keys could be found.
 	 */
 	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false) {
-		if (method_exists($this->_driver,'metaForeignKeys'))
-			return $this->_driver->metaForeignKeys($table, $owner, $upper, $associative);
+		//if (method_exists($this->_driver,'metaForeignKeys'))
+		//	return $this->_driver->metaForeignKeys($table, $owner, $upper, $associative);
 	}
 
 	/**
@@ -346,8 +302,8 @@ class ADODB_pdo extends ADOConnection {
 	 *         )
 	 */
 	public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
-		if (method_exists($this->_driver,'metaProcedures'))
-			return $this->_driver->metaProcedures($procedureNamePattern,$catalog,$schemaPattern);
+		//if (method_exists($this->_driver,'metaProcedures'))
+		// return $this->_driver->metaProcedures($procedureNamePattern,$catalog,$schemaPattern);
 		return false;
 	}
 
@@ -438,28 +394,32 @@ class ADODB_pdo extends ADOConnection {
 	/**
 	 * @param bool $auto_commit
 	 * @return void
-	 */
+	 
 	function SetAutoCommit($auto_commit)
 	{
 		if(method_exists($this->_driver, 'SetAutoCommit')) {
 			$this->_driver->SetAutoCommit($auto_commit);
 		}
 	}
+	*/
 
+	
 	function SetTransactionMode($transaction_mode)
 	{
-		if(method_exists($this->_driver, 'SetTransactionMode')) {
-			return $this->_driver->SetTransactionMode($transaction_mode);
-		}
+		//if(method_exists($this->_driver, 'SetTransactionMode')) {
+		//	return $this->_driver->SetTransactionMode($transaction_mode);
+		//}
 
 		return parent::SetTransactionMode($transaction_mode);
 	}
+	
 
+	
 	function beginTrans()
 	{
-		if(method_exists($this->_driver, 'beginTrans')) {
-			return $this->_driver->beginTrans();
-		}
+		//if(method_exists($this->_driver, 'beginTrans')) {
+		//	return $this->_driver->beginTrans();
+		//}
 
 		if (!$this->hasTransactions) {
 			return false;
@@ -477,9 +437,9 @@ class ADODB_pdo extends ADOConnection {
 	function commitTrans($ok=true)
 	{
 
-		if(method_exists($this->_driver, 'commitTrans')) {
-			return $this->_driver->commitTrans($ok);
-		}
+		//if(method_exists($this->_driver, 'commitTrans')) {
+		//	return $this->_driver->commitTrans($ok);
+		//}
 
 		if (!$this->hasTransactions) {
 			return false;
@@ -502,9 +462,9 @@ class ADODB_pdo extends ADOConnection {
 
 	function RollbackTrans()
 	{
-		if(method_exists($this->_driver, 'RollbackTrans')) {
-			return $this->_driver->RollbackTrans();
-		}
+		//if(method_exists($this->_driver, 'RollbackTrans')) {
+		//	return $this->_driver->RollbackTrans();
+		//}
 
 		if (!$this->hasTransactions) {
 			return false;
@@ -544,27 +504,27 @@ class ADODB_pdo extends ADOConnection {
 
 	public function createSequence($seqname='adodbseq',$startID=1)
 	{
-		if(method_exists($this->_driver, 'createSequence')) {
-			return $this->_driver->createSequence($seqname, $startID);
-		}
+		//if(method_exists($this->_driver, 'createSequence')) {
+		//	return $this->_driver->createSequence($seqname, $startID);
+		//}
 
 		return parent::CreateSequence($seqname, $startID);
 	}
 
 	function DropSequence($seqname='adodbseq')
 	{
-		if(method_exists($this->_driver, 'DropSequence')) {
-			return $this->_driver->DropSequence($seqname);
-		}
+		//if(method_exists($this->_driver, 'DropSequence')) {
+		//	return $this->_driver->DropSequence($seqname);
+		//}
 
 		return parent::DropSequence($seqname);
 	}
 
 	function GenID($seqname='adodbseq',$startID=1)
 	{
-		if(method_exists($this->_driver, 'GenID')) {
-			return $this->_driver->GenID($seqname, $startID);
-		}
+		//if(method_exists($this->_driver, 'GenID')) {
+		//	return $this->_driver->GenID($seqname, $startID);
+		//}
 
 		return parent::GenID($seqname, $startID);
 	}

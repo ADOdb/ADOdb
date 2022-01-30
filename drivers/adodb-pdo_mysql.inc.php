@@ -420,4 +420,108 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 
 		return $this->Execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
 	}
+
+	public function metaForeignKeys($table, $owner = '', $upper =  false, $associative =  false)
+	{
+	 global $ADODB_FETCH_MODE;
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC || $this->fetchMode == ADODB_FETCH_ASSOC) $associative = true;
+
+		if ( !empty($owner) ) {
+			$table = "$owner.$table";
+		}
+		$a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
+		if ($associative) {
+			$create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
+		} else {
+			$create_sql = $a_create_table[1];
+		}
+
+		$matches = array();
+
+		if (!preg_match_all("/FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) return false;
+		$foreign_keys = array();
+		$num_keys = count($matches[0]);
+		for ( $i = 0; $i < $num_keys; $i ++ ) {
+			$my_field  = explode('`, `', $matches[1][$i]);
+			$ref_table = $matches[2][$i];
+			$ref_field = explode('`, `', $matches[3][$i]);
+
+			if ( $upper ) {
+				$ref_table = strtoupper($ref_table);
+			}
+
+			// see https://sourceforge.net/p/adodb/bugs/100/
+			if (!isset($foreign_keys[$ref_table])) {
+				$foreign_keys[$ref_table] = array();
+			}
+			$num_fields = count($my_field);
+			for ( $j = 0; $j < $num_fields; $j ++ ) {
+				if ( $associative ) {
+					$foreign_keys[$ref_table][$ref_field[$j]] = $my_field[$j];
+				} else {
+					$foreign_keys[$ref_table][] = "{$my_field[$j]}={$ref_field[$j]}";
+				}
+			}
+		}
+
+		return $foreign_keys;
+	}
+
+	function metaProcedures($NamePattern = false, $catalog = null, $schemaPattern = null)
+	{
+		// save old fetch mode
+		global $ADODB_FETCH_MODE;
+
+		$false = false;
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+
+		if ($this->fetchMode !== FALSE) {
+			$savem = $this->SetFetchMode(FALSE);
+		}
+
+		$procedures = array ();
+
+		// get index details
+
+		$likepattern = '';
+		if ($NamePattern) {
+			$likepattern = " LIKE '".$NamePattern."'";
+		}
+		$rs = $this->Execute('SHOW PROCEDURE STATUS'.$likepattern);
+		if (is_object($rs)) {
+
+			// parse index data into array
+			while ($row = $rs->FetchRow()) {
+				$procedures[$row[1]] = array(
+					'type' => 'PROCEDURE',
+					'catalog' => '',
+					'schema' => '',
+					'remarks' => $row[7],
+				);
+			}
+		}
+
+		$rs = $this->Execute('SHOW FUNCTION STATUS'.$likepattern);
+		if (is_object($rs)) {
+			// parse index data into array
+			while ($row = $rs->FetchRow()) {
+				$procedures[$row[1]] = array(
+					'type' => 'FUNCTION',
+					'catalog' => '',
+					'schema' => '',
+					'remarks' => $row[7]
+				);
+			}
+		}
+
+		// restore fetchmode
+		if (isset($savem)) {
+			$this->SetFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
+
+		return $procedures;
+	}
+
 }
