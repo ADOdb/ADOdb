@@ -92,7 +92,6 @@ class ADODB_pdo extends ADOConnection {
 	*/
 	public $pdoParameters = array();
 
-
 	function Time()
 	{
 		if (!empty($this->_driver->_hasdual)) {
@@ -183,36 +182,7 @@ class ADODB_pdo extends ADOConnection {
 		return false;
 	}
 
-	function xConcat()
-	{
-		$args = func_get_args();
-		if(method_exists($this->_driver, 'Concat')) {
-			return call_user_func_array(array($this->_driver, 'Concat'), $args);
-		}
-
-		return call_user_func_array('parent::Concat', $args);
-	}
-
-	/**
-	 * Triggers a driver-specific request for a bind parameter
-	 *
-	 * @param string $name
-	 * @param string $type
-	 *
-	 * @return string
-	 */
-	public function xparam($name,$type='C') {
-
-		$args = func_get_args();
-		if(method_exists($this->_driver, 'param')) {
-			// Return the driver specific entry, that mimics the native driver
-			return call_user_func_array(array($this->_driver, 'param'), $args);
-		}
-
-		// No driver specific method defined, use mysql format '?'
-		return call_user_func_array('parent::param', $args);
-	}
-
+	
 	// returns true or false
 	function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
