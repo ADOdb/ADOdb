@@ -5156,6 +5156,8 @@ class ADORecordSet implements IteratorAggregate {
 		var $sql = '';
 		var $compat = false;
 
+		
+
 		/**
 		 * Constructor
 		 *
@@ -5363,7 +5365,8 @@ class ADORecordSet implements IteratorAggregate {
 	/**
 	 * Load the code for a specific database driver. Private function. Do not use.
 	 */
-	function ADOLoadCode($dbType) {
+	function ADOLoadCode($dbType,$pdoExtension=false) {
+
 		global $ADODB_LASTDB;
 
 		if (!$dbType) {
@@ -5392,6 +5395,18 @@ class ADORecordSet implements IteratorAggregate {
 				break;
 
 			default:
+				
+				if (strcmp('pdo',$db) == 0 && $pdoExtension)
+				{
+					
+					/*
+					* Loads the necessary PDO driver files
+					*/
+					include_once ADODB_DIR . '/drivers/adodb-pdo.inc.php';
+					include_once ADODB_DIR . '/drivers/adodb-pdo_' . $pdoExtension . '.inc.php';
+				
+					return 'pdo';
+				}
 				if (substr($db, 0, 4) === 'pdo_') {
 					ADOConnection::outp("Invalid database type: $db");
 					return false;
@@ -5400,8 +5415,9 @@ class ADORecordSet implements IteratorAggregate {
 				$class = $db;
 				break;
 		}
-
+		
 		$file = "drivers/adodb-$db.inc.php";
+
 		@include_once(ADODB_DIR . '/' . $file);
 		$ADODB_LASTDB = $class;
 		if (class_exists("ADODB_" . $class)) {
@@ -5444,6 +5460,28 @@ class ADORecordSet implements IteratorAggregate {
 			define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_NATIVE);
 		}
 
+		/*
+		* If we have a pdo and drivern in format \\, we
+		* need to remove the driver portion of the file
+		*/
+		$pdoExtension = '';
+		$pdoSplit 	  = explode('\\',$db);
+		
+		if (count($pdoSplit) > 1)
+		{
+			$extSplit = explode('://',$pdoSplit[1]);
+			$pdoExtension = $extSplit[0];
+				
+			$db = 'pdo';
+			if (count($extSplit) > 1)
+				$db .= '://' . $extSplit[1];
+
+			/*
+			* Carry on as normal
+			*/
+		}
+
+		
 		/*
 		* Are there special characters in the dsn password
 		* that disrupt parse_url
@@ -5566,7 +5604,7 @@ class ADORecordSet implements IteratorAggregate {
 				$db = $ADODB_LASTDB;
 			}
 			if ($db != $ADODB_LASTDB) {
-				$db = ADOLoadCode($db);
+				$db = ADOLoadCode($db,$pdoExtension);
 			}
 
 			if (!$db) {
@@ -5585,7 +5623,15 @@ class ADORecordSet implements IteratorAggregate {
 				return false;
 			}
 
-			$cls = 'ADODB_'.$db;
+			if ($pdoExtension)
+			{
+				$cls = 'ADODB_pdo_' . $pdoExtension;
+				$db = 'PDO';
+			}
+			else
+			{
+				$cls = 'ADODB_'.$db;
+			}
 			if (!class_exists($cls)) {
 				adodb_backtrace();
 				return false;
