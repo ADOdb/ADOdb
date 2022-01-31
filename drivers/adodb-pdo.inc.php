@@ -112,8 +112,21 @@ class ADODB_pdo extends ADOConnection {
 	// returns true or false
 	function _connect($argDSN, $argUsername, $argPassword, $argDatabasename, $persist=false)
 	{
+		$driverClassArray = explode('_',get_class($this));
+		$driverClass      = array_pop($driverClassArray);
+	
 		$at = strpos($argDSN,':');
-		$this->dsnType = substr($argDSN,0,$at);
+		if ($at > 0)
+		{
+			$this->dsnType = substr($argDSN,0,$at);
+			if (strcmp($this->dsnType,$driverClass) <> 0)
+				die('If a database type is specified, it must match the previously defined driver');
+		}
+		else
+		{
+			$this->dsnType = $driverClass;
+			$argDSN 	   = $driverClass . ':' . $argDSN;
+		}
 
 		if ($argDatabasename) {
 			switch($this->dsnType){
