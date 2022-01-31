@@ -1018,16 +1018,6 @@ class ADORecordset_firebird extends ADORecordSet
 	private $fieldObjects = false;
 
 	/**
-	 * @var bool Flags if we have retrieved the metadata
-	 */
-	private $fieldObjectsRetrieved = false;
-
-	/**
-	 * @var array Cross-reference the objects by name for easy access
-	 */
-	private $fieldObjectsIndex = array();
-
-	/**
 	 * @var bool Flag to indicate if the result has a blob
 	 */
 	private $fieldObjectsHaveBlob = false;

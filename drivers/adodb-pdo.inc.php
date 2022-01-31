@@ -314,18 +314,19 @@ class ADODB_pdo extends ADOConnection {
 	}
 
 	/**
-	 * Returns a list of Foreign Keys for a specified table.
+	 * Returns a list of Foreign Keys associated with a specific table.
 	 *
 	 * @param string   $table
-	 * @param bool     $owner      (optional) not used in this driver
+	 * @param string   $owner      (optional) not used in this driver
 	 * @param bool     $upper
 	 * @param bool     $associative
 	 *
-	 * @return string[] where keys are tables, and values are foreign keys
+	 * @return string[]|false An array where keys are tables, and values are foreign keys;
+	 *                        false if no foreign keys could be found.
 	 */
-	public function metaForeignKeys($table, $owner=false, $upper=false,$associative=false) {
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false) {
 		if (method_exists($this->_driver,'metaForeignKeys'))
-			return $this->_driver->metaForeignKeys($table,$owner,$upper,$associative);
+			return $this->_driver->metaForeignKeys($table, $owner, $upper, $associative);
 	}
 
 	/**

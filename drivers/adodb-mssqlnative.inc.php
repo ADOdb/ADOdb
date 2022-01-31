@@ -719,7 +719,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		return $indexes;
 	}
 
-	function MetaForeignKeys($table, $owner=false, $upper=false)
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -1008,11 +1008,11 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		return $metaProcedures;
 	}
-	
+
 	/**
-	* An SQL Statement that adds a specific number of 
+	* An SQL Statement that adds a specific number of
 	* days or part to local datetime
-	* 
+	*
 	* @param float $dayFraction
 	* @param string $date
 	*
@@ -1025,7 +1025,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			* Use GETDATE() via systTimestamp;
 			*/
 			$date = $this->sysTimeStamp;
-		
+
 		/*
 		* seconds, number of seconds, date base
 		*/
@@ -1035,7 +1035,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		* Adjust the offset back to seconds
 		*/
 		$fraction = $dayFraction * 24 * 3600;
-		
+
 		return sprintf($dateFormat,$fraction,$date);
 
 	}
@@ -1053,16 +1053,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	var $fieldOffset = 0;
 	// _mths works only in non-localised system
 
-	/**
-	 * @var bool True if we have retrieved the fields metadata
-	 */
-	private $fieldObjectsRetrieved = false;
-
-	/*
-	* Cross-reference the objects by name for easy access
-	*/
-	private $fieldObjectsIndex = array();
-
+	
 	/*
 	 * Cross references the dateTime objects for faster decoding
 	 */

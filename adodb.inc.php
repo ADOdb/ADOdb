@@ -70,19 +70,19 @@ if (!defined('_ADODB_LAYER')) {
 	//==============================================================================================
 
 	/*********************************************************
-	* Controls $ADODB_FORCE_TYPE mode. Default is ADODB_FORCE_VALUE (3).
-	* Used in GetUpdateSql and GetInsertSql functions. Thx to Niko, nuko#mbnet.fi
-	* @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:adodb_force_type
-	*
-	* 0 = ignore empty fields. All empty fields in array are ignored.
-	* 1 = force null. All empty, php null and string 'null' fields are
-	*     changed to sql NULL values.
-	* 2 = force empty. All empty, php null and string 'null' fields are
-	*     changed to sql empty '' or 0 values.
-	* 3 = force value. Value is left as it is. Php null and string 'null'
-	*     are set to sql NULL values and empty fields '' are set to empty '' sql values.
-	* 4 = force value. Like 1 but numeric empty fields are set to zero.
-    */
+	 * Controls $ADODB_FORCE_TYPE mode. Default is ADODB_FORCE_VALUE (3).
+	 * Used in GetUpdateSql and GetInsertSql functions. Thx to Niko, nuko#mbnet.fi
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:adodb_force_type
+	 *
+	 * 0 = ignore empty fields. All empty fields in array are ignored.
+	 * 1 = force null. All empty, php null and string 'null' fields are
+	 *     changed to sql NULL values.
+	 * 2 = force empty. All empty, php null and string 'null' fields are
+	 *     changed to sql empty '' or 0 values.
+	 * 3 = force value. Value is left as it is. Php null and string 'null'
+	 *     are set to sql NULL values and empty fields '' are set to empty '' sql values.
+	 * 4 = force value. Like 1 but numeric empty fields are set to zero.
+	 */
 		define('ADODB_FORCE_IGNORE',0);
 		define('ADODB_FORCE_NULL',1);
 		define('ADODB_FORCE_EMPTY',2);
@@ -99,10 +99,10 @@ if (!defined('_ADODB_LAYER')) {
 	define ('ADODB_STRINGMAX_NOLIMIT',-2);
 
 	/*
-	* Defines the the default meta type returned
-	* when ADOdb encounters a type that it is not
-	* defined in the metaTypes.
-	*/
+	 * Defines the the default meta type returned
+	 * when ADOdb encounters a type that it is not
+	 * defined in the metaTypes.
+	 */
 	if (!defined('ADODB_DEFAULT_METATYPE'))
 		define ('ADODB_DEFAULT_METATYPE','N');
 
@@ -507,32 +507,32 @@ if (!defined('_ADODB_LAYER')) {
 	* memcached server options
 	******************************************/
 	/*
-	* Should we use memCache instead of caching in files
-	*/
+	 * Should we use memCache instead of caching in files
+	 */
 	public $memCache = false;
 	/*
-	* A string, array of hosts or array of memcache connection
-	* options (see adodb.org)
-	*/
+	 * A string, array of hosts or array of memcache connection
+	 * options (see adodb.org)
+	 */
 	public $memCacheHost;
 
 	/*
-	* Default port, may be ignored if connection object array
-	* is set
-	*/
+	 * Default port, may be ignored if connection object array
+	 * is set
+	 */
 	public $memCachePort = 11211;
 
 	/*
-	* Use 'true' to store the item compressed
-	* uses zlib, Direct option for memcache, else
-	* For memcached, use the memcacheOptions feature
-	*/
+	 * Use 'true' to store the item compressed
+	 * uses zlib, Direct option for memcache, else
+	 * For memcached, use the memcacheOptions feature
+	 */
 	public $memCacheCompress = false;
 
 	/*
-	* If using mecached, an array of options
-	* @link https://www.php.net/manual/en/memcached.constants.php
-	*/
+	 * If using mecached, an array of options
+	 * @link https://www.php.net/manual/en/memcached.constants.php
+	 */
 	public $memCacheOptions = array();
 
 
@@ -603,20 +603,19 @@ if (!defined('_ADODB_LAYER')) {
 	protected $connectionParameters = array();
 
 	/*
-	* A simple associative array of user-defined custom actual/meta types
-	*/
+	 * A simple associative array of user-defined custom actual/meta types
+	 */
 	public $customActualTypes = array();
 
 	/*
-	* An array of user-defined custom meta/actual types
-	*
-	$this->customMetaTypes[$meta] = array(
-			'actual'=>'',
-			'dictionary'=>'',
-			'handler'=>'',
-			'callback'=>''
-			);
-	*/
+	 * An array of user-defined custom meta/actual types.
+	 * $this->customMetaTypes[$meta] = array(
+	 *     'actual'=>'',
+	 *     'dictionary'=>'',
+	 *     'handler'=>'',
+	 *     'callback'=>''
+	 * );
+	 */
 	public $customMetaTypes = array();
 
 
@@ -681,16 +680,16 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* Set a custom meta type with a corresponding actual
-	*
-	* @param	string	$metaType	The Custom ADOdb metatype
-	* @param	string	$dictionaryType	The database dictionary type
-	* @param	string	$actualType	The database actual type
-	* @param	bool	$handleAsType handle like an existing Metatype
-	* @param	mixed	$callBack A pre-processing function
-	*
-	* @return bool success if the actual exists
-	*/
+	 * Set a custom meta type with a corresponding actual
+	 *
+	 * @param	string	$metaType	The Custom ADOdb metatype
+	 * @param	string	$dictionaryType	The database dictionary type
+	 * @param	string	$actualType	The database actual type
+	 * @param	bool	$handleAsType handle like an existing Metatype
+	 * @param	mixed	$callBack A pre-processing function
+	 *
+	 * @return bool success if the actual exists
+	 */
 	final public function setCustomMetaType(
 		$metaType,
 		$dictionaryType,
@@ -714,10 +713,10 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* Get a list of custom meta types.
-	*
-	* @return string[]
-	*/
+	 * Get a list of custom meta types.
+	 *
+	 * @return string[]
+	 */
 	final public function getCustomMetaTypes()
 	{
 		return $this->customMetaTypes;
@@ -1143,15 +1142,15 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* PEAR DB Compat - do not use internally.
-	*
-	* The fetch modes for NUMERIC and ASSOC for PEAR DB and ADODB are identical
-	* for easy porting :-)
-	*
-	* @param int $mode The fetchmode ADODB_FETCH_ASSOC or ADODB_FETCH_NUM
-	*
-	* @return int Previous fetch mode
-	*/
+	 * PEAR DB Compat - do not use internally.
+	 *
+	 * The fetch modes for NUMERIC and ASSOC for PEAR DB and ADODB are identical
+	 * for easy porting :-)
+	 *
+	 * @param int $mode The fetchmode ADODB_FETCH_ASSOC or ADODB_FETCH_NUM
+	 *
+	 * @return int Previous fetch mode
+	 */
 	function SetFetchMode($mode) {
 		$old = $this->fetchMode;
 		$this->fetchMode = $mode;
@@ -1164,13 +1163,13 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* PEAR DB Compat - do not use internally.
+	 * PEAR DB Compat - do not use internally.
 	 *
 	 * @param string     $sql
 	 * @param array|bool $inputarr
 	 *
 	 * @return ADORecordSet|bool
-	*/
+	 */
 	function Query($sql, $inputarr=false) {
 		$rs = $this->Execute($sql, $inputarr);
 		if (!$rs && defined('ADODB_PEAR')) {
@@ -1266,7 +1265,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param mixed $type The data type of $var. Legal values depend on driver.
 	 *
 	 * @return bool
-	*/
+	 */
 	function Parameter(&$stmt,&$var,$name,$isOutput=false,$maxLen=4000,$type=false) {
 		return false;
 	}
@@ -1313,13 +1312,16 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
-		Used together with StartTrans() to end a transaction. Monitors connection
-		for sql errors, and will commit or rollback as appropriate.
-
-		@autoComplete if true, monitor sql errors and commit and rollback as appropriate,
-		and if set to false force rollback even if no SQL error detected.
-		@returns true on commit, false on rollback.
-	*/
+	 * Complete a transation.
+	 *
+	 * Used together with StartTrans() to end a transaction. Monitors connection
+	 * for sql errors, and will commit or rollback as appropriate.
+	 *
+	 * @param bool autoComplete if true, monitor sql errors and commit and
+	 *                          rollback as appropriate, and if set to false
+	 *                          force rollback even if no SQL error detected.
+	 * @returns true on commit, false on rollback.
+	 */
 	function CompleteTrans($autoComplete = true) {
 		if ($this->transOff > 1) {
 			$this->transOff -= 1;
@@ -1343,16 +1345,16 @@ if (!defined('_ADODB_LAYER')) {
 			$this->_transOK = false;
 			$this->RollbackTrans();
 			if ($this->debug) {
-				ADOCOnnection::outp("Smart Rollback occurred");
+				ADOConnection::outp("Smart Rollback occurred");
 			}
 		}
 
 		return $this->_transOK;
 	}
 
-	/*
-		At the end of a StartTrans/CompleteTrans block, perform a rollback.
-	*/
+	/**
+	 * At the end of a StartTrans/CompleteTrans block, perform a rollback.
+	 */
 	function FailTrans() {
 		if ($this->debug)
 			if ($this->transOff == 0) {
@@ -1365,8 +1367,8 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-		Check if transaction has failed, only for Smart Transactions.
-	*/
+	 * Check if transaction has failed, only for Smart Transactions.
+	 */
 	function HasFailedTrans() {
 		if ($this->transOff > 0) {
 			return $this->_transOK == false;
@@ -1707,8 +1709,8 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* @return # rows affected by UPDATE/DELETE
-	*/
+	 * @return int|false Number of rows affected by UPDATE/DELETE
+	 */
 	function Affected_Rows() {
 		if ($this->hasAffectedRows) {
 			if ($this->fnExecute === 'adodb_log_sql') {
@@ -1783,11 +1785,24 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * @returns assoc array where keys are tables, and values are foreign keys
+	 * Returns a list of Foreign Keys associated with a specific table.
+	 *
+	 * If there are no foreign keys then the function returns false.
+	 *
+	 * @param string $table       The name of the table to get the foreign keys for.
+	 * @param string $owner       Table owner/schema.
+	 * @param bool   $upper       If true, only matches the table with the uppercase name.
+	 * @param bool   $associative Returns the result in associative mode;
+	 *                            if ADODB_FETCH_MODE is already associative, then
+	 *                            this parameter is discarded.
+	 *
+	 * @return string[]|false An array where keys are tables, and values are foreign keys;
+	 *                        false if no foreign keys could be found.
 	 */
-	function MetaForeignKeys($table, $owner=false, $upper=false) {
+	function metaForeignKeys($table, $owner = '', $upper = false, $associative = false) {
 		return false;
 	}
+
 	/**
 	 * Choose a database to connect to. Many databases do not support this.
 	 *
@@ -1883,17 +1898,19 @@ if (!defined('_ADODB_LAYER')) {
 		// 0 to offset-1 which will be discarded anyway. So we disable $ADODB_COUNTRECS.
 		global $ADODB_COUNTRECS;
 
-		$savec = $ADODB_COUNTRECS;
-		$ADODB_COUNTRECS = false;
+		try {
+			$savec = $ADODB_COUNTRECS;
+			$ADODB_COUNTRECS = false;
 
-
-		if ($secs2cache != 0) {
-			$rs = $this->CacheExecute($secs2cache,$sql,$inputarr);
-		} else {
-			$rs = $this->Execute($sql,$inputarr);
+			if ($secs2cache != 0) {
+				$rs = $this->CacheExecute($secs2cache, $sql, $inputarr);
+			} else {
+				$rs = $this->Execute($sql, $inputarr);
+			}
+		} finally {
+			$ADODB_COUNTRECS = $savec;
 		}
 
-		$ADODB_COUNTRECS = $savec;
 		if ($rs && !$rs->EOF) {
 			$rs = $this->_rs2rs($rs,$nrows,$offset);
 		}
@@ -1902,12 +1919,12 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* Create serializable recordset. Breaks rs link to connection.
-	*
-	* @param ADORecordSet $rs the recordset to serialize
+	 * Create serializable recordset. Breaks rs link to connection.
 	 *
-	* @return ADORecordSet_array|bool the new recordset
-	*/
+	 * @param ADORecordSet $rs the recordset to serialize
+	 *
+	 * @return ADORecordSet_array|bool the new recordset
+	 */
 	function SerializableRS(&$rs) {
 		$rs2 = $this->_rs2rs($rs);
 		$ignore = false;
@@ -1917,17 +1934,17 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* Convert a database recordset to an array recordset.
+	 * Convert a database recordset to an array recordset.
 	 *
-	* Input recordset's cursor should be at beginning, and old $rs will be closed.
-	*
+	 * Input recordset's cursor should be at beginning, and old $rs will be closed.
+	 *
 	 * @param ADORecordSet $rs     the recordset to copy
 	 * @param int          $nrows  number of rows to retrieve (optional)
 	 * @param int          $offset offset by number of rows (optional)
 	 * @param bool         $close
 	 *
 	 * @return ADORecordSet_array|ADORecordSet|bool the new recordset
-	*/
+	 */
 	function &_rs2rs(&$rs,$nrows=-1,$offset=-1,$close=true) {
 		if (! $rs) {
 			$ret = false;
@@ -1956,7 +1973,7 @@ if (!defined('_ADODB_LAYER')) {
 
 		$arrayClass = $this->arrayClass;
 
-		$rs2 = new $arrayClass();
+		$rs2 = new $arrayClass($fakeQueryId=1);
 		$rs2->connection = $this;
 		$rs2->sql = $rs->sql;
 		$rs2->dataProvider = $this->dataProvider;
@@ -1965,7 +1982,7 @@ if (!defined('_ADODB_LAYER')) {
 		return $rs2;
 	}
 
-	/*
+	/**
 	 * Return all rows.
 	 *
 	 * Compat with PEAR DB.
@@ -1974,9 +1991,9 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param array|bool $inputarr Input bind array
 	 *
 	 * @return array|false
-	*/
+	 */
 	function GetAll($sql, $inputarr=false) {
-        return $this->GetArray($sql,$inputarr);
+		return $this->GetArray($sql,$inputarr);
 	}
 
 	/**
@@ -2041,11 +2058,15 @@ if (!defined('_ADODB_LAYER')) {
 	public function GetOne($sql, $inputarr=false) {
 		global $ADODB_COUNTRECS,$ADODB_GETONE_EOF;
 
-		$crecs = $ADODB_COUNTRECS;
-		$ADODB_COUNTRECS = false;
+		try {
+			$crecs = $ADODB_COUNTRECS;
+			$ADODB_COUNTRECS = false;
+			$rs = $this->Execute($sql, $inputarr);
+		} finally {
+			$ADODB_COUNTRECS = $crecs;
+		}
 
 		$ret = false;
-		$rs = $this->Execute($sql,$inputarr);
 		if ($rs) {
 			if ($rs->EOF) {
 				$ret = $ADODB_GETONE_EOF;
@@ -2055,7 +2076,6 @@ if (!defined('_ADODB_LAYER')) {
 
 			$rs->Close();
 		}
-		$ADODB_COUNTRECS = $crecs;
 		return $ret;
 	}
 
@@ -2169,13 +2189,17 @@ if (!defined('_ADODB_LAYER')) {
 		return $rv;
 	}
 
-	/*
-		Calculate the offset of a date for a particular database and generate
-			appropriate SQL. Useful for calculating future/past dates and storing
-			in a database.
-
-		If dayFraction=1.5 means 1.5 days from now, 1.0/24 for 1 hour.
-	*/
+	/**
+	 * Calculate the offset of a date for a particular database
+	 * and generate appropriate SQL.
+	 *
+	 * Useful for calculating future/past dates and storing in a database.
+	 *
+	 * @param double       $dayFraction 1.5 means 1.5 days from now, 1.0/24 for 1 hour
+	 * @param string|false $date        Reference date, false for system time
+	 *
+	 * @return string
+	 */
 	function OffsetDate($dayFraction,$date=false) {
 		if (!$date) {
 			$date = $this->sysDate;
@@ -2195,10 +2219,14 @@ if (!defined('_ADODB_LAYER')) {
 	function GetArray($sql,$inputarr=false) {
 		global $ADODB_COUNTRECS;
 
-		$savec = $ADODB_COUNTRECS;
-		$ADODB_COUNTRECS = false;
-		$rs = $this->Execute($sql,$inputarr);
-		$ADODB_COUNTRECS = $savec;
+		try {
+			$savec = $ADODB_COUNTRECS;
+			$ADODB_COUNTRECS = false;
+			$rs = $this->Execute($sql, $inputarr);
+		} finally {
+			$ADODB_COUNTRECS = $savec;
+		}
+
 		if (!$rs)
 			if (defined('ADODB_PEAR')) {
 				return ADODB_PEAR_Error();
@@ -2239,10 +2267,13 @@ if (!defined('_ADODB_LAYER')) {
 	function CacheGetArray($secs2cache,$sql=false,$inputarr=false,$obj=null) {
 		global $ADODB_COUNTRECS;
 
-		$savec = $ADODB_COUNTRECS;
-		$ADODB_COUNTRECS = false;
-		$rs = $this->CacheExecute($secs2cache,$sql,$inputarr,$obj);
-		$ADODB_COUNTRECS = $savec;
+		try {
+			$savec = $ADODB_COUNTRECS;
+			$ADODB_COUNTRECS = false;
+			$rs = $this->CacheExecute($secs2cache, $sql, $inputarr,$obj);
+		} finally {
+			$ADODB_COUNTRECS = $savec;
+		}
 
 		if (!$rs)
 			if (defined('ADODB_PEAR')) {
@@ -2262,23 +2293,25 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* Return one row of sql statement. Recordset is disposed for you.
-	* Note that SelectLimit should not be called.
-	*
-	* @param string     $sql      SQL statement
-	* @param array|bool $inputarr input bind array
+	 * Return one row of sql statement. Recordset is disposed for you.
+	 * Note that SelectLimit should not be called.
 	 *
-	* @return array|false Array containing the first row of the query
-	*/
+	 * @param string     $sql      SQL statement
+	 * @param array|bool $inputarr input bind array
+	 *
+	 * @return array|false Array containing the first row of the query
+	 */
 	function GetRow($sql,$inputarr=false) {
 		global $ADODB_COUNTRECS;
 
-		$crecs = $ADODB_COUNTRECS;
-		$ADODB_COUNTRECS = false;
+		try {
+			$crecs = $ADODB_COUNTRECS;
+			$ADODB_COUNTRECS = false;
+			$rs = $this->Execute($sql, $inputarr);
+		} finally {
+			$ADODB_COUNTRECS = $crecs;
+		}
 
-		$rs = $this->Execute($sql,$inputarr);
-
-		$ADODB_COUNTRECS = $crecs;
 		if ($rs) {
 			if (!$rs->EOF) {
 				$arr = $rs->fields;
@@ -2319,24 +2352,24 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* Insert or replace a single record. Note: this is not the same as MySQL's replace.
-	* ADOdb's Replace() uses update-insert semantics, not insert-delete-duplicates of MySQL.
-	* Also note that no table locking is done currently, so it is possible that the
-	* record be inserted twice by two programs...
-	*
-	* $this->Replace('products', array('prodname' =>"'Nails'","price" => 3.99), 'prodname');
-	*
-	* $table		table name
-	* $fieldArray	associative array of data (you must quote strings yourself).
-	* $keyCol		the primary key field name or if compound key, array of field names
-	* autoQuote		set to true to use a heuristic to quote strings. Works with nulls and numbers
-	*					but does not work with dates nor SQL functions.
-	* has_autoinc	the primary key is an auto-inc field, so skip in insert.
-	*
-	* Currently blob replace not supported
-	*
-	* returns 0 = fail, 1 = update, 2 = insert
-	*/
+	 * Insert or replace a single record. Note: this is not the same as MySQL's replace.
+	 * ADOdb's Replace() uses update-insert semantics, not insert-delete-duplicates of MySQL.
+	 * Also note that no table locking is done currently, so it is possible that the
+	 * record be inserted twice by two programs...
+	 *
+	 * $this->Replace('products', array('prodname' =>"'Nails'","price" => 3.99), 'prodname');
+	 *
+	 * $table		table name
+	 * $fieldArray	associative array of data (you must quote strings yourself).
+	 * $keyCol		the primary key field name or if compound key, array of field names
+	 * autoQuote		set to true to use a heuristic to quote strings. Works with nulls and numbers
+	 *					but does not work with dates nor SQL functions.
+	 * has_autoinc	the primary key is an auto-inc field, so skip in insert.
+	 *
+	 * Currently blob replace not supported
+	 *
+	 * returns 0 = fail, 1 = update, 2 = insert
+	 */
 
 	function Replace($table, $fieldArray, $keyCol, $autoQuote=false, $has_autoinc=false) {
 		global $ADODB_INCLUDED_LIB;
@@ -2824,12 +2857,12 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	* Usage:
-	*	UpdateClob('TABLE', 'COLUMN', $var, 'ID=1', 'CLOB');
-	*
-	*	$conn->Execute('INSERT INTO clobtable (id, clobcol) VALUES (1, null)');
-	*	$conn->UpdateClob('clobtable','clobcol',$clob,'id=1');
-	*/
+	 * Usage:
+	 *	UpdateClob('TABLE', 'COLUMN', $var, 'ID=1', 'CLOB');
+	 *
+	 *	$conn->Execute('INSERT INTO clobtable (id, clobcol) VALUES (1, null)');
+	 *	$conn->UpdateClob('clobtable','clobcol',$clob,'id=1');
+	 */
 	function UpdateClob($table,$column,$val,$where) {
 		return $this->UpdateBlob($table,$column,$val,$where,'CLOB');
 	}
@@ -2848,9 +2881,9 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
-	*  Change the SQL connection locale to a specified locale.
-	*  This is used to get the date formats written depending on the client locale.
-	*/
+	 *  Change the SQL connection locale to a specified locale.
+	 *  This is used to get the date formats written depending on the client locale.
+	 */
 	function SetDateLocale($locale = 'En') {
 		$this->locale = $locale;
 		switch (strtoupper($locale))
@@ -3572,37 +3605,37 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	* Returns the maximum size of a MetaType C field. If the method
-	* is not defined in the driver returns ADODB_STRINGMAX_NOTSET
-	*
-	* @return int
-	*/
+	 * Returns the maximum size of a MetaType C field. If the method
+	 * is not defined in the driver returns ADODB_STRINGMAX_NOTSET
+	 *
+	 * @return int
+	 */
 	function charMax() {
 		return ADODB_STRINGMAX_NOTSET;
 	}
 
 	/**
-	* Returns the maximum size of a MetaType X field. If the method
-	* is not defined in the driver returns ADODB_STRINGMAX_NOTSET
-	*
-	* @return int
-	*/
+	 * Returns the maximum size of a MetaType X field. If the method
+	 * is not defined in the driver returns ADODB_STRINGMAX_NOTSET
+	 *
+	 * @return int
+	 */
 	function textMax() {
 		return ADODB_STRINGMAX_NOTSET;
 	}
 
 	/**
-	* Returns a substring of a varchar type field
-	*
-	* Some databases have variations of the parameters, which is why
-	* we have an ADOdb function for it
-	*
-	* @param	string	$fld	The field to sub-string
-	* @param	int		$start	The start point
-	* @param	int		$length	An optional length
-	*
-	* @return string	The SQL text
-	*/
+	 * Returns a substring of a varchar type field
+	 *
+	 * Some databases have variations of the parameters, which is why
+	 * we have an ADOdb function for it
+	 *
+	 * @param	string	$fld	The field to sub-string
+	 * @param	int		$start	The start point
+	 * @param	int		$length	An optional length
+	 *
+	 * @return string	The SQL text
+	 */
 	function substr($fld,$start,$length=0) {
 		$text = "{$this->substr}($fld,$start";
 		if ($length > 0)
@@ -3707,8 +3740,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	//==============================================================================================
 
 	/**
-	* Internal placeholder for record objects. Used by ADORecordSet->FetchObj().
-	*/
+	 * Internal placeholder for record objects. Used by ADORecordSet->FetchObj().
+	 */
 	class ADOFetchObj {
 	};
 
@@ -3723,26 +3756,32 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$this->rs = $rs;
 		}
 
+		#[\ReturnTypeWillChange]
 		function rewind() {}
 
+		#[\ReturnTypeWillChange]
 		function valid() {
 			return !$this->rs->EOF;
 		}
 
+		#[\ReturnTypeWillChange]
 		function key() {
 			return false;
 		}
 
+		#[\ReturnTypeWillChange]
 		function current() {
 			return false;
 		}
 
+		#[\ReturnTypeWillChange]
 		function next() {}
 
 		function __call($func, $params) {
 			return call_user_func_array(array($this->rs, $func), $params);
 		}
 
+		#[\ReturnTypeWillChange]
 		function hasMore() {
 			return false;
 		}
@@ -3751,8 +3790,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	* Lightweight recordset when there are no records to be returned
-	*/
+	 * Lightweight recordset when there are no records to be returned
+	 */
 	class ADORecordSet_empty implements IteratorAggregate
 	{
 		var $dataProvider = 'empty';
@@ -3789,6 +3828,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		function Init() {}
 
+		#[\ReturnTypeWillChange]
 		function getIterator() {
 			return new ADODB_Iterator_empty($this);
 		}
@@ -3848,22 +3888,27 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$this->rs = $rs;
 		}
 
+		#[\ReturnTypeWillChange]
 		function rewind() {
 			$this->rs->MoveFirst();
 		}
 
+		#[\ReturnTypeWillChange]
 		function valid() {
 			return !$this->rs->EOF;
 		}
 
+		#[\ReturnTypeWillChange]
 		function key() {
 			return $this->rs->_currentRow;
 		}
 
+		#[\ReturnTypeWillChange]
 		function current() {
 			return $this->rs->fields;
 		}
 
+		#[\ReturnTypeWillChange]
 		function next() {
 			$this->rs->MoveNext();
 		}
@@ -3934,18 +3979,30 @@ class ADORecordSet implements IteratorAggregate {
 
 
 	/**
-	 * @var ADOFieldObject[] Field metadata cache
-	 * @see fieldTypesArray()
+	* @var ADOFieldObject[] Field metadata cache
+	* @see fieldTypesArray()
 	 */
 	protected $fieldObjectsCache;
+	
+	/**
+	* @var bool True if we have retrieved the fields metadata
+	*/
+	protected $fieldObjectsRetrieved = false;
+
+	/*
+	* Cross-reference the objects by name for easy access
+	*/
+	protected $fieldObjectsIndex = array();
+
 
 	/**
 	 * Constructor
 	 *
 	 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
+	 * @param int|bool	   $mode    The ADODB_FETCH_MODE value
 	 *
 	 */
-	function __construct($queryID) {
+	function __construct($queryID,$mode=false) {
 		$this->_queryID = $queryID;
 	}
 
@@ -3953,6 +4010,7 @@ class ADORecordSet implements IteratorAggregate {
 		$this->Close();
 	}
 
+	#[\ReturnTypeWillChange]
 	function getIterator() {
 		return new ADODB_Iterator($this);
 	}
@@ -4437,13 +4495,13 @@ class ADORecordSet implements IteratorAggregate {
 
 
 	/**
-	* Fetch a row, returning PEAR_Error if no more rows.
-	* This is PEAR DB compat mode.
-	*
-	* @param mixed[]|false $arr
-	*
-	* @return mixed DB_OK or error object
-	*/
+	 * Fetch a row, returning PEAR_Error if no more rows.
+	 * This is PEAR DB compat mode.
+	 *
+	 * @param mixed[]|false $arr
+	 *
+	 * @return mixed DB_OK or error object
+	 */
 	function FetchInto(&$arr) {
 		if ($this->EOF) {
 			return (defined('PEAR_ERROR_RETURN')) ? new PEAR_Error('EOF',-1): false;
@@ -4799,23 +4857,23 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 	/**
-	* Return the fields array of the current row as an object for convenience.
-	* The default case is lowercase field names.
-	*
-	* @return the object with the properties set to the fields of the current row
-	*/
+	 * Return the fields array of the current row as an object for convenience.
+	 * The default case is lowercase field names.
+	 *
+	 * @return the object with the properties set to the fields of the current row
+	 */
 	function FetchObj() {
 		return $this->FetchObject(false);
 	}
 
 	/**
-	* Return the fields array of the current row as an object for convenience.
-	* The default case is uppercase.
-	*
-	* @param bool $isUpper to set the object property names to uppercase
-	*
-	* @return ADOFetchObj The object with properties set to the fields of the current row
-	*/
+	 * Return the fields array of the current row as an object for convenience.
+	 * The default case is uppercase.
+	 *
+	 * @param bool $isUpper to set the object property names to uppercase
+	 *
+	 * @return ADOFetchObj The object with properties set to the fields of the current row
+	 */
 	function FetchObject($isUpper=true) {
 		if (empty($this->_obj)) {
 			$this->_obj = new ADOFetchObj();
@@ -4841,30 +4899,30 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 	/**
-	* Return the fields array of the current row as an object for convenience.
-	* The default is lower-case field names.
-	*
-	* @return ADOFetchObj|false The object with properties set to the fields of the current row
-	*                           or false if EOF.
-	*
-	* Fixed bug reported by tim@orotech.net
-	*/
+	 * Return the fields array of the current row as an object for convenience.
+	 * The default is lower-case field names.
+	 *
+	 * @return ADOFetchObj|false The object with properties set to the fields of the current row
+	 *                           or false if EOF.
+	 *
+	 * Fixed bug reported by tim@orotech.net
+	 */
 	function FetchNextObj() {
 		return $this->FetchNextObject(false);
 	}
 
 
 	/**
-	* Return the fields array of the current row as an object for convenience.
-	* The default is upper case field names.
-	*
-	* @param bool $isUpper to set the object property names to uppercase
-	*
-	* @return ADOFetchObj|false The object with properties set to the fields of the current row
-	*                           or false if EOF.
-	*
-	* Fixed bug reported by tim@orotech.net
-	*/
+	 * Return the fields array of the current row as an object for convenience.
+	 * The default is upper case field names.
+	 *
+	 * @param bool $isUpper to set the object property names to uppercase
+	 *
+	 * @return ADOFetchObj|false The object with properties set to the fields of the current row
+	 *                           or false if EOF.
+	 *
+	 * Fixed bug reported by tim@orotech.net
+	 */
 	function FetchNextObject($isUpper=true) {
 		$o = false;
 		if ($this->_numOfRows != 0 && !$this->EOF) {
@@ -5158,13 +5216,21 @@ class ADORecordSet implements IteratorAggregate {
 
 		/**
 		 * Constructor
+		 * 
+		 * The parameters passed to this recordset are always fake because
+		 * this class does not use the queryID
+		 *
+		 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
+		 * @param int|bool	   $mode    The ADODB_FETCH_MODE value
+		 *
 		 */
-		function __construct($fakeid=1) {
+		function __construct($queryId,$mode=false) {
+			
 			global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
 
 			// fetch() on EOF does not delete $this->fields
 			$this->compat = !empty($ADODB_COMPAT_FETCH);
-			parent::__construct($fakeid); // fake queryID
+			parent::__construct($queryId); // fake queryID
 			$this->fetchMode = $ADODB_FETCH_MODE;
 		}
 
@@ -5763,9 +5829,9 @@ class ADORecordSet implements IteratorAggregate {
 		return $dict;
 	}
 
-	/*
-		Perform a print_r, with pre tags for better formatting.
-	*/
+	/**
+	 * Perform a print_r, with pre tags for better formatting.
+	 */
 	function adodb_pr($var,$as_string=false) {
 		if ($as_string) {
 			ob_start();

@@ -90,6 +90,19 @@ class ADODB_mysqli extends ADOConnection {
 	private $isSelectStatement = false;
 
 	/**
+	 * ADODB_mysqli constructor.
+	 */
+	public function __construct()
+	{
+		parent::__construct();
+
+		// Forcing error reporting mode to OFF, which is no longer the default
+		// starting with PHP 8.1 (see #755)
+		mysqli_report(MYSQLI_REPORT_OFF);
+	}
+
+
+	/**
 	 * Sets the isolation level of a transaction.
 	 *
 	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:settransactionmode
@@ -448,10 +461,17 @@ class ADODB_mysqli extends ADOConnection {
 			// the rowcount, but ADOdb does not do that.
 			return false;
 		}
-
-		$result =  @mysqli_affected_rows($this->_connectionID);
-		if ($result == -1) {
-			if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
+		else if ($this->statementAffectedRows >= 0)
+		{
+			$result = $this->statementAffectedRows;
+			$this->statementAffectedRows = -1;
+		}
+		else
+		{
+			$result =  @mysqli_affected_rows($this->_connectionID);
+			if ($result == -1) {
+				if ($this->debug) ADOConnection::outp("mysqli_affected_rows() failed : "  . $this->errorMsg());
+			}
 		}
 		return $result;
 	}
@@ -565,7 +585,7 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		// get index details
-		$rs = $this->execute(sprintf('SHOW INDEXES FROM %s',$table));
+		$rs = $this->Execute(sprintf('SHOW INDEXES FROM `%s`',$table));
 
 		// restore fetchmode
 		if (isset($savem)) {
@@ -831,9 +851,8 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return array|bool An array of foreign keys, or false no foreign keys could be found.
 	 */
-	function MetaForeignKeys($table, $owner = false, $upper = false, $associative = false)
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
-
 		global $ADODB_FETCH_MODE;
 
 		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
@@ -847,7 +866,7 @@ class ADODB_mysqli extends ADOConnection {
 			$table = "$owner.$table";
 		}
 
-		$a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE %s', $table));
+		$a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE `%s`', $table));
 
 		$this->setFetchMode($savem);
 
@@ -1248,6 +1267,11 @@ class ADODB_mysqli extends ADOConnection {
 				$this->statementAffectedRows = $stmt->affected_rows;
 				return true;
 			}
+			
+			/*
+			* Tells affected_rows to be compliant
+			*/
+			$this->isSelectStatement = true;
 			/*
 			* Turn the statement into a result set
 			*/
