@@ -2167,7 +2167,7 @@ if (!defined('_ADODB_LAYER')) {
 	*
 	* @return mixed
 	*/
-	function CacheGetCol($secs, $sql = false, $inputarr = false,$trim=false,$obj) {
+	function CacheGetCol($secs, $sql = false, $inputarr = false,$trim=false,$obj=false) {
 		$rs = $this->CacheExecute($secs, $sql, $inputarr,$obj);
 		if ($rs) {
 			$rv = array();

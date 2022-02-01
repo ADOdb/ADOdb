@@ -307,7 +307,7 @@ final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
 	final public function writecache(
 			string $filename, 
 			string $contents, 
-			bool $debug = false,
+			bool $debug,
 			int $secs2cache,
 			?object $options=null) : bool {
 		

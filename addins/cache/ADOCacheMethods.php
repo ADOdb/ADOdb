@@ -473,7 +473,7 @@ class ADOCacheMethods
 			?string $text='',
 			bool $unpacked=false) : ?array {
 		
-		if ($this->debug && !$recordSet) 
+		if ($this->debug && $this->loggingObject && !$recordSet) 
 		{
 			$message = sprintf('%s: Item with key %s, ttl %s does not exist in the cache %s', 
 							strtoupper($this->cacheDefinitions->serviceName),
@@ -483,7 +483,7 @@ class ADOCacheMethods
 			$this->loggingObject->log($this->loggingObject::NOTICE,$message);
 			return null;
 		} 
-		else if ($this->debug)
+		else if ($this->debug && $this->loggingObject)
 		{
 			$message = sprintf('%s: Item with key %s, ttl %s retrieved from the cache %s', 
 					strtoupper($this->cacheDefinitions->serviceName),
@@ -512,7 +512,9 @@ class ADOCacheMethods
 		if (! is_object($rs)) {
 			$message = sprintf('%s: Unable to unserialize $rs',
 						strtoupper($this->cacheDefinitions->serviceName));
-			$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
+
+			if ($this->loggingObject)
+				$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 
 			$err = 'Unable to unserialize $rs';
 			return array(null,$err);
@@ -520,7 +522,7 @@ class ADOCacheMethods
 		
 		if ($rs->timeCreated == 0) 
 		{
-			if ($this->debug)
+			if ($this->debug && $this->loggingObject)
 			{
 				$message = sprintf('%s: Warning - Timestamp is zero in unserialize $rs',
 							strtoupper($this->cacheDefinitions->serviceName));
@@ -541,7 +543,9 @@ class ADOCacheMethods
 					if ((rand() & 15) == 0) {
 						$message = sprintf('%s: Timeout 2',
 								strtoupper($this->cacheDefinitions->serviceName));
-						$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
+
+						if ($this->loggingObject)
+							$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 
 						$err = "Timeout 2";
 						return array(null,$err);
@@ -550,19 +554,21 @@ class ADOCacheMethods
 				case 1:
 					if ((rand() & 3) == 0) {
 						$message = sprintf('%s: Timeout 1',strtoupper($this->cacheDefinitions->serviceName));
-						$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
+						if ($this->loggingObject)
+							$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 						$err = "Timeout 1";
 						return array(null,$err);
 					}
 					break;
 				default:
 					$message = sprintf('%s: Timeout 0',strtoupper($this->cacheDefinitions->serviceName));
-					$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
+					if ($this->loggingObject)
+						$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 					$err = "Timeout 0";
 					return array(null,$err);
 			}
 		}
-		if ($this->debug)
+		if ($this->debug && $this->loggingObject)
 		{
 			$message = sprintf('%s: Successfully unserialized $rs',strtoupper($this->cacheDefinitions->serviceName));
 			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
@@ -614,7 +620,10 @@ class ADOCacheMethods
 			string $filename,
 			bool $success,
 			?string $extraText = '') : bool {
-			
+		
+		if (!$this->loggingObject)
+			return true;
+
 		$this->writeLoggingPair(
 			$success,
 			sprintf('Entry with key %s flushed from cache %s',$filename, $extraText),
@@ -682,6 +691,12 @@ class ADOCacheMethods
 	*/
 	final protected function writeLoggingPair($success,string $successMessage, string $failMessage,int $failLevel=0) : void
 	{
+
+		if (!$this->loggingObject)
+			/*
+			* No logger defined
+			*/
+			return;
 		
 		if ($success && $successMessage && $this->debug)
 		{
