@@ -52,12 +52,16 @@ Older changelogs:
 
 ### Deprecated
 
+- Compatibility with PHP < 7.2
+  [#797](https://github.com/ADOdb/ADOdb/issues/797)
 - Database Replication add-on
   [#780](https://github.com/ADOdb/ADOdb/issues/780)
 
 ### Removed
 
-- Transpose() function and assorted sub-functions 
+- Compatibility with PHP 5.x
+  [#797](https://github.com/ADOdb/ADOdb/issues/797)
+- Transpose() function and assorted sub-functions
   [#586](https://github.com/ADOdb/ADOdb/issues/586)
 - "proxy" server and client scripts
   [#680](https://github.com/ADOdb/ADOdb/issues/680)
