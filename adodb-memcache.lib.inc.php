@@ -141,7 +141,7 @@ class ADODB_Cache_MemCache
 		if (class_exists('Memcache')) 
 			$this->libraryFlag = self::MCLIB;
 		elseif (class_exists('Memcached'))
-			$this->libraryFlag = self::MCLIB;
+			$this->libraryFlag = self::MCLIBD;
 		else
 		{
 			$err = 'Neither the Memcache nor Memcached PECL extensions were found!';
