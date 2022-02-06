@@ -68,9 +68,10 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 	*/
 	private $isConnected = false;
 
-	/*
-	* Handle for the Memcache library
-	*/
+	/**
+	 * @var Memcache|Memcached Handle for the Memcache library
+	 *
+	 */
 	private $memcacheLibrary = false;
 
 	/*
@@ -457,28 +458,34 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 	}
 
 	/**
-	* Flushes the contents of a specified query
-	*
-	* @param	str		$filname	The MD5 of the query to flush
-	* @param	bool	$debug
-	*
-	* @return int The response from the memcache server
-	*/
+	 * Flushes the contents of a specified query
+	 *
+	 * @param string $filename The MD5 of the query to flush
+	 * @param bool   $debug
+	 *
+	 * @return bool The response from the memcache server
+	 * @noinspection PhpUnused
+	 */
 	public function flushCache($filename, $debug=false)
 	{
-		if (!$this->isConnected)
-		{
-			$err = '';
-			if (!$this->connect($err) && $debug) ADOConnection::outp($err);
+		if (!$this->isConnected) {
+			if (!$this->connect($err) && $debug) {
+				ADOConnection::outp($err);
+			}
 		}
-		if (!$this->memcacheLibrary)
+		if (!$this->memcacheLibrary) {
 			return false;
+		}
 
 		$del = $this->memcacheLibrary->delete($filename);
 
-		if ($debug)
-			if (!$del) ADOConnection::outp("flushcache: $filename entry doesn't exist on memcache server!<br>\n");
-			else ADOConnection::outp("flushcache: $filename entry flushed from memcache server!<br>\n");
+		if ($debug) {
+			if (!$del) {
+				ADOConnection::outp("flushcache: $filename entry doesn't exist on memcache server!<br>\n");
+			} else {
+				ADOConnection::outp("flushcache: $filename entry flushed from memcache server!<br>\n");
+			}
+		}
 
 		return $del;
 	}
