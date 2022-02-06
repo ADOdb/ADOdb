@@ -364,7 +364,7 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 		$rs = unserialize($rs);
 		if (! is_object($rs)) {
 			$err = 'Unable to unserialize $rs';
-			return $false;
+			return false;
 		}
 		if ($rs->timeCreated == 0)
 			return $rs; // apparently have been reports that timeCreated was set to 0 somewhere
@@ -477,8 +477,8 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 		$del = $this->memcacheLibrary->delete($filename);
 
 		if ($debug)
-			if (!$del) ADOConnection::outp("flushcache: $key entry doesn't exist on memcache server!<br>\n");
-			else ADOConnection::outp("flushcache: $key entry flushed from memcache server!<br>\n");
+			if (!$del) ADOConnection::outp("flushcache: $filename entry doesn't exist on memcache server!<br>\n");
+			else ADOConnection::outp("flushcache: $filename entry flushed from memcache server!<br>\n");
 
 		return $del;
 	}
