@@ -929,8 +929,8 @@ class ADODB_postgres64 extends ADOConnection{
 	Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordSet_postgres64 extends ADORecordSet{
-	
+class ADORecordSet_postgres64 extends ADORecordSet
+{
 	/*
 	* Holds what fields as blob
 	*/
@@ -995,7 +995,6 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 	 */
 	protected function setFieldObjectsCache($fieldOffset = -1)
 	{
-		
 		if ($this->fieldObjectsRetrieved) {
 			if ($this->fieldObjectsCache) {
 				// Already got the information
@@ -1010,36 +1009,30 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			}
 		}
 
-
 		$this->fieldObjectsCache = array();
 		$max = $this->_numOfFields;
-		for ($fieldOffset=0;$fieldOffset<$max; $fieldOffset++)
-		{
-				
+		for ($fieldOffset=0;$fieldOffset<$max; $fieldOffset++) {
 			$o = new ADOFieldObject();
 			$o->name = @pg_field_name($this->_queryID, $fieldOffset);
 			$o->type = @pg_field_type($this->_queryID, $fieldOffset);
 			$o->max_length = @pg_field_size($this->_queryID, $fieldOffset);
-			
+
 			$this->fieldObjectsCache[] = $o;
-			
-			
+
 			/*
 			* cache types for blob decode check
 			* apparently pg_field_type actually performs an sql query on the database to get the type.
 			*/
 			if (empty($this->connection->noBlobs))
 			{
-				if (pg_field_type($qid,$i) == 'bytea') 
+				if (pg_field_type($qid,$i) == 'bytea')
 				{
 					$this->_blobArr[$i] = pg_field_name($qid,$i);
 				}
 			}
 
-
 		}
 		$this->fieldObjectsRetrieved = true;
-
 	}
 
 	function fields($colname)
@@ -1060,9 +1053,9 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 	/**
 	 * Returns the metadata for a specific field
-	 * 
+	 *
 	 * @param integer $fieldOffset
-	 * 
+	 *
 	 * @return bool|ADOFieldObject
 	 */
 	function fetchField($fieldOffset = -1)
@@ -1070,7 +1063,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		if (array_key_exists($fieldOffset,$this->fieldObjectsCache))
 			return $this->fieldObjectsCache[$fieldOffset];
 	}
-	
+
 	function _seek($row)
 	{
 		return @pg_fetch_row($this->_queryID,$row);

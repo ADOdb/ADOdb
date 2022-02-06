@@ -321,7 +321,6 @@ END;
 
 	protected function _insertID($table = '', $column = '')
 	{
-
 		if (!$this->seqField)
 			return false;
 
@@ -896,7 +895,6 @@ END;
 	 */
 	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
-
 		//if (strlen($val) < 4000) return $this->Execute("UPDATE $table SET $column=:blob WHERE $where",array('blob'=>$val)) != false;
 
 		switch(strtoupper($blobtype)) {
@@ -999,7 +997,6 @@ END;
 
 			# see PHPLens Issue No: 18786
 			if ($array2d || !$this->_bindInputArray) {
-
 				# is_object check because oci8 descriptors can be passed in
 				if ($array2d && $this->_bindInputArray) {
 					if (is_string($sql)) {
@@ -1189,7 +1186,6 @@ END;
 	 */
 	function Bind(&$stmt,&$var,$size=4000,$type=false,$name=false,$isOutput=false)
 	{
-
 		if (!is_array($stmt)) {
 			return false;
 		}
@@ -1366,9 +1362,7 @@ END;
 		$this->_errorMsg = false;
 		$this->_errorCode = false;
 		if (oci_execute($stmt,$this->_commit)) {
-
 			if (count($this -> _refLOBs) > 0) {
-
 				foreach ($this -> _refLOBs as $key => $value) {
 					if ($this -> _refLOBs[$key]['TYPE'] == true) {
 						$tmp = $this -> _refLOBs[$key]['LOB'] -> load();
@@ -1593,11 +1587,11 @@ SELECT /*+ RULE */ distinct b.column_name
 	Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordset_oci8 extends ADORecordSet {
-
+class ADORecordset_oci8 extends ADORecordSet
+{
 	var $databaseType = 'oci8';
 	var $bind=false;
-	
+
 
 	function __construct($queryID,$mode=false)
 	{
@@ -1638,7 +1632,6 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 		$this->_inited = true;
 		if ($this->_queryID) {
-
 			$this->_currentRow = 0;
 			@$this->_initrs();
 			if ($this->_numOfFields) {
@@ -1676,8 +1669,8 @@ class ADORecordset_oci8 extends ADORecordSet {
 	{
 		$this->_numOfRows = -1;
 		$this->_numOfFields = oci_num_fields($this->_queryID);
-		
-		if ($this->_numOfFields>0) 
+
+		if ($this->_numOfFields>0)
 		{
 			$this->setFieldObjectsCache();
 		}
@@ -1694,7 +1687,6 @@ class ADORecordset_oci8 extends ADORecordSet {
 	 */
 	protected function setFieldObjectsCache($fieldOffset = -1)
 	{
-		
 		if ($this->fieldObjectsRetrieved) {
 			if ($this->fieldObjectsCache) {
 				// Already got the information
@@ -1714,7 +1706,6 @@ class ADORecordset_oci8 extends ADORecordSet {
 		$max = $this->_numOfFields;
 		for ($i=0;$i<$max; $i++)
 		{
-				
 			$fld = new ADOFieldObject;
 
 			$fieldOffset += 1;
@@ -1748,10 +1739,10 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 	/**
 	 * Returns the metadata for a specific field
-	 * for some reason, oci_field_name fails when called after _initrs() so we cache it 
-	 * 
+	 * for some reason, oci_field_name fails when called after _initrs() so we cache it
+	 *
 	 * @param integer $fieldOffset
-	 * 
+	 *
 	 * @return bool|ADOFieldObject
 	 */
 	function fetchField($fieldOffset = -1)
@@ -1914,8 +1905,8 @@ class ADORecordset_oci8 extends ADORecordSet {
 	}
 }
 
-class ADORecordSet_ext_oci8 extends ADORecordSet_oci8 {
-
+class ADORecordSet_ext_oci8 extends ADORecordSet_oci8
+{
 	function MoveNext()
 	{
 		return adodb_movenext($this);

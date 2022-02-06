@@ -66,7 +66,6 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 
 class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 {
-
 	public $databaseType = "pdo_sqlsrv";
 
 
@@ -78,26 +77,23 @@ class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 	 */
 	protected function decodePdoType($arr)
 	{
-
 		if (isset($arr['sqlsrv:decl_type']) && $arr['sqlsrv:decl_type'] <> "null") {
-			/* 
+			/*
 			* Use the SQL Server driver specific value
 			*/
 			$type = $arr['sqlsrv:decl_type'];
 		}
 
-		else 
+		else
 			$type = parent::decodePdoType($arr);
-	
+
 		return $type;
 	}
-	
+
 }
 
 class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo
 {
-
-		
 	function SetTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;

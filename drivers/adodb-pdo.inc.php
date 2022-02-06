@@ -793,9 +793,9 @@ class ADORecordSet_pdo extends ADORecordSet {
 		'pgsql',
 		'sqlite'
 	);
-	
+
 	function __construct($id,$mode=false)
-	{		
+	{
 		if ($mode === false) {
 			global $ADODB_FETCH_MODE;
 			$mode = $ADODB_FETCH_MODE;
@@ -851,7 +851,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 		* Obtains the current driver, as defined by the class name
 		*/
 		$pdoDriverNameArray = explode('_',get_class($this->connection));
-					
+
 		$this->pdoDriverName = array_pop($pdoDriverNameArray);
 
 		$this->_numOfRows = ($ADODB_COUNTRECS) ? @$this->_queryID->rowCount() : -1;
@@ -859,12 +859,12 @@ class ADORecordSet_pdo extends ADORecordSet {
 			$this->_numOfRows = -1;
 		}
 		$this->_numOfFields = $this->_queryID->columnCount();
-				
+
 		/*
 		* Does the driver support column meta data?
 		*/
 		if (in_array($this->pdoDriverName,$this->pdoHasColumnMeta))
-			$this->setFieldObjectsCache();			
+			$this->setFieldObjectsCache();
 		else
 			$this->setDummyFieldObjectsCache();
 	}
@@ -876,10 +876,10 @@ class ADORecordSet_pdo extends ADORecordSet {
 	 */
 	protected function setDummyFieldObjectsCache()
 	{
-		
+
 		if ($this->fieldObjectsRetrieved)
 			return;
-		
+
 		$o= new ADOFieldObject();
 		$o->name = 'bad getColumnMeta()';
 		$o->max_length = -1;
@@ -887,9 +887,9 @@ class ADORecordSet_pdo extends ADORecordSet {
 		$o->precision = 0;
 
 		$this->fieldObjectsRetrieved = true;
-		
+
 		$this->fieldObjectsCache = array_fill(0,$this->_numOfFields,$o);
-	
+
 	}
 
 	/**
@@ -903,8 +903,8 @@ class ADORecordSet_pdo extends ADORecordSet {
 	 */
 	protected function setFieldObjectsCache($fieldOffset = -1)
 	{
-		
-		if ($this->fieldObjectsRetrieved) 
+
+		if ($this->fieldObjectsRetrieved)
 		{
 			if ($this->fieldObjectsCache)
 			{
@@ -921,23 +921,23 @@ class ADORecordSet_pdo extends ADORecordSet {
 		}
 
 		$this->fieldObjectsCache = array();
-		
+
 		$this->fieldObjectsRetrieved = true;
-		
+
 		for ($offset=0;$offset<$this->_numOfFields;$offset++)
 		{
-			
+
 			$o = new ADOFieldObject();
-			
+
 			$arr = @$this->_queryID->getColumnMeta($offset);
-			
+
 			$o->name 		= $arr['name'];
 			$o->max_length 	= $arr['len'];
 			$o->precision 	= $arr['precision'];
-			
+
 			$o->type		= $this->decodePdoType($arr);
 
-			switch(ADODB_ASSOC_CASE) 
+			switch(ADODB_ASSOC_CASE)
 			{
 			case ADODB_ASSOC_CASE_LOWER:
 				$o->name = strtolower($o->name);
@@ -946,7 +946,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 				$o->name = strtoupper($o->name);
 				break;
 			}
-		
+
 			$this->fieldObjectsCache[] = $o;
 
 		}
@@ -956,12 +956,12 @@ class ADORecordSet_pdo extends ADORecordSet {
 	 * Gets the standardized column types for the PDO driver
 	 *
 	 * @param  string[] 	$arr	The PDO column data
-	 * 
+	 *
 	 * @return string The column type
 	 */
 	protected function decodePdoType($arr)
 	{
-		
+
 		if (isset($arr['native_type']) && $arr['native_type'] <> "null")
 		{
 		    $type = $arr['native_type'];
@@ -970,14 +970,14 @@ class ADORecordSet_pdo extends ADORecordSet {
 		{
 		     switch($arr['pdo_type'])
 			 {
-				case 2: 
+				case 2:
 				$type = 'VARCHAR';
 				break;
-				case 3: 
+				case 3:
 				$type = 'BLOB';
 				break;
-				default: 
-				$type = 'NUMERIC'; 
+				default:
+				$type = 'NUMERIC';
 			 }
 		}
 		return $type;
@@ -985,11 +985,11 @@ class ADORecordSet_pdo extends ADORecordSet {
 
 	/**
 	 * Returns the metadata for a specific field
-	 * 
+	 *
 	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:recordset:fetchfield
-	 * 
+	 *
 	 * @param integer $fieldOffset
-	 * 
+	 *
 	 * @return bool|ADOFieldObject
 	 */
 	function fetchField($fieldOffset = -1)
@@ -998,7 +998,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 			return $this->fieldObjectsCache[$fieldOffset];
 	}
 
-	
+
 	function _seek($row)
 	{
 		return false;

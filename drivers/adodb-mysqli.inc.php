@@ -771,7 +771,6 @@ class ADODB_mysqli extends ADOConnection {
 		}
 		$rs = $this->execute('SHOW PROCEDURE STATUS'.$likepattern);
 		if (is_object($rs)) {
-
 			// parse index data into array
 			while ($row = $rs->fetchRow()) {
 				$procedures[$row[1]] = array(
@@ -1093,7 +1092,6 @@ class ADODB_mysqli extends ADOConnection {
 	 * @return ADORecordSet|bool
 	 */
 	public function execute($sql, $inputarr = false) {
-
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
 			$ret = $fn($this,$sql,$inputarr);
@@ -1161,7 +1159,6 @@ class ADODB_mysqli extends ADOConnection {
 		//	if (!mysqli_next_result($this->connection->_connectionID))	return false;
 
 		if (is_array($sql)) {
-
 			// Prepare() not supported because mysqli_stmt_execute does not return a recordset, but
 			// returns as bound variables.
 
@@ -1405,8 +1402,8 @@ class ADODB_mysqli extends ADOConnection {
 /**
  * Class ADORecordSet_mysqli
  */
-class ADORecordSet_mysqli extends ADORecordSet{
-
+class ADORecordSet_mysqli extends ADORecordSet
+{
 	var $databaseType = "mysqli";
 	var $canSeek = true;
 
@@ -1459,7 +1456,6 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 */
 	protected function setFieldObjectsCache($fieldOffset = -1)
 	{
-		
 		if ($this->fieldObjectsRetrieved) {
 			if ($this->fieldObjectsCache) {
 				// Already got the information
@@ -1475,7 +1471,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		}
 
 		$this->fieldObjectsCache = array();
-		
+
 		$this->fieldObjectsRetrieved = true;
 		/*
 		 * Retrieve all metadata in one go. This is always returned as a
@@ -1490,18 +1486,16 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			return false;
 		}
 
-		foreach ($fieldMetaData as $o)
-		{
-			
+		foreach ($fieldMetaData as $o) {
 			/*
 			* Fix for HHVM
-			*/ 
+			*/
 			if ( !isset($o->flags) )
 			{
 				$o->flags = 0;
 			}
-						
-			/* 
+
+			/*
 			* Properties of an ADOFieldObject as set by MetaColumns
 			* @link https://docs.oracle.com/cd/E17952_01/apis-php-en/apis-php-mysqli.constants.html
 			*/
@@ -1518,7 +1512,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			$a = new ADOFieldObject;
 			foreach (get_object_vars($o) as $key => $name)
 				$a->$key = $name;
-		
+
 			$this->fieldObjectsCache[] = $o;
 
 		}
@@ -1526,11 +1520,11 @@ class ADORecordSet_mysqli extends ADORecordSet{
 
 	/**
 	 * Returns the metadata for a specific field
-	 * 
+	 *
 	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:recordset:fetchfield
-	 * 
+	 *
 	 * @param integer $fieldOffset
-	 * 
+	 *
 	 * @return bool|ADOFieldObject
 	 */
 	function xfetchField($fieldOffset = -1)
@@ -1595,7 +1589,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		if ($this->_numOfRows == 0 || $row < 0) {
 			return false;
 		}
-		
+
 
 		mysqli_data_seek($this->_queryID, $row);
 		$this->EOF = false;
@@ -1668,7 +1662,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	{
 		if ($this->recordSetIsArray)
 			return $this->fetchFromArray();
-		
+
 		$this->fields = mysqli_fetch_array($this->_queryID,$this->fetchMode);
 		$this->_updatefields();
 		return is_array($this->fields);
@@ -1956,116 +1950,115 @@ class xADORecordSet_array_mysqli extends ADORecordSet_mysqli
 } // if defined _ADODB_MYSQLI_LAYER
 
 /**
-	 * This class encapsulates the concept of a recordset created in memory
-	 * as an array. This is useful for the creation of cached recordsets.
+ * This class encapsulates the concept of a recordset created in memory
+ * as an array. This is useful for the creation of cached recordsets.
+ *
+ * Note that the constructor is different from the standard ADORecordSet
+ */
+class ADORecordSet_array_mysqli extends ADORecordSet_mysqli
+{
+	var $databaseType = 'array';
+
+	/*
+	* We can use the seek option
+	*/
+	public $canSeek = true;
+
+	/**
+	 * Constructor
 	 *
-	 * Note that the constructor is different from the standard ADORecordSet
+	 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
+	 * @param int|bool	   $mode    The ADODB_FETCH_MODE value
+	 *
 	 */
-	class ADORecordSet_array_mysqli extends ADORecordSet_mysqli
-	{
-		var $databaseType = 'array';
+	public function __construct($queryId,$mode=false) {
+		global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
 
 		/*
-		* We can use the seek option
+		* Configure out of range handling for pointer
 		*/
-		public $canSeek = true;
+		$this->compat = !empty($ADODB_COMPAT_FETCH);
+		parent::__construct($queryId);
+		$this->fetchMode = $ADODB_FETCH_MODE;
+	}
 
-		/**
-		 * Constructor
-		 * 
-		 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
-		 * @param int|bool	   $mode    The ADODB_FETCH_MODE value
-		 *
-		 */
-		public function __construct($queryId,$mode=false) {
-			
-			global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
+	/**
+	 * @param int [$nRows]
+	 * @return array
+	 */
+	public function GetArray($nRows=-1) {
+		if ($nRows == -1 && $this->_currentRow <= 0 && !$this->_skiprow1) {
+			return $this->_array;
+		} else {
+			return ADORecordSet::GetArray($nRows);
+		}
+	}
 
-			/*
-			* Configure out of range handling for pointer
-			*/
-			$this->compat = !empty($ADODB_COMPAT_FETCH);
-			parent::__construct($queryId); 
-			$this->fetchMode = $ADODB_FETCH_MODE;
-		}
-		
-		/**
-		 * @param int [$nRows]
-		 * @return array 
-		 */
-		public function GetArray($nRows=-1) {
-			if ($nRows == -1 && $this->_currentRow <= 0 && !$this->_skiprow1) {
-				return $this->_array;
-			} else {
-				return ADORecordSet::GetArray($nRows);
-			}
-		}
+	/**
+	 * Initialize the various variables if provided a recordset as an array
+	 *
+	 * @return void
+	 */
+	public function _initrs() {
+		$this->initRecordsetFromArray();
+	}
 
-		/**
-		 * Initialize the various variables if provided a recordset as an array
-		 * 
-		 * @return void
-		 */
-		public function _initrs() {
-			$this->initRecordsetFromArray();
-		}
+	/**
+	 * Use associative array to get fields array
+	 *
+	 * @param string $colname
+	 * @return mixed
+	 */
+	public function Fields($colname)
+	{
+		return $this->getFieldsFromArray($colname);
+	}
 
-		/**
-		 * Use associative array to get fields array
-		 *
-		 * @param string $colname
-		 * @return mixed
-		 */
-		public function Fields($colname) 
-		{
-			return $this->getFieldsFromArray($colname);
-		}
-		
-		/**
-		 * Seeks a row when the recordset is an array and
-		 * places the result in the _currentRow variable
-		 * 
-		 * @param int $row
-		 * @return bool
-		 */
-		public function _seek($row) 
-		{
-			return $this->seekFromArray($row);
-		}
+	/**
+	 * Seeks a row when the recordset is an array and
+	 * places the result in the _currentRow variable
+	 *
+	 * @param int $row
+	 * @return bool
+	 */
+	public function _seek($row)
+	{
+		return $this->seekFromArray($row);
+	}
 
-		/**
-		* Moves to the next row when the recordset is an array and
-		* places the result in the fields variable
-		* Triggered by ADORecordset_array::moveNext()
-		* 
-		* @return bool success
-		*/
-		public function moveNext() 
-		{
-			return $this->moveNextInArray();
-		}
+	/**
+	* Moves to the next row when the recordset is an array and
+	* places the result in the fields variable
+	* Triggered by ADORecordset_array::moveNext()
+	*
+	* @return bool success
+	*/
+	public function moveNext()
+	{
+		return $this->moveNextInArray();
+	}
 
-		/**
-		 * Returns the current record into the fields[] 
-		 * variable if the recordset is array. Does not
-		 * advance the pointer
-		 * 
-		 * @return bool
-		 */
-		public function _fetch()
-		{
-			return $this->fetchFromArray();
-			
-		}
+	/**
+	 * Returns the current record into the fields[]
+	 * variable if the recordset is array. Does not
+	 * advance the pointer
+	 *
+	 * @return bool
+	 */
+	public function _fetch()
+	{
+		return $this->fetchFromArray();
 
-		/**
-		 * Overrides the standard recordset close
-		 * 
-		 * @return bool true
-		 */
-		public function _close() 
-		{
-			return true;
-		}
+	}
 
-	} // ADORecordSet_array
+	/**
+	 * Overrides the standard recordset close
+	 *
+	 * @return bool true
+	 */
+	public function _close()
+	{
+		return true;
+	}
+
+} // ADORecordSet_array

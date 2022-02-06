@@ -34,8 +34,8 @@ class ADODB_oci8quercus extends ADODB_oci8 {
 		 Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordset_oci8quercus extends ADORecordset_oci8 {
-
+class ADORecordset_oci8quercus extends ADORecordset_oci8
+{
 	var $databaseType = 'oci8quercus';
 
 	/**
@@ -70,7 +70,6 @@ class ADORecordset_oci8quercus extends ADORecordset_oci8 {
 		$max = $this->_numOfFields;
 		for ($i=0;$i<$max; $i++)
 		{
-
 			$fld = new ADOFieldObject;
 
 			if (!empty($QUERCUS)) {

@@ -66,7 +66,6 @@ class ADODB_pdo_pgsql extends ADODB_pdo {
 
 	function _init(ADODB_pdo $parentDriver)
 	{
-
 		$parentDriver->hasTransactions = false; ## <<< BUG IN PDO pgsql driver
 		$parentDriver->hasInsertID = true;
 		$parentDriver->_nestedSQL = true;

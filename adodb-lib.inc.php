@@ -30,7 +30,7 @@ $ADODB_INCLUDED_LIB = 1;
 function adodb_strip_order_by($sql)
 {
 	$rez = preg_match_all('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is', $sql, $arr);
-	if ($arr) 
+	if ($arr)
 	{
 		$tmp = array_pop($arr);
 		$arr = [1=>array_pop($tmp)];
@@ -870,7 +870,7 @@ function adodb_key_exists($key, &$arr,$force=2)
 		return (!empty($arr[$key])) || (isset($arr[$key]) && strlen($arr[$key])>0);
 	}
 
-	if (isset($arr[$key])) 
+	if (isset($arr[$key]))
 		return true;
 	## null check below
 	return array_key_exists($key,$arr);
@@ -1173,7 +1173,7 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 		foreach($inputarr as $kk=>$vv) {
 			if (is_string($vv) && strlen($vv)>64) $vv = substr($vv,0,64).'...';
 			if (is_null($vv)) $ss .= "($kk=>null) ";
-			else 
+			else
 			{
 				if (is_array($vv))
 				{
@@ -1182,7 +1182,7 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 				$ss .= "($kk=>'$vv') ";
 			}
 		}
-		
+
 		$ss = "[ $ss ]";
 	}
 	$sqlTxt = is_array($sql) ? $sql[0] : $sql;
@@ -1199,7 +1199,7 @@ function _adodb_debug_execute(&$zthis, $sql, $inputarr)
 	$dsnType = '';
 	$classExp = explode('_',get_class($zthis));
 	$dbt = $classExp[1];
-	
+
 	if (count($classExp) == 3)
 	{
 		/*

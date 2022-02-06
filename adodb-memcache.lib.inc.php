@@ -26,7 +26,7 @@ global $ADODB_INCLUDED_MEMCACHE;
 $ADODB_INCLUDED_MEMCACHE = 1;
 
 global $ADODB_INCLUDED_CSV;
-if (empty($ADODB_INCLUDED_CSV)) 
+if (empty($ADODB_INCLUDED_CSV))
 	include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
 
 class ADODB_Cache_MemCache extends ADOCacheMethods
@@ -34,7 +34,7 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 	/*
 	* Prevents parent class calling non-existant function
 	*/
-	public $createdir = false; 
+	public $createdir = false;
 
 	/*
 	* populated with the proper library on connect
@@ -42,42 +42,42 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 	* between memcache and memcached
 	*/
 	private $memCacheLibrary = false;
-	
+
 	/*
 	* array of hosts
 	*/
-	private $hosts;	
-	
+	private $hosts;
+
 	/*
 	* Connection Port, uses default
 	*/
 	private $port 	= 11211;
-	
+
 	/*
 	* memcache compression with zlib
 	*/
-	private $compress = false; 
+	private $compress = false;
 
 	/*
 	* Array of options for memcached only
 	*/
 	private $options = false;
-	
+
 	/*
 	* Internal flag indicating successful connection
 	*/
 	private $isConnected = false;
-	
+
 	/*
 	* Handle for the Memcache library
 	*/
 	private $memcacheLibrary = false;
-	
+
 	/*
 	* New server feature controller lists available servers
 	*/
 	private $serverControllers = array();
-	
+
 	/*
 	* New server feature controller uses granular
 	* server controller
@@ -89,13 +89,13 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 		'key'=>''
 		);
 
-	
+
 	/*
 	* An integer index into the libraries
 	*/
 	const MCLIB  = 1;
 	const MCLIBD = 2;
-	
+
 	/*
 	* Xrefs the library flag to the actual class name
 	*/
@@ -103,7 +103,7 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 		1=>'Memcache',
 		2=>'Memcached'
 		);
-	
+
 	/*
 	* An indicator of which library we are using
 	*/
@@ -114,7 +114,7 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 	*/
 	public $connection;
 
-	
+
 	/**
 	* constructor passes in a ADONewConnection Object
 	*
@@ -130,7 +130,7 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 		$this->options  = $connection->memCacheOptions;
 
 		$this->connection = $connection;
-		
+
 	}
 
 	/**
@@ -156,10 +156,8 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 			return false;
 		}
 
-
 		$usedLibrary = $this->libraries[$this->libraryFlag];
 
-		
 		$memCache = new $usedLibrary;
 		if (!$memCache)
 		{
@@ -189,13 +187,13 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 				return false;
 			}
 		}
-		
+
 		/*
 		* Have we passed a controller array
 		*/
-		if (!is_array($this->hosts)) 
+		if (!is_array($this->hosts))
 			$this->hosts = array($this->hosts);
-		
+
 		if (array_values($this->hosts) == $this->hosts)
 		{
 			/*
@@ -204,10 +202,10 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 			foreach ($this->hosts as $ipAddress)
 			{
 				$connector = $this->serverControllerTemplate;
-				
+
 				$connector['host'] = $ipAddress;
 				$connector['port'] = $this->port;
-				
+
 				$this->serverControllers[] = $connector;
 			}
 		}
@@ -226,11 +224,11 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 					*/
 					$connector['key'] = '';
 					$connector['weight'] = 0;
-					
+
 				}
 				else
 					$connector['weight'] = $connector['weight'] ? (int)$connector['weight']:0;
-				
+
 				$this->serverControllers[] = $connector;
 			}
 		}
@@ -252,7 +250,7 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 			}
 		}
 		$failcnt = 0;
-		foreach($this->serverControllers as $controller) 
+		foreach($this->serverControllers as $controller)
 		{
 			switch($this->libraryFlag)
 			{
@@ -264,7 +262,7 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 				if (!@$memCache->addServer($controller['host'],$controller['port'],$controller['weight']))
 					$failcnt++;
 			}
-			
+
 		}
 		if ($failcnt == sizeof($this->serverControllers))
 		{
@@ -295,19 +293,19 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 	public function writeCache($filename, $contents, $debug, $secs2cache)
 	{
 		$err = '';
-		if (!$this->isConnected  && $debug) 
+		if (!$this->isConnected  && $debug)
 		{
 			/*
 			* Call to writecache before connect, try
 			* to connect
 			*/
-			if (!$this->connect($err)) 
+			if (!$this->connect($err))
 				ADOConnection::outp($err);
 		}
-		else if (!$this->isConnected) 
+		else if (!$this->isConnected)
 			$this->connect($err);
-		
-		if (!$this->memcacheLibrary) 
+
+		if (!$this->memcacheLibrary)
 			return false;
 
 		$failed=false;
@@ -343,17 +341,17 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 	* @param string $err The query results
 	* @param int	$secs2cache
 	* @param obj	$rsClass **UNUSED**
-	
+
 	* @return the record or false.
 	*/
 	public function readCache($filename, &$err, $secs2cache, $rsClass)
 	{
 		if (!$this->isConnected) $this->connect($err);
-		if (!$this->memcacheLibrary) 
+		if (!$this->memcacheLibrary)
 			return false;
 
 		$rs = $this->memcacheLibrary->get($filename);
-		if (!$rs) 
+		if (!$rs)
 		{
 			$err = 'Item with such key doesn\'t exist on the memcache server.';
 			return false;
@@ -368,11 +366,11 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 			$err = 'Unable to unserialize $rs';
 			return $false;
 		}
-		if ($rs->timeCreated == 0) 
+		if ($rs->timeCreated == 0)
 			return $rs; // apparently have been reports that timeCreated was set to 0 somewhere
 
 		$tdiff = intval($rs->timeCreated+$secs2cache - time());
-		if ($tdiff <= 2) 
+		if ($tdiff <= 2)
 		{
 			switch($tdiff)
 			{
@@ -403,17 +401,17 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 	* @param string $err The query results
 	* @param int	$secs2cache
 	* @param obj	$rsClass **UNUSED**
-	
+
 	* @return the record or false.
 	*/
 	public function readCachedJson($filename, &$err, $secs2cache, $rsClass)
 	{
 		if (!$this->isConnected) $this->connect($err);
-		if (!$this->memcacheLibrary) 
+		if (!$this->memcacheLibrary)
 			return false;
 
 		$json = $this->memcacheLibrary->get($filename);
-		if (!$json) 
+		if (!$json)
 		{
 			$err = 'Item with such key doesn\'t exist on the memcache server.';
 			return false;
@@ -427,7 +425,7 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 			return $rs;
 
 		return false;
-		
+
 	}
 
 
@@ -435,7 +433,7 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 	* Flushes all of the stored memcache data
 	*
 	* @param	bool	$debug
-	* 
+	*
 	* @return int The response from the memcache server
 	*/
 	public function flushAll($debug=false)
@@ -444,15 +442,15 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 			$err = '';
 			if (!$this->connect($err) && $debug) ADOConnection::outp($err);
 		}
-		if (!$this->memcacheLibrary) 
+		if (!$this->memcacheLibrary)
 			return false;
 
 		$del = $this->memcacheLibrary->flush();
 
 		if ($debug)
-			if (!$del) 
+			if (!$del)
 				ADOConnection::outp("flushall: failed!<br>\n");
-			else 
+			else
 				ADOConnection::outp("flushall: succeeded!<br>\n");
 
 		return $del;
@@ -463,17 +461,17 @@ class ADODB_Cache_MemCache extends ADOCacheMethods
 	*
 	* @param	str		$filname	The MD5 of the query to flush
 	* @param	bool	$debug
-	* 
+	*
 	* @return int The response from the memcache server
 	*/
 	public function flushCache($filename, $debug=false)
 	{
-		if (!$this->isConnected) 
+		if (!$this->isConnected)
 		{
 			$err = '';
 			if (!$this->connect($err) && $debug) ADOConnection::outp($err);
 		}
-		if (!$this->memcacheLibrary) 
+		if (!$this->memcacheLibrary)
 			return false;
 
 		$del = $this->memcacheLibrary->delete($filename);

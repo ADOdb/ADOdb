@@ -83,7 +83,6 @@ $ADODB_INCLUDED_CSV = 1;
 		$rs2->InitArrayFields($rows,$flds);
 		$rs2->fetchMode = $savefetch;
 		return $line.serialize($rs2);
-		
 	}
 
 	/**

@@ -108,7 +108,6 @@ class ADODB_pdo_firebird extends ADODB_pdo
 				$fld->not_null = true;
 			}
 			if (isset($rs->fields[2])) {
-
 				$fld->has_default = true;
 				$d = substr($rs->fields[2], strlen('default '));
 				switch ($fld->type) {
@@ -405,7 +404,6 @@ class ADODB_pdo_firebird extends ADODB_pdo
 class ADORecordSet_pdo_firebird extends ADORecordSet_pdo
 {
 	public $databaseType = "pdo_firebird";
-
 }
 
 /**
@@ -415,5 +413,4 @@ class ADORecordSet_array_pdo_firebird extends ADORecordSet_array_pdo
 {
 	public $databaseType = "pdo_firebird";
 	public $canSeek = true;
-	
 }

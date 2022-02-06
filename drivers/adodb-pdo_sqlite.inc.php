@@ -81,8 +81,8 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		$MAXLOOPS = 100;
 		while (--$MAXLOOPS>=0) {
 			@($num = array_pop(ADOConnection::getCol("SELECT id FROM {$seq}")));
-			
-			if ($num === false || !is_numeric($num)) 
+
+			if ($num === false || !is_numeric($num))
 			{
 				@ADOConnection::execute(sprintf($this->_genSeqSQL ,$seq));
 				$start -= 1;
@@ -95,14 +95,14 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 			}
 			ADOConnection::execute(sprintf($this->_genIDSQL,$seq,$num));
 
-			if ($this->affected_rows() > 0) 
+			if ($this->affected_rows() > 0)
 			{
 				$num += 1;
 				$this->genID = intval($num);
 				return intval($num);
 			}
 		}
-		if ($fn = $this->raiseErrorFn) 
+		if ($fn = $this->raiseErrorFn)
 		{
 			$fn($this->databaseType,'GENID',-32000,"Unable to generate unique id after $MAXLOOPS attempts",$seq,$num);
 		}
@@ -111,7 +111,6 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 
 	function CreateSequence($seqname='adodbseq',$start=1)
 	{
-
 		$ok = ADOConnection::execute(sprintf($this->_genSeqSQL,$seqname));
 		if (!$ok) return false;
 		$start -= 1;
@@ -120,13 +119,11 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 
 	function SetTransactionMode($transaction_mode)
 	{
-
 		$this->_transmode = strtoupper($transaction_mode);
 	}
 
 	function BeginTrans()
 	{
-
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
 		$this->_autocommit = false;
@@ -135,7 +132,6 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 
 	function CommitTrans($ok=true)
 	{
-
 		if ($this->transOff) return true;
 		if (!$ok) return $this->RollbackTrans();
 		if ($this->transCnt) $this->transCnt -= 1;
@@ -163,13 +159,13 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-		
-		if ($this->fetchMode !== false) 
+
+		if ($this->fetchMode !== false)
 		{
 			$savem = $this->SetFetchMode(false);
 		}
 		$rs = ADOConnection::execute("PRAGMA table_info('$tab')");
-		if (isset($savem)) 
+		if (isset($savem))
 		{
 			$this->SetFetchMode($savem);
 		}
@@ -178,16 +174,15 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 			return false;
 		}
 		$arr = array();
-		while ($r = $rs->FetchRow()) 
+		while ($r = $rs->FetchRow())
 		{
-
 			$type = explode('(', $r['type']);
 			$size = '';
 			if (sizeof($type) == 2) {
 				$size = trim($type[1], ')');
 			}
 			$fn = strtoupper($r['name']);
-			
+
 			$fld = new ADOFieldObject;
 			$fld->name 		 	= $r['name'];
 			$fld->type 		 	= $type[0];
@@ -210,7 +205,6 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
-
 		if ($mask) {
 			$save = $this->metaTablesSQL;
 			$mask = $this->qstr(strtoupper($mask));
