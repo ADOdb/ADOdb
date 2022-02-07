@@ -14,7 +14,7 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
-## [5.22.0] - Unreleased
+## [5.22.0] - 2022-02-08
 
 ### Added
 
@@ -45,10 +45,10 @@ Older changelogs:
   [#782](https://github.com/ADOdb/ADOdb/issues/782)
 - xml: add field comments
   [#732](https://github.com/ADOdb/ADOdb/issues/732)
-- Code cleanup: PHPDoc, code style, whitespace, PHPStan errors, etc.
-  [#774](https://github.com/ADOdb/ADOdb/issues/774)
 - loadbalancer: support calling a function upon connection
   [#784](https://github.com/ADOdb/ADOdb/issues/784)
+- Code cleanup: PHPDoc, code style, whitespace, PHPStan errors, etc.
+  [#774](https://github.com/ADOdb/ADOdb/issues/774)
 
 ### Deprecated
 
@@ -102,8 +102,7 @@ Older changelogs:
   [#788](https://github.com/ADOdb/ADOdb/issues/788)
 
 
-## [5.21.4] - 2022-01-22
-## [5.20.21] - 2022-01-22
+## [5.21.4] and [5.20.21] - 2022-01-22
 
 ### Fixed
 
@@ -1233,7 +1232,7 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[5.22.0]: https://github.com/adodb/adodb/compare/v5.21.3...master
+[5.22.0]: https://github.com/adodb/adodb/compare/v5.21.4...master
 
 [5.21.4]: https://github.com/adodb/adodb/compare/v5.21.3...v5.21.4
 [5.21.3]: https://github.com/adodb/adodb/compare/v5.21.2...v5.21.3
