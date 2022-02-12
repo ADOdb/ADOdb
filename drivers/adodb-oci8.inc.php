@@ -105,8 +105,6 @@ END;
 	var $datetime = false; // MetaType('DATE') returns 'D' (datetime==false) or 'T' (datetime == true)
 	var $_refLOBs = array();
 
-	// var $ansiOuter = true; // if oracle9
-
 	/*
 	 * Legacy compatibility for sequence names for emulated auto-increments
 	 */
@@ -245,45 +243,38 @@ END;
 					$argDatabasename = substr($argDatabasename,4);
 					$this->connectSID = true;
 				}
-
-				if ($this->connectSID) {
-					$argDatabasename="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=".$argHostname
-					.")(PORT=$argHostport))(CONNECT_DATA=(SID=$argDatabasename)))";
-				} else
-					$argDatabasename="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=".$argHostname
-					.")(PORT=$argHostport))(CONNECT_DATA=(SERVICE_NAME=$argDatabasename)))";
+				$sidOrService = $this->connectSID ? 'SID' : 'SERVICE_NAME';
+				$argDatabasename = "(DESCRIPTION="
+					. "(ADDRESS=(PROTOCOL=TCP)(HOST=$argHostname)(PORT=$argHostport))"
+					. "(CONNECT_DATA=($sidOrService=$argDatabasename)))";
 			}
 		}
 
-		//if ($argHostname) print "<p>Connect: 1st argument should be left blank for $this->databaseType</p>";
-		if ($mode==1) {
-			$this->_connectionID = ($this->charSet)
-				? oci_pconnect($argUsername,$argPassword, $argDatabasename,$this->charSet)
-				: oci_pconnect($argUsername,$argPassword, $argDatabasename);
-			if ($this->_connectionID && $this->autoRollback)  {
-				oci_rollback($this->_connectionID);
-			}
-		} else if ($mode==2) {
-			$this->_connectionID = ($this->charSet)
-				? oci_new_connect($argUsername,$argPassword, $argDatabasename,$this->charSet)
-				: oci_new_connect($argUsername,$argPassword, $argDatabasename);
-		} else {
-			$this->_connectionID = ($this->charSet)
-				? oci_connect($argUsername,$argPassword, $argDatabasename,$this->charSet)
-				: oci_connect($argUsername,$argPassword, $argDatabasename);
+		// Determine the connect function to use based on connection mode
+		switch ($mode) {
+			case 1:  $ociConnectFunction = 'oci_pconnect';    break;
+			case 2:  $ociConnectFunction = 'oci_new_connect'; break;
+			default: $ociConnectFunction = 'oci_connect';
 		}
+
+		$this->_connectionID = $ociConnectFunction(
+			$argUsername,
+			$argPassword,
+			$argDatabasename,
+			$this->charSet ?: null
+		);
 		if (!$this->_connectionID) {
 			return false;
+		}
+
+		if ($mode == 1 && $this->autoRollback ) {
+			oci_rollback($this->_connectionID);
 		}
 
 		if ($this->_initdate) {
 			$this->Execute("ALTER SESSION SET NLS_DATE_FORMAT='".$this->NLS_DATE_FORMAT."'");
 		}
 
-		// looks like:
-		// Oracle8i Enterprise Edition Release 8.1.7.0.0 - Production With the Partitioning option JServer Release 8.1.7.0.0 - Production
-		// $vers = oci_server_version($this->_connectionID);
-		// if (strpos($vers,'8i') !== false) $this->ansiOuter = true;
 		return true;
 	}
 
