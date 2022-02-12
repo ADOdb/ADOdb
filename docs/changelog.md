@@ -16,6 +16,12 @@ Older changelogs:
 
 ## [5.23.0] - Unreleased
 
+### Added
+
+- oci8: support session_mode parameter
+  [#801](https://github.com/ADOdb/ADOdb/issues/801)
+
+
 ## [5.22.1] - Unreleased
 
 ### Removed
