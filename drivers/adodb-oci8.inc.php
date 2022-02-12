@@ -212,6 +212,13 @@ END;
 	 *    OR
 	 *    $conn->Connect($serveraddress,'scott,'tiger',"SID=$SID");
 	 *
+	 * By default, the Session Mode will be set to OCI_DEFAULT, but it is
+	 * possible to use one of other modes referenced in the
+	 * {@link https://www.php.net/manual/en/function.oci-connect oci8_connect()}
+	 * function's documentation, like this:
+	 *    $conn->setConnectionParameter('session_mode', OCI_SYSDBA);
+	 *    $conn->connect(...);
+	 *
 	 * @param string|false $argHostname DB server hostname or TNS name
 	 * @param string $argUsername
 	 * @param string $argPassword
@@ -266,7 +273,8 @@ END;
 			$argUsername,
 			$argPassword,
 			$argDatabasename,
-			$this->charSet ?: null
+			$this->charSet ?: null,
+			$this->connectionParameters['session_mode'] ?? OCI_DEFAULT
 		);
 		if (!$this->_connectionID) {
 			return false;
