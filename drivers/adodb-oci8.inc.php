@@ -191,21 +191,26 @@ END;
 	}
 
 	/**
+	 * Connect to database.
+	 *
 	 * Multiple modes of connection are supported:
 	 *
-	 * a. Local Database
-	 *    $conn->Connect(false,'scott','tiger');
+	 * 1. Local Database
+	 *    $conn->connect(false, 'scott', 'tiger');
 	 *
-	 * b. From tnsnames.ora
-	 *    $conn->Connect($tnsname,'scott','tiger');
-	 *    $conn->Connect(false,'scott','tiger',$tnsname);
+	 * 2. From tnsnames.ora
+	 *    $conn->connect($tnsname, 'scott', 'tiger');
+	 *    OR
+	 *    $conn->connect(false, 'scott', 'tiger', $tnsname);
 	 *
-	 * c. Server + service name
-	 *    $conn->Connect($serveraddress,'scott,'tiger',$service_name);
+	 * 3. Server + service name
+	 *    $conn->connect($serveraddress, 'scott, 'tiger', $service_name);
 	 *
-	 * d. Server + SID
+	 * 4. Server + SID
 	 *    $conn->connectSID = true;
 	 *    $conn->Connect($serveraddress,'scott,'tiger',$SID);
+	 *    OR
+	 *    $conn->Connect($serveraddress,'scott,'tiger',"SID=$SID");
 	 *
 	 * @param string|false $argHostname DB server hostname or TNS name
 	 * @param string $argUsername
