@@ -239,16 +239,7 @@ class ADODB_pdo extends ADOConnection {
 	}
 
 
-	function Concat()
-	{
-		$args = func_get_args();
-		$res = $this->_callChildMethodIfExists(__FUNCTION__, $args);
-		if ($res !== false) {
-			return $res;
-		}
-
-		return call_user_func_array('parent::Concat', $args);
-	}
+    // function Concat() is implemented in Parent
 
 	/**
 	 * Triggers a driver-specific request for a bind parameter
@@ -305,10 +296,7 @@ class ADODB_pdo extends ADOConnection {
 		return $this->_driver->MetaColumns($table,$normalize);
 	}
 
-	public function metaIndexes($table,$normalize=true)
-	{
-		return $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
-	}
+    // function metaIndexes() is implemented in parent
 
 	/**
 	 * Return a list of Primary Keys for a specified table.
@@ -318,24 +306,10 @@ class ADODB_pdo extends ADOConnection {
 	 *
 	 * @return string[]    Array of indexes
 	 */
-	public function metaPrimaryKeys($table,$owner=false)
-	{
-		return $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
-	}
+    
+    // function metaPrimaryKeys is implemented in parent
 
-	/**
-	 * Returns a list of Foreign Keys for a specified table.
-	 *
-	 * @param string   $table
-	 * @param bool     $owner      (optional) not used in this driver
-	 * @param bool     $upper
-	 * @param bool     $associative
-	 *
-	 * @return string[] where keys are tables, and values are foreign keys
-	 */
-	public function metaForeignKeys($table, $owner=false, $upper=false,$associative=false) {
-		return $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
-	}
+    // function metaForeignKeys is implemented in parent
 
 	/**
 	 * List procedures or functions in an array.
@@ -354,9 +328,7 @@ class ADODB_pdo extends ADOConnection {
 	 *           )
 	 *         )
 	 */
-	public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
-		return $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
-	}
+    // function metaProcedures is implemented in parent
 
 	function InParameter(&$stmt,&$var,$name,$maxLen=4000,$type=false)
 	{
@@ -442,23 +414,9 @@ class ADODB_pdo extends ADOConnection {
 		return $err;
 	}
 
-	/**
-	 * @param bool $auto_commit
-	 * @return void
-	 */
-	function SetAutoCommit($auto_commit)
-	{
-		return $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
-	}
+    // function SetAutoCommit is implemented in parent
 
-	function SetTransactionMode($transaction_mode)
-	{
-		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
-		if ($res !== false) {
-			return $res;
-		}
-		return parent::SetTransactionMode($transaction_mode);
-	}
+    // function SetTransactionMode is implemented in parent
 
 	function beginTrans()
 	{
@@ -550,36 +508,11 @@ class ADODB_pdo extends ADOConnection {
 		return $obj;
 	}
 
-	public function createSequence($seqname='adodbseq',$startID=1)
-	{
-		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
-		if ($res !== false) {
-			return $res;
-		}
+    // function createSequence is implemented in parent
 
-		return parent::CreateSequence($seqname, $startID);
-	}
+    // function DropSequence is implemented in parent
 
-	function DropSequence($seqname='adodbseq')
-	{
-		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
-		if ($res !== false) {
-			return $res;
-		}
-
-		return parent::DropSequence($seqname);
-	}
-
-	function GenID($seqname='adodbseq',$startID=1)
-	{
-		$res = $this->_callChildMethodIfExists(__FUNCTION__, func_get_args());
-		if ($res !== false) {
-			return $res;
-		}
-
-		return parent::GenID($seqname, $startID);
-	}
-
+    // function GenID is implemented in parent
 
 	/* returns queryID or false */
 	function _query($sql,$inputarr=false)
