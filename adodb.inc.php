@@ -5365,12 +5365,8 @@ class ADORecordSet implements IteratorAggregate {
 				break;
 
 			case 'mysql':
-				// mysql driver deprecated since 5.5, removed in 7.0
-				// automatically switch to mysqli
-				if(version_compare(PHP_VERSION, '7.0.0', '>=')) {
-					$db = 'mysqli';
-				}
-				$class = $db;
+				// mysql extension removed in PHP 7.0 - automatically switch to mysqli
+				$class = $db = 'mysqli';
 				break;
 
 			default:

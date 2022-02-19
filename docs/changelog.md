@@ -16,6 +16,11 @@ Older changelogs:
 
 ## [5.22.1] - Unreleased
 
+### Removed
+
+- Legacy mysql, mysqlpo and mysqlt drivers
+  [#804](https://github.com/ADOdb/ADOdb/issues/804)
+
 ### Fixed
 
 - Fix regression on mysqli::setConnectionParameter()
