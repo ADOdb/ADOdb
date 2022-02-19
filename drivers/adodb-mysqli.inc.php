@@ -138,8 +138,7 @@ class ADODB_mysqli extends ADOConnection {
 			$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
 			return false;
 		}
-		$this->connectionParameters[$parameter] = $value;
-		return true;
+		return parent::setConnectionParameter($parameter, $value);
 	}
 
 	/**
@@ -185,13 +184,15 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		// Now merge in the standard connection parameters setting
-		foreach ($this->connectionParameters as $parameter => $value) {
-			// Make sure parameter is numeric before calling mysqli_options()
-			// that to avoid Warning (or TypeError exception on PHP 8).
-			if (!is_numeric($parameter)
-				|| !mysqli_options($this->_connectionID, $parameter, $value)
-			) {
-				$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
+		foreach ($this->connectionParameters as $options) {
+			foreach ($options as $parameter => $value) {
+				// Make sure parameter is numeric before calling mysqli_options()
+				// to avoid Warning (or TypeError exception on PHP 8).
+				if (!is_numeric($parameter)
+					|| !mysqli_options($this->_connectionID, $parameter, $value)
+				) {
+					$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
+				}
 			}
 		}
 
