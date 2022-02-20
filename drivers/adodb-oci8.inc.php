@@ -269,12 +269,22 @@ END;
 			default: $ociConnectFunction = 'oci_connect';
 		}
 
+		// Process the connection parameters
+		$sessionMode = OCI_DEFAULT;
+		foreach ($this->connectionParameters as $options) {
+			foreach($options as $parameter => $value) {
+				if ($parameter == 'session_mode') {
+					$sessionMode = $value;
+				}
+			}
+		}
+
 		$this->_connectionID = $ociConnectFunction(
 			$argUsername,
 			$argPassword,
 			$argDatabasename,
 			$this->charSet ?: null,
-			$this->connectionParameters['session_mode'] ?? OCI_DEFAULT
+			$sessionMode
 		);
 		if (!$this->_connectionID) {
 			return false;
