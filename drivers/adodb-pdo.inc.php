@@ -64,8 +64,8 @@ function adodb_pdo_type($t)
 
 /*----------------------------------------------------------------------------*/
 
-
 class ADODB_pdo extends ADOConnection {
+	
 	var $databaseType = "pdo";
 	var $dataProvider = "pdo";
 	var $fmtDate = "'Y-m-d'";
@@ -118,6 +118,7 @@ class ADODB_pdo extends ADOConnection {
 		$at = strpos($argDSN,':');
 		if ($at > 0)
 		{
+		
 			$this->dsnType = substr($argDSN,0,$at);
 			if (strcmp($this->dsnType,$driverClass) <> 0)
 				die('If a database type is specified, it must match the previously defined driver');
@@ -152,6 +153,7 @@ class ADODB_pdo extends ADOConnection {
 			$this->pdoParameters[\PDO::ATTR_PERSISTENT] = true;
 		}
 
+		
 		try {
 			$this->_connectionID = new \PDO($argDSN, $argUsername, $argPassword, $this->pdoParameters);
 		} catch (Exception $e) {
@@ -188,9 +190,9 @@ class ADODB_pdo extends ADOConnection {
 					$this->_connectionID->setAttribute($k,$v);
 				}
 			}
-
 			return true;
 		}
+		
 		$this->_driver = new ADODB_pdo_base();
 		return false;
 	}
@@ -204,7 +206,7 @@ class ADODB_pdo extends ADOConnection {
 
 	/*------------------------------------------------------------------------------*/
 
-
+	/*
 	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$save = $this->_driver->fetchMode;
@@ -214,82 +216,8 @@ class ADODB_pdo extends ADOConnection {
 		$this->_driver->fetchMode = $save;
 		return $ret;
 	}
-
-
-	function ServerInfo()
-	{
-		return $this->_driver->ServerInfo();
-	}
-
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
-	{
-		return $this->_driver->MetaTables($ttype,$showSchema,$mask);
-	}
-
-	function MetaColumns($table,$normalize=true)
-	{
-		return $this->_driver->MetaColumns($table,$normalize);
-	}
-
-	public function metaIndexes($table,$normalize=true,$owner=false)
-	{
-		if (method_exists($this->_driver,'metaIndexes'))
-			return $this->_driver->metaIndexes($table,$normalize,$owner);
-	}
-
-	/**
-	 * Return a list of Primary Keys for a specified table.
-	 *
-	 * @param string   $table
-	 * @param bool     $owner      (optional) not used in this driver
-	 *
-	 * @return string[]    Array of indexes
-	 */
-	public function metaPrimaryKeys($table,$owner=false)
-	{
-		//if (method_exists($this->_driver,'metaPrimaryKeys'))
-		//	return $this->_driver->metaPrimaryKeys($table,$owner);
-	}
-
-	/**
-	 * Returns a list of Foreign Keys associated with a specific table.
-	 *
-	 * @param string   $table
-	 * @param string   $owner      (optional) not used in this driver
-	 * @param bool     $upper
-	 * @param bool     $associative
-	 *
-	 * @return string[]|false An array where keys are tables, and values are foreign keys;
-	 *                        false if no foreign keys could be found.
-	 */
-	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false) {
-		//if (method_exists($this->_driver,'metaForeignKeys'))
-		//	return $this->_driver->metaForeignKeys($table, $owner, $upper, $associative);
-	}
-
-	/**
-	 * List procedures or functions in an array.
-	 *
-	 * @param $procedureNamePattern A procedure name pattern; must match the procedure name as it is stored in the database.
-	 * @param $catalog              A catalog name; must match the catalog name as it is stored in the database.
-	 * @param $schemaPattern        A schema name pattern.
-	 *
-	 * @return false|array false if not supported, or array of procedures on current database with structure below
-	 *         Array(
-	 *           [name_of_procedure] => Array(
-	 *             [type] => PROCEDURE or FUNCTION
-	 *             [catalog] => Catalog_name
-	 *             [schema] => Schema_name
-	 *             [remarks] => explanatory comment on the procedure
-	 *           )
-	 *         )
-	 */
-	public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
-		//if (method_exists($this->_driver,'metaProcedures'))
-		// return $this->_driver->metaProcedures($procedureNamePattern,$catalog,$schemaPattern);
-		return false;
-	}
-
+	*/
+	
 	function InParameter(&$stmt,&$var,$name,$maxLen=4000,$type=false)
 	{
 		$obj = $stmt[1];
@@ -299,21 +227,6 @@ class ADODB_pdo extends ADOConnection {
 		else {
 			$obj->bindParam($name, $var);
 		}
-	}
-
-	function OffsetDate($dayFraction,$date=false)
-	{
-		return $this->_driver->OffsetDate($dayFraction,$date);
-	}
-
-	function SelectDB($dbName)
-	{
-		return $this->_driver->SelectDB($dbName);
-	}
-
-	function SQLDate($fmt, $col=false)
-	{
-		return $this->_driver->SQLDate($fmt, $col);
 	}
 
 	function ErrorMsg()
@@ -374,35 +287,10 @@ class ADODB_pdo extends ADOConnection {
 		return $err;
 	}
 
-	/**
-	 * @param bool $auto_commit
-	 * @return void
-	 
-	function SetAutoCommit($auto_commit)
-	{
-		if(method_exists($this->_driver, 'SetAutoCommit')) {
-			$this->_driver->SetAutoCommit($auto_commit);
-		}
-	}
-	*/
-
-	
-	function SetTransactionMode($transaction_mode)
-	{
-		//if(method_exists($this->_driver, 'SetTransactionMode')) {
-		//	return $this->_driver->SetTransactionMode($transaction_mode);
-		//}
-
-		return parent::SetTransactionMode($transaction_mode);
-	}
-	
 
 	
 	function beginTrans()
 	{
-		//if(method_exists($this->_driver, 'beginTrans')) {
-		//	return $this->_driver->beginTrans();
-		//}
 
 		if (!$this->hasTransactions) {
 			return false;
@@ -419,10 +307,6 @@ class ADODB_pdo extends ADOConnection {
 
 	function commitTrans($ok=true)
 	{
-
-		//if(method_exists($this->_driver, 'commitTrans')) {
-		//	return $this->_driver->commitTrans($ok);
-		//}
 
 		if (!$this->hasTransactions) {
 			return false;
@@ -445,10 +329,6 @@ class ADODB_pdo extends ADOConnection {
 
 	function RollbackTrans()
 	{
-		//if(method_exists($this->_driver, 'RollbackTrans')) {
-		//	return $this->_driver->RollbackTrans();
-		//}
-
 		if (!$this->hasTransactions) {
 			return false;
 		}
@@ -484,34 +364,6 @@ class ADODB_pdo extends ADOConnection {
 		$obj = new ADOPDOStatement($stmt,$this);
 		return $obj;
 	}
-
-	public function createSequence($seqname='adodbseq',$startID=1)
-	{
-		//if(method_exists($this->_driver, 'createSequence')) {
-		//	return $this->_driver->createSequence($seqname, $startID);
-		//}
-
-		return parent::CreateSequence($seqname, $startID);
-	}
-
-	function DropSequence($seqname='adodbseq')
-	{
-		//if(method_exists($this->_driver, 'DropSequence')) {
-		//	return $this->_driver->DropSequence($seqname);
-		//}
-
-		return parent::DropSequence($seqname);
-	}
-
-	function GenID($seqname='adodbseq',$startID=1)
-	{
-		//if(method_exists($this->_driver, 'GenID')) {
-		//	return $this->_driver->GenID($seqname, $startID);
-		//}
-
-		return parent::GenID($seqname, $startID);
-	}
-
 
 	/* returns queryID or false */
 	function _query($sql,$inputarr=false)
@@ -604,39 +456,6 @@ class ADODB_pdo extends ADOConnection {
 
 }
 
-class ADODB_pdo_base extends ADODB_pdo {
-
-	var $sysDate = "'?'";
-	var $sysTimeStamp = "'?'";
-
-
-	function _init($parentDriver)
-	{
-		$parentDriver->_bindInputArray = true;
-		#$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,true);
-	}
-
-	function ServerInfo()
-	{
-		return ADOConnection::ServerInfo();
-	}
-
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
-	{
-		$ret = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
-		return $ret;
-	}
-
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
-	{
-		return false;
-	}
-
-	function MetaColumns($table,$normalize=true)
-	{
-		return false;
-	}
-}
 
 class ADOPDOStatement {
 
