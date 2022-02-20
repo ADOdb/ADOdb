@@ -1053,11 +1053,6 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	var $fieldOffset = 0;
 	// _mths works only in non-localised system
 
-	/**
-	 * @var bool True if we have retrieved the fields metadata
-	 */
-	private $fieldObjectsRetrieved = false;
-
 	/*
 	* Cross-reference the objects by name for easy access
 	*/
@@ -1125,7 +1120,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	{
 		$this->_numOfRows = -1;//not supported
 		// Cache the metadata right now
-		$this->_fetchField();
+		$this->setFieldObjectsCache();
 
 	}
 
@@ -1176,7 +1171,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	* @param int $fieldOffset (optional default=-1 for all
 	* @return mixed an ADOFieldObject, or array of objects
 	*/
-	private function _fetchField($fieldOffset = -1)
+	protected function setFieldObjectsCache($fieldOffset = -1)
 	{
 		if ($this->fieldObjectsRetrieved) {
 			if ($this->fieldObjectsCache) {

@@ -779,6 +779,21 @@ class ADORecordSet_pdo extends ADORecordSet {
 	var $databaseType = "pdo";
 	var $dataProvider = "pdo";
 
+	/*
+	* Holds the name of the driver as returned by the class name
+	*/
+	public $pdoDriverName;
+
+	/*
+	* Drivers that support column meta information
+	*/
+	protected $pdoHasColumnMeta = array(
+		'mysql',
+		'sqlsrv',
+		'pgsql',
+		'sqlite'
+	);
+
 	function __construct($id,$mode=false)
 	{
 		if ($mode === false) {
@@ -823,63 +838,166 @@ class ADORecordSet_pdo extends ADORecordSet {
 		}
 	}
 
+	/**
+	 * Initializes the recordset
+	 *
+	 * @return void
+	 */
 	function _initrs()
 	{
-	global $ADODB_COUNTRECS;
+		global $ADODB_COUNTRECS;
+
+		/*
+		* Obtains the current driver, as defined by the class name
+		*/
+		$pdoDriverNameArray = explode('_',get_class($this->connection));
+
+		$this->pdoDriverName = array_pop($pdoDriverNameArray);
 
 		$this->_numOfRows = ($ADODB_COUNTRECS) ? @$this->_queryID->rowCount() : -1;
 		if (!$this->_numOfRows) {
 			$this->_numOfRows = -1;
 		}
 		$this->_numOfFields = $this->_queryID->columnCount();
+
+		/*
+		* Does the driver support column meta data?
+		*/
+		if (in_array($this->pdoDriverName,$this->pdoHasColumnMeta))
+			$this->setFieldObjectsCache();
+		else
+			$this->setDummyFieldObjectsCache();
 	}
 
-	// returns the field object
-	function FetchField($fieldOffset = -1)
+	/**
+	 * For drivers that have not column metadata, create a dummy object array
+	 *
+	 * @return void
+	 */
+	protected function setDummyFieldObjectsCache()
 	{
-		$off=$fieldOffset+1; // offsets begin at 1
+
+		if ($this->fieldObjectsRetrieved)
+			return;
 
 		$o= new ADOFieldObject();
-		$arr = @$this->_queryID->getColumnMeta($fieldOffset);
-		if (!$arr) {
-			$o->name = 'bad getColumnMeta()';
-			$o->max_length = -1;
-			$o->type = 'VARCHAR';
-			$o->precision = 0;
-	#		$false = false;
-			return $o;
-		}
-		//adodb_pr($arr);
-		$o->name = $arr['name'];
-		if (isset($arr['sqlsrv:decl_type']) && $arr['sqlsrv:decl_type'] <> "null")
+		$o->name = 'bad getColumnMeta()';
+		$o->max_length = -1;
+		$o->type = 'VARCHAR';
+		$o->precision = 0;
+
+		$this->fieldObjectsRetrieved = true;
+
+		$this->fieldObjectsCache = array_fill(0,$this->_numOfFields,$o);
+
+	}
+
+	/**
+	 * Get column information in the Recordset object.
+	 * fetchField() can be used in order to obtain information about fields
+	 * in a certain query result. If the field offset isn't specified, the next
+	 * field that wasn't yet retrieved by fetchField() is retrieved
+	 *
+	 * @param int		$fieldOffset
+	 * @return object 	containing field information
+	 */
+	protected function setFieldObjectsCache($fieldOffset = -1)
+	{
+
+		if ($this->fieldObjectsRetrieved)
 		{
-		    /*
-		    * If the database is SQL server, use the native built-ins
-		    */
-		    $o->type = $arr['sqlsrv:decl_type'];
-		}
-		elseif (isset($arr['native_type']) && $arr['native_type'] <> "null")
-		{
-		    $o->type = $arr['native_type'];
-		}
-		else
-		{
-		     $o->type = adodb_pdo_type($arr['pdo_type']);
+			if ($this->fieldObjectsCache)
+			{
+				// Already got the information
+				if ($fieldOffset == -1) {
+					return $this->fieldObjectsCache;
+				} else {
+					return $this->fieldObjectsCache[$fieldOffset];
+				}
+			} else {
+				// No metadata available
+				return false;
+			}
 		}
 
-		$o->max_length = $arr['len'];
-		$o->precision = $arr['precision'];
+		$this->fieldObjectsCache = array();
 
-		switch(ADODB_ASSOC_CASE) {
+		$this->fieldObjectsRetrieved = true;
+
+		for ($offset=0;$offset<$this->_numOfFields;$offset++)
+		{
+
+			$o = new ADOFieldObject();
+
+			$arr = @$this->_queryID->getColumnMeta($offset);
+
+			$o->name 		= $arr['name'];
+			$o->max_length 	= $arr['len'];
+			$o->precision 	= $arr['precision'];
+
+			$o->type		= $this->decodePdoType($arr);
+
+			switch(ADODB_ASSOC_CASE)
+			{
 			case ADODB_ASSOC_CASE_LOWER:
 				$o->name = strtolower($o->name);
 				break;
 			case ADODB_ASSOC_CASE_UPPER:
 				$o->name = strtoupper($o->name);
 				break;
+			}
+
+			$this->fieldObjectsCache[] = $o;
+
 		}
-		return $o;
 	}
+
+	/**
+	 * Gets the standardized column types for the PDO driver
+	 *
+	 * @param  string[] 	$arr	The PDO column data
+	 *
+	 * @return string The column type
+	 */
+	protected function decodePdoType($arr)
+	{
+
+		if (isset($arr['native_type']) && $arr['native_type'] <> "null")
+		{
+		    $type = $arr['native_type'];
+		}
+		else
+		{
+		     switch($arr['pdo_type'])
+			 {
+				case 2:
+				$type = 'VARCHAR';
+				break;
+				case 3:
+				$type = 'BLOB';
+				break;
+				default:
+				$type = 'NUMERIC';
+			 }
+		}
+		return $type;
+	}
+
+	/**
+	 * Returns the metadata for a specific field
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:recordset:fetchfield
+	 *
+	 * @param integer $fieldOffset
+	 *
+	 * @return bool|ADOFieldObject
+	 */
+	function fetchField($fieldOffset = -1)
+	{
+		if (array_key_exists($fieldOffset,$this->fieldObjectsCache))
+			return $this->fieldObjectsCache[$fieldOffset];
+	}
+
 
 	function _seek($row)
 	{

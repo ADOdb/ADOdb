@@ -772,7 +772,6 @@ class ADODB_mysqli extends ADOConnection {
 		}
 		$rs = $this->execute('SHOW PROCEDURE STATUS'.$likepattern);
 		if (is_object($rs)) {
-
 			// parse index data into array
 			while ($row = $rs->fetchRow()) {
 				$procedures[$row[1]] = array(
@@ -1094,7 +1093,6 @@ class ADODB_mysqli extends ADOConnection {
 	 * @return ADORecordSet|bool
 	 */
 	public function execute($sql, $inputarr = false) {
-
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
 			$ret = $fn($this,$sql,$inputarr);
@@ -1162,7 +1160,6 @@ class ADODB_mysqli extends ADOConnection {
 		//	if (!mysqli_next_result($this->connection->_connectionID))	return false;
 
 		if (is_array($sql)) {
-
 			// Prepare() not supported because mysqli_stmt_execute does not return a recordset, but
 			// returns as bound variables.
 
@@ -1406,8 +1403,8 @@ class ADODB_mysqli extends ADOConnection {
 /**
  * Class ADORecordSet_mysqli
  */
-class ADORecordSet_mysqli extends ADORecordSet{
-
+class ADORecordSet_mysqli extends ADORecordSet
+{
 	var $databaseType = "mysqli";
 	var $canSeek = true;
 
@@ -1435,71 +1432,106 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		parent::__construct($queryID);
 	}
 
+	/**
+	 * Initializes the recordset
+	 *
+	 * @return void
+	 */
 	function _initrs()
 	{
-	global $ADODB_COUNTRECS;
+		global $ADODB_COUNTRECS;
 
 		$this->_numOfRows = $ADODB_COUNTRECS ? @mysqli_num_rows($this->_queryID) : -1;
 		$this->_numOfFields = @mysqli_num_fields($this->_queryID);
+		$this->setFieldObjectsCache();
 	}
 
-/*
-1      = MYSQLI_NOT_NULL_FLAG
-2      = MYSQLI_PRI_KEY_FLAG
-4      = MYSQLI_UNIQUE_KEY_FLAG
-8      = MYSQLI_MULTIPLE_KEY_FLAG
-16     = MYSQLI_BLOB_FLAG
-32     = MYSQLI_UNSIGNED_FLAG
-64     = MYSQLI_ZEROFILL_FLAG
-128    = MYSQLI_BINARY_FLAG
-256    = MYSQLI_ENUM_FLAG
-512    = MYSQLI_AUTO_INCREMENT_FLAG
-1024   = MYSQLI_TIMESTAMP_FLAG
-2048   = MYSQLI_SET_FLAG
-32768  = MYSQLI_NUM_FLAG
-16384  = MYSQLI_PART_KEY_FLAG
-32768  = MYSQLI_GROUP_FLAG
-65536  = MYSQLI_UNIQUE_FLAG
-131072 = MYSQLI_BINCMP_FLAG
-*/
+	/**
+	 * Get column information in the Recordset object.
+	 * fetchField() can be used in order to obtain information about fields
+	 * in a certain query result. If the field offset isn't specified, the next
+	 * field that wasn't yet retrieved by fetchField() is retrieved
+	 *
+	 * @param int		$fieldOffset
+	 * @return object 	containing field information
+	 */
+	protected function setFieldObjectsCache($fieldOffset = -1)
+	{
+		if ($this->fieldObjectsRetrieved) {
+			if ($this->fieldObjectsCache) {
+				// Already got the information
+				if ($fieldOffset == -1) {
+					return $this->fieldObjectsCache;
+				} else {
+					return $this->fieldObjectsCache[$fieldOffset];
+				}
+			} else {
+				// No metadata available
+				return false;
+			}
+		}
+
+		$this->fieldObjectsCache = array();
+
+		$this->fieldObjectsRetrieved = true;
+		/*
+		 * Retrieve all metadata in one go. This is always returned as a
+		 * numeric array.
+		 */
+		$fieldMetaData = @mysqli_fetch_fields($this->_queryID);
+
+		if (!$fieldMetaData) {
+			/*
+			* Not a statement that gives us metaData
+			*/
+			return false;
+		}
+
+		foreach ($fieldMetaData as $o) {
+			/*
+			* Fix for HHVM
+			*/
+			if ( !isset($o->flags) )
+			{
+				$o->flags = 0;
+			}
+
+			/*
+			* Properties of an ADOFieldObject as set by MetaColumns
+			* @link https://docs.oracle.com/cd/E17952_01/apis-php-en/apis-php-mysqli.constants.html
+			*/
+			$o->primary_key 	= $o->flags & MYSQLI_PRI_KEY_FLAG;
+			$o->not_null 		= $o->flags & MYSQLI_NOT_NULL_FLAG;
+			$o->auto_increment 	= $o->flags & MYSQLI_AUTO_INCREMENT_FLAG;
+			$o->binary 			= $o->flags & MYSQLI_BINARY_FLAG;
+			// $o->blob 		= $o->flags & MYSQLI_BLOB_FLAG; /* not returned by MetaColumns */
+			$o->unsigned 		= $o->flags & MYSQLI_UNSIGNED_FLAG;
+
+			/*
+			* Trivial method to cast mysql_result object to ADOfieldObject
+			*/
+			$a = new ADOFieldObject;
+			foreach (get_object_vars($o) as $key => $name)
+				$a->$key = $name;
+
+			$this->fieldObjectsCache[] = $o;
+
+		}
+	}
 
 	/**
-	 * Returns raw, database specific information about a field.
+	 * Returns the metadata for a specific field
 	 *
 	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:recordset:fetchfield
 	 *
-	 * @param int $fieldOffset (Optional) The field number to get information for.
+	 * @param integer $fieldOffset
 	 *
-	 * @return ADOFieldObject|bool
+	 * @return bool|ADOFieldObject
 	 */
-	function FetchField($fieldOffset = -1)
+	function xfetchField($fieldOffset = -1)
 	{
-		$fieldnr = $fieldOffset;
-		if ($fieldOffset != -1) {
-			$fieldOffset = @mysqli_field_seek($this->_queryID, $fieldnr);
-		}
-		$o = @mysqli_fetch_field($this->_queryID);
-		if (!$o) return false;
-
-		//Fix for HHVM
-		if ( !isset($o->flags) ) {
-			$o->flags = 0;
-		}
-		/* Properties of an ADOFieldObject as set by MetaColumns */
-		$o->primary_key = $o->flags & MYSQLI_PRI_KEY_FLAG;
-		$o->not_null = $o->flags & MYSQLI_NOT_NULL_FLAG;
-		$o->auto_increment = $o->flags & MYSQLI_AUTO_INCREMENT_FLAG;
-		$o->binary = $o->flags & MYSQLI_BINARY_FLAG;
-		// $o->blob = $o->flags & MYSQLI_BLOB_FLAG; /* not returned by MetaColumns */
-		$o->unsigned = $o->flags & MYSQLI_UNSIGNED_FLAG;
-
-		/*
-		* Trivial method to cast class to ADOfieldObject
-		*/
-		$a = new ADOFieldObject;
-		foreach (get_object_vars($o) as $key => $name)
-			$a->$key = $name;
-		return $a;
+		if (array_key_exists($fieldOffset,$this->fieldObjectsCache))
+			return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 	/**
@@ -1558,6 +1590,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		if ($this->_numOfRows == 0 || $row < 0) {
 			return false;
 		}
+
 
 		mysqli_data_seek($this->_queryID, $row);
 		$this->EOF = false;
@@ -1628,6 +1661,9 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 */
 	function _fetch()
 	{
+		if ($this->recordSetIsArray)
+			return $this->fetchFromArray();
+
 		$this->fields = mysqli_fetch_array($this->_queryID,$this->fetchMode);
 		$this->_updatefields();
 		return is_array($this->fields);
@@ -1802,7 +1838,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 /**
  * Class ADORecordSet_array_mysqli
  */
-class ADORecordSet_array_mysqli extends ADORecordSet_array
+class xADORecordSet_array_mysqli extends ADORecordSet_mysqli
 {
 	/**
 	 * Get the MetaType character for a given field type.
@@ -1913,3 +1949,117 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 }
 
 } // if defined _ADODB_MYSQLI_LAYER
+
+/**
+ * This class encapsulates the concept of a recordset created in memory
+ * as an array. This is useful for the creation of cached recordsets.
+ *
+ * Note that the constructor is different from the standard ADORecordSet
+ */
+class ADORecordSet_array_mysqli extends ADORecordSet_mysqli
+{
+	var $databaseType = 'array';
+
+	/*
+	* We can use the seek option
+	*/
+	public $canSeek = true;
+
+	/**
+	 * Constructor
+	 *
+	 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
+	 * @param int|bool	   $mode    The ADODB_FETCH_MODE value
+	 *
+	 */
+	public function __construct($queryId,$mode=false) {
+		global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
+
+		/*
+		* Configure out of range handling for pointer
+		*/
+		$this->compat = !empty($ADODB_COMPAT_FETCH);
+		parent::__construct($queryId);
+		$this->fetchMode = $ADODB_FETCH_MODE;
+	}
+
+	/**
+	 * @param int [$nRows]
+	 * @return array
+	 */
+	public function GetArray($nRows=-1) {
+		if ($nRows == -1 && $this->_currentRow <= 0 && !$this->_skiprow1) {
+			return $this->_array;
+		} else {
+			return ADORecordSet::GetArray($nRows);
+		}
+	}
+
+	/**
+	 * Initialize the various variables if provided a recordset as an array
+	 *
+	 * @return void
+	 */
+	public function _initrs() {
+		$this->initRecordsetFromArray();
+	}
+
+	/**
+	 * Use associative array to get fields array
+	 *
+	 * @param string $colname
+	 * @return mixed
+	 */
+	public function Fields($colname)
+	{
+		return $this->getFieldsFromArray($colname);
+	}
+
+	/**
+	 * Seeks a row when the recordset is an array and
+	 * places the result in the _currentRow variable
+	 *
+	 * @param int $row
+	 * @return bool
+	 */
+	public function _seek($row)
+	{
+		return $this->seekFromArray($row);
+	}
+
+	/**
+	* Moves to the next row when the recordset is an array and
+	* places the result in the fields variable
+	* Triggered by ADORecordset_array::moveNext()
+	*
+	* @return bool success
+	*/
+	public function moveNext()
+	{
+		return $this->moveNextInArray();
+	}
+
+	/**
+	 * Returns the current record into the fields[]
+	 * variable if the recordset is array. Does not
+	 * advance the pointer
+	 *
+	 * @return bool
+	 */
+	public function _fetch()
+	{
+		return $this->fetchFromArray();
+
+	}
+
+	/**
+	 * Overrides the standard recordset close
+	 *
+	 * @return bool true
+	 */
+	public function _close()
+	{
+		return true;
+	}
+
+} // ADORecordSet_array

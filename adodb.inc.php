@@ -223,7 +223,8 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * Helper class for FetchFields -- holds info on a column
 	 */
-	class ADOFieldObject {
+	class ADOFieldObject
+	{
 		var $name = '';
 		var $max_length=0;
 		var $type="";
@@ -302,18 +303,175 @@ if (!defined('_ADODB_LAYER')) {
 		}
 	}
 
+
+class ADOCacheMethods
+{
+	/**
+	 * Unpack Json encoded data from a text file
+	 *
+	 * We insert the decoded data into a pre-existing recordset
+	 *
+	 * @param obj 		&$rs
+	 * @param string 	$url
+	 * @param string 	&$err
+	 * @param int 		$timeout
+	 *
+	 * @return bool
+	 */
+	protected function jsonDecodeRecordset(&$rs,$jsonText, &$err, $timeout=0)
+	{
+		$false = false;
+		$err = false;
+
+		$cacheObject = json_decode($jsonText);
+
+		if ($cacheObject->errorNo > 0)
+			return false;
+
+		if ($cacheObject->modeIsSelect == 0) {
+			if ($timeout > 0) {
+				$err = " Illegal Timeout $timeout ";
+				return false;
+			}
+
+			$rs->timeCreated = $cacheObject->timeCreated;
+			$rs->sql         = $cacheObject->sql;
+			$rs->EOF 		 = 1;
+			$rs->affectedRows= $cacheObject->affectedRows;
+			$rs->insertId    = $cacheObject->insertId;
+			return true;
+		}
+
+		# Under high volume loads, we want only 1 thread/process to _write_file
+		# so that we don't have 50 processes queueing to write the same data.
+		# We use probabilistic timeout, ahead of time.
+		#
+		# -4 sec before timeout, give processes 1/32 chance of timing out
+		# -2 sec before timeout, give processes 1/16 chance of timing out
+		# -1 sec after timeout give processes 1/4 chance of timing out
+		# +0 sec after timeout, give processes 100% chance of timing out
+
+		/*
+		* Valid Json with a select recordset
+		*/
+
+		if ($timeout >0) {
+			$tdiff = (integer)( $cacheObject->timeCreated + $timeout - time());
+			if ($tdiff <= 2) {
+				switch($tdiff) {
+				case 4:
+				case 3:
+					if ((rand() & 31) == 0) {
+						$err = "Timeout 3";
+						return false;
+					}
+					break;
+				case 2:
+					if ((rand() & 15) == 0) {
+						//	fclose($fp);
+						$err = "Timeout 2";
+						return false;
+					}
+					break;
+				case 1:
+					if ((rand() & 3) == 0) {
+						$err = "Timeout 1";
+						return false;
+					}
+					break;
+				default:
+					$err = "Timeout 0";
+					return false;
+				} // switch
+
+			} // if check flush cache
+		}// (timeout>0)
+
+		$rs->timeCreated = $cacheObject->timeCreated;
+		$rs->sql         = $cacheObject->sql;
+
+		$rs->_array		 = $cacheObject->cachedRecordset;
+		$rs->_numOfRows  = $cacheObject->numberOfRows;
+		$rs->storefieldObjectsCache($cacheObject->fieldObjectsCache);
+		$rs->recordSetIsArray     = 1;
+		return true;
+	}
+
+	/**
+	 * Convert a database recordset to an ADOdbCacheData recordset.
+	 *
+	 * Input recordset's cursor should be at beginning, and old $rs will be closed.
+	 *
+	 * @param ADORecordSet $rs     the recordset to copy
+	 * @param string       $sql  The SQL Statement
+	 *
+	 * @return string The json encoded set
+	 */
+	public function jsonEncodeRecordset($rs,$sql)
+	{
+		if (! $rs) {
+			return false;
+		}
+
+		$max = ($rs) ? $rs->FieldCount() : 0;
+
+		$conn = $rs->connection;
+
+		$cls = new ADORecordSetCacheData();
+
+		if ($sql)
+			$sql = urlencode($sql);
+
+		$cls->sql = $sql;
+
+		$cls->timeCreated = $rs->timeCreated;
+
+		if ($max <= 0 || $rs->dataProvider == 'empty') { // is insert/update/delete
+
+			$cls->modeIsSelect = 0;
+
+			if (is_object($conn))
+			{
+				$cls->affectedRows = $conn->AffectedRows();
+				$cls->lastInsertId = $conn->Insert_ID();
+			}
+		}
+		else
+		{
+			$cls->cachedRecordset 		= $rs->_array;
+			$cls->numberOfRows 			= $rs->_numOfRows;
+			$cls->fieldObjectsCache 	= $rs->fetchField(-1);
+			$cls->fieldObjectsRetrieved = 1;
+		}
+		return json_encode($cls);
+
+	}
+
+}
+
+
 	/**
 	 * Class ADODB_Cache_File
+	 *
+	 * Handles recordset caching via a disk based directory/file system
 	 */
-	class ADODB_Cache_File {
-
+	class ADODB_Cache_File extends ADOCacheMethods
+	{
 		var $createdir = true; // requires creation of temp dirs
 
-		function __construct() {
+		/*
+		* Stores the connection
+		*/
+		public $connection;
+
+		function __construct($connection) {
 			global $ADODB_INCLUDED_CSV;
 			if (empty($ADODB_INCLUDED_CSV)) {
 				include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
 			}
+
+			$this->connection = $connection;
+
 		}
 
 		/**
@@ -343,6 +501,48 @@ if (!defined('_ADODB_LAYER')) {
 		function &readcache($filename, &$err, $secs2cache, $rsClass) {
 			$rs = csv2rs($filename,$err,$secs2cache,$rsClass);
 			return $rs;
+		}
+
+		/**
+		 * load Json encoded RecordSet and unserialise it into
+		 * appropriate database recordset
+		 *
+		 * @param $filename
+		 * @param $err
+		 * @param $secs2cache
+		 * @param $rsClass (ignored)
+		 *
+		 * @return ADORecordSet
+		 */
+		function &readCachedJson($filename, &$err, $secs2cache, $rsClass) {
+			$false = false;
+
+			$rsclass = 'ADORecordset_' . $this->connection->databaseType;
+			$rs = new $rsclass($this->connection);
+
+			$false = false;
+			$err = false;
+			$fp = @fopen($filename,'rb');
+			if (!$fp) {
+				$err = $filename.' file/URL not found';
+				return false;
+			}
+
+			@flock($fp, LOCK_SH);
+
+			/*
+			* To use the json, we read in the entire file set
+			*/
+			$text = '';
+			while ($data = fgets($fp,128000))
+				$text .= $data;
+
+			fclose($fp);
+
+			if ($this->jsonDecodeRecordset($rs,$text,$err,$secs2cache,$rsClass))
+				return $rs;
+
+			return $false;
 		}
 
 		/**
@@ -452,7 +652,8 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * Connection object. For connecting to databases, and executing queries.
 	 */
-	abstract class ADOConnection {
+	abstract class ADOConnection
+	{
 	//
 	// PUBLIC VARS
 	//
@@ -540,6 +741,12 @@ if (!defined('_ADODB_LAYER')) {
 	 * @link https://www.php.net/manual/en/memcached.constants.php
 	 */
 	public $memCacheOptions = array();
+
+	/*
+	* Optional feature to use the json encoded recordset for caching instead
+	* of the serialized Array
+	*/
+	public $useCachedJson = false;
 
 
 	var $sysDate = false; /// name of function that returns the current date
@@ -701,8 +908,8 @@ if (!defined('_ADODB_LAYER')) {
 		$dictionaryType,
 		$actualType,
 		$handleAsType=false,
-		$callback=false){
-
+		$callback=false)
+	{
 		$this->customMetaTypes[strtoupper($metaType)] = array(
 			'actual'=>$actualType,
 			'dictionary'=>strtoupper($dictionaryType),
@@ -932,8 +1139,8 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @return bool
 	 */
-	function PConnect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "") {
-
+	function PConnect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "")
+	{
 		if (defined('ADODB_NEVER_PERSIST')) {
 			return $this->Connect($argHostname,$argUsername,$argPassword,$argDatabaseName);
 		}
@@ -1586,8 +1793,8 @@ if (!defined('_ADODB_LAYER')) {
 			global $ADODB_COUNTRECS;
 			if ($ADODB_COUNTRECS) {
 				if (!$rs->EOF) {
-					$rs = $this->_rs2rs($rs,-1,-1,!is_array($sql));
-					$rs->_queryID = $this->_queryID;
+					//$rs = $this->_rs2rs($rs,-1,-1,!is_array($sql));
+					$this->_rs2rs($rs,-1,-1,!is_array($sql));
 				} else
 					$rs->_numOfRows = 0;
 			}
@@ -1845,6 +2052,7 @@ if (!defined('_ADODB_LAYER')) {
 	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0) {
 		$nrows = (int)$nrows;
 		$offset = (int)$offset;
+		print "\nCALL CA"; exit;
 
 		if ($this->hasTop && $nrows > 0) {
 			// suggested by Reinhard Balling. Access requires top after distinct
@@ -1920,9 +2128,8 @@ if (!defined('_ADODB_LAYER')) {
 		}
 
 		if ($rs && !$rs->EOF) {
-			$rs = $this->_rs2rs($rs,$nrows,$offset);
+			$this->_rs2rs($rs,$nrows,$offset);
 		}
-		//print_r($rs);
 		return $rs;
 	}
 
@@ -1934,7 +2141,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return ADORecordSet_array|bool the new recordset
 	 */
 	function SerializableRS(&$rs) {
-		$rs2 = $this->_rs2rs($rs);
+		$this->_rs2rs($rs);
 		$ignore = false;
 		$rs2->connection = $ignore;
 
@@ -1942,17 +2149,17 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Convert a database recordset to an array recordset.
+	* Convert a database recordset to an array recordset.
 	 *
-	 * Input recordset's cursor should be at beginning, and old $rs will be closed.
-	 *
+	* Input recordset's cursor should be at beginning, and old $rs will be closed.
+	*
 	 * @param ADORecordSet $rs     the recordset to copy
 	 * @param int          $nrows  number of rows to retrieve (optional)
 	 * @param int          $offset offset by number of rows (optional)
 	 * @param bool         $close
 	 *
 	 * @return ADORecordSet_array|ADORecordSet|bool the new recordset
-	 */
+	*/
 	function &_rs2rs(&$rs,$nrows=-1,$offset=-1,$close=true) {
 		if (! $rs) {
 			$ret = false;
@@ -1988,6 +2195,61 @@ if (!defined('_ADODB_LAYER')) {
 		$rs2->InitArrayFields($arr,$flds);
 		$rs2->fetchMode = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
 		return $rs2;
+	}
+
+
+	/**
+	 * Convert a database recordset to an Array Based recordset. This version only
+	 * works with Json based cache storage
+	 *
+	 * Input recordset's cursor should be at beginning, and old $rs will be closed.
+	 *
+	 * @param ADORecordSet &$rs     the recordset to copy
+	 * @param int          $nrows  number of rows to retrieve (optional)
+	 * @param int          $offset offset by number of rows (optional)
+	 * @param bool         $close
+	 *
+	 * @return bool success
+	 */
+	protected function loadRecordsetIntoArray(&$rs,$nrows=-1,$offset=-1,$close=true)
+	{
+		if (! $rs) {
+			return false;
+		}
+
+		$dbtype = $rs->databaseType;
+		if (!$dbtype) {
+			return $rs;
+		}
+		if (($dbtype == 'array' || $dbtype == 'csv') && $nrows == -1 && $offset == -1) {
+			$rs->MoveFirst();
+			return $rs;
+		}
+		/*
+		* Return an array of records
+		*/
+		$arr = $rs->GetArrayLimit($nrows,$offset);
+		if ($close) {
+			$rs->Close();
+		}
+
+		/*
+		*Set up the recordset as an array
+		*/
+		$rs->_array = $arr;
+		$rs->databaseType = 'array';
+		$rs->recordSetIsArray = 1;
+		$rs->_numOfRows = count($rs->_array);
+
+
+		$rs->fields = $rs->_array[0];
+		$rs->_currentRow = 0;
+		$rs->EOF = 0;
+
+		if (!$rs->timeCreated)
+			$rs->timeCreated = time();
+
+		return true;
 	}
 
 	/**
@@ -2131,7 +2393,6 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return array|bool 1D array containning the first row of the query
 	 */
 	function GetCol($sql, $inputarr = false, $trim = false) {
-
 		$rs = $this->Execute($sql, $inputarr);
 		if ($rs) {
 			$rv = array();
@@ -2359,7 +2620,8 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @return ADORecordSet The recordset ($rs->databaseType == 'array')
 	 */
-	function CacheSelectLimit($secs2cache,$sql,$nrows=-1,$offset=-1,$inputarr=false) {
+	function CacheSelectLimit($secs2cache,$sql,$nrows=-1,$offset=-1,$inputarr=false)
+	{
 		if (!is_numeric($secs2cache)) {
 			if ($sql === false) {
 				$sql = -1;
@@ -2471,7 +2733,12 @@ if (!defined('_ADODB_LAYER')) {
 		$err = '';
 
 		if ($secs2cache > 0){
-			$rs = $ADODB_CACHE->readcache($md5file,$err,$secs2cache,$this->arrayClass);
+			if ($this->useCachedJson)
+				$rs = $ADODB_CACHE->readCachedJson($md5file,$err,$secs2cache,$this->arrayClass);
+			else
+				$rs = $ADODB_CACHE->readcache($md5file,$err,$secs2cache,$this->arrayClass);
+			if ($rs)
+				$rs->EOF = 0;
 			$this->numCacheHits += 1;
 		} else {
 			$err='Timeout 1';
@@ -2491,10 +2758,29 @@ if (!defined('_ADODB_LAYER')) {
 
 			if ($rs) {
 				$eof = $rs->EOF;
-				$rs = $this->_rs2rs($rs); // read entire recordset into memory immediately
-				$rs->timeCreated = time(); // used by caching
-				$txt = _rs2serialize($rs,false,$sql); // serialize
 
+				if ($this->useCachedJson)
+				{
+					/*
+					* Convert the current recordset into array by
+					* reading in the entire set of records
+					*/
+					$this->loadRecordsetIntoArray($rs);
+
+					/*
+					* We convert array based recordset into a json encoded
+					* ADOdb_cached recordset
+					* by reading entire recordset into memory immediately
+					*/
+					$txt = $ADODB_CACHE->jsonEncodeRecordset($rs,$sql);
+
+				}
+				else
+				{
+					$rs = $this->_rs2rs($rs); // read entire recordset into memory immediately
+					$rs->timeCreated = time(); // used by caching
+					$txt = _rs2serialize($rs,false,$sql); // serialize
+				}
 				$ok = $ADODB_CACHE->writecache($md5file,$txt,$this->debug, $secs2cache);
 				if (!$ok) {
 					if ($ok === false) {
@@ -2533,6 +2819,7 @@ if (!defined('_ADODB_LAYER')) {
 			}
 			// ok, set cached object found
 			$rs->connection = $this; // Pablo suggestion
+			$rs->moveFirst();
 			if ($this->debug){
 				if ($this->debug == 99) {
 					adodb_backtrace();
@@ -2802,7 +3089,6 @@ if (!defined('_ADODB_LAYER')) {
 	// not the fastest implementation - quick and dirty - jlim
 	// for best performance, use the actual $rs->MetaType().
 	function MetaType($t,$len=-1,$fieldobj=false) {
-
 		if (empty($this->_metars)) {
 			$rsclass = $this->rsPrefix.$this->databaseType;
 			$this->_metars = new $rsclass(false,$this->fetchMode);
@@ -2923,7 +3209,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$mode = str_replace('ISOLATION LEVEL ','',$mode);
 
 		switch($mode) {
-
 		case 'READ UNCOMMITTED':
 			switch($db) {
 			case 'oci8':
@@ -3674,14 +3959,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	/**
 	 * Internal placeholder for record objects. Used by ADORecordSet->FetchObj().
 	 */
-	class ADOFetchObj {
-	};
+	class ADOFetchObj {};
 
 	/**
 	 * Class ADODB_Iterator_empty
 	 */
-	class ADODB_Iterator_empty implements Iterator {
-
+	class ADODB_Iterator_empty implements Iterator
+	{
 		private $rs;
 
 		function __construct($rs) {
@@ -3812,8 +4096,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	/**
 	 * Class ADODB_Iterator
 	 */
-	class ADODB_Iterator implements Iterator {
-
+	class ADODB_Iterator implements Iterator
+	{
 		private $rs;
 
 		function __construct($rs) {
@@ -3863,8 +4147,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
  * No prefetching of data is done, so the RecordCount() can return -1 (which
  * means recordcount not known).
  */
-class ADORecordSet implements IteratorAggregate {
-
+class ADORecordSet implements IteratorAggregate
+{
 	/**
 	 * public variables
 	 */
@@ -3916,6 +4200,14 @@ class ADORecordSet implements IteratorAggregate {
 	 */
 	protected $fieldObjectsCache;
 
+	/*
+	* Indicates if the fieldObjects have been retrieved. Prevents
+	* multiple attempts even if the feature is unavailable
+	* @var bool
+	* @see init()
+	*/
+	protected $fieldObjectsRetrieved;
+
 	/**
 	 * Constructor
 	 *
@@ -3964,8 +4256,33 @@ class ADORecordSet implements IteratorAggregate {
 
 	/**
 	 * Recordset initialization stub
+	 *
+	 * @return voide
 	 */
-	protected function _initRS() {}
+	protected function _initrs() {}
+
+	/**
+	 * Abstract Stub to set column information in the Recordset field objects cache
+	 *
+	 * @param int		$fieldOffset
+	 * @return object 	containing field information
+	 */
+	protected function setFieldObjectsCache($fieldOffset = -1) {}
+
+	/**
+	 * Sets the fieldObjects directly into the object,
+	 * from the cache without having to read the database
+	 *
+	 * @param object[] 	$fieldObjectsCache
+	 * @patam bool		$fieldObjectsRetrieved
+	 *
+	 * @return void
+	 */
+	public function storeFieldObjectsCache($fieldObjectsCache, $fieldObjectsRetrieved=1)
+	{
+		$this->fieldObjectsCache     = $fieldObjectsCache;
+		$this->fieldObjectsRetrieved = $fieldObjectsRetrieved;
+	}
 
 	/**
 	 * Row fetch stub
@@ -4237,8 +4554,7 @@ class ADORecordSet implements IteratorAggregate {
 
 		$results  = array();
 
-		while (!$this->EOF){
-
+		while (!$this->EOF) {
 			$myFields = $this->fields;
 
 			if ($fetchMode == ADODB_FETCH_BOTH) {
@@ -4407,6 +4723,10 @@ class ADORecordSet implements IteratorAggregate {
 		}
 		$arr = $this->fields;
 		$this->_currentRow++;
+		/*
+		* Load next row into array, tells us if
+		* we are end of file
+		*/
 		if (!$this->_fetch()) {
 			$this->EOF = true;
 		}
@@ -4516,6 +4836,13 @@ class ADORecordSet implements IteratorAggregate {
 		}
 
 		if ($this->canSeek) {
+			if ($this->recordSetIsArray)
+				/*
+				* Stored in the cache, or
+				* from a driver that cannot count records
+				*/
+				return $this->seekFromArray($rowNumber);
+
 			if ($this->_seek($rowNumber)) {
 				$this->_currentRow = $rowNumber;
 				if ($this->_fetch()) {
@@ -4706,7 +5033,6 @@ class ADORecordSet implements IteratorAggregate {
 	 * @author Pablo Roca <pabloroca@mvps.org>
 	 */
 	function PO_RecordCount($table="", $condition="") {
-
 		$lnumrows = $this->_numOfRows;
 		// the database doesn't support native recordcount, so we do a workaround
 		if ($lnumrows == -1 && $this->connection) {
@@ -4757,9 +5083,28 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * @return ADOFieldObject|false
 	 */
-	function fetchField($fieldOffset)
+	function xfetchField($fieldOffset)
 	{
 		return false;
+	}
+
+	/**
+	 * Returns the metadata for a specific field
+	 *
+	 * @param integer $fieldOffset
+	 *
+	 * @return bool|ADOFieldObject
+	 */
+	function fetchField($fieldOffset = -1)
+	{
+		if (!$this->fieldObjectsCache)
+			$this->fieldObjectsCache = array();
+
+		if ($fieldOffset == -1)
+			return $this->fieldObjectsCache;
+
+		if (array_key_exists($fieldOffset,$this->fieldObjectsCache))
+			return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 	/**
@@ -4768,7 +5113,10 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return ADOFieldObject[]
 	 */
 	function fieldTypesArray() {
+		if ($this->_numOfFields == -1)
+			return array();
 		if (empty($this->fieldObjectsCache)) {
+			$this->fieldObjectsCache = array();
 			for ($i = 0; $i < $this->_numOfFields; $i++) {
 				$this->fieldObjectsCache[] = $this->fetchField($i);
 			}
@@ -5106,6 +5454,196 @@ class ADORecordSet implements IteratorAggregate {
 		}
 		return $this->_atLastPage;
 	}
+
+	/***********************************************
+	* This section replaces standard methods when the
+	* recordset is an array. They are called when the
+	* recordset class is replaced by a recordset_array class
+	*************************************************/
+	/*
+	* Global trigger to use the recordset from the array
+	*/
+	public $recordSetIsArray = false;
+
+	/*
+	* Holds an array of records if the recordset is an array
+	*/
+	public $_array;
+
+	/*
+	* Flags that the array has column headers
+	*/
+	public $_skiprow1 = false;
+
+	/*
+	* Flags whether to use ADODB_COMPAT_FETCH
+	*/
+	public $compat = false;
+
+	/**
+	* Seeks a row when the recordset is an array and
+	* places the result in the fields[] variable
+	* Triggered by ADORecordset_array::_seek()
+	*
+	* @param int $row
+	*
+	* @return bool
+	*/
+	protected function seekFromArray($row)
+	{
+		if (sizeof($this->_array) && 0 <= $row && $row < $this->_numOfRows) {
+			$this->_currentRow = $row;
+			if ($this->_skiprow1) {
+				$row += 1;
+			}
+			$this->fields = $this->_array[$row];
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	* Moves to the next row when the recordset is an array and
+	* places the result in the fields variable
+	* Triggered by ADORecordset_array::moveNext()
+	*
+	* @return bool success
+	*/
+	protected function moveNextInArray() {
+		if ($this->EOF)
+			return false;
+
+		$this->_currentRow++;
+
+		$pos = $this->_currentRow;
+
+		if ($this->_numOfRows <= $pos) {
+			if (!$this->compat) {
+				$this->fields = false;
+			}
+		} else {
+			if ($this->_skiprow1) {
+				$pos += 1;
+			}
+			$this->fields = $this->_array[$pos];
+			return true;
+		}
+		$this->EOF = true;
+		return false;
+	}
+
+	/**
+	* Returns the current record into the fields[]
+	* variable if the recordset is array. Does not
+	* advance the pointer
+	* Triggered by ADORecordset_array::_fetch()
+	*
+	* @return bool
+	*/
+	protected function fetchFromArray()
+	{
+		$pos = $this->_currentRow;
+
+		if ($this->_numOfRows <= $pos) {
+			if (!$this->compat) {
+				$this->fields = false;
+			}
+			return false;
+		}
+		if ($this->_skiprow1) {
+			$pos += 1;
+		}
+
+		$this->fields = $this->_array[$pos];
+		return true;
+	}
+
+	/**
+	 * Setup the recordset if it is an array.
+	 *
+	 * @param array		is a 2-dimensional array holding the data.
+	 *			The first row should hold the column names
+	 *			unless parameter $colnames is used.
+	 * @param typearr	holds an array of types. These are the same types
+	 *			used in MetaTypes (C,B,L,I,N).
+	 * @param string[]|false [$colnames]	array of column names. If set, then the first row of
+	 *			$array should not hold the column names.
+	*/
+	protected function initArray($array,$typearr,$colnames=false) {
+		$this->_array = $array;
+		$this->_types = $typearr;
+		if ($colnames) {
+			$this->_skiprow1 = false;
+			$this->_colnames = $colnames;
+		} else {
+			$this->_skiprow1 = true;
+			$this->_colnames = $array[0];
+		}
+		$this->Init();
+	}
+
+	/**
+	 * Setup the Array and datatype file objects
+	 *
+	 * @param array $array    2-dimensional array holding the data
+	 *			The first row should hold the column names
+		*			unless parameter $colnames is used.
+		* @param array $fieldarr Array of ADOFieldObject's.
+		*/
+	public function initArrayFields(&$array,&$fieldarr)
+	{
+		$this->_array = $array;
+		$this->_skiprow1= false;
+		if ($fieldarr) {
+			$this->_fieldobjects = $fieldarr;
+		}
+		$this->Init();
+	}
+
+	/**
+	 * Initialize the various variables if provided a recordset as an array
+	 * Triggered by ADORecordset_array::_initrs()
+	 * @return void
+	 */
+	protected function initRecordsetFromArray()
+	{
+		$this->_numOfRows =  sizeof($this->_array);
+		if ($this->_skiprow1) {
+			$this->_numOfRows -= 1;
+		}
+
+		$this->_numOfFields = (isset($this->_fieldobjects))
+			? sizeof($this->_fieldobjects)
+			: sizeof($this->_types);
+	}
+
+	/**
+	 * Use associative array to get fields array
+	 * Triggered by ADORecordset_array::fields
+	 *
+	 * @param string $colname
+	 * @return mixed
+	 */
+	protected function getFieldsFromArray($colname)
+	{
+		$mode = isset($this->adodbFetchMode) ? $this->adodbFetchMode : $this->fetchMode;
+
+		if ($mode & ADODB_FETCH_ASSOC) {
+			if (!isset($this->fields[$colname]) && !is_null($this->fields[$colname])) {
+				$colname = strtolower($colname);
+			}
+			return $this->fields[$colname];
+		}
+		if (!$this->bind) {
+			$this->bind = array();
+			for ($i=0; $i < $this->_numOfFields; $i++) {
+				$o = $this->FetchField($i);
+				$this->bind[strtoupper($o->name)] = $i;
+			}
+		}
+		return $this->fields[$this->bind[strtoupper($colname)]];
+	}
+
 
 } // end class ADORecordSet
 
@@ -5536,7 +6074,6 @@ class ADORecordSet implements IteratorAggregate {
 		}
 
 		if(empty($obj)) {
-
 			if (!isset($ADODB_LASTDB)) {
 				$ADODB_LASTDB = '';
 			}
@@ -5782,3 +6319,59 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 }
+
+
+/**
+ * Lightweight recordset to store cached sets.
+ *
+ * This class cannot be used by the driver itself. Its only role
+ * is to store data for Cached execute functions. It is handled
+ * by json encoding/decoding into the cache storage method. When we want
+ * to use it, we push it back into the ADORecordSet_array_<driver> class
+ */
+class ADORecordSetCacheData
+{
+	/*
+	* The expiry of the recordset is determined here
+	*/
+	public $timeCreated;
+
+	/*
+	* The sql that generated the md5 for the cache lookup
+	*/
+	public $sql;
+
+	/*
+	* The statement results are stored here
+	*/
+	public $cachedRecordset = array();
+	public $recordSetIsArray = 1;
+
+	/*
+	* The result set rowcount
+	*/
+	public $numberOfRows = 0;
+
+	/*
+	* We store the fieldobjects so that if we retrieve
+	* the recordset from cache, we do not need to interact
+	* with the database at all
+	*/
+	public $fieldObjectsCache = array();
+	public $fieldObjectsRetrieved = 0;
+
+	/*
+	* Generic error usage
+	*/
+	public $errorMessage;
+	public $errorNo = 0;
+
+	/*
+	* If the cached recordset is a non-select, we store
+	* the results into the variables
+	*/
+	public $modeIsSelect = 1;
+	public $affectedRows = 0;
+	public $lastInsertId = 0;
+
+	}

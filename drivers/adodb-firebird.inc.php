@@ -1013,11 +1013,6 @@ class ADORecordset_firebird extends ADORecordSet
 	var $bind = false;
 
 	/**
-	 * @var ADOFieldObject[] Holds a cached version of the metadata
-	 */
-	private $fieldObjects = false;
-
-	/**
 	 * @var bool Flags if we have retrieved the metadata
 	 */
 	private $fieldObjectsRetrieved = false;
@@ -1050,18 +1045,18 @@ class ADORecordset_firebird extends ADORecordSet
 	 * the next field that wasn't yet retrieved by fetchField()
 	 * is retrieved.
 	 *
-	 * $param int $fieldOffset (optional default=-1 for all
+	 * @param int $fieldOffset (optional default=-1 for all
 	 * @return mixed an ADOFieldObject, or array of objects
 	 */
-	private function _fetchField($fieldOffset = -1)
+	protected function setFieldObjectsCache($fieldOffset = -1)
 	{
 		if ($this->fieldObjectsRetrieved) {
-			if ($this->fieldObjects) {
+			if ($this->fieldObjectsCache) {
 				// Already got the information
 				if ($fieldOffset == -1) {
-					return $this->fieldObjects;
+					return $this->fieldObjectsCache;
 				} else {
-					return $this->fieldObjects[$fieldOffset];
+					return $this->fieldObjectsCache[$fieldOffset];
 				}
 			} else {
 				// No metadata available
@@ -1101,7 +1096,7 @@ class ADORecordset_firebird extends ADORecordSet
 			$fld->has_default = false;
 			$fld->default_value = 'null';
 
-			$this->fieldObjects[$fieldOffset] = $fld;
+			$this->fieldObjectsCache[$fieldOffset] = $fld;
 
 			$this->fieldObjectsIndex[$fld->name] = $fieldOffset;
 
@@ -1111,10 +1106,10 @@ class ADORecordset_firebird extends ADORecordSet
 		}
 
 		if ($fieldOffset == -1) {
-			return $this->fieldObjects;
+			return $this->fieldObjectsCache;
 		}
 
-		return $this->fieldObjects[$fieldOffset];
+		return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 	/**
@@ -1129,10 +1124,10 @@ class ADORecordset_firebird extends ADORecordSet
 	public function fetchField($fieldOffset = -1)
 	{
 		if ($fieldOffset == -1) {
-			return $this->fieldObjects;
+			return $this->fieldObjectsCache;
 		}
 
-		return $this->fieldObjects[$fieldOffset];
+		return $this->fieldObjectsCache[$fieldOffset];
 	}
 
 	function _initrs()
@@ -1143,7 +1138,7 @@ class ADORecordset_firebird extends ADORecordSet
 		* Retrieve all of the column information first. We copy
 		* this method from oracle
 		*/
-		$this->_fetchField();
+		$this->setFieldObjectsCache();
 
 	}
 
@@ -1207,7 +1202,7 @@ class ADORecordset_firebird extends ADORecordSet
 			* Create a closure for an efficient method of
 			* iterating over the elements
 			*/
-			$localFieldObjects = $this->fieldObjects;
+			$localFieldObjects = $this->fieldObjectsCache;
 			$localFieldObjectIndex = $this->fieldObjectsIndex;
 			$localConnection = &$this->connection;
 

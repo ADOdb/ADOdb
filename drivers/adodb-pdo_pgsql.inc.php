@@ -64,9 +64,8 @@ class ADODB_pdo_pgsql extends ADODB_pdo {
 	var $random = 'random()';		/// random function
 	var $concat_operator='||';
 
-	function _init($parentDriver)
+	function _init(ADODB_pdo $parentDriver)
 	{
-
 		$parentDriver->hasTransactions = false; ## <<< BUG IN PDO pgsql driver
 		$parentDriver->hasInsertID = true;
 		$parentDriver->_nestedSQL = true;
@@ -75,7 +74,7 @@ class ADODB_pdo_pgsql extends ADODB_pdo {
 	function ServerInfo()
 	{
 		$arr['description'] = ADOConnection::GetOne("select version()");
-		$arr['version'] = ADOConnection::_findvers($arr['description']);
+		$arr['version']     = ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
 

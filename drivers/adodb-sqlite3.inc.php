@@ -91,7 +91,6 @@ class ADODB_sqlite3 extends ADOConnection {
 
 	function metaType($t,$len=-1,$fieldobj=false)
 	{
-
 		if (is_object($t))
 		{
 			$fieldobj = $t;
@@ -208,12 +207,12 @@ class ADODB_sqlite3 extends ADOConnection {
 
 	public function metaForeignKeys($table, $owner = '', $upper =  false, $associative =  false)
 	{
-	    global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
 		|| $this->fetchMode == ADODB_FETCH_ASSOC)
 		$associative = true;
 
-	    /*
+		/*
 		* Read sqlite master to find foreign keys
 		*/
 		$sql = "SELECT sql
@@ -481,7 +480,6 @@ class ADODB_sqlite3 extends ADOConnection {
 
 		while ($row = $rs->FetchRow())
 		{
-
 			if (!isset($indexes[$row[0]])) {
 				$indexes[$row[0]] = array(
 					'unique' => preg_match("/unique/i",$row[1]),
@@ -505,8 +503,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		/*
 		* If we want primary, add it here
 		*/
-		if ($primary){
-
+		if ($primary) {
 			/*
 			* Check the previously retrieved pragma to search
 			* with a closure
@@ -515,7 +512,6 @@ class ADODB_sqlite3 extends ADOConnection {
 			$pkIndexData = array('unique'=>1,'columns'=>array());
 
 			$pkCallBack = function ($value, $key) use (&$pkIndexData) {
-
 				/*
 				* As we iterate the elements check for pk index and sort
 				*/
@@ -711,8 +707,8 @@ class ADODB_sqlite3 extends ADOConnection {
 		Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordset_sqlite3 extends ADORecordSet {
-
+class ADORecordset_sqlite3 extends ADORecordSet
+{
 	var $databaseType = "sqlite3";
 	var $bind = false;
 
@@ -756,21 +752,70 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 		return $this->_queryID;
 	}
 
-
-	function FetchField($fieldOffset = -1)
+	/**
+	 * Returns the metadata for a specific field
+	 *
+	 * @param integer $fieldOffset
+	 *
+	 * @return bool|ADOFieldObject
+	 */
+	function fetchField($fieldOffset = -1)
 	{
-		$fld = new ADOFieldObject;
-		$fld->name = $this->_queryID->columnName($fieldOffset);
-		$fld->type = 'VARCHAR';
-		$fld->max_length = -1;
-		return $fld;
+		if (array_key_exists($fieldOffset,$this->fieldObjectsCache))
+			return $this->fieldObjectsCache[$fieldOffset];
 	}
 
+	/**
+	 * Initializes Recordset and metadata
+	 *
+	 * @return void
+	 */
 	function _initrs()
 	{
 		$this->_numOfFields = $this->_queryID->numColumns();
-
+		$this->setFieldObjectsCache();
 	}
+
+	/**
+	 * Get column information in the Recordset object.
+	 * fetchField() can be used in order to obtain information about fields
+	 * in a certain query result. If the field offset isn't specified, the next
+	 * field that wasn't yet retrieved by fetchField() is retrieved
+	 *
+	 * @param int		$fieldOffset
+	 * @return object 	containing field information
+	 */
+	protected function setFieldObjectsCache($fieldOffset = -1)
+	{
+		if ($this->fieldObjectsRetrieved) {
+			if ($this->fieldObjectsCache) {
+				// Already got the information
+				if ($fieldOffset == -1) {
+					return $this->fieldObjectsCache;
+				} else {
+					return $this->fieldObjectsCache[$fieldOffset];
+				}
+			} else {
+				// No metadata available
+				return false;
+			}
+		}
+
+		$this->fieldObjectsCache = array();
+		$max = $this->_numOfFields;
+		for ($fieldOffset=0;$fieldOffset<$max; $fieldOffset++)
+		{
+			$o = new ADOFieldObject;
+			$o->name = $this->_queryID->columnName($fieldOffset);
+			$o->type = 'VARCHAR';
+			$o->max_length = -1;
+
+			$this->fieldObjectsCache[] = $o;
+
+		}
+		$this->fieldObjectsRetrieved = true;
+	}
+
 
 	function Fields($colname)
 	{
