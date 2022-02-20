@@ -551,7 +551,7 @@ END;
 			$ok = true;
 		}
 
-		return $ok ? true : false;
+		return (bool)$ok;
 	}
 
 	function CommitTrans($ok=true)
@@ -1260,9 +1260,9 @@ END;
 	 *    $db->Parameter($stmt,$group,'group');
 	 *    $db->Execute($stmt);
 	 *
-	 * @param $stmt Statement returned by {@see Prepare()} or {@see PrepareSP()}.
-	 * @param $var PHP variable to bind to
-	 * @param $name Name of stored procedure variable name to bind to.
+	 * @param array $stmt Statement returned by {@see Prepare()} or {@see PrepareSP()}.
+	 * @param mixed $var PHP variable to bind to
+	 * @param string $name Name of stored procedure variable name to bind to.
 	 * @param bool $isOutput Indicates direction of parameter 0/false=IN  1=OUT  2= IN/OUT. This is ignored in oci8.
 	 * @param int $maxLen Holds an maximum length of the variable.
 	 * @param mixed $type The data type of $var. Legal values depend on driver.
@@ -1400,15 +1400,13 @@ END;
 							$ok = oci_execute($cursor);
 							return $cursor;
 						}
-						return $stmt;
 					} else {
 						if (is_resource($stmt)) {
 							oci_free_statement($stmt);
 							return true;
 						}
-						return $stmt;
 					}
-					break;
+					return $stmt;
 				default :
 
 					return true;
@@ -1573,8 +1571,6 @@ SELECT /*+ RULE */ distinct b.column_name
 	 *                             It remains for backwards compatibility.
 	 *
 	 * @return string Quoted string to be sent back to database
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	function qStr($s, $magic_quotes=false)
 	{
@@ -1820,7 +1816,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	 * @param	mixed	$t
 	 * @param	int		$len		[optional] Length of blobsize
 	 * @param	bool	$fieldobj	[optional][discarded]
-	 * @return	str					The metatype of the field
+	 * @return	string				The metatype of the field
 	 */
 	function MetaType($t, $len=-1, $fieldobj=false)
 	{
