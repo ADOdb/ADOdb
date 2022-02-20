@@ -30,7 +30,6 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 	var $metaColumnsSQL = "select cname,coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno";
 
  	var $_initdate = true;
-	var $_hasdual = true;
 
 	function _init($parentDriver)
 	{
@@ -39,6 +38,23 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		if ($this->_initdate) {
 			$parentDriver->Execute("ALTER SESSION SET NLS_DATE_FORMAT='".$this->NLS_DATE_FORMAT."'");
 		}
+	}
+
+	/**
+	 * Return the database server's current date and time.
+	 * @return int|false
+	 */
+	public function time()
+	{
+		$sql = "select $this->sysTimeStamp from dual";
+		
+		$rs = $this->_Execute($sql);
+		if ($rs && !$rs->EOF) 
+		{
+			return $this->UnixTimeStamp(reset($rs->fields));
+		}
+
+		return false;
 	}
 
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
