@@ -210,7 +210,7 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 			$this->metaTablesSQL .= " AND name LIKE $mask";
 		}
 
-		$ret = $parent->GetCol($this->metaTablesSQL);
+		$ret = $this->GetCol($this->metaTablesSQL);
 
 		if ($mask) {
 			$this->metaTablesSQL = $save;
