@@ -21,7 +21,8 @@
  * @author Sid Dunayer <sdunayer@interserv.com>
  */
 
-class ADODB_pdo_sqlite extends ADODB_pdo {
+final class ADODB_pdo_sqlite extends ADODB_pdo {
+
 	var $metaTablesSQL   = "SELECT name FROM sqlite_master WHERE type='table'";
 	var $sysDate         = 'current_date';
 	var $sysTimeStamp    = 'current_timestamp';
@@ -37,19 +38,20 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	var $pdoDriver       = false;
 	var $random='abs(random())';
 
-	function _init($parentDriver)
-	{
-		$this->pdoDriver = $parentDriver;
-		$parentDriver->_bindInputArray = true;
-		$parentDriver->hasTransactions = false; // // should be set to false because of PDO SQLite driver not supporting changing autocommit mode
-		$parentDriver->hasInsertID = true;
-	}
+	public $bindInputArray = true;
+	public $hasTransactions = false; // // should be set to false because of PDO SQLite driver not supporting changing autocommit mode
+	public $hasInsertID = true;
 
-	function ServerInfo()
+	/**
+	 * Get information about the current SQLite database
+	 *
+	 * @return array
+	 */
+	public function serverInfo()
 	{
-		$parent = $this->pdoDriver;
-		@($ver = array_pop($parent->GetCol("SELECT sqlite_version()")));
-		@($enc = array_pop($parent->GetCol("PRAGMA encoding")));
+		
+		@($ver = array_pop($this->GetCol("SELECT sqlite_version()")));
+		@($enc = array_pop($this->GetCol("PRAGMA encoding")));
 
 		$arr['version']     = $ver;
 		$arr['description'] = 'SQLite ';
@@ -58,116 +60,190 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		return $arr;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	/**
+	 * Executes a provided SQL statement and returns a handle to the result, with the ability to supply a starting
+	 * offset and record count.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:selectlimit
+	 *
+	 * @param string $sql The SQL to execute.
+	 * @param int $nrows (Optional) The limit for the number of records you want returned. By default, all results.
+	 * @param int $offset (Optional) The offset to use when selecting the results. By default, no offset.
+	 * @param array|bool $inputarr (Optional) Any parameter values required by the SQL statement, or false if none.
+	 * @param int $secs (Optional) If greater than 0, perform a cached execute. By default, normal execution.
+	 *
+	 * @return ADORecordSet|false The query results, or false if the query failed to execute.
+	 */
+	public function selectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
-		$parent = $this->pdoDriver;
+
 		$offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
 		$limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : ($offset >= 0 ? ' LIMIT 999999999' : '');
 		if ($secs2cache)
-			$rs = $parent->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
+			$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
 		else
-			$rs = $parent->Execute($sql."$limitStr$offsetStr",$inputarr);
+			$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
 
 		return $rs;
 	}
 
-	function GenID($seq='adodbseq',$start=1)
+	/**
+	 * A portable method of creating sequence numbers.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:genid
+	 *
+	 * @param string $seqname (Optional) The name of the sequence to use.
+	 * @param int $startID (Optional) The point to start at in the sequence.
+	 *
+	 * @return bool|int|string
+	 */
+	public function genID($seq='adodbseq',$start=1)
 	{
-		$parent = $this->pdoDriver;
+
 		// if you have to modify the parameter below, your database is overloaded,
 		// or you need to implement generation of id's yourself!
 		$MAXLOOPS = 100;
 		while (--$MAXLOOPS>=0) {
-			@($num = array_pop($parent->GetCol("SELECT id FROM {$seq}")));
+			@($num = array_pop($this->GetCol("SELECT id FROM {$seq}")));
 			if ($num === false || !is_numeric($num)) {
-				@$parent->Execute(sprintf($this->_genSeqSQL ,$seq));
+				@$this->Execute(sprintf($this->_genSeqSQL ,$seq));
 				$start -= 1;
 				$num = '0';
-				$cnt = $parent->GetOne(sprintf($this->_genSeqCountSQL,$seq));
+				$cnt = $this->GetOne(sprintf($this->_genSeqCountSQL,$seq));
 				if (!$cnt) {
-					$ok = $parent->Execute(sprintf($this->_genSeq2SQL,$seq,$start));
+					$ok = $this->Execute(sprintf($this->_genSeq2SQL,$seq,$start));
 				}
 				if (!$ok) return false;
 			}
-			$parent->Execute(sprintf($this->_genIDSQL,$seq,$num));
+			$this->Execute(sprintf($this->_genIDSQL,$seq,$num));
 
-			if ($parent->affected_rows() > 0) {
+			if ($this->affected_rows() > 0) {
                 	        $num += 1;
-                		$parent->genID = intval($num);
+                		$this->genID = intval($num);
                 		return intval($num);
 			}
 		}
-		if ($fn = $parent->raiseErrorFn) {
-			$fn($parent->databaseType,'GENID',-32000,"Unable to generate unique id after $MAXLOOPS attempts",$seq,$num);
+		if ($fn = $this->raiseErrorFn) {
+			$fn($this->databaseType,'GENID',-32000,"Unable to generate unique id after $MAXLOOPS attempts",$seq,$num);
 		}
 		return false;
 	}
 
-	function CreateSequence($seqname='adodbseq',$start=1)
+	/**
+	 * Creates a sequence in the database.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:createsequence
+	 *
+	 * @param string $seqname The sequence name.
+	 * @param int $startID The start id.
+	 *
+	 * @return ADORecordSet|bool A record set if executed successfully, otherwise false.
+	 */
+	public function createSequence($seqname='adodbseq',$start=1)
 	{
-		$parent = $this->pdoDriver;
-		$ok = $parent->Execute(sprintf($this->_genSeqSQL,$seqname));
+
+		$ok = $this->Execute(sprintf($this->_genSeqSQL,$seqname));
 		if (!$ok) return false;
 		$start -= 1;
-		return $parent->Execute("insert into $seqname values($start)");
+		return $this->Execute("insert into $seqname values($start)");
 	}
 
-	function SetTransactionMode($transaction_mode)
+	/**
+	 * Sets the isolation level of a transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:settransactionmode
+	 *
+	 * @param string $transaction_mode The transaction mode to set.
+	 *
+	 * @return void
+	 */
+	public function setTransactionMode($transaction_mode)
 	{
-		$parent = $this->pdoDriver;
-		$parent->_transmode = strtoupper($transaction_mode);
+		$this->_transmode = strtoupper($transaction_mode);
 	}
 
-	function BeginTrans()
+	/**
+	 * Begins a granular transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:begintrans
+	 *
+	 * @return bool Always returns true.
+	 */
+	public function beginTrans()
 	{
-		$parent = $this->pdoDriver;
-		if ($parent->transOff) return true;
-		$parent->transCnt += 1;
-		$parent->_autocommit = false;
-		return $parent->Execute("BEGIN {$parent->_transmode}");
+
+		if ($this->transOff) return true;
+		$this->transCnt += 1;
+		$this->_autocommit = false;
+		return $this->Execute("BEGIN {$this->_transmode}");
 	}
 
-	function CommitTrans($ok=true)
+	/**
+	 * Commits a granular transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:committrans
+	 *
+	 * @param bool $ok (Optional) If false, will rollback the transaction instead.
+	 *
+	 * @return bool Always returns true.
+	 */
+	public function commitTrans($ok=true)
 	{
-		$parent = $this->pdoDriver;
-		if ($parent->transOff) return true;
-		if (!$ok) return $parent->RollbackTrans();
-		if ($parent->transCnt) $parent->transCnt -= 1;
-		$parent->_autocommit = true;
 
-		$ret = $parent->Execute('COMMIT');
+		if ($this->transOff) return true;
+		if (!$ok) return $this->RollbackTrans();
+		if ($this->transCnt) $this->transCnt -= 1;
+		$this->_autocommit = true;
+
+		$ret = $this->Execute('COMMIT');
 		return $ret;
 	}
 
-	function RollbackTrans()
+	/**
+	 * Rollback a smart transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:rollbacktrans
+	 *
+	 * @return bool Always returns true.
+	 */
+	public function rollbackTrans()
 	{
-		$parent = $this->pdoDriver;
-		if ($parent->transOff) return true;
-		if ($parent->transCnt) $parent->transCnt -= 1;
-		$parent->_autocommit = true;
 
-		$ret = $parent->Execute('ROLLBACK');
+		if ($this->transOff) return true;
+		if ($this->transCnt) $this->transCnt -= 1;
+		$this->_autocommit = true;
+
+		$ret = $this->Execute('ROLLBACK');
 		return $ret;
 	}
 
 
-    // mark newnham
-	function MetaColumns($tab,$normalize=true)
+    /**
+	 * List columns in a database as an array of ADOFieldObjects.
+	 * See top of file for definition of object.
+	 *
+	 * @param $table	table name to query
+	 * @param $normalize	makes table name case-insensitive (required by some databases)
+	 * @schema is optional database schema to use - not supported by all databases.
+	 *
+	 * @return  array of ADOFieldObjects for current table.
+	 */
+	public function metaColumns($tab,$normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
 
-		$parent = $this->pdoDriver;
 		$false = false;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-		if ($parent->fetchMode !== false) {
-			$savem = $parent->SetFetchMode(false);
+		if ($this->fetchMode !== false) {
+
+			$savem = $this->SetFetchMode(false);
 		}
-		$rs = $parent->Execute("PRAGMA table_info('$tab')");
+		$rs = $this->Execute("PRAGMA table_info('$tab')");
 		if (isset($savem)) {
-			$parent->SetFetchMode($savem);
+			$this->SetFetchMode($savem);
 		}
 		if (!$rs) {
 			$ADODB_FETCH_MODE = $save;
@@ -200,10 +276,18 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		return $arr;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	/**
+	 * Retrieves a list of tables based on given criteria
+	 *
+	 * @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
+	 * @param string|bool $showSchema (Optional) schema name, false = current schema (default)
+	 * @param string|bool $mask (Optional) filters the table by name
+	 *
+	 * @return array list of tables
+	 */
+	public function metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
-		$parent = $this->pdoDriver;
-
+	
 		if ($mask) {
 			$save = $this->metaTablesSQL;
 			$mask = $this->qstr(strtoupper($mask));
