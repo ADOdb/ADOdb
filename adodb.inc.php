@@ -4654,7 +4654,12 @@ class ADORecordSet implements IteratorAggregate {
 	function GetRowAssoc($upper = ADODB_ASSOC_CASE) {
 		$record = array();
 		$this->GetAssocKeys($upper);
+		//print_r($this->bind); 
+		//print "\n------------\n";
+		//print_r($this->fields); exit;
 
+		if (!$this->fields)
+			return array();
 		foreach($this->bind as $k => $v) {
 			if( array_key_exists( $v, $this->fields ) ) {
 				$record[$k] = $this->fields[$v];
@@ -5248,6 +5253,9 @@ class ADORecordSet implements IteratorAggregate {
 		 */
 		function Fields($colname) {
 			$mode = isset($this->adodbFetchMode) ? $this->adodbFetchMode : $this->fetchMode;
+
+			if (!$this->fields)
+				return false;
 
 			if ($mode & ADODB_FETCH_ASSOC) {
 				if (!isset($this->fields[$colname]) && !is_null($this->fields[$colname])) {
