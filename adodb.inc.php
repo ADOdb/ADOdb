@@ -198,7 +198,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'v5.22.0-dev  Unreleased';
+		$ADODB_vers = 'v5.23.0-dev  Unreleased';
 
 		/**
 		 * Determines whether recordset->RecordCount() is used.
@@ -459,6 +459,12 @@ if (!defined('_ADODB_LAYER')) {
 	var $dataProvider = 'native';
 	var $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
 	var $database = '';			/// Name of database to be used.
+
+	/**
+	 * @var string If the driver is PDO, then the dsnType is e.g. sqlsrv, otherwise empty
+	 */
+	public $dsnType = '';
+
 	var $host = '';				/// The hostname of the database server
 	var $port = '';				/// The port of the database server
 	var $user = '';				/// The username which is used to connect to the database server.
@@ -1025,14 +1031,14 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Prepare an sql statement and return the statement resource.
+	 * Prepare an SQL statement and return the statement resource.
 	 *
-	 * For databases that do not support this, we return the $sql. To ensure
-	 * compatibility with databases that do not support prepare:
+	 * For databases that do not support prepared statements, we return the
+	 * provided SQL statement as-is, to ensure compatibility:
 	 *
-	 *   $stmt = $db->Prepare("insert into table (id, name) values (?,?)");
-	 *   $db->Execute($stmt,array(1,'Jill')) or die('insert failed');
-	 *   $db->Execute($stmt,array(2,'Joe')) or die('insert failed');
+	 *   $stmt = $db->prepare("insert into table (id, name) values (?,?)");
+	 *   $db->execute($stmt, array(1,'Jill')) or die('insert failed');
+	 *   $db->execute($stmt, array(2,'Joe')) or die('insert failed');
 	 *
 	 * @param string $sql SQL to send to database
 	 *
@@ -1041,6 +1047,17 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function Prepare($sql) {
 		return $sql;
+	}
+
+	/**
+	 * Releases a previously prepared statement.
+	 *
+	 * @param mixed $stmt Statement resource, as returned by {@see prepare()}
+	 *
+	 * @return bool
+	 */
+	function releaseStatement(&$stmt) {
+		return true;
 	}
 
 	/**
@@ -3914,8 +3931,7 @@ class ADORecordSet implements IteratorAggregate {
 	 * Constructor
 	 *
 	 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
-	 * @param int|bool	   $mode    The ADODB_FETCH_MODE value
-	 *
+	 * @param int|bool     $mode    The ADODB_FETCH_MODE value
 	 */
 	function __construct($queryID,$mode=false) {
 		$this->_queryID = $queryID;
@@ -5131,21 +5147,19 @@ class ADORecordSet implements IteratorAggregate {
 
 		/**
 		 * Constructor
-		 * 
+		 *
 		 * The parameters passed to this recordset are always fake because
 		 * this class does not use the queryID
 		 *
-		 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
-		 * @param int|bool	   $mode    The ADODB_FETCH_MODE value
-		 *
+		 * @param resource|int $queryID Ignored
+		 * @param int|bool     $mode    The ADODB_FETCH_MODE value
 		 */
-		function __construct($queryId,$mode=false) {
-			
+		function __construct($queryID, $mode=false) {
 			global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
 
 			// fetch() on EOF does not delete $this->fields
 			$this->compat = !empty($ADODB_COMPAT_FETCH);
-			parent::__construct($queryId); // fake queryID
+			parent::__construct($queryID); // fake queryID
 			$this->fetchMode = $ADODB_FETCH_MODE;
 		}
 
@@ -5362,12 +5376,8 @@ class ADORecordSet implements IteratorAggregate {
 				break;
 
 			case 'mysql':
-				// mysql driver deprecated since 5.5, removed in 7.0
-				// automatically switch to mysqli
-				if(version_compare(PHP_VERSION, '7.0.0', '>=')) {
-					$db = 'mysqli';
-				}
-				$class = $db;
+				// mysql extension removed in PHP 7.0 - automatically switch to mysqli
+				$class = $db = 'mysqli';
 				break;
 
 			default:

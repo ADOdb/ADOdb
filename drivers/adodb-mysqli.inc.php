@@ -128,10 +128,9 @@ class ADODB_mysqli extends ADOConnection {
 	 * Parameter must be one of the constants listed in mysqli_options().
 	 * @see https://www.php.net/manual/en/mysqli.options.php
 	 *
-	 * @param int $parameter The parameter to set
-	 * @param string $value The value of the parameter
+	 * @param int    $parameter The parameter to set
+	 * @param string $value     The value of the parameter
 	 *
-	 * @example, for mssqlnative driver ('CharacterSet','UTF-8')
 	 * @return bool
 	 */
 	public function setConnectionParameter($parameter, $value) {
@@ -139,8 +138,7 @@ class ADODB_mysqli extends ADOConnection {
 			$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
 			return false;
 		}
-		$this->connectionParameters[$parameter] = $value;
-		return true;
+		return parent::setConnectionParameter($parameter, $value);
 	}
 
 	/**
@@ -186,13 +184,15 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		// Now merge in the standard connection parameters setting
-		foreach ($this->connectionParameters as $parameter => $value) {
-			// Make sure parameter is numeric before calling mysqli_options()
-			// that to avoid Warning (or TypeError exception on PHP 8).
-			if (!is_numeric($parameter)
-				|| !mysqli_options($this->_connectionID, $parameter, $value)
-			) {
-				$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
+		foreach ($this->connectionParameters as $options) {
+			foreach ($options as $parameter => $value) {
+				// Make sure parameter is numeric before calling mysqli_options()
+				// to avoid Warning (or TypeError exception on PHP 8).
+				if (!is_numeric($parameter)
+					|| !mysqli_options($this->_connectionID, $parameter, $value)
+				) {
+					$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
+				}
 			}
 		}
 
@@ -204,8 +204,8 @@ class ADODB_mysqli extends ADOConnection {
 		// SSL Connections for MySQLI
 		if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
 			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cert, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
-  			$this->socket = MYSQLI_CLIENT_SSL;
-  			$this->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+			$this->socket = MYSQLI_CLIENT_SSL;
+			$this->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
 		}
 
 		#if (!empty($this->port)) $argHostname .= ":".$this->port;

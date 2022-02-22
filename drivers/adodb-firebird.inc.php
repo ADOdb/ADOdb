@@ -244,11 +244,11 @@ class ADODB_firebird extends ADOConnection {
 
 
 	/**
-	 * Commits a transaction
+	 * Commits a transaction.
 	 *
-	 * @param bool $ok  set to false to rollback transaction, true to commit
+	 * @param bool $ok  false to rollback transaction, true to commit
 	 *
-	 * @return true/false.
+	 * @return bool
 	 */
 	public function commitTrans($ok=true)
 	{

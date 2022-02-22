@@ -113,8 +113,7 @@ class ADODB_db2 extends ADOConnection {
 
 	private function doDB2Connect($argDSN, $argUsername, $argPassword, $argDatabasename, $persistent=false)
 	{
-		global $php_errormsg;
-
+		
 		if (!function_exists('db2_connect')) {
 			ADOConnection::outp("DB2 extension not installed.");
 			return null;
@@ -185,8 +184,7 @@ class ADODB_db2 extends ADOConnection {
 												null,
 												$db2Options);
 
-		$php_errormsg = '';
-
+		
 		$this->_errorMsg = @db2_conn_errormsg();
 
 		if ($this->_connectionID && $this->connectStmt)
@@ -209,8 +207,7 @@ class ADODB_db2 extends ADOConnection {
 	private function unpackParameters($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
 
-		global $php_errormsg;
-
+		
 		$connectionParameters = array('dsn'=>'',
 									  'uid'=>'',
 									  'pwd'=>'',
@@ -260,7 +257,7 @@ class ADODB_db2 extends ADOConnection {
 				$errorMessage = 'Supply uncatalogued connection parameters ';
 				$errorMessage.= 'in either the database or DSN arguments, ';
 				$errorMessage.= 'but not both';
-				$php_errormsg = $errorMessage;
+			
 				if ($this->debug)
 					ADOConnection::outp($errorMessage);
 				return null;
@@ -285,7 +282,7 @@ class ADODB_db2 extends ADOConnection {
 			{
 				$errorMessage = 'For uncatalogued connections, provide ';
 				$errorMessage.= 'both UID and PWD in the connection string';
-				$php_errormsg = $errorMessage;
+				
 				if ($this->debug)
 					ADOConnection::outp($errorMessage);
 				return null;
@@ -320,7 +317,7 @@ class ADODB_db2 extends ADOConnection {
 			{
 				$errorMessage = 'Uncatalogued connection parameters ';
 				$errorMessage.= 'must contain a database= argument';
-				$php_errormsg = $errorMessage;
+				
 				if ($this->debug)
 					ADOConnection::outp($errorMessage);
 				return null;
@@ -1584,10 +1581,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 	function _query(&$sql,$inputarr=false)
 	{
 
-		GLOBAL $php_errormsg;
-
-		if (isset($php_errormsg))
-			$php_errormsg = '';
 		$this->_error = '';
 
 		$db2Options = array();
@@ -1623,7 +1616,12 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
 				if ($stmtid == false)
 				{
-					$this->_errorMsg = isset($php_errormsg) ? $php_errormsg : '';
+					$this->_errorMsg  = @db2_stmt_errormsg();
+					$this->_errorCode = @db2_stmt_error();
+					
+					if ($this->debug)
+						ADOConnection::outp($this->_errorMsg);
+					
 					return false;
 				}
 			}

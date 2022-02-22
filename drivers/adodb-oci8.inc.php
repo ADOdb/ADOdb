@@ -105,8 +105,6 @@ END;
 	var $datetime = false; // MetaType('DATE') returns 'D' (datetime==false) or 'T' (datetime == true)
 	var $_refLOBs = array();
 
-	// var $ansiOuter = true; // if oracle9
-
 	/*
 	 * Legacy compatibility for sequence names for emulated auto-increments
 	 */
@@ -193,21 +191,33 @@ END;
 	}
 
 	/**
+	 * Connect to database.
+	 *
 	 * Multiple modes of connection are supported:
 	 *
-	 * a. Local Database
-	 *    $conn->Connect(false,'scott','tiger');
+	 * 1. Local Database
+	 *    $conn->connect(false, 'scott', 'tiger');
 	 *
-	 * b. From tnsnames.ora
-	 *    $conn->Connect($tnsname,'scott','tiger');
-	 *    $conn->Connect(false,'scott','tiger',$tnsname);
+	 * 2. From tnsnames.ora
+	 *    $conn->connect($tnsname, 'scott', 'tiger');
+	 *    OR
+	 *    $conn->connect(false, 'scott', 'tiger', $tnsname);
 	 *
-	 * c. Server + service name
-	 *    $conn->Connect($serveraddress,'scott,'tiger',$service_name);
+	 * 3. Server + service name
+	 *    $conn->connect($serveraddress, 'scott, 'tiger', $service_name);
 	 *
-	 * d. Server + SID
+	 * 4. Server + SID
 	 *    $conn->connectSID = true;
 	 *    $conn->Connect($serveraddress,'scott,'tiger',$SID);
+	 *    OR
+	 *    $conn->Connect($serveraddress,'scott,'tiger',"SID=$SID");
+	 *
+	 * By default, the Session Mode will be set to OCI_DEFAULT, but it is
+	 * possible to use one of other modes referenced in the
+	 * {@link https://www.php.net/manual/en/function.oci-connect oci8_connect()}
+	 * function's documentation, like this:
+	 *    $conn->setConnectionParameter('session_mode', OCI_SYSDBA);
+	 *    $conn->connect(...);
 	 *
 	 * @param string|false $argHostname DB server hostname or TNS name
 	 * @param string $argUsername
@@ -245,45 +255,49 @@ END;
 					$argDatabasename = substr($argDatabasename,4);
 					$this->connectSID = true;
 				}
-
-				if ($this->connectSID) {
-					$argDatabasename="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=".$argHostname
-					.")(PORT=$argHostport))(CONNECT_DATA=(SID=$argDatabasename)))";
-				} else
-					$argDatabasename="(DESCRIPTION=(ADDRESS=(PROTOCOL=TCP)(HOST=".$argHostname
-					.")(PORT=$argHostport))(CONNECT_DATA=(SERVICE_NAME=$argDatabasename)))";
+				$sidOrService = $this->connectSID ? 'SID' : 'SERVICE_NAME';
+				$argDatabasename = "(DESCRIPTION="
+					. "(ADDRESS=(PROTOCOL=TCP)(HOST=$argHostname)(PORT=$argHostport))"
+					. "(CONNECT_DATA=($sidOrService=$argDatabasename)))";
 			}
 		}
 
-		//if ($argHostname) print "<p>Connect: 1st argument should be left blank for $this->databaseType</p>";
-		if ($mode==1) {
-			$this->_connectionID = ($this->charSet)
-				? oci_pconnect($argUsername,$argPassword, $argDatabasename,$this->charSet)
-				: oci_pconnect($argUsername,$argPassword, $argDatabasename);
-			if ($this->_connectionID && $this->autoRollback)  {
-				oci_rollback($this->_connectionID);
-			}
-		} else if ($mode==2) {
-			$this->_connectionID = ($this->charSet)
-				? oci_new_connect($argUsername,$argPassword, $argDatabasename,$this->charSet)
-				: oci_new_connect($argUsername,$argPassword, $argDatabasename);
-		} else {
-			$this->_connectionID = ($this->charSet)
-				? oci_connect($argUsername,$argPassword, $argDatabasename,$this->charSet)
-				: oci_connect($argUsername,$argPassword, $argDatabasename);
+		// Determine the connect function to use based on connection mode
+		switch ($mode) {
+			case 1:  $ociConnectFunction = 'oci_pconnect';    break;
+			case 2:  $ociConnectFunction = 'oci_new_connect'; break;
+			default: $ociConnectFunction = 'oci_connect';
 		}
+
+		// Process the connection parameters
+		$sessionMode = OCI_DEFAULT;
+		foreach ($this->connectionParameters as $options) {
+			foreach($options as $parameter => $value) {
+				if ($parameter == 'session_mode') {
+					$sessionMode = $value;
+				}
+			}
+		}
+
+		$this->_connectionID = $ociConnectFunction(
+			$argUsername,
+			$argPassword,
+			$argDatabasename,
+			$this->charSet ?: null,
+			$sessionMode
+		);
 		if (!$this->_connectionID) {
 			return false;
+		}
+
+		if ($mode == 1 && $this->autoRollback ) {
+			oci_rollback($this->_connectionID);
 		}
 
 		if ($this->_initdate) {
 			$this->Execute("ALTER SESSION SET NLS_DATE_FORMAT='".$this->NLS_DATE_FORMAT."'");
 		}
 
-		// looks like:
-		// Oracle8i Enterprise Edition Release 8.1.7.0.0 - Production With the Partitioning option JServer Release 8.1.7.0.0 - Production
-		// $vers = oci_server_version($this->_connectionID);
-		// if (strpos($vers,'8i') !== false) $this->ansiOuter = true;
 		return true;
 	}
 
@@ -551,7 +565,7 @@ END;
 			$ok = true;
 		}
 
-		return $ok ? true : false;
+		return (bool)$ok;
 	}
 
 	function CommitTrans($ok=true)
@@ -973,9 +987,12 @@ END;
 	/**
 	 * Execute SQL
 	 *
-	 * @param sql		SQL statement to execute, or possibly an array holding prepared statement ($sql[0] will hold sql text)
-	 * @param [inputarr]	holds the input data to bind to. Null elements will be set to null.
-	 * @return 		RecordSet or false
+	 * @param string|array $sql     SQL statement to execute, or possibly an array holding
+	 *                              prepared statement ($sql[0] will hold sql text).
+	 * @param array|false $inputarr holds the input data to bind to.
+	 *                              Null elements will be set to null.
+	 *
+	 * @return ADORecordSet|false
 	 */
 	function Execute($sql,$inputarr=false)
 	{
@@ -1092,6 +1109,22 @@ END;
 			return array($sql,$stmt,0,$BINDNUM, ($cursor) ? oci_new_cursor($this->_connectionID) : false);
 		}
 		return array($sql,$stmt,0,$BINDNUM);
+	}
+
+	function releaseStatement(&$stmt)
+	{
+		if (is_array($stmt)
+			&& isset($stmt[1])
+			&& is_resource($stmt[1])
+			&& oci_free_statement($stmt[1])
+		) {
+			// Clearing the resource to avoid it being of type Unknown
+			$stmt[1] = null;
+			return true;
+		}
+
+		// Not a valid prepared statement
+		return false;
 	}
 
 	/*
@@ -1241,12 +1274,12 @@ END;
 	 *    $db->Parameter($stmt,$group,'group');
 	 *    $db->Execute($stmt);
 	 *
-	 * @param $stmt Statement returned by Prepare() or PrepareSP().
-	 * @param $var PHP variable to bind to
-	 * @param $name Name of stored procedure variable name to bind to.
-	 * @param [$isOutput] Indicates direction of parameter 0/false=IN  1=OUT  2= IN/OUT. This is ignored in oci8.
-	 * @param [$maxLen] Holds an maximum length of the variable.
-	 * @param [$type] The data type of $var. Legal values depend on driver.
+	 * @param array $stmt Statement returned by {@see Prepare()} or {@see PrepareSP()}.
+	 * @param mixed $var PHP variable to bind to
+	 * @param string $name Name of stored procedure variable name to bind to.
+	 * @param bool $isOutput Indicates direction of parameter 0/false=IN  1=OUT  2= IN/OUT. This is ignored in oci8.
+	 * @param int $maxLen Holds an maximum length of the variable.
+	 * @param mixed $type The data type of $var. Legal values depend on driver.
 	 *
 	 * @link http://php.net/oci_bind_by_name
 	*/
@@ -1381,15 +1414,13 @@ END;
 							$ok = oci_execute($cursor);
 							return $cursor;
 						}
-						return $stmt;
 					} else {
 						if (is_resource($stmt)) {
 							oci_free_statement($stmt);
 							return true;
 						}
-						return $stmt;
 					}
-					break;
+					return $stmt;
 				default :
 
 					return true;
@@ -1554,8 +1585,6 @@ SELECT /*+ RULE */ distinct b.column_name
 	 *                             It remains for backwards compatibility.
 	 *
 	 * @return string Quoted string to be sent back to database
-	 *
-	 * @noinspection PhpUnusedParameterInspection
 	 */
 	function qStr($s, $magic_quotes=false)
 	{
@@ -1801,7 +1830,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	 * @param	mixed	$t
 	 * @param	int		$len		[optional] Length of blobsize
 	 * @param	bool	$fieldobj	[optional][discarded]
-	 * @return	str					The metatype of the field
+	 * @return	string				The metatype of the field
 	 */
 	function MetaType($t, $len=-1, $fieldobj=false)
 	{

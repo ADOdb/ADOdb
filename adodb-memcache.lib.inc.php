@@ -141,7 +141,7 @@ class ADODB_Cache_MemCache
 		if (class_exists('Memcache')) 
 			$this->libraryFlag = self::MCLIB;
 		elseif (class_exists('Memcached'))
-			$this->libraryFlag = self::MCLIB;
+			$this->libraryFlag = self::MCLIBD;
 		else
 		{
 			$err = 'Neither the Memcache nor Memcached PECL extensions were found!';
@@ -150,8 +150,8 @@ class ADODB_Cache_MemCache
 		
 		$usedLibrary = $this->libraries[$this->libraryFlag];
 		
-		$this->memCacheLibrary = new $usedLibrary;
-		if (!$this->memcacheLibrary)
+		$memCache = new $usedLibrary;
+		if (!$memCache)
 		{
 			$err = 'Memcache library failed to initialize';
 			return false;
@@ -172,7 +172,7 @@ class ADODB_Cache_MemCache
 		*/
 		if ($this->libraryFlag == self::MCLIBD && count($this->options) > 0)
 		{
-			$optionSuccess = $this->memCacheLibrary->setOptions($this->options);
+			$optionSuccess = $memCache->setOptions($this->options);
 			if (!$optionSuccess)
 			{
 				$err = 'Invalid option parameters passed to Memecached';
@@ -237,7 +237,7 @@ class ADODB_Cache_MemCache
 				* Use the existing configuration
 				*/
 				$this->isConnected = true;
-				$this->memcacheLibrary = $memcache;
+				$this->memcacheLibrary = $memCache;
 				return true;
 			}
 		}
@@ -247,11 +247,11 @@ class ADODB_Cache_MemCache
 			switch($this->libraryFlag)
 			{
 				case self::MCLIB:
-				if (!@$this->memcacheLibrary->addServer($controller['host'],$controller['port']))
+				if (!@$memCache->addServer($controller['host'],$controller['port']))
 					$failcnt++;
 				break;
 				default:
-				if (!@$this->memcacheLibrary->addServer($controller['host'],$controller['port'],$controller['weight']))
+				if (!@$memCache->addServer($controller['host'],$controller['port'],$controller['weight']))
 					$failcnt++;
 			}
 			
@@ -263,6 +263,8 @@ class ADODB_Cache_MemCache
 
 		}
 		
+		$this->memcacheLibrary = $memCache;
+
 		/*
 		* A valid memcache connection is available
 		*/

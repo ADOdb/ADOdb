@@ -14,7 +14,28 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
-## [5.22.0] - Unreleased
+## [5.23.0] - Unreleased
+
+### Added
+
+- oci8: support session_mode parameter
+  [#801](https://github.com/ADOdb/ADOdb/issues/801)
+
+
+## [5.22.1] - Unreleased
+
+### Removed
+
+- Legacy mysql, mysqlpo and mysqlt drivers
+  [#804](https://github.com/ADOdb/ADOdb/issues/804)
+
+### Fixed
+
+- Fix regression on mysqli::setConnectionParameter()
+  [#803](https://github.com/ADOdb/ADOdb/issues/803)
+
+
+## [5.22.0] - 2022-02-08
 
 ### Added
 
@@ -26,6 +47,8 @@ Older changelogs:
   [#676](https://github.com/ADOdb/ADOdb/issues/676)
 - mssql: implement offsetDate() method
   [#698](https://github.com/ADOdb/ADOdb/issues/698)
+- oci8: new ADOConnection::releaseStatement() method
+  [#770](https://github.com/ADOdb/ADOdb/issues/770)
 - sqlite3 performance monitor stub
   [#661](https://github.com/ADOdb/ADOdb/issues/661)
 - sqlite: support blob handling
@@ -39,12 +62,27 @@ Older changelogs:
   [#725](https://github.com/ADOdb/ADOdb/issues/725)
 - mysql: Support bound variable statements
   [#655](https://github.com/ADOdb/ADOdb/issues/655)
+- pgsql: missing standard datatypes
+  [#782](https://github.com/ADOdb/ADOdb/issues/782)
 - xml: add field comments
   [#732](https://github.com/ADOdb/ADOdb/issues/732)
+- loadbalancer: support calling a function upon connection
+  [#784](https://github.com/ADOdb/ADOdb/issues/784)
+- Code cleanup: PHPDoc, code style, whitespace, PHPStan errors, etc.
+  [#774](https://github.com/ADOdb/ADOdb/issues/774)
+
+### Deprecated
+
+- Compatibility with PHP < 7.2
+  [#797](https://github.com/ADOdb/ADOdb/issues/797)
+- Database Replication add-on
+  [#780](https://github.com/ADOdb/ADOdb/issues/780)
 
 ### Removed
 
-- Transpose() function and assorted sub-functions 
+- Compatibility with PHP 5.x
+  [#797](https://github.com/ADOdb/ADOdb/issues/797)
+- Transpose() function and assorted sub-functions
   [#586](https://github.com/ADOdb/ADOdb/issues/586)
 - "proxy" server and client scripts
   [#680](https://github.com/ADOdb/ADOdb/issues/680)
@@ -53,6 +91,12 @@ Older changelogs:
 
 - metaIndexes does not return primary key correctly
   [#656](https://github.com/ADOdb/ADOdb/issues/656)
+- Uniformize ADOrecordSet::__construct() parameters
+  [#772](https://github.com/ADOdb/ADOdb/issues/772)
+- Prevent PHP warning when throwing exception with P1 or P2 parameter as array
+  [#783](https://github.com/ADOdb/ADOdb/issues/783)
+- $dsnType property not defined before use
+  [#789](https://github.com/ADOdb/ADOdb/issues/789)
 - mysql: Update socket and client flags for ssl
   [#622](https://github.com/ADOdb/ADOdb/issues/622)
 - mysql: Handle tables that are reserved words
@@ -73,8 +117,25 @@ Older changelogs:
   [#697](https://github.com/ADOdb/ADOdb/issues/697)
 - sqlite: undeclared connection property
   [#713](https://github.com/ADOdb/ADOdb/issues/713)
+- xml: Undefined array key error
+  [#775](https://github.com/ADOdb/ADOdb/issues/775)
+- memcache: library does not initialize correctly
+  [#788](https://github.com/ADOdb/ADOdb/issues/788)
 
-  
+
+## [5.21.4] and [5.20.21] - 2022-01-22
+
+### Fixed
+
+- Methods return E_DEPRECATED with PHP8.1
+  [#771](https://github.com/ADOdb/ADOdb/issues/771)
+
+### Security
+
+- pgsql: authentication bypass in connect functions (CVE-2021-3850)
+  [#793](https://github.com/ADOdb/ADOdb/issues/793)
+
+
 ## [5.21.3] - 2021-10-31
 
 ### Fixed
@@ -1192,8 +1253,12 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[5.22.0]: https://github.com/adodb/adodb/compare/v5.21.3...master
+[5.23.0]: https://github.com/adodb/adodb/compare/v5.22.0...master
 
+[5.22.1]: https://github.com/adodb/adodb/compare/v5.22.0...hotfix/5.22
+[5.22.0]: https://github.com/adodb/adodb/compare/v5.21.4...v5.22.0
+
+[5.21.4]: https://github.com/adodb/adodb/compare/v5.21.3...v5.21.4
 [5.21.3]: https://github.com/adodb/adodb/compare/v5.21.2...v5.21.3
 [5.21.2]: https://github.com/adodb/adodb/compare/v5.21.1...v5.21.2
 [5.21.1]: https://github.com/adodb/adodb/compare/v5.21.0...v5.21.1
@@ -1201,6 +1266,7 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 [5.21.0-rc.1]: https://github.com/adodb/adodb/compare/v5.21.0-beta.1...v5.21.0-rc.1
 [5.21.0-beta.1]: https://github.com/adodb/adodb/compare/v5.20.20...v5.21.0-beta.1
 
+[5.20.21]: https://github.com/adodb/adodb/compare/v5.20.20...v5.20.21
 [5.20.20]: https://github.com/adodb/adodb/compare/v5.20.19...v5.20.20
 [5.20.19]: https://github.com/adodb/adodb/compare/v5.20.18...v5.20.19
 [5.20.18]: https://github.com/adodb/adodb/compare/v5.20.17...v5.20.18
