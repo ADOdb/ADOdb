@@ -19,7 +19,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-class ADODB_pdo_mysql extends ADODB_pdo {
+final class ADODB_pdo_mysql extends ADODB_pdo {
 
 	var $metaTablesSQL = "SELECT
 			TABLE_NAME,
@@ -38,12 +38,12 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $nameQuote = '`';
 
+	public $hasTransactions = false;
+	public $hasInsertID     = true;
+
 	function _init($parentDriver)
 	{
-		$parentDriver->hasTransactions = false;
-		#$parentDriver->_bindInputArray = false;
-		$parentDriver->hasInsertID = true;
-		$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+		$this->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 	}
 
 	// dayFraction is a day in floating point
@@ -119,6 +119,13 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $indexes;
 	}
 
+	/**
+	 * Returns a database-specific concatenation of strings.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:concat
+	 *
+	 * @return string
+	 */
 	function Concat()
 	{
 		$s = '';
@@ -132,6 +139,11 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return '';
 	}
 
+	/**
+	 * Get information about the current MySQL server.
+	 *
+	 * @return array
+	 */
 	function ServerInfo()
 	{
 		$arr['description'] = ADOConnection::GetOne('select version()');
@@ -139,6 +151,15 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $arr;
 	}
 
+	/**
+	 * Retrieves a list of tables based on given criteria
+	 *
+	 * @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
+	 * @param string|bool $showSchema (Optional) schema name, false = current schema (default)
+	 * @param string|bool $mask (Optional) filters the table by name
+	 *
+	 * @return array list of tables
+	 */
 	function MetaTables($ttype=false, $showSchema=false, $mask=false)
 	{
 		$save = $this->metaTablesSQL;
@@ -230,7 +251,7 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 				$fld->enums = $arr;
 				$zlen = max(array_map('strlen', $arr)) - 2; // PHP >= 4.0.6
 				$fld->max_length = ($zlen > 0) ? $zlen : 1;
-			} else {
+			} else { 
 				$fld->type = $type;
 				$fld->max_length = -1;
 			}
@@ -271,7 +292,20 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return ($try !== false);
 	}
 
-	// parameters use PostgreSQL convention, not MySQL
+	/**
+	 * Executes a provided SQL statement and returns a handle to the result, with the ability to supply a starting
+	 * offset and record count.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:selectlimit
+	 *
+	 * @param string $sql The SQL to execute.
+	 * @param int $nrows (Optional) The limit for the number of records you want returned. By default, all results.
+	 * @param int $offset (Optional) The offset to use when selecting the results. By default, no offset.
+	 * @param array|bool $inputarr (Optional) Any parameter values required by the SQL statement, or false if none.
+	 * @param int $secs (Optional) If greater than 0, perform a cached execute. By default, normal execution.
+	 *
+	 * @return ADORecordSet|false The query results, or false if the query failed to execute.
+	 */
 	function SelectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs=0)
 	{
 		$nrows = (int) $nrows;
@@ -290,7 +324,17 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $rs;
 	}
 
-	function SQLDate($fmt, $col=false)
+	/**
+	 * Returns a portably-formatted date string from a timestamp database column.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:sqldate
+	 *
+	 * @param string $fmt The date format to use.
+	 * @param string|bool $col (Optional) The table column to date format, or if false, use NOW().
+	 *
+	 * @return bool|string The SQL DATE_FORMAT() string, or false if the provided date format was empty.
+	 */
+	public function sqlDate($fmt, $col=false)
 	{
 		if (!$col) {
 			$col = $this->sysTimeStamp;
@@ -384,7 +428,17 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $s;
 	}
 
-	function GenID($seqname='adodbseq',$startID=1)
+	/**
+	 * A portable method of creating sequence numbers.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:genid
+	 *
+	 * @param string $seqname (Optional) The name of the sequence to use.
+	 * @param int $startID (Optional) The point to start at in the sequence.
+	 *
+	 * @return bool|int|string
+	 */
+	function genID($seqname='adodbseq',$startID=1)
 	{
 		$getnext = sprintf($this->_genIDSQL,$seqname);
 		$holdtransOK = $this->_transOK; // save the current status
@@ -407,7 +461,16 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $this->genID;
 	}
 
-
+	/**
+	 * Creates a sequence in the database.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:createsequence
+	 *
+	 * @param string $seqname The sequence name.
+	 * @param int $startID The start id.
+	 *
+	 * @return ADORecordSet|bool A record set if executed successfully, otherwise false.
+	 */
 	function createSequence($seqname='adodbseq',$startID=1)
 	{
 		if (empty($this->_genSeqSQL)) {
@@ -421,6 +484,16 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $this->Execute(sprintf($this->_genSeq2SQL,$seqname,$startID-1));
 	}
 
+	/**
+	 * Return information about a table's foreign keys.
+	 *
+	 * @param string $table The name of the table to get the foreign keys for.
+	 * @param string|bool $owner (Optional) The database the table belongs to, or false to assume the current db.
+	 * @param string|bool $upper (Optional) Force uppercase table name on returned array keys.
+	 * @param bool $associative (Optional) Whether to return an associate or numeric array.
+	 *
+	 * @return array|bool An array of foreign keys, or false no foreign keys could be found.
+	 */
 	public function metaForeignKeys($table, $owner = '', $upper =  false, $associative =  false)
 	{
 	 global $ADODB_FETCH_MODE;
@@ -467,7 +540,16 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		return $foreign_keys;
 	}
 
-	function metaProcedures($NamePattern = false, $catalog = null, $schemaPattern = null)
+	/**
+	 * Returns information about stored procedures and stored functions.
+	 *
+	 * @param string|bool $NamePattern (Optional) Only look for procedures/functions with a name matching this pattern.
+	 * @param null $catalog (Optional) Unused.
+	 * @param null $schemaPattern (Optional) Unused.
+	 *
+	 * @return array
+	 */
+	public function metaProcedures($NamePattern = false, $catalog = null, $schemaPattern = null)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
