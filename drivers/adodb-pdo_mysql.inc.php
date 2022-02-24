@@ -46,7 +46,17 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 		$this->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 	}
 
-	// dayFraction is a day in floating point
+	/**
+	 * Calculate the offset of a date for a particular database
+	 * and generate appropriate SQL.
+	 *
+	 * Useful for calculating future/past dates and storing in a database.
+	 *
+	 * @param double       $dayFraction 1.5 means 1.5 days from now, 1.0/24 for 1 hour
+	 * @param string|false $date        Reference date, false for system time
+	 *
+	 * @return string
+	 */
 	function OffsetDate($dayFraction, $date=false)
 	{
 		if (!$date) {
@@ -67,7 +77,7 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 	 *
 	 * @return array|bool An array of the indexes, or false if the query to get the indexes failed.
 	 */
-	function metaIndexes($table, $primary = false, $owner = false)
+	public function metaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -126,7 +136,7 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 	 *
 	 * @return string
 	 */
-	function Concat()
+	public function concat()
 	{
 		$s = '';
 		$arr = func_get_args();
@@ -144,10 +154,11 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 	 *
 	 * @return array
 	 */
-	function ServerInfo()
+	public function serverInfo()
 	{
+		$arr = array();
 		$arr['description'] = ADOConnection::GetOne('select version()');
-		$arr['version'] = ADOConnection::_findvers($arr['description']);
+		$arr['version'] 	= ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
 
@@ -160,7 +171,7 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 	 *
 	 * @return array list of tables
 	 */
-	function MetaTables($ttype=false, $showSchema=false, $mask=false)
+	public function metaTables($ttype=false, $showSchema=false, $mask=false)
 	{
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
@@ -180,15 +191,25 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 	}
 
     /**
+	 * @deprecated - replace with setConnectionParameter()
      * @param bool $auto_commit
      * @return void
      */
-    function SetAutoCommit($auto_commit)
+    public function setAutoCommit($auto_commit)
     {
         $this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
     }
 
-	function SetTransactionMode($transaction_mode)
+	/**
+	 * Sets the isolation level of a transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:settransactionmode
+	 *
+	 * @param string $transaction_mode The transaction mode to set.
+	 *
+	 * @return void
+	 */
+	public function setTransactionMode($transaction_mode)
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -201,7 +222,17 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 		$this->Execute('SET SESSION TRANSACTION ' . $transaction_mode);
 	}
 
-	function MetaColumns($table, $normalize=true)
+	/**
+	 * List columns in a database as an array of ADOFieldObjects.
+	 * See top of file for definition of object.
+	 *
+	 * @param $table	table name to query
+	 * @param $normalize	makes table name case-insensitive (required by some databases)
+	 * @schema is optional database schema to use - not supported by all databases.
+	 *
+	 * @return  array of ADOFieldObjects for current table.
+	 */
+	public function metaColumns($table, $normalize=true)
 	{
 		$this->_findschema($table, $schema);
 		if ($schema) {
@@ -283,8 +314,13 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 		return $retarr;
 	}
 
-	// returns true or false
-	function SelectDB($dbName)
+	/**
+	 * Choose a database to connect to. Many databases do not support this.
+	 *
+	 * @param string $dbName the name of the database to select
+	 * @return bool
+	 */
+	public function selectDb($dbName)
 	{
 		$this->database = $dbName;
 		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
@@ -306,7 +342,7 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 	 *
 	 * @return ADORecordSet|false The query results, or false if the query failed to execute.
 	 */
-	function SelectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs=0)
+	public function selectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;		
@@ -438,7 +474,7 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 	 *
 	 * @return bool|int|string
 	 */
-	function genID($seqname='adodbseq',$startID=1)
+	public function genID($seqname='adodbseq',$startID=1)
 	{
 		$getnext = sprintf($this->_genIDSQL,$seqname);
 		$holdtransOK = $this->_transOK; // save the current status
