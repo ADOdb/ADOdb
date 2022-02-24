@@ -219,6 +219,74 @@ final class ADODB_pdo_sqlite extends ADODB_pdo {
 		return $ret;
 	}
 
+	
+	/**
+	 * Returns a list of Foreign Keys associated with a specific table.
+	 *
+	 * If there are no foreign keys then the function returns false.
+	 *
+	 * @param string $table       The name of the table to get the foreign keys for.
+	 * @param string $owner       Table owner/schema.
+	 * @param bool   $upper       If true, only matches the table with the uppercase name.
+	 * @param bool   $associative Returns the result in associative mode;
+	 *                            if ADODB_FETCH_MODE is already associative, then
+	 *                            this parameter is discarded.
+	 *
+	 * @return string[]|false An array where keys are tables, and values are foreign keys;
+	 *                        false if no foreign keys could be found.
+	 */
+	public function metaForeignKeys($table, $owner = '', $upper =  false, $associative =  false)
+	{
+	    global $ADODB_FETCH_MODE;
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
+		|| $this->fetchMode == ADODB_FETCH_ASSOC)
+		$associative = true;
+
+	    /*
+		* Read sqlite master to find foreign keys
+		*/
+		$sql = "SELECT sql
+				 FROM (
+				SELECT sql sql, type type, tbl_name tbl_name, name name
+				  FROM sqlite_master
+			          )
+				WHERE type != 'meta'
+				  AND sql NOTNULL
+				  AND LOWER(name) ='" . strtolower($table) . "'";
+
+		$tableSql = $this->getOne($sql);
+
+		$fkeyList = array();
+		$ylist = preg_split("/,+/",$tableSql);
+		foreach ($ylist as $y)
+		{
+			if (!preg_match('/FOREIGN/',$y))
+				continue;
+
+			$matches = false;
+			preg_match_all('/\((.+?)\)/i',$y,$matches);
+			$tmatches = false;
+			preg_match_all('/REFERENCES (.+?)\(/i',$y,$tmatches);
+
+			if ($associative)
+			{
+				if (!isset($fkeyList[$tmatches[1][0]]))
+					$fkeyList[$tmatches[1][0]]	= array();
+				$fkeyList[$tmatches[1][0]][$matches[1][0]] = $matches[1][1];
+			}
+			else
+				$fkeyList[$tmatches[1][0]][] = $matches[1][0] . '=' . $matches[1][1];
+		}
+
+		if ($associative)
+		{
+			if ($upper)
+				$fkeyList = array_change_key_case($fkeyList,CASE_UPPER);
+			else
+				$fkeyList = array_change_key_case($fkeyList,CASE_LOWER);
+		}
+		return $fkeyList;
+	}
 
     /**
 	 * List columns in a database as an array of ADOFieldObjects.
@@ -314,4 +382,5 @@ final class ADODB_pdo_sqlite extends ADODB_pdo {
 	{
 		return sprintf(':%s', $name);
 	}
+	
 }
