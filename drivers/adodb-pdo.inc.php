@@ -104,7 +104,7 @@ class ADODB_pdo extends ADOConnection
 	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
 	 * isn't currently loaded.
 	 */
-	function _connect($argDSN, $argUsername, $argPassword, $argDatabasename, $persist=false)
+	public function _connect($argDSN, $argUsername, $argPassword, $argDatabasename, $persist=false)
 	{
 		
 		$driverClassArray = explode('_',get_class($this));
@@ -319,6 +319,16 @@ class ADODB_pdo extends ADOConnection
 		return $err;
 	}
 
+	/**
+	 * @deprecated - replace with setConnectionParameter()
+     * @param bool $auto_commit
+     * @return void
+     */
+    public function setAutoCommit($auto_commit)
+    {
+        //$this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
+    }
+
 
 	/**
 	 * Begin a Transaction.
@@ -505,7 +515,7 @@ class ADODB_pdo extends ADOConnection
 	 *
 	 * @return void
 	 */
-	function _close()
+	public function _close()
 	{
 		$this->_stmt = false;
 	
@@ -551,6 +561,32 @@ class ADODB_pdo extends ADOConnection
 			return $this->_connectionID->quote($s);
 		}
 		return parent::qStr($s,$magic_quotes);
+	}
+
+	/**
+	 * Returns the server information
+	 * 
+	 * @return array()
+	 */
+	public function serverInfo() 
+	{
+
+		global $ADODB_FETCH_MODE;
+		static $arr = false;
+		if (is_array($arr))
+			return $arr;
+		if ($this->fetchMode === false) {
+			$savem = $ADODB_FETCH_MODE;
+			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		} elseif ($this->fetchMode >=0 && $this->fetchMode <=2) {
+			$savem = $this->fetchMode;
+		} else
+			$savem = $this->SetFetchMode(ADODB_FETCH_NUM);
+
+		//$arr = $this->_connectionID->getAttribute(constant("PDO::ATTR_SERVER_INFO"));
+		
+		$ADODB_FETCH_MODE = $savem;
+		return $arr;
 	}
 
 }
@@ -630,6 +666,8 @@ class ADOPDOStatement {
 			return $this->_connectionID->errorInfo();
 		}
 	}
+
+	
 }
 
 /*--------------------------------------------------------------------------------------
@@ -674,7 +712,15 @@ class ADORecordSet_pdo extends ADORecordSet {
 		$this->_numOfFields = $this->_queryID->columnCount();
 	}
 
-	// returns the field object
+	/**
+	 * Returns raw, database specific information about a field.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:recordset:fetchfield
+	 *
+	 * @param int $fieldOffset (Optional) The field number to get information for.
+	 *
+	 * @return ADOFieldObject|bool
+	 */
 	public function fetchField($fieldOffset = -1)
 	{
 		$off=$fieldOffset+1; // offsets begin at 1
