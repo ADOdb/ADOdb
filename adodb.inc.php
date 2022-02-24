@@ -5251,7 +5251,7 @@ class ADORecordSet implements IteratorAggregate {
 		 * @param string $colname
 		 * @return mixed
 		 */
-		function Fields($colname) {
+		public function fields($colname) {
 			$mode = isset($this->adodbFetchMode) ? $this->adodbFetchMode : $this->fetchMode;
 
 			if (!$this->fields)
