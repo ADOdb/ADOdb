@@ -71,7 +71,6 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 		return $returnval;
 	}
 
-
 	/**
 	 * List indexes on a table as an array.
 	 * @param table  table name to query
