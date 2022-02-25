@@ -19,7 +19,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-class ADODB_pdo_pgsql extends ADODB_pdo {
+final class ADODB_pdo_pgsql extends ADODB_pdo {
 	var $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
 	var $metaTablesSQL = "select tablename,'T' from pg_tables where tablename not like 'pg\_%'
 		and tablename not in ('sql_features', 'sql_implementation_info', 'sql_languages',
@@ -64,22 +64,39 @@ class ADODB_pdo_pgsql extends ADODB_pdo {
 	var $random = 'random()';		/// random function
 	var $concat_operator='||';
 
-	function _init($parentDriver)
-	{
+	public $hasTransactions = false; ## <<< BUG IN PDO pgsql driver
+	public $hasInsertID = true;
+	public $_nestedSQL = true;
 
-		$parentDriver->hasTransactions = false; ## <<< BUG IN PDO pgsql driver
-		$parentDriver->hasInsertID = true;
-		$parentDriver->_nestedSQL = true;
-	}
+	public function _init($parentDriver){}
 
-	function ServerInfo()
+	/**
+	 * Returns the server information
+	 * 
+	 * @return array()
+	 */
+	public function serverInfo()
 	{
 		$arr['description'] = ADOConnection::GetOne("select version()");
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	/**
+	 * Executes a provided SQL statement and returns a handle to the result, with the ability to supply a starting
+	 * offset and record count.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:selectlimit
+	 *
+	 * @param string $sql The SQL to execute.
+	 * @param int $nrows (Optional) The limit for the number of records you want returned. By default, all results.
+	 * @param int $offset (Optional) The offset to use when selecting the results. By default, no offset.
+	 * @param array|bool $inputarr (Optional) Any parameter values required by the SQL statement, or false if none.
+	 * @param int $secs (Optional) If greater than 0, perform a cached execute. By default, normal execution.
+	 *
+	 * @return ADORecordSet|false The query results, or false if the query failed to execute.
+	 */
+	public function selectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
@@ -93,7 +110,16 @@ class ADODB_pdo_pgsql extends ADODB_pdo {
 		return $rs;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	/**
+	 * Retrieves a list of tables based on given criteria
+	 *
+	 * @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
+	 * @param string|bool $showSchema (Optional) schema name, false = current schema (default)
+	 * @param string|bool $mask (Optional) filters the table by name
+	 *
+	 * @return array list of tables
+	 */
+	public function metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$info = $this->ServerInfo();
 		if ($info['version'] >= 7.3) {
@@ -128,6 +154,82 @@ select viewname,'V' from pg_views where viewname like $mask";
 		return $ret;
 	}
 
+	
+	/**
+	 * Returns a list of Foreign Keys associated with a specific table.
+	 *
+	 * If there are no foreign keys then the function returns false.
+	 *
+	 * @param string $table       The name of the table to get the foreign keys for.
+	 * @param string $owner       Table owner/schema.
+	 * @param bool   $upper       If true, only matches the table with the uppercase name.
+	 * @param bool   $associative Returns the result in associative mode;
+	 *                            if ADODB_FETCH_MODE is already associative, then
+	 *                            this parameter is discarded.
+	 *
+	 * @return string[]|false An array where keys are tables, and values are foreign keys;
+	 *                        false if no foreign keys could be found.
+	 */
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
+	{
+		# Regex isolates the 2 terms between parenthesis using subexpressions
+		$regex = '^.*\((.*)\).*\((.*)\).*$';
+		$sql="
+			SELECT
+				lookup_table,
+				regexp_replace(consrc, '$regex', '\\2') AS lookup_field,
+				dep_table,
+				regexp_replace(consrc, '$regex', '\\1') AS dep_field
+			FROM (
+				SELECT
+					pg_get_constraintdef(c.oid) AS consrc,
+					t.relname AS dep_table,
+					ft.relname AS lookup_table
+				FROM pg_constraint c
+				JOIN pg_class t ON (t.oid = c.conrelid)
+				JOIN pg_class ft ON (ft.oid = c.confrelid)
+				JOIN pg_namespace nft ON (nft.oid = ft.relnamespace)
+				LEFT JOIN pg_description ds ON (ds.objoid = c.oid)
+				JOIN pg_namespace n ON (n.oid = t.relnamespace)
+				WHERE c.contype = 'f'::\"char\"
+				ORDER BY t.relname, n.nspname, c.conname, c.oid
+				) constraints
+			WHERE
+				dep_table='".strtolower($table)."'
+			ORDER BY
+				lookup_table,
+				dep_table,
+				dep_field";
+		$rs = $this->Execute($sql);
+
+		if (!$rs || $rs->EOF) return false;
+
+		$a = array();
+		while (!$rs->EOF) {
+			$lookup_table = $rs->fields('lookup_table');
+			$fields = $rs->fields('dep_field') . '=' . $rs->fields('lookup_field');
+			if ($upper) {
+				$lookup_table = strtoupper($lookup_table);
+				$fields = strtoupper($fields);
+			}
+			$a[$lookup_table][] = str_replace('"','', $fields);
+
+			$rs->MoveNext();
+		}
+
+		return $a;
+	}
+
+	/**
+	 * List columns in a database as an array of ADOFieldObjects.
+	 * See top of file for definition of object.
+	 *
+	 * @param $table	table name to query
+	 * @param $normalize	makes table name case-insensitive (required by some databases)
+	 * @schema is optional database schema to use - not supported by all databases.
+	 *
+	 * @return  array of ADOFieldObjects for current table.
+	 */
 	function MetaColumns($table,$normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
@@ -241,7 +343,14 @@ select viewname,'V' from pg_views where viewname like $mask";
 
 	}
 
-	function BeginTrans()
+	/**
+	 * Begin a Transaction.
+	 *
+	 * Must be followed by CommitTrans() or RollbackTrans().
+	 *
+	 * @return bool true if succeeded or false if database does not support transactions
+	 */
+	public function beginTrans()
 	{
 		if (!$this->hasTransactions) {
 			return false;
@@ -254,7 +363,17 @@ select viewname,'V' from pg_views where viewname like $mask";
 		return $this->_connectionID->beginTransaction();
 	}
 
-	function CommitTrans($ok = true)
+	/**
+	 * Commits a transaction.
+	 *
+	 * If database does not support transactions, return true as data is
+	 * always committed.
+	 *
+	 * @param bool $ok True to commit, false to rollback the transaction.
+	 *
+	 * @return bool true if successful
+	 */
+	public function commitTrans($ok = true)
 	{
 		if (!$this->hasTransactions) {
 			return false;
@@ -274,7 +393,15 @@ select viewname,'V' from pg_views where viewname like $mask";
 		return $ret;
 	}
 
-	function RollbackTrans()
+	/**
+	 * Rolls back a transaction.
+	 *
+	 * If database does not support transactions, return false as rollbacks
+	 * always fail.
+	 *
+	 * @return bool true if successful
+	 */
+	public function rollbackTrans()
 	{
 		if (!$this->hasTransactions) {
 			return false;
@@ -291,7 +418,14 @@ select viewname,'V' from pg_views where viewname like $mask";
 		return $ret;
 	}
 
-	function SetTransactionMode( $transaction_mode )
+	/**
+	 * Sets the transaction mode
+	 * 
+	 * @param	string	$transaction_mode
+	 * 
+	 * @return void
+	 */
+	public function setTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
