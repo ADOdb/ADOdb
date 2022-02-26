@@ -275,7 +275,82 @@ final class ADODB_pdo_ibm extends ADODB_pdo {
 		return $primaryKeys;
 	}
 
-	
+	/**
+	 * List procedures or functions in an array.
+	 *
+	 * We interrogate syscat.routines instead of calling the PHP
+	 * function procedures because ADOdb requires the type of procedure
+	 * this is not available in the php function
+	 *
+	 * @param	string $procedureNamePattern (optional)
+	 * @param	string $catalog				 (optional)
+	 * @param	string $schemaPattern		 (optional)
+
+	 * @return array of procedures on current database.
+	 *
+	 */
+	public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
+
+
+		global $ADODB_FETCH_MODE;
+
+		$metaProcedures = array();
+		$procedureSQL   = '';
+		$catalogSQL     = '';
+		$schemaSQL      = '';
+
+		$savem 			  = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+
+		if ($procedureNamePattern)
+			$procedureSQL = "AND ROUTINENAME LIKE " . strtoupper($this->qstr($procedureNamePattern));
+
+		if ($catalog)
+			$catalogSQL = "AND OWNER=" . strtoupper($this->qstr($catalog));
+
+		if ($schemaPattern)
+			$schemaSQL = "AND ROUTINESCHEMA LIKE {$this->qstr($schemaPattern)}";
+
+
+		$fields = "
+		ROUTINENAME,
+		CASE ROUTINETYPE
+			 WHEN 'P' THEN 'PROCEDURE'
+			 WHEN 'F' THEN 'FUNCTION'
+			 ELSE 'METHOD'
+			 END AS ROUTINETYPE_NAME,
+		ROUTINESCHEMA,
+		REMARKS";
+
+		$SQL = "SELECT $fields
+				  FROM syscat.routines
+				 WHERE OWNER IS NOT NULL
+				  $procedureSQL
+				  $catalogSQL
+				  $schemaSQL
+				ORDER BY ROUTINENAME
+				";
+
+		$result = $this->execute($SQL);
+
+		$ADODB_FETCH_MODE = $savem;
+
+		if (!$result)
+			return false;
+
+		while ($r = $result->fetchRow()){
+			$procedureName = $this->getMetaCasedValue($r[0]);
+			$schemaName    = $this->getMetaCasedValue($r[2]);
+			$metaProcedures[$procedureName] = array('type'=> $r[1],
+												   'catalog' => '',
+												   'schema'  => $schemaName,
+												   'remarks' => $r[3]
+													);
+		}
+
+		return $metaProcedures;
+
+	}
 	
 	/**
 	 * Returns a list of Foreign Keys associated with a specific table.
@@ -506,6 +581,20 @@ final class ADODB_pdo_ibm extends ADODB_pdo {
 			break;
 		}
 		return $value;
+	}
+
+	/**
+	  * Lists databases. Because instances are independent, we only know about
+	  * the current database name
+	  *
+	  * @return string[]
+	  */
+	  public function metaDatabases(){
+
+		$dbName = $this->getMetaCasedValue($this->databaseName);
+
+		return (array)$dbName;
+
 	}
 
 }
