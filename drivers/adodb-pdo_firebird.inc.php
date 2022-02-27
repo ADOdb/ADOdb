@@ -42,6 +42,10 @@ class ADODB_pdo_firebird extends ADODB_pdo
 	AND a.rdb\$relation_name = '%s' 
 	ORDER BY a.rdb\$field_position ASC";
 	
+	/*
+	* Sequence management statements
+	*/
+	public $_genSeqSQL  = 'CREATE SEQUENCE %s START WITH %s';
 	public $_dropSeqSql = 'DROP SEQUENCE %s';
 
 	var $arrayClass = 'ADORecordSet_array_pdo_firebird';

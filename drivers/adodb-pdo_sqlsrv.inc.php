@@ -20,7 +20,7 @@
  * @author Ned Andre
  */
 
-class ADODB_pdo_sqlsrv extends ADODB_pdo
+final class ADODB_pdo_sqlsrv extends ADODB_pdo
 {
 	var $hasTop = 'top';
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
@@ -483,6 +483,59 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 		$arr['version']     = $arrServerInfo['SQLServerVersion'];//ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
+	
+	/**
+	 * Proper Sequences Only available to Server 2012 and up
+	 */
+	public function createSequence($seq='adodbseq',$start=1)
+	{
+		if (!$this->sequences)
+		{
+			$sql = "SELECT name FROM sys.sequences";
+			$this->sequences = $this->GetCol($sql);
+		}
+		
+		$ok = $this->Execute("CREATE SEQUENCE $seq START WITH $start INCREMENT BY 1");
+		if (!$ok)
+			die("CANNOT CREATE SEQUENCE");
+		
+		$this->sequences[] = $seq;
+	}
+
+	/**
+	 * Only available to Server 2012 and up
+	 * Cannot do this the normal adodb way by trapping an error if the
+	 * sequence does not exist because sql server will auto create a
+	 * sequence with the starting number of -9223372036854775808
+	 *
+	 * @param string $seq
+	 * @param int	 $start
+	 * 
+	 * @return int
+	 */
+	public function genID($seq='adodbseq',$start=1)
+	{
+
+		/*
+		* First time in create an array of sequence names that we
+		* can use in later requests to see if the sequence exists
+		* the overhead is creating a list of sequences every time
+		* we need access to at least 1. If we really care about
+		* performance, we could maybe flag a 'nocheck' class variable
+		*/
+		if (!$this->sequences){
+			$sql = "SELECT name FROM sys.sequences";
+			$this->sequences = $this->GetCol($sql);
+		}
+		if (!is_array($this->sequences)
+		|| is_array($this->sequences) && !in_array($seq,$this->sequences)){
+			$this->createSequence($seq, $start);
+
+		}
+		$num = $this->GetOne("SELECT NEXT VALUE FOR $seq");
+		return $num;
+	}
+	
 }
 
 class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo

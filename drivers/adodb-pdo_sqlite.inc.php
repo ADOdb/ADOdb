@@ -29,13 +29,8 @@ final class ADODB_pdo_sqlite extends ADODB_pdo {
 	var $nameQuote       = '`';
 	var $replaceQuote    = "''";
 	var $hasGenID        = true;
-	var $_genIDSQL       = "UPDATE %s SET id=id+1 WHERE id=%s";
-	var $_genSeqSQL      = "CREATE TABLE %s (id integer)";
-	var $_genSeqCountSQL = 'SELECT COUNT(*) FROM %s';
-	var $_genSeq2SQL     = 'INSERT INTO %s VALUES(%s)';
-	var $_dropSeqSQL     = 'DROP TABLE %s';
+	
 	var $concat_operator = '||';
-	var $pdoDriver       = false;
 	var $random='abs(random())';
 
 	public $bindInputArray = true;
@@ -99,30 +94,29 @@ final class ADODB_pdo_sqlite extends ADODB_pdo {
 	 *
 	 * @return bool|int|string
 	 */
-	public function genID($seq='adodbseq',$start=1)
+	public function GgenId($seq='adodbseq',$start=1)
 	{
-
 		// if you have to modify the parameter below, your database is overloaded,
 		// or you need to implement generation of id's yourself!
 		$MAXLOOPS = 100;
+		//$this->debug=1;
 		while (--$MAXLOOPS>=0) {
-			@($num = array_pop($this->GetCol("SELECT id FROM {$seq}")));
-			if ($num === false || !is_numeric($num)) {
-				@$this->Execute(sprintf($this->_genSeqSQL ,$seq));
+			@($num = $this->GetOne("select id from $seq"));
+			if ($num === false) {
+				$this->Execute(sprintf($this->_genSeqSQL ,$seq));
 				$start -= 1;
 				$num = '0';
-				$cnt = $this->GetOne(sprintf($this->_genSeqCountSQL,$seq));
-				if (!$cnt) {
-					$ok = $this->Execute(sprintf($this->_genSeq2SQL,$seq,$start));
+				$ok = $this->Execute("insert into $seq values($start)");
+				if (!$ok) {
+					return false;
 				}
-				if (!$ok) return false;
 			}
-			$this->Execute(sprintf($this->_genIDSQL,$seq,$num));
+			$this->Execute("update $seq set id=id+1 where id=$num");
 
 			if ($this->affected_rows() > 0) {
-                	        $num += 1;
-                		$this->genID = intval($num);
-                		return intval($num);
+				$num += 1;
+				$this->genID = $num;
+				return $num;
 			}
 		}
 		if ($fn = $this->raiseErrorFn) {
@@ -131,24 +125,6 @@ final class ADODB_pdo_sqlite extends ADODB_pdo {
 		return false;
 	}
 
-	/**
-	 * Creates a sequence in the database.
-	 *
-	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:createsequence
-	 *
-	 * @param string $seqname The sequence name.
-	 * @param int $startID The start id.
-	 *
-	 * @return ADORecordSet|bool A record set if executed successfully, otherwise false.
-	 */
-	public function createSequence($seqname='adodbseq',$start=1)
-	{
-
-		$ok = $this->Execute(sprintf($this->_genSeqSQL,$seqname));
-		if (!$ok) return false;
-		$start -= 1;
-		return $this->Execute("insert into $seqname values($start)");
-	}
 
 	/**
 	 * Sets the isolation level of a transaction.

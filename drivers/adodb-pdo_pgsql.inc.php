@@ -57,9 +57,14 @@ final class ADODB_pdo_pgsql extends ADODB_pdo {
 	var $fmtTimeStamp = "'Y-m-d G:i:s'"; // used by DBTimeStamp as the default timestamp fmt.
 	var $hasMoveFirst = true;
 	var $hasGenID = true;
-	var $_genIDSQL = "SELECT NEXTVAL('%s')";
-	var $_genSeqSQL = "CREATE SEQUENCE %s START %s";
-	var $_dropSeqSQL = "DROP SEQUENCE %s";
+
+	/*
+	* Sequence management statements
+	*/
+	var $_genIDSQL 		= "SELECT NEXTVAL('%s')";
+	var $_genSeqSQL 	= "CREATE SEQUENCE %s START %s";
+	var $_dropSeqSQL 	= "DROP SEQUENCE %s";
+	
 	var $metaDefaultsSQL = "SELECT d.adnum as num, d.adsrc as def from pg_attrdef d, pg_class c where d.adrelid=c.oid and c.relname='%s' order by d.adnum";
 	var $random = 'random()';		/// random function
 	var $concat_operator='||';
