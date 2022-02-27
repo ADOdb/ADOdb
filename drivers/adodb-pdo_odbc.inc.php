@@ -1,6 +1,6 @@
 <?php
 /**
- * PDO ODBC driver
+ * lightweight PDO ODBC driver
  *
  * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
  *
