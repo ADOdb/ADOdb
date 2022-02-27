@@ -40,7 +40,16 @@ final class ADODB_pdo_ibm extends ADODB_pdo {
 		FROM syscat.columns
 		WHERE tabname = '%s'
 		ORDER BY colno";
-	
+
+	/*
+	* Sequence management statements
+	*/
+	public $_genIDSQL  = "VALUES NEXTVAL FOR %s";
+	public $_genSeqSQL = "
+	CREATE SEQUENCE %s START WITH %s
+	NO MAXVALUE NO CYCLE INCREMENT BY 1 NO CACHE
+	";
+	public $_dropSeqSQL = "DROP SEQUENCE %s";
 	
 
 	const TABLECASE_LOWER    =  0;

@@ -30,6 +30,16 @@ final class ADODB_pdo_oci extends ADODB_pdo {
 	var $metaColumnsSQL = "select cname,coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno";
 	var $metaDatabasesSQL = "SELECT USERNAME FROM ALL_USERS WHERE USERNAME NOT IN ('SYS','SYSTEM','DBSNMP','OUTLN') ORDER BY 1";
 
+	/*
+	* Sequence management statements
+	*/
+	public $_genIDSQL 		 = 'SELECT (%s.nextval) FROM DUAL';
+	public $_genSeqSQL 	 	 = 'DECLARE	PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+	execute immediate \'CREATE SEQUENCE %s START WITH %s\';
+END;';
+	public $_dropSeqSQL 	 = 'DROP SEQUENCE %s';
+
  	var $_initdate = true;
 	public $_bindInputArray = true;
 	public $_nestedSQL = true;

@@ -74,9 +74,18 @@ class ADODB_pdo extends ADOConnection
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $hasAffectedRows = true;
 	var $_bindInputArray = true;
-	var $_genIDSQL;
-	var $_genSeqSQL = "create table %s (id integer)";
-	var $_dropSeqSQL;
+
+	/*
+	* Sequence management statements
+	*/
+	public $_genIDSQL 		 = '';
+	public $_genSeqSQL 	 	 = 'CREATE TABLE %s (id integer)';
+	public $_genSeqCountSQL  = '';
+	public $_genSeq2SQL 	 = '';
+	public $_dropSeqSQL 	 = 'DROP TABLE %s';
+
+	
+
 	var $_autocommit = true;
 	var $_lastAffectedRows = 0;
 
