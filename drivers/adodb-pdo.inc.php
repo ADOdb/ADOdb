@@ -346,7 +346,7 @@ class ADODB_pdo extends ADOConnection
      */
     public function setAutoCommit($auto_commit)
     {
-        //$this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
+		$this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
     }
 
 
@@ -368,7 +368,7 @@ class ADODB_pdo extends ADOConnection
 		}
 		$this->transCnt += 1;
 		$this->_autocommit = false;
-		$this->SetAutoCommit(false);
+		$this->setAutoCommit(false);
 
 		return $this->_connectionID->beginTransaction();
 	}

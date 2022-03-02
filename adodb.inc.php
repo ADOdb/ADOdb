@@ -5781,14 +5781,30 @@ class ADORecordSet implements IteratorAggregate {
 
 		include_once(ADODB_DIR.'/adodb-lib.inc.php');
 		include_once(ADODB_DIR.'/adodb-datadict.inc.php');
-		$path = ADODB_DIR."/datadict/datadict-$drivername.inc.php";
+		
+		if ($conn->dsnType)
+		{
+			$cName = sprintf('%s_%s',$drivername,$conn->dsnType);
+			$dName = sprintf('datadict-%s-%s.inc.php',$drivername,$conn->dsnType);
+		}
+		else
+		{
+			$cName = sprintf('%s',$drivername);
+			$dName = sprintf('datadict-%s.inc.php',$drivername);
+		}
+		
+		$path = ADODB_DIR."/datadict/" . $dName;
 
 		if (!file_exists($path)) {
+
 			ADOConnection::outp("Dictionary driver '$path' not available");
 			return false;
+		
 		}
+
 		include_once($path);
-		$class = "ADODB2_$drivername";
+		
+		$class = "ADODB2_$cName";
 		$dict = new $class();
 		$dict->dataProvider = $conn->dataProvider;
 		$dict->connection = $conn;
@@ -5797,7 +5813,7 @@ class ADORecordSet implements IteratorAggregate {
 		if (!empty($conn->_connectionID)) {
 			$dict->serverInfo = $conn->ServerInfo();
 		}
-
+		
 		return $dict;
 	}
 

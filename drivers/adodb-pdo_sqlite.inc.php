@@ -15,8 +15,7 @@
  * @license BSD-3-Clause
  * @license LGPL-2.1-or-later
  *
- * @copyright 2000-2013 John Lim
- * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ * @copyright 2022 Damien Regad, Mark Newnham and the ADOdb community
  * @author Diogo Toscano <diogo@scriptcase.net>
  * @author Sid Dunayer <sdunayer@interserv.com>
  */
@@ -357,6 +356,18 @@ final class ADODB_pdo_sqlite extends ADODB_pdo {
 	public function param($name,$type='C')
 	{
 		return sprintf(':%s', $name);
+	}
+
+	/**
+	  * Gets the database name from the DSN
+	  *
+	  * @param	string	$dsnString
+	  *
+	  * @return string
+	  */
+	  protected function getDatabasenameFromDsn($dsnString){
+
+		return $dsnString;
 	}
 	
 }

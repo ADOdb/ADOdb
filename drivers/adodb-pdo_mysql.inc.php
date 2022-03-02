@@ -43,7 +43,7 @@ final class ADODB_pdo_mysql extends ADODB_pdo {
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $nameQuote = '`';
 
-	public $hasTransactions = false;
+	public $hasTransactions = true;
 	public $hasInsertID     = true;
 
 	function _init($parentDriver)
