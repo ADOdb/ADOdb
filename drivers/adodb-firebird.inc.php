@@ -273,7 +273,7 @@ class ADODB_firebird extends ADOConnection {
 
 	function _affectedrows()
 	{
-		return fbird_affected_rows( $this->_transactionID ? $this->_transactionID : $this->_connectionID );
+		return fbird_affected_rows($this->_transactionID ?: $this->_connectionID);
 	}
 
 	/**
@@ -775,7 +775,6 @@ class ADODB_firebird extends ADOConnection {
 		return $blob;
 	}
 
-
 	/**
 	 * Auto function called on read of blob to decode
 	 *
@@ -783,27 +782,26 @@ class ADODB_firebird extends ADOConnection {
 	 *
 	 * @return string Decoded blob
 	 */
-	public function _blobDecode( $blob )
+	public function _blobDecode($blob)
 	{
 		if ($blob === null) {
 			return '';
 		}
 
-		$blob_data = fbird_blob_info($this->_connectionID, $blob );
-		$blobid    = fbird_blob_open($this->_connectionID, $blob );
+		$blob_data = fbird_blob_info($this->_connectionID, $blob);
+		$blobId = fbird_blob_open($this->_connectionID, $blob);
 
-		if( $blob_data[0] > $this->maxblobsize ) {
-			$realblob = fbird_blob_get($blobid, $this->maxblobsize);
-
-			while($string = fbird_blob_get($blobid, 8192)) {
-				$realblob .= $string;
+		if ($blob_data[0] > $this->maxblobsize) {
+			$realBlob = fbird_blob_get($blobId, $this->maxblobsize);
+			while ($string = fbird_blob_get($blobId, 8192)) {
+				$realBlob .= $string;
 			}
 		} else {
-			$realblob = fbird_blob_get($blobid, $blob_data[0]);
+			$realBlob = fbird_blob_get($blobId, $blob_data[0]);
 		}
 
-		fbird_blob_close( $blobid );
-		return( $realblob );
+		fbird_blob_close($blobId);
+		return $realBlob;
 	}
 
 	/**
@@ -1183,9 +1181,9 @@ class ADORecordset_firebird extends ADORecordSet
 			$this->fields = false;
 			return false;
 		}
+
 		// OPN stuff start - optimized
 		// fix missing nulls and decode blobs automatically
-
 		global $ADODB_ANSI_PADDING_OFF;
 		$rtrim = !empty($ADODB_ANSI_PADDING_OFF);
 
@@ -1282,12 +1280,12 @@ class ADORecordset_firebird extends ADORecordSet
 		return @fbird_free_result($this->_queryID);
 	}
 
-	public function metaType($t, $len = -1, $fieldobj = false)
+	public function metaType($t, $len = -1, $fieldObj = false)
 	{
 		if (is_object($t)) {
-			$fieldobj = $t;
-			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
+			$fieldObj = $t;
+			$t = $fieldObj->type;
+			$len = $fieldObj->max_length;
 		}
 
 		$t = strtoupper($t);
