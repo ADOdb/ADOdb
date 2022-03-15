@@ -19,6 +19,10 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ *
+ * Driver was cloned from Interbase, so there's quite a lot of duplicated code
+ * @noinspection DuplicatedCode
+ * @noinspection PhpUnused
  */
 
 // security - hide paths
@@ -1210,6 +1214,7 @@ class ADORecordset_firebird extends ADORecordSet
 			*/
 			$localFieldObjects = $this->fieldObjects;
 			$localFieldObjectIndex = $this->fieldObjectsIndex;
+			/** @var ADODB_firebird $localConnection */
 			$localConnection = &$this->connection;
 
 			$rowTransform = function ($value, $key) use (
@@ -1326,3 +1331,4 @@ class ADORecordset_firebird extends ADORecordSet
 	}
 
 }
+
