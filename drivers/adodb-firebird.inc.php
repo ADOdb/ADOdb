@@ -491,9 +491,12 @@ class ADODB_firebird extends ADOConnection {
 	*
 	* @return bool|object
 	*/
-	function _query($sql,$iarr=false)
+	function _query($sql, $iarr = false)
 	{
-		if ( !$this->isConnected() ) return false;
+		if (!$this->isConnected()) {
+			return false;
+		}
+
 		if (!$this->autoCommit && $this->_transactionID) {
 			$conn = $this->_transactionID;
 			$docommit = false;
@@ -501,31 +504,20 @@ class ADODB_firebird extends ADOConnection {
 			$conn = $this->_connectionID;
 			$docommit = true;
 		}
+
 		if (is_array($sql)) {
+			// Prepared statement
 			$fn = 'fbird_execute';
-			$sql = $sql[1];
-			if (is_array($iarr)) {
-				if ( !isset($iarr[0]) )
-					$iarr[0] = ''; // PHP5 compat hack
-				$fnarr = array_merge( array($sql) , $iarr);
-				$ret = call_user_func_array($fn,$fnarr);
-			}
-			else {
-				$ret = $fn($sql);
-			}
+			$args = [$sql[1]];
 		} else {
 			$fn = 'fbird_query';
-			if (is_array($iarr))
-			{
-				if (sizeof($iarr) == 0)
-					$iarr[0] = ''; // PHP5 compat hack
-				$fnarr = array_merge( array($conn,$sql) , $iarr);
-				$ret = call_user_func_array($fn,$fnarr);
-			}
-			else {
-				$ret = $fn($conn, $sql);
-			}
+			$args = [$conn, $sql];
 		}
+		if (is_array($iarr)) {
+			$args = array_merge($args, $iarr);
+		}
+		$ret = call_user_func_array($fn, $args);
+
 		if ($docommit && $ret === true) {
 			fbird_commit($this->_connectionID);
 		}
