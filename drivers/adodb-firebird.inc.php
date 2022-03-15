@@ -785,6 +785,9 @@ class ADODB_firebird extends ADOConnection {
 	 */
 	public function _blobDecode( $blob )
 	{
+		if ($blob === null) {
+			return '';
+		}
 
 		$blob_data = fbird_blob_info($this->_connectionID, $blob );
 		$blobid    = fbird_blob_open($this->_connectionID, $blob );
