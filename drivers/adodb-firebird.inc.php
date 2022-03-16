@@ -1066,14 +1066,13 @@ class ADORecordset_firebird extends ADORecordSet
 			}
 		}
 
+		// Populate the field objects cache
 		$this->fieldObjectsRetrieved = true;
 		$this->fieldObjectsHaveBlob = false;
-
 		$this->_numOfFields = fbird_num_fields($this->_queryID);
-		for ($fieldOffset = 0; $fieldOffset < $this->_numOfFields; $fieldOffset++) {
-
+		for ($fieldIndex = 0; $fieldIndex < $this->_numOfFields; $fieldIndex++) {
 			$fld = new ADOFieldObject;
-			$ibf = fbird_field_info($this->_queryID, $fieldOffset);
+			$ibf = fbird_field_info($this->_queryID, $fieldIndex);
 
 			$name = empty($ibf['alias']) ? $ibf['name'] : $ibf['alias'];
 
@@ -1098,9 +1097,8 @@ class ADORecordset_firebird extends ADORecordSet
 			$fld->has_default = false;
 			$fld->default_value = 'null';
 
-			$this->fieldObjects[$fieldOffset] = $fld;
-
-			$this->fieldObjectsIndex[$fld->name] = $fieldOffset;
+			$this->fieldObjects[$fieldIndex] = $fld;
+			$this->fieldObjectsIndex[$fld->name] = $fieldIndex;
 
 			if ($fld->type == 'BLOB') {
 				$this->fieldObjectsHaveBlob = true;
