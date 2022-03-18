@@ -1149,7 +1149,9 @@ class ADORecordset_firebird extends ADORecordSet
 
 	public function _fetch()
 	{
-		$localNumeric = true;
+		// Case conversion function for use in Closure defined below
+		$localFnCaseConv = null;
+
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 			// Handle either associative or fetch both
 			$localNumeric = false;
@@ -1159,15 +1161,15 @@ class ADORecordset_firebird extends ADORecordSet
 				// Optimally do the case_upper or case_lower
 				if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
 					$f = array_change_key_case($f, CASE_LOWER);
-				} else {
-					if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
-						$f = array_change_key_case($f, CASE_UPPER);
-					}
+					$localFnCaseConv = 'strtolower';
+				} elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
+					$f = array_change_key_case($f, CASE_UPPER);
+					$localFnCaseConv = 'strtoupper';
 				}
-
 			}
 		} else {
-			// Numeric result
+			// Numeric fetch mode
+			$localNumeric = true;
 			$f = @fbird_fetch_row($this->_queryID);
 		}
 
@@ -1193,33 +1195,35 @@ class ADORecordset_firebird extends ADORecordSet
 		*/
 		//$f = array_replace($nullTemplate,$f);
 
-		/*
-		* For optimal performance, only process if there
-		* is a possiblity of something to do
-		*/
+		// For optimal performance, only process if there is a possibility of something to do
 		if ($this->fieldObjectsHaveBlob || $rtrim) {
-			/*
-			* Create a closure for an efficient method of
-			* iterating over the elements
-			*/
 			$localFieldObjects = $this->fieldObjects;
 			$localFieldObjectIndex = $this->fieldObjectsIndex;
 			/** @var ADODB_firebird $localConnection */
 			$localConnection = &$this->connection;
 
+			/**
+			 * Closure for an efficient method of iterating over the elements.
+			 * @param mixed      $value
+			 * @param string|int $key
+			 * @return void
+			 */
 			$rowTransform = function ($value, $key) use (
 				&$f,
 				$rtrim,
 				$localFieldObjects,
 				$localConnection,
 				$localNumeric,
+				$localFnCaseConv,
 				$localFieldObjectIndex
 			) {
 				if ($localNumeric) {
 					$localKey = $key;
 				} else {
-					// Cross reference the associative key back to numeric
-					$localKey = $localFieldObjectIndex[strtolower($key)];
+					// Cross-reference the associative key back to numeric
+					// with appropriate case conversion
+					$index = $localFnCaseConv ? $localFnCaseConv($key) : $key;
+					$localKey = $localFieldObjectIndex[$index];
 				}
 
 				// As we iterate the elements check for blobs and padding
@@ -1232,6 +1236,7 @@ class ADORecordset_firebird extends ADORecordSet
 				}
 
 			};
+
 			// Walk the array, applying the above closure
 			array_walk($f, $rowTransform);
 		}
