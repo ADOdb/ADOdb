@@ -268,7 +268,6 @@ class ADODB_firebird extends ADOConnection {
 		$ret = false;
 		$this->autoCommit = true;
 		if ($this->_transactionID) {
-			//print ' commit ';
 			$ret = fbird_commit($this->_transactionID);
 		}
 		$this->_transactionID = false;
@@ -1182,18 +1181,6 @@ class ADORecordset_firebird extends ADORecordSet
 		// fix missing nulls and decode blobs automatically
 		global $ADODB_ANSI_PADDING_OFF;
 		$rtrim = !empty($ADODB_ANSI_PADDING_OFF);
-
-		/*
-		* Fix missing nulls, not sure why they would be missing
-		*
-		*
-		$nullTemplate = array_fill(0,$this->_numOfFields,null);
-		*/
-		/*
-		* Retrieved record is always numeric, use array_replace
-		* to inject missing keys
-		*/
-		//$f = array_replace($nullTemplate,$f);
 
 		// For optimal performance, only process if there is a possibility of something to do
 		if ($this->fieldObjectsHaveBlob || $rtrim) {
