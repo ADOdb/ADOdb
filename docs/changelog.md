@@ -25,6 +25,14 @@ Older changelogs:
 
 - Fix regression on mysqli::setConnectionParameter()
   [#803](https://github.com/ADOdb/ADOdb/issues/803)
+- Firebird: undefined offset PHP notice in _fetchField()
+  [#808](https://github.com/ADOdb/ADOdb/issues/808)
+- Firebird: PHP deprecation warning in _blobDecode()
+  [#811](https://github.com/ADOdb/ADOdb/issues/811)
+- Firebird: PHP notice when executing query with empty array
+  [#812](https://github.com/ADOdb/ADOdb/issues/812)
+- Firebird: undefined array key with uppercase columns
+  [#813](https://github.com/ADOdb/ADOdb/issues/813)
 
 
 ## [5.22.0] - 2022-02-08
