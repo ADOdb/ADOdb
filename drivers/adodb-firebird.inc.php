@@ -19,6 +19,10 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ *
+ * Driver was cloned from Interbase, so there's quite a lot of duplicated code
+ * @noinspection DuplicatedCode
+ * @noinspection PhpUnused
  */
 
 // security - hide paths
@@ -264,7 +268,6 @@ class ADODB_firebird extends ADOConnection {
 		$ret = false;
 		$this->autoCommit = true;
 		if ($this->_transactionID) {
-			//print ' commit ';
 			$ret = fbird_commit($this->_transactionID);
 		}
 		$this->_transactionID = false;
@@ -273,7 +276,7 @@ class ADODB_firebird extends ADOConnection {
 
 	function _affectedrows()
 	{
-		return fbird_affected_rows( $this->_transactionID ? $this->_transactionID : $this->_connectionID );
+		return fbird_affected_rows($this->_transactionID ?: $this->_connectionID);
 	}
 
 	/**
@@ -487,9 +490,12 @@ class ADODB_firebird extends ADOConnection {
 	*
 	* @return bool|object
 	*/
-	function _query($sql,$iarr=false)
+	function _query($sql, $iarr = false)
 	{
-		if ( !$this->isConnected() ) return false;
+		if (!$this->isConnected()) {
+			return false;
+		}
+
 		if (!$this->autoCommit && $this->_transactionID) {
 			$conn = $this->_transactionID;
 			$docommit = false;
@@ -497,31 +503,20 @@ class ADODB_firebird extends ADOConnection {
 			$conn = $this->_connectionID;
 			$docommit = true;
 		}
+
 		if (is_array($sql)) {
+			// Prepared statement
 			$fn = 'fbird_execute';
-			$sql = $sql[1];
-			if (is_array($iarr)) {
-				if ( !isset($iarr[0]) )
-					$iarr[0] = ''; // PHP5 compat hack
-				$fnarr = array_merge( array($sql) , $iarr);
-				$ret = call_user_func_array($fn,$fnarr);
-			}
-			else {
-				$ret = $fn($sql);
-			}
+			$args = [$sql[1]];
 		} else {
 			$fn = 'fbird_query';
-			if (is_array($iarr))
-			{
-				if (sizeof($iarr) == 0)
-					$iarr[0] = ''; // PHP5 compat hack
-				$fnarr = array_merge( array($conn,$sql) , $iarr);
-				$ret = call_user_func_array($fn,$fnarr);
-			}
-			else {
-				$ret = $fn($conn, $sql);
-			}
+			$args = [$conn, $sql];
 		}
+		if (is_array($iarr)) {
+			$args = array_merge($args, $iarr);
+		}
+		$ret = call_user_func_array($fn, $args);
+
 		if ($docommit && $ret === true) {
 			fbird_commit($this->_connectionID);
 		}
@@ -775,7 +770,6 @@ class ADODB_firebird extends ADOConnection {
 		return $blob;
 	}
 
-
 	/**
 	 * Auto function called on read of blob to decode
 	 *
@@ -783,24 +777,26 @@ class ADODB_firebird extends ADOConnection {
 	 *
 	 * @return string Decoded blob
 	 */
-	public function _blobDecode( $blob )
+	public function _blobDecode($blob)
 	{
-
-		$blob_data = fbird_blob_info($this->_connectionID, $blob );
-		$blobid    = fbird_blob_open($this->_connectionID, $blob );
-
-		if( $blob_data[0] > $this->maxblobsize ) {
-			$realblob = fbird_blob_get($blobid, $this->maxblobsize);
-
-			while($string = fbird_blob_get($blobid, 8192)) {
-				$realblob .= $string;
-			}
-		} else {
-			$realblob = fbird_blob_get($blobid, $blob_data[0]);
+		if ($blob === null) {
+			return '';
 		}
 
-		fbird_blob_close( $blobid );
-		return( $realblob );
+		$blob_data = fbird_blob_info($this->_connectionID, $blob);
+		$blobId = fbird_blob_open($this->_connectionID, $blob);
+
+		if ($blob_data[0] > $this->maxblobsize) {
+			$realBlob = fbird_blob_get($blobId, $this->maxblobsize);
+			while ($string = fbird_blob_get($blobId, 8192)) {
+				$realBlob .= $string;
+			}
+		} else {
+			$realBlob = fbird_blob_get($blobId, $blob_data[0]);
+		}
+
+		fbird_blob_close($blobId);
+		return $realBlob;
 	}
 
 	/**
@@ -1059,14 +1055,13 @@ class ADORecordset_firebird extends ADORecordSet
 			}
 		}
 
+		// Populate the field objects cache
 		$this->fieldObjectsRetrieved = true;
 		$this->fieldObjectsHaveBlob = false;
-
 		$this->_numOfFields = fbird_num_fields($this->_queryID);
-		for ($fieldOffset = 0; $fieldOffset < $this->_numOfFields; $fieldOffset++) {
-
+		for ($fieldIndex = 0; $fieldIndex < $this->_numOfFields; $fieldIndex++) {
 			$fld = new ADOFieldObject;
-			$ibf = fbird_field_info($this->_queryID, $fieldOffset);
+			$ibf = fbird_field_info($this->_queryID, $fieldIndex);
 
 			$name = empty($ibf['alias']) ? $ibf['name'] : $ibf['alias'];
 
@@ -1091,9 +1086,8 @@ class ADORecordset_firebird extends ADORecordSet
 			$fld->has_default = false;
 			$fld->default_value = 'null';
 
-			$this->fieldObjects[$fieldOffset] = $fld;
-
-			$this->fieldObjectsIndex[$fld->name] = $fieldOffset;
+			$this->fieldObjects[$fieldIndex] = $fld;
+			$this->fieldObjectsIndex[$fld->name] = $fieldIndex;
 
 			if ($fld->type == 'BLOB') {
 				$this->fieldObjectsHaveBlob = true;
@@ -1144,7 +1138,9 @@ class ADORecordset_firebird extends ADORecordSet
 
 	public function _fetch()
 	{
-		$localNumeric = true;
+		// Case conversion function for use in Closure defined below
+		$localFnCaseConv = null;
+
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 			// Handle either associative or fetch both
 			$localNumeric = false;
@@ -1154,15 +1150,15 @@ class ADORecordset_firebird extends ADORecordSet
 				// Optimally do the case_upper or case_lower
 				if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
 					$f = array_change_key_case($f, CASE_LOWER);
-				} else {
-					if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
-						$f = array_change_key_case($f, CASE_UPPER);
-					}
+					$localFnCaseConv = 'strtolower';
+				} elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
+					$f = array_change_key_case($f, CASE_UPPER);
+					$localFnCaseConv = 'strtoupper';
 				}
-
 			}
 		} else {
-			// Numeric result
+			// Numeric fetch mode
+			$localNumeric = true;
 			$f = @fbird_fetch_row($this->_queryID);
 		}
 
@@ -1170,50 +1166,41 @@ class ADORecordset_firebird extends ADORecordSet
 			$this->fields = false;
 			return false;
 		}
+
 		// OPN stuff start - optimized
 		// fix missing nulls and decode blobs automatically
-
 		global $ADODB_ANSI_PADDING_OFF;
 		$rtrim = !empty($ADODB_ANSI_PADDING_OFF);
 
-		/*
-		* Fix missing nulls, not sure why they would be missing
-		*
-		*
-		$nullTemplate = array_fill(0,$this->_numOfFields,null);
-		*/
-		/*
-		* Retrieved record is always numeric, use array_replace
-		* to inject missing keys
-		*/
-		//$f = array_replace($nullTemplate,$f);
-
-		/*
-		* For optimal performance, only process if there
-		* is a possiblity of something to do
-		*/
+		// For optimal performance, only process if there is a possibility of something to do
 		if ($this->fieldObjectsHaveBlob || $rtrim) {
-			/*
-			* Create a closure for an efficient method of
-			* iterating over the elements
-			*/
 			$localFieldObjects = $this->fieldObjects;
 			$localFieldObjectIndex = $this->fieldObjectsIndex;
+			/** @var ADODB_firebird $localConnection */
 			$localConnection = &$this->connection;
 
+			/**
+			 * Closure for an efficient method of iterating over the elements.
+			 * @param mixed      $value
+			 * @param string|int $key
+			 * @return void
+			 */
 			$rowTransform = function ($value, $key) use (
 				&$f,
 				$rtrim,
 				$localFieldObjects,
 				$localConnection,
 				$localNumeric,
+				$localFnCaseConv,
 				$localFieldObjectIndex
 			) {
 				if ($localNumeric) {
 					$localKey = $key;
 				} else {
-					// Cross reference the associative key back to numeric
-					$localKey = $localFieldObjectIndex[strtolower($key)];
+					// Cross-reference the associative key back to numeric
+					// with appropriate case conversion
+					$index = $localFnCaseConv ? $localFnCaseConv($key) : $key;
+					$localKey = $localFieldObjectIndex[$index];
 				}
 
 				// As we iterate the elements check for blobs and padding
@@ -1226,6 +1213,7 @@ class ADORecordset_firebird extends ADORecordSet
 				}
 
 			};
+
 			// Walk the array, applying the above closure
 			array_walk($f, $rowTransform);
 		}
@@ -1269,12 +1257,12 @@ class ADORecordset_firebird extends ADORecordSet
 		return @fbird_free_result($this->_queryID);
 	}
 
-	public function metaType($t, $len = -1, $fieldobj = false)
+	public function metaType($t, $len = -1, $fieldObj = false)
 	{
 		if (is_object($t)) {
-			$fieldobj = $t;
-			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
+			$fieldObj = $t;
+			$t = $fieldObj->type;
+			$len = $fieldObj->max_length;
 		}
 
 		$t = strtoupper($t);
@@ -1315,3 +1303,4 @@ class ADORecordset_firebird extends ADORecordSet
 	}
 
 }
+
