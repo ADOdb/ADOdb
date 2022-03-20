@@ -1093,18 +1093,18 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return ADORecordSet|bool
 	 */
-	public function execute($sql, $inputarr = false) {
-
+	public function execute($sql, $inputarr = false)
+	{
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
-			$ret = $fn($this,$sql,$inputarr);
+			$ret = $fn($this, $sql, $inputarr);
 			if (isset($ret)) {
 				return $ret;
 			}
 		}
 
 		if ($inputarr === false) {
-			return $this->_execute($sql,false);
+			return $this->_execute($sql, false);
 		}
 
 		if (!is_array($inputarr)) {
@@ -1112,32 +1112,21 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		if (!is_array($sql)) {
-			$typeString 	= '';
-			$bulkBindArray 	= array();
-			$bulkTypeArray 	= array();
-			$typeArray  	= array(''); //placeholder for type list
+			$typeString = '';
+			$bulkTypeArray = array();
+			$typeArray = array(''); // placeholder for type list
 
-			/*
-			* Check if we are bulkbinding. If so,
-			* inputarr is a 2d array, we make a gross assumption
-			* that all of the rows have the same number of columns,
-			* we will use the elements of 
-			*/
-			if (is_array($inputarr[0]) && $this->bulkBind)
-			{
+			// Check if we are bulkbinding. If so, $inputarr is a 2d array,
+			// and we make a gross assumption that all rows have the same number
+			// of columns, we will use the elements of the first row.
+			if (is_array($inputarr[0]) && $this->bulkBind) {
 				$bulkBindArray = $inputarr;
-				foreach ($bulkBindArray as $inputarr)
-				{
-					
-					if (is_string($this->bulkBind))
-					{
-						$typeArray = array_merge((array)$this->bulkBind,$inputarr);
-					}
-					else
-					{
-					
-						$typeString 	= '';
-						$typeArray  	= array(''); 
+				foreach ($bulkBindArray as $inputarr) {
+					if (is_string($this->bulkBind)) {
+						$typeArray = array_merge((array)$this->bulkBind, $inputarr);
+					} else {
+						$typeString = '';
+						$typeArray = array('');
 
 						foreach ($inputarr as $v) {
 							$typeArray[] = $v;
@@ -1152,32 +1141,24 @@ class ADODB_mysqli extends ADOConnection {
 								$typeString .= 's';
 							}
 						}
-					
-		
+
 						// Place the field type list at the front of the parameter array.
 						// This is the mysql specific format
 						$typeArray[0] = $typeString;
 					}
 
 					$bulkTypeArray[] = $typeArray;
-				
+
 				}
 				$this->bulkBind = false;
-				$ret = $this->_execute($sql,$bulkTypeArray);
-
-				
-			}
-			else if (is_array($inputarr[0]) && !$this->bulkBind)
-			{
+				$ret = $this->_execute($sql, $bulkTypeArray);
+			} elseif (is_array($inputarr[0]) && !$this->bulkBind) {
 				$this->outp_throw(
 					"2D Array of values sent to execute and 'ADOdb_mysqli::bulkBind' not set",
 					'Execute'
 				);
-				return;
-			}
-			else
-			{
-
+				return false;
+			} else {
 				foreach ($inputarr as $v) {
 					$typeArray[] = $v;
 					if (is_integer($v) || is_bool($v)) {
@@ -1196,15 +1177,14 @@ class ADODB_mysqli extends ADOConnection {
 				// This is the mysql specific format
 				$typeArray[0] = $typeString;
 
-				$ret = $this->_execute($sql,$typeArray);
-
+				$ret = $this->_execute($sql, $typeArray);
 			}
 
 			if (!$ret) {
 				return $ret;
 			}
 		} else {
-			$ret = $this->_execute($sql,$inputarr);
+			$ret = $this->_execute($sql, $inputarr);
 		}
 		return $ret;
 	}
@@ -1226,7 +1206,7 @@ class ADODB_mysqli extends ADOConnection {
 		// return value of the stored proc (ie the number of rows affected).
 		// Commented out for reasons of performance. You should retrieve every recordset yourself.
 		//	if (!mysqli_next_result($this->connection->_connectionID))	return false;
-		
+
 		if (is_array($sql)) {
 
 			// Prepare() not supported because mysqli_stmt_execute does not return a recordset, but
@@ -1274,8 +1254,8 @@ class ADODB_mysqli extends ADOConnection {
 				$bulkBindArray[] = $inputarr;
 				$inputArrayCount = count($inputarr) - 1;
 			}
-			
-			
+
+
 			/*
 			* Prepare the statement with the placeholders,
 			* prepare will fail if the statement is invalid
@@ -1299,9 +1279,9 @@ class ADODB_mysqli extends ADOConnection {
 			*/
 			$nparams = $stmt->param_count;
 
-			if ($nparams  != $inputArrayCount) 
+			if ($nparams  != $inputArrayCount)
 			{
-				
+
 				$this->outp_throw(
 					"Input array has " . $inputArrayCount .
 					" params, does not match query: '" . htmlspecialchars($sql) . "'",
@@ -1324,11 +1304,11 @@ class ADODB_mysqli extends ADOConnection {
 				* Bind the params
 				*/
 				call_user_func_array(array($stmt, 'bind_param'), $paramsByReference);
-			
+
 				/*
 				* Execute
 				*/
-				
+
 				$ret = mysqli_stmt_execute($stmt);
 
 				/*
