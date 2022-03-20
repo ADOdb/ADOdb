@@ -32,57 +32,56 @@ if (empty($ADODB_INCLUDED_CSV)) {
 
 class ADODB_Cache_MemCache
 {
-	/*
-	* Prevents parent class calling non-existant function
-	*/
+	/**
+	 * @var bool Prevents parent class calling non-existant function
+	 */
 	public $createdir = false;
 
-	/*
-	* populated with the proper library on connect
-	* and is used later when there are differences in specific calls
-	* between memcache and memcached
-	*/
+	/**
+	 * populated with the proper library on connect
+	 * and is used later when there are differences in specific calls
+	 * between memcache and memcached
+	 */
 	private $memCacheLibrary = false;
 
-	/*
-	* array of hosts
-	*/
+	/**
+	 * @var array of hosts
+	 */
 	private $hosts;
 
-	/*
-	* Connection Port, uses default
-	*/
+	/**
+	 * @var int Connection Port, uses default
+	 */
 	private $port = 11211;
 
-	/*
-	* memcache compression with zlib
-	*/
+	/**
+	 * @var bool memcache compression with zlib
+	 */
 	private $compress = false;
 
-	/*
-	* Array of options for memcached only
-	*/
+	/**
+	 * @var array of options for memcached only
+	 */
 	private $options = false;
 
-	/*
-	* Internal flag indicating successful connection
-	*/
+	/**
+	 * @var bool Internal flag indicating successful connection
+	 */
 	private $isConnected = false;
 
-	/*
-	* Handle for the Memcache library
-	*/
+	/**
+	 * @var Memcache|Memcached Handle for the Memcache library
+	 */
 	private $memcacheLibrary = false;
 
-	/*
-	* New server feature controller lists available servers
-	*/
+	/**
+	 * @var array New server feature controller lists available servers
+	 */
 	private $serverControllers = array();
 
-	/*
-	* New server feature controller uses granular
-	* server controller
-	*/
+	/**
+	 * @var array New server feature template uses granular server controller
+	 */
 	private $serverControllerTemplate = array(
 		'host' => '',
 		'port' => 11211,
@@ -90,32 +89,30 @@ class ADODB_Cache_MemCache
 		'key' => ''
 	);
 
-
-	/*
-	* An integer index into the libraries
-	*/
+	/**
+	 * An integer index into the libraries
+	 * @see $libraries
+	 */
 	const MCLIB = 1;
 	const MCLIBD = 2;
 
-	/*
-	* Xrefs the library flag to the actual class name
-	*/
+	/**
+	 * @var array Xrefs the library flag to the actual class name
+	 */
 	private $libraries = array(
 		1 => 'Memcache',
 		2 => 'Memcached'
 	);
 
-	/*
-	* An indicator of which library we are using
-	*/
+	/**
+	 * @var int An indicator of which library we are using
+	 */
 	private $libraryFlag;
 
 	/**
-	 * constructor passes in a ADONewConnection Object
+	 * Class Constructor.
 	 *
-	 * @param    $db    ADONewConnection object
-	 *
-	 * @return obj
+	 * @param ADOConnection $db
 	 */
 	public function __construct(&$db)
 	{
@@ -126,7 +123,9 @@ class ADODB_Cache_MemCache
 	}
 
 	/**
-	 * implement as lazy connection. The connection only occurs on CacheExecute call
+	 * Lazy connection.
+	 *
+	 * The connection only occurs on CacheExecute call.
 	 *
 	 * @param string $err
 	 *
@@ -248,7 +247,7 @@ class ADODB_Cache_MemCache
 	{
 		$err = '';
 		if (!$this->isConnected && $debug) {
-			// Call to writecache before connect, try to connect
+			// Call to writeCache() before connect(), try to connect
 			if (!$this->connect($err)) {
 				ADOConnection::outp($err);
 			}
@@ -291,13 +290,16 @@ class ADODB_Cache_MemCache
 	}
 
 	/**
-	 * Reads a cached query to the server
+	 * Reads a cached query from the server.
 	 *
 	 * @param string $filename The MD5 of the query to read
 	 * @param string $err The query results
 	 * @param int $secs2cache
-	 * @param obj $rsClass **UNUSED**
-	 * @return the record or false.
+	 * @param object $rsClass **UNUSED**
+	 *
+	 * @return object|bool record or false.
+	 *
+	 * @noinspection PhpUnusedParameterInspection
 	 */
 	public function readCache($filename, &$err, $secs2cache, $rsClass)
 	{
@@ -355,7 +357,7 @@ class ADODB_Cache_MemCache
 	 *
 	 * @param bool $debug
 	 *
-	 * @return int The response from the memcache server
+	 * @return bool The response from the memcache server
 	 */
 	public function flushAll($debug = false)
 	{
@@ -385,10 +387,10 @@ class ADODB_Cache_MemCache
 	/**
 	 * Flushes the contents of a specified query
 	 *
-	 * @param str $filname The MD5 of the query to flush
+	 * @param string $filename The MD5 of the query to flush
 	 * @param bool $debug
 	 *
-	 * @return int The response from the memcache server
+	 * @return bool The response from the memcache server
 	 */
 	public function flushCache($filename, $debug = false)
 	{
