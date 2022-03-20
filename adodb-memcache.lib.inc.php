@@ -17,6 +17,8 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ *
+ * @noinspection PhpUnused
  */
 
 // security - hide paths
@@ -45,17 +47,17 @@ class ADODB_Cache_MemCache
 	/**
 	 * @var int Connection Port, uses default
 	 */
-	private $port = 11211;
+	private $port;
 
 	/**
 	 * @var bool memcache compression with zlib
 	 */
-	private $compress = false;
+	private $compress;
 
 	/**
 	 * @var array of options for memcached only
 	 */
-	private $options = false;
+	private $options;
 
 	/**
 	 * @var bool Internal flag indicating successful connection
@@ -96,8 +98,8 @@ class ADODB_Cache_MemCache
 	 * @var array Xrefs the library flag to the actual class name
 	 */
 	private $libraries = array(
-		1 => 'Memcache',
-		2 => 'Memcached'
+		self::MCLIB => 'Memcache',
+		self::MCLIBD => 'Memcached'
 	);
 
 	/**
@@ -110,7 +112,7 @@ class ADODB_Cache_MemCache
 	 *
 	 * @param ADOConnection $db
 	 */
-	public function __construct(&$db)
+	public function __construct($db)
 	{
 		$this->hosts = $db->memCacheHost;
 		$this->port = $db->memCachePort;
@@ -141,6 +143,7 @@ class ADODB_Cache_MemCache
 
 		$usedLibrary = $this->libraries[$this->libraryFlag];
 
+		/** @var Memcache|Memcached $memCache */
 		$memCache = new $usedLibrary;
 		if (!$memCache) {
 			$err = 'Memcache library failed to initialize';
@@ -150,6 +153,7 @@ class ADODB_Cache_MemCache
 		// Convert simple compression flag for memcached
 		if ($this->libraryFlag == self::MCLIBD && $this->compress) {
 			// Value of Memcached::OPT_COMPRESSION = 2;
+			/** @noinspection PhpExpressionResultUnusedInspection */
 			$this->options[2] == 1;
 		}
 
@@ -319,7 +323,7 @@ class ADODB_Cache_MemCache
 		$rs = unserialize($rs);
 		if (!is_object($rs)) {
 			$err = 'Unable to unserialize $rs';
-			return $false;
+			return false;
 		}
 		if ($rs->timeCreated == 0) {
 			return $rs;
@@ -404,9 +408,9 @@ class ADODB_Cache_MemCache
 
 		if ($debug) {
 			if (!$del) {
-				ADOConnection::outp("flushcache: $key entry doesn't exist on memcache server!<br>\n");
+				ADOConnection::outp("flushcache: $filename entry doesn't exist on memcache server!<br>\n");
 			} else {
-				ADOConnection::outp("flushcache: $key entry flushed from memcache server!<br>\n");
+				ADOConnection::outp("flushcache: $filename entry flushed from memcache server!<br>\n");
 			}
 		}
 
