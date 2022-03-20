@@ -38,13 +38,6 @@ class ADODB_Cache_MemCache
 	public $createdir = false;
 
 	/**
-	 * populated with the proper library on connect
-	 * and is used later when there are differences in specific calls
-	 * between memcache and memcached
-	 */
-	private $memCacheLibrary = false;
-
-	/**
 	 * @var array of hosts
 	 */
 	private $hosts;
@@ -71,6 +64,9 @@ class ADODB_Cache_MemCache
 
 	/**
 	 * @var Memcache|Memcached Handle for the Memcache library
+	 *
+	 * Populated with the proper library on connect, used later when
+	 * there are differences in specific calls between memcache and memcached
 	 */
 	private $memcacheLibrary = false;
 
