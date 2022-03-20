@@ -66,7 +66,6 @@ class ADODB_mysqli extends ADOConnection {
 	var $socket = ''; //Default to empty string to fix HHVM bug
 	var $_bindInputArray = false;
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
-	var $optionFlags = array(array(MYSQLI_READ_DEFAULT_GROUP,0));
 	var $arrayClass = 'ADORecordSet_array_mysqli';
 	var $multiQuery = false;
 	var $ssl_key = null;
@@ -175,15 +174,6 @@ class ADODB_mysqli extends ADOConnection {
 				ADOConnection::outp("mysqli_init() failed : "  . $this->errorMsg());
 			}
 			return false;
-		}
-		/*
-		I suggest a simple fix which would enable adodb and mysqli driver to
-		read connection options from the standard mysql configuration file
-		/etc/my.cnf - "Bastien Duclaux" <bduclaux#yahoo.com>
-		*/
-		$this->optionFlags = array();
-		foreach($this->optionFlags as $arr) {
-			mysqli_options($this->_connectionID,$arr[0],$arr[1]);
 		}
 
 		// Now merge in the standard connection parameters setting
