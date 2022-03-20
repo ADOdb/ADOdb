@@ -1114,74 +1114,36 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		if (!is_array($sql)) {
-			$typeString = '';
-			$bulkTypeArray = array();
-			$typeArray = array(''); // placeholder for type list
-
 			// Check if we are bulkbinding. If so, $inputarr is a 2d array,
 			// and we make a gross assumption that all rows have the same number
-			// of columns, we will use the elements of the first row.
-			if (is_array($inputarr[0]) && $this->bulkBind) {
-				$bulkBindArray = $inputarr;
-				foreach ($bulkBindArray as $inputarr) {
+			// of columns of the same type, and use the elements of the first row
+			// to determine the MySQL bind param types.
+			if (is_array($inputarr[0])) {
+				if (!$this->bulkBind) {
+					$this->outp_throw(
+						"2D Array of values sent to execute and 'ADOdb_mysqli::bulkBind' not set",
+						'Execute'
+					);
+					return false;
+				}
+
+				$bulkTypeArray = [];
+				foreach ($inputarr as $v) {
 					if (is_string($this->bulkBind)) {
-						$typeArray = array_merge((array)$this->bulkBind, $inputarr);
+						$typeArray = array_merge((array)$this->bulkBind, $v);
 					} else {
-						$typeString = '';
-						$typeArray = array('');
-
-						foreach ($inputarr as $v) {
-							$typeArray[] = $v;
-							if (is_integer($v) || is_bool($v)) {
-								$typeString .= 'i';
-							} elseif (is_float($v)) {
-								$typeString .= 'd';
-							} elseif (is_object($v)) {
-								// Assume a blob
-								$typeString .= 'b';
-							} else {
-								$typeString .= 's';
-							}
-						}
-
-						// Place the field type list at the front of the parameter array.
-						// This is the mysql specific format
-						$typeArray[0] = $typeString;
+						$typeArray = $this->getBindParamWithType($v);
 					}
-
 					$bulkTypeArray[] = $typeArray;
-
 				}
 				$this->bulkBind = false;
 				$ret = $this->_execute($sql, $bulkTypeArray);
-			} elseif (is_array($inputarr[0]) && !$this->bulkBind) {
-				$this->outp_throw(
-					"2D Array of values sent to execute and 'ADOdb_mysqli::bulkBind' not set",
-					'Execute'
-				);
-				return false;
 			} else {
-				foreach ($inputarr as $v) {
-					$typeArray[] = $v;
-					if (is_integer($v) || is_bool($v)) {
-						$typeString .= 'i';
-					} elseif (is_float($v)) {
-						$typeString .= 'd';
-					} elseif (is_object($v)) {
-						// Assume a blob
-						$typeString .= 'b';
-					} else {
-						$typeString .= 's';
-					}
-				}
-
-				// Place the field type list at the front of the parameter array.
-				// This is the mysql specific format
-				$typeArray[0] = $typeString;
-
+				$typeArray = $this->getBindParamWithType($inputarr);
 				$ret = $this->_execute($sql, $typeArray);
 			}
 
+			// @TODO unnecessary or should return false ? see https://github.com/ADOdb/ADOdb/pull/655/files#r830582165
 			if (!$ret) {
 				return $ret;
 			}
@@ -1189,6 +1151,36 @@ class ADODB_mysqli extends ADOConnection {
 			$ret = $this->_execute($sql, $inputarr);
 		}
 		return $ret;
+	}
+
+	/**
+	 * Inserts the bind param type string at the front of the parameter array.
+	 *
+	 * @see https://www.php.net/manual/en/mysqli-stmt.bind-param.php
+	 *
+	 * @param array $inputArr
+	 * @return array
+	 */
+	private function getBindParamWithType($inputArr): array
+	{
+		$typeString = '';
+		foreach ($inputArr as $v) {
+			if (is_integer($v) || is_bool($v)) {
+				$typeString .= 'i';
+			} elseif (is_float($v)) {
+				$typeString .= 'd';
+			} elseif (is_object($v)) {
+				// Assume a blob
+				$typeString .= 'b';
+			} else {
+				$typeString .= 's';
+			}
+		}
+
+		// Place the field type list at the front of the parameter array.
+		// This is the mysql specific format
+		array_unshift($inputArr, $typeString);
+		return $inputArr;
 	}
 
 	/**
