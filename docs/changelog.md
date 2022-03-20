@@ -31,8 +31,10 @@ Older changelogs:
 
 ### Fixed
 
-- Fix regression on mysqli::setConnectionParameter()
+- mysqli: regression on setConnectionParameter()
   [#803](https://github.com/ADOdb/ADOdb/issues/803)
+- mysqli: regression on bulk binding  
+  [#806](https://github.com/ADOdb/ADOdb/issues/806)
 - Firebird: undefined offset PHP notice in _fetchField()
   [#808](https://github.com/ADOdb/ADOdb/issues/808)
 - Firebird: PHP deprecation warning in _blobDecode()

@@ -1022,6 +1022,8 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @param string $fmt Format string
 	 * @param string $col Date column; use system date if not specified.
+	 *
+	 * @return string
 	 */
 	function SQLDate($fmt, $col = '') {
 		if (!$col) {
