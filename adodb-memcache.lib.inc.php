@@ -121,6 +121,15 @@ class ADODB_Cache_MemCache
 	}
 
 	/**
+	 * Return true if the current library is Memcached.
+	 * @return bool
+	 */
+	public function isLibMemcached(): bool
+	{
+		return $this->libraryFlag == self::MCLIBD;
+	}
+
+	/**
 	 * Lazy connection.
 	 *
 	 * The connection only occurs on CacheExecute call.
@@ -151,14 +160,14 @@ class ADODB_Cache_MemCache
 		}
 
 		// Convert simple compression flag for memcached
-		if ($this->libraryFlag == self::MCLIBD && $this->compress) {
+		if ($this->isLibMemcached() && $this->compress) {
 			// Value of Memcached::OPT_COMPRESSION = 2;
 			/** @noinspection PhpExpressionResultUnusedInspection */
 			$this->options[2] == 1;
 		}
 
 		// Are there any options available for memcached
-		if ($this->libraryFlag == self::MCLIBD && count($this->options) > 0) {
+		if ($this->isLibMemcached() && count($this->options) > 0) {
 			$optionSuccess = $memCache->setOptions($this->options);
 			if (!$optionSuccess) {
 				$err = 'Invalid option parameters passed to Memcached';
@@ -184,12 +193,12 @@ class ADODB_Cache_MemCache
 			// New way, must validate port, etc
 			foreach ($this->hosts as $controller) {
 				$connector = array_merge($this->serverControllerTemplate, $controller);
-				if ($this->libraryFlag == self::MCLIB) {
+				if ($this->isLibMemcached()) {
+					$connector['weight'] = $connector['weight'] ? (int)$connector['weight'] : 0;
+				} else {
 					// Cannot use a key or weight in memcache, simply discard
 					$connector['key'] = '';
 					$connector['weight'] = 0;
-				} else {
-					$connector['weight'] = $connector['weight'] ? (int)$connector['weight'] : 0;
 				}
 
 				$this->serverControllers[] = $connector;
@@ -197,24 +206,23 @@ class ADODB_Cache_MemCache
 		}
 
 		// Checks for existing connections ( but only for memcached )
-		if ($this->libraryFlag == self::MCLIBD && !empty($memCache->getServerList())) {
+		if ($this->isLibMemcached() && !empty($memCache->getServerList())) {
 			// Use the existing configuration
 			$this->isConnected = true;
 			$this->memcacheLibrary = $memCache;
 			return true;
 		}
+
 		$failcnt = 0;
 		foreach ($this->serverControllers as $controller) {
-			switch ($this->libraryFlag) {
-				case self::MCLIB:
-					if (!@$memCache->addServer($controller['host'], $controller['port'])) {
-						$failcnt++;
-					}
-					break;
-				default:
-					if (!@$memCache->addServer($controller['host'], $controller['port'], $controller['weight'])) {
-						$failcnt++;
-					}
+			if ($this->isLibMemcached()) {
+				if (!@$memCache->addServer($controller['host'], $controller['port'], $controller['weight'])) {
+					$failcnt++;
+				}
+			} else {
+				if (!@$memCache->addServer($controller['host'], $controller['port'])) {
+					$failcnt++;
+				}
 			}
 		}
 		if ($failcnt == sizeof($this->serverControllers)) {
