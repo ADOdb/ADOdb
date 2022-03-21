@@ -197,14 +197,11 @@ class ADODB_Cache_MemCache
 		}
 
 		// Checks for existing connections ( but only for memcached )
-		if ($this->libraryFlag == self::MCLIBD) {
-			$existingServers = $memCache->getServerList();
-			if (is_array($existingServers)) {
-				// Use the existing configuration
-				$this->isConnected = true;
-				$this->memcacheLibrary = $memCache;
-				return true;
-			}
+		if ($this->libraryFlag == self::MCLIBD && !empty($memCache->getServerList())) {
+			// Use the existing configuration
+			$this->isConnected = true;
+			$this->memcacheLibrary = $memCache;
+			return true;
 		}
 		$failcnt = 0;
 		foreach ($this->serverControllers as $controller) {
