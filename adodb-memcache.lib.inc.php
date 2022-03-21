@@ -171,11 +171,10 @@ class ADODB_Cache_MemCache
 			$this->hosts = array($this->hosts);
 		}
 
-		if (array_values($this->hosts) == $this->hosts) {
+		if (!is_array($this->hosts[0])) {
 			// Old way, convert to controller
 			foreach ($this->hosts as $ipAddress) {
 				$connector = $this->serverControllerTemplate;
-
 				$connector['host'] = $ipAddress;
 				$connector['port'] = $this->port;
 
