@@ -39,6 +39,8 @@ Older changelogs:
   [#820](https://github.com/ADOdb/ADOdb/issues/820)
 - oci8: fix PHP 8.1 array deprecation warning
   [#817](https://github.com/ADOdb/ADOdb/issues/817)
+- memcache: weighted servers not connecting
+  [#820](https://github.com/ADOdb/ADOdb/issues/820)
 - xml PHP Notice in dbData::create()
   [#822](https://github.com/ADOdb/ADOdb/issues/822)
 
