@@ -160,10 +160,8 @@ class ADODB_Cache_MemCache
 		}
 
 		// Convert simple compression flag for memcached
-		if ($this->isLibMemcached() && $this->compress) {
-			// Value of Memcached::OPT_COMPRESSION = 2;
-			/** @noinspection PhpExpressionResultUnusedInspection */
-			$this->options[2] == 1;
+		if ($this->isLibMemcached()) {
+			$this->options[Memcached::OPT_COMPRESSION] = $this->compress;
 		}
 
 		// Are there any options available for memcached
