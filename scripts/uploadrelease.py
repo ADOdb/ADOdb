@@ -266,7 +266,7 @@ def set_sourceforge_file_info():
         url = path.join(base_url, file)
         payload = {
             'default': defaults,
-            'api_key': env.api_key
+            'api_key': env.sf_api_key
             }
         if dry_run:
             req = requests.Request('PUT', url, headers=headers, params=payload)
