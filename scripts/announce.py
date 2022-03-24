@@ -21,13 +21,34 @@ See the LICENSE.md file distributed with this source code for details.
 @author Damien Regad
 """
 
+import argparse
+from git import Repo  # https://gitpython.readthedocs.io
 from adodbutil import env, Gitter
 
 
+def process_command_line():
+    """
+    Parse command-line options
+    :return: Namespace
+    """
+    parser = argparse.ArgumentParser(
+        description="Post ADOdb release announcement messages to Gitter."
+    )
+    parser.add_argument('version',
+                        help="Version number to announce")
+    parser.add_argument('-m', '--message',
+                        help="Additional text to add to announcement message")
+    return parser.parse_args()
+
+
 def main():
-    message = """ADOdb Version {0} release
-See changelog https://github.com/ADOdb/ADOdb/blob/v{0}/docs/changelog.md
-""".format('5.21.3')
+    args = process_command_line()
+
+    # Build announcement message
+    message = """ADOdb Version {0} released{1}
+See changelog https://github.com/ADOdb/ADOdb/blob/v{0}/docs/changelog.md""" \
+        .format(args.version,
+                "\n" + args.message.rstrip(".") + "." if args.message else "")
 
     gitter = Gitter(env.gitter_token, env.gitter_room)
     message_id = gitter.post('# ' + message)
