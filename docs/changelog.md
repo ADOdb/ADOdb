@@ -20,6 +20,8 @@ Older changelogs:
 
 - oci8: support session_mode parameter
   [#801](https://github.com/ADOdb/ADOdb/issues/801)
+- oci8: support setting the client identifier 
+  [#805](https://github.com/ADOdb/ADOdb/issues/805)
 
 ### Removed
 - mysqli: legacy non-functional $optionFlags property

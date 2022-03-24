@@ -270,11 +270,17 @@ END;
 		}
 
 		// Process the connection parameters
-		$sessionMode = OCI_DEFAULT;
+		$sessionMode      = OCI_DEFAULT;
+		$clientIdentifier = '';
 		foreach ($this->connectionParameters as $options) {
 			foreach($options as $parameter => $value) {
-				if ($parameter == 'session_mode') {
-					$sessionMode = $value;
+				switch ($parameter) {
+					case 'session_mode':
+						$sessionMode = $value;
+						break;
+					case 'client_identifier':
+						$clientIdentifier = $value;
+						break;
 				}
 			}
 		}
@@ -288,6 +294,11 @@ END;
 		);
 		if (!$this->_connectionID) {
 			return false;
+		}
+
+		// Set client identifier, but see documentation for limitations
+		if ($clientIdentifier) {
+			oci_set_client_identifier($this->_connectionID, $clientIdentifier);
 		}
 
 		if ($mode == 1 && $this->autoRollback ) {
