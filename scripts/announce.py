@@ -50,6 +50,16 @@ See changelog https://github.com/ADOdb/ADOdb/blob/v{0}/docs/changelog.md""" \
         .format(args.version,
                 "\n" + args.message.rstrip(".") + "." if args.message else "")
 
+    # Get confirmation
+    print("Review announcement message")
+    print("-" * 27)
+    print(message)
+    print("-" * 27)
+    reply = input("Proceed with posting ? ")
+    if not reply.casefold() == 'y':
+        print("Aborting")
+        exit(1)
+
     gitter = Gitter(env.gitter_token, env.gitter_room)
     message_id = gitter.post('# ' + message)
     print("Message posted successfully\n"
