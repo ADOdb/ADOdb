@@ -791,6 +791,11 @@ END;
 					$nrows += $offset;
 				}
 				$sql = "select * from (".$sql.") where rownum <= :adodb_offset";
+
+				// If non-bound statement, $inputarr is false
+				if (!$inputarr) {
+					$inputarr = array();
+				}
 				$inputarr['adodb_offset'] = $nrows;
 				$nrows = -1;
 			}
