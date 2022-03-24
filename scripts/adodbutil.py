@@ -4,6 +4,8 @@ ADOdb release management scripts utilities and helper classes.
 - Environment class
   Reads configuration variables from the environment file, and makes them
   available in the 'env' global variable..
+- Gitter class
+  Use Gitter REST API to post announcements
 
 This file is part of ADOdb, a Database Abstraction Layer library for PHP.
 
@@ -23,12 +25,16 @@ See the LICENSE.md file distributed with this source code for details.
 """
 
 from os import path
+
+import requests
 import yaml
 
 
 class Environment:
     # See env.yml.sample for details about these config variables
     sf_api_key = None
+    gitter_token = None
+    gitter_room = None
 
     def __init__(self, filename='env.yml'):
         """
@@ -48,6 +54,64 @@ class Environment:
         # Assign class properties from config
         for key, value in config.items():
             setattr(self, key, value)
+
+
+class Gitter:
+    base_url = 'https://api.gitter.im/v1/'
+
+    _headers = ''
+    _room_id = ''
+
+    def __init__(self, token, room_name):
+        """
+        Class Constructor.
+
+        :param token: Gitter REST API token (see https://developer.gitter.im/apps)
+        :param room_name: Room name, e.g. `ADOdb/ADOdb`
+        """
+        self._headers = {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
+            'Authorization': 'Bearer ' + token.strip()
+        }
+
+        # Initialize Room Id
+        r = requests.get(self.url('rooms'),
+                         headers=self._headers,
+                         params={'q': room_name})
+        if r.status_code != requests.codes.ok:
+            raise Exception(r.text)
+
+        for room in r.json()['results']:
+            if room['name'] == room_name:
+                self._room_id = room['id']
+        if not self._room_id:
+            raise Exception("Gitter Room '{}' not found".format(room_name))
+
+    def url(self, endpoint):
+        """
+        Get Gitter REST API URL for the given endpoint.
+
+        :param endpoint: REST API endpoint
+        :return: URL
+        """
+        return self.base_url + endpoint
+
+    def post(self, message):
+        """
+        Post a message to a Gitter room.
+
+        :param message: Message text
+
+        :return: Posted message's Id
+        """
+        url = self.url('rooms/{}/chatMessages'.format(self._room_id))
+        r = requests.post(url,
+                          headers=self._headers,
+                          json={'text': message})
+        if r.status_code != requests.codes.ok:
+            raise Exception(r.text)
+        return r.json()['id']
 
 
 # Initialize environment
