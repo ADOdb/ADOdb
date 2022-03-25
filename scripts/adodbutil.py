@@ -36,6 +36,13 @@ class Environment:
     gitter_token = None
     gitter_room = None
 
+    twitter_account = 'ADOdb_announce'
+    twitter_api_key = None
+    twitter_api_secret = None
+    twitter_bearer_token = None  # Currently unused
+    twitter_access_token = None
+    twitter_access_secret = None
+
     def __init__(self, filename='env.yml'):
         """
         Constructor - load the config file and initialize properties.

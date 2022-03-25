@@ -2,7 +2,9 @@
 """
 ADOdb announcements script.
 
-Posts release announcements to Gitter
+Posts release announcements to
+- Gitter
+- Twitter
 
 This file is part of ADOdb, a Database Abstraction Layer library for PHP.
 
@@ -22,9 +24,12 @@ See the LICENSE.md file distributed with this source code for details.
 """
 
 import argparse
+import json
 from pathlib import Path
 
+import tweepy  # https://www.tweepy.org/
 from git import Repo  # https://gitpython.readthedocs.io
+
 from adodbutil import env, Gitter
 
 
@@ -49,6 +54,14 @@ def process_command_line():
     parser.add_argument('-m', '--message',
                         help="Additional text to add to announcement message")
 
+    only = parser.add_mutually_exclusive_group()
+    only.add_argument('-g', '--gitter-only',
+                      action="store_true",
+                      help="Only post the announcement to Gitter")
+    only.add_argument('-t', '--twitter-only',
+                      action="store_true",
+                      help="Only post the announcement to Twitter")
+
     return parser.parse_args()
 
 
@@ -62,8 +75,30 @@ def post_gitter(message):
     print()
 
 
+def post_twitter(message):
+    print("Posting to Twitter... ", end='')
+    twitter = tweepy.Client(
+        consumer_key=env.twitter_api_key,
+        consumer_secret=env.twitter_api_secret,
+        access_token=env.twitter_access_token,
+        access_token_secret=env.twitter_access_secret
+    )
+    try:
+        r = twitter.create_tweet(text=message)
+    except tweepy.errors.HTTPException as e:
+        err = json.loads(e.response.text)
+        print("ERROR")
+        print(e, "-", err['detail'])
+        return
+    print("Tweeted successfully\n"
+          "https://twitter.com/{}/status/{}"
+          .format(env.twitter_account, r.data['id']))
+    print()
+
+
 def main():
     args = process_command_line()
+    post_everywhere = not args.gitter_only and not args.twitter_only
 
     # Build announcement message
     message = """ADOdb Version {0} released{1}
@@ -81,7 +116,10 @@ See changelog https://github.com/ADOdb/ADOdb/blob/v{0}/docs/changelog.md""" \
         print("Aborting")
         exit(1)
 
-    post_gitter(message)
+    if post_everywhere or args.gitter_only:
+        post_gitter(message)
+    if post_everywhere or args.twitter_only:
+        post_twitter(message)
 
 
 if __name__ == "__main__":
