@@ -52,6 +52,16 @@ def process_command_line():
     return parser.parse_args()
 
 
+def post_gitter(message):
+    print("Posting to Gitter... ", end='')
+    gitter = Gitter(env.gitter_token, env.gitter_room)
+    message_id = gitter.post('# ' + message)
+    print("Message posted successfully\n"
+          "https://gitter.im/{}?at={}"
+          .format(env.gitter_room, message_id))
+    print()
+
+
 def main():
     args = process_command_line()
 
@@ -71,11 +81,7 @@ See changelog https://github.com/ADOdb/ADOdb/blob/v{0}/docs/changelog.md""" \
         print("Aborting")
         exit(1)
 
-    gitter = Gitter(env.gitter_token, env.gitter_room)
-    message_id = gitter.post('# ' + message)
-    print("Message posted successfully\n"
-          "https://gitter.im/{}?at={}"
-          .format(env.gitter_room, message_id))
+    post_gitter(message)
 
 
 if __name__ == "__main__":
