@@ -22,6 +22,8 @@ See the LICENSE.md file distributed with this source code for details.
 """
 
 import argparse
+from pathlib import Path
+
 from git import Repo  # https://gitpython.readthedocs.io
 from adodbutil import env, Gitter
 
@@ -31,13 +33,22 @@ def process_command_line():
     Parse command-line options
     :return: Namespace
     """
+    # Get most recent Git tag
+    repo = Repo(path=Path(__file__).parents[1])
+    tags = sorted(repo.tags, key=lambda t: t.tag.tagged_date)
+    latest_tag = str(tags[-1])
+
     parser = argparse.ArgumentParser(
         description="Post ADOdb release announcement messages to Gitter."
     )
     parser.add_argument('version',
-                        help="Version number to announce")
+                        nargs='?',
+                        default=latest_tag,
+                        help="Version number to announce; if not specified, "
+                             "the latest tag will be used.")
     parser.add_argument('-m', '--message',
                         help="Additional text to add to announcement message")
+
     return parser.parse_args()
 
 
@@ -47,7 +58,7 @@ def main():
     # Build announcement message
     message = """ADOdb Version {0} released{1}
 See changelog https://github.com/ADOdb/ADOdb/blob/v{0}/docs/changelog.md""" \
-        .format(args.version,
+        .format(args.version.lstrip('v'),
                 "\n" + args.message.rstrip(".") + "." if args.message else "")
 
     # Get confirmation
