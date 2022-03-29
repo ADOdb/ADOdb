@@ -965,7 +965,8 @@ class dbData extends dbObject {
 			foreach( $row as $field_id => $field_data ) {
 				if( !array_key_exists( $field_id, $table_fields ) ) {
 					if( is_numeric( $field_id ) ) {
-						$field_id = reset( array_keys( $table_fields ) );
+						$keys = array_keys($table_fields);
+						$field_id = reset($keys);
 					} else {
 						continue;
 					}
