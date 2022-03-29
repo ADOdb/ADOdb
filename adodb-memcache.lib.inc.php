@@ -114,7 +114,7 @@ class ADODB_Cache_MemCache
 	public function __construct($db)
 	{
 		$this->hosts = $db->memCacheHost;
-		$this->port = $db->memCachePort;
+		$this->port = $this->serverControllerTemplate['port'] = $db->memCachePort;
 		$this->compress = $db->memCacheCompress;
 		$this->options = $db->memCacheOptions;
 	}
