@@ -37,21 +37,24 @@ Older changelogs:
 
 ### Fixed
 
+- firebird: undefined offset PHP notice in _fetchField()
+  [#808](https://github.com/ADOdb/ADOdb/issues/808)
+- firebird: PHP deprecation warning in _blobDecode()
+  [#811](https://github.com/ADOdb/ADOdb/issues/811)
+- firebird: PHP notice when executing query with empty array
+  [#812](https://github.com/ADOdb/ADOdb/issues/812)
+- firebird: undefined array key with uppercase columns
+  [#813](https://github.com/ADOdb/ADOdb/issues/813)
 - mysqli: regression on setConnectionParameter()
   [#803](https://github.com/ADOdb/ADOdb/issues/803)
 - mysqli: regression on bulk binding
   [#806](https://github.com/ADOdb/ADOdb/issues/806)
 - mysqli: Affected_Rows() not returning correct value
   [#820](https://github.com/ADOdb/ADOdb/issues/820)
-- Firebird: undefined offset PHP notice in _fetchField()
-  [#808](https://github.com/ADOdb/ADOdb/issues/808)
-- Firebird: PHP deprecation warning in _blobDecode()
-  [#811](https://github.com/ADOdb/ADOdb/issues/811)
-- Firebird: PHP notice when executing query with empty array
-  [#812](https://github.com/ADOdb/ADOdb/issues/812)
-- Firebird: undefined array key with uppercase columns
-  [#813](https://github.com/ADOdb/ADOdb/issues/813)
-
+- oci8: fix PHP 8.1 array deprecation warning
+  [#817](https://github.com/ADOdb/ADOdb/issues/817)
+- xml PHP Notice in dbData::create()
+  [#822](https://github.com/ADOdb/ADOdb/issues/822)
 
 ## [5.22.0] - 2022-02-08
 
