@@ -84,7 +84,6 @@ class ADODB_Cache_MemCache
 		'host' => '',
 		'port' => 11211,
 		'weight' => 0,
-		'key' => ''
 	);
 
 	/**
@@ -194,8 +193,7 @@ class ADODB_Cache_MemCache
 				if ($this->isLibMemcached()) {
 					$connector['weight'] = $connector['weight'] ? (int)$connector['weight'] : 0;
 				} else {
-					// Cannot use a key or weight in memcache, simply discard
-					$connector['key'] = '';
+					// Cannot use weight in memcache, simply discard
 					$connector['weight'] = 0;
 				}
 
