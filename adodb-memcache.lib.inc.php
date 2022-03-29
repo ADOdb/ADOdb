@@ -191,7 +191,7 @@ class ADODB_Cache_MemCache
 			foreach ($this->hosts as $controller) {
 				$connector = array_merge($this->serverControllerTemplate, $controller);
 				if ($this->isLibMemcached()) {
-					$connector['weight'] = $connector['weight'] ? (int)$connector['weight'] : 0;
+					$connector['weight'] = (int)$connector['weight'];
 				} else {
 					// Cannot use weight in memcache, simply discard
 					$connector['weight'] = 0;
