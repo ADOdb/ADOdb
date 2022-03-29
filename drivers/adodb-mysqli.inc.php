@@ -1323,6 +1323,9 @@ class ADODB_mysqli extends ADOConnection {
 			*/
 			$this->isSelectStatement = true;
 
+			// Tells affected_rows to be compliant
+			$this->isSelectStatement = true;
+
 			// Turn the statement into a result set and return it
 			return $stmt->get_result();
 		}
