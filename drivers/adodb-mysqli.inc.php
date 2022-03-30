@@ -1139,11 +1139,6 @@ class ADODB_mysqli extends ADOConnection {
 				$typeArray = $this->getBindParamWithType($inputarr);
 				$ret = $this->_execute($sql, $typeArray);
 			}
-
-			// @TODO unnecessary or should return false ? see https://github.com/ADOdb/ADOdb/pull/655/files#r830582165
-			if (!$ret) {
-				return $ret;
-			}
 		} else {
 			$ret = $this->_execute($sql, $inputarr);
 		}

@@ -53,8 +53,15 @@ Older changelogs:
   [#820](https://github.com/ADOdb/ADOdb/issues/820)
 - oci8: fix PHP 8.1 array deprecation warning
   [#817](https://github.com/ADOdb/ADOdb/issues/817)
+- memcache: weighted servers not connecting
+  [#807](https://github.com/ADOdb/ADOdb/issues/807)
+- memcache: $memCacheCompress option ignored by memcached
+  [#823](https://github.com/ADOdb/ADOdb/issues/823)
+- memcache: use default port in server controller template
+  [#824](https://github.com/ADOdb/ADOdb/issues/824)
 - xml PHP Notice in dbData::create()
   [#822](https://github.com/ADOdb/ADOdb/issues/822)
+
 
 ## [5.22.0] - 2022-02-08
 
