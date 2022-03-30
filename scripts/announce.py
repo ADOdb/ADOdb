@@ -25,10 +25,13 @@ See the LICENSE.md file distributed with this source code for details.
 
 import argparse
 import json
+import re
 from pathlib import Path
 
 import tweepy  # https://www.tweepy.org/
 from git import Repo  # https://gitpython.readthedocs.io
+# https://github.com/PyGithub/PyGithub
+from github import Github, GithubException
 
 from adodbutil import env, Gitter
 
@@ -65,8 +68,65 @@ def process_command_line():
     only.add_argument('-t', '--twitter-only',
                       action="store_true",
                       help="Only post the announcement to Twitter")
+    only.add_argument('-u', '--github-only',
+                      action="store_true",
+                      help="Only post the announcement to GitHub")
 
     return parser.parse_args()
+
+
+def post_github(version, message, changelog_link):
+    print(f"GitHub Release for repository '{env.github_repo}'")
+
+    gh = Github(env.github_token)
+    repo = gh.get_repo(env.github_repo)
+
+    # Check if Release already exists
+    version = 'v' + version
+    try:
+        rel = repo.get_release(version)
+        print(f"Existing release '{version}' found", rel.html_url)
+
+        # Discard the message provided on command-line, and use the one from
+        # the Release's description, inform user to update it on GitHub.
+        if message:
+            print(f"Your message will be discarded; "
+                  "the Release's description will be used instead.\n"
+                  "Edit it on GitHub if needed")
+        else:
+            print("Retrieving the Release's description for the "
+                  "announcement message")
+
+        # Remove the changelog link to keep only the release's message
+        message = re.sub(r"[,.]?\s*(Please )?See .*$",
+                         "",
+                         rel.body,
+                         flags=re.IGNORECASE).strip()
+        if message:
+            message += ".\n"
+    except GithubException as err:
+        if err.status != 404:
+            raise err
+        print(f"Release '{version}' does not exist yet")
+
+        # Make sure the version has been tagged
+        try:
+            repo.get_git_ref('tags/' + version)
+            print(f"Tag '{version}' found")
+        except GithubException:
+            print(f"ERROR: Tag '{version}' not found")
+            exit(1)
+
+        # Create the release
+        rel = repo.create_git_release(version,
+                                      version,
+                                      message + changelog_link)
+        print("Release created successfully", rel.html_url)
+
+    print()
+
+    # Return message to be used for remaining announcements
+    return message
 
 
 def post_gitter(message):
@@ -102,21 +162,37 @@ def post_twitter(message):
 
 def main():
     args = process_command_line()
-    post_everywhere = not args.gitter_only and not args.twitter_only
+
+    post_everywhere = not args.gitter_only \
+        and not args.github_only \
+        and not args.twitter_only
+    version = args.version.lstrip('v')
+    changelog_url = f"https://github.com/ADOdb/ADOdb/blob/v{version}" \
+                    "/docs/changelog.md"
+    message = args.message.rstrip(".") + ".\n" if args.message else ""
+
+    # Create GitHub release, retrieve message from it if it already exists
+    if post_everywhere or args.github_only:
+        message = post_github(version,
+                              message,
+                              f"See [Changelog]({changelog_url})")
 
     # Build announcement message
-    message = """ADOdb Version {0} released{1}
-See changelog https://github.com/ADOdb/ADOdb/blob/v{0}/docs/changelog.md""" \
-        .format(args.version.lstrip('v'),
-                "\n" + args.message.rstrip(".") + "." if args.message else "")
+    msg_announce = "ADOdb Version {0} released\n{1}{2}".format(
+        version,
+        message,
+        "See Changelog " + changelog_url
+    )
 
     # Get confirmation
     if not args.batch:
         print("Review ", end='')
     print("Announcement message")
     print("-" * 27)
-    print(message)
+    print(msg_announce)
     print("-" * 27)
+    if args.github_only:
+        return
     if not args.batch:
         reply = input("Proceed with posting ? ")
         if not reply.casefold() == 'y':
@@ -125,9 +201,9 @@ See changelog https://github.com/ADOdb/ADOdb/blob/v{0}/docs/changelog.md""" \
     print()
 
     if post_everywhere or args.gitter_only:
-        post_gitter(message)
+        post_gitter(msg_announce)
     if post_everywhere or args.twitter_only:
-        post_twitter(message)
+        post_twitter(msg_announce)
 
 
 if __name__ == "__main__":

@@ -33,6 +33,10 @@ import yaml
 class Environment:
     # See env.yml.sample for details about these config variables
     sf_api_key = None
+
+    github_token = None
+    github_repo = 'ADOdb/ADOdb'
+
     gitter_token = None
     gitter_room = None
 
