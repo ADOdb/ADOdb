@@ -53,6 +53,10 @@ def process_command_line():
                              "the latest tag will be used.")
     parser.add_argument('-m', '--message',
                         help="Additional text to add to announcement message")
+    parser.add_argument('-b', '--batch',
+                        action="store_true",
+                        help="Batch mode - do not ask for confirmation "
+                             "before posting")
 
     only = parser.add_mutually_exclusive_group()
     only.add_argument('-g', '--gitter-only',
@@ -107,14 +111,18 @@ See changelog https://github.com/ADOdb/ADOdb/blob/v{0}/docs/changelog.md""" \
                 "\n" + args.message.rstrip(".") + "." if args.message else "")
 
     # Get confirmation
-    print("Review announcement message")
+    if not args.batch:
+        print("Review ", end='')
+    print("Announcement message")
     print("-" * 27)
     print(message)
     print("-" * 27)
-    reply = input("Proceed with posting ? ")
-    if not reply.casefold() == 'y':
-        print("Aborting")
-        exit(1)
+    if not args.batch:
+        reply = input("Proceed with posting ? ")
+        if not reply.casefold() == 'y':
+            print("Aborting")
+            exit(1)
+    print()
 
     if post_everywhere or args.gitter_only:
         post_gitter(message)
