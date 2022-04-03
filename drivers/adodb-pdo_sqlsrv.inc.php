@@ -20,7 +20,7 @@
  * @author Ned Andre
  */
 
-final class ADODB_pdo_sqlsrv extends ADODB_pdo
+class ADODB_pdo_sqlsrv extends ADODB_pdo
 {
 	var $hasTop = 'top';
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';

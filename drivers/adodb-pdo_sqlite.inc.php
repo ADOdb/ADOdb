@@ -20,7 +20,7 @@
  * @author Sid Dunayer <sdunayer@interserv.com>
  */
 
-final class ADODB_pdo_sqlite extends ADODB_pdo {
+class ADODB_pdo_sqlite extends ADODB_pdo {
 
 	var $metaTablesSQL   = "SELECT name FROM sqlite_master WHERE type='table'";
 	var $sysDate         = 'current_date';

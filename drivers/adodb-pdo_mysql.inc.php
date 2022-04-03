@@ -19,7 +19,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-final class ADODB_pdo_mysql extends ADODB_pdo {
+class ADODB_pdo_mysql extends ADODB_pdo {
 
 	var $metaTablesSQL = "SELECT
 			TABLE_NAME,

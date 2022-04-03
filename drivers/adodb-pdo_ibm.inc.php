@@ -18,7 +18,7 @@
  * @copyright 2022 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-final class ADODB_pdo_ibm extends ADODB_pdo {
+class ADODB_pdo_ibm extends ADODB_pdo {
 
 	var $concat_operator='||';
 	var $sysTime = 'CURRENT TIME';
