@@ -16,6 +16,10 @@ Older changelogs:
 
 ## [5.22.2] - Unreleased
 
+### Fixed
+- mysqli: Affected_Rows() not returning correct value
+  [#820](https://github.com/ADOdb/ADOdb/issues/820)
+
 
 ## [5.22.1] - 2022-03-30
 
@@ -38,8 +42,6 @@ Older changelogs:
   [#803](https://github.com/ADOdb/ADOdb/issues/803)
 - mysqli: regression on bulk binding
   [#806](https://github.com/ADOdb/ADOdb/issues/806)
-- mysqli: Affected_Rows() not returning correct value
-  [#820](https://github.com/ADOdb/ADOdb/issues/820)
 - oci8: fix PHP 8.1 array deprecation warning
   [#817](https://github.com/ADOdb/ADOdb/issues/817)
 - memcache: weighted servers not connecting
