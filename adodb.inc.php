@@ -5806,7 +5806,7 @@ class ADORecordSet implements IteratorAggregate {
 		}
 		else
 		{
-			$cName = sprintf('%s',$drivername);
+			$cName = $drivername;
 			$dName = sprintf('datadict-%s.inc.php',$drivername);
 		}
 		
