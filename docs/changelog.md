@@ -14,7 +14,56 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
-## [5.22.0] - Unreleased
+## [5.23.0] - Unreleased
+
+### Added
+
+- oci8: support session_mode parameter
+  [#801](https://github.com/ADOdb/ADOdb/issues/801)
+- oci8: support setting the client identifier 
+  [#805](https://github.com/ADOdb/ADOdb/issues/805)
+
+### Removed
+- mysqli: legacy non-functional $optionFlags property
+[#814](https://github.com/ADOdb/ADOdb/issues/814)
+
+
+## [5.22.1] - 2022-03-30
+
+### Removed
+
+- Legacy mysql, mysqlpo and mysqlt drivers
+  [#804](https://github.com/ADOdb/ADOdb/issues/804)
+
+### Fixed
+
+- firebird: undefined offset PHP notice in _fetchField()
+  [#808](https://github.com/ADOdb/ADOdb/issues/808)
+- firebird: PHP deprecation warning in _blobDecode()
+  [#811](https://github.com/ADOdb/ADOdb/issues/811)
+- firebird: PHP notice when executing query with empty array
+  [#812](https://github.com/ADOdb/ADOdb/issues/812)
+- firebird: undefined array key with uppercase columns
+  [#813](https://github.com/ADOdb/ADOdb/issues/813)
+- mysqli: regression on setConnectionParameter()
+  [#803](https://github.com/ADOdb/ADOdb/issues/803)
+- mysqli: regression on bulk binding
+  [#806](https://github.com/ADOdb/ADOdb/issues/806)
+- mysqli: Affected_Rows() not returning correct value
+  [#820](https://github.com/ADOdb/ADOdb/issues/820)
+- oci8: fix PHP 8.1 array deprecation warning
+  [#817](https://github.com/ADOdb/ADOdb/issues/817)
+- memcache: weighted servers not connecting
+  [#807](https://github.com/ADOdb/ADOdb/issues/807)
+- memcache: $memCacheCompress option ignored by memcached
+  [#823](https://github.com/ADOdb/ADOdb/issues/823)
+- memcache: use default port in server controller template
+  [#824](https://github.com/ADOdb/ADOdb/issues/824)
+- xml PHP Notice in dbData::create()
+  [#822](https://github.com/ADOdb/ADOdb/issues/822)
+
+
+## [5.22.0] - 2022-02-08
 
 ### Added
 
@@ -45,19 +94,23 @@ Older changelogs:
   [#782](https://github.com/ADOdb/ADOdb/issues/782)
 - xml: add field comments
   [#732](https://github.com/ADOdb/ADOdb/issues/732)
-- Code cleanup: PHPDoc, code style, whitespace, PHPStan errors, etc.
-  [#774](https://github.com/ADOdb/ADOdb/issues/774)
 - loadbalancer: support calling a function upon connection
   [#784](https://github.com/ADOdb/ADOdb/issues/784)
+- Code cleanup: PHPDoc, code style, whitespace, PHPStan errors, etc.
+  [#774](https://github.com/ADOdb/ADOdb/issues/774)
 
 ### Deprecated
 
+- Compatibility with PHP < 7.2
+  [#797](https://github.com/ADOdb/ADOdb/issues/797)
 - Database Replication add-on
   [#780](https://github.com/ADOdb/ADOdb/issues/780)
 
 ### Removed
 
-- Transpose() function and assorted sub-functions 
+- Compatibility with PHP 5.x
+  [#797](https://github.com/ADOdb/ADOdb/issues/797)
+- Transpose() function and assorted sub-functions
   [#586](https://github.com/ADOdb/ADOdb/issues/586)
 - "proxy" server and client scripts
   [#680](https://github.com/ADOdb/ADOdb/issues/680)
@@ -98,8 +151,7 @@ Older changelogs:
   [#788](https://github.com/ADOdb/ADOdb/issues/788)
 
 
-## [5.21.4] - 2022-01-22
-## [5.20.21] - 2022-01-22
+## [5.21.4] and [5.20.21] - 2022-01-22
 
 ### Fixed
 
@@ -1228,8 +1280,10 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version, added iterator support for adodb_recordset_empty.
 - Adodb5 version,more error checking code now will use exceptions if available.
 
+[5.23.0]: https://github.com/adodb/adodb/compare/v5.22.1...master
 
-[5.22.0]: https://github.com/adodb/adodb/compare/v5.21.3...master
+[5.22.1]: https://github.com/adodb/adodb/compare/v5.22.0...v5.22.1
+[5.22.0]: https://github.com/adodb/adodb/compare/v5.21.4...v5.22.0
 
 [5.21.4]: https://github.com/adodb/adodb/compare/v5.21.3...v5.21.4
 [5.21.3]: https://github.com/adodb/adodb/compare/v5.21.2...v5.21.3
