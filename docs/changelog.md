@@ -18,9 +18,11 @@ Older changelogs:
 
 ### Fixed
 
-- mysqli: Affected_Rows() not returning correct value
+- mssql: Automatic conversion of false to array is deprecated in PHP 8.1
+  [#829](https://github.com/ADOdb/ADOdb/issues/829)
+- mysql: Affected_Rows() not returning correct value
   [#820](https://github.com/ADOdb/ADOdb/issues/820)
-- mysqli: uncaught ValueError exception calling execute() with an empty array
+- mysql: uncaught ValueError exception calling execute() with an empty array
   [#832](https://github.com/ADOdb/ADOdb/issues/832)
 - pgsql: Affected_Rows() always returns false on PHP 8.1
   [#833](https://github.com/ADOdb/ADOdb/issues/833)
@@ -43,9 +45,9 @@ Older changelogs:
   [#812](https://github.com/ADOdb/ADOdb/issues/812)
 - firebird: undefined array key with uppercase columns
   [#813](https://github.com/ADOdb/ADOdb/issues/813)
-- mysqli: regression on setConnectionParameter()
+- mysql: regression on setConnectionParameter()
   [#803](https://github.com/ADOdb/ADOdb/issues/803)
-- mysqli: regression on bulk binding
+- mysql: regression on bulk binding
   [#806](https://github.com/ADOdb/ADOdb/issues/806)
 - oci8: fix PHP 8.1 array deprecation warning
   [#817](https://github.com/ADOdb/ADOdb/issues/817)
