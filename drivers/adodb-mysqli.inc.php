@@ -1112,7 +1112,7 @@ class ADODB_mysqli extends ADOConnection {
 			}
 		}
 
-		if ($inputarr === false) {
+		if ($inputarr === false || $inputarr === []) {
 			return $this->_execute($sql);
 		}
 
