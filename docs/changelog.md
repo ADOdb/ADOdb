@@ -31,8 +31,13 @@ Older changelogs:
 ## [5.22.2] - Unreleased
 
 ### Fixed
+
 - mysqli: Affected_Rows() not returning correct value
   [#820](https://github.com/ADOdb/ADOdb/issues/820)
+- mysqli: uncaught ValueError exception calling execute() with an empty array
+  [#832](https://github.com/ADOdb/ADOdb/issues/832)
+- pgsql: Affected_Rows() always returns false on PHP 8.1
+  [#833](https://github.com/ADOdb/ADOdb/issues/833)
 
 
 ## [5.22.1] - 2022-03-30
