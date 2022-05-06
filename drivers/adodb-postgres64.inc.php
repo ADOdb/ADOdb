@@ -26,7 +26,7 @@ class ADODB_postgres64 extends ADOConnection{
 	var $databaseType = 'postgres64';
 	var $dataProvider = 'postgres';
 	var $hasInsertID = true;
-	/** @var bool|resource */
+	/** @var PgSql\Connection|resource|false */
 	var $_resultid = false;
 	var $concat_operator='||';
 	var $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
