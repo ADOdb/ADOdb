@@ -136,7 +136,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		$this->mssql_version = $version;
 	}
 
-	function serverI	nfo() {
+	function serverInfo() {
 		$info = sqlsrv_server_info($this->_connectionID);
 		return array(
 			'description' => $info['SQLServerName'] . ' connected to ' . $info['CurrentDatabase'],
