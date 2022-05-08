@@ -164,30 +164,13 @@ def sed_script(version):
     Build sed script to update version information in source files.
     """
     # Version number and release date
-    script = r"s/{0}\s+{1}/v{2}  {3}/".format(
+    script = r"/ADODB_vers/s/{0}(\s+{1})?/v{2}  {3}/".format(
         _version_regex,
         _release_date_regex,
         version,
         get_release_date(version)
     )
     return script
-
-
-def sed_filelist():
-    """
-    Build list of files to update.
-    """
-    dirlist = []
-    for root, dirs, files in os.walk(".", topdown=True):
-        # Filter files by extensions
-        files = [
-            f for f in files
-            if re.search(r'\.php$', f, re.IGNORECASE)
-            ]
-        for fname in files:
-            dirlist.append(path.join(root, fname))
-
-    return dirlist
 
 
 def sed_run(script, files):
@@ -404,7 +387,7 @@ def version_set(version, do_commit=True, do_tag=True):
     update_changelog(version)
 
     print("Updating version and date in source files")
-    sed_run(sed_script(version), " ".join(sed_filelist()))
+    sed_run(sed_script(version), "adodb.inc.php")
     print("Version set to {0}".format(version))
 
     if do_commit:
