@@ -14,6 +14,8 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
+## [5.22.3] - Unreleased
+
 ## [5.22.2] - 2022-05-08
 
 ### Fixed
@@ -1279,6 +1281,7 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
+[5.22.3]: https://github.com/adodb/adodb/compare/v5.22.2...hotfix/5.22
 [5.22.2]: https://github.com/adodb/adodb/compare/v5.22.1...v5.22.2
 [5.22.1]: https://github.com/adodb/adodb/compare/v5.22.0...v5.22.1
 [5.22.0]: https://github.com/adodb/adodb/compare/v5.21.4...v5.22.0
