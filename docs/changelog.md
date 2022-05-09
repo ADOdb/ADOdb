@@ -16,6 +16,10 @@ Older changelogs:
 
 ## [5.22.3] - Unreleased
 
+- mssql: Fix undefined variable when closing connection
+  [#835](https://github.com/ADOdb/ADOdb/issues/835)
+
+
 ## [5.22.2] - 2022-05-08
 
 ### Fixed

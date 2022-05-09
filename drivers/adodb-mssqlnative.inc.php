@@ -667,17 +667,21 @@ class ADODB_mssqlnative extends ADOConnection {
 		return $rez;
 	}
 
-	// returns true or false
+	/**
+	 * Rolls back pending transactions and closes the connection.
+	 *
+	 * @return bool True, unless the connection id is invalid
+	 */
 	function _close()
 	{
 		if ($this->transCnt) {
 			$this->RollbackTrans();
 		}
-		if($this->_connectionID) {
-			$rez = sqlsrv_close($this->_connectionID);
+		if ($this->_connectionID) {
+			return sqlsrv_close($this->_connectionID);
 		}
 		$this->_connectionID = false;
-		return $rez;
+		return true;
 	}
 
 
