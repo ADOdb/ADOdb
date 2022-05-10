@@ -25,7 +25,13 @@ Older changelogs:
 
 ### Removed
 - mysqli: legacy non-functional $optionFlags property
-[#814](https://github.com/ADOdb/ADOdb/issues/814)
+  [#814](https://github.com/ADOdb/ADOdb/issues/814)
+
+
+## [5.22.3] - Unreleased
+
+- mssql: Fix undefined variable when closing connection
+  [#835](https://github.com/ADOdb/ADOdb/issues/835)
 
 
 ## [5.22.2] - 2022-05-08
@@ -1295,6 +1301,7 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 
 [5.23.0]: https://github.com/adodb/adodb/compare/v5.22.2...master
 
+[5.22.3]: https://github.com/adodb/adodb/compare/v5.22.2...hotfix/5.22
 [5.22.2]: https://github.com/adodb/adodb/compare/v5.22.1...v5.22.2
 [5.22.1]: https://github.com/adodb/adodb/compare/v5.22.0...v5.22.1
 [5.22.0]: https://github.com/adodb/adodb/compare/v5.21.4...v5.22.0
