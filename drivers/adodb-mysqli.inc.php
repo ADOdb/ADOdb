@@ -1109,6 +1109,10 @@ class ADODB_mysqli extends ADOConnection {
 		if (!is_array($inputarr)) {
 			$inputarr = array($inputarr);
 		}
+		else {
+			//remove alphanumeric placeholders
+			$inputarr = array_values($inputarr);
+		}
 
 		if (!is_array($sql)) {
 			// Check if we are bulkbinding. If so, $inputarr is a 2d array,
