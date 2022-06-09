@@ -24,6 +24,8 @@ Older changelogs:
   [#838](https://github.com/ADOdb/ADOdb/issues/838)
 - pdo: Fix uncaught TypeError on PHP 8 
   [#840](https://github.com/ADOdb/ADOdb/issues/840)
+- active record: fix changing case of class properties in Native mode
+  [#837](https://github.com/ADOdb/ADOdb/issues/837)
 
 
 ## [5.22.2] - 2022-05-08
