@@ -1377,7 +1377,9 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function ErrorMsg()
 	{
-		if (empty($this->_connectionID))
+		if (is_object($this->_connectionID) && isset ($this->_connectionID->error))
+			$this->_errorMsg = $this->_connectionID->error;
+		else if (empty($this->_connectionID))
 			$this->_errorMsg = @mysqli_connect_error();
 		else
 			$this->_errorMsg = @mysqli_error($this->_connectionID);
