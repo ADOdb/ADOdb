@@ -750,7 +750,7 @@ function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $for
 			else if (isset($rs->fields[strtolower($upperfname)])) $val =  $rs->fields[strtolower($upperfname)];
 			else $val = '';
 
-			if ($forceUpdate || strcmp($val, $arrFields[$upperfname])) {
+			if ($forceUpdate || $val !== $arrFields[$upperfname]) {
 				// Set the counter for the number of fields that will be updated.
 				$fieldUpdatedCount++;
 
