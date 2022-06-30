@@ -58,7 +58,7 @@ function adodb_strip_order_by($sql)
 	return $sql;
 }
 
-function adodb_probetypes(&$array,&$types,$probe=8)
+function adodb_probetypes($array,&$types,$probe=8)
 {
 // probe and guess the type
 	$types = array();
@@ -101,7 +101,7 @@ function adodb_probetypes(&$array,&$types,$probe=8)
 
 }
 
-function  adodb_transpose(&$arr, &$newarr, &$hdr, &$fobjs)
+function  adodb_transpose(&$arr, &$newarr, &$hdr, $fobjs)
 {
 	$oldX = sizeof(reset($arr));
 	$oldY = sizeof($arr);
@@ -129,7 +129,7 @@ function  adodb_transpose(&$arr, &$newarr, &$hdr, &$fobjs)
 }
 
 
-function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_autoinc)
+function _adodb_replace($zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_autoinc)
 {
 	// Add Quote around table name to support use of spaces / reserved keywords
 	$table=sprintf('%s%s%s', $zthis->nameQuote,$table,$zthis->nameQuote);
@@ -203,7 +203,7 @@ function _adodb_replace(&$zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_
 	return ($rs) ? 2 : 0;
 }
 
-function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=false,
+function _adodb_getmenu($zthis, $name,$defstr='',$blank1stItem=true,$multiple=false,
 			$size=0, $selectAttr='',$compareFields0=true)
 {
 	global $ADODB_FETCH_MODE;
@@ -244,7 +244,7 @@ function _adodb_getmenu(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=f
 	return $s ."\n</select>\n";
 }
 
-function _adodb_getmenu_gp(&$zthis, $name,$defstr='',$blank1stItem=true,$multiple=false,
+function _adodb_getmenu_gp($zthis, $name,$defstr='',$blank1stItem=true,$multiple=false,
 			$size=0, $selectAttr='',$compareFields0=true)
 {
 	global $ADODB_FETCH_MODE;
@@ -394,7 +394,7 @@ function _adodb_getmenu_option($defstr, $compare, $value, $display)
 	$cnt = _adodb_getcount($conn, $sql);
 
 */
-function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
+function _adodb_getcount($zthis, $sql,$inputarr=false,$secs2cache=0)
 {
 	$qryRecs = 0;
 
@@ -523,7 +523,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	data will get out of synch. use CachePageExecute() only with tables that
 	rarely change.
 */
-function _adodb_pageexecute_all_rows(&$zthis, $sql, $nrows, $page,
+function _adodb_pageexecute_all_rows($zthis, $sql, $nrows, $page,
 						$inputarr=false, $secs2cache=0)
 {
 	$atfirstpage = false;
@@ -574,7 +574,7 @@ function _adodb_pageexecute_all_rows(&$zthis, $sql, $nrows, $page,
 }
 
 // Iván Oliva version
-function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr=false, $secs2cache=0)
+function _adodb_pageexecute_no_last_page($zthis, $sql, $nrows, $page, $inputarr=false, $secs2cache=0)
 {
 
 	$atfirstpage = false;
@@ -705,7 +705,7 @@ function _adodb_quote_fieldname($zthis, $fieldName)
 	}
 }
 
-function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $force=2)
+function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $force=2)
 {
 	if (!$rs) {
 		printf(ADODB_BAD_RS,'GetUpdateSQL');
@@ -852,7 +852,7 @@ function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $for
 	}
 }
 
-function adodb_key_exists($key, &$arr,$force=2)
+function adodb_key_exists($key, $arr,$force=2)
 {
 	if ($force<=0) {
 		// the following is the old behaviour where null or empty fields are ignored
@@ -872,7 +872,7 @@ function adodb_key_exists($key, &$arr,$force=2)
  *
  *
  */
-function _adodb_getinsertsql(&$zthis, &$rs, $arrFields, $force=2)
+function _adodb_getinsertsql(&$zthis, $rs, $arrFields, $force=2)
 {
 static $cacheRS = false;
 static $cacheSig = 0;
@@ -1152,7 +1152,7 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 
 
 
-function _adodb_debug_execute(&$zthis, $sql, $inputarr)
+function _adodb_debug_execute($zthis, $sql, $inputarr)
 {
 	$ss = '';
 	if ($inputarr) {
