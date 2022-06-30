@@ -1251,7 +1251,7 @@ function _adodb_backtrace($printOrArr=true,$levels=9999,$skippy=0,$ishtml=null)
 		if ($levels < 0) break;
 
 		$args = array();
-		for ($i=0; $i < $tabs; $i++) $s .=  ($html) ? ' &nbsp; ' : "\t";
+		$s .= str_repeat($html ? ' &nbsp; ' : "\t", $tabs);
 		$tabs -= 1;
 		if ($html) $s .= '<font face="Courier New,Courier">';
 		if (isset($arr['class'])) $s .= $arr['class'].'.';
