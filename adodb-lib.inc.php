@@ -58,12 +58,6 @@ function adodb_strip_order_by($sql)
 	return $sql;
 }
 
-if (false) {
-	$sql = 'select * from (select a from b order by a(b),b(c) desc)';
-	$sql = '(select * from abc order by 1)';
-	die(adodb_strip_order_by($sql));
-}
-
 function adodb_probetypes(&$array,&$types,$probe=8)
 {
 // probe and guess the type
@@ -836,7 +830,6 @@ function _adodb_getupdatesql(&$zthis, &$rs, $arrFields, $forceUpdate=false, $for
 		$discard = false;
 		// not a good hack, improvements?
 		if ($whereClause) {
-			#var_dump($whereClause);
 			if (preg_match('/\s(ORDER\s.*)/is', $whereClause[1], $discard));
 			else if (preg_match('/\s(LIMIT\s.*)/is', $whereClause[1], $discard));
 			else if (preg_match('/\s(FOR UPDATE.*)/is', $whereClause[1], $discard));
@@ -1287,45 +1280,3 @@ function _adodb_backtrace($printOrArr=true,$levels=9999,$skippy=0,$ishtml=null)
 
 	return $s;
 }
-/*
-function _adodb_find_from($sql)
-{
-
-	$sql = str_replace(array("\n","\r"), ' ', $sql);
-	$charCount = strlen($sql);
-
-	$inString = false;
-	$quote = '';
-	$parentheseCount = 0;
-	$prevChars = '';
-	$nextChars = '';
-
-
-	for($i = 0; $i < $charCount; $i++) {
-
-    	$char = substr($sql,$i,1);
-	    $prevChars = substr($sql,0,$i);
-    	$nextChars = substr($sql,$i+1);
-
-		if((($char == "'" || $char == '"' || $char == '`') && substr($prevChars,-1,1) != '\\') && $inString === false) {
-			$quote = $char;
-			$inString = true;
-		}
-
-		elseif((($char == "'" || $char == '"' || $char == '`') && substr($prevChars,-1,1) != '\\') && $inString === true && $quote == $char) {
-			$quote = "";
-			$inString = false;
-		}
-
-		elseif($char == "(" && $inString === false)
-			$parentheseCount++;
-
-		elseif($char == ")" && $inString === false && $parentheseCount > 0)
-			$parentheseCount--;
-
-		elseif($parentheseCount <= 0 && $inString === false && $char == " " && strtoupper(substr($prevChars,-5,5)) == " FROM")
-			return $i;
-
-	}
-}
-*/
