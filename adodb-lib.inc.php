@@ -29,7 +29,7 @@ $ADODB_INCLUDED_LIB = 1;
 
 function adodb_strip_order_by($sql)
 {
-	$rez = preg_match_all('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is', $sql, $arr);
+	preg_match_all('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is', $sql, $arr);
 	if ($arr) 
 	{
 		$tmp = array_pop($arr);
@@ -491,7 +491,7 @@ function _adodb_getcount(&$zthis, $sql,$inputarr=false,$secs2cache=0)
 	if (preg_match('/\s*UNION\s*/is', $sql)) {
 		$rewritesql = $sql;
 	} else {
-		$rewritesql = $rewritesql = adodb_strip_order_by($sql);
+		$rewritesql = adodb_strip_order_by($sql);
 	}
 
 	if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) {
@@ -534,13 +534,10 @@ function _adodb_pageexecute_all_rows(&$zthis, $sql, $nrows, $page,
 {
 	$atfirstpage = false;
 	$atlastpage = false;
-	$lastpageno=1;
 
 	// If an invalid nrows is supplied,
 	// we assume a default value of 10 rows per page
 	if (!isset($nrows) || $nrows <= 0) $nrows = 10;
-
-	$qryRecs = false; //count records for no offset
 
 	$qryRecs = _adodb_getcount($zthis,$sql,$inputarr,$secs2cache);
 	$lastpageno = (int) ceil($qryRecs / $nrows);
@@ -623,7 +620,6 @@ function _adodb_pageexecute_no_last_page(&$zthis, $sql, $nrows, $page, $inputarr
 		// page and return it. Revert to original method and loop through pages
 		// until we find some data...
 		$pagecounter = $page + 1;
-		$pagecounteroffset = ($pagecounter * $nrows) - $nrows;
 
 		$rstest = $rsreturn;
 		if ($rstest) {
@@ -892,7 +888,6 @@ static $cacheCols;
 	$tableName = '';
 	$values = '';
 	$fields = '';
-	$recordSet = null;
 	if (is_array($arrFields))
 		$arrFields = array_change_key_case($arrFields,CASE_UPPER);
 	$fieldInsertedCount = 0;
@@ -1048,8 +1043,6 @@ static $cacheCols;
  */
 function _adodb_column_sql_oci8(&$zthis,$action, $type, $fname, $fnameq, $arrFields)
 {
-    $sql = '';
-
     // Based on the datatype of the field
     // Format the value properly for the database
     switch($type) {
