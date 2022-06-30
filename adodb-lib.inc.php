@@ -236,6 +236,7 @@ function _adodb_getmenu($zthis, $name,$defstr='',$blank1stItem=true,$multiple=fa
 			$value = 'value="' . htmlspecialchars($zval2) . '"';
 		}
 
+		/** @noinspection PhpUndefinedVariableInspection */
 		$s .= _adodb_getmenu_option($defstr, $compareFields0 ? $zval : $zval2, $value, $zval);
 
 		$zthis->MoveNext();
@@ -298,6 +299,7 @@ function _adodb_getmenu_gp($zthis, $name,$defstr='',$blank1stItem=true,$multiple
 			$s .="\n<optgroup label='". htmlspecialchars($group) ."'>";
 		}
 
+		/** @noinspection PhpUndefinedVariableInspection */
 		$s .= _adodb_getmenu_option($defstr, $compareFields0 ? $zval : $zval2, $value, $zval);
 
 		$zthis->MoveNext();
@@ -908,6 +910,7 @@ static $cacheCols;
 		if (isset($rs->insertSig) && is_integer($cacheRS) && $cacheRS == $rs->insertSig) {
 			$columns = $cacheCols;
 		} else {
+			$columns = [];
 			for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++)
 				$columns[] = $rs->FetchField($i);
 			$cacheRS = $cacheSig;
