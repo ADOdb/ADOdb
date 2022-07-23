@@ -1377,10 +1377,11 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function ErrorMsg()
 	{
-		if (empty($this->_connectionID))
-			$this->_errorMsg = @mysqli_connect_error();
-		else
-			$this->_errorMsg = @mysqli_error($this->_connectionID);
+		if (empty($this->_connectionID)) {
+			$this->_errorMsg = mysqli_connect_error();
+		} else {
+			$this->_errorMsg = $this->_connectionID->error ?? $this->_connectionID->connect_error;
+		}
 		return $this->_errorMsg;
 	}
 
@@ -1391,10 +1392,12 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function ErrorNo()
 	{
-		if (empty($this->_connectionID))
-			return @mysqli_connect_errno();
-		else
-			return @mysqli_errno($this->_connectionID);
+		if (empty($this->_connectionID)) {
+			$this->_errorCode = mysqli_connect_errno();
+		} else {
+			$this->_errorCode = $this->_connectionID->errno ?? $this->_connectionID->connect_errno;
+		}
+		return $this->_errorCode;
 	}
 
 	/**
