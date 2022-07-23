@@ -32,10 +32,16 @@ Older changelogs:
 
 ### Fixed
 
+- Fix PHP 8.1 deprecated warning in GetUpdateSQL()
+  [#844](https://github.com/ADOdb/ADOdb/issues/844)
+- Fix PHP 8.1 deprecated warning in tohtml.inc.php
+  [#850](https://github.com/ADOdb/ADOdb/issues/850)
 - mssql: Fix undefined variable when closing connection
   [#835](https://github.com/ADOdb/ADOdb/issues/835)
 - mysql: Fix regression with portable bind arrays
   [#838](https://github.com/ADOdb/ADOdb/issues/838)
+- mysql: Fix errorMsg() / errorNo() on MySQL 8
+  [#842](https://github.com/ADOdb/ADOdb/issues/842)
 - pdo: Fix uncaught TypeError on PHP 8 
   [#840](https://github.com/ADOdb/ADOdb/issues/840)
 - active record: fix changing case of class properties in Native mode
