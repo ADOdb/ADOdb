@@ -1377,12 +1377,11 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function ErrorMsg()
 	{
-		if (is_object($this->_connectionID) && isset ($this->_connectionID->error))
-			$this->_errorMsg = $this->_connectionID->error;
-		else if (empty($this->_connectionID))
-			$this->_errorMsg = @mysqli_connect_error();
-		else
-			$this->_errorMsg = @mysqli_error($this->_connectionID);
+		if (empty($this->_connectionID)) {
+			$this->_errorMsg = mysqli_connect_error();
+		} else {
+			$this->_errorMsg = $this->_connectionID->error ?? $this->_connectionID->connect_error;
+		}
 		return $this->_errorMsg;
 	}
 
