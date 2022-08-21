@@ -388,7 +388,7 @@ class ADODB_sqlite extends ADOConnection {
 	 */
 	function month($fld)
 	{
-		$x = "strftime('%m',$fld)";
+		$x = "date('m',$fld)";
 
 		return $x;
 	}
@@ -400,7 +400,7 @@ class ADODB_sqlite extends ADOConnection {
 	 * @return	str				The SQL Statement
 	 */
 	function day($fld) {
-		$x = "strftime('%d',$fld)";
+		$x = "date('d',$fld)";
 		return $x;
 	}
 
@@ -411,7 +411,7 @@ class ADODB_sqlite extends ADOConnection {
 	 * @return	str				The SQL Statement
 	 */
 	function year($fld) {
-		$x = "strftime('%Y',$fld)";
+		$x = "date('Y',$fld)";
 
 		return $x;
 	}

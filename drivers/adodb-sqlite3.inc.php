@@ -564,34 +564,28 @@ class ADODB_sqlite3 extends ADOConnection {
 	/**
 	 * Converts a date to a month only field and pads it to 2 characters
 	 *
-	 * This uses the more efficient strftime native function to process
-	 *
 	 * @param string $fld	The name of the field to process
 	 *
 	 * @return string The SQL Statement
 	 */
 	function month($fld)
 	{
-		return "strftime('%m',$fld)";
+		return "date('m',$fld)";
 	}
 
 	/**
 	 * Converts a date to a day only field and pads it to 2 characters
-	 *
-	 * This uses the more efficient strftime native function to process
 	 *
 	 * @param string $fld	The name of the field to process
 	 *
 	 * @return string The SQL Statement
 	 */
 	function day($fld) {
-		return "strftime('%d',$fld)";
+		return "date('d',$fld)";
 	}
 
 	/**
 	 * Converts a date to a year only field
-	 *
-	 * This uses the more efficient strftime native function to process
 	 *
 	 * @param string $fld	The name of the field to process
 	 *
@@ -599,7 +593,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 */
 	function year($fld)
 	{
-		return "strftime('%Y',$fld)";
+		return "date('%Y',$fld)";
 	}
 
 	/**
