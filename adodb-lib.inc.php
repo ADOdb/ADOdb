@@ -1186,18 +1186,10 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 	$sqlTxt = is_array($sql) ? $sql[0] : $sql;
 	
 	/*
-	* Remove newlines and tabs
+	* Remove newlines and tabs,compress repeating spaces
 	*/
-	$sqlTxt = str_replace(array("\r","\n","\t"),' ',$sqlTxt);
+	$sqlTxt = preg_replace('/\s+/',' ',$sqlTxt);
 	
-	/*
-	* Compress repeating spaces
-	*/
-	$sqlText = preg_replace('/\s+/',' ',$sqlTxt);
-	/*str_replace(', ','##1#__^LF',is_array($sql) ? $sql[0] : $sql);
-	$sqlTxt = str_replace(',',', ',$sqlTxt);
-	$sqlTxt = str_replace('##1#__^LF', ', ' ,$sqlTxt);
-	*/
 	// check if running from browser or command-line
 	$inBrowser = isset($_SERVER['HTTP_USER_AGENT']);
 
@@ -1390,12 +1382,7 @@ function _adodb_backtrace($printOrArr=true,$maximumDepth=9999,$elementsToIgnore=
 				*/
 				$v = substr($v,0,$MAXSTRLEN);
 				/*
-				* Remove newlines and tabs
-				*/
-				$v = str_replace(array("\r","\n","\t"),' ',$v);
-				
-				/*
-				* Compress repeating spaces
+				* Remove newlines and tabs, compress repeating spaces
 				*/
 				$v = preg_replace('/\s+/',' ',$v);
 				
