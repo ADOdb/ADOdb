@@ -1227,7 +1227,7 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 		*/
 		if ($zthis->debug !== -99)
 		{
-			$outString = sprintf("%s\n%s\n    %s \n%s\n",str_repeat('-',78),$myDatabaseType,$sqlTxt,$ss,str_repeat('-',78));
+			$outString = sprintf("%s\n%s\n    %s %s \n%s\n",str_repeat('-',78),$myDatabaseType,$sqlTxt,$ss,str_repeat('-',78));
 			ADOConnection::outp($outString,false);
 		}
 	}
@@ -1268,8 +1268,8 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 				ADOConnection::outp(sprintf($outString, $myDatabaseType,htmlspecialchars($sqlTxt),$ss),false);
 			}
 			else
-			{				
-				$outString = sprintf("%s\n%s\n    %s\n%s\n",str_repeat('-',78),$myDatabaseType,$sqlTxt,$ss,str_repeat('-',78));
+			{
+				$outString = sprintf("%s\n%s\n    %s %s \n%s\n",str_repeat('-',78),$myDatabaseType,$sqlTxt,$ss,str_repeat('-',78));
 				ADOConnection::outp($outString,false);
 			}
 		}
