@@ -1161,128 +1161,97 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 *
 * @return  handle|void		A handle to the executed query
 */
- function _adodb_debug_execute($zthis, $sql, $inputarr)
+function _adodb_debug_execute($zthis, $sql, $inputarr)
 {
+	// Unpack the bind parameters
 	$ss = '';
-	/*
-	* Unpack the bind parameters
-	*/
 	if ($inputarr) {
-		foreach($inputarr as $kk=>$vv) {
-			if (is_string($vv) && strlen($vv)>64) $vv = substr($vv,0,64).'...';
-			if (is_null($vv)) $ss .= "($kk=>null) ";
-			else
-			{
-				if (is_array($vv))
-				{
-					$vv = sprintf("Array Of Values: [%s]", implode(',',$vv));
+		foreach ($inputarr as $kk => $vv) {
+			if (is_string($vv) && strlen($vv) > 64) {
+				$vv = substr($vv, 0, 64) . '...';
+			}
+			if (is_null($vv)) {
+				$ss .= "($kk=>null) ";
+			} else {
+				if (is_array($vv)) {
+					$vv = sprintf("Array Of Values: [%s]", implode(',', $vv));
 				}
 				$ss .= "($kk=>'$vv') ";
 			}
 		}
-
 		$ss = "[ $ss ]";
 	}
+
 	$sqlTxt = is_array($sql) ? $sql[0] : $sql;
-	
-	/*
-	* Remove newlines and tabs,compress repeating spaces
-	*/
-	$sqlTxt = preg_replace('/\s+/',' ',$sqlTxt);
-	
+
+	// Remove newlines and tabs, compress repeating spaces
+	$sqlTxt = preg_replace('/\s+/', ' ', $sqlTxt);
+
 	// check if running from browser or command-line
 	$inBrowser = isset($_SERVER['HTTP_USER_AGENT']);
 
 	$myDatabaseType = $zthis->databaseType;
-	
-	if (isset($zthis->dsnType)) 
-		/*
-		* Append the PDO driver name
-		*/
-		$myDatabaseType .= '-'.$zthis->dsnType;
-		
-	if ($inBrowser) 
-	{
+	if (isset($zthis->dsnType)) {
+		// Append the PDO driver name
+		$myDatabaseType .= '-' . $zthis->dsnType;
+	}
+
+	if ($inBrowser) {
 		if ($ss) {
-			/*
-			* Default formatting for passed parameter 
-			*/
-			$ss = sprintf('<code class="adodb-debug">%s</code>',htmlspecialchars($ss));
+			// Default formatting for passed parameter
+			$ss = sprintf('<code class="adodb-debug">%s</code>', htmlspecialchars($ss));
 		}
-		if ($zthis->debug === -1)
-		{
+		if ($zthis->debug === -1) {
 			$outString = "<br class='adodb-debug'>(%s):  %s &nbsp; %s<br class='adodb-debug'>";
-			ADOConnection::outp(sprintf($outString,$myDatabaseType,htmlspecialchars($sqlTxt),$ss),false);
-		}
-		else if ($zthis->debug !== -99)
-		{
+			ADOConnection::outp(sprintf($outString, $myDatabaseType, htmlspecialchars($sqlTxt), $ss), false);
+		} elseif ($zthis->debug !== -99) {
 			$outString = "<hr class='adodb-debug'>(%s):  %s &nbsp; %s<hr class='adodb-debug'>";
-			ADOConnection::outp(sprintf($outString, $myDatabaseType,htmlspecialchars($sqlTxt),$ss),false);
+			ADOConnection::outp(sprintf($outString, $myDatabaseType, htmlspecialchars($sqlTxt), $ss), false);
 		}
-	} 
-	else 
-	{
-		/*
-		* CLI output
-		*/
-		if ($zthis->debug !== -99)
-		{
-			$outString = sprintf("%s\n%s\n    %s %s \n%s\n",str_repeat('-',78),$myDatabaseType,$sqlTxt,$ss,str_repeat('-',78));
-			ADOConnection::outp($outString,false);
+	} else {
+		// CLI output
+		if ($zthis->debug !== -99) {
+			$outString = sprintf("%s\n%s\n    %s %s \n%s\n", str_repeat('-', 78), $myDatabaseType, $sqlTxt, $ss, str_repeat('-', 78));
+			ADOConnection::outp($outString, false);
 		}
 	}
 
-	
-	/*
-	* Now execute the query
-	*/
+	// Now execute the query
+	$qID = $zthis->_query($sql, $inputarr);
 
-	$qID = $zthis->_query($sql,$inputarr);
-
-	/*
-		Alexios Fakios notes that ErrorMsg() must be called before ErrorNo() for mssql
-		because ErrorNo() calls Execute('SELECT @ERROR'), causing recursion
-	*/
+	// Alexios Fakios notes that ErrorMsg() must be called before ErrorNo() for mssql
+	// because ErrorNo() calls Execute('SELECT @ERROR'), causing recursion
 	if ($zthis->databaseType == 'mssql') {
-	// ErrorNo is a slow function call in mssql, and not reliable in PHP 4.0.6
-
-		if($emsg = $zthis->ErrorMsg()) {
+		// ErrorNo is a slow function call in mssql
+		if ($emsg = $zthis->ErrorMsg()) {
 			if ($err = $zthis->ErrorNo()) {
-				if ($zthis->debug === -99)
-					
-					ADOConnection::outp( "<hr>\n($myDatabaseType): ".htmlspecialchars($sqlTxt)." &nbsp; $ss\n<hr>\n",false);
+				if ($zthis->debug === -99) {
+					ADOConnection::outp("<hr>\n($myDatabaseType): " . htmlspecialchars($sqlTxt) . " &nbsp; $ss\n<hr>\n", false);
+				}
 
-				ADOConnection::outp($err.': '.$emsg);
+				ADOConnection::outp($err . ': ' . $emsg);
 			}
 		}
-	} 
-	else if (!$qID) {
-		/*
-		* Statement execution has failed
-		*/
-		if ($zthis->debug === -99)
-		{
-			if ($inBrowser)
-			{
-				$outString = "<hr class='adodb-debug'>(%s):  %s &nbsp; %s<hr class='adodb-debug'>";
-				ADOConnection::outp(sprintf($outString, $myDatabaseType,htmlspecialchars($sqlTxt),$ss),false);
+	} else {
+		if (!$qID) {
+			// Statement execution has failed
+			if ($zthis->debug === -99) {
+				if ($inBrowser) {
+					$outString = "<hr class='adodb-debug'>(%s):  %s &nbsp; %s<hr class='adodb-debug'>";
+					ADOConnection::outp(sprintf($outString, $myDatabaseType, htmlspecialchars($sqlTxt), $ss), false);
+				} else {
+					$outString = sprintf("%s\n%s\n    %s %s \n%s\n",str_repeat('-',78),$myDatabaseType,$sqlTxt,$ss,str_repeat('-',78));
+					ADOConnection::outp($outString, false);
+				}
 			}
-			else
-			{
-				$outString = sprintf("%s\n%s\n    %s %s \n%s\n",str_repeat('-',78),$myDatabaseType,$sqlTxt,$ss,str_repeat('-',78));
-				ADOConnection::outp($outString,false);
-			}
+
+			// Send last error to output
+			ADOConnection::outp($zthis->ErrorNo() . ': ' . $zthis->ErrorMsg());
 		}
-		
-		/*
-		* Send last error to output
-		*/
-		ADOConnection::outp($zthis->ErrorNo() .': '. $zthis->ErrorMsg());
 	}
 
-	if ($zthis->debug === 99) 
-	{
-		_adodb_backtrace(true,9999,2);
+	if ($zthis->debug === 99) {
+		_adodb_backtrace(true, 9999, 2);
 	}
 	return $qID;
 }
@@ -1297,116 +1266,102 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
  *
  * @return void
  */
-function _adodb_backtrace($printOrArr=true,$maximumDepth=9999,$elementsToIgnore=0,$ishtml=null)
+function _adodb_backtrace($printOrArr=true, $maximumDepth=9999, $elementsToIgnore=0, $ishtml=null)
 {
-	if (!function_exists('debug_backtrace')) 
+	if (!function_exists('debug_backtrace')) {
 		return '';
+	}
 
-	if ($ishtml === null)
-		/*
-		Auto determine if we in a CGI enviroment
-		*/
+	if ($ishtml === null) {
+		// Auto determine if we in a CGI enviroment
 		$html = (isset($_SERVER['HTTP_USER_AGENT']));
-	else 
+	} else {
 		$html = $ishtml;
+	}
 
 	$cgiString = "</font><font color=#808080 size=-1> %% line %4d, file: <a href=\"file:/%s\">%s</a></font>";
-	$cliString =  "%% line %4d, file: %s";
+	$cliString = "%% line %4d, file: %s";
 	$fmt = ($html) ? $cgiString : $cliString;
 
 	$MAXSTRLEN = 128;
 
 	$s = ($html) ? '<pre align=left>' : '';
-	
-	
-	if (is_array($printOrArr)) 
+
+	if (is_array($printOrArr)) {
 		$traceArr = $printOrArr;
-	else 
+	} else {
 		$traceArr = debug_backtrace();
-	
+	}
 
-	/*
-	* Remove first 2 elements that just show calls to  adodb_backtrace
-	*/
+	// Remove first 2 elements that just show calls to adodb_backtrace
 	array_shift($traceArr);
 	array_shift($traceArr);
 
-	/*
-	* We want last element to have no indent
-	*/
+	// We want last element to have no indent
 	$tabs = sizeof($traceArr) - 1;
-	
-	
-	foreach ($traceArr as $arr) 
-	{
-		if ($elementsToIgnore) 
-		{
-			/*
-			* Ignore array element at start of array
-			*/
-			$elementsToIgnore--; 
+
+	foreach ($traceArr as $arr) {
+		if ($elementsToIgnore) {
+			// Ignore array element at start of array
+			$elementsToIgnore--;
 			continue;
 		}
 		$maximumDepth--;
-		if ($maximumDepth < 0) 
+		if ($maximumDepth < 0) {
 			break;
+		}
 
 		$args = array();
-		
-		if ($tabs)
-		{
+
+		if ($tabs) {
 			$s .= str_repeat($html ? ' &nbsp; ' : "\t", $tabs);
-			$tabs --;
+			$tabs--;
 		}
-		if ($html) 
+		if ($html) {
 			$s .= '<font face="Courier New,Courier">';
-		
-		if (isset($arr['class'])) 
-			$s .= $arr['class'].'.';
-		
-		if (isset($arr['args']))
-		foreach($arr['args'] as $v) 
-		{
-			if (is_null($v)) 
-				$args[] = 'null';
-			else if (is_array($v)) 
-				$args[] = 'Array['.sizeof($v).']';
-			else if (is_object($v)) 
-				$args[] = 'Object:'.get_class($v);
-			else if (is_bool($v)) 
-				$args[] = $v ? 'true' : 'false';
-			else {
-				$v = (string) @$v;
-				/*
-				* Truncate
-				*/
-				$v = substr($v,0,$MAXSTRLEN);
-				/*
-				* Remove newlines and tabs, compress repeating spaces
-				*/
-				$v = preg_replace('/\s+/',' ',$v);
-				
-				/*
-				* Convert htmlchars (not sure why we do this in CLI)
-				*/
-				$str = htmlspecialchars($v);
-				
-				if (strlen($v) > $MAXSTRLEN) 
-					$str .= '...';
-				
-				$args[] = $str;
+		}
+
+		if (isset($arr['class'])) {
+			$s .= $arr['class'] . '.';
+		}
+
+		if (isset($arr['args'])) {
+			foreach ($arr['args'] as $v) {
+				if (is_null($v)) {
+					$args[] = 'null';
+				} elseif (is_array($v)) {
+					$args[] = 'Array[' . sizeof($v) . ']';
+				} elseif (is_object($v)) {
+					$args[] = 'Object:' . get_class($v);
+				} elseif (is_bool($v)) {
+					$args[] = $v ? 'true' : 'false';
+				} else {
+					$v = (string)@$v;
+					// Truncate
+					$v = substr($v, 0, $MAXSTRLEN);
+					// Remove newlines and tabs, compress repeating spaces
+					$v = preg_replace('/\s+/', ' ', $v);
+					// Convert htmlchars (not sure why we do this in CLI)
+					$str = htmlspecialchars($v);
+
+					if (strlen($v) > $MAXSTRLEN) {
+						$str .= '...';
+					}
+
+					$args[] = $str;
+				}
 			}
 		}
-		$s .= $arr['function'].'('.implode(', ',$args).')';
-
-		$s .= @sprintf($fmt, $arr['line'],$arr['file'],basename($arr['file']));
-
+		$s .= $arr['function'] . '(' . implode(', ', $args) . ')';
+		$s .= @sprintf($fmt, $arr['line'], $arr['file'], basename($arr['file']));
 		$s .= "\n";
 	}
-	if ($html) 
+	if ($html) {
 		$s .= '</pre>';
-	if ($printOrArr) 
+	}
+	if ($printOrArr) {
 		print $s;
+	}
 
 	return $s;
 }
