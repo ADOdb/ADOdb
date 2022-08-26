@@ -1250,8 +1250,8 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 		}
 	}
 
-	if ($zthis->debug === 99) {
-		_adodb_backtrace(true, 9999, 2);
+	if ($qID === false || $zthis->debug === 99) {
+		_adodb_backtrace();
 	}
 	return $qID;
 }
