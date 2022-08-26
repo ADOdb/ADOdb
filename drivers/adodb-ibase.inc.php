@@ -366,6 +366,13 @@ class ADODB_ibase extends ADOConnection {
 				$ret = $fn($conn, $sql);
 			}
 		}
+
+		// ibase_query() and ibase_execute() return number of affected rows
+		// ADOConnection::_Execute() expects true for INSERT/UPDATE/DELETE
+		if (is_numeric($ret)) {
+			$ret = true;
+		}
+
 		if ($docommit && $ret === true) {
 			ibase_commit($this->_connectionID);
 		}
