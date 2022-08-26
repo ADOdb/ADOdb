@@ -1246,7 +1246,10 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 			}
 
 			// Send last error to output
-			ADOConnection::outp($zthis->ErrorNo() . ': ' . $zthis->ErrorMsg());
+			$errno = $zthis->ErrorNo();
+			if ($errno) {
+				ADOConnection::outp($errno . ': ' . $zthis->ErrorMsg());
+			}
 		}
 	}
 
