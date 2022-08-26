@@ -1104,7 +1104,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 	function _close()
 	{
-		if ($this->_queryID === false) {
+		if ($this->_queryID === false || $this->_queryID == self::DUMMY_QUERY_ID) {
 			return true;
 		}
 		return pg_free_result($this->_queryID);

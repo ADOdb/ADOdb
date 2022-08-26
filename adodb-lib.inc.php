@@ -893,7 +893,7 @@ static $cacheCols;
 		//because we have to call MetaType.
 		//php can't do a $rsclass::MetaType()
 		$rsclass = $zthis->rsPrefix.$zthis->databaseType;
-		$recordSet = new $rsclass(-1,$zthis->fetchMode);
+		$recordSet = new $rsclass(ADORecordSet::DUMMY_QUERY_ID, $zthis->fetchMode);
 		$recordSet->connection = $zthis;
 
 		if (is_string($cacheRS) && $cacheRS == $rs) {

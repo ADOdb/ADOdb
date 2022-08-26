@@ -647,7 +647,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			// e.g. if triggers are involved (see #41)
 			while (sqlsrv_next_result($rez)) {
 				sqlsrv_fetch($rez);
-				$this->lastInsID = sqlsrv_get_field($rez, 0, SQLSRV_PHPTYPE_INT);
+				$this->lastInsID = sqlsrv_get_field($rez, 0);
 			}
 		}
 		return $rez;

@@ -38,12 +38,16 @@ Older changelogs:
   [#850](https://github.com/ADOdb/ADOdb/issues/850)
 - mssql: Fix undefined variable when closing connection
   [#835](https://github.com/ADOdb/ADOdb/issues/835)
+- mssql: insert_id returns false if value is out of range
+  [#853](https://github.com/ADOdb/ADOdb/issues/853)
 - mysql: Fix regression with portable bind arrays
   [#838](https://github.com/ADOdb/ADOdb/issues/838)
 - mysql: Fix errorMsg() / errorNo() on MySQL 8
   [#842](https://github.com/ADOdb/ADOdb/issues/842)
 - pdo: Fix uncaught TypeError on PHP 8 
   [#840](https://github.com/ADOdb/ADOdb/issues/840)
+- pgsql: check for dummy query Id before closing recordset
+  [#848](https://github.com/ADOdb/ADOdb/issues/848)
 - active record: fix changing case of class properties in Native mode
   [#837](https://github.com/ADOdb/ADOdb/issues/837)
 
