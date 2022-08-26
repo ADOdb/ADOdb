@@ -1191,7 +1191,7 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 	$inBrowser = isset($_SERVER['HTTP_USER_AGENT']);
 
 	$myDatabaseType = $zthis->databaseType;
-	if (isset($zthis->dsnType)) {
+	if (!isset($zthis->dsnType)) {
 		// Append the PDO driver name
 		$myDatabaseType .= '-' . $zthis->dsnType;
 	}
