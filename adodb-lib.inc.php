@@ -1153,13 +1153,13 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 
 
 /**
-* Replaces standard _execute when debug is enabled
+* Replaces standard _execute when debug mode is enabled
 *
-* @param	obj				$zthis	An ADOConnection object
-* @param	string			$sql	A string or array of SQL statements
-* @param	string[]|null	$inputarr	An optional array of bind parameters
+* @param ADOConnection   $zthis    An ADOConnection object
+* @param string|string[] $sql      A string or array of SQL statements
+* @param string[]|null   $inputarr An optional array of bind parameters
 *
-* @return  handle|void		A handle to the executed query
+* @return  handle|void A handle to the executed query
 */
 function _adodb_debug_execute($zthis, $sql, $inputarr)
 {
@@ -1257,14 +1257,15 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 }
 
 /**
- * pretty print the debug_backtrace function
+ * Pretty print the debug_backtrace function
  *
- * @param string[]|bool $printOrArr			Whether to print the result directly or return the result
- * @param int			$maximumDepth		The maximum depth of the array to traverse
- * @param int			$elementsToIgnore	The backtrace array indexes to ignore
- * @param null|bool  	$ishtml			  	Are we in a CLI or CGI environment
+ * @param string[]|bool $printOrArr       Whether to print the result directly or return the result
+ * @param int           $maximumDepth     The maximum depth of the array to traverse
+ * @param int           $elementsToIgnore The backtrace array indexes to ignore
+ * @param null|bool     $ishtml           True if we are in a CGI environment, false for CLI,
+ *                                        null to auto detect
  *
- * @return void
+ * @return string Formatted backtrace
  */
 function _adodb_backtrace($printOrArr=true, $maximumDepth=9999, $elementsToIgnore=0, $ishtml=null)
 {
