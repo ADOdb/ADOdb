@@ -1305,6 +1305,7 @@ function _adodb_backtrace($printOrArr=true, $maximumDepth=9999, $elementsToIgnor
 		if ($elementsToIgnore) {
 			// Ignore array element at start of array
 			$elementsToIgnore--;
+			$tabs--;
 			continue;
 		}
 		$maximumDepth--;
