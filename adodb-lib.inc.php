@@ -1151,104 +1151,108 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 * @param string|string[] $sql      A string or array of SQL statements
 * @param string[]|null   $inputarr An optional array of bind parameters
 *
-* @return  handle|void A handle to the executed query
+* @return  mixed A handle to the executed query (actual type is driver-dependent)
 */
 function _adodb_debug_execute($zthis, $sql, $inputarr)
 {
+	// Execute the query, capturing any output
+	ob_start();
+	$queryId = $zthis->_query($sql, $inputarr);
+	$queryOutput = ob_get_clean();
+
+	// Get last error number and message if query execution failed
+	if (!$queryId) {
+		if ($zthis->databaseType == 'mssql') {
+			// Alexios Fakios notes that ErrorMsg() must be called before ErrorNo() for mssql
+			// because ErrorNo() calls Execute('SELECT @ERROR'), causing recursion
+			// ErrorNo is a slow function call in mssql
+			$errMsg = $zthis->ErrorMsg();
+			if ($errMsg && ($errNo = $zthis->ErrorNo())) {
+				$queryOutput .= $errNo . ': ' . $errMsg . "\n";
+			}
+		} else {
+			$errNo = $zthis->ErrorNo();
+			if ($errNo) {
+				$queryOutput .= $errNo . ': ' . $zthis->ErrorMsg() . "\n";
+			}
+		}
+	}
+
+	// Driver name
+	$driverName = $zthis->databaseType;
+	if (!isset($zthis->dsnType)) {
+		// Append the PDO driver name
+		$driverName .= '-' . $zthis->dsnType;
+	}
+
+	// Prepare SQL statement for display (remove newlines and tabs, compress repeating spaces)
+	$sqlText = preg_replace('/\s+/', ' ', is_array($sql) ? $sql[0] : $sql);
+
 	// Unpack the bind parameters
-	$ss = '';
+	$bindParams = '';
 	if ($inputarr) {
+		$MAXSTRLEN = 64;
 		foreach ($inputarr as $kk => $vv) {
-			if (is_string($vv) && strlen($vv) > 64) {
-				$vv = substr($vv, 0, 64) . '...';
+			if (is_string($vv) && strlen($vv) > $MAXSTRLEN) {
+				$vv = substr($vv, 0, $MAXSTRLEN) . '...';
 			}
 			if (is_null($vv)) {
-				$ss .= "($kk=>null) ";
+				$bindParams .= "$kk=>null\n";
 			} else {
 				if (is_array($vv)) {
 					$vv = sprintf("Array Of Values: [%s]", implode(',', $vv));
 				}
-				$ss .= "($kk=>'$vv') ";
+				$bindParams .= "$kk=>'$vv'\n";
 			}
 		}
-		$ss = "[ $ss ]";
 	}
-
-	$sqlTxt = is_array($sql) ? $sql[0] : $sql;
-
-	// Remove newlines and tabs, compress repeating spaces
-	$sqlTxt = preg_replace('/\s+/', ' ', $sqlTxt);
 
 	// check if running from browser or command-line
-	$inBrowser = isset($_SERVER['HTTP_USER_AGENT']);
+	$isHtml = isset($_SERVER['HTTP_USER_AGENT']);
 
-	$myDatabaseType = $zthis->databaseType;
-	if (!isset($zthis->dsnType)) {
-		// Append the PDO driver name
-		$myDatabaseType .= '-' . $zthis->dsnType;
-	}
-
-	if ($inBrowser) {
-		if ($ss) {
-			// Default formatting for passed parameter
-			$ss = sprintf('<code class="adodb-debug">%s</code>', htmlspecialchars($ss));
+	// Output format - sprintf parameters:
+	// %1 = horizontal line, %2 = DB driver, %3 = SQL statement, %4 = Query params
+	if ($isHtml) {
+		$fmtSql = '<div class="adodb-debug">' . PHP_EOL
+			. '<div class="adodb-debug-sql">' . PHP_EOL
+			. '%1$s<table>' . PHP_EOL
+			. '<tr><th>%2$s</th><td><code>%3$s</code></td></tr>' . PHP_EOL
+			. '%4$s</table>%1$s' . PHP_EOL
+			. '</div>' . PHP_EOL;
+		$hr = $zthis->debug === -1 ? '' : '<hr>';
+		$sqlText = htmlspecialchars($sqlText);
+		if ($bindParams) {
+			$bindParams = '<tr><th>Parameters</th><td><code>'
+				. nl2br(htmlspecialchars($bindParams))
+				. '</code></td></tr>' . PHP_EOL;
 		}
-		if ($zthis->debug === -1) {
-			$outString = "<br class='adodb-debug'>(%s):  %s &nbsp; %s<br class='adodb-debug'>";
-			ADOConnection::outp(sprintf($outString, $myDatabaseType, htmlspecialchars($sqlTxt), $ss), false);
-		} elseif ($zthis->debug !== -99) {
-			$outString = "<hr class='adodb-debug'>(%s):  %s &nbsp; %s<hr class='adodb-debug'>";
-			ADOConnection::outp(sprintf($outString, $myDatabaseType, htmlspecialchars($sqlTxt), $ss), false);
+		if ($queryOutput) {
+			$queryOutput = '<div class="adodb-debug-errmsg">' . $queryOutput . '</div>' . PHP_EOL;
 		}
 	} else {
 		// CLI output
-		if ($zthis->debug !== -99) {
-			$outString = sprintf("%s\n%s\n    %s %s \n%s\n", str_repeat('-', 78), $myDatabaseType, $sqlTxt, $ss, str_repeat('-', 78));
-			ADOConnection::outp($outString, false);
+		$fmtSql = '%1$s%2$s: %3$s%4$s%1$s';
+		$hr = $zthis->debug === -1 ? '' : str_repeat('-', 78) . "\n";
+		$sqlText .= "\n";
+	}
+
+	// Always output debug info if statement execution failed
+	if (!$queryId || $zthis->debug !== -99) {
+		printf($fmtSql, $hr, $driverName, $sqlText, $bindParams);
+		if ($queryOutput) {
+			echo $queryOutput . ($isHtml ? '' : "\n");
 		}
 	}
 
-	// Now execute the query
-	$qID = $zthis->_query($sql, $inputarr);
-
-	// Alexios Fakios notes that ErrorMsg() must be called before ErrorNo() for mssql
-	// because ErrorNo() calls Execute('SELECT @ERROR'), causing recursion
-	if ($zthis->databaseType == 'mssql') {
-		// ErrorNo is a slow function call in mssql
-		if ($emsg = $zthis->ErrorMsg()) {
-			if ($err = $zthis->ErrorNo()) {
-				if ($zthis->debug === -99) {
-					ADOConnection::outp("<hr>\n($myDatabaseType): " . htmlspecialchars($sqlTxt) . " &nbsp; $ss\n<hr>\n", false);
-				}
-
-				ADOConnection::outp($err . ': ' . $emsg);
-			}
-		}
-	} else {
-		if (!$qID) {
-			// Statement execution has failed
-			if ($zthis->debug === -99) {
-				if ($inBrowser) {
-					$outString = "<hr class='adodb-debug'>(%s):  %s &nbsp; %s<hr class='adodb-debug'>";
-					ADOConnection::outp(sprintf($outString, $myDatabaseType, htmlspecialchars($sqlTxt), $ss), false);
-				} else {
-					$outString = sprintf("%s\n%s\n    %s %s \n%s\n",str_repeat('-',78),$myDatabaseType,$sqlTxt,$ss,str_repeat('-',78));
-					ADOConnection::outp($outString, false);
-				}
-			}
-
-			// Send last error to output
-			$errno = $zthis->ErrorNo();
-			if ($errno) {
-				ADOConnection::outp($errno . ': ' . $zthis->ErrorMsg());
-			}
-		}
+	// Print backtrace if query failed or forced
+	if ($queryId === false || $zthis->debug === 99) {
+		_adodb_backtrace(true, 0, 0, $isHtml);
+	}
+	if ($isHtml && $zthis->debug !== -99) {
+		echo '</div>' . PHP_EOL;
 	}
 
-	if ($qID === false || $zthis->debug === 99) {
-		_adodb_backtrace();
-	}
-	return $qID;
+	return $queryId;
 }
 
 /**
@@ -1333,10 +1337,13 @@ function _adodb_backtrace($printOrArr=true, $maximumDepth=0, $elementsToIgnore=0
 			}
 		}
 
+		// Shorten ADOdb paths ('/path/to/adodb/XXX' printed as '.../XXX')
+		$file = str_replace(__DIR__, '...', $element['file']);
+
 		$s .= sprintf($fmt,
 			$elements--,
 			$functionName . '(' . implode(', ', $args) . ')',
-			$element['file'],
+			$file,
 			$element['line']
 		);
 	}
