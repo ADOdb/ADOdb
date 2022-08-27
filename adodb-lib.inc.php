@@ -1257,73 +1257,60 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
  * @param string[]|bool $printOrArr       Whether to print the result directly or return the result
  * @param int           $maximumDepth     The maximum depth of the array to traverse
  * @param int           $elementsToIgnore The backtrace array indexes to ignore
- * @param null|bool     $ishtml           True if we are in a CGI environment, false for CLI,
+ * @param null|bool     $isHtml           True if we are in a CGI environment, false for CLI,
  *                                        null to auto detect
  *
  * @return string Formatted backtrace
  */
-function _adodb_backtrace($printOrArr=true, $maximumDepth=9999, $elementsToIgnore=0, $ishtml=null)
+function _adodb_backtrace($printOrArr=true, $maximumDepth=0, $elementsToIgnore=0, $isHtml=null)
 {
-	if (!function_exists('debug_backtrace')) {
-		return '';
+	if ($isHtml === null) {
+		// Auto determine if we in a CGI environment
+		$isHtml = isset($_SERVER['HTTP_USER_AGENT']);
 	}
 
-	if ($ishtml === null) {
-		// Auto determine if we in a CGI enviroment
-		$html = (isset($_SERVER['HTTP_USER_AGENT']));
+	$s = "Call stack (most recent call first):\n";
+	if ($isHtml) {
+		$s = '<div class="adodb-debug-trace">' . PHP_EOL
+			. "<h4>$s</h4>\n"
+			. '<table>' . PHP_EOL
+			. '<thead><tr><th>#</th><th>Function</th><th>Location</th></tr></thead>' . PHP_EOL;
+		$fmt = '<tr><td>%1$d</td><td>%2$s</td><td>%3$s line %4$d</td></tr>' . PHP_EOL;
 	} else {
-		$html = $ishtml;
+		$fmt = '%1$2d. %2$s in %3$s line %4$d' . PHP_EOL;
 	}
 
-	$cgiString = "</font><font color=#808080 size=-1> %% line %4d, file: <a href=\"file:/%s\">%s</a></font>";
-	$cliString = "%% line %4d, file: %s";
-	$fmt = ($html) ? $cgiString : $cliString;
-
+	// Maximum length for string arguments display
 	$MAXSTRLEN = 128;
 
-	$s = ($html) ? '<pre align=left>' : '';
-
+	// Get 2 extra elements if max depth is specified
+	if ($maximumDepth) {
+		$maximumDepth += 2;
+	}
 	if (is_array($printOrArr)) {
-		$traceArr = $printOrArr;
+		$traceArr = array_slice($printOrArr, 0, $maximumDepth);
 	} else {
-		$traceArr = debug_backtrace();
+		$traceArr = debug_backtrace(0, $maximumDepth);
 	}
 
-	// Remove first 2 elements that just show calls to adodb_backtrace
-	array_shift($traceArr);
-	array_shift($traceArr);
+	// Remove elements to ignore, plus the first 2 elements that just show
+	// calls to adodb_backtrace
+	for ($elementsToIgnore += 2; $elementsToIgnore > 0; $elementsToIgnore--) {
+		array_shift($traceArr);
+	}
+	$elements = sizeof($traceArr);
 
-	// We want last element to have no indent
-	$tabs = sizeof($traceArr) - 1;
-
-	foreach ($traceArr as $arr) {
-		if ($elementsToIgnore) {
-			// Ignore array element at start of array
-			$elementsToIgnore--;
-			$tabs--;
-			continue;
-		}
-		$maximumDepth--;
-		if ($maximumDepth < 0) {
-			break;
+	foreach ($traceArr as $element) {
+		// Function name with class prefix
+		$functionName = $element['function'];
+		if (isset($element['class'])) {
+			$functionName = $element['class'] . '::' . $functionName;
 		}
 
+		// Function arguments
 		$args = array();
-
-		if ($tabs) {
-			$s .= str_repeat($html ? ' &nbsp; ' : "\t", $tabs);
-			$tabs--;
-		}
-		if ($html) {
-			$s .= '<font face="Courier New,Courier">';
-		}
-
-		if (isset($arr['class'])) {
-			$s .= $arr['class'] . '.';
-		}
-
-		if (isset($arr['args'])) {
-			foreach ($arr['args'] as $v) {
+		if (isset($element['args'])) {
+			foreach ($element['args'] as $v) {
 				if (is_null($v)) {
 					$args[] = 'null';
 				} elseif (is_array($v)) {
@@ -1333,29 +1320,31 @@ function _adodb_backtrace($printOrArr=true, $maximumDepth=9999, $elementsToIgnor
 				} elseif (is_bool($v)) {
 					$args[] = $v ? 'true' : 'false';
 				} else {
-					$v = (string)@$v;
-					// Truncate
-					$v = substr($v, 0, $MAXSTRLEN);
 					// Remove newlines and tabs, compress repeating spaces
 					$v = preg_replace('/\s+/', ' ', $v);
-					// Convert htmlchars (not sure why we do this in CLI)
-					$str = htmlspecialchars($v);
 
+					// Truncate if needed
 					if (strlen($v) > $MAXSTRLEN) {
-						$str .= '...';
+						$v = substr($v, 0, $MAXSTRLEN) . '...';
 					}
 
-					$args[] = $str;
+					$args[] = $isHtml ? htmlspecialchars($v) : $v;
 				}
 			}
 		}
-		$s .= $arr['function'] . '(' . implode(', ', $args) . ')';
-		$s .= @sprintf($fmt, $arr['line'], $arr['file'], basename($arr['file']));
-		$s .= "\n";
+
+		$s .= sprintf($fmt,
+			$elements--,
+			$functionName . '(' . implode(', ', $args) . ')',
+			$element['file'],
+			$element['line']
+		);
 	}
-	if ($html) {
-		$s .= '</pre>';
+
+	if ($isHtml) {
+		$s .= '</table>' . PHP_EOL . '</div>' . PHP_EOL;
 	}
+
 	if ($printOrArr) {
 		print $s;
 	}
