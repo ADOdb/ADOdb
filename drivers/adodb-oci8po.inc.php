@@ -192,14 +192,14 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	{
 		$fld = new ADOFieldObject;
 		$fieldOffset += 1;
-		$fld->name = OCIcolumnname($this->_queryID, $fieldOffset);
+		$fld->name = oci_field_name($this->_queryID, $fieldOffset);
 		if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
 			$fld->name = strtolower($fld->name);
 		}
-		$fld->type = OCIcolumntype($this->_queryID, $fieldOffset);
-		$fld->max_length = OCIcolumnsize($this->_queryID, $fieldOffset);
+		$fld->type = oci_field_type($this->_queryID, $fieldOffset);
+		$fld->max_length = oci_field_size($this->_queryID, $fieldOffset);
 		if ($fld->type == 'NUMBER') {
-			$sc = OCIColumnScale($this->_queryID, $fieldOffset);
+			$sc = oci_field_scale($this->_queryID, $fieldOffset);
 			if ($sc == 0) {
 				$fld->type = 'INT';
 			}
@@ -231,7 +231,6 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		return false;
 	}
 
-	/* Optimize SelectLimit() by using OCIFetch() instead of OCIFetchInto() */
 	function GetArrayLimit($nrows,$offset=-1)
 	{
 		if ($offset <= 0) {
@@ -239,7 +238,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 			return $arr;
 		}
 		for ($i=1; $i < $offset; $i++)
-			if (!@OCIFetch($this->_queryID)) {
+			if (!@oci_fetch($this->_queryID)) {
 				$arr = array();
 				return $arr;
 			}
