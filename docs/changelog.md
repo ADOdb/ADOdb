@@ -22,6 +22,10 @@ Older changelogs:
   [#844](https://github.com/ADOdb/ADOdb/issues/844)
 - Fix PHP 8.1 deprecated warning in tohtml.inc.php
   [#850](https://github.com/ADOdb/ADOdb/issues/850)
+- Fix str_repeat() error in _adodb_backtrace()
+  [#852](https://github.com/ADOdb/ADOdb/issues/852)
+- firebird/ibase: Fix uncaught TypeError
+  [#858](https://github.com/ADOdb/ADOdb/issues/858)
 - mssql: Fix undefined variable when closing connection
   [#835](https://github.com/ADOdb/ADOdb/issues/835)
 - mssql: insert_id returns false if value is out of range
@@ -30,6 +34,8 @@ Older changelogs:
   [#838](https://github.com/ADOdb/ADOdb/issues/838)
 - mysql: Fix errorMsg() / errorNo() on MySQL 8
   [#842](https://github.com/ADOdb/ADOdb/issues/842)
+- oci8po: Replace deprecated functions aliases
+  [#862](https://github.com/ADOdb/ADOdb/issues/862)
 - pdo: Fix uncaught TypeError on PHP 8 
   [#840](https://github.com/ADOdb/ADOdb/issues/840)
 - pgsql: check for dummy query Id before closing recordset
