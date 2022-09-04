@@ -69,7 +69,8 @@ class ADODB_mysqli extends ADOConnection {
 	
 	protected $quoteStyles = array(
 		array('',''),
-		array("`","`");
+		array("`","`")
+	);
 	
 	var $arrayClass = 'ADORecordSet_array_mysqli';
 	var $multiQuery = false;
