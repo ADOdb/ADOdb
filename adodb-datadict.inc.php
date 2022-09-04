@@ -350,6 +350,17 @@ class ADODB_DataDict {
 		return $this->connection->metaType($t,$len,$fieldobj);
 	}
 
+	/**
+	* A legacy wrapper for the field name quoting system. 
+	* Now calls the standard _adodb_quote_fieldname method and
+	* respects the quote style and casing set there. Ignores
+	* The active record settings for this
+	*
+	* @param string $name	The fieldname
+	* @param bool   $allowBrackets (ignored)
+	*
+	* @return string The processed name
+	*/
 	function nameQuote($name = NULL,$allowBrackets=false)
 	{
 		if (!is_string($name)) {
@@ -362,29 +373,28 @@ class ADODB_DataDict {
 			return $name;
 		}
 
-		$quote = $this->connection->nameQuote;
-
-		// if name is of the form `name`, quote it
-		if ( preg_match('/^`(.+)`$/', $name, $matches) ) {
-			return $quote . $matches[1] . $quote;
-		}
-
-		// if name contains special characters, quote it
-		$regex = ($allowBrackets) ? $this->nameRegexBrackets : $this->nameRegex;
-
-		if ( !preg_match('/^[' . $regex . ']+$/', $name) ) {
-			return $quote . $name . $quote;
-		}
-
-		return $name;
+		return _adodb_quote_fieldname($this->connection,$name);
+		
 	}
 
+	/**
+	* A legacy wrapper for the table name quoting system. 
+	* Now calls the standard _adodb_quote_fieldname method and
+	* respects the quote style and casing set there. Ignores
+	* The active record settings for this
+	*
+	* @param string $name	The table name
+	*
+	* @return string The processed name
+	*/
 	function tableName($name)
 	{
-		if ( $this->schema ) {
-			return $this->nameQuote($this->schema) .'.'. $this->nameQuote($name);
-		}
-		return $this->nameQuote($name);
+		
+		if ($this->schema)
+			$name = sprintf('%s.%s', $this->schema,$name);
+		
+		return _adodb_quote_fieldname($this->connection,$name);
+		
 	}
 
 	// Executes the sql array returned by getTableSQL and getIndexSQL

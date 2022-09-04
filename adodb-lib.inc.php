@@ -132,7 +132,8 @@ function adodb_transpose(&$arr, &$newarr, &$hdr, $fobjs)
 function _adodb_replace($zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_autoinc)
 {
 	// Add Quote around table name to support use of spaces / reserved keywords
-	$table=sprintf('%s%s%s', $zthis->nameQuote,$table,$zthis->nameQuote);
+		
+	$table = _adodb_quote_fieldname($zthis,$table);
 
 	if (count($fieldArray) == 0) return 0;
 
@@ -148,10 +149,12 @@ function _adodb_replace($zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_a
 			$v = $zthis->qstr($v);
 			$fieldArray[$k] = $v;
 		}
-		if (in_array($k,$keyCol)) continue; // skip UPDATE if is key
+		if (in_array($k,$keyCol)) 
+			continue; // skip UPDATE if is key
 
 		// Add Quote around column name to support use of spaces / reserved keywords
-		$uSet .= sprintf(',%s%s%s=%s',$zthis->nameQuote,$k,$zthis->nameQuote,$v);
+		$element = _adodb_quote_fieldname($zthis,$k);
+		$uSet   .= sprintf(',%s=%s',$element, $v);
 	}
 	$uSet = ltrim($uSet, ',');
 
@@ -159,7 +162,8 @@ function _adodb_replace($zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_a
 	$where = '';
 	foreach ($keyCol as $v) {
 		if (isset($fieldArray[$v])) {
-			$where .= sprintf(' and %s%s%s=%s ', $zthis->nameQuote,$v,$zthis->nameQuote,$fieldArray[$v]);
+			$element = _adodb_quote_fieldname($zthis,$v);
+			$where  .= sprintf(' AND %s=%s ', $element,$fieldArray[$v]);
 		}
 	}
 	if ($where) {
@@ -187,16 +191,25 @@ function _adodb_replace($zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_a
 			return 0;
 	}
 
-	$iCols = $iVals = '';
-	foreach($fieldArray as $k => $v) {
-		if ($has_autoinc && in_array($k,$keyCol)) continue; // skip autoinc col
+	$iColArray = $iValArray = array();
+	
+	
+	// Remove autp-increment columns and quote any columns 
+	// either by defined setting or if the column name contains
+	// spaces
+	foreach($fieldArray as $k => $v) 
+	{
+		if ($has_autoinc && in_array($k,$keyCol)) 
+			continue; // skip autoinc col
 
-		// Add Quote around Column Name
-		$iCols .= sprintf(',%s%s%s',$zthis->nameQuote,$k,$zthis->nameQuote);
-		$iVals .= ",$v";
+		// Add Quote around Column Name 
+		$iColArray[] = _adodb_quote_fieldname($zthis,$k);
+		$iValArray[] = $v;
 	}
-	$iCols = ltrim($iCols, ',');
-	$iVals = ltrim($iVals, ',');
+	
+	$iCols = implode(',',$iColArray);
+	$iVals = implode(',',$iValArray);
+	
 
 	$insert = "INSERT INTO $table ($iCols) VALUES ($iVals)";
 	$rs = $zthis->Execute($insert);
@@ -663,9 +676,7 @@ function _adodb_pageexecute_no_last_page($zthis, $sql, $nrows, $page, $inputarr=
 }
 
 /**
- * Performs case conversion and quoting of the given field name.
- *
- * See Global variable $ADODB_QUOTE_FIELDNAMES.
+ * Performs optional case conversion and quoting of the given field name.
  *
  * @param ADOConnection $zthis
  * @param string $fieldName
@@ -674,34 +685,57 @@ function _adodb_pageexecute_no_last_page($zthis, $sql, $nrows, $page, $inputarr=
  */
 function _adodb_quote_fieldname($zthis, $fieldName)
 {
-	global $ADODB_QUOTE_FIELDNAMES;
-
-	// Case conversion - defaults to UPPER
-	$case = is_bool($ADODB_QUOTE_FIELDNAMES) ? 'UPPER' : $ADODB_QUOTE_FIELDNAMES;
-	switch ($case) {
-		case 'LOWER':
-			$fieldName = strtolower($fieldName);
-			break;
-		case 'NATIVE':
-			// Do nothing
-			break;
-		case 'UPPER':
-		case 'BRACKETS':
-		default:
-			$fieldName = strtoupper($fieldName);
-			break;
+	
+	
+	$containsSpecialCharacters = false;
+		
+	//If the field name is already quoted, we need to remove it
+	$quoteStyles = $zthis->getQuoteStyles();
+	
+	$prefix = implode('|',array_filter(array_column($quoteStyles,0)));
+	$suffix = implode('|',array_filter(array_column($quoteStyles,1)));
+	
+	//Is the field already quoted
+	
+	if (preg_match('/^[' . $prefix . '].*[' . $suffix . ']$/' , $fieldName))
+	{
+		// Already quoted, remove it
+		$fieldName = substr($fieldName,1,strlen($fieldName) - 2);
+		
 	}
+	
+	// if name contains anything but this, quote it
+	$fieldRegex = '/^[a-zA-Z0-9_]+$/';
+		
+	if (!preg_match($fieldRegex,$fieldName))
+		// Test also absorbs spaces		
+		$containsSpecialCharacters = true;
+
+		
+	// Field Case conversion - defaults to unchanged
+	
+	switch ($zthis->getElementCase()) {
+	case $zthis::ELEMENTCASE_LOWER: 
+		$fieldName = strtolower($fieldName);
+		break;
+	
+	case $zthis::ELEMENTCASE_UPPER:
+		$fieldName = strtoupper($fieldName);
+		break;
+	default:
+	case $zthis::ELEMENTCASE_DEFAULT:
+		// Do nothing
+	}
+	
+	list ($elementQuotes,$fallbackQuotes) = $zthis->getElementQuotes();
 
 	// Quote field if requested, or necessary (field contains space)
-	if ($ADODB_QUOTE_FIELDNAMES || strpos($fieldName, ' ') !== false ) {
-		if ($ADODB_QUOTE_FIELDNAMES === 'BRACKETS') {
-			return $zthis->leftBracket . $fieldName . $zthis->rightBracket;
-		} else {
-			return $zthis->nameQuote . $fieldName . $zthis->nameQuote;
-		}
-	} else {
-		return $fieldName;
-	}
+	if ($containsSpecialCharacters) {
+		return sprintf('%s%s%s',$fallbackQuotes[0],$fieldName,$fallbackQuotes[1]);
+	} 
+	
+	return sprintf('%s%s%s',$elementQuotes[0],$fieldName,$elementQuotes[1]);
+	
 }
 
 function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $force=2)
@@ -822,6 +856,8 @@ function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $forc
 			preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName);
 			$tableName = $tableName[1];
 		}
+		
+		$tableName = _adodb_quote_fieldname($zthis,$tableName);
 
 		// Get the full where clause excluding the word "WHERE" from the existing query.
 		preg_match('/\sWHERE\s(.*)/is', $rs->sql, $whereClause);
@@ -888,7 +924,6 @@ static $cacheCols;
 		//ok we have a table name
 		//try and get the column info ourself.
 		$tableName = $rs;
-
 		//we need an object for the recordSet
 		//because we have to call MetaType.
 		//php can't do a $rsclass::MetaType()
@@ -1001,12 +1036,15 @@ static $cacheCols;
 
 	// Get the table name from the existing query.
 	if (!$tableName) {
-		if (!empty($rs->tableName)) $tableName = $rs->tableName;
+		if (!empty($rs->tableName)) 
+			$tableName = $rs->tableName;
 		else if (preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName))
 			$tableName = $tableName[1];
 		else
 			return false;
 	}
+	
+	$tableName = _adodb_quote_fieldname($zthis,$tableName);
 
 	// Strip off the comma and space on the end of both the fields
 	// and their values.
