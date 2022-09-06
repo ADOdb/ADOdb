@@ -631,13 +631,6 @@ class ADODB_mssqlnative extends ADOConnection {
 			$rez = sqlsrv_query($this->_connectionID, $sql);
 		}
 
-		if ($this->debug) {
-			ADOConnection::outp("<hr>running query: " . var_export($sql, true)
-				. "<hr>input array: " . var_export($inputarr, true)
-				. "<hr>result: " . var_export($rez, true)
-			);
-		}
-
 		$this->lastInsID = false;
 		if (!$rez) {
 			$rez = false;
