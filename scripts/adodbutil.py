@@ -38,7 +38,7 @@ class Environment:
     github_repo = 'ADOdb/ADOdb'
 
     gitter_token = None
-    gitter_room = None
+    gitter_room = 'ADOdb/ADOdb'
 
     twitter_account = 'ADOdb_announce'
     twitter_api_key = None
@@ -87,6 +87,8 @@ class Gitter:
         }
 
         # Initialize Room Id
+        if not room_name:
+            raise Exception("Gitter Room Name not defined")
         r = requests.get(self.url('rooms'),
                          headers=self._headers,
                          params={'q': room_name})
