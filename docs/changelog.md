@@ -19,6 +19,7 @@ Older changelogs:
 ### Fixed
 
 - alterColumnSql() and changeTableSQL() produce different SQL
+  [#124](https://github.com/ADOdb/ADOdb/issues/124)
   [#383](https://github.com/ADOdb/ADOdb/issues/383)
   [#865](https://github.com/ADOdb/ADOdb/issues/865)
 - Fix PHP 8.1 deprecated warning in GetUpdateSQL()
