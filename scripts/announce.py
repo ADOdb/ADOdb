@@ -213,7 +213,7 @@ def main():
     if post_everywhere or args.github_only:
         message = post_github(version,
                               message,
-                              f"See [Changelog]({changelog_url})")
+                              f"See [Changelog]({changelog_url}) for details")
     if args.github_only:
         return
 
