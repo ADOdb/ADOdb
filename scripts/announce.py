@@ -24,6 +24,7 @@ See the LICENSE.md file distributed with this source code for details.
 """
 
 import argparse
+from datetime import date
 import json
 import re
 from pathlib import Path
@@ -31,7 +32,7 @@ from pathlib import Path
 import tweepy  # https://www.tweepy.org/
 from git import Repo  # https://gitpython.readthedocs.io
 # https://github.com/PyGithub/PyGithub
-from github import Github, GithubException
+from github import Github, GithubException, Milestone
 
 from adodbutil import env, Gitter
 
@@ -73,6 +74,36 @@ def process_command_line():
                       help="Only post the announcement to GitHub")
 
     return parser.parse_args()
+
+
+def github_close_milestone(repo, version):
+    print(f"Closing Milestone '{version}'")
+
+    # Search Milestone for version
+    milestone_found = False
+    milestone: Milestone.Milestone
+    for milestone in repo.get_milestones():
+        if milestone.title == version:
+            milestone_found = True
+            break
+
+    # Milestone not found, check if already closed
+    if not milestone_found:
+        # Process closed Milestones in reverse order of due_on, to minimize
+        # number of iterations
+        for milestone in repo.get_milestones(state='closed',
+                                             sort='due_on',
+                                             direction='desc'):
+            if milestone.title == version:
+                print(f"Already closed {milestone.raw_data['html_url']}")
+                return
+        raise Exception(f"Milestone '{version}' not found")
+
+    # Close the milestone
+    # noinspection PyUnboundLocalVariable
+    milestone.edit(title=milestone.title,
+                   state='closed',
+                   due_on=date.today())
 
 
 def post_github(version, message, changelog_link):
@@ -124,6 +155,13 @@ def post_github(version, message, changelog_link):
         print("Release created successfully", rel.html_url)
 
     print()
+
+    # Closing the Milestone
+    try:
+        github_close_milestone(repo, version)
+    except Exception as e:
+        print(str(e))
+        exit(1)
 
     # Return message to be used for remaining announcements
     return message
