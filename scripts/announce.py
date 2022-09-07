@@ -214,6 +214,8 @@ def main():
         message = post_github(version,
                               message,
                               f"See [Changelog]({changelog_url})")
+    if args.github_only:
+        return
 
     # Build announcement message
     msg_announce = "ADOdb Version {0} released\n{1}{2}".format(
@@ -229,8 +231,6 @@ def main():
     print("-" * 27)
     print(msg_announce)
     print("-" * 27)
-    if args.github_only:
-        return
     if not args.batch:
         reply = input("Proceed with posting ? ")
         if not reply.casefold() == 'y':
