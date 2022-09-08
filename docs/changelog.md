@@ -18,6 +18,10 @@ Older changelogs:
 
 ### Fixed
 
+- adodb_strip_order_by() throws deprecated warnings on PHP 8.1 
+  [#869](https://github.com/ADOdb/ADOdb/issues/869)
+- adodb_strip_order_by() shouldn't strip clause from subqueries 
+  [#870](https://github.com/ADOdb/ADOdb/issues/870)
 - mysqli: Fix mysqli_result could not be converted to int
   [#867](https://github.com/ADOdb/ADOdb/issues/867)
 
