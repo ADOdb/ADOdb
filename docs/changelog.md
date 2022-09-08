@@ -16,6 +16,12 @@ Older changelogs:
 
 ## [5.22.4] - Unreleased
 
+### Fixed
+
+- mysqli: Fix mysqli_result could not be converted to int
+  [#867](https://github.com/ADOdb/ADOdb/issues/867)
+
+
 ## [5.22.3] - 2022-09-06
 
 ### Fixed
