@@ -36,12 +36,16 @@ $ADODB_INCLUDED_LIB = 1;
  */
 function adodb_strip_order_by($sql)
 {
-	$num = preg_match_all('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is', $sql, $matches);
+	$num = preg_match_all('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is', $sql, $matches, PREG_OFFSET_CAPTURE);
 	if ($num) {
 		// Get the last match
-		$last_order_by = array_pop($matches[1]);
+		list($last_order_by, $offset) = array_pop($matches[1]);
 
-		$sql = str_replace($last_order_by, '', $sql);
+		// If we find a ')' after the last order by, then it belongs to a
+		// sub-query, not the outer SQL statement and should not be stripped
+		if (strpos($sql, ')', $offset) === false) {
+			$sql = str_replace($last_order_by, '', $sql);
+		}
 	}
 	return $sql;
 }
