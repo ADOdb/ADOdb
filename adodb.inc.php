@@ -3980,9 +3980,7 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 	function __destruct() {
-		if($this->_queryID != -1) {
-			$this->Close();
-		}
+		$this->Close();
 	}
 
 	#[\ReturnTypeWillChange]

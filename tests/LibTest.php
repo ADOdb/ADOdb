@@ -40,6 +40,51 @@ class LibTest extends TestCase
 	}
 
 	/**
+	 * Test for {@see adodb_strip_order_by()}
+	 *
+	 * @dataProvider providerStripOrderBy
+	 */
+	public function testStripOrderBy($sql, $stripped): void
+	{
+		$this->assertSame($stripped, adodb_strip_order_by($sql));
+	}
+
+	/**
+	 * Data provider for {@see testStripOrderBy()}
+	 *
+	 * @return array [SQL statement, SQL with ORDER BY clause stripped]
+	 */
+	public function providerStripOrderBy(): array
+	{
+		return [
+			'No order by clause' => [
+				"SELECT name FROM table",
+				"SELECT name FROM table"
+			],
+			'Simple order by clause' => [
+				"SELECT name FROM table ORDER BY name",
+				"SELECT name FROM table"
+			],
+			'Order by clause descending' => [
+				"SELECT name FROM table ORDER BY name DESC",
+				"SELECT name FROM table"
+			],
+			'Order by clause with limit' => [
+				"SELECT name FROM table ORDER BY name LIMIT 5",
+				"SELECT name FROM table LIMIT 5"
+			],
+			'Ordered Subquery with outer order by' => [
+				"SELECT * FROM table WHERE name IN (SELECT TOP 5 name FROM table_b ORDER by name) ORDER BY name DESC",
+				"SELECT * FROM table WHERE name IN (SELECT TOP 5 name FROM table_b ORDER by name)"
+			],
+			'Ordered Subquery without outer order by' => [
+				"SELECT * FROM table WHERE name IN (SELECT TOP 5 name FROM table_b ORDER by name)",
+				"SELECT * FROM table WHERE name IN (SELECT TOP 5 name FROM table_b ORDER by name)"
+			],
+		];
+	}
+
+	/**
 	 * Test for {@see _adodb_quote_fieldname()}
 	 *
 	 * @dataProvider quoteProvider

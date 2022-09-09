@@ -28,11 +28,24 @@ Older changelogs:
   [#814](https://github.com/ADOdb/ADOdb/issues/814)
 
 
+## [5.22.4] - Unreleased
+
+### Fixed
+
+- adodb_strip_order_by() throws deprecated warnings on PHP 8.1 
+  [#869](https://github.com/ADOdb/ADOdb/issues/869)
+- adodb_strip_order_by() shouldn't strip clause from subqueries 
+  [#870](https://github.com/ADOdb/ADOdb/issues/870)
+- mysqli: Fix mysqli_result could not be converted to int
+  [#867](https://github.com/ADOdb/ADOdb/issues/867)
+
+
 ## [5.22.3] - 2022-09-06
 
 ### Fixed
 
 - alterColumnSql() and changeTableSQL() produce different SQL
+  [#124](https://github.com/ADOdb/ADOdb/issues/124)
   [#383](https://github.com/ADOdb/ADOdb/issues/383)
   [#865](https://github.com/ADOdb/ADOdb/issues/865)
 - Fix PHP 8.1 deprecated warning in GetUpdateSQL()
@@ -1328,6 +1341,7 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 
 [5.23.0]: https://github.com/adodb/adodb/compare/v5.22.3...master
 
+[5.22.4]: https://github.com/adodb/adodb/compare/v5.22.3...v5.22.4
 [5.22.3]: https://github.com/adodb/adodb/compare/v5.22.2...v5.22.3
 [5.22.2]: https://github.com/adodb/adodb/compare/v5.22.1...v5.22.2
 [5.22.1]: https://github.com/adodb/adodb/compare/v5.22.0...v5.22.1

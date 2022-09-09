@@ -16,3 +16,7 @@
 phpdoc.xml
 docs/api
 docs/cache
+
+# PHPUnit
+/.phpunit.cache
+.phpunit.result.cache

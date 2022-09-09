@@ -27,34 +27,26 @@ if (!defined('ADODB_DIR')) die();
 global $ADODB_INCLUDED_LIB;
 $ADODB_INCLUDED_LIB = 1;
 
+/**
+ * Strip the ORDER BY clause from the outer SELECT.
+ *
+ * @param string $sql
+ *
+ * @return string
+ */
 function adodb_strip_order_by($sql)
 {
-	preg_match_all('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is', $sql, $arr);
-	if ($arr)
-	{
-		$tmp = array_pop($arr);
-		$arr = [1=>array_pop($tmp)];
-	}
-	if ($arr)
-		if (strpos($arr[1], '(') !== false) {
-			$at = strpos($sql, $arr[1]);
-			$cntin = 0;
-			for ($i=$at, $max=strlen($sql); $i < $max; $i++) {
-				$ch = $sql[$i];
-				if ($ch == '(') {
-					$cntin += 1;
-				} elseif($ch == ')') {
-					$cntin -= 1;
-					if ($cntin < 0) {
-						break;
-					}
-				}
-			}
-			$sql = substr($sql,0,$at).substr($sql,$i);
-		} else {
-			$sql = str_replace($arr[1], '', $sql);
-		}
+	$num = preg_match_all('/(\sORDER\s+BY\s(?:[^)](?!LIMIT))*)/is', $sql, $matches, PREG_OFFSET_CAPTURE);
+	if ($num) {
+		// Get the last match
+		list($last_order_by, $offset) = array_pop($matches[1]);
 
+		// If we find a ')' after the last order by, then it belongs to a
+		// sub-query, not the outer SQL statement and should not be stripped
+		if (strpos($sql, ')', $offset) === false) {
+			$sql = str_replace($last_order_by, '', $sql);
+		}
+	}
 	return $sql;
 }
 
