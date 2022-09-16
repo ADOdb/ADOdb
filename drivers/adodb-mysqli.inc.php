@@ -1198,79 +1198,64 @@ class ADODB_mysqli extends ADOConnection {
 		//	if (!mysqli_next_result($this->connection->_connectionID))	return false;
 
 		if (is_array($sql)) {
-
 			// Prepare() not supported because mysqli_stmt_execute does not return a recordset, but
 			// returns as bound variables.
 
 			$stmt = $sql[1];
 			$a = '';
-			foreach($inputarr as $v) {
-				if (is_string($v)) $a .= 's';
-				else if (is_integer($v)) $a .= 'i';
-				else $a .= 'd';
+			foreach ($inputarr as $v) {
+				if (is_string($v)) {
+					$a .= 's';
+				} else {
+					if (is_integer($v)) {
+						$a .= 'i';
+					} else {
+						$a .= 'd';
+					}
+				}
 			}
 
-			/*
-			 * set prepared statement flags
-			 */
-			if ($this->usePreparedStatement)
+			// set prepared statement flags
+			if ($this->usePreparedStatement) {
 				$this->useLastInsertStatement = true;
+			}
 
-			$fnarr = array_merge( array($stmt,$a) , $inputarr);
-			call_user_func_array('mysqli_stmt_bind_param',$fnarr);
+			$fnarr = array_merge(array($stmt, $a), $inputarr);
+			call_user_func_array('mysqli_stmt_bind_param', $fnarr);
 			return mysqli_stmt_execute($stmt);
-		}
-		else if (is_string($sql) && is_array($inputarr))
-		{
-
-			/*
-			* This is support for true prepared queries
-			* with bound parameters
-			*
-			* set prepared statement flags
-			*/
+		} elseif (is_string($sql) && is_array($inputarr)) {
+			// This is support for true prepared queries with bound parameters
+			// set prepared statement flags
 			$this->usePreparedStatement = true;
 			$this->usingBoundVariables = true;
 
 			$bulkBindArray = array();
-			if (is_array($inputarr[0]))
-			{
+			if (is_array($inputarr[0])) {
 				$bulkBindArray = $inputarr;
 				$inputArrayCount = count($inputarr[0]) - 1;
-			}
-			else
-			{
+			} else {
 				$bulkBindArray[] = $inputarr;
 				$inputArrayCount = count($inputarr) - 1;
 			}
 
-
-			/*
-			* Prepare the statement with the placeholders,
-			* prepare will fail if the statement is invalid
-			* so we trap and error if necessary. Note that we
-			* are calling MySQL prepare here, not ADOdb
-			*/
+			// Prepare the statement with the placeholders
+			// prepare will fail if the statement is invalid, so we trap and error if necessary.
+			// Note that we are calling MySQL prepare here, not ADOdb
 			$stmt = $this->_connectionID->prepare($sql);
-			if ($stmt === false)
-			{
+			if ($stmt === false) {
 				$this->outp_throw(
 					"SQL Statement failed on preparation: " . htmlspecialchars($sql) . "'",
 					'Execute'
 				);
 				return false;
 			}
-			/*
-			* Make sure the number of parameters provided in the input
-			* array matches what the query expects. We must discount
-			* the first parameter which contains the data types in
-			* our inbound parameters
-			*/
+
+			// Make sure the number of parameters provided in the input array
+			// matches what the query expects. We must discount the first
+			// parameter which contains the data types in our inbound parameters
 			$nparams = $stmt->param_count;
 
-			if ($nparams  != $inputArrayCount)
-			{
-
+			if ($nparams != $inputArrayCount) {
 				$this->outp_throw(
 					"Input array has " . $inputArrayCount .
 					" params, does not match query: '" . htmlspecialchars($sql) . "'",
@@ -1279,37 +1264,28 @@ class ADODB_mysqli extends ADOConnection {
 				return false;
 			}
 
-			foreach ($bulkBindArray as $inputarr)
-			{
-				/*
-				* Must pass references into call_user_func_array
-				*/
+			foreach ($bulkBindArray as $inputarr) {
+				// Must pass references into call_user_func_array
 				$paramsByReference = array();
-				foreach($inputarr as $key => $value) {
+				foreach ($inputarr as $key => $value) {
 					/** @noinspection PhpArrayAccessCanBeReplacedWithForeachValueInspection */
 					$paramsByReference[$key] = &$inputarr[$key];
 				}
 
-				/*
-				* Bind the params
-				*/
+				// Bind the params
 				call_user_func_array(array($stmt, 'bind_param'), $paramsByReference);
 
-				/*
-				* Execute
-				*/
-
+				// Execute
 				$ret = mysqli_stmt_execute($stmt);
 
 				// Store error code and message
 				$this->_errorCode = $stmt->errno;
 				$this->_errorMsg = $stmt->error;
 
-				/*
-				* Did we throw an error?
-				*/
-				if ($ret == false)
+				// Did we throw an error?
+				if (!$ret) {
 					return false;
+				}
 			}
 
 			// Tells affected_rows to be compliant
@@ -1321,14 +1297,9 @@ class ADODB_mysqli extends ADOConnection {
 
 			// Turn the statement into a result set and return it
 			return $stmt->get_result();
-		}
-		else
-		{
-			/*
-			* reset prepared statement flags, in case we set them
-			* previously and didn't use them
-			*/
-			$this->usePreparedStatement   = false;
+		} else {
+			// Reset prepared statement flags, in case we set them previously and didn't use them
+			$this->usePreparedStatement = false;
 			$this->useLastInsertStatement = false;
 
 			// Reset error code and message
@@ -1346,9 +1317,11 @@ class ADODB_mysqli extends ADOConnection {
 		*/
 
 		if ($this->multiQuery) {
-			$rs = mysqli_multi_query($this->_connectionID, $sql.';');
+			$rs = mysqli_multi_query($this->_connectionID, $sql . ';');
 			if ($rs) {
-				$rs = ($ADODB_COUNTRECS) ? @mysqli_store_result( $this->_connectionID ) : @mysqli_use_result( $this->_connectionID );
+				$rs = ($ADODB_COUNTRECS)
+					? @mysqli_store_result($this->_connectionID)
+					: @mysqli_use_result($this->_connectionID);
 				return $rs ?: true; // mysqli_more_results( $this->_connectionID )
 			}
 		} else {
@@ -1359,11 +1332,10 @@ class ADODB_mysqli extends ADOConnection {
 			}
 		}
 
-		if($this->debug)
+		if ($this->debug) {
 			ADOConnection::outp("Query: " . $sql . " failed. " . $this->errorMsg());
-
+		}
 		return false;
-
 	}
 
 	/**
