@@ -787,6 +787,15 @@ if (!defined('_ADODB_LAYER')) {
 			$fn($msg,$newline);
 			return;
 		} else if (isset($ADODB_OUTP)) {
+			if (is_object($ADODB_OUTP) && isset($ADODB_OUTP->outpMethod))
+			{
+				$myArgs = func_get_args();
+				if (!isset($myArgs[2]))
+					$myArgs[2] = 100; //LOG_DEBUG
+				$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
+				call_user_func($outpObject,$msg,$newline,$myArgs[2]);
+				return;
+			}
 			call_user_func($ADODB_OUTP,$msg,$newline);
 			return;
 		}
@@ -807,6 +816,7 @@ if (!defined('_ADODB_LAYER')) {
 		}
 
 	}
+
 
 	/**
 	 * Return the database server's current date and time.
