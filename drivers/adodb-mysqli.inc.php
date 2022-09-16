@@ -201,7 +201,6 @@ class ADODB_mysqli extends ADOConnection {
 			$this->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
 		}
 
-		#if (!empty($this->port)) $argHostname .= ":".$this->port;
 		/** @noinspection PhpCastIsUnnecessaryInspection */
 		$ok = @mysqli_real_connect($this->_connectionID,
 					$argHostname,
@@ -737,8 +736,6 @@ class ADODB_mysqli extends ADOConnection {
 
 		$fraction = $dayFraction * 24 * 3600;
 		return $date . ' + INTERVAL ' .	 $fraction.' SECOND';
-
-//		return "from_unixtime(unix_timestamp($date)+$fraction)";
 	}
 
 	/**
@@ -1005,7 +1002,6 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function SelectDB($dbName)
 	{
-//		$this->_connectionID = $this->mysqli_resolve_link($this->_connectionID);
 		$this->database = $dbName;
 		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 
@@ -1190,12 +1186,6 @@ class ADODB_mysqli extends ADOConnection {
 	function _query($sql, $inputarr)
 	{
 		global $ADODB_COUNTRECS;
-		// Move to the next recordset, or return false if there is none. In a stored proc
-		// call, mysqli_next_result returns true for the last "recordset", but mysqli_store_result
-		// returns false. I think this is because the last "recordset" is actually just the
-		// return value of the stored proc (ie the number of rows affected).
-		// Commented out for reasons of performance. You should retrieve every recordset yourself.
-		//	if (!mysqli_next_result($this->connection->_connectionID))	return false;
 
 		if (is_array($sql)) {
 			// Prepare() not supported because mysqli_stmt_execute does not return a recordset, but
@@ -1306,15 +1296,6 @@ class ADODB_mysqli extends ADOConnection {
 			$this->_errorCode = 0;
 			$this->_errorMsg = '';
 		}
-
-		/*
-		if (!$mysql_res =  mysqli_query($this->_connectionID, $sql, ($ADODB_COUNTRECS) ? MYSQLI_STORE_RESULT : MYSQLI_USE_RESULT)) {
-			if ($this->debug) ADOConnection::outp("Query: " . $sql . " failed. " . $this->errorMsg());
-			return false;
-		}
-
-		return $mysql_res;
-		*/
 
 		if ($this->multiQuery) {
 			$rs = mysqli_multi_query($this->_connectionID, $sql . ';');
