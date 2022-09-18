@@ -5867,16 +5867,31 @@ class ADORecordSet implements IteratorAggregate {
 		}
 	}
 
-	/**
-	 * Perform a stack-crawl and pretty print it.
-	 *
-	 * @param bool  $printOrArr Pass in a boolean to indicate print, or an $exception->trace array (assumes that print is true then).
-	 * @param int   $levels     Number of levels to display
-	 * @param mixed $ishtml
-	 *
-	 * @return string
-	 */
-	function adodb_backtrace($printOrArr=true,$levels=9999,$ishtml=null) {
+	/** 
+	*	Perform a stack-crawl and pretty print it.
+	*
+	*	@param mixed $printOrArr  	Pass in a boolean to indicate print, 
+	*								or an $exception->trace array
+	*	@param int	 $levels 		Number of levels to display
+	*   @param mixed $ishtml 
+	*/
+	function adodb_backtrace($printOrArr=true,$levels=9999,$ishtml=null)
+	{
+		
+		global $ADODB_OUTP;
+		/*
+		* This is how we link in the ADOdb\addins\logger logging class
+		*/
+		if( is_object($ADODB_OUTP) && isset($ADODB_OUTP->backtraceMethod))
+		{
+			$btObject = array($ADODB_OUTP,$ADODB_OUTP->backtraceMethod);
+			/*
+			* Ishtml is ignored by the logger class.
+			*/
+			call_user_func($btObject,$printOrArr,$levels,$ishtml);
+			return;
+		}
+		
 		global $ADODB_INCLUDED_LIB;
 		if (empty($ADODB_INCLUDED_LIB)) {
 			include_once(ADODB_DIR.'/adodb-lib.inc.php');
