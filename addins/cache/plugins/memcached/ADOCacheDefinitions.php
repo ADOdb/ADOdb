@@ -32,7 +32,7 @@ final class ADOCacheDefinitions extends \ADOdb\addins\cache\ADOCacheDefinitions
 	/*
 	* build a list of as many controllers as needed
 	*/
-	public array $memCacheControllers = array();
+	public array $memcacheControllers = array();
 	
 	/*
 	* Use the servers option for memcached, can specify

@@ -33,7 +33,7 @@ final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
 		* Sets the custom items from this plugins\memcache
 		*/
 		
-		$this->memCacheControllers = $cacheDefinitions->memCacheControllers;
+		$this->memcacheControllers = $cacheDefinitions->memcacheControllers;
 		$this->controllerItems  	= $cacheDefinitions->memcacheControllerItems;
 		
 		$this->memCacheOptions     = $cacheDefinitions->memCacheOptions;
@@ -59,7 +59,7 @@ final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
 		
 		$this->writeLoggingPair(
 			$memcache,
-			'Loaded the Memcached Libary',
+			'Loaded the Memcached Library',
 			'The Memcached PHP extension was not found or is disabled'
 			);	
 		

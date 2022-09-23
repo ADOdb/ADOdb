@@ -1,6 +1,7 @@
 <?php
 /**
 * Methods associated with caching recordsets using the memcache server
+* This version is the only one that supports Windows
 *
 * This file is part of the ADOdb package.
 *
@@ -78,7 +79,7 @@ final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
 			
 			if ($this->debug)
 			{
-				$message = 'MEMCACHE: Loaded the MemCache Libary';
+				$message = 'MEMCACHE: Loaded the MemCache Library';
 				$this->loggingObject->log($this->loggingObject::DEBUG,$message);
 			}
 		

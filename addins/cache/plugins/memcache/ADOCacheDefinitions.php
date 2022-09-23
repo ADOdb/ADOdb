@@ -1,6 +1,7 @@
 <?php
 /**
 * Definitions Passed to the ADOCaching Module for the memcache module
+* This version is the only one that supports Windows
 *
 * This file is part of the ADOdb package.
 *
@@ -42,7 +43,7 @@ final class ADOCacheDefinitions extends \ADOdb\addins\cache\ADOCacheDefinitions
 	/*
 	* build a list of as many controllers as needed
 	*/
-	public array $memCacheControllers = array();
+	public array $memcacheControllers = array();
 	
 	/*
 	* Use the servers option for memcached, can specify
