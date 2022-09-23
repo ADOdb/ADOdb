@@ -20,7 +20,7 @@ final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
 	*/
 	public string $service = 'wincache';
 	
-	public string $serviceName = 'WinCache';
+	public string $serviceName = 'WINCACHE';
 	
 	/**
 	* Constructor
@@ -64,7 +64,7 @@ final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
 				
 		$this->writeLoggingPair(
 				$success,
-				'Loaded the WinCache Libary',
+				'Loaded the WinCache Library',
 				'The Wincache PHP extension was not found or is disabled'
 				);
 					

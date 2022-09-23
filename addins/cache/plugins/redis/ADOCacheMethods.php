@@ -58,7 +58,7 @@ final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
 		
 		$this->writeLoggingPair(
 			$library,
-			'Loaded the Redis Libary',
+			'Loaded the Redis Library',
 			'The Redis PHP extension was not found or is disabled'
 			);
 			

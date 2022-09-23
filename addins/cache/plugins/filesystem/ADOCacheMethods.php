@@ -88,7 +88,7 @@ final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
 		if ($this->cacheDirectory) {
 			if ($this->debug)
 			{
-				$message = 'FILESYSTEM: Loaded the File System Libary';
+				$message = 'FILESYSTEM: Loaded the File System Library';
 				$this->loggingObject->log($this->loggingObject::DEBUG,$message);
 			}
 		} else {

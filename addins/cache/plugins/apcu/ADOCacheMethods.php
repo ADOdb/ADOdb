@@ -54,7 +54,7 @@ final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
 		
 		$this->writeLoggingPair(
 			$apcu,
-			'Loaded the APCu Libary',
+			'Loaded the APCu Library',
 			'The APCu PHP extension was not found or is disabled'
 			);
 					

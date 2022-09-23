@@ -55,7 +55,7 @@ final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
 		
 		$this->writeLoggingPair(
 				$library,
-				'Loaded the Yac Libary',
+				'Loaded the Yac Library',
 				'The YAC PHP extension was not found or is disabled'
 				);
 		
