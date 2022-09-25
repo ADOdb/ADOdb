@@ -22,6 +22,12 @@
  */
 
 /**
+ *
+ */
+$source_dir = 'documentation-base';
+$target_dir = 'documentation';
+
+/**
 * Recurses a directory and deletes files inside
 *
 * Copied from php.net
@@ -95,21 +101,21 @@ function listdiraux($dir, &$files)
 /*
 * Clean up the documentation directory from prior use
 */
-if (is_dir('documentation'))
-	deltree('documentation');
-mkdir('documentation');
+if (is_dir($target_dir)) {
+	deltree($target_dir);
+}
+mkdir($target_dir);
 
-$files = listdir('documentation-base');
+$files = listdir($source_dir);
 sort($files, SORT_LOCALE_STRING);
 
 /*
-* Loop through files in documentation-base directory, creating a mirror
-* structure in documentation, and applying the post-process rules defined
-* below
+* Loop through files in source directory, creating a mirror structure
+* in target directory, and applying the post-process rules defined below
 */
 foreach ($files as $f) {
 
-	$r = str_replace('documentation-base', 'documentation', $f);
+	$r = str_replace($source_dir, $target_dir, $f);
 	$dList = explode('/', $r);
 	$titleList = $dList;
 	/*
@@ -228,8 +234,8 @@ foreach ($files as $f) {
 /*
 * Now remove the original index and replace it with the hardcopy documentation one
 */
-unlink ('documentation/index.html');
-rename('documentation/adodb_index.html','documentation/index.html');
+unlink ($target_dir . '/index.html');
+rename($target_dir . '/adodb_index.html',$target_dir . '/index.html');
 
 /*
 * We could add in an auto zip and upload here, but this is a good place to
