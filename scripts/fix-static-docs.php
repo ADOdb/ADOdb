@@ -37,9 +37,17 @@ $target_dir = 'documentation';
 */
 function delTree($dir)
 {
-	$files = array_diff(scandir($dir), array('.', '..'));
+	$files = @scandir($dir);
+	if ($files === false) {
+		return false;
+	}
+	$files = array_diff($files, array('.', '..'));
+
 	foreach ($files as $file) {
-		(is_dir("$dir/$file")) ? delTree("$dir/$file") : unlink("$dir/$file");
+		$result = (is_dir("$dir/$file") ? delTree("$dir/$file") : unlink("$dir/$file"));
+		if ($result === false) {
+			return false;
+		}
 	}
 	return rmdir($dir);
 }
@@ -102,11 +110,18 @@ function listdiraux($dir, &$files)
 * Clean up the documentation directory from prior use
 */
 if (is_dir($target_dir)) {
-	deltree($target_dir);
+	if(!deltree($target_dir)) {
+		echo "ERROR: unable to remove target directory '$target_dir'\n";
+		die(1);
+	}
 }
 mkdir($target_dir);
 
 $files = listdir($source_dir);
+if (!$files) {
+	echo "ERROR: Source directory '$source_dir' not found, not accessible or empty\n";
+	die(1);
+}
 sort($files, SORT_LOCALE_STRING);
 
 /*
