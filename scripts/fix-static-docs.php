@@ -86,6 +86,11 @@ function listdiraux($dir, &$files)
 			continue;
 		}
 
+		// Exclude internal use namespaces
+		if (preg_match('/^(?:admin|playground|wiki)/', $file)) {
+			continue;
+		}
+
 		// This is only v5 documentation
 		if (preg_match('/v6$/', $file)) {
 			continue;
