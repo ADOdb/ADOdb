@@ -247,7 +247,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * @var bool True if field is a primary key
 		 */
-		public $primary_key = false;
+		public $primary_key;
 
 		/**
 		 * @var bool True if field is unique key
