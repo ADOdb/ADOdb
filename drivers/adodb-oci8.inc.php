@@ -289,7 +289,7 @@ END;
 			$argUsername,
 			$argPassword,
 			$argDatabasename,
-			$this->charSet ?: null,
+			$this->charSet ?: '',
 			$sessionMode
 		);
 		if (!$this->_connectionID) {
