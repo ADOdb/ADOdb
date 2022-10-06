@@ -585,11 +585,10 @@ class ADODB_pdo extends ADOConnection {
 				$this->_driver->debug = $this->debug;
 			}
 			if ($inputarr) {
-
-				/*
-				* inputarr must be numeric
-				*/
-				$inputarr = array_values($inputarr);
+				// inputarr must be numeric if SQL contains a question mark
+				if ($this->containsQuestionMarkPlaceholder($stmt->queryString)) {
+					$inputarr = array_values($inputarr);
+				}
 				$ok = $stmt->execute($inputarr);
 			}
 			else {
@@ -659,6 +658,24 @@ class ADODB_pdo extends ADOConnection {
 		return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
 
+	/**
+	 * Checks for the inclusion of a question mark placeholder
+	 *
+	 * @param string $sql   SQL string
+	 * @return boolean      Returns true if a question mark placeholder is included
+	 */
+	private function containsQuestionMarkPlaceholder($sql)
+	{
+		$pattern = '/(.\?(:?.|$))/';
+		if (preg_match_all($pattern, $sql, $matches, PREG_SET_ORDER)) {
+			foreach ($matches as $match) {
+				if ($match[1] !== '`?`' && strpos($match[1], '??') === false) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
 
 class ADODB_pdo_base extends ADODB_pdo {
