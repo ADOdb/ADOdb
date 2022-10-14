@@ -47,7 +47,7 @@ class PdoDriverTest extends TestCase
     /**
      * Data provider for {@see testContainsQuestionMarkPlaceholder()}
      *
-     * @return array [SQL statement, SQL with ORDER BY clause stripped]
+     * @return array [result, SQL statement]
      */
     public function providerContainsQuestionMarkPlaceholder(): array
     {
@@ -69,6 +69,92 @@ class PdoDriverTest extends TestCase
             [false, 'SELECT * FROM employees WHERE emp_no=`?`'],
             [false, 'SELECT * FROM employees WHERE emp_no=??'],
             [false, 'SELECT * FROM employees WHERE emp_no=:emp_no'],
+        ];
+    }
+
+    /**
+     * Test for {@see ADODB_pdo#conformToBindParameterStyle)
+     *
+     * @dataProvider providerConformToBindParameterStyle
+     */
+    public function testConformToBindParameterStyle($expected, $inputarr, $bindParameterStyle, $sql): void
+    {
+        $method = new ReflectionMethod('ADODB_pdo', 'conformToBindParameterStyle');
+        $method->setAccessible(true);
+
+        $pdoDriver = new ADODB_pdo();
+        $pdoDriver->bindParameterStyle = $bindParameterStyle;
+        $this->assertSame($expected, $method->invoke($pdoDriver, $sql, $inputarr));
+    }
+
+    /**
+     * Data provider for {@see testConformToBindParameterStyle()}
+     *
+     * @return array [expected, inputarr, bindParameterStyle, SQL statement]
+     */
+    public function providerConformToBindParameterStyle(): array
+    {
+        return [
+            [
+                [1, 2, 3],
+                [1, 2, 3],
+                ADODB_pdo::BIND_USE_QUESTION_MARKS,
+                null
+            ],
+            [
+                [1, 2, 3],
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                ADODB_pdo::BIND_USE_QUESTION_MARKS,
+                null
+            ],
+            [
+                [1, 2, 3],
+                [1, 2, 3],
+                ADODB_pdo::BIND_USE_NAMED_PARAMETERS,
+                null
+            ],
+            [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                ADODB_pdo::BIND_USE_NAMED_PARAMETERS,
+                null
+            ],
+            [
+                [1, 2, 3],
+                [1, 2, 3],
+                ADODB_pdo::BIND_USE_BOTH,
+                'SELECT * FROM employees WHERE emp_no = ?'
+            ],
+            [
+                [1, 2, 3],
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                ADODB_pdo::BIND_USE_BOTH,
+                'SELECT * FROM employees WHERE emp_no = ?'
+            ],
+            [
+                [1, 2, 3],
+                [1, 2, 3],
+                ADODB_pdo::BIND_USE_BOTH,
+                'SELECT * FROM employees WHERE emp_no = :id'
+            ],
+            [
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                ADODB_pdo::BIND_USE_BOTH,
+                'SELECT * FROM employees WHERE emp_no = :id'
+            ],
+            [
+                [1, 2, 3],
+                [1, 2, 3],
+                9999,   // Incorrect values result in default behavior.
+                null
+            ],
+            [
+                [1, 2, 3],
+                ['a' => 1, 'b' => 2, 'c' => 3],
+                9999,   // Incorrect values result in default behavior.
+                null
+            ],
         ];
     }
 }
