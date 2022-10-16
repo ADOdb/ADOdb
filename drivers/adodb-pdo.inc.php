@@ -103,7 +103,7 @@ class ADODB_pdo extends ADOConnection {
 	* BIND_USE_NAMED_PARAMETERS = Use only named parameters
 	* BIND_USE_BOTH             = Use both question marks and named parameters (Default)
 	*/
-	public $bindParameterStyle = self::BIND_USE_QUESTION_MARKS;
+	public $bindParameterStyle = self::BIND_USE_BOTH;
 
 	function _UpdatePDO()
 	{
