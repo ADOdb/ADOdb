@@ -691,6 +691,10 @@ class ADODB_pdo extends ADOConnection {
 				// inputarr must be numeric if SQL contains a question mark
 				if ($this->containsQuestionMarkPlaceholder($sql)) {
 					$inputarr = array_values($inputarr);
+
+					if ($this->debug) {
+						ADOconnection::outp('improve the performance of this query by setting the bindParameterStyle to BIND_USE_QUESTION_MARKS');
+					}
 				}
 				break;
 		}
