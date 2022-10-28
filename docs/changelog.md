@@ -31,6 +31,8 @@ Older changelogs:
 
 ### Removed
 
+- Compatibility with PHP < 7.4
+  [#868](https://github.com/ADOdb/ADOdb/issues/868)
 - mysqli: legacy non-functional $optionFlags property
   [#814](https://github.com/ADOdb/ADOdb/issues/814)
 - mysqli: remove obsolete, dead code
