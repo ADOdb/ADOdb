@@ -3,6 +3,7 @@
 *.swp
 *.bak
 *.tmp
+.DS_Store
 .project
 .settings/
 /nbproject/
