@@ -23,9 +23,25 @@ Older changelogs:
 - oci8: support setting the client identifier 
   [#805](https://github.com/ADOdb/ADOdb/issues/805)
 
+### Changed
+
+- mssql: Simplify serverInfo()
+  [#830](https://github.com/ADOdb/ADOdb/pull/830#issuecomment-1119655907)
+- Code cleanup: PHPDoc, code style, whitespace, etc.
+
 ### Removed
+
 - mysqli: legacy non-functional $optionFlags property
   [#814](https://github.com/ADOdb/ADOdb/issues/814)
+- mysqli: remove obsolete, dead code
+  [#877](https://github.com/ADOdb/ADOdb/issues/877)
+
+### Fixed
+
+- oci8: silence deprecation warnings on PHP 8
+  [#883](https://github.com/ADOdb/ADOdb/issues/883)
+- pgsql: affected_rows() always returns false on PHP 8.1
+  [#833](https://github.com/ADOdb/ADOdb/issues/833)
 
 
 ## [5.22.4] - 2022-10-28
