@@ -22,8 +22,12 @@ Older changelogs:
   [#869](https://github.com/ADOdb/ADOdb/issues/869)
 - adodb_strip_order_by() shouldn't strip clause from subqueries 
   [#870](https://github.com/ADOdb/ADOdb/issues/870)
+- mssql: Affected_Rows() not returning correct value
+  [#895](https://github.com/ADOdb/ADOdb/issues/895)
 - mysqli: Fix mysqli_result could not be converted to int
   [#867](https://github.com/ADOdb/ADOdb/issues/867)
+- mysqli: regression on errorMsg()/errorCode()
+  [#872](https://github.com/ADOdb/ADOdb/issues/872)
 
 
 ## [5.22.3] - 2022-09-06
