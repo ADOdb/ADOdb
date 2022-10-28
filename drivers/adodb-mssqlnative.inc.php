@@ -151,7 +151,7 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		$arrServerInfo = sqlsrv_server_info($this->_connectionID);
 		$ADODB_FETCH_MODE = $savem;
-		
+
 		$arr = array();
 		$arr['description'] = $arrServerInfo['SQLServerName'].' connected to '.$arrServerInfo['CurrentDatabase'];
 		$arr['version'] = $arrServerInfo['SQLServerVersion'];//ADOConnection::_findvers($arr['description']);
@@ -184,8 +184,10 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function _affectedrows()
 	{
-		if ($this->_queryID)
-		return sqlsrv_rows_affected($this->_queryID);
+		if ($this->_queryID && is_resource($this->_queryID)) {
+			return sqlsrv_rows_affected($this->_queryID);
+		}
+		return false;
 	}
 
 	function GenID($seq='adodbseq',$start=1) {
