@@ -28,7 +28,7 @@ Older changelogs:
   [#814](https://github.com/ADOdb/ADOdb/issues/814)
 
 
-## [5.22.4] - Unreleased
+## [5.22.4] - 2022-10-28
 
 ### Fixed
 
@@ -36,8 +36,12 @@ Older changelogs:
   [#869](https://github.com/ADOdb/ADOdb/issues/869)
 - adodb_strip_order_by() shouldn't strip clause from subqueries 
   [#870](https://github.com/ADOdb/ADOdb/issues/870)
+- mssql: Affected_Rows() not returning correct value
+  [#895](https://github.com/ADOdb/ADOdb/issues/895)
 - mysqli: Fix mysqli_result could not be converted to int
   [#867](https://github.com/ADOdb/ADOdb/issues/867)
+- mysqli: regression on errorMsg()/errorCode()
+  [#872](https://github.com/ADOdb/ADOdb/issues/872)
 
 
 ## [5.22.3] - 2022-09-06
@@ -1339,7 +1343,7 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[5.23.0]: https://github.com/adodb/adodb/compare/v5.22.3...master
+[5.23.0]: https://github.com/adodb/adodb/compare/v5.22.4...master
 
 [5.22.4]: https://github.com/adodb/adodb/compare/v5.22.3...v5.22.4
 [5.22.3]: https://github.com/adodb/adodb/compare/v5.22.2...v5.22.3
