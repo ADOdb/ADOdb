@@ -4310,9 +4310,7 @@ class ADORecordSet implements IteratorAggregate {
 			switch ($showArrayMethod) {
 			case 0:
 
-				if ($fetchMode == ADODB_FETCH_ASSOC
-				||  $fetchMode == ADODB_FETCH_BOTH)
-				{
+				if ($fetchMode != ADODB_FETCH_NUM) {
 					/*
 					* The driver should have already handled the key
 					* casing, but in case it did not. We will check and force
