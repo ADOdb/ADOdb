@@ -821,10 +821,11 @@ if (!defined('_ADODB_LAYER')) {
 			$msg .= "<br>\n";
 		}
 
-		if (isset($_SERVER['HTTP_USER_AGENT']) || !$newline) {
+		if (!isset($_SERVER['HTTP_USER_AGENT']) || $newline) {
+			$msg=strip_tags($msg);
+		}
+		if ($debug) {
 			echo $msg;
-		} else {
-			echo strip_tags($msg);
 		}
 
 
