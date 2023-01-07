@@ -82,7 +82,7 @@ class ADODB_pdo extends ADOConnection {
 	var $_errormsg = false;
 	var $_errorno = false;
 
-	var $stmt = false;
+	var $_stmt = false;
 	var $_driver;
 
 	/*
@@ -778,6 +778,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 	var $bind = false;
 	var $databaseType = "pdo";
 	var $dataProvider = "pdo";
+	var $adodbFetchMode = false;
 
 	function __construct($id,$mode=false)
 	{
