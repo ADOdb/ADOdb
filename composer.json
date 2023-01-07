@@ -1,5 +1,5 @@
 {
-	"name" : "adodb/adodb-php",
+	"name" : "reportico/adodb-php",
 	"description" : "ADOdb is a PHP database abstraction layer library",
 	"license" : [ "BSD-3-Clause", "LGPL-2.1-or-later" ],
 	"authors" : [
