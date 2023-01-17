@@ -2,7 +2,7 @@
 name: Bug report
 about: Submit a new bug report to help us improve ADOdb
 title: ''
-labels: ''
+labels: 'triage'
 assignees: ''
 
 ---
