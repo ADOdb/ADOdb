@@ -2559,34 +2559,32 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 
-	/*
-
-
-		$forceUpdate .
-	 */
 	/**
-	 * Similar to PEAR DB's autoExecute(), except that $mode can be 'INSERT'
-	 * or 'UPDATE' or DB_AUTOQUERY_INSERT or DB_AUTOQUERY_UPDATE.
-	 * If $mode == 'UPDATE', then $where is compulsory as a safety measure.
+	 * Simple interface to insert and update records.
 	 *
-	 * @param $table
-	 * @param $fields_values
-	 * @param string $mode
-	 * @param false $where
-	 * @param bool $forceUpdate  If true, perform update even if the data has not changed.
-	 * @param bool $magic_quotes This param is not used since 5.21.0.
-	 *                           It remains for backwards compatibility.
+	 * Automatically generate and execute INSERT and UPDATE statements
+	 * on a given table, similar to PEAR DB's autoExecute().
+	 *
+	 * @param string $table        Name of the table to process.
+	 * @param array $fields_values Associative array of field names => values.
+	 * @param string|int $mode     Execution mode: 'INSERT' (default), 'UPDATE' or
+	 *                             one of the DB_AUTOQUERY_xx constants.
+	 * @param string $where        SQL where clause (mandatory in UPDATE mode as a safety measure)
+	 * @param bool $forceUpdate    If true, update all provided fields, even if they have not changed;
+	 * 							   otherwise only modified fields are updated.
+	 * @param bool $magic_quotes   This param is not used since 5.21.0.
+	 *                             It remains for backwards compatibility.
 	 *
 	 * @return bool
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	function AutoExecute($table, $fields_values, $mode = 'INSERT', $where = false, $forceUpdate = true, $magic_quotes = false) {
+	function autoExecute($table, $fields_values, $mode = 'INSERT', $where = '', $forceUpdate = true, $magic_quotes = false) {
 		if (empty($fields_values)) {
 			$this->outp_throw('AutoExecute: Empty fields array', 'AutoExecute');
 			return false;
 		}
-		if ($where === false && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) ) {
+		if (empty($where) && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */)) {
 			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause', 'AutoExecute');
 			return false;
 		}
@@ -2598,7 +2596,7 @@ if (!defined('_ADODB_LAYER')) {
 		}
 
 		$rs->tableName = $table;
-		if ($where !== false) {
+		if (!empty($where)) {
 			$sql .= " WHERE $where";
 		}
 		$rs->sql = $sql;
