@@ -97,7 +97,7 @@ class ADODB_pdo extends ADOConnection {
 	public $pdoParameters = array();
 
 	/*
-	* Set witch style is used to bind parameters
+	* Set which style is used to bind parameters
 	*
 	* BIND_USE_QUESTION_MARKS   = Use only question marks
 	* BIND_USE_NAMED_PARAMETERS = Use only named parameters
