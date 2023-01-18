@@ -20,6 +20,13 @@ Older changelogs:
 
 - ADODB_FETCH_DEFAULT should be treated as ASSOC in getAssoc()
   [#886](https://github.com/ADOdb/ADOdb/issues/886)
+- Fix autoExecute() $where parameter type
+  [#915](https://github.com/ADOdb/ADOdb/issues/915)
+- pgsql: fix "column already exists" error when adding a new column
+  [#897](https://github.com/ADOdb/ADOdb/issues/897)
+- Creation of dynamic property deprecated warning in PHP 8.2
+  [#913](https://github.com/ADOdb/ADOdb/issues/913)
+  [#917](https://github.com/ADOdb/ADOdb/issues/917)
 
 
 ## [5.22.4] - 2022-10-28
