@@ -517,8 +517,14 @@ class ADODB_DataDict {
 		list($lines,$pkey,$idxs) = $this->_genFields($flds);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
-		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 		foreach($lines as $v) {
+			$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
+			// For mysql databases use the syntax:
+			// ALTER TABLE <tabname> ADD FOREIGN KEY (<fk_column_name>) REFERENCES <table>(<column>);
+			if($this->databaseType === "mysql"
+				 && strpos($v, 'REFERENCES') !== false) {
+				$alter = 'ALTER TABLE ' . $tabname . $this->addFk . ' ';
+			}
 			$sql[] = $alter . $v;
 		}
 		if (is_array($idxs)) {
@@ -673,6 +679,11 @@ class ADODB_DataDict {
 		foreach($flds as $fld) {
 			if (is_array($fld))
 				$fld = array_change_key_case($fld,CASE_UPPER);
+			if($this->databaseType === "mysql"
+				&& !empty($fld["CONSTRAINT"])
+				&& strpos($fld["CONSTRAINT"], 'REFERENCES') !== false) {
+				unset($fld["CONSTRAINT"]);
+			}
 			$fname = false;
 			$fdefault = false;
 			$fautoinc = false;

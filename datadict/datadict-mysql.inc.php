@@ -25,6 +25,7 @@ if (!defined('ADODB_DIR')) die();
 class ADODB2_mysql extends ADODB_DataDict {
 	var $databaseType = 'mysql';
 	var $alterCol = ' MODIFY COLUMN';
+	var $addFk = ' ADD FOREIGN KEY';
 	var $alterTableAddIndex = true;
 	var $dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
 
