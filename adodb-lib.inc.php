@@ -1350,7 +1350,14 @@ function _adodb_backtrace($printOrArr=true, $maximumDepth=9999, $elementsToIgnor
 			}
 		}
 		$s .= $arr['function'] . '(' . implode(', ', $args) . ')';
-		$s .= @sprintf($fmt, $arr['line'], $arr['file'], basename($arr['file']));
+
+		// Disable error reporting directly from the library. Report according
+		// to ADOdb debug configuration
+		error_reporting(0);
+		ini_set('display_errors',0);
+		$s .= sprintf($fmt, $arr['line'], $arr['file'], basename($arr['file']));
+		error_reporting(E_ALL);
+		ini_set('display_errors',1);
 		$s .= "\n";
 	}
 	if ($html) {
