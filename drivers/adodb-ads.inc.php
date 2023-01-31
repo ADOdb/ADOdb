@@ -76,6 +76,9 @@ class ADODB_ads extends ADOConnection
 	var $_lastAffectedRows = 0;
 	var $uCaseTables = true; // for meta* functions, uppercase table names
 
+	/** @var string SQL statement. */
+	var $connectStmt;
+
 	function __construct()
 	{
 	}

@@ -52,6 +52,9 @@ class ADODB_text extends ADOConnection {
 	var $_reznames;
 	var $_reztypes;
 
+	/** @var array|string */
+	var $evalAll;
+
 	function RSRecordCount()
 	{
 		if (!empty($this->_rezarray)) return sizeof($this->_rezarray);

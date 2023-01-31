@@ -63,6 +63,9 @@ class ADODB_odbc extends ADOConnection {
 	 */
 	public $metaColumnsReturnType = METACOLUMNS_RETURNS_ACTUAL;
 
+	/** @var string SQL statement to execute. */
+	var $connectStmt;
+
 	function __construct() {}
 
 		// returns true or false

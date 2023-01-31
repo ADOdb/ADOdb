@@ -120,6 +120,12 @@ class ADORecordSet_pdo_sqlsrv extends ADORecordSet_pdo
 class ADORecordSet_array_pdo_sqlsrv extends ADORecordSet_array_pdo
 {
 
+	/** @var string */
+	var $_transmode;
+
+	/** @var mixed */
+	var $_connectionID;
+
 	/**
 	 * returns the field object
 	 *

@@ -38,6 +38,9 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $nameQuote = '`';
 
+	/** @var string Holds the current database name. */
+	var $databaseName = '';
+
 	function _init($parentDriver)
 	{
 		$parentDriver->hasTransactions = false;

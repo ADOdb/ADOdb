@@ -93,6 +93,8 @@ class ADODB_db2 extends ADOConnection {
 	 */
 	private $storedProcedureParameters = false;
 
+	/** @var string error message. */
+	var $_error;
 
 	function __construct() {}
 
@@ -1844,6 +1846,15 @@ class ADORecordSet_db2 extends ADORecordSet {
 	var $databaseType = "db2";
 	var $dataProvider = "db2";
 	var $useFetchArray;
+
+	/** @var string */
+	var $_errorMsg;
+
+	/** @var mixed */
+	var $_queryId;
+
+	/** @var string */
+	var $_errorCode;
 
 	function __construct($id,$mode=false)
 	{

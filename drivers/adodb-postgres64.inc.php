@@ -91,6 +91,9 @@ class ADODB_postgres64 extends ADOConnection{
 	var $version;
 	var $_nestedSQL = false;
 
+	/** @var mixed */
+	var $connection;
+
 	// The last (fmtTimeStamp is not entirely correct:
 	// PostgreSQL also has support for time zones,
 	// and writes these time in this format: "2001-03-01 18:59:26+02".

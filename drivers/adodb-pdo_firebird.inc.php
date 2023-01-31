@@ -32,6 +32,12 @@ class ADODB_pdo_firebird extends ADODB_pdo
 
 	var $arrayClass = 'ADORecordSet_array_pdo_firebird';
 
+	/** @var mixed */
+	var $pdoDriver;
+
+	/** @var mixed */
+	var $_transactionID;
+
 	function _init($parentDriver)
 	{
 		$this->pdoDriver = $parentDriver;

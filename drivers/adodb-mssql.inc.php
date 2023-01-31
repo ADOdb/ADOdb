@@ -78,6 +78,9 @@ class ADODB_mssql extends ADOConnection {
 	var $_bindInputArray = true;
 	var $forceNewConnect = false;
 
+	/** @var string Holds the current database name. */
+	var $databaseName = '';
+
 	function ServerInfo()
 	{
 	global $ADODB_FETCH_MODE;

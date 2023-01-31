@@ -63,6 +63,9 @@ class ADODB_informix72 extends ADOConnection {
 	var $sysTimeStamp = 'CURRENT';
 	var $cursorType = IFX_SCROLL; // IFX_SCROLL or IFX_HOLD or 0
 
+	/** @var array DB version information. */
+	var $version;
+
 	function __construct()
 	{
 		// alternatively, use older method:

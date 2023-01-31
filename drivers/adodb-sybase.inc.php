@@ -47,6 +47,12 @@ class ADODB_sybase extends ADOConnection {
 
 	var $port;
 
+	/** @var mixed */
+	var $_hastrans;
+
+	/** @var string Holds the current database name. */
+	var $databaseName = '';
+
 	/**
 	 * might require begintrans -- committrans
 	 * @inheritDoc

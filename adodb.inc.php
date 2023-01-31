@@ -335,6 +335,9 @@ if (!defined('_ADODB_LAYER')) {
 
 		var $createdir = true; // requires creation of temp dirs
 
+		/** @var string|false The value of the configuration option. */
+		var $notSafeMode;
+
 		function __construct() {
 			global $ADODB_INCLUDED_CSV;
 			if (empty($ADODB_INCLUDED_CSV)) {
@@ -659,6 +662,23 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	public $customMetaTypes = array();
 
+	/** @var string SQL statement. */
+	var $_genSeqSQL;
+
+	/** @var string SQL statement. */
+	var $_dropSeqSQL;
+
+	/** @var string SQL statement. */
+	var $_genIDSQL;
+
+	/** var mixed */
+	var $_metars;
+
+	/** @var string a specified locale. */
+	var $locale;
+
+	/** @var string SQL statement to get table columns. */
+	var $metaColumnsSQL;
 
 	/**
 	 * Default Constructor.
@@ -3966,6 +3986,8 @@ class ADORecordSet implements IteratorAggregate {
 	*/
 	protected $fieldObjectsIndex = array();
 
+	/** @var int|bool The ADODB_FETCH_MODE value. */
+	var $adodbFetchMode;
 
 	/**
 	 * Constructor
@@ -5182,6 +5204,9 @@ class ADORecordSet implements IteratorAggregate {
 		var $insertid = false;
 		var $sql = '';
 		var $compat = false;
+
+		/** @var mixed */
+		var $adodbFetchMode;
 
 		/**
 		 * Constructor

@@ -92,6 +92,9 @@ class ADODB_pdo extends ADOConnection {
 	*/
 	public $pdoParameters = array();
 
+	/** @var mixed */
+	var $_stmt;
+
 	function _UpdatePDO()
 	{
 		$d = $this->_driver;

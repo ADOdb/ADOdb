@@ -103,6 +103,9 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $sequences = false;
 	var $mssql_version = '';
 
+	/** @var string Holds the current database name. */
+	var $databaseName = '';
+
 	function __construct()
 	{
 		if ($this->debug) {
