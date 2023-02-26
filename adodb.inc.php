@@ -3966,6 +3966,10 @@ class ADORecordSet implements IteratorAggregate {
 	*/
 	protected $fieldObjectsIndex = array();
 
+	/*
+	* Defines the Fetch Mode for a recordset
+	*/
+	public $adodbFetchMode;
 
 	/**
 	 * Constructor
