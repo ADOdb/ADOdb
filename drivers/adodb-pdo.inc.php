@@ -778,7 +778,6 @@ class ADORecordSet_pdo extends ADORecordSet {
 	var $bind = false;
 	var $databaseType = "pdo";
 	var $dataProvider = "pdo";
-	var $adodbFetchMode = false;
 
 	function __construct($id,$mode=false)
 	{

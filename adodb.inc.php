@@ -221,8 +221,12 @@ if (!defined('_ADODB_LAYER')) {
 	// CLASS ADOFieldObject
 	//==============================================================================================
 	/**
-	 * Helper class for FetchFields -- holds info on a column
+	 * Helper class for FetchFields -- holds info on a column.
+	 *
+	 * Note: Dynamic properties are required here, as some drivers may require
+	 * the object to hold database-specific field metadata.
 	 */
+	#[\AllowDynamicProperties]
 	class ADOFieldObject {
 		/**
 		 * @var string Field name
@@ -484,7 +488,14 @@ if (!defined('_ADODB_LAYER')) {
 	//
 	var $dataProvider = 'native';
 	var $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
-	var $database = '';			/// Name of database to be used.
+
+	/**
+	 * @var string Current database name.
+	 *
+	 * This used to be stored in the $databaseName property, which was marked
+	 * as deprecated in 4.66 and removed in 5.22.5.
+	 */
+	public $database = '';
 
 	/**
 	 * @var string If the driver is PDO, then the dsnType is e.g. sqlsrv, otherwise empty
@@ -3905,6 +3916,12 @@ class ADORecordSet implements IteratorAggregate {
 	 * public variables
 	 */
 	var $dataProvider = "native";
+
+	/**
+	 * @var string Table name (used in _adodb_getupdatesql() and _adodb_getinsertsql())-
+	 */
+	public $tableName = '';
+
 	/** @var bool|array  */
 	var $fields = false;	/// holds the current row data
 	var $blobSize = 100;	/// any varchar/char field this size or greater is treated as a blob
@@ -3949,6 +3966,8 @@ class ADORecordSet implements IteratorAggregate {
 	public $customActualTypes;
 	public $customMetaTypes;
 
+	/** @var int Only used in _adodb_getinsertsql() */
+	public $insertSig;
 
 	/**
 	 * @var ADOFieldObject[] Field metadata cache
@@ -5785,6 +5804,7 @@ class ADORecordSet implements IteratorAggregate {
 		}
 		include_once($path);
 		$class = "ADODB2_$drivername";
+		/** @var ADODB_DataDict $dict */
 		$dict = new $class();
 		$dict->dataProvider = $conn->dataProvider;
 		$dict->connection = $conn;

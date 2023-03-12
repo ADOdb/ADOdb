@@ -919,7 +919,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		$SQL = "SELECT column_name, column_type
 				  FROM information_schema.columns
-				 WHERE table_schema='{$this->databaseName}'
+				 WHERE table_schema='{$this->database}'
 				   AND table_name='$table'";
 
 		$schemaArray = $this->getAssoc($SQL);
@@ -1003,7 +1003,6 @@ class ADODB_mysqli extends ADOConnection {
 	function SelectDB($dbName)
 	{
 		$this->database = $dbName;
-		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 
 		if ($this->_connectionID) {
 			$result = @mysqli_select_db($this->_connectionID, $dbName);

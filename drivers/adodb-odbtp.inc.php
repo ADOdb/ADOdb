@@ -304,7 +304,6 @@ class ADODB_odbtp extends ADOConnection{
 			return false;
 		}
 		$this->database = $dbName;
-		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 		return true;
 	}
 
