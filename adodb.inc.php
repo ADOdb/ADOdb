@@ -221,8 +221,12 @@ if (!defined('_ADODB_LAYER')) {
 	// CLASS ADOFieldObject
 	//==============================================================================================
 	/**
-	 * Helper class for FetchFields -- holds info on a column
+	 * Helper class for FetchFields -- holds info on a column.
+	 *
+	 * Note: Dynamic properties are required here, as some drivers may require
+	 * the object to hold database-specific field metadata.
 	 */
+	#[\AllowDynamicProperties]
 	class ADOFieldObject {
 		var $name = '';
 		var $max_length=0;
