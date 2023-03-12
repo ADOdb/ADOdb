@@ -3938,6 +3938,12 @@ class ADORecordSet implements IteratorAggregate {
 	protected $fieldObjectsCache;
 
 	/**
+	 * @var int Defines the Fetch Mode for a recordset
+	 * See the ADODB_FETCH_* constants
+	 */
+	public $adodbFetchMode;
+
+	/**
 	 * Constructor
 	 *
 	 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
