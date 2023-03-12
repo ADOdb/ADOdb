@@ -3886,6 +3886,12 @@ class ADORecordSet implements IteratorAggregate {
 	 * public variables
 	 */
 	var $dataProvider = "native";
+
+	/**
+	 * @var string Table name (used in _adodb_getupdatesql() and _adodb_getinsertsql())-
+	 */
+	public $tableName = '';
+
 	/** @var bool|array  */
 	var $fields = false;	/// holds the current row data
 	var $blobSize = 100;	/// any varchar/char field this size or greater is treated as a blob
