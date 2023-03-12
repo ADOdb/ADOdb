@@ -78,11 +78,6 @@ class ADODB_db2 extends ADOConnection {
 	public $nameQuote = '"';
 
 	/*
-	 * Executed after successful connection
-	 */
-	public $connectStmt = '';
-
-	/*
 	 * Holds information about the stored procedure request
 	 * currently being built
 	 */
