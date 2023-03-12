@@ -3951,24 +3951,25 @@ class ADORecordSet implements IteratorAggregate {
 
 
 	/**
-	* @var ADOFieldObject[] Field metadata cache
-	* @see fieldTypesArray()
+	 * @var ADOFieldObject[] Field metadata cache
+	 * @see fieldTypesArray()
 	 */
 	protected $fieldObjectsCache;
-	
+
 	/**
-	* @var bool True if we have retrieved the fields metadata
-	*/
+	 * @var bool True if we have retrieved the fields metadata
+	 */
 	protected $fieldObjectsRetrieved = false;
 
-	/*
-	* Cross-reference the objects by name for easy access
-	*/
+	/**
+	 * @var array Cross-reference the objects by name for easy access
+	 */
 	protected $fieldObjectsIndex = array();
 
-	/*
-	* Defines the Fetch Mode for a recordset
-	*/
+	/**
+	 * @var int Defines the Fetch Mode for a recordset
+	 * See the ADODB_FETCH_* constants
+	 */
 	public $adodbFetchMode;
 
 	/**

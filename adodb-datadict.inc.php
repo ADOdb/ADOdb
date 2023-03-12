@@ -203,9 +203,9 @@ class ADODB_DataDict {
 	public $blobAllowsDefaultValue;
 
 
-	/*
-	* string to use to quote identifiers and names
-	*/
+	/**
+	 * @var string String to use to quote identifiers and names
+	 */
 	public $quote;
 
 	function getCommentSQL($table,$col)
