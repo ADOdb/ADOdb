@@ -244,6 +244,11 @@ if (!defined('_ADODB_LAYER')) {
 		public $type = '';
 
 		/**
+		 * @var int|null Numeric field scale.
+		 */
+		public $scale;
+
+		/**
 		 * @var bool True if field can be NULL
 		 */
 		public $not_null = false;
@@ -257,6 +262,11 @@ if (!defined('_ADODB_LAYER')) {
 		 * @var bool True if field is unique key
 		 */
 		public $unique = false;
+
+		/**
+		 * @var bool True if field is automatically incremented
+		 */
+		public $auto_increment = false;
 
 		/**
 		 * @var bool True if field has a default value
