@@ -1719,7 +1719,7 @@ if (@$_SERVER['COMPUTERNAME'] == 'TIGRESS') {
 
 	CheckWS('firebird');
 	CheckWS('sybase');
-	if (!ini_get('safe_mode')) CheckWS('informix');
+	CheckWS('informix');
 
 	CheckWS('ado_mssql');
 	CheckWS('ado_access');
