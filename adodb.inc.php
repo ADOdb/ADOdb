@@ -628,9 +628,21 @@ if (!defined('_ADODB_LAYER')) {
 	var $_transOK = null;
 	/** @var resource Identifier for the native database connection */
 	var $_connectionID = false;
-	var $_errorMsg = false;		/// A variable which was used to keep the returned last error message.  The value will
-								/// then returned by the errorMsg() function
-	var $_errorCode = false;	/// Last error code, not guaranteed to be used - only by oci8
+
+	/**
+	 * Stores the last returned error message.
+	 * @see ADOConnection::errorMsg()
+	 * @var string|false
+	 */
+	var $_errorMsg = false;
+
+	/**
+	 * Stores the last returned error code.
+	 * Not guaranteed to be used. Only some drivers actually populate it.
+	 * @var int|false
+	 */
+	var $_errorCode = false;
+
 	var $_queryID = false;		/// This variable keeps the last created result link identifier
 
 	var $_isPersistentConnection = false;	/// A boolean variable to state whether its a persistent connection or normal connection.	*/

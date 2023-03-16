@@ -661,6 +661,9 @@ class ADODB_pdo extends ADOConnection {
 
 }
 
+/**
+ * Base class for Database-specific PDO drivers.
+ */
 class ADODB_pdo_base extends ADODB_pdo {
 
 	var $sysDate = "'?'";
