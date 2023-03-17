@@ -36,12 +36,6 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 		$parentDriver->fmtDate = "'Y-m-d'";
 	}
 
-	function BeginTrans()
-	{
-		$returnval = parent::BeginTrans();
-		return $returnval;
-	}
-
 	function MetaColumns($table, $normalize = true)
 	{
 		return false;
@@ -54,8 +48,7 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 
 	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
 	{
-		$ret = ADOConnection::SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
-		return $ret;
+		return ADOConnection::SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
 	}
 
 	function ServerInfo()
