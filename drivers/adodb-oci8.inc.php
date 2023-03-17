@@ -321,10 +321,6 @@ END;
 
 	protected function _insertID($table = '', $column = '')
 	{
-
-		if (!$this->seqField)
-			return false;
-
 		if ($this->schema)
 		{
 			$t = strpos($table,'.');
