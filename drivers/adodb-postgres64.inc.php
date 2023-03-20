@@ -659,14 +659,16 @@ class ADODB_postgres64 extends ADOConnection{
 			return $false;
 		}
 
+		// Get column names indexed by attnum so we can lookup the index key
 		$col_names = $this->MetaColumnNames($table,true,true);
-		// 3rd param is use attnum,
-		// see https://sourceforge.net/p/adodb/bugs/45/
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
 			$columns = array();
 			foreach (explode(' ', $row[2]) as $col) {
-				$columns[] = $col_names[$col];
+				// When index attribute (pg_index.indkey) is an expression, $col == 0
+				// @see https://www.postgresql.org/docs/current/catalog-pg-index.html
+				// so there is no matching column name - set it to null (see #940).
+				$columns[] = $col_names[$col] ?? null;
 			}
 
 			$indexes[$row[0]] = array(
