@@ -34,7 +34,7 @@ from git import Repo  # https://gitpython.readthedocs.io
 # https://github.com/PyGithub/PyGithub
 from github import Github, GithubException, Milestone
 
-from adodbutil import env, Gitter
+from adodbutil import env, Matrix
 
 
 def process_command_line():
@@ -169,10 +169,10 @@ def post_github(version, message, changelog_link):
 
 def post_gitter(message):
     print("Posting to Gitter... ", end='')
-    gitter = Gitter(env.gitter_token, env.gitter_room)
-    message_id = gitter.post('# ' + message)
+    matrix = Matrix(env.matrix_domain, env.matrix_token, env.matrix_room)
+    message_id = matrix.post('# ' + message)
     print("Message posted successfully\n"
-          "https://gitter.im/{}?at={}"
+          f"https://matrix.to/#/{matrix.room_id}/{message_id}"
           .format(env.gitter_room, message_id))
     print()
 

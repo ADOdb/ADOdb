@@ -23,11 +23,13 @@ See the LICENSE.md file distributed with this source code for details.
 @copyright 2022 Damien Regad, Mark Newnham and the ADOdb community
 @author Damien Regad
 """
-
+import re
+import urllib.parse
 from os import path
 
 import requests
 import yaml
+from markdown import markdown
 
 
 class Environment:
@@ -39,6 +41,10 @@ class Environment:
 
     gitter_token = None
     gitter_room = 'ADOdb/ADOdb'
+
+    matrix_token = None
+    matrix_domain = 'gitter.im'
+    matrix_room = '#ADOdb_ADOdb:' + matrix_domain
 
     twitter_account = 'ADOdb_announce'
     twitter_api_key = None
@@ -67,18 +73,25 @@ class Environment:
             setattr(self, key, value)
 
 
-class Gitter:
-    base_url = 'https://api.gitter.im/v1/'
+class Matrix:
+    """
+    Posting messages to a Matrix room via REST API
+    """
+    api_root = '_matrix/client/v3/'
+    domain = ''
+    base_url = ''
+    room_alias = ''
+    room_id = ''
 
     _headers = ''
-    _room_id = ''
 
-    def __init__(self, token, room_name):
+    def __init__(self, domain, token, room_alias):
         """
         Class Constructor.
 
-        :param token: Gitter REST API token (see https://developer.gitter.im/apps)
-        :param room_name: Room name, e.g. `ADOdb/ADOdb`
+        :param domain: Matrix Server's domain name
+        :param token: Matrix REST API token
+        :param room_alias: Matrix Room alias, e.g. `#room:server.id`
         """
         self._headers = {
             'Content-Type': 'application/json',
@@ -86,45 +99,83 @@ class Gitter:
             'Authorization': 'Bearer ' + token.strip()
         }
 
-        # Initialize Room Id
-        if not room_name:
-            raise Exception("Gitter Room Name not defined")
-        r = requests.get(self.url('rooms'),
-                         headers=self._headers,
-                         params={'q': room_name})
-        if r.status_code != requests.codes.ok:
-            raise Exception(r.text)
+        self.domain = domain
+        self._set_base_url()
+        self._set_room(room_alias)
 
-        for room in r.json()['results']:
-            if room['name'] == room_name:
-                self._room_id = room['id']
-        if not self._room_id:
-            raise Exception("Gitter Room '{}' not found".format(room_name))
 
     def url(self, endpoint):
         """
-        Get Gitter REST API URL for the given endpoint.
+        Get Matrix REST API URL for the given endpoint.
 
         :param endpoint: REST API endpoint
         :return: URL
         """
         return self.base_url + endpoint
 
-    def post(self, message):
+    def _set_base_url(self):
         """
-        Post a message to a Gitter room.
-
-        :param message: Message text
-
-        :return: Posted message's Id
+        Retrieve the Matrix API base URL for the given Domain and initialize
+        the self.base_url property.
         """
-        url = self.url('rooms/{}/chatMessages'.format(self._room_id))
-        r = requests.post(url,
-                          headers=self._headers,
-                          json={'text': message})
+        r = requests.get(f'https://{self.domain}/.well-known/matrix/client')
+
         if r.status_code != requests.codes.ok:
             raise Exception(r.text)
-        return r.json()['id']
+
+        self.base_url = r.json()['m.homeserver']['base_url'] + \
+                        '/' + self.api_root
+
+    def _set_room(self, alias):
+        """
+        Retrieve the Matrix Room ID from the given alias (after adding the
+        leading '#' and the Server name if not provided) and initialize the
+        room_alias and room_id properties.
+
+        :param alias:
+        """
+        if not alias:
+            raise Exception("Matrix Room Alias not defined")
+
+        # Add leading '#' if needed
+        if alias[0] != '#':
+            alias = '#' + alias
+        # If the alias does not include the Server, add the domain
+        if ':' not in alias:
+            alias += ':' + self.domain
+        self.room_alias = alias
+
+        # Retrieve Room ID
+        url = self.url('directory/room/') + urllib.parse.quote(alias)
+        r = requests.get(url, headers=self._headers)
+        if r.status_code != requests.codes.ok:
+            raise Exception(r.json()['error'])
+
+        self.room_id = r.json()['room_id']
+
+    def post(self, message):
+        """
+        Post a message to a Matrix room.
+
+        :param message: Message text in Markdown format
+
+        :return: Posted message's ID
+        """
+        html = markdown(message)
+        plain_text = re.sub(r'(<!--.*?-->|<[^>]*>)', '', html)
+        payload = {
+            'msgtype': 'm.text',
+            'body': plain_text,
+            'format': 'org.matrix.custom.html',
+            'formatted_body': html,
+        }
+
+        url = self.url(f'rooms/{self.room_id}/send/m.room.message')
+        r = requests.post(url, headers=self._headers, json=payload)
+        if r.status_code != requests.codes.ok:
+            raise Exception(r.text)
+
+        return r.json()['event_id']
 
 
 # Initialize environment
