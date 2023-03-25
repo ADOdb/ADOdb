@@ -102,6 +102,17 @@ function adodb_session_create_table($schemaFile=null,$conn = null)
 	\static
 */
 class ADODB_Session {
+
+	/**
+	 * Session Connection's Database provider.
+	 *
+	 * Populated when opening the database connection.
+	 * @see ADODB_Session::open()}.
+	 *
+	 * @var string
+	 */
+	protected static $provider;
+
 	/////////////////////
 	// getter/setter methods
 	/////////////////////
@@ -476,6 +487,24 @@ class ADODB_Session {
 		$rs->MoveFirst();
 	}
 
+	/**
+	 * Check if Session Connection's DB type is MySQL.
+	 *
+	 * @return bool
+	 */
+	static protected function isConnectionMysql() {
+		return self::$provider == 'mysql';
+	}
+
+	/**
+	 * Check if Session Connection's DB type is PostgreSQL.
+	 *
+	 * @return bool
+	 */
+	static protected function isConnectionPostgres() {
+		return self::$provider == 'postgres';
+	}
+
 	/////////////////////
 	// public methods
 	/////////////////////
@@ -562,8 +591,15 @@ class ADODB_Session {
 			}
 		}
 
+		if ($ok) {
+			$GLOBALS['ADODB_SESS_CONN'] = $conn;
 
-		if ($ok) $GLOBALS['ADODB_SESS_CONN'] = $conn;
+			// Initialize Session data provider
+			self::$provider = $conn->dataProvider;
+			if (self::$provider == 'pdo') {
+				self::$provider = $conn->dsnType == 'pgsql' ? 'postgres' : $conn->dsnType;
+			}
+		}
 		else
 			ADOConnection::outp('<p>Session: connection failed</p>', false);
 
@@ -598,7 +634,7 @@ class ADODB_Session {
 
 		//assert('$table');
 
-		$binary = $conn->dataProvider === 'mysql' ? '/*! BINARY */' : '';
+		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
 
 		global $ADODB_SESSION_SELECT_FIELDS;
 		if (!isset($ADODB_SESSION_SELECT_FIELDS)) $ADODB_SESSION_SELECT_FIELDS = 'sessdata';
@@ -666,7 +702,7 @@ class ADODB_Session {
 
 		$expiry = $conn->OffsetDate($lifetime/(24*3600),$sysTimeStamp);
 
-		$binary = $conn->dataProvider === 'mysql' ? '/*! BINARY */' : '';
+		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
 
 		// crc32 optimization since adodb 2.1
 		// now we only update expiry date, thx to sebastian thom in adodb 2.32
@@ -783,7 +819,7 @@ class ADODB_Session {
 		//assert('$table');
 
 		$qkey = $conn->quote($key);
-		$binary = $conn->dataProvider === 'mysql' || $conn->dataProvider === 'pdo' ? '/*! BINARY */' : '';
+		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
 
 		if ($expire_notify) {
 			reset($expire_notify);
@@ -841,7 +877,7 @@ class ADODB_Session {
 		//assert('$table');
 
 		$time = $conn->OffsetDate(-$maxlifetime/24/3600,$conn->sysTimeStamp);
-		$binary = $conn->dataProvider === 'mysql' ? '/*! BINARY */' : '';
+		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
 
 		if ($expire_notify) {
 			reset($expire_notify);
@@ -881,12 +917,9 @@ class ADODB_Session {
 
 		// suggested by Cameron, "GaM3R" <gamr@outworld.cx>
 		if ($optimize) {
-			$driver = ADODB_Session::driver();
-
-			if (preg_match('/mysql/i', $driver)) {
+			if (ADODB_Session::isConnectionMysql()) {
 				$sql = "OPTIMIZE TABLE $table";
-			}
-			if (preg_match('/postgres/i', $driver)) {
+			} elseif (ADODB_Session::isConnectionPostgres()) {
 				$sql = "VACUUM $table";
 			}
 			if (!empty($sql)) {
