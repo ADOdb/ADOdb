@@ -720,8 +720,9 @@ class ADODB_Session {
 				}
 			}
 
-
-			$sql = "UPDATE $table SET expiry = $expiry ,expireref=".$conn->Param('0').", modified = $sysTimeStamp WHERE $binary sesskey = ".$conn->Param('1')." AND expiry >= $sysTimeStamp";
+			$sql = "UPDATE $table SET expiry = $expiry, expireref=" . $conn->Param('0')
+				. ", modified = $sysTimeStamp WHERE sesskey = $binary " . $conn->Param('1')
+				. " AND expiry >= $sysTimeStamp";
 			$rs = $conn->Execute($sql,array($expirevar,$key));
 			return true;
 		}
@@ -825,7 +826,7 @@ class ADODB_Session {
 			reset($expire_notify);
 			$fn = next($expire_notify);
 			$savem = $conn->SetFetchMode(ADODB_FETCH_NUM);
-			$sql = "SELECT expireref, sesskey FROM $table WHERE $binary sesskey = $qkey";
+			$sql = "SELECT expireref, sesskey FROM $table WHERE sesskey = $binary $qkey";
 			$rs = $conn->Execute($sql);
 			ADODB_Session::_dumprs($rs);
 			$conn->SetFetchMode($savem);
@@ -842,7 +843,7 @@ class ADODB_Session {
 			$rs->Close();
 		}
 
-		$sql = "DELETE FROM $table WHERE $binary sesskey = $qkey";
+		$sql = "DELETE FROM $table WHERE sesskey = $binary $qkey";
 		$rs = $conn->Execute($sql);
 		if ($rs) {
 			$rs->Close();
@@ -900,7 +901,7 @@ class ADODB_Session {
 				$ref = $rs->fields[0];
 				$key = $rs->fields[1];
 				if ($fn) $fn($ref, $key);
-				$del = $conn->Execute("DELETE FROM $table WHERE sesskey=".$conn->Param('0'),array($key));
+				$del = $conn->Execute("DELETE FROM $table WHERE sesskey = $binary " . $conn->Param('0'), array($key));
 				$rs->MoveNext();
 				$ccnt += 1;
 				if ($tr && $ccnt % $COMMITNUM == 0) {
