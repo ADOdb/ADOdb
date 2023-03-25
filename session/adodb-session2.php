@@ -781,8 +781,6 @@ class ADODB_Session {
 		if ($debug) $conn->debug = 1;
 		$sysTimeStamp = $conn->sysTimeStamp;
 
-		//assert('$table');
-
 		$expiry = $conn->OffsetDate($lifetime/(24*3600),$sysTimeStamp);
 
 		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
@@ -857,10 +855,10 @@ class ADODB_Session {
 					VALUES ($expiry,$lob_value, ". $conn->Param('0').", ".$conn->Param('1').", $sysTimeStamp, $sysTimeStamp)";
 			}
 
-			$rs = $conn->Execute($sql,array($expireref,$key));
+			$conn->Execute($sql,array($expireref,$key));
 
 			$qkey = $conn->qstr($key);
-			$rs2 = $conn->UpdateBlob($table, 'sessdata', $val, " sesskey=$qkey", strtoupper($clob));
+			$conn->UpdateBlob($table, 'sessdata', $val, " sesskey=$qkey", strtoupper($clob));
 			if ($debug) echo "<hr>",htmlspecialchars($oval), "<hr>";
 			$rs = @$conn->CompleteTrans();
 		}
@@ -902,7 +900,6 @@ class ADODB_Session {
 		}
 		$debug			= ADODB_Session::debug();
 		if ($debug) $conn->debug = 1;
-		//assert('$table');
 
 		$qkey = $conn->quote($key);
 		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
@@ -921,8 +918,6 @@ class ADODB_Session {
 			if (!$rs->EOF) {
 				$ref = $rs->fields[0];
 				$key = $rs->fields[1];
-				//assert('$ref');
-				//assert('$key');
 				$fn($ref, $key);
 			}
 			$rs->Close();
@@ -934,7 +929,7 @@ class ADODB_Session {
 			$rs->Close();
 		}
 
-		return $rs ? true : false;
+		return (bool)$rs;
 	}
 
 	/**
@@ -955,16 +950,12 @@ class ADODB_Session {
 			return false;
 		}
 
-
-		$debug			= ADODB_Session::debug();
 		if ($debug) {
 			$conn->debug = 1;
 			$COMMITNUM = 2;
 		} else {
 			$COMMITNUM = 20;
 		}
-
-		//assert('$table');
 
 		$time = $conn->OffsetDate(-$maxlifetime/24/3600,$conn->sysTimeStamp);
 		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
@@ -984,13 +975,12 @@ class ADODB_Session {
 		if ($rs) {
 			$tr = $conn->hasTransactions;
 			if ($tr) $conn->BeginTrans();
-			$keys = array();
 			$ccnt = 0;
 			while (!$rs->EOF) {
 				$ref = $rs->fields[0];
 				$key = $rs->fields[1];
 				if ($fn) $fn($ref, $key);
-				$del = $conn->Execute("DELETE FROM $table WHERE sesskey = $binary " . $conn->Param('0'), array($key));
+				$conn->Execute("DELETE FROM $table WHERE sesskey = $binary " . $conn->Param('0'), array($key));
 				$rs->MoveNext();
 				$ccnt += 1;
 				if ($tr && $ccnt % $COMMITNUM == 0) {
