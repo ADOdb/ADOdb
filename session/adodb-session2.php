@@ -91,15 +91,15 @@ function adodb_session_regenerate_id()
  */
 function adodb_session_create_table($schemaFile=null,$conn = null)
 {
-    // set default values
-    if ($schemaFile===null) $schemaFile = ADODB_SESSION . '/session_schema2.xml';
-    if ($conn===null) $conn = ADODB_Session::_conn();
+	// set default values
+	if ($schemaFile===null) $schemaFile = ADODB_SESSION . '/session_schema2.xml';
+	if ($conn===null) $conn = ADODB_Session::_conn();
 
 	if (!$conn) return 0;
 
-    $schema = new adoSchema($conn);
-    $schema->ParseSchema($schemaFile);
-    return $schema->ExecuteSchema();
+	$schema = new adoSchema($conn);
+	$schema->ParseSchema($schemaFile);
+	return $schema->ExecuteSchema();
 }
 
 /**
@@ -301,11 +301,6 @@ class ADODB_Session {
 
 		if (!is_null($debug)) {
 			$_debug = (bool) $debug;
-
-			$conn = ADODB_Session::_conn();
-			if ($conn) {
-				#$conn->debug = $_debug;
-			}
 			$set = true;
 		} elseif (!$set) {
 			// backwards compatibility
@@ -401,8 +396,6 @@ class ADODB_Session {
 	 * @deprecated
 	 */
 	static function syncSeconds($sync_seconds = null) {
-		//echo ("<p>WARNING: ADODB_SESSION::syncSeconds is longer used, please remove this function for your code</p>");
-
 		return 0;
 	}
 
@@ -435,7 +428,6 @@ class ADODB_Session {
 	 * @deprecated
 	 */
 	static function dataFieldName($data_field_name = null) {
-		//echo ("<p>WARNING: ADODB_SESSION::dataFieldName() is longer used, please remove this function for your code</p>");
 		return '';
 	}
 
@@ -638,10 +630,6 @@ class ADODB_Session {
 			$persist = ADODB_Session::persist();
 		}
 
-# these can all be defaulted to in php.ini
-#		assert('$database');
-#		assert('$driver');
-#		assert('$host');
 		if (strpos($driver, 'pdo_') === 0){
 			$conn = ADONewConnection('pdo');
 			$driver = str_replace('pdo_', '', $driver);
@@ -723,8 +711,6 @@ class ADODB_Session {
 			return '';
 		}
 
-		//assert('$table');
-
 		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
 
 		global $ADODB_SESSION_SELECT_FIELDS;
@@ -774,9 +760,10 @@ class ADODB_Session {
 	 */
 	static function write($key, $oval)
 	{
-	global $ADODB_SESSION_READONLY;
-
-		if (!empty($ADODB_SESSION_READONLY)) return;
+		global $ADODB_SESSION_READONLY;
+		if (!empty($ADODB_SESSION_READONLY)) {
+			return false;
+		}
 
 		$clob			= ADODB_Session::clob();
 		$conn			= ADODB_Session::_conn();
@@ -838,7 +825,8 @@ class ADODB_Session {
 			}
 		}
 
-		if (!$clob) {	// no lobs, simply use replace()
+		if (!$clob) {
+			// no lobs, simply use replace()
 			$rs = $conn->Execute("SELECT COUNT(*) AS cnt FROM $table WHERE $binary sesskey = ".$conn->Param(0),array($key));
 			if ($rs) $rs->Close();
 
@@ -849,7 +837,6 @@ class ADODB_Session {
 				$sql = "INSERT INTO $table (expiry, sessdata, expireref, sesskey, created, modified)
 					VALUES ($expiry,".$conn->Param('0').", ". $conn->Param('1').", ".$conn->Param('2').", $sysTimeStamp, $sysTimeStamp)";
 			}
-
 
 			$rs = $conn->Execute($sql,array($val,$expireref,$key));
 
@@ -876,8 +863,6 @@ class ADODB_Session {
 			$rs2 = $conn->UpdateBlob($table, 'sessdata', $val, " sesskey=$qkey", strtoupper($clob));
 			if ($debug) echo "<hr>",htmlspecialchars($oval), "<hr>";
 			$rs = @$conn->CompleteTrans();
-
-
 		}
 
 		if (!$rs) {
