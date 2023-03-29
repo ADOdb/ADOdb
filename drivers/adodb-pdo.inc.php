@@ -87,6 +87,7 @@ class ADODB_pdo extends ADOConnection {
 	var $_errorno = false;
 
 	var $_stmt = false;
+	var $_stmt;
 
 	/** @var ADODB_pdo_base */
 	var $_driver;
