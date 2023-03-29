@@ -853,6 +853,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 
 	/** @var PDOStatement */
 	var $_queryID;
+	var $adodbFetchMode;
 
 	function __construct($id,$mode=false)
 	{
