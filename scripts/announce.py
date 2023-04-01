@@ -172,8 +172,7 @@ def post_gitter(message):
     matrix = Matrix(env.matrix_domain, env.matrix_token, env.matrix_room)
     message_id = matrix.post('# ' + message)
     print("Message posted successfully\n"
-          f"https://matrix.to/#/{matrix.room_id}/{message_id}"
-          .format(env.gitter_room, message_id))
+          f"https://matrix.to/#/{matrix.room_id}/{message_id}")
     print()
 
 
@@ -193,8 +192,7 @@ def post_twitter(message):
         print(e, "-", err['detail'])
         return
     print("Tweeted successfully\n"
-          "https://twitter.com/{}/status/{}"
-          .format(env.twitter_account, r.data['id']))
+          f"https://twitter.com/{env.twitter_account}/status/{r.data['id']}")
     print()
 
 
@@ -230,11 +228,8 @@ def main():
         return
 
     # Build announcement message
-    msg_announce = "ADOdb Version {0} released\n{1}{2}".format(
-        version,
-        message,
-        "See Changelog " + changelog_url
-    )
+    msg_announce = f"ADOdb Version {version} released\n{message}" \
+                   "See Changelog " + changelog_url
 
     # Get confirmation
     if not args.batch:
