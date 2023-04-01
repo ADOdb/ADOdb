@@ -187,9 +187,7 @@ def post_twitter(message):
     try:
         r = twitter.create_tweet(text=message)
     except tweepy.errors.HTTPException as e:
-        err = json.loads(e.response.text)
-        print("ERROR")
-        print(e, "-", err['detail'])
+        print("ERROR:", e)
         return
     print("Tweeted successfully\n"
           f"https://twitter.com/{env.twitter_account}/status/{r.data['id']}")
