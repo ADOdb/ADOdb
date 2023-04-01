@@ -160,8 +160,7 @@ def post_github(version, message, changelog_link):
     try:
         github_close_milestone(repo, version)
     except Exception as e:
-        print(str(e))
-        exit(1)
+        print("WARNING: " + str(e) + "\n")
 
     # Return message to be used for remaining announcements
     return message
