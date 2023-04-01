@@ -168,7 +168,7 @@ def post_github(version, message, changelog_link):
 
 
 def post_gitter(message):
-    print("Posting to Gitter... ", end='')
+    print(f"Posting to Gitter ({env.matrix_room})... ")
     matrix = Matrix(env.matrix_domain, env.matrix_token, env.matrix_room)
     message_id = matrix.post('# ' + message)
     print("Message posted successfully\n"
@@ -178,7 +178,7 @@ def post_gitter(message):
 
 
 def post_twitter(message):
-    print("Posting to Twitter... ", end='')
+    print(f"Posting to Twitter ({env.twitter_account})... ",)
     twitter = tweepy.Client(
         consumer_key=env.twitter_api_key,
         consumer_secret=env.twitter_api_secret,
@@ -208,6 +208,18 @@ def main():
     changelog_url = f"https://github.com/ADOdb/ADOdb/blob/v{version}" \
                     "/docs/changelog.md"
     message = args.message.rstrip(".") + ".\n" if args.message else ""
+
+    # Tell user where the release will be announced
+    print(f"Posting to: ", end='')
+    if post_everywhere or args.github_only:
+        print(f"GitHub ({env.github_repo})",
+              end=', ' if post_everywhere else '\n')
+    if post_everywhere or args.gitter_only:
+        print(f"Gitter ({env.matrix_room})",
+              end=', ' if post_everywhere else '\n')
+    if post_everywhere or args.twitter_only:
+        print(f"Twitter ({env.twitter_account})")
+    print()
 
     # Create GitHub release, retrieve message from it if it already exists
     if post_everywhere or args.github_only:
