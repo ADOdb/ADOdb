@@ -145,7 +145,8 @@ def post_github(version, message, changelog_link):
             repo.get_git_ref('tags/' + version)
             print(f"Tag '{version}' found")
         except GithubException:
-            print(f"ERROR: Tag '{version}' not found")
+            print(f"ERROR: Tag '{version}' does not exist on GitHub, "
+                  "please push it first")
             exit(1)
 
         # Create the release
