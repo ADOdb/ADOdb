@@ -645,9 +645,9 @@ Includes all fixes from 5.20.19.
 
 ## [5.20.16] - 2020-01-12
 
--### Fixed
+### Fixed
 
- mssql: queries are not correctly closed
+- mssql: queries are not correctly closed
   [#590](https://github.com/ADOdb/ADOdb/issues/590)
 
 
