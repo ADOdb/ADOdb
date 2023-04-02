@@ -34,7 +34,7 @@ from git import Repo  # https://gitpython.readthedocs.io
 # https://github.com/PyGithub/PyGithub
 from github import Github, GithubException, Milestone
 
-from adodbutil import env, Gitter
+from adodbutil import env, Matrix
 
 
 def process_command_line():
@@ -145,7 +145,8 @@ def post_github(version, message, changelog_link):
             repo.get_git_ref('tags/' + version)
             print(f"Tag '{version}' found")
         except GithubException:
-            print(f"ERROR: Tag '{version}' not found")
+            print(f"ERROR: Tag '{version}' does not exist on GitHub, "
+                  "please push it first")
             exit(1)
 
         # Create the release
@@ -160,25 +161,23 @@ def post_github(version, message, changelog_link):
     try:
         github_close_milestone(repo, version)
     except Exception as e:
-        print(str(e))
-        exit(1)
+        print("WARNING: " + str(e) + "\n")
 
     # Return message to be used for remaining announcements
     return message
 
 
 def post_gitter(message):
-    print("Posting to Gitter... ", end='')
-    gitter = Gitter(env.gitter_token, env.gitter_room)
-    message_id = gitter.post('# ' + message)
+    print(f"Posting to Gitter ({env.matrix_room})... ")
+    matrix = Matrix(env.matrix_domain, env.matrix_token, env.matrix_room)
+    message_id = matrix.post('# ' + message)
     print("Message posted successfully\n"
-          "https://gitter.im/{}?at={}"
-          .format(env.gitter_room, message_id))
+          f"https://matrix.to/#/{matrix.room_id}/{message_id}")
     print()
 
 
 def post_twitter(message):
-    print("Posting to Twitter... ", end='')
+    print(f"Posting to Twitter ({env.twitter_account})... ",)
     twitter = tweepy.Client(
         consumer_key=env.twitter_api_key,
         consumer_secret=env.twitter_api_secret,
@@ -188,13 +187,10 @@ def post_twitter(message):
     try:
         r = twitter.create_tweet(text=message)
     except tweepy.errors.HTTPException as e:
-        err = json.loads(e.response.text)
-        print("ERROR")
-        print(e, "-", err['detail'])
+        print("ERROR:", e)
         return
     print("Tweeted successfully\n"
-          "https://twitter.com/{}/status/{}"
-          .format(env.twitter_account, r.data['id']))
+          f"https://twitter.com/{env.twitter_account}/status/{r.data['id']}")
     print()
 
 
@@ -209,6 +205,18 @@ def main():
                     "/docs/changelog.md"
     message = args.message.rstrip(".") + ".\n" if args.message else ""
 
+    # Tell user where the release will be announced
+    print(f"Posting to: ", end='')
+    if post_everywhere or args.github_only:
+        print(f"GitHub ({env.github_repo})",
+              end=', ' if post_everywhere else '\n')
+    if post_everywhere or args.gitter_only:
+        print(f"Gitter ({env.matrix_room})",
+              end=', ' if post_everywhere else '\n')
+    if post_everywhere or args.twitter_only:
+        print(f"Twitter ({env.twitter_account})")
+    print()
+
     # Create GitHub release, retrieve message from it if it already exists
     if post_everywhere or args.github_only:
         message = post_github(version,
@@ -218,11 +226,8 @@ def main():
         return
 
     # Build announcement message
-    msg_announce = "ADOdb Version {0} released\n{1}{2}".format(
-        version,
-        message,
-        "See Changelog " + changelog_url
-    )
+    msg_announce = f"ADOdb Version {version} released\n{message}" \
+                   "See Changelog " + changelog_url
 
     # Get confirmation
     if not args.batch:
