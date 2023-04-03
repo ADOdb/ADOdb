@@ -16,17 +16,57 @@ Older changelogs:
 
 ## [5.22.5] - Unreleased
 
+### Removed
+
+- Obsolete ADOConnection::$databaseName property
+  [#932](https://github.com/ADOdb/ADOdb/issues/932)
+- Dead code related to safe_mode
+  [#934](https://github.com/ADOdb/ADOdb/issues/934)
+- pdo: remove unnecessary methods _init() and _affectedrows()
+  [#935](https://github.com/ADOdb/ADOdb/issues/935)
+
 ### Fixed
 
 - ADODB_FETCH_DEFAULT should be treated as ASSOC in getAssoc()
   [#886](https://github.com/ADOdb/ADOdb/issues/886)
+- Allow dynamic properties for ADOFieldObject class
+  [#906](https://github.com/ADOdb/ADOdb/issues/906)
 - Fix autoExecute() $where parameter type
   [#915](https://github.com/ADOdb/ADOdb/issues/915)
-- pgsql: fix "column already exists" error when adding a new column
-  [#897](https://github.com/ADOdb/ADOdb/issues/897)
 - Creation of dynamic property deprecated warning in PHP 8.2
+  [#904](https://github.com/ADOdb/ADOdb/issues/904)
+  [#907](https://github.com/ADOdb/ADOdb/issues/907)
+  [#908](https://github.com/ADOdb/ADOdb/issues/908)
+  [#909](https://github.com/ADOdb/ADOdb/issues/909)
+  [#911](https://github.com/ADOdb/ADOdb/issues/911)
+  [#912](https://github.com/ADOdb/ADOdb/issues/912)
   [#913](https://github.com/ADOdb/ADOdb/issues/913)
   [#917](https://github.com/ADOdb/ADOdb/issues/917)
+  [#926](https://github.com/ADOdb/ADOdb/issues/926)
+  [#933](https://github.com/ADOdb/ADOdb/issues/933)
+  [#935](https://github.com/ADOdb/ADOdb/issues/935)
+- Partially-supported callable deprecated warning in PHP 8.2
+  [#928](https://github.com/ADOdb/ADOdb/issues/928)
+- Passing null to non-nullable parameter is deprecated in PHP 8.1
+  [#938](https://github.com/ADOdb/ADOdb/issues/938)
+- Define adodbFetchMode property in base ADORecordSet class
+  [#923](https://github.com/ADOdb/ADOdb/issues/923)
+- mysql: uncaught exception calling execute() with empty SQL on PHP 8
+  [#945](https://github.com/ADOdb/ADOdb/issues/945)
+- oci8: Replace obsolete oci_free_cursor() function alias
+  [#937](https://github.com/ADOdb/ADOdb/issues/937)
+- pdo: Move setTransactionMode() to ADODB_pdo_sqlsrv class
+  [#939](https://github.com/ADOdb/ADOdb/issues/939)
+- pgsql: fix "column already exists" error when adding a new column
+  [#897](https://github.com/ADOdb/ADOdb/issues/897)
+- pgsql: undefined array key in metaIndexes() when column is an expression
+  [#940](https://github.com/ADOdb/ADOdb/issues/940)
+- pgsql: revert non-functional "Noblob optimization"
+  [#112](https://github.com/ADOdb/ADOdb/issues/112)
+- session: full table scan when accessing sessions table on MySQL
+  [#941](https://github.com/ADOdb/ADOdb/issues/941)
+- session: inconsistent DB provider check
+  [#943](https://github.com/ADOdb/ADOdb/issues/943)
 
 
 ## [5.22.4] - 2022-10-28
