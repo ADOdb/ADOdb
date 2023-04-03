@@ -1176,6 +1176,14 @@ class ADODB_mysqli extends ADOConnection {
 	{
 		global $ADODB_COUNTRECS;
 
+		// When SQL is empty, mysqli_query() throws exception on PHP 8 (#945)
+		if (!$sql) {
+			if ($this->debug) {
+				ADOConnection::outp("Empty query");
+			}
+			return false;
+		}
+
 		if (is_string($sql) && is_array($inputarr)) {
 			// This is support for true prepared queries with bound parameters
 			// set prepared statement flags
