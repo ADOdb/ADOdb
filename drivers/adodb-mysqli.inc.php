@@ -1206,6 +1206,14 @@ class ADODB_mysqli extends ADOConnection {
 		// Commented out for reasons of performance. You should retrieve every recordset yourself.
 		//	if (!mysqli_next_result($this->connection->_connectionID))	return false;
 
+		// When SQL is empty, mysqli_query() throws exception on PHP 8 (#945)
+		if (!$sql) {
+			if ($this->debug) {
+				ADOConnection::outp("Empty query");
+			}
+			return false;
+		}
+
 		if (is_array($sql)) {
 
 			// Prepare() not supported because mysqli_stmt_execute does not return a recordset, but
