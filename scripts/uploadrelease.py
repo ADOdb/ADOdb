@@ -21,7 +21,6 @@ See the LICENSE.md file distributed with this source code for details.
 @author Damien Regad
 """
 
-from distutils.version import LooseVersion
 import getopt
 import getpass
 import glob
@@ -165,10 +164,7 @@ def sourceforge_target_dir(version):
     # Keep only X.Y (discard patch number and pre-release suffix)
     short_version = version.split('-')[0].rsplit('.', 1)[0]
 
-    if LooseVersion(version) >= LooseVersion('5.21'):
-        directory += "adodb-" + short_version
-    else:
-        directory += "adodb-{}-for-php5".format(short_version.replace('.', ''))
+    directory += "adodb-" + short_version
 
     return directory
 
