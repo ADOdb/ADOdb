@@ -26,11 +26,12 @@ import getpass
 import glob
 import json
 import os
-from os import path
 import re
-import requests
 import subprocess
 import sys
+from os import path
+
+import requests
 
 from adodbutil import env
 
@@ -128,7 +129,7 @@ def get_release_version():
 
     try:
         version = re.search(
-            r"^adodb-([\d]+\.[\d]+\.[\d]+)(-(alpha|beta|rc)\.[\d]+)?\.zip$",
+            r"^adodb-(\d+\.\d+\.\d+)(-(alpha|beta|rc)\.\d+)?\.zip$",
             zipfile
             ).group(1)
     except AttributeError:
