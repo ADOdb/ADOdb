@@ -513,7 +513,29 @@ if (!defined('_ADODB_LAYER')) {
 	var $port = '';				/// The port of the database server
 	var $user = '';				/// The username which is used to connect to the database server.
 	var $password = '';			/// Password for the username. For security, we no longer store it.
-	var $debug = false;			/// if set to true will output sql statements
+
+	/**
+	 * Debug Mode.
+	 *
+	 * Enables printing of SQL queries execution and additional debugging
+	 * information. Can be enabled/disabled at any time after the database
+	 * Connection has been initialized {@see ADONewConnection()}.
+	 *
+	 * Possible values are:
+	 * - False: Disabled
+	 * - True:  Standard mode, prints executed SQL statements and error
+	 *          information including a Backtrace if the query failed.
+	 * - -1:    Same as standard mode, but without line separators.
+	 * - 99:    Prints a Backtrace after every query execution, even if
+	 *          it was successful.
+	 * - -99:   Debug information is only printed if query execution failed.
+	 *
+	 * @see https://adodb.org/dokuwiki/doku.php?id=v5:userguide:debug
+	 *
+	 * @var bool|int
+	 */
+	public $debug = false;
+
 	var $maxblobsize = 262144;	/// maximum size of blobs or large text fields (262144 = 256K)-- some db's die otherwise like foxpro
 	var $concat_operator = '+'; /// default concat operator -- change to || for Oracle/Interbase
 	var $substr = 'substr';		/// substring operator
