@@ -912,21 +912,15 @@ if (!defined('_ADODB_LAYER')) {
 			return;
 		}
 
-		if ($newline) {
-			$msg .= "<br>\n";
-		}
-
-		if (isset($_SERVER['HTTP_USER_AGENT']) || !$newline) {
-			echo $msg;
+		if (isset($_SERVER['HTTP_USER_AGENT'])) {
+			echo $msg . ($newline ? '<br>' :'');
 		} else {
-			echo strip_tags($msg);
+			echo strip_tags($msg) . ($newline ? PHP_EOL : '');
 		}
-
 
 		if (!empty($ADODB_FLUSH) && ob_get_length() !== false) {
 			flush(); //  do not flush if output buffering enabled - useless - thx to Jesse Mullan
 		}
-
 	}
 
 	/**
