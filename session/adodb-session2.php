@@ -783,6 +783,7 @@ class ADODB_Session {
 		$sysTimeStamp = $conn->sysTimeStamp;
 
 		$expiry = $conn->OffsetDate($lifetime/(24*3600),$sysTimeStamp);
+		$expireref = $expire_notify ? $GLOBALS[$expire_notify[0]] ?? '' : '';
 
 		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
 
@@ -793,34 +794,16 @@ class ADODB_Session {
 				echo '<p>Session: Only updating date - crc32 not changed</p>';
 			}
 
-			$expirevar = '';
-			if ($expire_notify) {
-				$var = reset($expire_notify);
-				global $$var;
-				if (isset($$var)) {
-					$expirevar = $$var;
-				}
-			}
-
 			$sql = "UPDATE $table SET expiry = $expiry, expireref=" . $conn->Param('0')
 				. ", modified = $sysTimeStamp WHERE sesskey = $binary " . $conn->Param('1')
 				. " AND expiry >= $sysTimeStamp";
-			$rs = $conn->Execute($sql,array($expirevar,$key));
+			$rs = $conn->execute($sql,array($expireref, $key));
 			return true;
 		}
 		$val = rawurlencode($oval);
 		foreach ($filter as $f) {
 			if (is_object($f)) {
 				$val = $f->write($val, ADODB_Session::_sessionKey());
-			}
-		}
-
-		$expireref = '';
-		if ($expire_notify) {
-			$var = reset($expire_notify);
-			global $$var;
-			if (isset($$var)) {
-				$expireref = $$var;
 			}
 		}
 
@@ -906,8 +889,7 @@ class ADODB_Session {
 		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
 
 		if ($expire_notify) {
-			reset($expire_notify);
-			$fn = next($expire_notify);
+			$fn = $expire_notify[1];
 			$savem = $conn->SetFetchMode(ADODB_FETCH_NUM);
 			$sql = "SELECT expireref, sesskey FROM $table WHERE sesskey = $binary $qkey";
 			$rs = $conn->Execute($sql);
@@ -961,12 +943,7 @@ class ADODB_Session {
 		$time = $conn->OffsetDate(-$maxlifetime/24/3600,$conn->sysTimeStamp);
 		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
 
-		if ($expire_notify) {
-			reset($expire_notify);
-			$fn = next($expire_notify);
-		} else {
-			$fn = false;
-		}
+		$fn = $expire_notify[1] ?? false;
 
 		$savem = $conn->SetFetchMode(ADODB_FETCH_NUM);
 		$sql = "SELECT expireref, sesskey FROM $table WHERE expiry < $time ORDER BY 2"; # add order by to prevent deadlock
