@@ -315,8 +315,9 @@ class ADODB_Session {
 	/**
 	 * Get/Set garbage collection function.
 	 *
-	 * @param callable $expire_notify Function name
-	 * @return callable|false
+	 * @param array $expire_notify [Expired Session ref, Callback function]
+	 *
+	 * @return array|false
 	 */
 	static function expireNotify($expire_notify = null)
 	{
