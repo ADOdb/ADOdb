@@ -561,6 +561,22 @@ class ADODB_Session {
 	}
 
 	/**
+	 * Returns a MySQL "CAST(... AS BINARY)" function for the given value.
+	 *
+	 * For other DB types, the value is returned as-is.
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	static protected function castBinary(string $value): string
+	{
+		if (self::isConnectionMysql()) {
+			return "CAST($value AS BINARY)";
+		}
+		return $value;
+	}
+
+	/**
 	 * Check if Session Connection's DB type is PostgreSQL.
 	 *
 	 * @return bool
@@ -712,17 +728,17 @@ class ADODB_Session {
 			return '';
 		}
 
-		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
-
 		global $ADODB_SESSION_SELECT_FIELDS;
 		if (!isset($ADODB_SESSION_SELECT_FIELDS)) $ADODB_SESSION_SELECT_FIELDS = 'sessdata';
-		$sql = "SELECT $ADODB_SESSION_SELECT_FIELDS FROM $table WHERE sesskey = $binary ".$conn->Param(0)." AND expiry >= " . $conn->sysTimeStamp;
+		$sql = "SELECT $ADODB_SESSION_SELECT_FIELDS FROM $table "
+			. "WHERE sesskey = " . self::castBinary($conn->Param(0))
+			. " AND expiry >= " . $conn->sysTimeStamp;
 
 		/* Lock code does not work as it needs to hold transaction within whole page, and we don't know if
 		  developer has committed elsewhere... :(
 		 */
 		#if (ADODB_Session::Lock())
-		#	$rs = $conn->RowLock($table, "$binary sesskey = $qkey AND expiry >= " . time(), sessdata);
+		#	$rs = $conn->RowLock($table, "sesskey = " . self::castBinary($qkey). " AND expiry >= " . time(), sessdata);
 		#else
 			$rs = $conn->Execute($sql, array($key));
 		//ADODB_Session::_dumprs($rs);
@@ -785,8 +801,6 @@ class ADODB_Session {
 		$expiry = $conn->OffsetDate($lifetime/(24*3600),$sysTimeStamp);
 		$expireref = $expire_notify ? $GLOBALS[$expire_notify[0]] ?? '' : '';
 
-		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
-
 		// crc32 optimization since adodb 2.1
 		// now we only update expiry date, thx to sebastian thom in adodb 2.32
 		if ($crc !== '00' && $crc !== false && $crc == (strlen($oval) . crc32($oval))) {
@@ -795,7 +809,7 @@ class ADODB_Session {
 			}
 
 			$sql = "UPDATE $table SET expiry = $expiry, expireref=" . $conn->Param('0')
-				. ", modified = $sysTimeStamp WHERE sesskey = $binary " . $conn->Param('1')
+				. ", modified = $sysTimeStamp WHERE sesskey = " . self::castBinary($conn->Param('1'))
 				. " AND expiry >= $sysTimeStamp";
 			$rs = $conn->execute($sql,array($expireref, $key));
 			return true;
@@ -809,7 +823,10 @@ class ADODB_Session {
 
 		if (!$clob) {
 			// no lobs, simply use replace()
-			$rs = $conn->Execute("SELECT COUNT(*) AS cnt FROM $table WHERE $binary sesskey = ".$conn->Param(0),array($key));
+			$rs = $conn->execute(
+				"SELECT COUNT(*) AS cnt FROM $table WHERE sesskey = " . self::castBinary($conn->Param(0)),
+				array($key)
+			);
 			if ($rs) $rs->Close();
 
 			if ($rs && reset($rs->fields) > 0) {
@@ -829,7 +846,10 @@ class ADODB_Session {
 
 			$conn->StartTrans();
 
-			$rs = $conn->Execute("SELECT COUNT(*) AS cnt FROM $table WHERE $binary sesskey = ".$conn->Param(0),array($key));
+			$rs = $conn->execute(
+				"SELECT COUNT(*) AS cnt FROM $table WHERE sesskey = " . self::castBinary($conn->Param(0)),
+				array($key)
+			);
 
 			if ($rs && reset($rs->fields) > 0) {
 				$sql = "UPDATE $table SET expiry=$expiry, sessdata=$lob_value, expireref= ".$conn->Param(0).",modified=$sysTimeStamp WHERE sesskey = ".$conn->Param('1');
@@ -854,7 +874,7 @@ class ADODB_Session {
 			// bug in access driver (could be odbc?) means that info is not committed
 			// properly unless select statement executed in Win2000
 			if ($conn->databaseType == 'access') {
-				$sql = "SELECT sesskey FROM $table WHERE $binary sesskey = $qkey";
+				$sql = "SELECT sesskey FROM $table WHERE sesskey = " . self::castBinary($qkey);
 				$rs = $conn->Execute($sql);
 				ADODB_Session::_dumprs($rs);
 				if ($rs) {
@@ -886,12 +906,11 @@ class ADODB_Session {
 		if ($debug) $conn->debug = 1;
 
 		$qkey = $conn->quote($key);
-		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
 
 		if ($expire_notify) {
 			$fn = $expire_notify[1];
 			$savem = $conn->SetFetchMode(ADODB_FETCH_NUM);
-			$sql = "SELECT expireref, sesskey FROM $table WHERE sesskey = $binary $qkey";
+			$sql = "SELECT expireref, sesskey FROM $table WHERE sesskey = " . self::castBinary($qkey);
 			$rs = $conn->Execute($sql);
 			ADODB_Session::_dumprs($rs);
 			$conn->SetFetchMode($savem);
@@ -906,7 +925,7 @@ class ADODB_Session {
 			$rs->Close();
 		}
 
-		$sql = "DELETE FROM $table WHERE sesskey = $binary $qkey";
+		$sql = "DELETE FROM $table WHERE sesskey = " . self::castBinary($qkey);
 		$rs = $conn->Execute($sql);
 		if ($rs) {
 			$rs->Close();
@@ -941,7 +960,6 @@ class ADODB_Session {
 		}
 
 		$time = $conn->OffsetDate(-$maxlifetime/24/3600,$conn->sysTimeStamp);
-		$binary = ADODB_Session::isConnectionMysql() ? '/*! BINARY */' : '';
 
 		$fn = $expire_notify[1] ?? false;
 
@@ -958,7 +976,10 @@ class ADODB_Session {
 				$ref = $rs->fields[0];
 				$key = $rs->fields[1];
 				if ($fn) $fn($ref, $key);
-				$conn->Execute("DELETE FROM $table WHERE sesskey = $binary " . $conn->Param('0'), array($key));
+				$conn->execute(
+					"DELETE FROM $table WHERE sesskey = " . self::castBinary($conn->Param('0') ),
+					array($key)
+				);
 				$rs->MoveNext();
 				$ccnt += 1;
 				if ($tr && $ccnt % $COMMITNUM == 0) {
