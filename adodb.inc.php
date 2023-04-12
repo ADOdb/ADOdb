@@ -4023,7 +4023,10 @@ class ADORecordSet implements IteratorAggregate {
 	var $_atLastPage = false;	/** Added by Iván Oliva to implement recordset pagination */
 	var $_lastPageNo = -1;
 	var $_maxRecordCount = 0;
+	var $rowsPerPage;
 	var $datetime = false;
+
+	var $oldProvider;
 
 	public $customActualTypes;
 	public $customMetaTypes;
@@ -4064,7 +4067,10 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 	function __destruct() {
-		$this->Close();
+		//If the _queryID is bogus, calling Close() may cause an error in the database driver.
+		if($this->_queryID != -1) {
+			$this->Close();
+		}
 	}
 
 	#[\ReturnTypeWillChange]

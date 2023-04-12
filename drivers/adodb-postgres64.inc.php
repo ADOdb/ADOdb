@@ -272,7 +272,9 @@ class ADODB_postgres64 extends ADOConnection{
 		if ($this->_connectionID) {
 			return "'" . pg_escape_string($this->_connectionID, $s) . "'";
 		} else {
-			return "'" . pg_escape_string($s) . "'";
+			//If there is no database connection, then pg_escape_string() will not work in PHP 8.3+.
+			//  This can occur when using setSessionVariables() in the load balancer, so fall back to emulated escaping in these cases.
+			return parent::qStr( $s );
 		}
 	}
 
