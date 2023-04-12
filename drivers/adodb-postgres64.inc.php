@@ -89,7 +89,7 @@ class ADODB_postgres64 extends ADOConnection{
 	var $_pnum = 0;
 
 	var $version;
-	var $_nestedSQL = false;
+	var $_nestedSQL = true;
 
 	// The last (fmtTimeStamp is not entirely correct:
 	// PostgreSQL also has support for time zones,
@@ -769,22 +769,6 @@ class ADODB_postgres64 extends ADOConnection{
 		}
 		if ($this->_connectionID === false) return false;
 		$this->Execute("set datestyle='ISO'");
-
-		$info = $this->ServerInfo(false);
-
-		if (version_compare($info['version'], '7.1', '>=')) {
-			$this->_nestedSQL = true;
-		}
-
-		# PostgreSQL 9.0 changed the default output for bytea from 'escape' to 'hex'
-		# PHP does not handle 'hex' properly ('x74657374' is returned as 't657374')
-		# https://bugs.php.net/bug.php?id=59831 states this is in fact not a bug,
-		# so we manually set bytea_output
-		if (version_compare($info['version'], '9.0', '>=')
-			&& version_compare($info['client'], '9.2', '<')
-		) {
-			$this->Execute('set bytea_output=escape');
-		}
 
 		return true;
 	}
