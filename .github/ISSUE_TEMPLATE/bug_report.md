@@ -17,7 +17,8 @@ A clear and concise description of what the problem is, including relevant error
 - PHP version: 
 - Platform: 
 
-* [ ] I have tested that the problem is reproducible in the [latest release](https://github.com/ADOdb/ADOdb/releases/latest) / **master** branch / **hotfix** branch
+* [ ] I have tested that the problem is reproducible in the [latest release](https://github.com/ADOdb/ADOdb/releases/latest) / **master** branch / **hotfix** branch  
+  ⚠️ Keep only the applicable option(s), i.e. where you actually tested and remove the others)
 
 ### Steps to reproduce
 Detailed, step-by-step instructions to reproduce the behavior, including:
