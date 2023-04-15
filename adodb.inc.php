@@ -3984,7 +3984,8 @@ class ADORecordSet implements IteratorAggregate {
 	var $_names;			/** Used by FetchObj */
 
 	// Recordset pagination
-
+	/** @var int Number of rows per page */
+	var $rowsPerPage;
 	/** @var int Current page number */
 	var $_currentPage = -1;
 	/** @var bool True if current page is the first page */
