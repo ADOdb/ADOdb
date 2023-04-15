@@ -4023,10 +4023,8 @@ class ADORecordSet implements IteratorAggregate {
 	var $_atLastPage = false;	/** Added by Iván Oliva to implement recordset pagination */
 	var $_lastPageNo = -1;
 	var $_maxRecordCount = 0;
-	var $rowsPerPage;
 	var $datetime = false;
 
-	var $oldProvider;
 
 	public $customActualTypes;
 	public $customMetaTypes;
@@ -4067,10 +4065,7 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 	function __destruct() {
-		//If the _queryID is bogus, calling Close() may cause an error in the database driver.
-		if($this->_queryID != -1) {
-			$this->Close();
-		}
+		$this->Close();
 	}
 
 	#[\ReturnTypeWillChange]
@@ -4796,7 +4791,8 @@ class ADORecordSet implements IteratorAggregate {
 		// free connection object - this seems to globally free the object
 		// and not merely the reference, so don't do this...
 		// $this->connection = false;
-		if (!$this->_closed) {
+		// Also ensure the _queryID is not bogus, as calling Close() may cause an error in the database driver.
+		if (!$this->_closed && $this->_queryID != -1) {
 			$this->_closed = true;
 			return $this->_close();
 		} else

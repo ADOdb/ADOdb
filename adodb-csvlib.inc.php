@@ -79,7 +79,6 @@ $ADODB_INCLUDED_CSV = 1;
 		$rs2 = new $class(ADORecordSet::DUMMY_QUERY_ID);
 		$rs2->timeCreated = $rs->timeCreated; # memcache fix
 		$rs2->sql = $rs->sql;
-		$rs2->oldProvider = $rs->dataProvider;
 		$rs2->InitArrayFields($rows,$flds);
 		$rs2->fetchMode = $savefetch;
 		return $line.serialize($rs2);
