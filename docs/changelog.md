@@ -22,9 +22,13 @@ Older changelogs:
   [#801](https://github.com/ADOdb/ADOdb/issues/801)
 - oci8: support setting the client identifier 
   [#805](https://github.com/ADOdb/ADOdb/issues/805)
+- pdo: bind support both '?'-style and named parameters
+  [#880](https://github.com/ADOdb/ADOdb/issues/880)
 
 ### Changed
 
+- Refactor debug functions
+  [#863](https://github.com/ADOdb/ADOdb/issues/863)
 - mssql: Simplify serverInfo()
   [#830](https://github.com/ADOdb/ADOdb/pull/830#issuecomment-1119655907)
 - Code cleanup: PHPDoc, code style, whitespace, etc.
@@ -37,6 +41,8 @@ Older changelogs:
   [#814](https://github.com/ADOdb/ADOdb/issues/814)
 - mysqli: remove obsolete, dead code
   [#877](https://github.com/ADOdb/ADOdb/issues/877)
+- pgsql: Remove legacy workarounds for old PostgreSQL versions
+  [#950](https://github.com/ADOdb/ADOdb/issues/950)
 
 ### Fixed
 
