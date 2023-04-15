@@ -58,6 +58,8 @@ Older changelogs:
 
 - Creation of dynamic property deprecated warning in PHP 8.2
   [#954](https://github.com/ADOdb/ADOdb/issues/954)
+- loadbalancer: PHP 8.2 warnings
+  [#951](https://github.com/ADOdb/ADOdb/issues/951)
 
 
 ## [5.22.5] - 2023-04-03
