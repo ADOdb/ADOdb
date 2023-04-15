@@ -3554,20 +3554,21 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	 * Will select the supplied $page number from a recordset, given that it is paginated in pages of
-	 * $nrows rows per page. It also saves two boolean values saying if the given page is the first
-	 * and/or last one of the recordset. Added by Iván Oliva to provide recordset pagination.
+	 * Execute query with pagination.
 	 *
-	 * See docs-adodb.htm#ex8 for an example of usage.
-	 * NOTE: phpLens uses a different algorithm and does not use PageExecute().
+	 * Will select the supplied $page number from a recordset, divided in
+	 * pages of $nrows rows each. It also saves two boolean values saying
+	 * if the given page is the first and/or last one of the recordset.
 	 *
-	 * @param string $sql
-	 * @param int    $nrows          Number of rows per page to get
-	 * @param int    $page           Page number to get (1-based)
-	 * @param mixed[]|bool $inputarr Array of bind variables
-	 * @param int    $secs2cache     Private parameter only used by jlim
+	 * @param string     $sql        Query to execute
+	 * @param int        $nrows      Number of rows per page
+	 * @param int        $page       Page number to retrieve (1-based)
+	 * @param array|bool $inputarr   Array of bind variables
+	 * @param int        $secs2cache Time-to-live of the cache (in seconds), 0 to force query execution
 	 *
-	 * @return mixed		the recordset ($rs->databaseType == 'array')
+	 * @return ADORecordSet|bool the recordset ($rs->databaseType == 'array')
+	 *
+	 * @author Iván Oliva
 	 */
 	function PageExecute($sql, $nrows, $page, $inputarr=false, $secs2cache=0) {
 		global $ADODB_INCLUDED_LIB;
@@ -3982,11 +3983,19 @@ class ADORecordSet implements IteratorAggregate {
 	var $_obj;				/** Used by FetchObj */
 	var $_names;			/** Used by FetchObj */
 
-	var $_currentPage = -1;	/** Added by Iván Oliva to implement recordset pagination */
-	var $_atFirstPage = false;	/** Added by Iván Oliva to implement recordset pagination */
-	var $_atLastPage = false;	/** Added by Iván Oliva to implement recordset pagination */
+	// Recordset pagination
+
+	/** @var int Current page number */
+	var $_currentPage = -1;
+	/** @var bool True if current page is the first page */
+	var $_atFirstPage = false;
+	/** @var bool True if current page is the last page */
+	var $_atLastPage = false;
+	/** @var int Last page number */
 	var $_lastPageNo = -1;
+	/** @var int Total number of rows in recordset */
 	var $_maxRecordCount = 0;
+
 	var $datetime = false;
 
 	public $customActualTypes;
