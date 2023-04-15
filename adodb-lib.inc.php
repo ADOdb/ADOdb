@@ -537,7 +537,6 @@ function _adodb_pageexecute_all_rows($zthis, $sql, $nrows, $page, $inputarr=fals
 
 	$qryRecs = _adodb_getcount($zthis,$sql,$inputarr,$secs2cache);
 	$lastpageno = (int) ceil($qryRecs / $nrows);
-	$zthis->_maxRecordCount = $qryRecs;
 
 	// Check whether $page is the last page or if we are trying to retrieve
 	// a page number greater than the last one.
