@@ -16,6 +16,12 @@ Older changelogs:
 
 ## [5.22.6] - Unreleased
 
+### Fixed
+
+- Creation of dynamic property deprecated warning in PHP 8.2
+  [#954](https://github.com/ADOdb/ADOdb/issues/954)
+
+
 ## [5.22.5] - 2023-04-03
 
 ### Removed
