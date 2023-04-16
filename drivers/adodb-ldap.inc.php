@@ -295,28 +295,23 @@ class ADORecordSet_ldap extends ADORecordSet{
 	var $canSeek = false;
 	var $_entryID; /* keeps track of the entry resource identifier */
 
-	function __construct($queryID,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		switch ($mode)
-		{
-		case ADODB_FETCH_NUM:
-			$this->fetchMode = LDAP_NUM;
-			break;
-		case ADODB_FETCH_ASSOC:
-			$this->fetchMode = LDAP_ASSOC;
-			break;
-		case ADODB_FETCH_DEFAULT:
-		case ADODB_FETCH_BOTH:
-		default:
-			$this->fetchMode = LDAP_BOTH;
-			break;
-		}
+		parent::__construct($queryID, $mode);
 
-		parent::__construct($queryID);
+		switch ($mode) {
+			case ADODB_FETCH_NUM:
+				$this->fetchMode = LDAP_NUM;
+				break;
+			case ADODB_FETCH_ASSOC:
+				$this->fetchMode = LDAP_ASSOC;
+				break;
+			case ADODB_FETCH_DEFAULT:
+			case ADODB_FETCH_BOTH:
+			default:
+				$this->fetchMode = LDAP_BOTH;
+				break;
+		}
 	}
 
 	function _initrs()

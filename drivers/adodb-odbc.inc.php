@@ -613,20 +613,13 @@ class ADORecordSet_odbc extends ADORecordSet {
 	var $dataProvider = "odbc";
 	var $useFetchArray;
 
-	function __construct($id,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->fetchMode = $mode;
-
-		$this->_queryID = $id;
+		parent::__construct($queryID, $mode);
 
 		// the following is required for mysql odbc driver in 4.3.1 -- why?
 		$this->EOF = false;
 		$this->_currentRow = -1;
-		//parent::__construct($id);
 	}
 
 

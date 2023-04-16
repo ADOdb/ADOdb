@@ -741,13 +741,6 @@ class ADORecordset_ibase extends ADORecordSet
 	var $bind=false;
 	var $_cacheType;
 
-	function __construct($id,$mode=false)
-	{
-	global $ADODB_FETCH_MODE;
-
-			$this->fetchMode = ($mode === false) ? $ADODB_FETCH_MODE : $mode;
-			parent::__construct($id);
-	}
 
 	/*		Returns: an object containing field information.
 			Get column information in the Recordset object. fetchField() can be used in order to obtain information about

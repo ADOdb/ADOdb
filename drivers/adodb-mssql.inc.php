@@ -857,18 +857,12 @@ class ADORecordset_mssql extends ADORecordSet {
 	var $hasFetchAssoc; // see PHPLens Issue No: 6083
 	// _mths works only in non-localised system
 
-	function __construct($id,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
+		parent::__construct($queryID, $mode);
+
 		// freedts check...
 		$this->hasFetchAssoc = function_exists('mssql_fetch_assoc');
-
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-
-		}
-		$this->fetchMode = $mode;
-		return parent::__construct($id);
 	}
 
 

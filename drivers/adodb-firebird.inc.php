@@ -1024,14 +1024,6 @@ class ADORecordset_firebird extends ADORecordSet
 	 */
 	private $fieldObjectsHaveBlob = false;
 
-	function __construct($id, $mode = false)
-	{
-		global $ADODB_FETCH_MODE;
-
-		$this->fetchMode = ($mode === false) ? $ADODB_FETCH_MODE : $mode;
-		parent::__construct($id);
-	}
-
 
 	/**
 	 * Returns: an object containing field information.

@@ -169,20 +169,22 @@ class ADORecordSet_fbsql extends ADORecordSet{
 	var $databaseType = "fbsql";
 	var $canSeek = true;
 
-	function __construct($queryID,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-		if (!$mode) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
+		parent::__construct($queryID, $mode);
+
 		switch ($mode) {
-		case ADODB_FETCH_NUM: $this->fetchMode = FBSQL_NUM; break;
-		case ADODB_FETCH_ASSOC: $this->fetchMode = FBSQL_ASSOC; break;
-		case ADODB_FETCH_BOTH:
-		default:
-		$this->fetchMode = FBSQL_BOTH; break;
+			case ADODB_FETCH_NUM:
+				$this->fetchMode = FBSQL_NUM;
+				break;
+			case ADODB_FETCH_ASSOC:
+				$this->fetchMode = FBSQL_ASSOC;
+				break;
+			case ADODB_FETCH_BOTH:
+			default:
+				$this->fetchMode = FBSQL_BOTH;
+				break;
 		}
-		parent::__construct($queryID);
 	}
 
 	function _initrs()

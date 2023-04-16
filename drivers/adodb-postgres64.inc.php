@@ -950,10 +950,8 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 	function __construct($queryID, $mode=false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
+		parent::__construct($queryID, $mode);
+
 		switch ($mode) {
 			case ADODB_FETCH_NUM:
 				$this->fetchMode = PGSQL_NUM;
@@ -961,17 +959,12 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			case ADODB_FETCH_ASSOC:
 				$this->fetchMode = PGSQL_ASSOC;
 				break;
-
 			case ADODB_FETCH_DEFAULT:
 			case ADODB_FETCH_BOTH:
 			default:
 				$this->fetchMode = PGSQL_BOTH;
 				break;
 		}
-		$this->adodbFetchMode = $mode;
-
-		// Parent's constructor
-		parent::__construct($queryID);
 	}
 
 	function GetRowAssoc($upper = ADODB_ASSOC_CASE)

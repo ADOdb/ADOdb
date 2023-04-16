@@ -425,14 +425,11 @@ class ADORecordset_sqlite extends ADORecordSet {
 	var $databaseType = "sqlite";
 	var $bind = false;
 
-	function __construct($queryID,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
+		parent::__construct($queryID, $mode);
 
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		switch($mode) {
+		switch ($mode) {
 			case ADODB_FETCH_NUM:
 				$this->fetchMode = SQLITE_NUM;
 				break;
@@ -443,9 +440,6 @@ class ADORecordset_sqlite extends ADORecordSet {
 				$this->fetchMode = SQLITE_BOTH;
 				break;
 		}
-		$this->adodbFetchMode = $mode;
-
-		$this->_queryID = $queryID;
 
 		$this->_inited = true;
 		$this->fields = array();
@@ -461,7 +455,6 @@ class ADORecordset_sqlite extends ADORecordSet {
 
 		return $this->_queryID;
 	}
-
 
 	function FetchField($fieldOffset = -1)
 	{

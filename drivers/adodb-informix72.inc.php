@@ -399,17 +399,6 @@ class ADORecordset_informix72 extends ADORecordSet {
 	var $canSeek = true;
 	var $_fieldprops = false;
 
-	function __construct($id,$mode=false)
-	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->fetchMode = $mode;
-		parent::__construct($id);
-	}
-
-
 
 	/*	Returns: an object containing field information.
 		Get column information in the Recordset object. fetchField() can be used in order to obtain information about
