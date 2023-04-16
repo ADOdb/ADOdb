@@ -287,7 +287,7 @@ class ADODB_ads extends ADOConnection
 
 	// Returns tables,Views or both on successful execution. Returns
 	// tables by default on successful execution.
-	function &MetaTables($ttype = false, $showSchema = false, $mask = false)
+	function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$recordSet1 = $this->Execute("select * from system.tables");
 		if (!$recordSet1) {
@@ -325,7 +325,7 @@ class ADODB_ads extends ADOConnection
 
 	}
 
-	function &MetaPrimaryKeys($table, $owner = false)
+	function MetaPrimaryKeys($table, $owner = false)
 	{
 		$recordSet = $this->Execute("select table_primary_key from system.tables where name='$table'");
 		if (!$recordSet) {
@@ -533,7 +533,7 @@ class ADODB_ads extends ADOConnection
 	}
 
 	// Returns an array of columns names for a given table
-	function &MetaColumnNames($table, $numIndexes = false, $useattnum = false)
+	function MetaColumnNames($table, $numIndexes = false, $useattnum = false)
 	{
 		$recordSet = $this->Execute("select name from system.columns where parent='$table'");
 		if (!$recordSet) {
@@ -753,7 +753,7 @@ class ADORecordSet_ads extends ADORecordSet
 	function &GetArrayLimit($nrows, $offset = -1)
 	{
 		if ($offset <= 0) {
-			$rs =& $this->GetArray($nrows);
+			$rs = $this->GetArray($nrows);
 			return $rs;
 		}
 		$savem = $this->fetchMode;
@@ -762,7 +762,7 @@ class ADORecordSet_ads extends ADORecordSet
 		$this->fetchMode = $savem;
 
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-			$this->fields =& $this->GetRowAssoc();
+			$this->fields = $this->GetRowAssoc();
 		}
 
 		$results = array();
@@ -795,7 +795,7 @@ class ADORecordSet_ads extends ADORecordSet
 		$rez = @ads_fetch_into($this->_queryID, $this->fields);
 		if ($rez) {
 			if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-				$this->fields =& $this->GetRowAssoc();
+				$this->fields = $this->GetRowAssoc();
 			}
 			return true;
 		}
