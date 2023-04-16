@@ -854,26 +854,24 @@ class ADORecordSet_pdo extends ADORecordSet {
 	/** @var PDOStatement */
 	var $_queryID;
 
-	function __construct($id,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->adodbFetchMode = $mode;
-		switch($mode) {
-		case ADODB_FETCH_NUM: $mode = PDO::FETCH_NUM; break;
-		case ADODB_FETCH_ASSOC:  $mode = PDO::FETCH_ASSOC; break;
+		parent::__construct($queryID, $mode);
 
-		case ADODB_FETCH_BOTH:
-		default: $mode = PDO::FETCH_BOTH; break;
+		switch($mode) {
+			case ADODB_FETCH_NUM:
+				$mode = PDO::FETCH_NUM;
+				break;
+			case ADODB_FETCH_ASSOC:
+				$mode = PDO::FETCH_ASSOC;
+				break;
+			case ADODB_FETCH_BOTH:
+			default:
+				$mode = PDO::FETCH_BOTH;
+				break;
 		}
 		$this->fetchMode = $mode;
-
-		$this->_queryID = $id;
-		parent::__construct($id);
 	}
-
 
 	function Init()
 	{

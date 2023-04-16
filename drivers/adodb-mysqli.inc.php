@@ -1406,10 +1406,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 
 	function __construct($queryID, $mode = false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
+		parent::__construct($queryID, $mode);
 
 		switch ($mode) {
 			case ADODB_FETCH_NUM:
@@ -1424,8 +1421,6 @@ class ADORecordSet_mysqli extends ADORecordSet{
 				$this->fetchMode = MYSQLI_BOTH;
 				break;
 		}
-		$this->adodbFetchMode = $mode;
-		parent::__construct($queryID);
 	}
 
 	function _initrs()

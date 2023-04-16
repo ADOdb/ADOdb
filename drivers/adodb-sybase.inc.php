@@ -316,15 +316,15 @@ class ADORecordset_sybase extends ADORecordSet {
 	// _mths works only in non-localised system
 	var  $_mths = array('JAN'=>1,'FEB'=>2,'MAR'=>3,'APR'=>4,'MAY'=>5,'JUN'=>6,'JUL'=>7,'AUG'=>8,'SEP'=>9,'OCT'=>10,'NOV'=>11,'DEC'=>12);
 
-	function __construct($id,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
+		parent::__construct($queryID, $mode);
+
+		if (!$mode) {
+			$this->fetchMode = ADODB_FETCH_ASSOC;
+		} else {
+			$this->fetchMode = $mode;
 		}
-		if (!$mode) $this->fetchMode = ADODB_FETCH_ASSOC;
-		else $this->fetchMode = $mode;
-		parent::__construct($id);
 	}
 
 	/*	Returns: an object containing field information.

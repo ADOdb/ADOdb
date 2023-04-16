@@ -224,16 +224,9 @@ class ADORecordset_oracle extends ADORecordSet {
 	var $databaseType = "oracle";
 	var $bind = false;
 
-	function __construct($queryID,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->fetchMode = $mode;
-
-		$this->_queryID = $queryID;
+		parent::__construct($queryID, $mode);
 
 		$this->_inited = true;
 		$this->fields = array();

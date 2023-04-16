@@ -1084,20 +1084,6 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			);
 
 
-
-
-	function __construct($id,$mode=false)
-	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-
-		}
-		$this->fetchMode = $mode;
-		parent::__construct($id);
-	}
-
-
 	function _initrs()
 	{
 		$this->_numOfRows = -1;//not supported

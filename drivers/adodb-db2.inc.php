@@ -1832,17 +1832,6 @@ class ADORecordSet_db2 extends ADORecordSet {
 	var $dataProvider = "db2";
 	var $useFetchArray;
 
-	function __construct($id,$mode=false)
-	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->fetchMode = $mode;
-
-		$this->_queryID = $id;
-	}
-
 
 	// returns the field object
 	function fetchField($offset = 0)

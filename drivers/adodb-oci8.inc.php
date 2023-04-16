@@ -1625,12 +1625,10 @@ class ADORecordset_oci8 extends ADORecordSet {
 	/** @var resource Cursor reference */
 	var $_refcursor;
 
-	function __construct($queryID,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
+		parent::__construct($queryID, $mode);
+
 		switch ($mode) {
 			case ADODB_FETCH_ASSOC:
 				$this->fetchMode = OCI_ASSOC;
@@ -1645,8 +1643,6 @@ class ADORecordset_oci8 extends ADORecordSet {
 				break;
 		}
 		$this->fetchMode += OCI_RETURN_NULLS + OCI_RETURN_LOBS;
-		$this->adodbFetchMode = $mode;
-		$this->_queryID = $queryID;
 	}
 
 	/**

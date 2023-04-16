@@ -4014,7 +4014,7 @@ class ADORecordSet implements IteratorAggregate {
 	var $timeCreated=0;		/// datetime in Unix format rs created -- for cached recordsets
 
 	var $bind = false;		/// used by Fields() to hold array - should be private?
-	var $fetchMode;			/// default fetch mode
+
 	/** @var ADOConnection The parent connection */
 	var $connection = false;
 	/**
@@ -4064,6 +4064,11 @@ class ADORecordSet implements IteratorAggregate {
 	protected $fieldObjectsIndex = array();
 
 	/**
+	 * @var bool|int Driver-specific fetch mode
+	 */
+	var $fetchMode;
+
+	/**
 	 * @var int Defines the Fetch Mode for a recordset
 	 * See the ADODB_FETCH_* constants
 	 */
@@ -4075,7 +4080,13 @@ class ADORecordSet implements IteratorAggregate {
 	 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
 	 * @param int|bool     $mode    The ADODB_FETCH_MODE value
 	 */
-	function __construct($queryID,$mode=false) {
+	function __construct($queryID, $mode=false) {
+		if ($mode === false) {
+			global $ADODB_FETCH_MODE;
+			$mode = $ADODB_FETCH_MODE;
+		}
+		$this->adodbFetchMode = $this->fetchMode = $mode;
+
 		$this->_queryID = $queryID;
 	}
 
@@ -5295,14 +5306,12 @@ class ADORecordSet implements IteratorAggregate {
 		 * @param int|bool     $mode    The ADODB_FETCH_MODE value
 		 */
 		function __construct($queryID, $mode=false) {
-			global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
+			parent::__construct(self::DUMMY_QUERY_ID);
 
 			// fetch() on EOF does not delete $this->fields
+			global $ADODB_COMPAT_FETCH;
 			$this->compat = !empty($ADODB_COMPAT_FETCH);
-			parent::__construct($queryID); // fake queryID
-			$this->fetchMode = $ADODB_FETCH_MODE;
 		}
-
 
 		/**
 		 * Setup the array.
