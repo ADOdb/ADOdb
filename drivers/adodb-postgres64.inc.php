@@ -992,7 +992,6 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 
 		// cache types for blob decode check
 		// apparently pg_field_type actually performs an sql query on the database to get the type.
-		if (empty($this->connection->noBlobs))
 		for ($i=0, $max = $this->_numOfFields; $i < $max; $i++) {
 			if (pg_field_type($qid,$i) == 'bytea') {
 				$this->_blobArr[$i] = pg_field_name($qid,$i);
