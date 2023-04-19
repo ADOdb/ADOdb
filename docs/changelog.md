@@ -37,6 +37,8 @@ Older changelogs:
 
 - Compatibility with PHP < 7.4
   [#868](https://github.com/ADOdb/ADOdb/issues/868)
+- Database Replication add-on
+  [#780](https://github.com/ADOdb/ADOdb/issues/780)
 - mysqli: legacy non-functional $optionFlags property
   [#814](https://github.com/ADOdb/ADOdb/issues/814)
 - mysqli: remove obsolete, dead code
