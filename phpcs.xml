@@ -10,4 +10,7 @@
 
 	<!--enforce LF (\n) end of line-->
 	<rule ref="Generic.Files.LineEndings.InvalidEOLChar"/>
+
+	<!--enforce one empty line at end of each file-->
+	<rule ref="PSR2.Files.EndFileNewline"/>
 </ruleset>

@@ -1309,4 +1309,3 @@ class ADORecordset_firebird extends ADORecordSet
 	}
 
 }
-
