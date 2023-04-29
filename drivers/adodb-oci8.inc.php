@@ -1272,7 +1272,8 @@ END;
 	}
 
 	/**
-	 * returns query ID if successful, otherwise false
+	 * Execute a query.
+	 *
 	 * this version supports:
 	 *
 	 * 1. $db->execute('select * from table');
@@ -1285,6 +1286,11 @@ END;
 	 * 4. $db->prepare('insert into table (a,b,c) values (:0,:1,:2)');
 	 *    $db->bind($stmt,1); $db->bind($stmt,2); $db->bind($stmt,3);
 	 *    $db->execute($stmt);
+	 *
+	 * @param string|array $sql        Query to execute.
+	 * @param array        $inputarr   An optional array of parameters.
+	 *
+	 * @return mixed|bool Query identifier or true if execution successful, false if failed.
 	 */
 	function _query($sql,$inputarr=false)
 	{

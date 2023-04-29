@@ -208,10 +208,6 @@ class ADODB_ado extends ADOConnection {
 		return empty($arr) ? $false : $arr;
 	}
 
-
-
-
-	/* returns queryID or false */
 	function _query($sql,$inputarr=false)
 	{
 

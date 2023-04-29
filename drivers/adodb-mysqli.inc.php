@@ -1179,14 +1179,14 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	/**
-	* Return the query id.
-	*
-	* @param string|array $sql
-	* @param array $inputarr
-	*
-	* @return bool|mysqli_result
+	 * Execute a query.
+	 *
+	 * @param string|array $sql        Query to execute.
+	 * @param array        $inputarr   An optional array of parameters.
+	 *
+	 * @return mysqli_result|bool
 	*/
-	function _query($sql, $inputarr)
+	function _query($sql, $inputarr = false)
 	{
 		global $ADODB_COUNTRECS;
 		// Move to the next recordset, or return false if there is none. In a stored proc

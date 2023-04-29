@@ -1666,6 +1666,18 @@ if (!defined('_ADODB_LAYER')) {
 		return $rs;
 	}
 
+	/**
+	 * Execute a query.
+	 *
+	 * @param string|array $sql        Query to execute.
+	 * @param array        $inputarr   An optional array of parameters.
+	 *
+	 * @return mixed|bool Query identifier or true if execution successful, false if failed.
+	 */
+	function _query($sql, $inputarr = false) {
+		return false;
+	}
+
 	function CreateSequence($seqname='adodbseq',$startID=1) {
 		if (empty($this->_genSeqSQL)) {
 			return false;

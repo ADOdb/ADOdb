@@ -518,7 +518,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 		return array($sql,$stmt,false);
 	}
 
-	/* returns queryID or false */
 	function _query($sql,$inputarr=false)
 	{
 		$last_php_error = $this->resetLastError();
