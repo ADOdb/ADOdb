@@ -3,6 +3,7 @@
 	<include-pattern>*\.php</include-pattern>
 	<exclude-pattern>vendor/</exclude-pattern>
 
+	<arg name="tab-width" value="4"/>
 	<arg name="basepath" value="."/>
 	<arg name="colors"/>
 	<arg name="parallel" value="75"/>
