@@ -971,16 +971,6 @@ END;
 		return $rez;
 	}
 
-	/**
-	 * Execute SQL
-	 *
-	 * @param string|array $sql     SQL statement to execute, or possibly an array holding
-	 *                              prepared statement ($sql[0] will hold sql text).
-	 * @param array|false $inputarr holds the input data to bind to.
-	 *                              Null elements will be set to null.
-	 *
-	 * @return ADORecordSet|false
-	 */
 	function Execute($sql,$inputarr=false)
 	{
 		if ($this->fnExecute) {
