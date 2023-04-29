@@ -57,7 +57,7 @@ class ADODB_csv extends ADOConnection {
 		return $this->_affectedrows;
 	}
 
-  	function MetaDatabases()
+	function MetaDatabases()
 	{
 		return false;
 	}
@@ -79,7 +79,7 @@ class ADODB_csv extends ADOConnection {
 		return true;
 	}
 
- 	function MetaColumns($table, $normalize=true)
+	function MetaColumns($table, $normalize=true)
 	{
 		return false;
 	}

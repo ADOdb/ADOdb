@@ -13,4 +13,7 @@
 
 	<!--enforce one empty line at end of each file-->
 	<rule ref="PSR2.Files.EndFileNewline"/>
+
+	<!--enforce intents to be tabs-->
+	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
 </ruleset>

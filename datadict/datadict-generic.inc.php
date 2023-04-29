@@ -29,7 +29,7 @@ class ADODB2_generic extends ADODB_DataDict {
 
 
 
- 	function ActualType($meta)
+	function ActualType($meta)
 	{
 		
 		$meta = strtoupper($meta);
@@ -86,7 +86,7 @@ class ADODB2_generic extends ADODB_DataDict {
 
 /*
 //db2
- 	function ActualType($meta)
+	function ActualType($meta)
 	{
 		switch($meta) {
 		case 'C': return 'VARCHAR';

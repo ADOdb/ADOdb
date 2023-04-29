@@ -36,14 +36,14 @@ if (!defined('ADODB_DIR')) die();
 include_once(ADODB_DIR.'/drivers/adodb-postgres64.inc.php');
 
 class ADODB_netezza extends ADODB_postgres64 {
-    var $databaseType = 'netezza';
+	var $databaseType = 'netezza';
 	var $dataProvider = 'netezza';
 	var $hasInsertID = false;
 	var $_resultid = false;
-  	var $concat_operator='||';
-  	var $random = 'random';
+	var $concat_operator='||';
+	var $random = 'random';
 	var $metaDatabasesSQL = "select objname from _v_object_data where objtype='database' order by 1";
-    var $metaTablesSQL = "select objname from _v_object_data where objtype='table' order by 1";
+	var $metaTablesSQL = "select objname from _v_object_data where objtype='table' order by 1";
 	var $isoDates = true; // accepts dates in ISO format
 	var $sysDate = "CURRENT_DATE";
 	var $sysTimeStamp = "CURRENT_TIMESTAMP";

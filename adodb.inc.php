@@ -1419,7 +1419,7 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * Improved method of initiating a transaction. Used together with CompleteTrans().
 	 * Advantages include:
-     *
+	 *
 	 * a. StartTrans/CompleteTrans is nestable, unlike BeginTrans/CommitTrans/RollbackTrans.
 	 *    Only the outermost block is treated as a transaction.<br>
 	 * b. CompleteTrans auto-detects SQL errors, and will rollback on errors, commit otherwise.<br>

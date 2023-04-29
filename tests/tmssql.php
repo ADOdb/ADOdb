@@ -80,7 +80,7 @@ $remote = $_SERVER["REMOTE_ADDR"];
 
 if (!empty($ACCEPTIP))
  if ($remote != '127.0.0.1' && $remote != $ACCEPTIP)
- 	die("Unauthorised client: '$remote'");
+	die("Unauthorised client: '$remote'");
 
 ?>
 <a href=tmssql.php?do=tmssql>mssql</a>

@@ -57,8 +57,8 @@ class ADODB2_oci8 extends ADODB_DataDict {
 			return  $this->connection->customActualTypes[$t];
 
 		switch ($t) {
-	 	case 'VARCHAR':
-	 	case 'VARCHAR2':
+		case 'VARCHAR':
+		case 'VARCHAR2':
 		case 'CHAR':
 		case 'VARBINARY':
 		case 'BINARY':
@@ -96,7 +96,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		}
 	}
 
- 	function ActualType($meta)
+	function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
 		

@@ -149,7 +149,7 @@ class ADODB_sqlite extends ADOConnection {
 	}
 
 	function ErrorMsg()
- 	{
+	{
 		if ($this->_logsql) {
 			return $this->_errorMsg;
 		}

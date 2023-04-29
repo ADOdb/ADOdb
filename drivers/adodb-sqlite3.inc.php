@@ -208,12 +208,12 @@ class ADODB_sqlite3 extends ADOConnection {
 
 	public function metaForeignKeys($table, $owner = '', $upper =  false, $associative =  false)
 	{
-	    global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
 		|| $this->fetchMode == ADODB_FETCH_ASSOC)
 		$associative = true;
 
-	    /*
+		/*
 		* Read sqlite master to find foreign keys
 		*/
 		$sql = "SELECT sql
@@ -277,7 +277,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	}
 
 	function ErrorMsg()
- 	{
+	{
 		if ($this->_logsql) {
 			return $this->_errorMsg;
 		}
@@ -464,7 +464,7 @@ class ADODB_sqlite3 extends ADOConnection {
 					  AND LOWER(tbl_name)='%s'";
 
 		$SQL = sprintf($sqlite,
-				     strtolower($table)
+					 strtolower($table)
 					 );
 
 		$rs = $this->execute($SQL);

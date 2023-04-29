@@ -29,7 +29,7 @@ global $ADODB_INCLUDED_CSV;
 $ADODB_INCLUDED_CSV = 1;
 
 	/**
- 	 * Convert a recordset into special format
+	 * Convert a recordset into special format
 	 *
 	 * @param ADORecordSet  $rs the recordset
 	 * @param ADOConnection $conn

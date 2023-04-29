@@ -107,7 +107,7 @@ The format fields that adodb_date supports:
 	r - RFC 2822 formatted date; e.g. "Thu, 21 Dec 2000 16:01:07 +0200"
 	s - seconds; i.e. "00" to "59"
 	S - English ordinal suffix for the day of the month, 2 characters;
-	   			i.e. "st", "nd", "rd" or "th"
+				i.e. "st", "nd", "rd" or "th"
 	t - number of days in the given month; i.e. "28" to "31"
 	T - Timezone setting of this machine; e.g. "EST" or "MDT"
 	U - seconds since the Unix Epoch (January 1 1970 00:00:00 GMT)
@@ -116,7 +116,7 @@ The format fields that adodb_date supports:
 	y - year, 2 digits; e.g. "99"
 	z - day of the year; i.e. "0" to "365"
 	Z - timezone offset in seconds (i.e. "-43200" to "43200").
-	   			The offset for timezones west of UTC is always negative,
+				The offset for timezones west of UTC is always negative,
 				and for those east of UTC is always positive.
 </pre>
 
@@ -166,7 +166,7 @@ For best results, you can define the local date format yourself. Define a global
 variable $ADODB_DATE_LOCALE which is an array, 1st element is date format using
 adodb_date syntax, and 2nd element is the time format, also in adodb_date syntax.
 
-    eg. $ADODB_DATE_LOCALE = array('d/m/Y','H:i:s');
+	eg. $ADODB_DATE_LOCALE = array('d/m/Y','H:i:s');
 
 	Supported format codes:
 
@@ -204,19 +204,19 @@ adodb_date syntax, and 2nd element is the time format, also in adodb_date syntax
 	%C - century number (the year divided by 100 and truncated to an integer, range 00 to 99)
 	%g - like %G, but without the century.
 	%G - The 4-digit year corresponding to the ISO week number (see %V).
-	     This has the same format and value as %Y, except that if the ISO week number belongs
+		 This has the same format and value as %Y, except that if the ISO week number belongs
 		 to the previous or next year, that year is used instead.
 	%j - day of the year as a decimal number (range 001 to 366)
 	%u - weekday as a decimal number [1,7], with 1 representing Monday
 	%U - week number of the current year as a decimal number, starting
-	    with the first Sunday as the first day of the first week
+		with the first Sunday as the first day of the first week
 	%V - The ISO 8601:1988 week number of the current year as a decimal number,
-	     range 01 to 53, where week 1 is the first week that has at least 4 days in the
+		 range 01 to 53, where week 1 is the first week that has at least 4 days in the
 		 current year, and with Monday as the first day of the week. (Use %G or %g for
 		 the year component that corresponds to the week number for the specified timestamp.)
 	%w - day of the week as a decimal, Sunday being 0
 	%W - week number of the current year as a decimal number, starting with the
-	     first Monday as the first day of the first week
+		 first Monday as the first day of the first week
 </pre>
 
 =============================================================================
@@ -634,17 +634,17 @@ Thursday, October 4, 1582 (Julian) was followed immediately by Friday, October 1
 		$greg_correction = 0;
 
 	if($month > 2)
-	    $month -= 2;
+		$month -= 2;
 	else {
-	    $month += 10;
-	    $year--;
+		$month += 10;
+		$year--;
 	}
 
 	$day =  floor((13 * $month - 1) / 5) +
-	        $day + ($year % 100) +
-	        floor(($year % 100) / 4) +
-	        floor(($year / 100) / 4) - 2 *
-	        floor($year / 100) + 77 + $greg_correction;
+			$day + ($year % 100) +
+			floor(($year % 100) / 4) +
+			floor(($year / 100) / 4) - 2 *
+			floor($year / 100) + 77 + $greg_correction;
 
 	return $day - 7 * floor($day / 7);
 }
@@ -679,7 +679,7 @@ function adodb_is_leap_year($year)
 
 /**
 	Fix 2-digit years. Works for any century.
- 	Assumes that if 2-digit is more than 30 years in future, then previous century.
+	Assumes that if 2-digit is more than 30 years in future, then previous century.
 */
 function adodb_year_digit_check($y)
 {

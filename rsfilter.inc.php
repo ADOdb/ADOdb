@@ -50,12 +50,12 @@ function RSFilter($rs,$fn)
 	$rows = $rs->RecordCount();
 	for ($i=0; $i < $rows; $i++) {
 		if (is_array ($fn)) {
-        	$obj = $fn[0];
-        	$method = $fn[1];
-        	$obj->$method ($rs->_array[$i],$rs);
-      } else {
+			$obj = $fn[0];
+			$method = $fn[1];
+			$obj->$method ($rs->_array[$i],$rs);
+	  } else {
 			$fn($rs->_array[$i],$rs);
-      }
+	  }
 
 	}
 	if (!$rs->EOF) {

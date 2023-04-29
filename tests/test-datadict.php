@@ -145,7 +145,7 @@ lastname         VARCHAR(28) NOT NULL DEFAULT 'Chen',
 averylonglongfieldname LONGTEXT NOT NULL,
 price            NUMERIC(7,2) NOT NULL DEFAULT 0.00,
 MYDATE           DATE DEFAULT CURDATE(),
-                 PRIMARY KEY (id, lastname)
+				 PRIMARY KEY (id, lastname)
 )TYPE=ISAM;
 CREATE FULLTEXT INDEX idx ON KUTU.testtable (firstname,lastname);
 CREATE INDEX idx2 ON KUTU.testtable (price,lastname);
@@ -172,7 +172,7 @@ lastname         VARCHAR(28) DEFAULT 'Chen' NOT NULL,
 averylonglongfieldname CLOB NOT NULL,
 price            NUMBER(7,2) DEFAULT 0.00 NOT NULL,
 MYDATE           DATE DEFAULT TRUNC(SYSDATE),
-                 PRIMARY KEY (id, lastname)
+				 PRIMARY KEY (id, lastname)
 )TABLESPACE USERS;
 /
 DROP SEQUENCE KUTU.SEQ_testtable;
@@ -214,7 +214,7 @@ lastname         VARCHAR(28) DEFAULT 'Chen' NOT NULL,
 averylonglongfieldname TEXT NOT NULL,
 price            NUMERIC(7,2) DEFAULT 0.00 NOT NULL,
 MYDATE           DATE DEFAULT CURRENT_DATE,
-                 PRIMARY KEY (id, lastname)
+				 PRIMARY KEY (id, lastname)
 );
 CREATE INDEX idx ON KUTU.testtable USING HASH (firstname,lastname);
 CREATE INDEX idx2 ON KUTU.testtable (price,lastname);
@@ -235,7 +235,7 @@ lastname         VARCHAR(28) DEFAULT 'Chen' NOT NULL,
 averylonglongfieldname TEXT NOT NULL,
 price            NUMERIC(7,2) DEFAULT 0.00 NOT NULL,
 MYDATE           DATETIME DEFAULT GetDate(),
-                 PRIMARY KEY (id, lastname)
+				 PRIMARY KEY (id, lastname)
 );
 CREATE CLUSTERED INDEX idx ON KUTU.testtable (firstname,lastname);
 CREATE INDEX idx2 ON KUTU.testtable (price,lastname);

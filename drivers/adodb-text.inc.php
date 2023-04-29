@@ -101,7 +101,7 @@ class ADODB_text extends ADOConnection {
 					$i += 1;
 					//print " ($i ".$types[$i]. "$v) ";
 					$v = trim($v);
-	 				if (!preg_match('/^[+-]{0,1}[0-9\.]+$/',$v)) {
+					if (!preg_match('/^[+-]{0,1}[0-9\.]+$/',$v)) {
 						$types[$i] = 'C'; // once C, always C
 						continue;
 					}

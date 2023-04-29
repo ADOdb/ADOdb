@@ -59,15 +59,15 @@ class ADORecordset_oci8quercus extends ADORecordset_oci8 {
 			$fld->type = oci_field_type($this->_queryID, $fieldOffset);
 			$fld->max_length = oci_field_size($this->_queryID, $fieldOffset);
 		}
-	 	switch($fld->type) {
+		switch($fld->type) {
 		case 'NUMBER':
-	 		$p = oci_field_precision($this->_queryID, $fieldOffset);
+			$p = oci_field_precision($this->_queryID, $fieldOffset);
 			$sc = oci_field_scale($this->_queryID, $fieldOffset);
 			if ($p != 0 && $sc == 0) $fld->type = 'INT';
 			$fld->scale = $p;
 			break;
 
-	 	case 'CLOB':
+		case 'CLOB':
 		case 'NCLOB':
 		case 'BLOB':
 			$fld->max_length = -1;

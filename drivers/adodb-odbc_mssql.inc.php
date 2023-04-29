@@ -97,7 +97,7 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 "select object_name(constid) as constraint_name,
 	col_name(fkeyid, fkey) as column_name,
 	object_name(rkeyid) as referenced_table_name,
-   	col_name(rkeyid, rkey) as referenced_column_name
+	col_name(rkeyid, rkey) as referenced_column_name
 from sysforeignkeys
 where upper(object_name(fkeyid)) = $table
 order by constraint_name, referenced_table_name, keyno";
@@ -212,29 +212,29 @@ order by constraint_name, referenced_table_name, keyno";
 
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-        if ($this->fetchMode !== FALSE) {
-        	$savem = $this->SetFetchMode(FALSE);
-        }
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($this->fetchMode !== FALSE) {
+			$savem = $this->SetFetchMode(FALSE);
+		}
 
-        $rs = $this->Execute($sql);
-        if (isset($savem)) {
-        	$this->SetFetchMode($savem);
-        }
-        $ADODB_FETCH_MODE = $save;
+		$rs = $this->Execute($sql);
+		if (isset($savem)) {
+			$this->SetFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
 
-        if (!is_object($rs)) {
-        	return FALSE;
-        }
+		if (!is_object($rs)) {
+			return FALSE;
+		}
 
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
 			if (!$primary && $row[5]) continue;
 
-            $indexes[$row[0]]['unique'] = $row[6];
-            $indexes[$row[0]]['columns'][] = $row[1];
-    	}
-        return $indexes;
+			$indexes[$row[0]]['unique'] = $row[6];
+			$indexes[$row[0]]['columns'][] = $row[1];
+		}
+		return $indexes;
 	}
 
 	function _query($sql,$inputarr=false)
@@ -370,7 +370,7 @@ order by constraint_name, referenced_table_name, keyno";
 	{
 		if ($length == 0)
 			/*
-		     * The length available to varchar is 2GB, but that makes no
+			 * The length available to varchar is 2GB, but that makes no
 			 * sense in a substring, so I'm going to arbitrarily limit
 			 * the length to 1K, but you could change it if you want
 			 */

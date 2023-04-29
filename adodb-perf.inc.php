@@ -69,7 +69,7 @@ function adodb_microtime()
 /* sql code timing */
 function adodb_log_sql(&$connx,$sql,$inputarr)
 {
-    $perf_table = adodb_perf::table();
+	$perf_table = adodb_perf::table();
 	$connx->fnExecute = false;
 	$a0 = microtime(true);
 	$rs = $connx->Execute($sql,$inputarr);
@@ -173,7 +173,7 @@ function adodb_log_sql(&$connx,$sql,$inputarr)
 			$ok = $conn->Execute($isql,$arr);
 			if($conn instanceof ADODB_mysqli && $conn->_queryID){
 				mysqli_free_result($conn->_queryID);
-            		}
+					}
 		} else
 			$ok = true;
 
@@ -240,15 +240,15 @@ class adodb_perf {
 	/** @var array Settings data. */
 	var $settings = [];
 
-    // Sets the tablename to be used
-    static function table($newtable = false)
-    {
-        static $_table;
+	// Sets the tablename to be used
+	static function table($newtable = false)
+	{
+		static $_table;
 
-        if (!empty($newtable))  $_table = $newtable;
+		if (!empty($newtable))  $_table = $newtable;
 		if (empty($_table)) $_table = 'adodb_logsql';
-        return $_table;
-    }
+		return $_table;
+	}
 
 	// returns array with info to calculate CPU Load
 	function _CPULoad()
@@ -327,7 +327,7 @@ processes 69293
 	{
 		/*
 
-        total:    used:    free:  shared: buffers:  cached:
+		total:    used:    free:  shared: buffers:  cached:
 Mem:  1055289344 917299200 137990144        0 165437440 599773184
 Swap: 2146775040 11055104 2135719936
 MemTotal:      1030556 kB
@@ -387,7 +387,7 @@ Committed_AS:   348732 kB
 
 	function Tracer($sql)
 	{
-        $perf_table = adodb_perf::table();
+		$perf_table = adodb_perf::table();
 		$saveE = $this->conn->fnExecute;
 		$this->conn->fnExecute = false;
 
@@ -433,7 +433,7 @@ Committed_AS:   348732 kB
 		$s = '<h3>Invalid SQL</h3>';
 		$saveE = $this->conn->fnExecute;
 		$this->conn->fnExecute = false;
-        $perf_table = adodb_perf::table();
+		$perf_table = adodb_perf::table();
 		$rs = $this->conn->SelectLimit("select distinct count(*),sql1,tracer as error_msg from $perf_table where tracer like 'ERROR:%' group by sql1,tracer order by 1 desc",$numsql);//,$numsql);
 		$this->conn->fnExecute = $saveE;
 		if ($rs) {
@@ -452,7 +452,7 @@ Committed_AS:   348732 kB
 	{
 		global $ADODB_FETCH_MODE;
 
-            $perf_table = adodb_perf::table();
+			$perf_table = adodb_perf::table();
 			$saveE = $this->conn->fnExecute;
 			$this->conn->fnExecute = false;
 
@@ -531,7 +531,7 @@ Committed_AS:   348732 kB
 	{
 		global $ADODB_FETCH_MODE;
 
-            $perf_table = adodb_perf::table();
+			$perf_table = adodb_perf::table();
 			$saveE = $this->conn->fnExecute;
 			$this->conn->fnExecute = false;
 
@@ -680,7 +680,7 @@ Committed_AS:   348732 kB
 	{
 	global $ADODB_LOG_CONN;
 
-    $perf_table = adodb_perf::table();
+	$perf_table = adodb_perf::table();
 	$conn = $this->conn;
 
 	$app = $conn->host;
@@ -727,7 +727,7 @@ Committed_AS:   348732 kB
 	 "</tr></table>";
 
 
-	 	switch ($do) {
+		switch ($do) {
 		default:
 		case 'stats':
 			if (empty($ADODB_LOG_CONN))
@@ -996,89 +996,89 @@ Committed_AS:   348732 kB
 
    /************************************************************************/
 
-    /**
-     * Reorganise multiple table-indices/statistics/..
-     * OptimizeMode could be given by last Parameter
-     *
-     * @example
-     *      <pre>
-     *          optimizeTables( 'tableA');
-     *      </pre>
-     *      <pre>
-     *          optimizeTables( 'tableA', 'tableB', 'tableC');
-     *      </pre>
-     *      <pre>
-     *          optimizeTables( 'tableA', 'tableB', ADODB_OPT_LOW);
-     *      </pre>
-     *
-     * @param string table name of the table to optimize
-     * @param int mode optimization-mode
-     *      <code>ADODB_OPT_HIGH</code> for full optimization
-     *      <code>ADODB_OPT_LOW</code> for CPU-less optimization
-     *      Default is LOW <code>ADODB_OPT_LOW</code>
-     * @author Markus Staab
-     * @return Returns <code>true</code> on success and <code>false</code> on error
-     */
-    function OptimizeTables()
-    {
-        $args = func_get_args();
-        $numArgs = func_num_args();
+	/**
+	 * Reorganise multiple table-indices/statistics/..
+	 * OptimizeMode could be given by last Parameter
+	 *
+	 * @example
+	 *      <pre>
+	 *          optimizeTables( 'tableA');
+	 *      </pre>
+	 *      <pre>
+	 *          optimizeTables( 'tableA', 'tableB', 'tableC');
+	 *      </pre>
+	 *      <pre>
+	 *          optimizeTables( 'tableA', 'tableB', ADODB_OPT_LOW);
+	 *      </pre>
+	 *
+	 * @param string table name of the table to optimize
+	 * @param int mode optimization-mode
+	 *      <code>ADODB_OPT_HIGH</code> for full optimization
+	 *      <code>ADODB_OPT_LOW</code> for CPU-less optimization
+	 *      Default is LOW <code>ADODB_OPT_LOW</code>
+	 * @author Markus Staab
+	 * @return Returns <code>true</code> on success and <code>false</code> on error
+	 */
+	function OptimizeTables()
+	{
+		$args = func_get_args();
+		$numArgs = func_num_args();
 
-        if ( $numArgs == 0) return false;
+		if ( $numArgs == 0) return false;
 
-        $mode = ADODB_OPT_LOW;
-        $lastArg = $args[ $numArgs - 1];
-        if ( !is_string($lastArg)) {
-            $mode = $lastArg;
-            unset( $args[ $numArgs - 1]);
-        }
+		$mode = ADODB_OPT_LOW;
+		$lastArg = $args[ $numArgs - 1];
+		if ( !is_string($lastArg)) {
+			$mode = $lastArg;
+			unset( $args[ $numArgs - 1]);
+		}
 
-        foreach( $args as $table) {
-            $this->optimizeTable( $table, $mode);
-        }
+		foreach( $args as $table) {
+			$this->optimizeTable( $table, $mode);
+		}
 	}
 
-    /**
-     * Reorganise the table-indices/statistics/.. depending on the given mode.
-     * Default Implementation throws an error.
-     *
-     * @param string table name of the table to optimize
-     * @param int mode optimization-mode
-     *      <code>ADODB_OPT_HIGH</code> for full optimization
-     *      <code>ADODB_OPT_LOW</code> for CPU-less optimization
-     *      Default is LOW <code>ADODB_OPT_LOW</code>
-     * @author Markus Staab
-     * @return Returns <code>true</code> on success and <code>false</code> on error
-     */
-    function OptimizeTable( $table, $mode = ADODB_OPT_LOW)
-    {
-        ADOConnection::outp( sprintf( "<p>%s: '%s' not implemented for driver '%s'</p>", __CLASS__, __FUNCTION__, $this->conn->databaseType));
-        return false;
-    }
+	/**
+	 * Reorganise the table-indices/statistics/.. depending on the given mode.
+	 * Default Implementation throws an error.
+	 *
+	 * @param string table name of the table to optimize
+	 * @param int mode optimization-mode
+	 *      <code>ADODB_OPT_HIGH</code> for full optimization
+	 *      <code>ADODB_OPT_LOW</code> for CPU-less optimization
+	 *      Default is LOW <code>ADODB_OPT_LOW</code>
+	 * @author Markus Staab
+	 * @return Returns <code>true</code> on success and <code>false</code> on error
+	 */
+	function OptimizeTable( $table, $mode = ADODB_OPT_LOW)
+	{
+		ADOConnection::outp( sprintf( "<p>%s: '%s' not implemented for driver '%s'</p>", __CLASS__, __FUNCTION__, $this->conn->databaseType));
+		return false;
+	}
 
-    /**
-     * Reorganise current database.
-     * Default implementation loops over all <code>MetaTables()</code> and
-     * optimize each using <code>optmizeTable()</code>
-     *
-     * @author Markus Staab
-     * @return Returns <code>true</code> on success and <code>false</code> on error
-     */
-    function optimizeDatabase()
-    {
-        $conn = $this->conn;
-        if ( !$conn) return false;
+	/**
+	 * Reorganise current database.
+	 * Default implementation loops over all <code>MetaTables()</code> and
+	 * optimize each using <code>optmizeTable()</code>
+	 *
+	 * @author Markus Staab
+	 * @return Returns <code>true</code> on success and <code>false</code> on error
+	 */
+	function optimizeDatabase()
+	{
+		$conn = $this->conn;
+		if ( !$conn) return false;
 
-        $tables = $conn->MetaTables( 'TABLES');
-        if ( !$tables ) return false;
+		$tables = $conn->MetaTables( 'TABLES');
+		if ( !$tables ) return false;
 
-        foreach( $tables as $table) {
-            if ( !$this->optimizeTable( $table)) {
-                return false;
-            }
-        }
+		foreach( $tables as $table) {
+			if ( !$this->optimizeTable( $table)) {
+				return false;
+			}
+		}
 
-        return true;
-    }
-    // end hack
+		return true;
+	}
+	// end hack
 }

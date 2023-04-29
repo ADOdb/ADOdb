@@ -36,7 +36,7 @@ class ADODB_informix72 extends ADOConnection {
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $hasInsertID = true;
 	var $hasAffectedRows = true;
-    var $substr = 'substr';
+	var $substr = 'substr';
 	var $metaTablesSQL="select tabname,tabtype from systables where tabtype in ('T','V') and owner!='informix'"; //Don't get informix tables and pseudo-tables
 
 
@@ -73,8 +73,8 @@ class ADODB_informix72 extends ADOConnection {
 
 		if (function_exists('ifx_byteasvarchar')) {
 			ifx_byteasvarchar(1); // Mode "0" will return a blob id, and mode "1" will return a varchar with text content.
-        	ifx_textasvarchar(1); // Mode "0" will return a blob id, and mode "1" will return a varchar with text content.
-        	ifx_blobinfile_mode(0); // Mode "0" means save Byte-Blobs in memory, and mode "1" means save Byte-Blobs in a file.
+			ifx_textasvarchar(1); // Mode "0" will return a blob id, and mode "1" will return a varchar with text content.
+			ifx_blobinfile_mode(0); // Mode "0" means save Byte-Blobs in memory, and mode "1" means save Byte-Blobs in a file.
 		}
 	}
 
@@ -154,51 +154,51 @@ class ADODB_informix72 extends ADOConnection {
 
 
 	function MetaProcedures($NamePattern = false, $catalog  = null, $schemaPattern  = null)
-    {
-        // save old fetch mode
-        global $ADODB_FETCH_MODE;
+	{
+		// save old fetch mode
+		global $ADODB_FETCH_MODE;
 
-        $false = false;
-        $save = $ADODB_FETCH_MODE;
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-        if ($this->fetchMode !== FALSE) {
-               $savem = $this->SetFetchMode(FALSE);
+		$false = false;
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($this->fetchMode !== FALSE) {
+			   $savem = $this->SetFetchMode(FALSE);
 
-        }
-        $procedures = array ();
+		}
+		$procedures = array ();
 
-        // get index details
+		// get index details
 
-        $likepattern = '';
-        if ($NamePattern) {
-           $likepattern = " WHERE procname LIKE '".$NamePattern."'";
-        }
+		$likepattern = '';
+		if ($NamePattern) {
+		   $likepattern = " WHERE procname LIKE '".$NamePattern."'";
+		}
 
-        $rs = $this->Execute('SELECT procname, isproc FROM sysprocedures'.$likepattern);
+		$rs = $this->Execute('SELECT procname, isproc FROM sysprocedures'.$likepattern);
 
-        if (is_object($rs)) {
-            // parse index data into array
+		if (is_object($rs)) {
+			// parse index data into array
 
-            while ($row = $rs->FetchRow()) {
-                $procedures[$row[0]] = array(
-                        'type' => ($row[1] == 'f' ? 'FUNCTION' : 'PROCEDURE'),
-                        'catalog' => '',
-                        'schema' => '',
-                        'remarks' => ''
-                    );
-            }
-	    }
+			while ($row = $rs->FetchRow()) {
+				$procedures[$row[0]] = array(
+						'type' => ($row[1] == 'f' ? 'FUNCTION' : 'PROCEDURE'),
+						'catalog' => '',
+						'schema' => '',
+						'remarks' => ''
+					);
+			}
+		}
 
-        // restore fetchmode
-        if (isset($savem)) {
-                $this->SetFetchMode($savem);
-        }
-        $ADODB_FETCH_MODE = $save;
+		// restore fetchmode
+		if (isset($savem)) {
+				$this->SetFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
 
-        return $procedures;
-    }
+		return $procedures;
+	}
 
-    function MetaColumns($table, $normalize=true)
+	function MetaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -207,7 +207,7 @@ class ADODB_informix72 extends ADOConnection {
 			$save = $ADODB_FETCH_MODE;
 			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 			if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
-          		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
+				$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
 			if (isset($savem)) $this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
 			if ($rs === false) return $false;
@@ -232,13 +232,13 @@ class ADODB_informix72 extends ADOConnection {
 				$fld->not_null = $pr[3]=="N"; //!eos
 
 				if (trim($rs->fields[3]) != "AAAAAA 0") {
-	                    		$fld->has_default = 1;
-	                    		$fld->default_value = $rs->fields[3];
+								$fld->has_default = 1;
+								$fld->default_value = $rs->fields[3];
 				} else {
 					$fld->has_default = 0;
 				}
 
-                $retarr[strtolower($fld->name)] = $fld;
+				$retarr[strtolower($fld->name)] = $fld;
 				$rs->MoveNext();
 			}
 
@@ -289,14 +289,14 @@ class ADODB_informix72 extends ADOConnection {
 
    function UpdateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
    {
-   		$type = ($blobtype == 'TEXT') ? 1 : 0;
+		$type = ($blobtype == 'TEXT') ? 1 : 0;
 		$blobid = ifx_create_blob($type,0,$val);
 		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blobid));
    }
 
    function BlobDecode($blobid)
    {
-   		return function_exists('ifx_byteasvarchar') ? $blobid : @ifx_get_blob($blobid);
+		return function_exists('ifx_byteasvarchar') ? $blobid : @ifx_get_blob($blobid);
    }
 
 	// returns true or false

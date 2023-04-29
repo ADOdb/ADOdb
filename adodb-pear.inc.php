@@ -27,7 +27,7 @@
 
  DB_Common
  ---------
- 	query - returns PEAR_Error on error
+	query - returns PEAR_Error on error
 	limitQuery - return PEAR_Error on error
 	prepare - does not return PEAR_Error on error
 	execute - does not return PEAR_Error on error
@@ -45,7 +45,7 @@
 
  DB_Result
  ---------
- 	numRows - returns -1 if not supported
+	numRows - returns -1 if not supported
 	numCols
 	fetchInto - does not support passing of fetchmode
 	fetchRows - does not support passing of fetchmode
@@ -183,7 +183,7 @@ class DB
 				}
 			}
 		} else {
-		   	$persist = false;
+			$persist = false;
 		}
 
 		if (isset($dsninfo['socket'])) $dsninfo['hostspec'] .= ':'.$dsninfo['socket'];

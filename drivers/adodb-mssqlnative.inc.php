@@ -901,7 +901,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	{
 		if ($length == 0)
 			/*
-		     * The length available to varchar is 2GB, but that makes no
+			 * The length available to varchar is 2GB, but that makes no
 			 * sense in a substring, so I'm going to arbitrarily limit
 			 * the length to 1K, but you could change it if you want
 			 */
@@ -989,7 +989,7 @@ class ADODB_mssqlnative extends ADOConnection {
 												   'catalog' => $routineCatalog,
 												   'schema'  => $schemaName,
 												   'remarks' => '',
-												    );
+													);
 		}
 
 		return $metaProcedures;

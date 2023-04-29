@@ -58,7 +58,7 @@ class perf_oci8 extends ADODB_perf{
 		'datadict cache hit ratio' => array('RATIOH',
 		"select
            round((1 - (sum(getmisses) / (sum(gets) +
-   		 sum(getmisses))))*100,2)
+		 sum(getmisses))))*100,2)
 		from  v\$rowcache",
 		'increase <i>shared_pool_size</i> if too ratio low'),
 
@@ -199,7 +199,7 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 		'Recent RMAN Jobs' => array('BACKUP', "select '-' from dual", "=RMAN"),
 
 		//		'Control File Keep Time' => array('BACKUP', "select value from v\$parameter where name='control_file_record_keep_time'",'No of days to keep RMAN info in control file. I recommend it be set to x2 or x3 times the frequency of your full backup.'),
-      'Storage', 'Tablespaces' => array('TABLESPACE', "select '-' from dual", "=TableSpace"),
+	  'Storage', 'Tablespaces' => array('TABLESPACE', "select '-' from dual", "=TableSpace"),
 		false
 
 	);
@@ -318,7 +318,7 @@ order by 3 desc) where rownum <=10");
 
 	function FlashUsage()
 	{
-        $rs = $this->conn->Execute("select * from  V\$FLASH_RECOVERY_AREA_USAGE");
+		$rs = $this->conn->Execute("select * from  V\$FLASH_RECOVERY_AREA_USAGE");
 		$ret = rs2html($rs,false,false,false,false);
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
 	}
@@ -460,7 +460,7 @@ CONNECT BY prior id=parent_id and statement_id='$id'");
 		 $rs = $this->conn->Execute("
 select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
 	case when b.size_factor=1 then
-   		'&lt;&lt;= Current'
+		'&lt;&lt;= Current'
 	 when a.estd_physical_read_factor-b.estd_physical_read_factor > 0.001 and b.estd_physical_read_factor<1 then
 		'- BETTER than current by ' || round((1-b.estd_physical_read_factor)/b.estd_physical_read_factor*100,2) || '%'
 	else ' ' end as RATING,
@@ -571,8 +571,8 @@ where
 order by
   1 desc, s.address, p.piece";
 
-  		global $ADODB_CACHE_MODE;
-  		if (isset($_GET['expsixora']) && isset($_GET['sql'])) {
+		global $ADODB_CACHE_MODE;
+		if (isset($_GET['expsixora']) && isset($_GET['sql'])) {
 				$partial = empty($_GET['part']);
 				echo "<a name=explain></a>".$this->Explain($_GET['sql'],$partial)."\n";
 		}
@@ -646,7 +646,7 @@ order by
   1 desc, s.address, p.piece
 ";
 		global $ADODB_CACHE_MODE;
-  		if (isset($_GET['expeixora']) && isset($_GET['sql'])) {
+		if (isset($_GET['expeixora']) && isset($_GET['sql'])) {
 			$partial = empty($_GET['part']);
 			echo "<a name=explain></a>".$this->Explain($_GET['sql'],$partial)."\n";
 		}
@@ -695,7 +695,7 @@ BEGIN
 	  cnt := cnt + 1;
 	  DELETE FROM $perf_table WHERE ROWID=rec.rr;
 	  IF cnt = 1000 THEN
-	  	COMMIT;
+		COMMIT;
 		cnt := 0;
 	  END IF;
 	END LOOP;

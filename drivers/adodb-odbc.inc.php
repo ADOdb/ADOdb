@@ -433,9 +433,9 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 
 
 		case 'db2':
-            $colname = "%";
-            $qid = odbc_columns($this->_connectionID, "", $schema, $table, $colname);
-            break;
+			$colname = "%";
+			$qid = odbc_columns($this->_connectionID, "", $schema, $table, $colname);
+			break;
 
 		default:
 			$qid = @odbc_columns($this->_connectionID,'%','%',strtoupper($table),'%');
@@ -474,14 +474,14 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 				$fld->name = $rs->fields[3];
 				if ($this->metaColumnsReturnType == METACOLUMNS_RETURNS_META)
 					/* 
-				    * This is the broken, original value
+					* This is the broken, original value
 					*/
 					$fld->type = $this->ODBCTypes($rs->fields[4]);
 				else
 					/*
-				    * This is the correct new value
+					* This is the correct new value
 					*/
-				    $fld->type = $rs->fields[4];
+					$fld->type = $rs->fields[4];
 
 				// ref: http://msdn.microsoft.com/library/default.asp?url=/archive/en-us/dnaraccgen/html/msdn_odk.asp
 				// access uses precision to store length for char/varchar

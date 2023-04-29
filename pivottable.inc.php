@@ -38,7 +38,7 @@
  * @returns			Sql generated
  */
 function PivotTableSQL(&$db,$tables,$rowfields,$colfield, $where=false,
- 	$aggfield = false,$sumlabel='Sum ',$aggfn ='SUM', $showcount = true)
+	$aggfield = false,$sumlabel='Sum ',$aggfn ='SUM', $showcount = true)
  {
 	if ($aggfield) $hidecnt = true;
 	else $hidecnt = false;
@@ -48,7 +48,7 @@ function PivotTableSQL(&$db,$tables,$rowfields,$colfield, $where=false,
 
 	//$hidecnt = false;
 
- 	if ($where) $where = "\nWHERE $where";
+	if ($where) $where = "\nWHERE $where";
 	if (!is_array($colfield)) $colarr = $db->GetCol("select distinct $colfield from $tables $where order by 1");
 	if (!$aggfield) $hidecnt = false;
 
@@ -123,8 +123,8 @@ if (0) {
 #
 
  $sql = PivotTableSQL(
- 	$gDB,  											# adodb connection
- 	'products p ,categories c ,suppliers s',  		# tables
+	$gDB,  											# adodb connection
+	'products p ,categories c ,suppliers s',  		# tables
 	'CompanyName,QuantityPerUnit',					# row fields
 	'CategoryName',									# column fields
 	'p.CategoryID = c.CategoryID and s.SupplierID= p.SupplierID' # joins/where
@@ -160,8 +160,8 @@ GROUP BY CompanyName,QuantityPerUnit
 # "categories" and "suppliers"
 #
  $sql = PivotTableSQL(
- 	$gDB,										# adodb connection
- 	'products p ,categories c ,suppliers s',	# tables
+	$gDB,										# adodb connection
+	'products p ,categories c ,suppliers s',	# tables
 	'CompanyName,QuantityPerUnit',				# row fields
 												# column ranges
 array(

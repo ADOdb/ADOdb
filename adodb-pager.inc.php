@@ -26,8 +26,8 @@ class ADODB_Pager {
 	var $rs;	// recordset generated
 	var $curr_page;	// current page number before Render() called, calculated in constructor
 	var $rows;		// number of rows per page
-    var $linksPerPage=10; // number of links per page in navigation bar
-    var $showPageLinks;
+	var $linksPerPage=10; // number of links per page in navigation bar
+	var $showPageLinks;
 
 	var $gridAttributes = 'width=100% border=1 bgcolor=white';
 
@@ -128,40 +128,40 @@ class ADODB_Pager {
 
 	//---------------------------------------------------
 	// original code by "Pablo Costa" <pablo@cbsp.com.br>
-        function render_pagelinks()
-        {
-        global $PHP_SELF;
-            $pages        = $this->rs->LastPageNo();
-            $linksperpage = $this->linksPerPage ? $this->linksPerPage : $pages;
-            for($i=1; $i <= $pages; $i+=$linksperpage)
-            {
-                if($this->rs->AbsolutePage() >= $i)
-                {
-                    $start = $i;
-                }
-            }
+		function render_pagelinks()
+		{
+		global $PHP_SELF;
+			$pages        = $this->rs->LastPageNo();
+			$linksperpage = $this->linksPerPage ? $this->linksPerPage : $pages;
+			for($i=1; $i <= $pages; $i+=$linksperpage)
+			{
+				if($this->rs->AbsolutePage() >= $i)
+				{
+					$start = $i;
+				}
+			}
 			$numbers = '';
-            $end = $start+$linksperpage-1;
+			$end = $start+$linksperpage-1;
 			$link = $this->id . "_next_page";
-            if($end > $pages) $end = $pages;
+			if($end > $pages) $end = $pages;
 
 
 			if ($this->startLinks && $start > 1) {
 				$pos = $start - 1;
 				$numbers .= "<a href=$PHP_SELF?$link=$pos>$this->startLinks</a>  ";
-            }
+			}
 
 			for($i=$start; $i <= $end; $i++) {
-                if ($this->rs->AbsolutePage() == $i)
-                    $numbers .= "<font color=$this->linkSelectedColor><b>$i</b></font>  ";
-                else
-                     $numbers .= "<a href=$PHP_SELF?$link=$i>$i</a>  ";
+				if ($this->rs->AbsolutePage() == $i)
+					$numbers .= "<font color=$this->linkSelectedColor><b>$i</b></font>  ";
+				else
+					 $numbers .= "<a href=$PHP_SELF?$link=$i>$i</a>  ";
 
-            }
+			}
 			if ($this->moreLinks && $end < $pages)
 				$numbers .= "<a href=$PHP_SELF?$link=$i>$this->moreLinks</a>  ";
-            print $numbers . ' &nbsp; ';
-        }
+			print $numbers . ' &nbsp; ';
+		}
 	// Link to previous page
 	function render_prev($anchor=true)
 	{
@@ -206,9 +206,9 @@ class ADODB_Pager {
 			$this->Render_First(false);
 			$this->Render_Prev(false);
 		}
-        if ($this->showPageLinks){
-            $this->Render_PageLinks();
-        }
+		if ($this->showPageLinks){
+			$this->Render_PageLinks();
+		}
 		if (!$this->rs->AtLastPage()) {
 			$this->Render_Next();
 			$this->Render_Last();

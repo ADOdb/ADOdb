@@ -89,7 +89,7 @@
 		$p->LoadRelations('children', 'order by id',1,2);
 		if (sizeof($p->children) == 2 && $p->children[1]->name_first == 'JAMIE') echo "OK LoadRelations<br>";
 		else {
-		 	var_dump($p->children);
+			var_dump($p->children);
 			echo "error LoadRelations<br>";
 		}
 

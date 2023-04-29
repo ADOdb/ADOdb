@@ -25,23 +25,23 @@
 
 /*
 DELPHI FOR PHP USERS:
-      The following steps can be taken to utilize this driver from the
-      CodeGear Delphi for PHP product:
-        1 - See note above, download and install the Advantage PHP client.
-        2 - Copy the following files to the Delphi for PHP\X.X\php\ext directory:
-              ace32.dll
-              axcws32.dll
-              adsloc32.dll
-              php_advantage.dll (rename the existing php_advantage.dll.5.x.x file)
-        3 - Add the following line to the Delphi for PHP\X.X\php\php.ini.template file:
-              extension=php_advantage.dll
-        4 - To use: enter "ads" as the DriverName on a connection component, and set
-            a Host property similar to "DataDirectory=c:\". See the Advantage PHP
-            help file topic for ads_connect for details on connection path options
-            and formatting.
-        5 - (optional) - Modify the Delphi for PHP\X.X\vcl\packages\database.packages.php
-            file and add ads to the list of strings returned when registering the
-            Database object's DriverName property.
+	  The following steps can be taken to utilize this driver from the
+	  CodeGear Delphi for PHP product:
+		1 - See note above, download and install the Advantage PHP client.
+		2 - Copy the following files to the Delphi for PHP\X.X\php\ext directory:
+			  ace32.dll
+			  axcws32.dll
+			  adsloc32.dll
+			  php_advantage.dll (rename the existing php_advantage.dll.5.x.x file)
+		3 - Add the following line to the Delphi for PHP\X.X\php\php.ini.template file:
+			  extension=php_advantage.dll
+		4 - To use: enter "ads" as the DriverName on a connection component, and set
+			a Host property similar to "DataDirectory=c:\". See the Advantage PHP
+			help file topic for ads_connect for details on connection path options
+			and formatting.
+		5 - (optional) - Modify the Delphi for PHP\X.X\vcl\packages\database.packages.php
+			file and add ads to the list of strings returned when registering the
+			Database object's DriverName property.
 
 */
 

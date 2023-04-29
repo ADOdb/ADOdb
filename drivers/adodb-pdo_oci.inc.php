@@ -29,7 +29,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 	var $metaTablesSQL = "select table_name,table_type from cat where table_type in ('TABLE','VIEW')";
 	var $metaColumnsSQL = "select cname,coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno";
 
- 	var $_initdate = true;
+	var $_initdate = true;
 	var $_hasdual = true;
 
 	function _init($parentDriver)

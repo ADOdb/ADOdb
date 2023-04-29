@@ -118,41 +118,41 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 
 	function MetaIndexes ($table, $primary = FALSE, $owner=false)
 	{
-        // save old fetch mode
-        global $ADODB_FETCH_MODE;
-        $save = $ADODB_FETCH_MODE;
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-        if ($this->fetchMode !== FALSE) {
-               $savem = $this->SetFetchMode(FALSE);
-        }
+		// save old fetch mode
+		global $ADODB_FETCH_MODE;
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($this->fetchMode !== FALSE) {
+			   $savem = $this->SetFetchMode(FALSE);
+		}
 		$false = false;
 		// get index details
 		$table = strtoupper($table);
 		$SQL="SELECT NAME, UNIQUERULE, COLNAMES FROM SYSIBM.SYSINDEXES WHERE TBNAME='$table'";
-        if ($primary)
+		if ($primary)
 			$SQL.= " AND UNIQUERULE='P'";
 		$rs = $this->Execute($SQL);
-        if (!is_object($rs)) {
+		if (!is_object($rs)) {
 			if (isset($savem))
 				$this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
-            return $false;
-        }
+			return $false;
+		}
 		$indexes = array ();
-        // parse index data into array
-        while ($row = $rs->FetchRow()) {
+		// parse index data into array
+		while ($row = $rs->FetchRow()) {
 			$indexes[$row[0]] = array(
 			   'unique' => ($row[1] == 'U' || $row[1] == 'P'),
 			   'columns' => array()
 			);
 			$cols = ltrim($row[2],'+');
 			$indexes[$row[0]]['columns'] = explode('+', $cols);
-        }
+		}
 		if (isset($savem)) {
-            $this->SetFetchMode($savem);
+			$this->SetFetchMode($savem);
 			$ADODB_FETCH_MODE = $save;
 		}
-        return $indexes;
+		return $indexes;
 	}
 
 	// Format date column in sql string given an input format that understands Y M D

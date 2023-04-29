@@ -61,7 +61,7 @@ To force non-persistent connections, call adodb_session_open first before sessio
 
 
   2. Then define the following parameters in this file:
-  	$ADODB_SESSION_DRIVER='database driver, eg. mysql or ibase';
+	$ADODB_SESSION_DRIVER='database driver, eg. mysql or ibase';
 	$ADODB_SESSION_CONNECT='server to connect to';
 	$ADODB_SESSION_USER ='user';
 	$ADODB_SESSION_PWD ='password';
@@ -73,15 +73,15 @@ To force non-persistent connections, call adodb_session_open first before sessio
 	 session bugs in earlier versions of PHP.
 
   4. If you want to receive notifications when a session expires, then
-  	 you can tag a session with an EXPIREREF, and before the session
+	 you can tag a session with an EXPIREREF, and before the session
 	 record is deleted, we can call a function that will pass the EXPIREREF
 	 as the first parameter, and the session key as the second parameter.
 
 	 To do this, define a notification function, say NotifyFn:
 
-	 	function NotifyFn($expireref, $sesskey)
-	 	{
-	 	}
+		function NotifyFn($expireref, $sesskey)
+		{
+		}
 
 	 Then you need to define a global variable $ADODB_SESSION_EXPIRE_NOTIFY.
 	 This is an array with 2 elements, the first being the name of the variable
@@ -92,7 +92,7 @@ To force non-persistent connections, call adodb_session_open first before sessio
 	 has expired, so we store the user id in the global variable $USERID,
 	 store this value in the EXPIREREF field:
 
-	 	$ADODB_SESSION_EXPIRE_NOTIFY = array('USERID','NotifyFn');
+		$ADODB_SESSION_EXPIRE_NOTIFY = array('USERID','NotifyFn');
 
 	Then when the NotifyFn is called, we are passed the $USERID as the first
 	parameter, eg. NotifyFn($userid, $sesskey).
@@ -131,7 +131,7 @@ GLOBAL 	$ADODB_SESSION_CONNECT,
 	if ($ADODB_SESS_LIFE <= 1) {
 	 // bug in PHP 4.0.3 pl 1  -- how about other versions?
 	 //print "<h3>Session Error: PHP.INI setting <i>session.gc_maxlifetime</i>not set: $ADODB_SESS_LIFE</h3>";
-	 	$ADODB_SESS_LIFE=1440;
+		$ADODB_SESS_LIFE=1440;
 	}
 	$ADODB_SESSION_CRC = false;
 	//$ADODB_SESS_DEBUG = true;

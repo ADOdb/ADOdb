@@ -414,7 +414,7 @@ class ADODB_DataDict {
 	}
 
 	/**
-	 	Returns the actual type given a character code.
+		Returns the actual type given a character code.
 
 		C:  varchar
 		X:  CLOB (character large object) or largest varchar size if CLOB is not supported
@@ -607,12 +607,12 @@ class ADODB_DataDict {
 		$sql = $this->_tableSQL($tabname,$lines,$pkey,$taboptions);
 
 		// ggiunta - 2006/10/12 - KLUDGE:
-        // if we are on autoincrement, and table options includes REPLACE, the
-        // autoincrement sequence has already been dropped on table creation sql, so
-        // we avoid passing REPLACE to trigger creation code. This prevents
-        // creating sql that double-drops the sequence
-        if ($this->autoIncrement && isset($taboptions['REPLACE']))
-        	unset($taboptions['REPLACE']);
+		// if we are on autoincrement, and table options includes REPLACE, the
+		// autoincrement sequence has already been dropped on table creation sql, so
+		// we avoid passing REPLACE to trigger creation code. This prevents
+		// creating sql that double-drops the sequence
+		if ($this->autoIncrement && isset($taboptions['REPLACE']))
+			unset($taboptions['REPLACE']);
 		$tsql = $this->_triggers($tabname,$taboptions);
 		foreach($tsql as $s) $sql[] = $s;
 
@@ -733,7 +733,7 @@ class ADODB_DataDict {
 				case 'AUTOINCREMENT':
 				case 'AUTO':	$fautoinc = true; $fnotnull = true; break;
 				case 'KEY':
-                // a primary key col can be non unique in itself (if key spans many cols...)
+				// a primary key col can be non unique in itself (if key spans many cols...)
 				case 'PRIMARY':	$fprimary = $v; $fnotnull = true; /*$funiqueindex = true;*/ break;
 				case 'DEF':
 				case 'DEFAULT': $fdefault = $v; break;
@@ -849,9 +849,9 @@ class ADODB_DataDict {
 			if ($widespacing) $fname = str_pad($fname,24);
 
 			 // check for field names appearing twice
-            if (array_key_exists($fid, $lines)) {
-            	 ADOConnection::outp("Field '$fname' defined twice");
-            }
+			if (array_key_exists($fid, $lines)) {
+				 ADOConnection::outp("Field '$fname' defined twice");
+			}
 
 			$lines[$fid] = $fname.' '.$ftype.$suffix;
 
@@ -1058,7 +1058,7 @@ class ADODB_DataDict {
 					if (isset($obj->not_null) && $obj->not_null)
 						$v = str_replace('NOT NULL','',$v);
 					if (isset($obj->auto_increment) && $obj->auto_increment && empty($v['AUTOINCREMENT']))
-					    $v = str_replace('AUTOINCREMENT','',$v);
+						$v = str_replace('AUTOINCREMENT','',$v);
 
 					$c = $cols[$k];
 					$ml = $c->max_length;

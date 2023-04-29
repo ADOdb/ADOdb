@@ -68,7 +68,7 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 			if ($zheaderarray) $fname = $zheaderarray[$i];
 			else $fname = htmlspecialchars($field->name);
 			$typearr[$i] = $rs->MetaType($field->type,$field->max_length);
- 			//print " $field->name $field->type $typearr[$i] ";
+			//print " $field->name $field->type $typearr[$i] ";
 		} else {
 			$fname = 'Field '.($i+1);
 			$typearr[$i] = 'C';
@@ -130,7 +130,7 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 				@fclose($fd);
 				if (!function_exists ("mime_content_type")) {
 				  function mime_content_type ($file) {
-				    return exec("file -bi ".escapeshellarg($file));
+					return exec("file -bi ".escapeshellarg($file));
 				  }
 				}
 				$t = mime_content_type($tmpname);

@@ -928,18 +928,18 @@ class ADORecordSet_pdo extends ADORecordSet {
 		$o->name = $arr['name'];
 		if (isset($arr['sqlsrv:decl_type']) && $arr['sqlsrv:decl_type'] <> "null")
 		{
-		    /*
-		    * If the database is SQL server, use the native built-ins
-		    */
-		    $o->type = $arr['sqlsrv:decl_type'];
+			/*
+			* If the database is SQL server, use the native built-ins
+			*/
+			$o->type = $arr['sqlsrv:decl_type'];
 		}
 		elseif (isset($arr['native_type']) && $arr['native_type'] <> "null")
 		{
-		    $o->type = $arr['native_type'];
+			$o->type = $arr['native_type'];
 		}
 		else
 		{
-		     $o->type = adodb_pdo_type($arr['pdo_type']);
+			 $o->type = adodb_pdo_type($arr['pdo_type']);
 		}
 
 		$o->max_length = $arr['len'];

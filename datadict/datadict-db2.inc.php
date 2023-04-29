@@ -32,7 +32,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 	public $blobAllowsNotNull      = true;
 
 	
- 	function ActualType($meta)
+	function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
 		
@@ -139,7 +139,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 		return (array)$sql;
 
 	}
-    
+	
 
 	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFields=false)
 	{

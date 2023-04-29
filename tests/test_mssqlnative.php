@@ -82,48 +82,48 @@ function TestSQLDate()
 {
   global $db;
   $res = $db->GetRow("select testdate,"
-    . $db->SQLDate("d/m/Y", "testdate") . " FR4,"
-    . $db->SQLDate("d/m/y", "testdate") . " FR4b,"
-    . $db->SQLDate("d/m/Y", "NULL") . " nullFR4,"
-    . $db->SQLDate("m/d/Y", "testdate") . " US4,"
-    . $db->SQLDate("m/d/y", "testdate") . " US4b,"
-    . $db->SQLDate("m-d-Y", "testdate") . " USD4,"
-    . $db->SQLDate("m-d-y", "testdate") . " USD4b,"
-    . $db->SQLDate("Y.m.d", "testdate") . " ANSI4,"
-    . $db->SQLDate("d.m.Y", "testdate") . " GE4,"
-    . $db->SQLDate("d.m.y", "testdate") . " GE4b,"
-    . $db->SQLDate("d-m-Y", "testdate") . " IT4,"
-    . $db->SQLDate("d-m-y", "testdate") . " IT4b,"
-    . $db->SQLDate("Y/m/d", "testdate") . " Japan4,"
-    . $db->SQLDate("y/m/d", "testdate") . " Japan4b,"
-    . $db->SQLDate("H:i:s", "testdate") . " timeonly,"
-    . $db->SQLDate("d m Y", "testdate") . " Space4,"  // Is done by former method
-    . $db->SQLDate("d m Y", "NULL") . " nullSpace4,"
-    . $db->SQLDate("m-d-Y", "testdatesmall") . " nowUSdash4,"
-    . "null from (select convert(datetime,'2016-12-17 18:55:30.590' ,121) testdate,
+	. $db->SQLDate("d/m/Y", "testdate") . " FR4,"
+	. $db->SQLDate("d/m/y", "testdate") . " FR4b,"
+	. $db->SQLDate("d/m/Y", "NULL") . " nullFR4,"
+	. $db->SQLDate("m/d/Y", "testdate") . " US4,"
+	. $db->SQLDate("m/d/y", "testdate") . " US4b,"
+	. $db->SQLDate("m-d-Y", "testdate") . " USD4,"
+	. $db->SQLDate("m-d-y", "testdate") . " USD4b,"
+	. $db->SQLDate("Y.m.d", "testdate") . " ANSI4,"
+	. $db->SQLDate("d.m.Y", "testdate") . " GE4,"
+	. $db->SQLDate("d.m.y", "testdate") . " GE4b,"
+	. $db->SQLDate("d-m-Y", "testdate") . " IT4,"
+	. $db->SQLDate("d-m-y", "testdate") . " IT4b,"
+	. $db->SQLDate("Y/m/d", "testdate") . " Japan4,"
+	. $db->SQLDate("y/m/d", "testdate") . " Japan4b,"
+	. $db->SQLDate("H:i:s", "testdate") . " timeonly,"
+	. $db->SQLDate("d m Y", "testdate") . " Space4,"  // Is done by former method
+	. $db->SQLDate("d m Y", "NULL") . " nullSpace4,"
+	. $db->SQLDate("m-d-Y", "testdatesmall") . " nowUSdash4,"
+	. "null from (select convert(datetime,'2016-12-17 18:55:30.590' ,121) testdate,
         convert(datetime,'2016-01-01 18:55:30.590' ,121) testdatesmall,null nulldate) q "
   );
   $TestRes=array(
-    "fr4"=>"17/12/2016",
-    "fr4b"=>"17/12/2016",
-    "nullfr4"=>null,
-    "us4"=>"12/17/2016",
-    "us4b"=>"12/17/2016",
-    "ansi4"=>"2016.12.17",
-    "ge4"=>"17.12.2016",
-    "ge4b"=>"17.12.2016",
-    "it4"=>"17-12-2016",
-    "it4b"=>"17-12-2016",
-    "japan4"=>"2016/12/17",
-    "japan4b"=>"2016/12/17",
-    "space4"=>"17 12 2016",
-    "nullspace4"=>null,
-    "timeonly"=>"18:55:30",
+	"fr4"=>"17/12/2016",
+	"fr4b"=>"17/12/2016",
+	"nullfr4"=>null,
+	"us4"=>"12/17/2016",
+	"us4b"=>"12/17/2016",
+	"ansi4"=>"2016.12.17",
+	"ge4"=>"17.12.2016",
+	"ge4b"=>"17.12.2016",
+	"it4"=>"17-12-2016",
+	"it4b"=>"17-12-2016",
+	"japan4"=>"2016/12/17",
+	"japan4b"=>"2016/12/17",
+	"space4"=>"17 12 2016",
+	"nullspace4"=>null,
+	"timeonly"=>"18:55:30",
   );
   var_dump($res);
   foreach($TestRes as $k=>$v)
-    if($v!==$res[$k])
-      DieTrace(sprintf("ERROR : Expected for '%s' is '%s', but got '%s'",$k,$v,$res[$k]));
+	if($v!==$res[$k])
+	  DieTrace(sprintf("ERROR : Expected for '%s' is '%s', but got '%s'",$k,$v,$res[$k]));
 } //TestSQLDate()
 
 //==========================
@@ -140,11 +140,11 @@ $functions = $functions['user'];
 foreach( $functions as $f) {
   $refFunc = new ReflectionFunction($f);
   if(($refFunc->getFileName()==__FILE__)&&(substr($f,0,4)=='test'))
-    if(($ToTest=='*')||(strtolower($ToTest)==$f))
-    {
-      Trace("<b>-------- Launch Test : $f ------------------</b>");
-      $f();
-    }
+	if(($ToTest=='*')||(strtolower($ToTest)==$f))
+	{
+	  Trace("<b>-------- Launch Test : $f ------------------</b>");
+	  $f();
+	}
 }
 
 Trace("<b>=========== End of tests Without Error. ===================</b>");

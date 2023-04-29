@@ -28,7 +28,7 @@ class ADODB2_access extends ADODB_DataDict {
 	var $seqField = false;
 
 
- 	function ActualType($meta)
+	function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
 		

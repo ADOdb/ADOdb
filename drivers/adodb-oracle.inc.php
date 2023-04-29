@@ -101,11 +101,11 @@ class ADODB_oracle extends ADOConnection {
 
 	/* there seems to be a bug in the oracle extension -- always returns ORA-00000 - no error */
 	function ErrorMsg()
- 	{
-        if ($this->_errorMsg !== false) return $this->_errorMsg;
+	{
+		if ($this->_errorMsg !== false) return $this->_errorMsg;
 
-        if (is_resource($this->_curs)) $this->_errorMsg = @ora_error($this->_curs);
- 		if (empty($this->_errorMsg)) $this->_errorMsg = @ora_error($this->_connectionID);
+		if (is_resource($this->_curs)) $this->_errorMsg = @ora_error($this->_curs);
+		if (empty($this->_errorMsg)) $this->_errorMsg = @ora_error($this->_connectionID);
 		return $this->_errorMsg;
 	}
 
@@ -116,7 +116,7 @@ class ADODB_oracle extends ADOConnection {
 
 		if (is_resource($this->_curs)) $this->_errorCode = @ora_errorcode($this->_curs);
 		if (empty($this->_errorCode)) $this->_errorCode = @ora_errorcode($this->_connectionID);
-        return $this->_errorCode;
+		return $this->_errorCode;
 	}
 
 
@@ -126,12 +126,12 @@ class ADODB_oracle extends ADOConnection {
 		{
 			if (!function_exists('ora_plogon')) return null;
 
-            // <G. Giunta 2003/03/03/> Reset error messages before connecting
-            $this->_errorMsg = false;
-		    $this->_errorCode = false;
+			// <G. Giunta 2003/03/03/> Reset error messages before connecting
+			$this->_errorMsg = false;
+			$this->_errorCode = false;
 
-            // G. Giunta 2003/08/13 - This looks danegrously suspicious: why should we want to set
-            // the oracle home to the host name of remote DB?
+			// G. Giunta 2003/08/13 - This looks danegrously suspicious: why should we want to set
+			// the oracle home to the host name of remote DB?
 //			if ($argHostname) putenv("ORACLE_HOME=$argHostname");
 
 			if($argHostname) { // code copied from version submitted for oci8 by Jorma Tuomainen <jorma.tuomainen@ppoy.fi>
@@ -184,22 +184,22 @@ class ADODB_oracle extends ADOConnection {
 		// returns query ID if successful, otherwise false
 		function _query($sql,$inputarr=false)
 		{
-            // <G. Giunta 2003/03/03/> Reset error messages before executing
-            $this->_errorMsg = false;
-		    $this->_errorCode = false;
+			// <G. Giunta 2003/03/03/> Reset error messages before executing
+			$this->_errorMsg = false;
+			$this->_errorCode = false;
 
 			$curs = ora_open($this->_connectionID);
 
-		 	if ($curs === false) return false;
+			if ($curs === false) return false;
 			$this->_curs = $curs;
 			if (!ora_parse($curs,$sql)) return false;
 			if (ora_exec($curs)) return $curs;
-            // <G. Giunta 2004/03/03> before we close the cursor, we have to store the error message
-            // that we can obtain ONLY from the cursor (and not from the connection)
-            $this->_errorCode = @ora_errorcode($curs);
-            $this->_errorMsg = @ora_error($curs);
-            // </G. Giunta 2004/03/03>
-		 	@ora_close($curs);
+			// <G. Giunta 2004/03/03> before we close the cursor, we have to store the error message
+			// that we can obtain ONLY from the cursor (and not from the connection)
+			$this->_errorCode = @ora_errorcode($curs);
+			$this->_errorMsg = @ora_error($curs);
+			// </G. Giunta 2004/03/03>
+			@ora_close($curs);
 			return false;
 		}
 
@@ -296,7 +296,7 @@ class ADORecordset_oracle extends ADORecordSet {
 // should remove call by reference, but ora_fetch_into requires it in 4.0.3pl1
 		if ($this->fetchMode & ADODB_FETCH_ASSOC)
 			return @ora_fetch_into($this->_queryID,$this->fields,ORA_FETCHINTO_NULLS|ORA_FETCHINTO_ASSOC);
-   		else
+		else
 			return @ora_fetch_into($this->_queryID,$this->fields,ORA_FETCHINTO_NULLS);
    }
 

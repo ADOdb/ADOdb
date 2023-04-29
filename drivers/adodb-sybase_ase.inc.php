@@ -23,7 +23,7 @@
 require_once ADODB_DIR."/drivers/adodb-sybase.inc.php";
 
 class ADODB_sybase_ase extends ADODB_sybase {
- 	var $databaseType = "sybase_ase";
+	var $databaseType = "sybase_ase";
 
 	 var $metaTablesSQL="SELECT sysobjects.name FROM sysobjects, sysusers WHERE sysobjects.type='U' AND sysobjects.uid = sysusers.uid";
 	 var $metaColumnsSQL = "SELECT syscolumns.name AS field_name, systypes.name AS type, systypes.length AS width FROM sysobjects, syscolumns, systypes WHERE sysobjects.name='%s' AND syscolumns.id = sysobjects.id AND systypes.type=syscolumns.type";

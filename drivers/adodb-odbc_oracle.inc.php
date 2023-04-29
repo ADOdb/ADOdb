@@ -29,7 +29,7 @@ if (!defined('_ADODB_ODBC_LAYER')) {
 
 class  ADODB_odbc_oracle extends ADODB_odbc {
 	var $databaseType = 'odbc_oracle';
- 	var $replaceQuote = "''"; // string to use to replace quotes
+	var $replaceQuote = "''"; // string to use to replace quotes
 	var $concat_operator='||';
 	var $fmtDate = "'Y-m-d 00:00:00'";
 	var $fmtTimeStamp = "'Y-m-d h:i:sA'";

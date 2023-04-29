@@ -294,32 +294,32 @@ class perf_mysql extends adodb_perf{
 		return round(($hits/($reqs+$hits))*100,2);
 	}
 
-    // start hack
-    var $optimizeTableLow = 'CHECK TABLE %s FAST QUICK';
-    var $optimizeTableHigh = 'OPTIMIZE TABLE %s';
+	// start hack
+	var $optimizeTableLow = 'CHECK TABLE %s FAST QUICK';
+	var $optimizeTableHigh = 'OPTIMIZE TABLE %s';
 
-    /**
-     * @see adodb_perf::optimizeTable()
-     */
-     function optimizeTable( $table, $mode = ADODB_OPT_LOW)
-     {
-        if ( !is_string( $table)) return false;
+	/**
+	 * @see adodb_perf::optimizeTable()
+	 */
+	 function optimizeTable( $table, $mode = ADODB_OPT_LOW)
+	 {
+		if ( !is_string( $table)) return false;
 
-        $conn = $this->conn;
-        if ( !$conn) return false;
+		$conn = $this->conn;
+		if ( !$conn) return false;
 
-        $sql = '';
-        switch( $mode) {
-            case ADODB_OPT_LOW : $sql = $this->optimizeTableLow; break;
-            case ADODB_OPT_HIGH : $sql = $this->optimizeTableHigh; break;
-            default :
-                // May don't use __FUNCTION__ constant for BC (__FUNCTION__ Added in PHP 4.3.0)
-                ADOConnection::outp( sprintf( "<p>%s: '%s' using of undefined mode '%s'</p>", __CLASS__, __FUNCTION__, $mode));
-                return false;
-        }
-        $sql = sprintf( $sql, $table);
+		$sql = '';
+		switch( $mode) {
+			case ADODB_OPT_LOW : $sql = $this->optimizeTableLow; break;
+			case ADODB_OPT_HIGH : $sql = $this->optimizeTableHigh; break;
+			default :
+				// May don't use __FUNCTION__ constant for BC (__FUNCTION__ Added in PHP 4.3.0)
+				ADOConnection::outp( sprintf( "<p>%s: '%s' using of undefined mode '%s'</p>", __CLASS__, __FUNCTION__, $mode));
+				return false;
+		}
+		$sql = sprintf( $sql, $table);
 
-        return $conn->Execute( $sql) !== false;
-     }
-    // end hack
+		return $conn->Execute( $sql) !== false;
+	 }
+	// end hack
 }

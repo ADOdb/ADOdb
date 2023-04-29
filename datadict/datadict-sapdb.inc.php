@@ -28,7 +28,7 @@ class ADODB2_sapdb extends ADODB_DataDict {
 	var $seqField = false;
 	var $renameColumn = 'RENAME COLUMN %s.%s TO %s';
 
- 	function ActualType($meta)
+	function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
 		

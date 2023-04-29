@@ -32,7 +32,7 @@ class ADODB2_sqlite extends ADODB_DataDict {
 
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;
-    
+	
 	function ActualType($meta)
 	{
 		

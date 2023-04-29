@@ -45,7 +45,7 @@ class ADODB_fbsql extends ADOConnection {
 			return fbsql_affected_rows($this->_connectionID);
 	}
 
-  	function MetaDatabases()
+	function MetaDatabases()
 	{
 		$qid = fbsql_list_dbs($this->_connectionID);
 		$arr = array();
@@ -88,7 +88,7 @@ class ADODB_fbsql extends ADOConnection {
 		return true;
 	}
 
- 	function MetaColumns($table, $normalize=true)
+	function MetaColumns($table, $normalize=true)
 	{
 		if ($this->metaColumnsSQL) {
 

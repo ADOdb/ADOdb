@@ -229,8 +229,8 @@ class ADODB_ado extends ADOConnection {
 			$oCmd->CommandText = $sql;
 			$oCmd->CommandType = 1;
 
-      // Map by http://msdn.microsoft.com/library/default.asp?url=/library/en-us/ado270/htm/mdmthcreateparam.asp
-      // Check issue http://bugs.php.net/bug.php?id=40664 !!!
+	  // Map by http://msdn.microsoft.com/library/default.asp?url=/library/en-us/ado270/htm/mdmthcreateparam.asp
+	  // Check issue http://bugs.php.net/bug.php?id=40664 !!!
 			foreach ($inputarr as $val) {
 				$type = gettype($val);
 				$len=strlen($val);
@@ -248,7 +248,7 @@ class ADODB_ado extends ADOConnection {
 					$this->adoParameterType = 130;
 
 				// name, type, direction 1 = input, len,
-        		$p = $oCmd->CreateParameter('name',$this->adoParameterType,1,$len,$val);
+				$p = $oCmd->CreateParameter('name',$this->adoParameterType,1,$len,$val);
 
 				$oCmd->Parameters->Append($p);
 			}
@@ -347,7 +347,7 @@ class ADORecordSet_ado extends ADORecordSet {
 	var $_tarr = false; // caches the types
 	var $_flds; // and field objects
 	var $canSeek = true;
-  	var $hideErrors = true;
+	var $hideErrors = true;
 
 	function __construct($id,$mode=false)
 	{
@@ -456,7 +456,7 @@ class ADORecordSet_ado extends ADORecordSet {
 
 	ADO Types
 
-   	adEmpty	= 0,
+	adEmpty	= 0,
 	adTinyInt	= 16,
 	adSmallInt	= 2,
 	adInteger	= 3,

@@ -836,7 +836,7 @@ order by constraint_name, referenced_table_name, keyno";
 	{
 		if ($length == 0)
 			/*
-		     * The length available to varchar is 2GB, but that makes no
+			 * The length available to varchar is 2GB, but that makes no
 			 * sense in a substring, so I'm going to arbitrarily limit
 			 * the length to 1K, but you could change it if you want
 			 */

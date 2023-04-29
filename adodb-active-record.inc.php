@@ -158,8 +158,8 @@ class ADODB_Active_Record {
 
 	function __wakeup()
 	{
-  		$class = get_class($this);
-  		new $class;
+		$class = get_class($this);
+		new $class;
 	}
 
 	function _pluralize($table)
@@ -421,7 +421,7 @@ class ADODB_Active_Record {
 				$activedb->tables[$table] = $acttab;
 
 				//if ($db->debug) ADOConnection::outp("Reading cached active record file: $fname");
-			  	return;
+				return;
 			} else if ($db->debug) {
 				ADOConnection::outp("Refreshing cached active record file: $fname");
 			}

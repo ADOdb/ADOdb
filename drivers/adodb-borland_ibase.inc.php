@@ -34,7 +34,7 @@ class ADODB_borland_ibase extends ADODB_ibase {
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
 		$this->autoCommit = false;
-	 	$this->_transactionID = ibase_trans($this->ibasetrans, $this->_connectionID);
+		$this->_transactionID = ibase_trans($this->ibasetrans, $this->_connectionID);
 		return $this->_transactionID;
 	}
 

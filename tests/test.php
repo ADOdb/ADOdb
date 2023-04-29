@@ -510,7 +510,7 @@ GO
 		$blob_data = $s;
 		$id = 99;
 
- 		$stmt = $db->PrepareSP($sql);
+		$stmt = $db->PrepareSP($sql);
 		$db->InParameter($stmt, $id, 'id');
 		$blob = $db->InParameter($stmt, $s, 'xx',-1, OCI_B_BLOB);
 		$db->StartTrans();
@@ -675,8 +675,8 @@ END Adodb;
   row1 INT  IDENTITY(1,1) NOT NULL,
   row2 varchar(16),
   PRIMARY KEY  (row1))";
-  		//$db->debug=1;
-  		if (!$db->Execute("delete from mytable"))
+		//$db->debug=1;
+		if (!$db->Execute("delete from mytable"))
 			$db->Execute($sqlt);
 
 		$ok = $db->Execute("insert into mytable (row2) values ('test')");
@@ -815,8 +815,8 @@ END Adodb;
 	$val2 = $db->GetRow("select count(*) from ADOXYZ");
 	 if ($val1[0] == 50 and sizeof($val1) == 1 and $val2[0] == 50 and sizeof($val2) == 1) print "<p>GetRow returns ok</p>";
 	 else {
-	 	print_r($val);
-	 	print "<p><b>Fail: GetRow returns {$val2[0]}</b></p>";
+		print_r($val);
+		print "<p><b>Fail: GetRow returns {$val2[0]}</b></p>";
 	}
 
 	print "<p>FetchObject/FetchNextObject Test</p>";
@@ -1450,9 +1450,9 @@ END Adodb;
 	include_once('../pivottable.inc.php');
 	print "<h3>Pivot Test</h3>";
 	$db->debug=true;
- 	$sql = PivotTableSQL(
- 		$db,  			# adodb connection
- 		'ADOXYZ',  		# tables
+	$sql = PivotTableSQL(
+		$db,  			# adodb connection
+		'ADOXYZ',  		# tables
 		'firstname',	# row fields
 		'lastname',		# column fields
 		false,			# join

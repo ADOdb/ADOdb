@@ -96,22 +96,22 @@ function adodb_session_regenerate_id()
 }
 
 /*
-    Generate database table for session data
-    @see PHPLens Issue No: 12280
-    @return 0 if failure, 1 if errors, 2 if successful.
+	Generate database table for session data
+	@see PHPLens Issue No: 12280
+	@return 0 if failure, 1 if errors, 2 if successful.
 	@author Markus Staab http://www.public-4u.de
 */
 function adodb_session_create_table($schemaFile=null,$conn = null)
 {
-    // set default values
-    if ($schemaFile===null) $schemaFile = ADODB_SESSION . '/session_schema.xml';
-    if ($conn===null) $conn = ADODB_Session::_conn();
+	// set default values
+	if ($schemaFile===null) $schemaFile = ADODB_SESSION . '/session_schema.xml';
+	if ($conn===null) $conn = ADODB_Session::_conn();
 
 	if (!$conn) return 0;
 
-    $schema = new adoSchema($conn);
-    $schema->ParseSchema($schemaFile);
-    return $schema->ExecuteSchema();
+	$schema = new adoSchema($conn);
+	$schema->ParseSchema($schemaFile);
+	return $schema->ExecuteSchema();
 }
 
 /*!

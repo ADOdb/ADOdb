@@ -152,74 +152,74 @@ class ADODB2_sybase extends ADODB_DataDict {
 
 	/*
 CREATE TABLE
-    [ database_name.[ owner ] . | owner. ] table_name
-    ( { < column_definition >
-        | column_name AS computed_column_expression
-        | < table_constraint > ::= [ CONSTRAINT constraint_name ] }
+	[ database_name.[ owner ] . | owner. ] table_name
+	( { < column_definition >
+		| column_name AS computed_column_expression
+		| < table_constraint > ::= [ CONSTRAINT constraint_name ] }
 
-            | [ { PRIMARY KEY | UNIQUE } [ ,...n ]
-    )
+			| [ { PRIMARY KEY | UNIQUE } [ ,...n ]
+	)
 
 [ ON { filegroup | DEFAULT } ]
 [ TEXTIMAGE_ON { filegroup | DEFAULT } ]
 
 < column_definition > ::= { column_name data_type }
-    [ COLLATE < collation_name > ]
-    [ [ DEFAULT constant_expression ]
-        | [ IDENTITY [ ( seed , increment ) [ NOT FOR REPLICATION ] ] ]
-    ]
-    [ ROWGUIDCOL]
-    [ < column_constraint > ] [ ...n ]
+	[ COLLATE < collation_name > ]
+	[ [ DEFAULT constant_expression ]
+		| [ IDENTITY [ ( seed , increment ) [ NOT FOR REPLICATION ] ] ]
+	]
+	[ ROWGUIDCOL]
+	[ < column_constraint > ] [ ...n ]
 
 < column_constraint > ::= [ CONSTRAINT constraint_name ]
-    { [ NULL | NOT NULL ]
-        | [ { PRIMARY KEY | UNIQUE }
-            [ CLUSTERED | NONCLUSTERED ]
-            [ WITH FILLFACTOR = fillfactor ]
-            [ON {filegroup | DEFAULT} ] ]
-        ]
-        | [ [ FOREIGN KEY ]
-            REFERENCES ref_table [ ( ref_column ) ]
-            [ ON DELETE { CASCADE | NO ACTION } ]
-            [ ON UPDATE { CASCADE | NO ACTION } ]
-            [ NOT FOR REPLICATION ]
-        ]
-        | CHECK [ NOT FOR REPLICATION ]
-        ( logical_expression )
-    }
+	{ [ NULL | NOT NULL ]
+		| [ { PRIMARY KEY | UNIQUE }
+			[ CLUSTERED | NONCLUSTERED ]
+			[ WITH FILLFACTOR = fillfactor ]
+			[ON {filegroup | DEFAULT} ] ]
+		]
+		| [ [ FOREIGN KEY ]
+			REFERENCES ref_table [ ( ref_column ) ]
+			[ ON DELETE { CASCADE | NO ACTION } ]
+			[ ON UPDATE { CASCADE | NO ACTION } ]
+			[ NOT FOR REPLICATION ]
+		]
+		| CHECK [ NOT FOR REPLICATION ]
+		( logical_expression )
+	}
 
 < table_constraint > ::= [ CONSTRAINT constraint_name ]
-    { [ { PRIMARY KEY | UNIQUE }
-        [ CLUSTERED | NONCLUSTERED ]
-        { ( column [ ASC | DESC ] [ ,...n ] ) }
-        [ WITH FILLFACTOR = fillfactor ]
-        [ ON { filegroup | DEFAULT } ]
-    ]
-    | FOREIGN KEY
-        [ ( column [ ,...n ] ) ]
-        REFERENCES ref_table [ ( ref_column [ ,...n ] ) ]
-        [ ON DELETE { CASCADE | NO ACTION } ]
-        [ ON UPDATE { CASCADE | NO ACTION } ]
-        [ NOT FOR REPLICATION ]
-    | CHECK [ NOT FOR REPLICATION ]
-        ( search_conditions )
-    }
+	{ [ { PRIMARY KEY | UNIQUE }
+		[ CLUSTERED | NONCLUSTERED ]
+		{ ( column [ ASC | DESC ] [ ,...n ] ) }
+		[ WITH FILLFACTOR = fillfactor ]
+		[ ON { filegroup | DEFAULT } ]
+	]
+	| FOREIGN KEY
+		[ ( column [ ,...n ] ) ]
+		REFERENCES ref_table [ ( ref_column [ ,...n ] ) ]
+		[ ON DELETE { CASCADE | NO ACTION } ]
+		[ ON UPDATE { CASCADE | NO ACTION } ]
+		[ NOT FOR REPLICATION ]
+	| CHECK [ NOT FOR REPLICATION ]
+		( search_conditions )
+	}
 
 
 	*/
 
 	/*
 	CREATE [ UNIQUE ] [ CLUSTERED | NONCLUSTERED ] INDEX index_name
-    ON { table | view } ( column [ ASC | DESC ] [ ,...n ] )
+	ON { table | view } ( column [ ASC | DESC ] [ ,...n ] )
 		[ WITH < index_option > [ ,...n] ]
 		[ ON filegroup ]
 		< index_option > :: =
-		    { PAD_INDEX |
-		        FILLFACTOR = fillfactor |
-		        IGNORE_DUP_KEY |
-		        DROP_EXISTING |
-		    STATISTICS_NORECOMPUTE |
-		    SORT_IN_TEMPDB
+			{ PAD_INDEX |
+				FILLFACTOR = fillfactor |
+				IGNORE_DUP_KEY |
+				DROP_EXISTING |
+			STATISTICS_NORECOMPUTE |
+			SORT_IN_TEMPDB
 		}
 */
 	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)

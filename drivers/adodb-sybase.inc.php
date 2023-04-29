@@ -31,7 +31,7 @@ class ADODB_sybase extends ADOConnection {
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $hasInsertID = true;
 	var $hasAffectedRows = true;
-  	var $metaTablesSQL="select name from sysobjects where type='U' or type='V'";
+	var $metaTablesSQL="select name from sysobjects where type='U' or type='V'";
 	// see http://sybooks.sybase.com/onlinebooks/group-aw/awg0800e/dbrfen8/@ebt-link;pt=5981;uf=0?target=0;window=new;showtoc=true;book=dbrfen8
 	var $metaColumnsSQL = "SELECT c.column_name, c.column_type, c.width FROM syscolumn c, systable t WHERE t.table_name='%s' AND c.table_id=t.table_id AND t.table_type='BASE'";
 	/*

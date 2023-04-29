@@ -371,7 +371,7 @@ flush();
 
 		$db->debug=1;
 		 $arr = $db->GetArray( "||SQLProcedures" ); adodb_pr($arr);
-	     $arr = $db->GetArray( "||SQLProcedureColumns|||GET_ROUTINE_SAR" );adodb_pr($arr);
+		 $arr = $db->GetArray( "||SQLProcedureColumns|||GET_ROUTINE_SAR" );adodb_pr($arr);
 
 		testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
 	} else echo ("ERROR Connection");
