@@ -16,4 +16,7 @@
 
 	<!--enforce intents to be tabs-->
 	<rule ref="Generic.WhiteSpace.DisallowSpaceIndent"/>
+
+	<!--enforce no whitespace at end of line-->
+	<rule ref="Squiz.WhiteSpace.SuperfluousWhitespace.EndLine"/>
 </ruleset>

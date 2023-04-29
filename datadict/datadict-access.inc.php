@@ -31,14 +31,14 @@ class ADODB2_access extends ADODB_DataDict {
 	function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
-		
+
 		/*
 		* Add support for custom meta types. We do this
 		* first, that allows us to override existing types
 		*/
 		if (isset($this->connection->customMetaTypes[$meta]))
 			return $this->connection->customMetaTypes[$meta]['actual'];
-		
+
 		switch($meta) {
 		case 'C': return 'TEXT';
 		case 'XL':
@@ -50,7 +50,7 @@ class ADODB2_access extends ADODB_DataDict {
 		case 'B': return 'BINARY';
 
 		case 'TS':
-		case 'D': 
+		case 'D':
 		return 'DATETIME';
 		case 'T': return 'DATETIME';
 

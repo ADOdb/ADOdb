@@ -19,7 +19,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-if (!defined('ADODB_DIR')) 
+if (!defined('ADODB_DIR'))
 	die();
 
 include_once(ADODB_DIR."/drivers/adodb-odbc_mssql.inc.php");

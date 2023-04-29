@@ -32,7 +32,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	var $alterCol = ' MODIFY ';
 	var $typeX = 'VARCHAR(4000)';
 	var $typeXL = 'CLOB';
-	
+
 	/**
 	 * Legacy compatibility for sequence names for emulated auto-increments.
 	 *
@@ -50,9 +50,9 @@ class ADODB2_oci8 extends ADODB_DataDict {
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		$t = strtoupper($t);
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 
@@ -99,14 +99,14 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
-		
+
 		/*
 		* Add support for custom meta types. We do this
 		* first, that allows us to override existing types
 		*/
 		if (isset($this->connection->customMetaTypes[$meta]))
 			return $this->connection->customMetaTypes[$meta]['actual'];
-		
+
 		switch($meta) {
 		case 'C': return 'VARCHAR';
 		case 'X': return $this->typeX;
@@ -228,33 +228,33 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	 */
 	function _Triggers($tabname,$tableoptions)
 	{
-		
+
 		if (!$this->seqField) return array();
 
-		if ($this->schema) 
+		if ($this->schema)
 		{
 			$t = strpos($tabname,'.');
-			if ($t !== false) 
+			if ($t !== false)
 				$tab = substr($tabname,$t+1);
-			else 
+			else
 				$tab = $tabname;
-			
+
 			if ($this->connection->useCompactAutoIncrements)
 				$id = sprintf('%u',crc32(strtolower($tab)));
 			else
 				$id = $tab;
-			
+
 			$seqname = $this->schema.'.'.$this->seqPrefix.$tab;
 			$trigname = $this->schema.'.'.$this->trigPrefix.$this->seqPrefix.$tab;
-			
-		} 
-		else 
+
+		}
+		else
 		{
 			if ($this->connection->useCompactAutoIncrements)
 				$id = sprintf('%u',crc32(strtolower($tabname)));
 			else
 				$id = $tabname;
-			
+
 			$seqname = $this->seqPrefix.$id;
 			$trigname = $this->trigPrefix.$id;
 		}
@@ -262,7 +262,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		if (strlen($seqname) > 30) {
 			$seqname = $this->seqPrefix.uniqid('');
 		} // end if
-		
+
 		if (strlen($trigname) > 30) {
 			$trigname = $this->trigPrefix.uniqid('');
 		} // end if

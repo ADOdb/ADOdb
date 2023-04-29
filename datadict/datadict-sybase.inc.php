@@ -36,7 +36,7 @@ class ADODB2_sybase extends ADODB_DataDict {
 		}
 
 		$t = strtoupper($t);
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 
@@ -61,14 +61,14 @@ class ADODB2_sybase extends ADODB_DataDict {
 	function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
-		
+
 		/*
 		* Add support for custom meta types. We do this
 		* first, that allows us to override existing types
 		*/
 		if (isset($this->connection->customMetaTypes[$meta]))
 			return $this->connection->customMetaTypes[$meta]['actual'];
-		
+
 		switch(strtoupper($meta)) {
 		case 'C': return 'VARCHAR';
 		case 'XL':
