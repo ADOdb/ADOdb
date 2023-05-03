@@ -1,0 +1,29 @@
+name: phpcs
+
+on:
+  # Run on all pushes and on all pull requests.
+  push:
+    paths:
+      - "**.php"
+      - "phpcs.xml"
+      - ".github/workflows/phpcs.yml"
+  pull_request:
+    paths:
+      - "**.php"
+      - "phpcs.xml"
+      - ".github/workflows/phpcs.yml"
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
+
+jobs:
+  phpcs:
+    runs-on: ubuntu-latest
+    container:
+      image: pipelinecomponents/php-codesniffer
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: phpcs check
+        run: phpcs .

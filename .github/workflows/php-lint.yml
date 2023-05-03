@@ -1,0 +1,48 @@
+name: PHP-lint
+
+on:
+  # Run on all pushes and on all pull requests.
+  push:
+    paths:
+      - "**.php"
+      - ".github/workflows/php-lint.yml"
+  pull_request:
+    paths:
+      - '**.php'
+  # Allow manually triggering the workflow.
+  workflow_dispatch:
+
+jobs:
+  lint-php7_4:
+    runs-on: ubuntu-latest
+    container:
+      image: php:7.4-cli
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: lint php files
+        run: find . -path "*/vendor*" -prune -false -o -type f -name "*.php" -print0 | xargs -0 -n1 -P$(nproc) php -l -n -d error_reporting="E_ERROR | E_WARNING | E_PARSE | E_NOTICE" | (! grep -v "No syntax errors detected")
+  lint-php8_0:
+    runs-on: ubuntu-latest
+    container:
+      image: php:8.0-cli
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: lint php files
+        run: find . -path "*/vendor*" -prune -false -o -type f -name "*.php" -print0 | xargs -0 -n1 -P$(nproc) php -l -n -d error_reporting="E_ERROR | E_WARNING | E_PARSE | E_NOTICE" | (! grep -v "No syntax errors detected")
+  lint-php8_1:
+    runs-on: ubuntu-latest
+    container:
+      image: php:8.1-cli
+    steps:
+      - name: checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: lint php files
+        run: find . -path "*/vendor*" -prune -false -o -type f -name "*.php" -print0 | xargs -0 -n1 -P$(nproc) php -l -n -d error_reporting="E_ERROR | E_WARNING | E_PARSE | E_NOTICE" | (! grep -v "No syntax errors detected")
