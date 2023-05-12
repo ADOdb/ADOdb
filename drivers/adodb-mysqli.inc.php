@@ -167,6 +167,14 @@ class ADODB_mysqli extends ADOConnection {
 		if(!extension_loaded("mysqli")) {
 			return null;
 		}
+		// Check for a function that only exists in mysqlnd
+		if (!function_exists('mysqli_stmt_get_result')) {
+			// @TODO This will be treated as if the mysqli extension were not available
+			// This could be misleading, so we output an additional error message.
+			// We should probably throw a specific exception instead.
+			$this->outp("MySQL Native Driver (msqlnd) required");
+			return null;
+		}
 		$this->_connectionID = @mysqli_init();
 
 		if (is_null($this->_connectionID)) {
