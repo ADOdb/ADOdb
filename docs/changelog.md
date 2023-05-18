@@ -18,8 +18,8 @@ Older changelogs:
 
 ### Deprecated
 
-- Deprecate Date/Time Library
-  [#963](https://github.com/ADOdb/ADOdb/issues/963)
+- Date/Time Library
+  [#970](https://github.com/ADOdb/ADOdb/issues/970)
 
 ### Fixed
 
