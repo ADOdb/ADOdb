@@ -1067,16 +1067,6 @@ class ADODB_mysqli extends ADOConnection {
 		return $sql;
 	}
 
-	/**
-	 * Execute SQL
-	 *
-	 * @param string     $sql      SQL statement to execute, or possibly an array
-	 *                             holding prepared statement ($sql[0] will hold sql text)
-	 * @param array|bool $inputarr holds the input data to bind to.
-	 *                             Null elements will be set to null.
-	 *
-	 * @return ADORecordSet|bool
-	 */
 	public function execute($sql, $inputarr = false)
 	{
 		if ($this->fnExecute) {
@@ -1165,14 +1155,14 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	/**
-	* Return the query id.
-	*
-	* @param string|array $sql
-	* @param array $inputarr
-	*
-	* @return bool|mysqli_result
+	 * Execute a query.
+	 *
+	 * @param string|array $sql        Query to execute.
+	 * @param array        $inputarr   An optional array of parameters.
+	 *
+	 * @return mysqli_result|bool
 	*/
-	function _query($sql, $inputarr)
+	function _query($sql, $inputarr = false)
 	{
 		global $ADODB_COUNTRECS;
 

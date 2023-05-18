@@ -793,7 +793,6 @@ class ADODB_postgres64 extends ADOConnection{
 	}
 
 
-	// returns queryID or false
 	function _query($sql,$inputarr=false)
 	{
 		$this->_pnum = 0;

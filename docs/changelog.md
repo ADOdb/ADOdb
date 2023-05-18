@@ -56,12 +56,27 @@ Older changelogs:
 
 ## [5.22.6] - Unreleased
 
+### Deprecated
+
+- Date/Time Library
+  [#970](https://github.com/ADOdb/ADOdb/issues/970)
+
 ### Fixed
 
-- Creation of dynamic property deprecated warning in PHP 8.2
+- Creation of dynamic property deprecated warning with PHP 8.2
   [#954](https://github.com/ADOdb/ADOdb/issues/954)
+- Remove unused oldProvider property in _rs2serialize()
+  [#957](https://github.com/ADOdb/ADOdb/issues/957)
+- Fix ADOConnection::execute() documentation of return type
+  [#964](https://github.com/ADOdb/ADOdb/issues/964)
+- Define _query() method in ADOConnection base class
+  [#966](https://github.com/ADOdb/ADOdb/issues/966)
+- Restore rs2html() $htmlspecialchars param behavior
+  [#968](https://github.com/ADOdb/ADOdb/issues/968)
 - loadbalancer: PHP 8.2 warnings
   [#951](https://github.com/ADOdb/ADOdb/issues/951)
+- pgsql: Fix PHP 8.1 deprecated warning
+  [#956](https://github.com/ADOdb/ADOdb/issues/956)
 
 
 ## [5.22.5] - 2023-04-03
