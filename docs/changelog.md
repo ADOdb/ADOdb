@@ -47,6 +47,8 @@ Older changelogs:
   [#877](https://github.com/ADOdb/ADOdb/issues/877)
 - pgsql: Remove legacy workarounds for old PostgreSQL versions
   [#950](https://github.com/ADOdb/ADOdb/issues/950)
+- session: remove legacy PHP 4 scripts
+  [#962](https://github.com/ADOdb/ADOdb/issues/962)
 
 ### Fixed
 
