@@ -35,6 +35,8 @@ Older changelogs:
   [#968](https://github.com/ADOdb/ADOdb/issues/968)
 - loadbalancer: PHP 8.2 warnings
   [#951](https://github.com/ADOdb/ADOdb/issues/951)
+- mysql: Fail connection if native driver (mysqlnd) is not available
+  [#967](https://github.com/ADOdb/ADOdb/issues/967)
 - pgsql: Fix PHP 8.1 deprecated warning
   [#956](https://github.com/ADOdb/ADOdb/issues/956)
 
