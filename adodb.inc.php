@@ -3936,13 +3936,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 	}
 
-	//==============================================================================================
-	// DATE AND TIME FUNCTIONS
-	//==============================================================================================
-	if (!defined('ADODB_DATE_VERSION')) {
-		include_once(ADODB_DIR.'/adodb-time.inc.php');
-	}
-
 	/**
 	 * Class ADODB_Iterator
 	 */

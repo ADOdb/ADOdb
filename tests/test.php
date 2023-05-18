@@ -1764,9 +1764,6 @@ Test <a href=test4.php>GetInsertSQL/GetUpdateSQL</a> &nbsp;
 	<a href=test-perf.php>Perf Monitor</a><p>
 <?php
 
-
-include_once('../adodb-time.inc.php');
-if (isset($_GET['time'])) adodb_date_test();
 flush();
 
 include_once('./testdatabases.inc.php');
