@@ -34,7 +34,6 @@
 <td><input type=checkbox name="testsqlite" value=1 <?php echo !empty($testsqlite) ? 'checked' : '' ?>> <b>SQLite</b><br>
 <input type=checkbox name="testoracle" value=1 <?php echo !empty($testoracle) ? 'checked' : '' ?>> <b>Oracle (oci8)</b> <br>
 <input type=checkbox name="testpostgres" value=1 <?php echo !empty($testpostgres) ? 'checked' : '' ?>> <b>PostgreSQL</b><br>
-<input type=checkbox name="testpostgres9" value=1 <?php echo !empty($testpostgres9) ? 'checked' : '' ?>> <b>PostgreSQL 9</b><br>
 <input type=checkbox name="testpgodbc" value=1 <?php echo !empty($testpgodbc) ? 'checked' : '' ?>> <b>PostgreSQL ODBC</b><br>
 <td>
 <input type=checkbox name="testpdopgsql" value=1 <?php echo !empty($testpdopgsql) ? 'checked' : '' ?>> <b>PgSQL PDO</b><br>
@@ -103,18 +102,6 @@ if (!empty($testpostgres)) {
 	//ADOLoadCode("postgres");
 
 	$db = ADONewConnection('postgres');
-	print "<h1>Connecting $db->databaseType...</h1>";
-	if ($db->Connect($pg_hostname, $pg_user, $pg_password, $pg_database)) {
-		testdb($db, $pg_test_table);
-	} else {
-		print $pg_errmsg . $db->ErrorMsg();
-	}
-}
-
-if (!empty($testpostgres9)) {
-	//ADOLoadCode("postgres");
-
-	$db = ADONewConnection('postgres9');
 	print "<h1>Connecting $db->databaseType...</h1>";
 	if ($db->Connect($pg_hostname, $pg_user, $pg_password, $pg_database)) {
 		testdb($db, $pg_test_table);
