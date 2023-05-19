@@ -33,18 +33,27 @@ class ADODB_postgres64 extends ADOConnection {
 	/** @var PgSql\Connection|resource|false */
 	var $_resultid = false;
 	var $concat_operator='||';
-	var $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
-	var $metaTablesSQL = "select tablename,'T' from pg_tables where tablename not like 'pg\_%'
-		and tablename not in ('sql_features', 'sql_implementation_info', 'sql_languages',
+	var $metaDatabasesSQL = <<< 'ENDSQL'
+		SELECT datname FROM pg_database
+		WHERE datname NOT IN ('template0', 'template1')
+		ORDER BY 1
+		ENDSQL;
+
+	var $metaTablesSQL = /** @lang PostgreSQL */ <<< 'ENDSQL'
+		SELECT tablename, 'T' FROM pg_tables
+		WHERE tablename NOT LIKE 'pg\_%'
+		AND tablename NOT IN ('sql_features', 'sql_implementation_info', 'sql_languages',
 			'sql_packages', 'sql_sizing', 'sql_sizing_profiles')
-	union
-		select viewname,'V' from pg_views where viewname not like 'pg\_%'";
-	//"select tablename from pg_tables where tablename not like 'pg_%' order by 1";
+		UNION
+		SELECT viewname, 'V' FROM pg_views
+		WHERE viewname NOT LIKE 'pg\_%'
+		ENDSQL;
 	var $isoDates = true; // accepts dates in ISO format
 	var $sysDate = "CURRENT_DATE";
 	var $sysTimeStamp = "CURRENT_TIMESTAMP";
 	var $blobEncodeType = 'C';
-	var $metaColumnsSQL = "
+
+	var $metaColumnsSQL = <<< 'ENDSQL'
 		SELECT
 			a.attname,
 			CASE
@@ -67,18 +76,19 @@ class ADODB_postgres64 extends ADOConnection {
 			LEFT JOIN pg_class c1 ON d.refobjid = c1.oid
 			LEFT JOIN pg_attribute a ON (d.refobjid, d.refobjsubid) = (a.attrelid, a.attnum)
 			WHERE c.relkind = 'S' AND c1.relname = '%s'
-		) x ON x.related_column= a.attname
+		) x ON x.related_column = a.attname
 		WHERE
-			c.relkind in ('r','v')
+			c.relkind in ('r', 'v')
 			AND (c.relname='%s' or c.relname = lower('%s'))
 			AND a.attname not like '....%%'
 			AND a.attnum > 0
 			AND a.attrelid = c.oid
 		ORDER BY
-			a.attnum";
+			a.attnum
+		ENDSQL;
 
 	/** @var string SQL statement to get table columns when schema is defined */
-	var $metaColumnsSQL1 = "
+	var $metaColumnsSQL1 = <<< 'ENDSQL'
 		SELECT
 			a.attname,
 			CASE
@@ -102,23 +112,31 @@ class ADODB_postgres64 extends ADOConnection {
 			LEFT JOIN pg_class c1 ON d.refobjid = c1.oid
 			LEFT JOIN pg_attribute a ON (d.refobjid, d.refobjsubid) = (a.attrelid, a.attnum)
 			WHERE c.relkind = 'S' AND c1.relname = '%s'
-		) x ON x.related_column= a.attname
+		) x ON x.related_column = a.attname
 		WHERE
 			c.relkind in ('r','v')
-			AND (c.relname='%s' or c.relname = lower('%s'))
-			AND c.relnamespace=n.oid and n.nspname='%s'
-			AND a.attname not like '....%%'
+			AND (c.relname = '%s' or c.relname = lower('%s'))
+			AND c.relnamespace = n.oid and n.nspname = '%s'
+			AND a.attname NOT LIKE '....%%'
 			AND a.attnum > 0
 			AND a.atttypid = t.oid
 			AND a.attrelid = c.oid
-		ORDER BY a.attnum";
+		ORDER BY a.attnum
+		ENDSQL;
 
 	// get primary key etc -- from Freek Dijkstra
-	var $metaKeySQL = "SELECT ic.relname AS index_name, a.attname AS column_name,i.indisunique AS unique_key, i.indisprimary AS primary_key
+	var $metaKeySQL = <<< 'ENDSQL'
+		SELECT
+			ic.relname AS index_name,
+			a.attname AS column_name,
+			i.indisunique AS unique_key,
+			i.indisprimary AS primary_key
 		FROM pg_class bc, pg_class ic, pg_index i, pg_attribute a
 		WHERE bc.oid = i.indrelid AND ic.oid = i.indexrelid
-		AND (i.indkey[0] = a.attnum OR i.indkey[1] = a.attnum OR i.indkey[2] = a.attnum OR i.indkey[3] = a.attnum OR i.indkey[4] = a.attnum OR i.indkey[5] = a.attnum OR i.indkey[6] = a.attnum OR i.indkey[7] = a.attnum)
-		AND a.attrelid = bc.oid AND bc.relname = '%s'";
+		AND (i.indkey[0] = a.attnum OR i.indkey[1] = a.attnum OR i.indkey[2] = a.attnum OR i.indkey[3] = a.attnum OR
+			 i.indkey[4] = a.attnum OR i.indkey[5] = a.attnum OR i.indkey[6] = a.attnum OR i.indkey[7] = a.attnum)
+		AND a.attrelid = bc.oid AND bc.relname = '%s'
+		ENDSQL;
 
 	var $hasAffectedRows = true;
 
@@ -139,10 +157,12 @@ class ADODB_postgres64 extends ADOConnection {
 	var $_genSeqSQL = "CREATE SEQUENCE %s START %s";
 	var $_dropSeqSQL = "DROP SEQUENCE %s";
 
-	var $metaDefaultsSQL = "SELECT d.adnum as num, pg_get_expr(d.adbin, d.adrelid) as def
+	var $metaDefaultsSQL = <<< 'ENDSQL'
+		SELECT d.adnum as num, pg_get_expr(d.adbin, d.adrelid) as def
 		FROM pg_attrdef d, pg_class c
 		WHERE d.adrelid=c.oid AND c.relname='%s'
-		ORDER BY d.adnum";
+		ORDER BY d.adnum
+		ENDSQL;
 
 	var $random = 'random()';		/// random function
 	var $autoRollback = true; // apparently pgsql does not autorollback properly before php 4.3.4
