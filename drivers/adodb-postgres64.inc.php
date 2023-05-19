@@ -44,18 +44,74 @@ class ADODB_postgres64 extends ADOConnection{
 	var $sysDate = "CURRENT_DATE";
 	var $sysTimeStamp = "CURRENT_TIMESTAMP";
 	var $blobEncodeType = 'C';
-	var $metaColumnsSQL = "SELECT a.attname,t.typname,a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum
-		FROM pg_class c, pg_attribute a,pg_type t
-		WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s')) and a.attname not like '....%%'
-		AND a.attnum > 0 AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
+	var $metaColumnsSQL = "
+		SELECT
+			a.attname,
+			CASE
+				WHEN x.sequence_name != ''
+				THEN 'SERIAL'
+				ELSE t.typname
+			END AS typname,
+			a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
+		FROM
+			pg_class c,
+			pg_attribute a
+		JOIN pg_type t ON a.atttypid = t.oid
+		LEFT JOIN (
+			SELECT
+				c.relname as sequence_name,
+				c1.relname as related_table,
+				a.attname as related_column
+			FROM pg_class c
+			JOIN pg_depend d ON d.objid = c.oid
+			LEFT JOIN pg_class c1 ON d.refobjid = c1.oid
+			LEFT JOIN pg_attribute a ON (d.refobjid, d.refobjsubid) = (a.attrelid, a.attnum)
+			WHERE c.relkind = 'S' AND c1.relname = '%s'
+		) x ON x.related_column= a.attname
+		WHERE
+			c.relkind in ('r','v')
+			AND (c.relname='%s' or c.relname = lower('%s'))
+			AND a.attname not like '....%%'
+			AND a.attnum > 0
+			AND a.attrelid = c.oid
+		ORDER BY
+			a.attnum";
 
-	// used when schema defined
-	var $metaColumnsSQL1 = "SELECT a.attname, t.typname, a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
-		FROM pg_class c, pg_attribute a, pg_type t, pg_namespace n
-		WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
-		and c.relnamespace=n.oid and n.nspname='%s'
-		and a.attname not like '....%%' AND a.attnum > 0
-		AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
+	/** @var string SQL statement to get table columns when schema is defined */
+	var $metaColumnsSQL1 = "
+		SELECT
+			a.attname,
+			CASE
+				WHEN x.sequence_name != ''
+				THEN 'SERIAL'
+				ELSE t.typname
+			END AS typname,
+			a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
+		FROM
+			pg_class c,
+			pg_namespace n,
+			pg_attribute a
+		JOIN pg_type t ON a.atttypid = t.oid
+		LEFT JOIN (
+			SELECT
+				c.relname as sequence_name,
+				c1.relname as related_table,
+				a.attname as related_column
+			FROM pg_class c
+			JOIN pg_depend d ON d.objid = c.oid
+			LEFT JOIN pg_class c1 ON d.refobjid = c1.oid
+			LEFT JOIN pg_attribute a ON (d.refobjid, d.refobjsubid) = (a.attrelid, a.attnum)
+			WHERE c.relkind = 'S' AND c1.relname = '%s'
+		) x ON x.related_column= a.attname
+		WHERE
+			c.relkind in ('r','v')
+			AND (c.relname='%s' or c.relname = lower('%s'))
+			AND c.relnamespace=n.oid and n.nspname='%s'
+			AND a.attname not like '....%%'
+			AND a.attnum > 0
+			AND a.atttypid = t.oid
+			AND a.attrelid = c.oid
+		ORDER BY a.attnum";
 
 	// get primary key etc -- from Freek Dijkstra
 	var $metaKeySQL = "SELECT ic.relname AS index_name, a.attname AS column_name,i.indisunique AS unique_key, i.indisprimary AS primary_key
@@ -65,7 +121,13 @@ class ADODB_postgres64 extends ADOConnection{
 		AND a.attrelid = bc.oid AND bc.relname = '%s'";
 
 	var $hasAffectedRows = true;
-	var $hasLimit = false;	// set to true for pgsql 7 only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
+
+	var $hasLimit = true;
+	var $ansiOuter = true;
+
+	/** @var bool PostgreSQL client supports encodings since version 7 */
+	var $charSet = true;
+
 	// below suggested by Freek Dijkstra
 	var $true = 'TRUE';		// string that represents TRUE for a database
 	var $false = 'FALSE';		// string that represents FALSE for a database
@@ -87,7 +149,6 @@ class ADODB_postgres64 extends ADOConnection{
 							// http://bugs.php.net/bug.php?id=25404
 
 	var $uniqueIisR = true;
-	var $_bindInputArray = false; // requires PostgreSQL 7.3+ and ability to modify database
 	var $disableBlobs = false; // set to true to disable blob checking, resulting in 2-5% improvement in performance.
 
 	/** @var int $_pnum Number of the last assigned query parameter {@see param()} */
@@ -103,6 +164,14 @@ class ADODB_postgres64 extends ADOConnection{
 	// I'm not familiar enough with both ADODB as well as Postgres
 	// to know what the consequences are. The other values are correct (weren't in 0.94)
 	// -- Freek Dijkstra
+
+	function __construct()
+	{
+		parent::__construct();
+		if (ADODB_ASSOC_CASE !== ADODB_ASSOC_CASE_NATIVE) {
+			$this->rsPrefix .= 'assoc_';
+		}
+	}
 
 	/**
 	 * Retrieve Server information.
@@ -237,6 +306,21 @@ class ADODB_postgres64 extends ADOConnection{
 		return pg_query($this->_connectionID, 'rollback');
 	}
 
+	function selectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
+	{
+		$nrows = (int)$nrows;
+		$offset = (int)$offset;
+		$offsetStr = ($offset >= 0) ? " OFFSET " . ((integer)$offset) : '';
+		$limitStr = ($nrows >= 0) ? " LIMIT " . ((integer)$nrows) : '';
+		if ($secs2cache) {
+			$rs = $this->CacheExecute($secs2cache, $sql . "$limitStr$offsetStr", $inputarr);
+		} else {
+			$rs = $this->Execute($sql . "$limitStr$offsetStr", $inputarr);
+		}
+
+		return $rs;
+	}
+
 	function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$info = $this->ServerInfo();
@@ -268,6 +352,57 @@ class ADODB_postgres64 extends ADOConnection{
 		return $ret;
 	}
 
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
+	{
+		# Regex isolates the 2 terms between parenthesis using subexpressions
+		$regex = '^.*\((.*)\).*\((.*)\).*$';
+		$sql = "
+			SELECT
+				lookup_table,
+				regexp_replace(consrc, '$regex', '\\2') AS lookup_field,
+				dep_table,
+				regexp_replace(consrc, '$regex', '\\1') AS dep_field
+			FROM (
+				SELECT
+					pg_get_constraintdef(c.oid) AS consrc,
+					t.relname AS dep_table,
+					ft.relname AS lookup_table
+				FROM pg_constraint c
+				JOIN pg_class t ON (t.oid = c.conrelid)
+				JOIN pg_class ft ON (ft.oid = c.confrelid)
+				JOIN pg_namespace nft ON (nft.oid = ft.relnamespace)
+				LEFT JOIN pg_description ds ON (ds.objoid = c.oid)
+				JOIN pg_namespace n ON (n.oid = t.relnamespace)
+				WHERE c.contype = 'f'::\"char\"
+				ORDER BY t.relname, n.nspname, c.conname, c.oid
+				) constraints
+			WHERE
+				dep_table='" . strtolower($table) . "'
+			ORDER BY
+				lookup_table,
+				dep_table,
+				dep_field";
+		$rs = $this->Execute($sql);
+
+		if (!$rs || $rs->EOF) {
+			return false;
+		}
+
+		$a = array();
+		while (!$rs->EOF) {
+			$lookup_table = $rs->fields('lookup_table');
+			$fields = $rs->fields('dep_field') . '=' . $rs->fields('lookup_field');
+			if ($upper) {
+				$lookup_table = strtoupper($lookup_table);
+				$fields = strtoupper($fields);
+			}
+			$a[$lookup_table][] = str_replace('"', '', $fields);
+
+			$rs->MoveNext();
+		}
+
+		return $a;
+	}
 
 	/**
 	 * Quotes a string to be sent to the database.
@@ -492,7 +627,49 @@ class ADODB_postgres64 extends ADOConnection{
 			return $this->Execute("UPDATE $table SET $column=" . $this->qstr($val) . " WHERE $where");
 		}
 		// do not use bind params which uses qstr(), as blobencode() already quotes data
-		return $this->Execute("UPDATE $table SET $column='".$this->BlobEncode($val)."'::bytea WHERE $where");
+		return $this->Execute("UPDATE $table SET $column='" . $this->BlobEncode($val) . "'::bytea WHERE $where");
+	}
+
+	/**
+	 * Retrieve the client connection's current character set.
+
+	 * If no charsets were compiled into the server, the function will always
+	 * return 'SQL_ASCII'.
+	 * @see https://www.php.net/manual/en/function.pg-client-encoding.php
+	 *
+	 * @return string|false The character set, or false if it can't be determined.
+	 */
+	function getCharSet()
+	{
+		if (!$this->_connectionID) {
+			return false;
+		}
+		$this->charSet = pg_client_encoding($this->_connectionID);
+		return $this->charSet ?: false;
+	}
+
+	/**
+	 * Sets the client-side character set (encoding).
+	 *
+	 * Allows managing client encoding - very important if the database and
+	 * the output target (i.e. HTML) don't match; for instance, you may have a
+	 * UNICODE database and server your pages as WIN1251, etc.
+	 *
+	 * Available charsets depend on PostgreSQL version and the distribution's compile flags.
+	 *
+	 * @param string $charset The character set to switch to.
+	 *
+	 * @return bool True if the character set was changed successfully, false otherwise.
+	 */
+	function setCharSet($charset)
+	{
+		if ($this->charSet !== $charset) {
+			if (!$this->_connectionID || pg_set_client_encoding($this->_connectionID, $charset) != 0) {
+				return false;
+			}
+			$this->getCharSet();
+		}
+		return true;
 	}
 
 	function OffsetDate($dayFraction,$date=false)
@@ -510,15 +687,17 @@ class ADODB_postgres64 extends ADOConnection{
 	}
 
 	/**
-	 * Generate the SQL to retrieve MetaColumns data
+	 * Generate the SQL to retrieve MetaColumns data.
+	 *
 	 * @param string $table Table name
 	 * @param string $schema Schema name (can be blank)
+	 *
 	 * @return string SQL statement to execute
 	 */
 	protected function _generateMetaColumnsSQL($table, $schema)
 	{
 		if ($schema) {
-			return sprintf($this->metaColumnsSQL1, $table, $table, $schema);
+			return sprintf($this->metaColumnsSQL1, $table, $table, $table, $schema);
 		}
 		else {
 			return sprintf($this->metaColumnsSQL, $table, $table, $schema);
@@ -810,71 +989,31 @@ class ADODB_postgres64 extends ADOConnection{
 		return $this->_connect($str,$user,$pwd,$db,1);
 	}
 
-
-	function _query($sql,$inputarr=false)
+	function _query($sql, $inputarr = false)
 	{
 		$this->_pnum = 0;
 		$this->_errorMsg = false;
+
 		if ($inputarr) {
-		/*
-			It appears that PREPARE/EXECUTE is slower for many queries.
-
-			For query executed 1000 times:
-			"select id,firstname,lastname from adoxyz
-				where firstname not like ? and lastname not like ? and id = ?"
-
-			with plan = 1.51861286163 secs
-			no plan =   1.26903700829 secs
-		*/
-			$plan = 'P'.md5($sql);
-
-			$execp = '';
-			foreach($inputarr as $v) {
-				if ($execp) $execp .= ',';
-				if (is_string($v)) {
-					if (strncmp($v,"'",1) !== 0) $execp .= $this->qstr($v);
+			$sqlarr = explode('?', trim($sql));
+			$sql = '';
+			$i = 1;
+			$last = sizeof($sqlarr) - 1;
+			foreach ($sqlarr as $v) {
+				if ($last < $i) {
+					$sql .= $v;
 				} else {
-					$execp .= $v;
+					$sql .= $v . ' $' . $i;
 				}
+				$i++;
 			}
 
-			if ($execp) $exsql = "EXECUTE $plan ($execp)";
-			else $exsql = "EXECUTE $plan";
-
-			$rez = @pg_query($this->_connectionID, $exsql);
-			if (!$rez) {
-			# Perhaps plan does not exist? Prepare/compile plan.
-				$params = '';
-				foreach($inputarr as $v) {
-					if ($params) $params .= ',';
-					if (is_string($v)) {
-						$params .= 'VARCHAR';
-					} else if (is_integer($v)) {
-						$params .= 'INTEGER';
-					} else {
-						$params .= "REAL";
-					}
-				}
-				$sqlarr = explode('?',$sql);
-				//print_r($sqlarr);
-				$sql = '';
-				$i = 1;
-				foreach($sqlarr as $v) {
-					$sql .= $v.' $'.$i;
-					$i++;
-				}
-				$s = "PREPARE $plan ($params) AS ".substr($sql,0,strlen($sql)-2);
-				//adodb_pr($s);
-				$rez = pg_query($this->_connectionID, $s);
-				//echo $this->ErrorMsg();
-			}
-			if ($rez)
-				$rez = pg_query($this->_connectionID, $exsql);
+			$rez = pg_query_params($this->_connectionID, $sql, $inputarr);
 		} else {
-			//adodb_backtrace();
 			$rez = pg_query($this->_connectionID, $sql);
 		}
-		// check if no data returned, then no need to create real recordset
+
+		// If no data returned, then no need to create real recordset
 		if ($rez && pg_num_fields($rez) <= 0) {
 			if ($this->_resultid !== false) {
 				pg_free_result($this->_resultid);
@@ -1074,7 +1213,6 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		}
 	}
 
-	// 10% speedup to move MoveNext to child class
 	function MoveNext()
 	{
 		if (!$this->EOF) {
@@ -1196,4 +1334,47 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		}
 	}
 
+}
+
+
+/**
+ * Associative case RecordSet.
+ *
+ * Copied from postgres7 driver as part of refactoring
+ * @TODO Check if still required or could be merged into ADORecordSet_postgres64
+ */
+class ADORecordSet_assoc_postgres64 extends ADORecordSet_postgres64
+{
+
+	function _fetch()
+	{
+		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0) {
+			return false;
+		}
+
+		$this->_prepfields();
+		if ($this->fields !== false) {
+			$this->_updatefields();
+			return true;
+		}
+
+		return false;
+	}
+
+	function MoveNext()
+	{
+		if (!$this->EOF) {
+			$this->_currentRow++;
+			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
+				$this->_prepfields();
+				if ($this->fields !== false) {
+					$this->_updatefields();
+					return true;
+				}
+			}
+			$this->fields = false;
+			$this->EOF = true;
+		}
+		return false;
+	}
 }
