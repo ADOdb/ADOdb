@@ -22,7 +22,7 @@
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
-class ADODB_postgres64 extends ADOConnection{
+class ADODB_postgres64 extends ADOConnection {
 	var $databaseType = 'postgres64';
 	var $dataProvider = 'postgres';
 	var $hasInsertID = true;
@@ -244,7 +244,7 @@ class ADODB_postgres64 extends ADOConnection{
 	 * @return int Last inserted ID for given table/column, or the most recently
 	 *             returned one if $table or $column are empty.
 	 */
-	protected function _insertID( $table = '', $column = '' )
+	protected function _insertID($table = '', $column = '')
 	{
 		global $ADODB_GETONE_EOF;
 
@@ -433,6 +433,7 @@ class ADODB_postgres64 extends ADOConnection{
 
 	function SQLDate($fmt, $col=false)
 	{
+		/** @noinspection DuplicatedCode */
 		if (!$col) $col = $this->sysTimeStamp;
 		$s = 'TO_CHAR('.$col.",'";
 
@@ -704,10 +705,8 @@ class ADODB_postgres64 extends ADOConnection{
 		}
 	}
 
-	// for schema support, pass in the $table param "$schema.$tabname".
-	// converts field names to lowercase, $upper is ignored
-	// see PHPLens Issue No: 14018 for more info
-	function MetaColumns($table,$normalize=true)
+	/** @noinspection DuplicatedCode {@see ADODB_pdo_pgsql::metaColumns} */
+	function metaColumns($table, $normalize = true)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -1100,10 +1099,13 @@ class ADODB_postgres64 extends ADOConnection{
 	Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordSet_postgres64 extends ADORecordSet{
+class ADORecordSet_postgres64 extends ADORecordSet {
 	var $_blobArr;
 	var $databaseType = "postgres64";
 	var $canSeek = true;
+
+	/** @var ADODB_postgres64 The parent connection */
+	var $connection = false;
 
 	function __construct($queryID, $mode=false)
 	{
@@ -1154,6 +1156,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 			return @$this->fields[$colname];
 		}
 
+		/** @noinspection DuplicatedCode */
 		if (!$this->bind) {
 			$this->bind = array();
 			for ($i=0; $i < $this->_numOfFields; $i++) {
