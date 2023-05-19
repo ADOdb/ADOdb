@@ -76,7 +76,12 @@ class ADODB_postgres64 extends ADOConnection{
 	var $_genIDSQL = "SELECT NEXTVAL('%s')";
 	var $_genSeqSQL = "CREATE SEQUENCE %s START %s";
 	var $_dropSeqSQL = "DROP SEQUENCE %s";
-	var $metaDefaultsSQL = "SELECT d.adnum as num, d.adsrc as def from pg_attrdef d, pg_class c where d.adrelid=c.oid and c.relname='%s' order by d.adnum";
+
+	var $metaDefaultsSQL = "SELECT d.adnum as num, pg_get_expr(d.adbin, d.adrelid) as def
+		FROM pg_attrdef d, pg_class c
+		WHERE d.adrelid=c.oid AND c.relname='%s'
+		ORDER BY d.adnum";
+
 	var $random = 'random()';		/// random function
 	var $autoRollback = true; // apparently pgsql does not autorollback properly before php 4.3.4
 							// http://bugs.php.net/bug.php?id=25404
@@ -162,21 +167,31 @@ class ADODB_postgres64 extends ADOConnection{
 	}
 
 	/**
-	 * Warning from http://www.php.net/manual/function.pg-getlastoid.php:
-	 * Using a OID as a unique identifier is not generally wise.
-	 * Unless you are very careful, you might end up with a tuple having
-	 * a different OID if a database must be reloaded.
+	 * Retrieve last inserted ID.
 	 *
-	 * @inheritDoc
+	 * @param string $table
+	 * @param string $column
+	 *
+	 * @return int Last inserted ID for given table/column, or the most recently
+	 *             returned one if $table or $column are empty.
 	 */
-	protected function _insertID($table = '', $column = '')
+	protected function _insertID( $table = '', $column = '' )
 	{
-		if ($this->_resultid === false) {
+		global $ADODB_GETONE_EOF;
+
+		$sql = empty($table) || empty($column)
+			? 'SELECT lastval()'
+			: "SELECT currval(pg_get_serial_sequence('$table', '$column'))";
+
+		// Squelch "ERROR:  lastval is not yet defined in this session" (see #978)
+		$result = @$this->GetOne($sql);
+		if ($result === false || $result == $ADODB_GETONE_EOF) {
+			if ($this->debug) {
+				ADOConnection::outp(__FUNCTION__ . "() failed : " . $this->errorMsg());
+			}
 			return false;
 		}
-		$oid = pg_last_oid($this->_resultid);
-		// to really return the id, we need the table and column-name, else we can only return the oid != id
-		return empty($table) || empty($column) ? $oid : $this->GetOne("SELECT $column FROM $table WHERE oid=".(int)$oid);
+		return $result;
 	}
 
 	function _affectedrows()
