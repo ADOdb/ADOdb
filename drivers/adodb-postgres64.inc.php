@@ -33,6 +33,11 @@ class ADODB_postgres64 extends ADOConnection {
 	/** @var PgSql\Connection|resource|false */
 	var $_resultid = false;
 	var $concat_operator='||';
+	var $isoDates = true; // accepts dates in ISO format
+	var $sysDate = "CURRENT_DATE";
+	var $sysTimeStamp = "CURRENT_TIMESTAMP";
+	var $blobEncodeType = 'C';
+
 	var $metaDatabasesSQL = <<< 'ENDSQL'
 		SELECT datname FROM pg_database
 		WHERE datname NOT IN ('template0', 'template1')
@@ -48,10 +53,6 @@ class ADODB_postgres64 extends ADOConnection {
 		SELECT viewname, 'V' FROM pg_views
 		WHERE viewname NOT LIKE 'pg\_%'
 		ENDSQL;
-	var $isoDates = true; // accepts dates in ISO format
-	var $sysDate = "CURRENT_DATE";
-	var $sysTimeStamp = "CURRENT_TIMESTAMP";
-	var $blobEncodeType = 'C';
 
 	var $metaColumnsSQL = <<< 'ENDSQL'
 		SELECT
