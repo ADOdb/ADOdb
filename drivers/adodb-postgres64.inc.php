@@ -149,7 +149,6 @@ class ADODB_postgres64 extends ADOConnection {
 							// http://bugs.php.net/bug.php?id=25404
 
 	var $uniqueIisR = true;
-	var $disableBlobs = false; // set to true to disable blob checking, resulting in 2-5% improvement in performance.
 
 	/** @var int $_pnum Number of the last assigned query parameter {@see param()} */
 	var $_pnum = 0;
