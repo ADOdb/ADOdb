@@ -44,14 +44,13 @@ class ADODB_postgres extends ADOConnection {
 		ORDER BY 1
 		ENDSQL;
 
-	var $metaTablesSQL = /** @lang PostgreSQL */ <<< 'ENDSQL'
-		SELECT table_name, 'T'
+	var $metaTablesSQL = <<< 'ENDSQL'
+		SELECT table_name
 		FROM information_schema.tables
 		WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-		UNION
-		SELECT table_name, 'V'
-		FROM information_schema.views
-		WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
+		  AND table_type IN ('BASE TABLE', 'VIEW')
+		  AND table_type LIKE ?
+		  AND table_name ILIKE ?
 		ENDSQL;
 
 	var $metaColumnsSQL = <<< 'ENDSQL'
@@ -346,20 +345,26 @@ class ADODB_postgres extends ADOConnection {
 
 	function metaTables($ttype = false, $showSchema = false, $mask = false)
 	{
-		if ($mask) {
-			$save = $this->metaTablesSQL;
+		global $ADODB_FETCH_MODE;
 
-			// Insert a where clause to filter on table name
-			$where_mask = 'WHERE table_name ILIKE ' . $this->qstr($mask) . ' AND';
-			$this->metaTablesSQL = str_replace('WHERE', $where_mask, $save);
+		// Transform type to match values in information schema's tables.table_type
+		if ($ttype) {
+			switch (strtoupper($ttype[0])) {
+				case 'T': $ttype = 'BASE TABLE'; break;
+				case 'V': $ttype = 'VIEW'; break;
+			}
+		} else {
+			$ttype = '%';
 		}
+		$mask = $mask ?: '%';
 
-		$ret = parent::metaTables($ttype, $showSchema);
+		$savem = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		$tables_and_views = $this->getArray($this->metaTablesSQL, [$ttype, $mask]);
+		$ADODB_FETCH_MODE = $savem;
 
-		if ($mask) {
-			$this->metaTablesSQL = $save;
-		}
-		return $ret;
+		// Prepare return array
+		return array_column($tables_and_views, 0);
 	}
 
 	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
