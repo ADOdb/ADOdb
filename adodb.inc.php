@@ -5655,7 +5655,7 @@ class ADORecordSet implements IteratorAggregate {
 
 			case 'pgsql':
 			case 'postgres':
-				$class = $db = 'postgres9';
+				$class = $db = 'postgres';
 				break;
 
 			case 'mysql':
@@ -5961,10 +5961,6 @@ class ADORecordSet implements IteratorAggregate {
 			case 'mysqlt':
 			case 'mysqli':
 				$drivername='mysql';
-				break;
-			case 'postgres7':
-			case 'postgres8':
-				$drivername = 'postgres';
 				break;
 			case 'firebird15':
 				$drivername = 'firebird';

@@ -33,9 +33,9 @@
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
-include_once(ADODB_DIR.'/drivers/adodb-postgres64.inc.php');
+include_once(ADODB_DIR.'/drivers/adodb-postgres.inc.php');
 
-class ADODB_netezza extends ADODB_postgres64 {
+class ADODB_netezza extends ADODB_postgres {
     var $databaseType = 'netezza';
 	var $dataProvider = 'netezza';
 	var $hasInsertID = false;
@@ -145,7 +145,7 @@ class ADODB_netezza extends ADODB_postgres64 {
 	 Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordSet_netezza extends ADORecordSet_postgres64
+class ADORecordSet_netezza extends ADORecordSet_postgres
 {
 	var $databaseType = "netezza";
 	var $canSeek = true;
