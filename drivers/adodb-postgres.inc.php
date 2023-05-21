@@ -45,7 +45,7 @@ class ADODB_postgres extends ADOConnection {
 		ENDSQL;
 
 	var $metaTablesSQL = <<< 'ENDSQL'
-		SELECT table_name
+		SELECT table_name, table_schema
 		FROM information_schema.tables
 		WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
 		  AND table_type IN ('BASE TABLE', 'VIEW')
@@ -364,7 +364,13 @@ class ADODB_postgres extends ADOConnection {
 		$ADODB_FETCH_MODE = $savem;
 
 		// Prepare return array
-		return array_column($tables_and_views, 0);
+		// Prepend schema name to table name if requested
+		return array_map(
+			function (array $tblinfo) use ($showSchema) {
+				return ($showSchema ? $tblinfo[1] . '.' : '') . $tblinfo[0];
+			},
+			$tables_and_views,
+		);
 	}
 
 	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
