@@ -1,6 +1,6 @@
 <?php
 /**
- * ADOdb PostgreSQL 6.4 driver
+ * ADOdb PostgreSQL driver
  *
  * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
  *
@@ -22,8 +22,8 @@
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
-class ADODB_postgres64 extends ADOConnection {
-	var $databaseType = 'postgres64';
+class ADODB_postgres extends ADOConnection {
+	var $databaseType = 'postgres';
 	var $dataProvider = 'postgres';
 	var $hasInsertID = true;
 	/** @var PgSql\Connection|resource|false Identifier for the native database connection */
@@ -1119,12 +1119,12 @@ class ADODB_postgres64 extends ADOConnection {
 	Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordSet_postgres64 extends ADORecordSet {
+class ADORecordSet_postgres extends ADORecordSet {
 	var $_blobArr;
-	var $databaseType = "postgres64";
+	var $databaseType = "postgres";
 	var $canSeek = true;
 
-	/** @var ADODB_postgres64 The parent connection */
+	/** @var ADODB_postgres The parent connection */
 	var $connection = false;
 
 	function __construct($queryID, $mode=false)
@@ -1226,12 +1226,12 @@ class ADORecordSet_postgres64 extends ADORecordSet {
 
 		if ($this->fetchMode == PGSQL_NUM || $this->fetchMode == PGSQL_BOTH) {
 			foreach($this->_blobArr as $k => $v) {
-				$this->fields[$k] = ADORecordSet_postgres64::_decode($this->fields[$k]);
+				$this->fields[$k] = $this->_decode($this->fields[$k]);
 			}
 		}
 		if ($this->fetchMode == PGSQL_ASSOC || $this->fetchMode == PGSQL_BOTH) {
 			foreach($this->_blobArr as $v) {
-				$this->fields[$v] = ADORecordSet_postgres64::_decode($this->fields[$v]);
+				$this->fields[$v] = $this->_decode($this->fields[$v]);
 			}
 		}
 	}
@@ -1364,9 +1364,9 @@ class ADORecordSet_postgres64 extends ADORecordSet {
  * Associative case RecordSet.
  *
  * Copied from postgres7 driver as part of refactoring
- * @TODO Check if still required or could be merged into ADORecordSet_postgres64
+ * @TODO Check if still required or could be merged into ADORecordSet_postgres
  */
-class ADORecordSet_assoc_postgres64 extends ADORecordSet_postgres64
+class ADORecordSet_assoc_postgres extends ADORecordSet_postgres
 {
 
 	function _fetch()
