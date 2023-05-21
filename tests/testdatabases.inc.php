@@ -67,7 +67,6 @@ if (sizeof($_GET) || !isset($_SERVER['HTTP_HOST'])) {
 	echo "<BR>";
 	ADOLoadCode2("sybase");
 	ADOLoadCode2("postgres");
-	ADOLoadCode2("postgres7");
 	ADOLoadCode2("firebird");
 	ADOLoadCode2("borland_ibase");
 	ADOLoadCode2("informix");
