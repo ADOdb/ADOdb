@@ -4046,6 +4046,7 @@ class ADORecordSet implements IteratorAggregate {
 	 * public variables
 	 */
 	var $dataProvider = "native";
+	var $databaseType = "";
 
 	/**
 	 * @var string Table name (used in _adodb_getupdatesql() and _adodb_getinsertsql())-
