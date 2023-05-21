@@ -45,13 +45,13 @@ class ADODB_postgres extends ADOConnection {
 		ENDSQL;
 
 	var $metaTablesSQL = /** @lang PostgreSQL */ <<< 'ENDSQL'
-		SELECT tablename, 'T' FROM pg_tables
-		WHERE tablename NOT LIKE 'pg\_%'
-		AND tablename NOT IN ('sql_features', 'sql_implementation_info', 'sql_languages',
-			'sql_packages', 'sql_sizing', 'sql_sizing_profiles')
+		SELECT table_name, 'T'
+		FROM information_schema.tables
+		WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
 		UNION
-		SELECT viewname, 'V' FROM pg_views
-		WHERE viewname NOT LIKE 'pg\_%'
+		SELECT table_name, 'V'
+		FROM information_schema.views
+		WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
 		ENDSQL;
 
 	var $metaColumnsSQL = <<< 'ENDSQL'
@@ -344,30 +344,17 @@ class ADODB_postgres extends ADOConnection {
 		return $rs;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	function metaTables($ttype = false, $showSchema = false, $mask = false)
 	{
-		$info = $this->ServerInfo();
-		if ($info['version'] >= 7.3) {
-		$this->metaTablesSQL = "
-			select table_name,'T' from information_schema.tables where table_schema not in ( 'pg_catalog','information_schema')
-			union
-			select table_name,'V' from information_schema.views where table_schema not in ( 'pg_catalog','information_schema') ";
-		}
 		if ($mask) {
 			$save = $this->metaTablesSQL;
-			$mask = $this->qstr(strtolower($mask));
-			if ($info['version']>=7.3)
-				$this->metaTablesSQL = "
-					select table_name,'T' from information_schema.tables where table_name like $mask and table_schema not in ( 'pg_catalog','information_schema')
-					union
-					select table_name,'V' from information_schema.views where table_name like $mask and table_schema not in ( 'pg_catalog','information_schema') ";
-			else
-				$this->metaTablesSQL = "
-					select tablename,'T' from pg_tables where tablename like $mask
-					union
-					select viewname,'V' from pg_views where viewname like $mask";
+
+			// Insert a where clause to filter on table name
+			$where_mask = 'WHERE table_name ILIKE ' . $this->qstr($mask) . ' AND';
+			$this->metaTablesSQL = str_replace('WHERE', $where_mask, $save);
 		}
-		$ret = ADOConnection::MetaTables($ttype,$showSchema);
+
+		$ret = parent::metaTables($ttype, $showSchema);
 
 		if ($mask) {
 			$this->metaTablesSQL = $save;
