@@ -328,14 +328,17 @@ class ADODB_postgres extends ADOConnection {
 
 	function selectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
 	{
-		$nrows = (int)$nrows;
-		$offset = (int)$offset;
-		$offsetStr = ($offset >= 0) ? " OFFSET " . ((integer)$offset) : '';
-		$limitStr = ($nrows >= 0) ? " LIMIT " . ((integer)$nrows) : '';
+		if ($nrows >= 0) {
+			$sql .= " LIMIT " . (int)$nrows;
+		}
+		if ($offset >= 0) {
+			$sql .= " OFFSET " . (int)$offset;
+		}
+
 		if ($secs2cache) {
-			$rs = $this->CacheExecute($secs2cache, $sql . "$limitStr$offsetStr", $inputarr);
+			$rs = $this->cacheExecute($secs2cache, $sql, $inputarr);
 		} else {
-			$rs = $this->Execute($sql . "$limitStr$offsetStr", $inputarr);
+			$rs = $this->execute($sql, $inputarr);
 		}
 
 		return $rs;
