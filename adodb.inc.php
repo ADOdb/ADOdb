@@ -552,7 +552,9 @@ if (!defined('_ADODB_LAYER')) {
 	var $nameQuote = '"';		/// string to use to quote identifiers and names
 	var $leftBracket = '[';		/// left square bracked for t-sql styled column names
 	var $rightBracket = ']';	/// right square bracked for t-sql styled column names
-	var $charSet=false;			/// character set to use - only for interbase, postgres and oci8
+
+	/** @var string|bool Character set to use - only for interbase, postgres and oci8 */
+	var $charSet = false;
 
 	/** @var string SQL statement to get databases */
 	var $metaDatabasesSQL = '';
@@ -588,7 +590,10 @@ if (!defined('_ADODB_LAYER')) {
 	var $hasInsertID = false;		/// supports autoincrement ID?
 	var $hasAffectedRows = false;	/// supports affected rows for update/delete?
 	var $hasTop = false;			/// support mssql/access SELECT TOP 10 * FROM TABLE
-	var $hasLimit = false;			/// support pgsql/mysql SELECT * FROM TABLE LIMIT 10
+
+	/** @var bool Support for SELECT * FROM table LIMIT 10 */
+	var $hasLimit = false;
+
 	var $readOnly = false;			/// this is a readonly database - used by phpLens
 	var $hasMoveFirst = false;		/// has ability to run MoveFirst(), scrolling backwards
 	var $hasGenID = false;			/// can generate sequences using GenID();
@@ -656,7 +661,10 @@ if (!defined('_ADODB_LAYER')) {
 	var $uniqueSort = false; /// indicates that all fields in order by must be unique
 	var $leftOuter = false; /// operator to use for left outer join in WHERE clause
 	var $rightOuter = false; /// operator to use for right outer join in WHERE clause
-	var $ansiOuter = false; /// whether ansi outer join syntax supported
+
+	/** @var bool Support for ANSI outer join syntax */
+	var $ansiOuter = false;
+
 	var $autoRollback = false; // autoRollback on PConnect().
 	var $poorAffectedRows = false; // affectedRows not working or unreliable
 
@@ -3299,15 +3307,16 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	/**
 	 * List columns in a database as an array of ADOFieldObjects.
-	 * See top of file for definition of object.
 	 *
-	 * @param $table	table name to query
-	 * @param $normalize	makes table name case-insensitive (required by some databases)
-	 * @schema is optional database schema to use - not supported by all databases.
+	 * For databases that support schemas, pass it in the $table param "$schema.$tabname".
+	 * @see ADOFieldObject
 	 *
-	 * @return  array of ADOFieldObjects for current table.
+	 * @param string $table     Table name to query
+	 * @param bool   $normalize Makes table name case-insensitive (required by some databases)
+	 *
+	 * @return ADOFieldObject[]|false Array of ADOFieldObjects or false if failure
 	 */
-	function MetaColumns($table,$normalize=true) {
+	function metaColumns($table, $normalize = true) {
 		global $ADODB_FETCH_MODE;
 
 		if (!empty($this->metaColumnsSQL)) {
