@@ -1782,7 +1782,7 @@ class adoSchema {
 			$sqlArray = $this->sqlArray;
 		}
 		if( !isset( $sqlArray ) ) {
-			return FALSE;
+			return false;
 		}
 
 		$fp = fopen( $filename, "w" );

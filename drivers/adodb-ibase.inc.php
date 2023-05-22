@@ -256,7 +256,7 @@ class ADODB_ibase extends ADOConnection {
 
 
 	// See http://community.borland.com/article/0,1410,25844,00.html
-	function RowLock($tables,$where,$col=false)
+	function rowLock($table, $where, $col = false)
 	{
 		if ($this->autoCommit) {
 			$this->BeginTrans();
@@ -734,7 +734,7 @@ class ADODB_ibase extends ADOConnection {
 	Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordset_ibase extends ADORecordSet
+class ADORecordSet_ibase extends ADORecordSet
 {
 
 	var $databaseType = "ibase";
