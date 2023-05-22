@@ -1456,6 +1456,9 @@ class ADODB_mysqli extends ADOConnection {
 		return $this->charSet ?: false;
 	}
 
+	/**
+	 * @deprecated 5.21.0 Use {@see setConnectionParameter()} instead
+	 */
 	function setCharSet($charset)
 	{
 		if (!$this->_connectionID || !method_exists($this->_connectionID,'set_charset')) {
