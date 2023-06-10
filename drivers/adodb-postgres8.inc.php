@@ -46,7 +46,6 @@ class ADODB_postgres8 extends ADODB_postgres7
 	 *             returned one if $table or $column are empty
 	 */
 	protected function _insertID( $table = '', $column = '' ){
-		$Ret = false;
 		$sql = 'SELECT ';
 		$sql .= empty($table) || empty($column) ? 'lastval()' : "currval(pg_get_serial_sequence('$table', '$column'))";
 		$result = @$this->GetOne($sql);
