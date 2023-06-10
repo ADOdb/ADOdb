@@ -33,6 +33,8 @@ Older changelogs:
   [#966](https://github.com/ADOdb/ADOdb/issues/966)
 - Restore rs2html() $htmlspecialchars param behavior
   [#968](https://github.com/ADOdb/ADOdb/issues/968)
+- adodb_throw() does not respect @ operator on PHP 8
+  [#981](https://github.com/ADOdb/ADOdb/issues/981)
 - loadbalancer: PHP 8.2 warnings
   [#951](https://github.com/ADOdb/ADOdb/issues/951)
 - mysql: Fail connection if native driver (mysqlnd) is not available
