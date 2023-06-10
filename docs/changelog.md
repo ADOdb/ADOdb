@@ -41,6 +41,8 @@ Older changelogs:
   [#967](https://github.com/ADOdb/ADOdb/issues/967)
 - pgsql: Fix PHP 8.1 deprecated warning
   [#956](https://github.com/ADOdb/ADOdb/issues/956)
+- pgsql: avoid Insert_ID() failing when lastval() is not set
+  [#978](https://github.com/ADOdb/ADOdb/issues/978)
 
 
 ## [5.22.5] - 2023-04-03
