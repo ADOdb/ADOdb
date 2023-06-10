@@ -47,24 +47,16 @@ class ADODB_postgres8 extends ADODB_postgres7
 	 */
 	protected function _insertID( $table = '', $column = '' ){
 		$Ret = false;
-		$tmpsql = 'SELECT ';
-		if( empty($table) || empty($column) ){
-			$tmpsql .= 'lastval()';
-		}else{
-			$tmpsql .= "currval(pg_get_serial_sequence('$table', '$column'))";
-		}
-		$result = @$this->GetOne($tmpsql);
+		$sql = 'SELECT ';
+		$sql .= empty($table) || empty($column) ? 'lastval()' : "currval(pg_get_serial_sequence('$table', '$column'))";
+		$result = @$this->GetOne($sql);
 		if( $result === false || $result == $ADODB_GETONE_EOF ){
-			$Ret = false;
 			if( $this->debug ){
-				ADOConnection::outp(
-					__FUNCTION__ . "() failed : "  . $this->errorMsg()
-				);
+				ADOConnection::outp(__FUNCTION__ . "() failed : "  . $this->errorMsg());
 			}
-		}else{
-			$Ret = $result;
+			return false;
 		}
-		return $Ret;
+		return $result;
 	}
 }
 
