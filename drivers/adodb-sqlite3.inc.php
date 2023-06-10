@@ -722,7 +722,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	function __construct($queryID, $mode=false)
 	{
 		parent::__construct($queryID, $mode);
-		switch($mode) {
+		switch($this->adodbFetchMode) {
 			case ADODB_FETCH_NUM:
 				$this->fetchMode = SQLITE3_NUM;
 				break;

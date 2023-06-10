@@ -299,7 +299,7 @@ class ADORecordSet_ldap extends ADORecordSet{
 	{
 		parent::__construct($queryID, $mode);
 
-		switch ($mode) {
+		switch ($this->adodbFetchMode) {
 			case ADODB_FETCH_NUM:
 				$this->fetchMode = LDAP_NUM;
 				break;

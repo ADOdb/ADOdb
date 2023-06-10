@@ -429,7 +429,7 @@ class ADORecordset_sqlite extends ADORecordSet {
 	{
 		parent::__construct($queryID, $mode);
 
-		switch ($mode) {
+		switch ($this->adodbFetchMode) {
 			case ADODB_FETCH_NUM:
 				$this->fetchMode = SQLITE_NUM;
 				break;

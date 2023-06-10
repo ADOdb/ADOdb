@@ -952,7 +952,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 	{
 		parent::__construct($queryID, $mode);
 
-		switch ($mode) {
+		switch ($this->adodbFetchMode) {
 			case ADODB_FETCH_NUM:
 				$this->fetchMode = PGSQL_NUM;
 				break;

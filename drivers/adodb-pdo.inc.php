@@ -857,7 +857,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 	{
 		parent::__construct($queryID, $mode);
 
-		switch($mode) {
+		switch($this->adodbFetchMode) {
 			case ADODB_FETCH_NUM:
 				$mode = PDO::FETCH_NUM;
 				break;
