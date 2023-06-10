@@ -58,7 +58,7 @@ class ADODB_postgres8 extends ADODB_postgres7
 			$Ret = false;
 			if( $this->debug ){
 				ADOConnection::outp(
-					__FUNCTION__"() failed : "  . $this->errorMsg()
+					__FUNCTION__ . "() failed : "  . $this->errorMsg()
 				);
 			}
 		}else{
