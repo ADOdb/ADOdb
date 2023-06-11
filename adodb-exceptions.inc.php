@@ -77,7 +77,14 @@ function adodb_throw($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
 {
 global $ADODB_EXCEPTION;
 
-	if (error_reporting() == 0) return; // obey @ protocol
+	// Do not throw if errors are suppressed by @ operator
+	// error_reporting() value for suppressed errors changed in PHP 8.0.0
+	$suppressed = version_compare(PHP_VERSION, '8.0.0', '<')
+		? 0
+		: E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE;
+	if (error_reporting() == $suppressed) {
+		return;
+	}
 	if (is_string($ADODB_EXCEPTION)) $errfn = $ADODB_EXCEPTION;
 	else $errfn = 'ADODB_EXCEPTION';
 	throw new $errfn($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection);
