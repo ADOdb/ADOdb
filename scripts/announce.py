@@ -25,7 +25,6 @@ See the LICENSE.md file distributed with this source code for details.
 
 import argparse
 from datetime import date
-import json
 import re
 from pathlib import Path
 
