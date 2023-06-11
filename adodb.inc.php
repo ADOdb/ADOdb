@@ -4075,8 +4075,6 @@ class ADORecordSet implements IteratorAggregate {
 	var $_currentRow = -1;	/** This variable keeps the current row in the Recordset.	*/
 	var $_closed = false;	/** has recordset been closed */
 	var $_inited = false;	/** Init() should only be called once */
-	var $_obj;				/** Used by FetchObj */
-	var $_names;			/** Used by FetchObj */
 
 	// Recordset pagination
 	/** @var int Number of rows per page */
@@ -5009,28 +5007,15 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * @return ADOFetchObj The object with properties set to the fields of the current row
 	 */
-	function FetchObject($isUpper=true) {
-		if (empty($this->_obj)) {
-			$this->_obj = new ADOFetchObj();
-			$this->_names = array();
-			for ($i=0; $i <$this->_numOfFields; $i++) {
-				$f = $this->FetchField($i);
-				$this->_names[] = $f->name;
-			}
+	function fetchObject($isUpper = true) {
+		$fields = [];
+		foreach ($this->fieldTypesArray() as $metadata) {
+			$fields[$metadata->name] = $this->fields($metadata->name);
 		}
-		$o = clone($this->_obj);
-
-		for ($i=0; $i <$this->_numOfFields; $i++) {
-			$name = $this->_names[$i];
-			if ($isUpper) {
-				$n = strtoupper($name);
-			} else {
-				$n = $name;
-			}
-
-			$o->$n = $this->Fields($name);
+		if ($isUpper) {
+			$fields = array_change_key_case($fields, CASE_UPPER);
 		}
-		return $o;
+		return new ADOFetchObj($fields);
 	}
 
 	/**
