@@ -44,7 +44,8 @@ def process_command_line():
     """
     # Get most recent Git tag
     repo = Repo(path=Path(__file__).parents[1])
-    tags = sorted(repo.tags, key=lambda t: t.tag.tagged_date)
+    tags = sorted(repo.tags,
+                  key=lambda t: t.tag.tagged_date if t.tag is not None else 0)
     latest_tag = str(tags[-1])
 
     parser = argparse.ArgumentParser(
