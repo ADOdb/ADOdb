@@ -4990,22 +4990,22 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default case is lowercase field names.
+	 * Return the current row as an object for convenience.
 	 *
-	 * @return the object with the properties set to the fields of the current row
+	 * @return ADOFetchObj The object with properties set to the current row's fields.
 	 */
 	function fetchObj() {
 		return $this->fetchObject(false);
 	}
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default case is uppercase.
+	 * Return the current row as an object for convenience.
 	 *
-	 * @param bool $isUpper to set the object property names to uppercase
+	 * Field names are converted to uppercase by default.
 	 *
-	 * @return ADOFetchObj The object with properties set to the fields of the current row
+	 * @param bool $isUpper True to convert field names to uppercase.
+	 *
+	 * @return ADOFetchObj The object with properties set to the current row's fields.
 	 */
 	function fetchObject($isUpper = true) {
 		$fields = [];
@@ -5019,13 +5019,10 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default is lower-case field names.
+	 * Return the current row as an object for convenience and move to next row.
 	 *
-	 * @return ADOFetchObj|false The object with properties set to the fields of the current row
+	 * @return ADOFetchObj|false The object with properties set to the current row's fields.
 	 *                           or false if EOF.
-	 *
-	 * Fixed bug reported by tim@orotech.net
 	 */
 	function fetchNextObj() {
 		return $this->fetchNextObject(false);
@@ -5033,15 +5030,14 @@ class ADORecordSet implements IteratorAggregate {
 
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default is upper case field names.
+	 * Return the current row as an object for convenience and move to next row.
 	 *
-	 * @param bool $isUpper to set the object property names to uppercase
+	 * Field names are converted to uppercase by default.
 	 *
-	 * @return ADOFetchObj|false The object with properties set to the fields of the current row
+	 * @param bool $isUpper True to convert field names to uppercase.
+	 *
+	 * @return ADOFetchObj|false The object with properties set to the current row's fields.
 	 *                           or false if EOF.
-	 *
-	 * Fixed bug reported by tim@orotech.net
 	 */
 	function fetchNextObject($isUpper=true) {
 		$o = false;
