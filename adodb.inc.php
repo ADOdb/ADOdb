@@ -3799,17 +3799,55 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 } // end class ADOConnection
 
-
-
-	//==============================================================================================
-	// CLASS ADOFetchObj
-	//==============================================================================================
-
 	/**
-	 * Internal placeholder for record objects. Used by ADORecordSet->FetchObj().
+	 * RecordSet fields data as object.
+	 *
+	 * @see ADORecordSet::fetchObj(), ADORecordSet::fetchObject(),
+	 * @see ADORecordSet::fetchNextObj(), ADORecordSet::fetchNextObject()
 	 */
 	class ADOFetchObj {
-	};
+		/** @var array The RecordSet's fields */
+		protected $data;
+
+		/**
+		 * Constructor.
+		 *
+		 * @param array $fields Associative array with RecordSet's fields (name => value)
+		 */
+		public function __construct(array $fields = [])
+		{
+			$this->data = $fields;
+		}
+
+		public function __set(string $name, $value)
+		{
+			$this->data[$name] = $value;
+		}
+
+		public function __get(string $name)
+		{
+			if (isset($this->data[$name])) {
+				return $this->data[$name];
+			}
+			ADOConnection::outp("Unknown field: $name");
+			return null;
+		}
+
+		public function __isset($name)
+		{
+			return isset($this->data[$name]);
+		}
+
+		public function __debugInfo()
+		{
+			return $this->data;
+		}
+
+		public static function __set_state(array $data)
+		{
+			return new self($data['data']);
+		}
+	}
 
 	/**
 	 * Class ADODB_Iterator_empty
@@ -4037,8 +4075,6 @@ class ADORecordSet implements IteratorAggregate {
 	var $_currentRow = -1;	/** This variable keeps the current row in the Recordset.	*/
 	var $_closed = false;	/** has recordset been closed */
 	var $_inited = false;	/** Init() should only be called once */
-	var $_obj;				/** Used by FetchObj */
-	var $_names;			/** Used by FetchObj */
 
 	// Recordset pagination
 	/** @var int Number of rows per page */
@@ -4954,76 +4990,59 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default case is lowercase field names.
+	 * Return the current row as an object for convenience.
 	 *
-	 * @return the object with the properties set to the fields of the current row
+	 * @return ADOFetchObj The object with properties set to the current row's fields.
 	 */
-	function FetchObj() {
-		return $this->FetchObject(false);
+	function fetchObj() {
+		return $this->fetchObject(false);
 	}
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default case is uppercase.
+	 * Return the current row as an object for convenience.
 	 *
-	 * @param bool $isUpper to set the object property names to uppercase
+	 * Field names are converted to uppercase by default.
 	 *
-	 * @return ADOFetchObj The object with properties set to the fields of the current row
+	 * @param bool $isUpper True to convert field names to uppercase.
+	 *
+	 * @return ADOFetchObj The object with properties set to the current row's fields.
 	 */
-	function FetchObject($isUpper=true) {
-		if (empty($this->_obj)) {
-			$this->_obj = new ADOFetchObj();
-			$this->_names = array();
-			for ($i=0; $i <$this->_numOfFields; $i++) {
-				$f = $this->FetchField($i);
-				$this->_names[] = $f->name;
-			}
+	function fetchObject($isUpper = true) {
+		$fields = [];
+		foreach ($this->fieldTypesArray() as $metadata) {
+			$fields[$metadata->name] = $this->fields($metadata->name);
 		}
-		$o = clone($this->_obj);
-
-		for ($i=0; $i <$this->_numOfFields; $i++) {
-			$name = $this->_names[$i];
-			if ($isUpper) {
-				$n = strtoupper($name);
-			} else {
-				$n = $name;
-			}
-
-			$o->$n = $this->Fields($name);
+		if ($isUpper) {
+			$fields = array_change_key_case($fields, CASE_UPPER);
 		}
-		return $o;
+		return new ADOFetchObj($fields);
 	}
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default is lower-case field names.
+	 * Return the current row as an object for convenience and move to next row.
 	 *
-	 * @return ADOFetchObj|false The object with properties set to the fields of the current row
+	 * @return ADOFetchObj|false The object with properties set to the current row's fields.
 	 *                           or false if EOF.
-	 *
-	 * Fixed bug reported by tim@orotech.net
 	 */
-	function FetchNextObj() {
-		return $this->FetchNextObject(false);
+	function fetchNextObj() {
+		return $this->fetchNextObject(false);
 	}
 
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default is upper case field names.
+	 * Return the current row as an object for convenience and move to next row.
 	 *
-	 * @param bool $isUpper to set the object property names to uppercase
+	 * Field names are converted to uppercase by default.
 	 *
-	 * @return ADOFetchObj|false The object with properties set to the fields of the current row
+	 * @param bool $isUpper True to convert field names to uppercase.
+	 *
+	 * @return ADOFetchObj|false The object with properties set to the current row's fields.
 	 *                           or false if EOF.
-	 *
-	 * Fixed bug reported by tim@orotech.net
 	 */
-	function FetchNextObject($isUpper=true) {
+	function fetchNextObject($isUpper=true) {
 		$o = false;
 		if ($this->_numOfRows != 0 && !$this->EOF) {
-			$o = $this->FetchObject($isUpper);
+			$o = $this->fetchObject($isUpper);
 			$this->_currentRow++;
 			if ($this->_fetch()) {
 				return $o;
