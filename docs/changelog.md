@@ -25,6 +25,7 @@ Older changelogs:
 
 - Creation of dynamic property deprecated warning with PHP 8.2
   [#954](https://github.com/ADOdb/ADOdb/issues/954)
+  [#975](https://github.com/ADOdb/ADOdb/issues/975)
 - Remove unused oldProvider property in _rs2serialize()
   [#957](https://github.com/ADOdb/ADOdb/issues/957)
 - Fix ADOConnection::execute() documentation of return type
