@@ -4995,8 +4995,8 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * @return the object with the properties set to the fields of the current row
 	 */
-	function FetchObj() {
-		return $this->FetchObject(false);
+	function fetchObj() {
+		return $this->fetchObject(false);
 	}
 
 	/**
@@ -5027,8 +5027,8 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * Fixed bug reported by tim@orotech.net
 	 */
-	function FetchNextObj() {
-		return $this->FetchNextObject(false);
+	function fetchNextObj() {
+		return $this->fetchNextObject(false);
 	}
 
 
@@ -5043,10 +5043,10 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * Fixed bug reported by tim@orotech.net
 	 */
-	function FetchNextObject($isUpper=true) {
+	function fetchNextObject($isUpper=true) {
 		$o = false;
 		if ($this->_numOfRows != 0 && !$this->EOF) {
-			$o = $this->FetchObject($isUpper);
+			$o = $this->fetchObject($isUpper);
 			$this->_currentRow++;
 			if ($this->_fetch()) {
 				return $o;
