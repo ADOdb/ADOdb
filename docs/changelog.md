@@ -58,6 +58,16 @@ Older changelogs:
   [#833](https://github.com/ADOdb/ADOdb/issues/833)
 
 
+## [5.22.7] - Unreleased
+
+### Fixed
+
+- Respect @ operator in all error handlers on PHP 8
+  [#981](https://github.com/ADOdb/ADOdb/issues/981)
+- db2: Declaration of ADODB_db2::_query incompatible with parent
+  [#987](https://github.com/ADOdb/ADOdb/issues/987)
+
+
 ## [5.22.6] - 2023-06-11
 
 ### Deprecated
@@ -1460,8 +1470,9 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[5.23.0]: https://github.com/adodb/adodb/compare/v5.22.5...master
+[5.23.0]: https://github.com/adodb/adodb/compare/v5.22.6...master
 
+[5.22.7]: https://github.com/adodb/adodb/compare/v5.22.6...hotfix/5.22
 [5.22.6]: https://github.com/adodb/adodb/compare/v5.22.5...v5.22.6
 [5.22.5]: https://github.com/adodb/adodb/compare/v5.22.4...v5.22.5
 [5.22.4]: https://github.com/adodb/adodb/compare/v5.22.3...v5.22.4
