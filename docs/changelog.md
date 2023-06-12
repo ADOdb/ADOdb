@@ -16,6 +16,12 @@ Older changelogs:
 
 ## [5.22.7] - Unreleased
 
+### Fixed
+
+- db2: Declaration of ADODB_db2::_query incompatible with parent
+  [#987](https://github.com/ADOdb/ADOdb/issues/987)
+
+
 ## [5.22.6] - 2023-06-11
 
 ### Deprecated
