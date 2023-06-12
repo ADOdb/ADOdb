@@ -18,6 +18,8 @@ Older changelogs:
 
 ### Fixed
 
+- Respect @ operator in all error handlers on PHP 8
+  [#981](https://github.com/ADOdb/ADOdb/issues/981)
 - db2: Declaration of ADODB_db2::_query incompatible with parent
   [#987](https://github.com/ADOdb/ADOdb/issues/987)
 
