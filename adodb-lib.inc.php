@@ -724,7 +724,9 @@ function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $forc
 {
 	if (!$rs) {
 		if ($zthis->debug) {
-			ADOConnection::outp(sprintf(ADODB_BAD_RS, $zthis->dataProvider, 'table placeholder', 'GetUpdateSQL'));
+			// Going to assume for the moment that what is meant by "table" in
+			// https://github.com/ADOdb/ADOdb/issues/899 actually is database.
+			ADOConnection::outp(sprintf(ADODB_BAD_RS, $zthis->dataProvider, $zthis->database, 'GetUpdateSQL'));
 		}
 		return false;
 	}
@@ -936,7 +938,9 @@ static $cacheCols;
 
 	} else {
 		if ($zthis->debug) {
-			ADOConnection::outp(sprintf(ADODB_BAD_RS, $zthis->dataProvider, 'table placeholder', 'GetInsertSQL'));
+			// Going to assume for the moment that what is meant by "table" in
+			// https://github.com/ADOdb/ADOdb/issues/899 actually is database.
+			ADOConnection::outp(sprintf(ADODB_BAD_RS, $zthis->dataProvider, $zthis->database, 'GetInsertSQL'));
 		}
 		return false;
 	}
