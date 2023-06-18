@@ -723,7 +723,9 @@ function _adodb_quote_fieldname($zthis, $fieldName)
 function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $force=2)
 {
 	if (!$rs) {
-		printf(ADODB_BAD_RS,'GetUpdateSQL');
+		if ($zthis->debug) {
+			ADOConnection::outp(sprintf(ADODB_BAD_RS, $zthis->dataProvider, 'table placeholder', 'GetUpdateSQL'));
+		}
 		return false;
 	}
 
@@ -933,7 +935,9 @@ static $cacheCols;
 		$recordSet = $rs;
 
 	} else {
-		printf(ADODB_BAD_RS,'GetInsertSQL');
+		if ($zthis->debug) {
+			ADOConnection::outp(sprintf(ADODB_BAD_RS, $zthis->dataProvider, 'table placeholder', 'GetInsertSQL'));
+		}
 		return false;
 	}
 
