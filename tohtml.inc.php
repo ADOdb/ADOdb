@@ -53,7 +53,7 @@ $s ='';$rows=0;$docnt = false;
 GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 
 	if (!$rs) {
-		printf(ADODB_BAD_RS,'rs2html');
+		printf(ADODB_BAD_RS, 'Unknown', 'Unknown', 'rs2html');
 		return false;
 	}
 
