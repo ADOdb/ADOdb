@@ -781,6 +781,11 @@ END;
 			$hint = '';
 		}
 
+		// If non-bound statement, $inputarr is false
+		if (!$inputarr) {
+			$inputarr = array();
+		}
+
 		if ($offset == -1 || ($offset < $this->selectOffsetAlg1 && 0 < $nrows && $nrows < 1000)) {
 			if ($nrows > 0) {
 				if ($offset > 0) {
@@ -788,10 +793,6 @@ END;
 				}
 				$sql = "select * from (".$sql.") where rownum <= :adodb_offset";
 
-				// If non-bound statement, $inputarr is false
-				if (!$inputarr) {
-					$inputarr = array();
-				}
 				$inputarr['adodb_offset'] = $nrows;
 				$nrows = -1;
 			}
