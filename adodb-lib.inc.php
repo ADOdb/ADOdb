@@ -722,25 +722,55 @@ function _adodb_quote_fieldname($zthis, $fieldName)
 
 function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $force=2)
 {
-	if (!$rs) {
+
+	$tableName = '';
+
+	if (is_string($rs)) {
+		// We have a table name try and get the column info ourself.
+		$tableName = $rs;
+		// We need an object for the recordSet because we have to call
+		// MetaType. PHP can't do a $rsclass::MetaType().
+		$rsclass = $zthis->rsPrefix.$zthis->databaseType;
+		$recordSet = new $rsclass(ADORecordSet::DUMMY_QUERY_ID, $zthis->fetchMode);
+		$recordSet->connection = $zthis;
+//		if (is_string($cacheRS) && $cacheRS == $rs) {
+//			$columns = $cacheCols;
+//		} else {
+			$columns = $zthis->MetaColumns( $tableName );
+//			$cacheRS = $tableName;
+//			$cacheCols = $columns;
+//		}
+		$rs = $recordSet;
+	} else if (is_subclass_of($rs, 'adorecordset')) {
+//		if (isset($rs->insertSig) && is_integer($cacheRS) && $cacheRS == $rs->insertSig) {
+//			$columns = $cacheCols;
+//		} else {
+			$columns = [];
+			for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++)
+				$columns[] = $rs->FetchField($i);
+//			$cacheRS = $cacheSig;
+//			$cacheCols = $columns;
+//			$rs->insertSig = $cacheSig++;
+//		}
+//		$recordSet = $rs;
+	} else {
 		printf(ADODB_BAD_RS,'GetUpdateSQL');
 		return false;
 	}
-
 	$fieldUpdatedCount = 0;
 	if (is_array($arrFields))
 		$arrFields = array_change_key_case($arrFields,CASE_UPPER);
 
-	$hasnumeric = isset($rs->fields[0]);
+	$hasnumeric = isset($rs->fields[0]); // Numeric field array index flag.
 	$setFields = '';
 
 	// Loop through all of the fields in the recordset
-	for ($i=0, $max=$rs->fieldCount(); $i < $max; $i++) {
-		// Get the field from the recordset
-		$field = $rs->fetchField($i);
-
-		// If the recordset field is one
-		// of the fields passed in then process.
+	$i = -1; // Numeric field array iterator.
+	foreach( $columns as $field ) {
+		if ($hasnumeric) {
+			$i++;
+		}
+		// If the recordset field is one of the fields passed in then process.
 		$upperfname = strtoupper($field->name);
 		if (adodb_key_exists($upperfname, $arrFields, $force)) {
 
@@ -832,13 +862,17 @@ function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $forc
 	// If there were any modified fields then build the rest of the update query.
 	if ($fieldUpdatedCount > 0 || $forceUpdate) {
 		// Get the table name from the existing query.
-		if (!empty($rs->tableName)) {
-			$tableName = $rs->tableName;
-		} else {
-			preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName);
-			$tableName = $tableName[1];
+		if (!$tableName) {
+			if (!empty($rs->tableName)) {
+				$tableName = $rs->tableName;
+			} else if (
+				preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName)
+			){
+				$tableName = $tableName[1];
+			} else {
+				return false;
+			}
 		}
-
 		// Get the full where clause excluding the word "WHERE" from the existing query.
 		preg_match('/\sWHERE\s(.*)/is', $rs->sql, $whereClause);
 
@@ -896,18 +930,12 @@ static $cacheCols;
 	$tableName = '';
 	$values = '';
 	$fields = '';
-	if (is_array($arrFields))
-		$arrFields = array_change_key_case($arrFields,CASE_UPPER);
-	$fieldInsertedCount = 0;
 
 	if (is_string($rs)) {
-		//ok we have a table name
-		//try and get the column info ourself.
+		// We have a table name try and get the column info ourself.
 		$tableName = $rs;
-
-		//we need an object for the recordSet
-		//because we have to call MetaType.
-		//php can't do a $rsclass::MetaType()
+		// We need an object for the recordSet because we have to call
+		// MetaType. PHP can't do a $rsclass::MetaType().
 		$rsclass = $zthis->rsPrefix.$zthis->databaseType;
 		$recordSet = new $rsclass(ADORecordSet::DUMMY_QUERY_ID, $zthis->fetchMode);
 		$recordSet->connection = $zthis;
@@ -936,9 +964,13 @@ static $cacheCols;
 		printf(ADODB_BAD_RS,'GetInsertSQL');
 		return false;
 	}
+	$fieldInsertedCount = 0;
+	if (is_array($arrFields))
+		$arrFields = array_change_key_case($arrFields,CASE_UPPER);
 
 	// Loop through all of the fields in the recordset
 	foreach( $columns as $field ) {
+		// If the recordset field is one of the fields passed in then process.
 		$upperfname = strtoupper($field->name);
 		if (adodb_key_exists($upperfname, $arrFields, $force)) {
 			$bad = false;
@@ -1011,26 +1043,28 @@ static $cacheCols;
 		}
 	}
 
-
 	// If there were any inserted fields then build the rest of the insert query.
-	if ($fieldInsertedCount <= 0) return false;
-
-	// Get the table name from the existing query.
-	if (!$tableName) {
-		if (!empty($rs->tableName)) $tableName = $rs->tableName;
-		else if (preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName))
-			$tableName = $tableName[1];
-		else
-			return false;
+	if ($fieldInsertedCount > 0) {
+		// Get the table name from the existing query.
+		if (!$tableName) {
+			if (!empty($rs->tableName)) {
+				$tableName = $rs->tableName;
+			} else if (
+				preg_match("/FROM\s+".ADODB_TABLE_REGEX."/is", $rs->sql, $tableName)
+			){
+				$tableName = $tableName[1];
+			} else {
+				return false;
+			}
+		}
+		// Strip off the comma and space on the end of both the fields and their values.
+		$fields = substr($fields, 0, -2);
+		$values = substr($values, 0, -2);
+		// Append the fields and their values to the insert query.
+		return 'INSERT INTO '.$tableName.' ( '.$fields.' ) VALUES ( '.$values.' )';
+	} else {
+		return false;
 	}
-
-	// Strip off the comma and space on the end of both the fields
-	// and their values.
-	$fields = substr($fields, 0, -2);
-	$values = substr($values, 0, -2);
-
-	// Append the fields and their values to the insert query.
-	return 'INSERT INTO '.$tableName.' ( '.$fields.' ) VALUES ( '.$values.' )';
 }
 
 
