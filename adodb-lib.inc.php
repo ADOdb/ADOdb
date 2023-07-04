@@ -722,6 +722,9 @@ function _adodb_quote_fieldname($zthis, $fieldName)
 
 function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $force=2)
 {
+static $cacheRS = false;
+static $cacheSig = 0;
+static $cacheCols;
 
 	$tableName = '';
 
@@ -733,26 +736,25 @@ function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $forc
 		$rsclass = $zthis->rsPrefix.$zthis->databaseType;
 		$recordSet = new $rsclass(ADORecordSet::DUMMY_QUERY_ID, $zthis->fetchMode);
 		$recordSet->connection = $zthis;
-//		if (is_string($cacheRS) && $cacheRS == $rs) {
-//			$columns = $cacheCols;
-//		} else {
+		if (is_string($cacheRS) && $cacheRS == $rs) {
+			$columns = $cacheCols;
+		} else {
 			$columns = $zthis->MetaColumns( $tableName );
-//			$cacheRS = $tableName;
-//			$cacheCols = $columns;
-//		}
+			$cacheRS = $tableName;
+			$cacheCols = $columns;
+		}
 		$rs = $recordSet;
 	} else if (is_subclass_of($rs, 'adorecordset')) {
-//		if (isset($rs->insertSig) && is_integer($cacheRS) && $cacheRS == $rs->insertSig) {
-//			$columns = $cacheCols;
-//		} else {
+		if (isset($rs->updateSig) && is_integer($cacheRS) && $cacheRS == $rs->updateSig) {
+			$columns = $cacheCols;
+		} else {
 			$columns = [];
 			for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++)
 				$columns[] = $rs->FetchField($i);
-//			$cacheRS = $cacheSig;
-//			$cacheCols = $columns;
-//			$rs->insertSig = $cacheSig++;
-//		}
-//		$recordSet = $rs;
+			$cacheRS = $cacheSig;
+			$cacheCols = $columns;
+			$rs->updateSig = $cacheSig++;
+		}
 	} else {
 		printf(ADODB_BAD_RS,'GetUpdateSQL');
 		return false;
