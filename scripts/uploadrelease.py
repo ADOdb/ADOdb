@@ -21,18 +21,19 @@ See the LICENSE.md file distributed with this source code for details.
 @author Damien Regad
 """
 
-from distutils.version import LooseVersion
 import getopt
 import getpass
 import glob
 import json
 import os
-from os import path
 import re
-import requests
 import subprocess
 import sys
-import yaml
+from os import path
+
+import requests
+
+from adodbutil import env
 
 
 # Directories and files to exclude from release tarballs
@@ -53,7 +54,6 @@ long_options = ["help", "user=", "dry-run", "skip-upload"]
 
 # Global flags
 dry_run = False
-api_key = ''
 username = getpass.getuser()
 release_path = ''
 skip_upload = False
@@ -129,7 +129,7 @@ def get_release_version():
 
     try:
         version = re.search(
-            r"^adodb-([\d]+\.[\d]+\.[\d]+)(-(alpha|beta|rc)\.[\d]+)?\.zip$",
+            r"^adodb-(\d+\.\d+\.\d+)(-(alpha|beta|rc)\.\d+)?\.zip$",
             zipfile
             ).group(1)
     except AttributeError:
@@ -165,34 +165,9 @@ def sourceforge_target_dir(version):
     # Keep only X.Y (discard patch number and pre-release suffix)
     short_version = version.split('-')[0].rsplit('.', 1)[0]
 
-    if LooseVersion(version) >= LooseVersion('5.21'):
-        directory += "adodb-" + short_version
-    else:
-        directory += "adodb-{}-for-php5".format(short_version.replace('.', ''))
+    directory += "adodb-" + short_version
 
     return directory
-
-
-def load_env():
-    """
-    Load environment from env.yml config file.
-    """
-    global api_key
-
-    # Load the config file
-    env_file = path.join(path.dirname(path.abspath(__file__)), 'env.yml')
-    try:
-        stream = open(env_file, 'r')
-        y = yaml.safe_load(stream)
-    except IOError:
-        print("ERROR: Environment file {} not found".format(env_file))
-        sys.exit(3)
-    except yaml.parser.ParserError as e:
-        print("ERROR: Invalid Environment file")
-        print(e)
-        sys.exit(3)
-
-    api_key = y['api_key']
 
 
 def process_command_line():
@@ -261,7 +236,7 @@ def upload_release_files():
 
 
 def set_sourceforge_file_info():
-    global api_key, dry_run
+    global dry_run
 
     print("Updating uploaded files information")
 
@@ -288,7 +263,7 @@ def set_sourceforge_file_info():
         url = path.join(base_url, file)
         payload = {
             'default': defaults,
-            'api_key': api_key
+            'api_key': env.sf_api_key
             }
         if dry_run:
             req = requests.Request('PUT', url, headers=headers, params=payload)
@@ -314,7 +289,6 @@ def main():
     # Start upload process
     print("ADOdb release upload script")
 
-    load_env()
     process_command_line()
 
     global skip_upload

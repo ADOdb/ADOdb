@@ -160,7 +160,8 @@ class ADODB2_postgres extends ADODB_DataDict
 		$sql = array();
 		$not_null = false;
 		list($lines,$pkey) = $this->_genFields($flds);
-		$alter = 'ALTER TABLE ' . $tabname . $this->addCol . ' ';
+		$alter = 'ALTER TABLE ' . $tabname . $this->addCol;
+		$alter .= (float)@$this->serverInfo['version'] < 9.6 ? ' ' : ' IF NOT EXISTS ';
 		foreach($lines as $v) {
 			if (($not_null = preg_match('/NOT NULL/i',$v))) {
 				$v = preg_replace('/NOT NULL/i','',$v);
@@ -190,12 +191,15 @@ class ADODB2_postgres extends ADODB_DataDict
 	/**
 	 * Change the definition of one column
 	 *
-	 * Postgres can't do that on it's own, you need to supply the complete definition of the new table,
-	 * to allow, recreating the table and copying the content over to the new table
-	 * @param string $tabname table-name
-	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds complete definition of the new table, eg. for postgres, default ''
-	 * @param array/ $tableoptions options for the new table see CreateTableSQL, default ''
+	 * Postgres can't do that on its own, you need to supply the complete
+	 * definition of the new table, to allow recreating the table and copying
+	 * the content over to the new table.
+	 *
+	 * @param string $tabname      table-name
+	 * @param string $flds         column-name and type for the changed column
+	 * @param string $tableflds    complete definition of the new table, e.g. for postgres, default ''
+	 * @param array  $tableoptions options for the new table {@see CreateTableSQL()}, default ''
+	 *
 	 * @return array with SQL strings
 	 */
 	function alterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
@@ -294,7 +298,7 @@ class ADODB2_postgres extends ADODB_DataDict
 	 * @param string $tabname table-name
 	 * @param string $flds column-name and type for the changed column
 	 * @param string $tableflds complete definition of the new table, eg. for postgres, default ''
-	 * @param array/ $tableoptions options for the new table see CreateTableSQL, default ''
+	 * @param array  $tableoptions options for the new table {@see CreateTableSQL}, default []
 	 * @return array with SQL strings
 	 */
 	function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
@@ -321,7 +325,7 @@ class ADODB2_postgres extends ADODB_DataDict
 	 * @param string $tabname table-name
 	 * @param string $dropflds column-names to drop
 	 * @param string $tableflds complete definition of the new table, eg. for postgres
-	 * @param array/string $tableoptions options for the new table see CreateTableSQL, default ''
+	 * @param array|string $tableoptions options for the new table see CreateTableSQL, default ''
 	 * @return array with SQL strings
 	 */
 	function _recreate_copy_table($tabname, $dropflds, $tableflds, $tableoptions='')

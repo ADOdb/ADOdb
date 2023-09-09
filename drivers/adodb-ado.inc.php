@@ -208,10 +208,6 @@ class ADODB_ado extends ADOConnection {
 		return empty($arr) ? $false : $arr;
 	}
 
-
-
-
-	/* returns queryID or false */
 	function _query($sql,$inputarr=false)
 	{
 
@@ -348,16 +344,6 @@ class ADORecordSet_ado extends ADORecordSet {
 	var $_flds; // and field objects
 	var $canSeek = true;
   	var $hideErrors = true;
-
-	function __construct($id,$mode=false)
-	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->fetchMode = $mode;
-		parent::__construct($id);
-	}
 
 
 	// returns the field object
@@ -504,7 +490,7 @@ class ADORecordSet_ado extends ADORecordSet {
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 

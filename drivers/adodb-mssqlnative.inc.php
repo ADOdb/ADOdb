@@ -136,24 +136,12 @@ class ADODB_mssqlnative extends ADOConnection {
 		$this->mssql_version = $version;
 	}
 
-	function ServerInfo() {
-		global $ADODB_FETCH_MODE;
-		static $arr = false;
-		if (is_array($arr))
-			return $arr;
-		if ($this->fetchMode === false) {
-			$savem = $ADODB_FETCH_MODE;
-			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		} elseif ($this->fetchMode >=0 && $this->fetchMode <=2) {
-			$savem = $this->fetchMode;
-		} else
-			$savem = $this->SetFetchMode(ADODB_FETCH_NUM);
-
-		$arrServerInfo = sqlsrv_server_info($this->_connectionID);
-		$ADODB_FETCH_MODE = $savem;
-		$arr['description'] = $arrServerInfo['SQLServerName'].' connected to '.$arrServerInfo['CurrentDatabase'];
-		$arr['version'] = $arrServerInfo['SQLServerVersion'];//ADOConnection::_findvers($arr['description']);
-		return $arr;
+	function serverInfo() {
+		$info = sqlsrv_server_info($this->_connectionID);
+		return array(
+			'description' => $info['SQLServerName'] . ' connected to ' . $info['CurrentDatabase'],
+			'version' => $info['SQLServerVersion'],
+		);
 	}
 
 	function IfNull( $field, $ifNull )
@@ -182,8 +170,10 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function _affectedrows()
 	{
-		if ($this->_queryID)
-		return sqlsrv_rows_affected($this->_queryID);
+		if ($this->_queryID && is_resource($this->_queryID)) {
+			return sqlsrv_rows_affected($this->_queryID);
+		}
+		return false;
 	}
 
 	function GenID($seq='adodbseq',$start=1) {
@@ -436,7 +426,6 @@ class ADODB_mssqlnative extends ADOConnection {
 	function SelectDB($dbName)
 	{
 		$this->database = $dbName;
-		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 		if ($this->_connectionID) {
 			$rs = $this->Execute('USE '.$dbName);
 			if($rs) {
@@ -643,13 +632,6 @@ class ADODB_mssqlnative extends ADOConnection {
 			$rez = sqlsrv_query($this->_connectionID, $sql);
 		}
 
-		if ($this->debug) {
-			ADOConnection::outp("<hr>running query: " . var_export($sql, true)
-				. "<hr>input array: " . var_export($inputarr, true)
-				. "<hr>result: " . var_export($rez, true)
-			);
-		}
-
 		$this->lastInsID = false;
 		if (!$rez) {
 			$rez = false;
@@ -659,23 +641,27 @@ class ADODB_mssqlnative extends ADOConnection {
 			// e.g. if triggers are involved (see #41)
 			while (sqlsrv_next_result($rez)) {
 				sqlsrv_fetch($rez);
-				$this->lastInsID = sqlsrv_get_field($rez, 0, SQLSRV_PHPTYPE_INT);
+				$this->lastInsID = sqlsrv_get_field($rez, 0);
 			}
 		}
 		return $rez;
 	}
 
-	// returns true or false
+	/**
+	 * Rolls back pending transactions and closes the connection.
+	 *
+	 * @return bool True, unless the connection id is invalid
+	 */
 	function _close()
 	{
 		if ($this->transCnt) {
 			$this->RollbackTrans();
 		}
-		if($this->_connectionID) {
-			$rez = sqlsrv_close($this->_connectionID);
+		if ($this->_connectionID) {
+			return sqlsrv_close($this->_connectionID);
 		}
 		$this->_connectionID = false;
-		return $rez;
+		return true;
 	}
 
 
@@ -1053,7 +1039,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	var $fieldOffset = 0;
 	// _mths works only in non-localised system
 
-	
+
 	/*
 	 * Cross references the dateTime objects for faster decoding
 	 */
@@ -1096,20 +1082,6 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			 91  => 'date',
 			 93  => 'datetime'
 			);
-
-
-
-
-	function __construct($id,$mode=false)
-	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-
-		}
-		$this->fetchMode = $mode;
-		parent::__construct($id);
-	}
 
 
 	function _initrs()

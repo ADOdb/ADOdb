@@ -541,7 +541,6 @@ order by constraint_name, referenced_table_name, keyno";
 	function SelectDB($dbName)
 	{
 		$this->database = $dbName;
-		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 		if ($this->_connectionID) {
 			return @mssql_select_db($dbName);
 		}
@@ -726,7 +725,6 @@ order by constraint_name, referenced_table_name, keyno";
 		return $this->Execute($sql) != false;
 	}
 
-	// returns query ID if successful, otherwise false
 	function _query($sql,$inputarr=false)
 	{
 		$this->_errorMsg = false;
@@ -859,18 +857,12 @@ class ADORecordset_mssql extends ADORecordSet {
 	var $hasFetchAssoc; // see PHPLens Issue No: 6083
 	// _mths works only in non-localised system
 
-	function __construct($id,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
+		parent::__construct($queryID, $mode);
+
 		// freedts check...
 		$this->hasFetchAssoc = function_exists('mssql_fetch_assoc');
-
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-
-		}
-		$this->fetchMode = $mode;
-		return parent::__construct($id);
 	}
 
 

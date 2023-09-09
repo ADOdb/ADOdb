@@ -236,6 +236,15 @@ class dbTable extends dbObject {
 	var $drop_field = array();
 
 	/**
+	 * @var array Platform-specific options
+	 * @access private
+	 */
+	var $currentPlatform = true;
+
+	/** @var dbData Stores information about table data. */
+	var $data;
+
+	/**
 	 * Iniitializes a new table object.
 	 *
 	 * @param string $prefix DB Object prefix
@@ -403,7 +412,7 @@ class dbTable extends dbObject {
 	 * @param string $type	ADODB datadict field type.
 	 * @param string $size	Field size
 	 * @param array $opts	Field options array
-	 * @return array Field specifier array
+	 * @return void
 	 */
 	function addField( $name, $type, $size = NULL, $opts = NULL ) {
 		$field_id = $this->FieldID( $name );
@@ -437,7 +446,7 @@ class dbTable extends dbObject {
 	 * @param string $field	Field name
 	 * @param string $opt ADOdb field option
 	 * @param mixed $value Field option value
-	 * @return array Field specifier array
+	 * @return void
 	 */
 	function addFieldOpt( $field, $opt, $value = NULL ) {
 		if( !isset( $value ) ) {
@@ -773,6 +782,9 @@ class dbData extends dbObject {
 
 	var $row;
 
+	/** @var string Field name */
+	var $current_field;
+
 	/**
 	 * Initializes the new dbIndex object.
 	 *
@@ -895,7 +907,8 @@ class dbData extends dbObject {
 			foreach( $row as $field_id => $field_data ) {
 				if( !array_key_exists( $field_id, $table_fields ) ) {
 					if( is_numeric( $field_id ) ) {
-						$field_id = reset( array_keys( $table_fields ) );
+						$keys = array_keys($table_fields);
+						$field_id = reset($keys);
 					} else {
 						continue;
 					}
@@ -1206,7 +1219,7 @@ class dbQuerySet extends dbObject {
  * @tutorial getting_started.pkg
  *
  * @author Richard Tango-Lowy & Dan Cech
- * @version $Revision: 1.12 $
+ * @version 1.12
  *
  * @package axmls
  */
@@ -1280,6 +1293,9 @@ class adoSchema {
 	 * @var bool	Continue SQL execution if errors occur
 	 */
 	var $continueOnError;
+
+	/** @var dbTable A table object. */
+	var $obj;
 
 	/**
 	 * Creates an adoSchema object

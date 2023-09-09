@@ -181,7 +181,6 @@ class ADODB_oracle extends ADOConnection {
 		}
 
 
-		// returns query ID if successful, otherwise false
 		function _query($sql,$inputarr=false)
 		{
             // <G. Giunta 2003/03/03/> Reset error messages before executing
@@ -224,16 +223,9 @@ class ADORecordset_oracle extends ADORecordSet {
 	var $databaseType = "oracle";
 	var $bind = false;
 
-	function __construct($queryID,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->fetchMode = $mode;
-
-		$this->_queryID = $queryID;
+		parent::__construct($queryID, $mode);
 
 		$this->_inited = true;
 		$this->fields = array();
@@ -250,9 +242,7 @@ class ADORecordset_oracle extends ADORecordSet {
 		return $this->_queryID;
 	}
 
-
-
-	   /*		Returns: an object containing field information.
+		/*		Returns: an object containing field information.
 			   Get column information in the Recordset object. fetchField() can be used in order to obtain information about
 			   fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
 			   fetchField() is retrieved.		*/

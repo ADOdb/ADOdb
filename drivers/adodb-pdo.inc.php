@@ -66,6 +66,10 @@ function adodb_pdo_type($t)
 
 
 class ADODB_pdo extends ADOConnection {
+	const BIND_USE_QUESTION_MARKS = 0;
+	const BIND_USE_NAMED_PARAMETERS = 1;
+	const BIND_USE_BOTH = 2;
+
 	var $databaseType = "pdo";
 	var $dataProvider = "pdo";
 	var $fmtDate = "'Y-m-d'";
@@ -82,9 +86,16 @@ class ADODB_pdo extends ADOConnection {
 	var $_errormsg = false;
 	var $_errorno = false;
 
-	var $dsnType = '';
-	var $stmt = false;
+	var $_stmt = false;
+
+	/** @var ADODB_pdo_base */
 	var $_driver;
+
+	/** @var PDO */
+	var $_connectionID;
+
+	/** @var PDOStatement */
+	var $_queryID;
 
 	/*
 	* Describe parameters passed directly to the PDO driver
@@ -92,6 +103,15 @@ class ADODB_pdo extends ADOConnection {
 	* @example $db->pdoOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
 	*/
 	public $pdoParameters = array();
+
+	/*
+	* Set which style is used to bind parameters
+	*
+	* BIND_USE_QUESTION_MARKS   = Use only question marks
+	* BIND_USE_NAMED_PARAMETERS = Use only named parameters
+	* BIND_USE_BOTH             = Use both question marks and named parameters (Default)
+	*/
+	public $bindParameterStyle = self::BIND_USE_BOTH;
 
 	function _UpdatePDO()
 	{
@@ -231,11 +251,11 @@ class ADODB_pdo extends ADOConnection {
 	function Concat()
 	{
 		$args = func_get_args();
-		if(method_exists($this->_driver, 'Concat')) {
+		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'Concat')) {
 			return call_user_func_array(array($this->_driver, 'Concat'), $args);
 		}
 
-		return call_user_func_array('parent::Concat', $args);
+		return call_user_func_array(parent::class . '::Concat', $args);
 	}
 
 	/**
@@ -249,13 +269,13 @@ class ADODB_pdo extends ADOConnection {
 	public function param($name,$type='C') {
 
 		$args = func_get_args();
-		if(method_exists($this->_driver, 'param')) {
+		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'param')) {
 			// Return the driver specific entry, that mimics the native driver
 			return call_user_func_array(array($this->_driver, 'param'), $args);
 		}
 
 		// No driver specific method defined, use mysql format '?'
-		return call_user_func_array('parent::param', $args);
+		return call_user_func_array(parent::class . '::param', $args);
 	}
 
 	// returns true or false
@@ -442,14 +462,14 @@ class ADODB_pdo extends ADOConnection {
 	 */
 	function SetAutoCommit($auto_commit)
 	{
-		if(method_exists($this->_driver, 'SetAutoCommit')) {
+		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'SetAutoCommit')) {
 			$this->_driver->SetAutoCommit($auto_commit);
 		}
 	}
 
 	function SetTransactionMode($transaction_mode)
 	{
-		if(method_exists($this->_driver, 'SetTransactionMode')) {
+		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'SetTransactionMode')) {
 			return $this->_driver->SetTransactionMode($transaction_mode);
 		}
 
@@ -458,7 +478,7 @@ class ADODB_pdo extends ADOConnection {
 
 	function beginTrans()
 	{
-		if(method_exists($this->_driver, 'beginTrans')) {
+		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'beginTrans')) {
 			return $this->_driver->beginTrans();
 		}
 
@@ -478,7 +498,7 @@ class ADODB_pdo extends ADOConnection {
 	function commitTrans($ok=true)
 	{
 
-		if(method_exists($this->_driver, 'commitTrans')) {
+		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'commitTrans')) {
 			return $this->_driver->commitTrans($ok);
 		}
 
@@ -503,7 +523,7 @@ class ADODB_pdo extends ADOConnection {
 
 	function RollbackTrans()
 	{
-		if(method_exists($this->_driver, 'RollbackTrans')) {
+		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'RollbackTrans')) {
 			return $this->_driver->RollbackTrans();
 		}
 
@@ -545,7 +565,7 @@ class ADODB_pdo extends ADOConnection {
 
 	public function createSequence($seqname='adodbseq',$startID=1)
 	{
-		if(method_exists($this->_driver, 'createSequence')) {
+		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'createSequence')) {
 			return $this->_driver->createSequence($seqname, $startID);
 		}
 
@@ -554,7 +574,7 @@ class ADODB_pdo extends ADOConnection {
 
 	function DropSequence($seqname='adodbseq')
 	{
-		if(method_exists($this->_driver, 'DropSequence')) {
+		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'DropSequence')) {
 			return $this->_driver->DropSequence($seqname);
 		}
 
@@ -563,7 +583,7 @@ class ADODB_pdo extends ADOConnection {
 
 	function GenID($seqname='adodbseq',$startID=1)
 	{
-		if(method_exists($this->_driver, 'GenID')) {
+		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'GenID')) {
 			return $this->_driver->GenID($seqname, $startID);
 		}
 
@@ -571,7 +591,6 @@ class ADODB_pdo extends ADOConnection {
 	}
 
 
-	/* returns queryID or false */
 	function _query($sql,$inputarr=false)
 	{
 		$ok = false;
@@ -586,11 +605,7 @@ class ADODB_pdo extends ADOConnection {
 				$this->_driver->debug = $this->debug;
 			}
 			if ($inputarr) {
-
-				/*
-				* inputarr must be numeric
-				*/
-				$inputarr = array_values($inputarr);
+				$inputarr = $this->conformToBindParameterStyle($stmt->queryString, $inputarr);
 				$ok = $stmt->execute($inputarr);
 			}
 			else {
@@ -660,8 +675,63 @@ class ADODB_pdo extends ADOConnection {
 		return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
 
+	/**
+	 * Make bind parameters conform to settings.
+	 *
+	 * @param string $sql
+	 * @param array $inputarr
+	 * @return array
+	 */
+	private function conformToBindParameterStyle($sql, $inputarr)
+	{
+		switch ($this->bindParameterStyle)
+		{
+			case self::BIND_USE_QUESTION_MARKS:
+			default:
+				$inputarr = array_values($inputarr);
+				break;
+
+			case self::BIND_USE_NAMED_PARAMETERS:
+				break;
+
+			case self::BIND_USE_BOTH:
+				// inputarr must be numeric if SQL contains a question mark
+				if ($this->containsQuestionMarkPlaceholder($sql)) {
+					$inputarr = array_values($inputarr);
+
+					if ($this->debug) {
+						ADOconnection::outp('improve the performance of this query by setting the bindParameterStyle to BIND_USE_QUESTION_MARKS');
+					}
+				}
+				break;
+		}
+
+		return $inputarr;
+	}
+
+	/**
+	 * Checks for the inclusion of a question mark placeholder.
+	 *
+	 * @param string $sql   SQL string
+	 * @return boolean      Returns true if a question mark placeholder is included
+	 */
+	private function containsQuestionMarkPlaceholder($sql)
+	{
+		$pattern = '/(.\?(:?.|$))/';
+		if (preg_match_all($pattern, $sql, $matches, PREG_SET_ORDER)) {
+			foreach ($matches as $match) {
+				if ($match[1] !== '`?`' && strpos($match[1], '??') === false) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 }
 
+/**
+ * Base class for Database-specific PDO drivers.
+ */
 class ADODB_pdo_base extends ADODB_pdo {
 
 	var $sysDate = "'?'";
@@ -780,26 +850,27 @@ class ADORecordSet_pdo extends ADORecordSet {
 	var $databaseType = "pdo";
 	var $dataProvider = "pdo";
 
-	function __construct($id,$mode=false)
-	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->adodbFetchMode = $mode;
-		switch($mode) {
-		case ADODB_FETCH_NUM: $mode = PDO::FETCH_NUM; break;
-		case ADODB_FETCH_ASSOC:  $mode = PDO::FETCH_ASSOC; break;
+	/** @var PDOStatement */
+	var $_queryID;
 
-		case ADODB_FETCH_BOTH:
-		default: $mode = PDO::FETCH_BOTH; break;
+	function __construct($queryID, $mode=false)
+	{
+		parent::__construct($queryID, $mode);
+
+		switch($this->adodbFetchMode) {
+			case ADODB_FETCH_NUM:
+				$mode = PDO::FETCH_NUM;
+				break;
+			case ADODB_FETCH_ASSOC:
+				$mode = PDO::FETCH_ASSOC;
+				break;
+			case ADODB_FETCH_BOTH:
+			default:
+				$mode = PDO::FETCH_BOTH;
+				break;
 		}
 		$this->fetchMode = $mode;
-
-		$this->_queryID = $id;
-		parent::__construct($id);
 	}
-
 
 	function Init()
 	{
@@ -920,4 +991,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 
 }
 
-class ADORecordSet_array_pdo extends ADORecordSet_array {}
+class ADORecordSet_array_pdo extends ADORecordSet_array {
+	/** @var PDOStatement */
+	var $_queryID;
+}

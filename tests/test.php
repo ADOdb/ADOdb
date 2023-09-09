@@ -819,12 +819,12 @@ END Adodb;
 	 	print "<p><b>Fail: GetRow returns {$val2[0]}</b></p>";
 	}
 
-	print "<p>FetchObject/FetchNextObject Test</p>";
+	print "<p>fetchObject/fetchNextObject Test</p>";
 	$rs = $db->Execute('select * from ADOXYZ');
 	if ($rs) {
 		if (empty($rs->connection)) print "<b>Connection object missing from recordset</b></br>";
 
-		while ($o = $rs->FetchNextObject()) { // calls FetchObject internally
+		while ($o = $rs->fetchNextObject()) { // calls fetchObject internally
 			if (!is_string($o->FIRSTNAME) || !is_string($o->LASTNAME)) {
 				print_r($o);
 				print "<p><b>Firstname is not string</b></p>";
@@ -836,12 +836,12 @@ END Adodb;
 		die("<p>ADOXYZ table cannot be read - die()");
 	}
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-	print "<p>FetchObject/FetchNextObject Test 2</p>";
+	print "<p>fetchObject/fetchNextObject Test 2</p>";
 	#$db->debug=99;
 	$rs = $db->Execute('select * from ADOXYZ');
 	if (empty($rs->connection)) print "<b>Connection object missing from recordset</b></br>";
 	print_r($rs->fields);
-	while ($o = $rs->FetchNextObject()) { // calls FetchObject internally
+	while ($o = $rs->fetchNextObject()) { // calls fetchObject internally
 		if (!is_string($o->FIRSTNAME) || !is_string($o->LASTNAME)) {
 			print_r($o);
 			print "<p><b>Firstname is not string</b></p>";
@@ -1088,11 +1088,11 @@ END Adodb;
 	$e = $db->ErrorMsg(); $e2 = $db->ErrorNo();
 	echo "Testing error handling, should see illegal column 'x' error=<i>$e ($e2) </i><br>";
 	if (!$e || !$e2) Err("Error handling did not work");
-	print "Testing FetchNextObject for 1 object ";
+	print "Testing fetchNextObject for 1 object ";
 	$rs = $db->Execute("select distinct lastname,firstname from ADOXYZ where firstname='Caroline'");
 	$fcnt = 0;
 	if ($rs)
-	while ($o = $rs->FetchNextObject()) {
+	while ($o = $rs->fetchNextObject()) {
 		$fcnt += 1;
 	}
 	if ($fcnt == 1) print " OK<BR>";
@@ -1719,7 +1719,7 @@ if (@$_SERVER['COMPUTERNAME'] == 'TIGRESS') {
 
 	CheckWS('firebird');
 	CheckWS('sybase');
-	if (!ini_get('safe_mode')) CheckWS('informix');
+	CheckWS('informix');
 
 	CheckWS('ado_mssql');
 	CheckWS('ado_access');
@@ -1764,9 +1764,6 @@ Test <a href=test4.php>GetInsertSQL/GetUpdateSQL</a> &nbsp;
 	<a href=test-perf.php>Perf Monitor</a><p>
 <?php
 
-
-include_once('../adodb-time.inc.php');
-if (isset($_GET['time'])) adodb_date_test();
 flush();
 
 include_once('./testdatabases.inc.php');
