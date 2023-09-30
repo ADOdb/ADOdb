@@ -408,7 +408,7 @@ class ADORecordSet_array_sybase extends ADORecordSet_array {
 		$themth = $ADODB_sybase_mths[$themth];
 		if ($themth <= 0) return false;
 		// h-m-s-MM-DD-YY
-		return  adodb_mktime(0,0,0,$themth,$rr[2],$rr[3]);
+		return mktime(0,0,0,$themth,$rr[2],$rr[3]);
 	}
 
 	static function UnixTimeStamp($v)
@@ -435,6 +435,6 @@ class ADORecordSet_array_sybase extends ADORecordSet_array {
 			break;
 		}
 		// h-m-s-MM-DD-YY
-		return  adodb_mktime($rr[4],$rr[5],0,$themth,$rr[2],$rr[3]);
+		return mktime($rr[4],$rr[5],0,$themth,$rr[2],$rr[3]);
 	}
 }

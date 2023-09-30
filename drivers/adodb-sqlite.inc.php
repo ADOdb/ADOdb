@@ -36,8 +36,8 @@ class ADODB_sqlite extends ADOConnection {
 	var $hasInsertID = true; 		/// supports autoincrement ID?
 	var $hasAffectedRows = true; 	/// supports affected rows for update/delete?
 	var $metaTablesSQL = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
-	var $sysDate = "adodb_date('Y-m-d')";
-	var $sysTimeStamp = "adodb_date('Y-m-d H:i:s')";
+	var $sysDate = "date('Y-m-d')";
+	var $sysTimeStamp = "date('Y-m-d H:i:s')";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 
 	function ServerInfo()
@@ -164,14 +164,12 @@ class ADODB_sqlite extends ADOConnection {
 	function SQLDate($fmt, $col=false)
 	{
 		$fmt = $this->qstr($fmt);
-		return ($col) ? "adodb_date2($fmt,$col)" : "adodb_date($fmt)";
+		return ($col) ? "strftime($fmt,$col)" : "strftime($fmt)";
 	}
 
 
 	function _createFunctions()
 	{
-		@sqlite_create_function($this->_connectionID, 'adodb_date', 'adodb_date', 1);
-		@sqlite_create_function($this->_connectionID, 'adodb_date2', 'adodb_date2', 2);
 	}
 
 

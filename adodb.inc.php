@@ -3395,7 +3395,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$d = ADOConnection::UnixDate($d);
 		}
 
-		return adodb_date($this->fmtDate,$d);
+		return date($this->fmtDate,$d);
 	}
 
 	function BindDate($d) {
@@ -3437,7 +3437,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		# strlen(14) allows YYYYMMDDHHMMSS format
 		if (!is_string($ts) || (is_numeric($ts) && strlen($ts)<14)) {
-			return adodb_date($this->fmtTimeStamp,$ts);
+			return date($this->fmtTimeStamp,$ts);
 		}
 
 		if ($ts === 'null') {
@@ -3448,7 +3448,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			return "'$ts'";
 		}
 		$ts = ADOConnection::UnixTimeStamp($ts);
-		return adodb_date($this->fmtTimeStamp,$ts);
+		return date($this->fmtTimeStamp,$ts);
 	}
 
 	/**
@@ -3461,7 +3461,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (is_object($v)) {
 		// odbtp support
 		//( [year] => 2004 [month] => 9 [day] => 4 [hour] => 12 [minute] => 44 [second] => 8 [fraction] => 0 )
-			return adodb_mktime($v->hour,$v->minute,$v->second,$v->month,$v->day, $v->year);
+			return mktime($v->hour,$v->minute,$v->second,$v->month,$v->day, $v->year);
 		}
 
 		if (is_numeric($v) && strlen($v) !== 8) {
@@ -3476,7 +3476,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 
 		// h-m-s-MM-DD-YY
-		return @adodb_mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
+		return mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
 	}
 
 
@@ -3490,7 +3490,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (is_object($v)) {
 		// odbtp support
 		//( [year] => 2004 [month] => 9 [day] => 4 [hour] => 12 [minute] => 44 [second] => 8 [fraction] => 0 )
-			return adodb_mktime($v->hour,$v->minute,$v->second,$v->month,$v->day, $v->year);
+			return mktime($v->hour,$v->minute,$v->second,$v->month,$v->day, $v->year);
 		}
 
 		if (!preg_match(
@@ -3503,9 +3503,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		// h-m-s-MM-DD-YY
 		if (!isset($rr[5])) {
-			return  adodb_mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
+			return mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
 		}
-		return @adodb_mktime($rr[5],$rr[6],$rr[7],$rr[2],$rr[3],$rr[1]);
+		return mktime($rr[5],$rr[6],$rr[7],$rr[2],$rr[3],$rr[1]);
 	}
 
 	/**
@@ -3531,8 +3531,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			// pre-TIMESTAMP_FIRST_YEAR
 		}
 
-		return ($gmt) ? adodb_gmdate($fmt,$tt) : adodb_date($fmt,$tt);
-
+		return ($gmt) ? gmdate($fmt,$tt) : date($fmt,$tt);
 	}
 
 	/**
@@ -3550,7 +3549,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 		# strlen(14) allows YYYYMMDDHHMMSS format
 		if (is_numeric($v) && strlen($v)<14) {
-			return ($gmt) ? adodb_gmdate($fmt,$v) : adodb_date($fmt,$v);
+			return ($gmt) ? gmdate($fmt,$v) : date($fmt,$v);
 		}
 		$tt = $this->UnixTimeStamp($v);
 		// $tt == -1 if pre TIMESTAMP_FIRST_YEAR
@@ -3560,7 +3559,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if ($tt == 0) {
 			return $this->emptyTimeStamp;
 		}
-		return ($gmt) ? adodb_gmdate($fmt,$tt) : adodb_date($fmt,$tt);
+		return ($gmt) ? gmdate($fmt,$tt) : date($fmt,$tt);
 	}
 
 	/**
@@ -4527,7 +4526,7 @@ class ADORecordSet implements IteratorAggregate {
 	 */
 	function UserTimeStamp($v,$fmt='Y-m-d H:i:s') {
 		if (is_numeric($v) && strlen($v)<14) {
-			return adodb_date($fmt,$v);
+			return date($fmt,$v);
 		}
 		$tt = $this->UnixTimeStamp($v);
 		// $tt == -1 if pre TIMESTAMP_FIRST_YEAR
@@ -4537,7 +4536,7 @@ class ADORecordSet implements IteratorAggregate {
 		if ($tt === 0) {
 			return $this->emptyTimeStamp;
 		}
-		return adodb_date($fmt,$tt);
+		return date($fmt,$tt);
 	}
 
 
@@ -4557,7 +4556,7 @@ class ADORecordSet implements IteratorAggregate {
 		} else if ($tt == -1) {
 			// pre-TIMESTAMP_FIRST_YEAR
 		}
-		return adodb_date($fmt,$tt);
+		return date($fmt,$tt);
 	}
 
 
