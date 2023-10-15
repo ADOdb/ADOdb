@@ -52,7 +52,7 @@ $db->execute("INSERT INTO 'testtable' VALUES (25,'00760C3E69F078DFD635ECE2C70141
 $db->execute("INSERT INTO 'testtable' VALUES (26,'98F58B63EC27E489045318334719D453','1490-09-06 02:50:04');");
 
 //==========================
-// This code tests sqlite access. it also validates that the commands aboce worked!
+// This code tests sqlite access. It also validates that the commands above worked!
 //==========================
 $sql = 'select * from testtable order by id limit 4';
 $rs = $db->execute($sql);
