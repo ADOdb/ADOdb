@@ -105,10 +105,12 @@ function DieTrace($Msg) {
 function testAssert($rs, $actual, $expected) {
 	global $db;
 	if (!$rs) {
+		echo "\n";
 		Err("SQLDate query returned no recordset");
 		echo $db->ErrorMsg(), "\n";
 	} elseif ($expected != $actual) {
-		Err("SQLDate 2 failed expected: \nact:$expected \nsql:" . $rs->fields[0] . " \n" . $db->ErrorMsg());
+		echo "\n";
+		Err("SQLDate failed\nexpected: $expected\nact:$actual\nerror: " . $db->ErrorMsg());
 	} else {
 		echo "  \u{2713}\n";
 	}
