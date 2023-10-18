@@ -396,7 +396,7 @@ END;
 			$ds = $d->format($this->fmtDate);
 		}
 		else {
-			$ds = adodb_date($this->fmtDate,$d);
+			$ds = date($this->fmtDate,$d);
 		}
 
 		return "TO_DATE(".$ds.",'".$this->dateformat."')";
@@ -425,7 +425,7 @@ END;
 			$tss = $ts->format("'Y-m-d H:i:s'");
 		}
 		else {
-			$tss = adodb_date("'Y-m-d H:i:s'",$ts);
+			$tss = date("'Y-m-d H:i:s'",$ts);
 		}
 
 		return $tss;

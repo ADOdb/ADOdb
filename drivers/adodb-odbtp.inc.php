@@ -81,7 +81,7 @@ class ADODB_odbtp extends ADOConnection{
 		if ($isfld) return "convert(date, $d, 120)";
 
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
-		$d = adodb_date($this->fmtDate,$d);
+		$d = date($this->fmtDate,$d);
 		return "convert(date, $d, 120)";
 	}
 
@@ -91,7 +91,7 @@ class ADODB_odbtp extends ADOConnection{
 		if ($isfld) return "convert(datetime, $d, 120)";
 
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
-		$d = adodb_date($this->fmtDate,$d);
+		$d = date($this->fmtDate,$d);
 		return "convert(datetime, $d, 120)";
 	}
 */
