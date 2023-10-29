@@ -1579,6 +1579,9 @@ SELECT /*+ RULE */ distinct b.column_name
 		if ($this->noNullStrings && strlen($s) == 0) {
 			$s = ' ';
 		}
+		else if (strlen($s) == 0) {
+			return "''";
+		}
 		if ($this->replaceQuote[0] == '\\'){
 			$s = str_replace('\\','\\\\',$s);
 		}
