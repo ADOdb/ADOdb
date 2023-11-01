@@ -22,6 +22,12 @@ Older changelogs:
   [#981](https://github.com/ADOdb/ADOdb/issues/981)
 - db2: Declaration of ADODB_db2::_query incompatible with parent
   [#987](https://github.com/ADOdb/ADOdb/issues/987)
+- mysqli: bulkBind reset after one call
+  [#1000](https://github.com/ADOdb/ADOdb/issues/1000)
+- oci8: deprecation warning in selectLimit() on PHP 8.1
+  [#992](https://github.com/ADOdb/ADOdb/issues/992)
+- oci8: Prevent str_replace NULL error in qstr() methods on PHP 8.1
+  [#999](https://github.com/ADOdb/ADOdb/issues/999)
 
 
 ## [5.22.6] - 2023-06-11
