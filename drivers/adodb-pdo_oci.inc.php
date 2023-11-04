@@ -87,8 +87,10 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 			$fld->type = $rs->fields[1];
 			$fld->max_length = $rs->fields[2];
 			$fld->scale = $rs->fields[3];
-			if ($rs->fields[1] == 'NUMBER' && $rs->fields[3] == 0) {
-				$fld->type ='INT';
+			if ($rs->fields[1] == 'NUMBER') {
+				if ($rs->fields[3] == 0) {
+					$fld->type = 'INT';
+				}
 				$fld->max_length = $rs->fields[4];
 			}
 			$fld->not_null = $rs->fields[5] == 'N';
