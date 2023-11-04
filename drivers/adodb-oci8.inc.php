@@ -70,12 +70,18 @@ class ADODB_oci8 extends ADOConnection {
 	var $_commit = OCI_COMMIT_ON_SUCCESS;
 	var $_initdate = true; // init date to YYYY-MM-DD
 	var $metaTablesSQL = "select table_name,table_type from cat where table_type in ('TABLE','VIEW') and table_name not like 'BIN\$%'"; // bin$ tables are recycle bin tables
-	var $metaColumnsSQL = "select cname,coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
-	var $metaColumnsSQL2 = "select column_name,data_type,data_length, data_scale, data_precision,
-    case when nullable = 'Y' then 'NULL'
-    else 'NOT NULL' end as nulls,
-    data_default from all_tab_cols
-  where owner='%s' and table_name='%s' order by column_id"; // when there is a schema
+	var $metaColumnsSQL = <<<ENDSQL
+		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
+		FROM user_tab_columns
+		WHERE table_name = '%s'
+		ORDER BY column_id
+		ENDSQL;
+	var $metaColumnsSQL2 = <<<ENDSQL
+		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
+		FROM all_tab_columns
+		WHERE owner = '%s' AND table_name = '%s'
+		ORDER BY column_id
+		ENDSQL; // When there is a schema
 	var $_bindInputArray = true;
 	var $hasGenID = true;
 	var $_genIDSQL = "SELECT (%s.nextval) FROM DUAL";
@@ -161,7 +167,7 @@ END;
 				}
 				$fld->max_length = $rs->fields[4];
 			}
-			$fld->not_null = (strncmp($rs->fields[5], 'NOT',3) === 0);
+			$fld->not_null = $rs->fields[5] == 'N';
 			$fld->binary = (strpos($fld->type,'BLOB') !== false);
 			$fld->default_value = $rs->fields[6];
 

@@ -32,8 +32,13 @@ include_once(ADODB_DIR.'/drivers/adodb-oci8.inc.php');
 class ADODB_oci8po extends ADODB_oci8 {
 	var $databaseType = 'oci8po';
 	var $dataProvider = 'oci8';
-	var $metaColumnsSQL = "select lower(cname),coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
 	var $metaTablesSQL = "select lower(table_name),table_type from cat where table_type in ('TABLE','VIEW')";
+	var $metaColumnsSQL = <<<ENDSQL
+		SELECT lower(column_name), data_type, data_length, data_scale, data_precision, nullable, data_default
+		FROM user_tab_columns
+		WHERE table_name = '%s'
+		ORDER BY column_id
+		ENDSQL;
 
 	function Param($name,$type='C')
 	{

@@ -27,7 +27,12 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 	var $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'
 	var $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
 	var $metaTablesSQL = "select table_name,table_type from cat where table_type in ('TABLE','VIEW')";
-	var $metaColumnsSQL = "select cname,coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno";
+	var $metaColumnsSQL = <<<ENDSQL
+		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
+		FROM user_tab_columns
+		WHERE table_name = '%s'
+		ORDER BY column_id
+		ENDSQL;
 
  	var $_initdate = true;
 	var $_hasdual = true;
@@ -83,7 +88,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 				$fld->type ='INT';
 				$fld->max_length = $rs->fields[4];
 			}
-			$fld->not_null = (strncmp($rs->fields[5], 'NOT',3) === 0);
+			$fld->not_null = $rs->fields[5] == 'N';
 			$fld->binary = (strpos($fld->type,'BLOB') !== false);
 			$fld->default_value = $rs->fields[6];
 
