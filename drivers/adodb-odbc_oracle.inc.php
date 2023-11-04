@@ -33,7 +33,11 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 	var $concat_operator='||';
 	var $fmtDate = "'Y-m-d 00:00:00'";
 	var $fmtTimeStamp = "'Y-m-d h:i:sA'";
-	var $metaTablesSQL = 'select table_name from cat';
+	var $metaTablesSQL = <<<ENDSQL
+		SELECT table_name, table_type
+		FROM user_catalog
+		WHERE table_type IN ('TABLE', 'VIEW') AND table_name NOT LIKE 'BIN\$%'
+		ENDSQL; // bin$ tables are recycle bin tables
 	var $metaColumnsSQL = <<<ENDSQL
 		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
 		FROM user_tab_columns
