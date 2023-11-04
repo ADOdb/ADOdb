@@ -67,9 +67,8 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 
 	function MetaColumns($table,$normalize=true)
 	{
-	global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 
-		$false = false;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
@@ -79,10 +78,10 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 		if (!$rs) {
-			return $false;
+			return false;
 		}
 		$retarr = array();
-		while (!$rs->EOF) { //print_r($rs->fields);
+		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
 			$fld->type = $rs->fields[1];
@@ -102,7 +101,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		}
 		$rs->Close();
 		if (empty($retarr))
-			return  $false;
+			return false;
 		else
 			return $retarr;
 	}

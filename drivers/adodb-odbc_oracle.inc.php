@@ -51,9 +51,8 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 
 	function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
-		$false = false;
 		$rs = $this->Execute($this->metaTablesSQL);
-		if ($rs === false) return $false;
+		if ($rs === false) return false;
 		$arr = $rs->GetArray();
 		$arr2 = array();
 		for ($i=0; $i < sizeof($arr); $i++) {
@@ -69,19 +68,20 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
 		if ($rs === false) {
-			$false = false;
-			return $false;
+			return false;
 		}
 		$retarr = array();
-		while (!$rs->EOF) { //print_r($rs->fields);
+		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
 			$fld->type = $rs->fields[1];
 			$fld->max_length = $rs->fields[2];
 
-
-			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;
-			else $retarr[strtoupper($fld->name)] = $fld;
+			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) {
+				$retarr[] = $fld;
+			} else {
+				$retarr[strtoupper($fld->name)] = $fld;
+			}
 
 			$rs->MoveNext();
 		}
