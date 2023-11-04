@@ -26,6 +26,8 @@ Older changelogs:
   [#1000](https://github.com/ADOdb/ADOdb/issues/1000)
 - oci8: deprecation warning in selectLimit() on PHP 8.1
   [#992](https://github.com/ADOdb/ADOdb/issues/992)
+- oci8: Fix Automatic conversion of false to array
+  [#998](https://github.com/ADOdb/ADOdb/issues/998)
 - oci8: Prevent str_replace NULL error in qstr() methods on PHP 8.1
   [#999](https://github.com/ADOdb/ADOdb/issues/999)
 
