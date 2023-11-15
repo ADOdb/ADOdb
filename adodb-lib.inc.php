@@ -1303,9 +1303,9 @@ function _adodb_backtrace($printOrArr=true, $maximumDepth=0, $elementsToIgnore=0
 			. "<h4>$s</h4>\n"
 			. '<table>' . PHP_EOL
 			. '<thead><tr><th>#</th><th>Function</th><th>Location</th></tr></thead>' . PHP_EOL;
-		$fmt = '<tr><td>%1$d</td><td>%2$s</td><td>%3$s line %4$d</td></tr>' . PHP_EOL;
+		$fmt = '<tr><td>%1$d</td><td>%2$s</td><td>%3$s line %4$s</td></tr>' . PHP_EOL;
 	} else {
-		$fmt = '%1$2d. %2$s in %3$s line %4$d' . PHP_EOL;
+		$fmt = '%1$2d. %2$s in %3$s line %4$s' . PHP_EOL;
 	}
 
 	// Maximum length for string arguments display
@@ -1362,13 +1362,13 @@ function _adodb_backtrace($printOrArr=true, $maximumDepth=0, $elementsToIgnore=0
 		}
 
 		// Shorten ADOdb paths ('/path/to/adodb/XXX' printed as '.../XXX')
-		$file = str_replace(__DIR__, '...', $element['file']);
+		$file = str_replace(__DIR__, '...', $element['file'] ?? 'unknown file');
 
 		$s .= sprintf($fmt,
 			$elements--,
 			$functionName . '(' . implode(', ', $args) . ')',
 			$file,
-			$element['line']
+			$element['line'] ?? 'unknown'
 		);
 	}
 
