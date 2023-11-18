@@ -32,52 +32,92 @@ if (!defined('LDAP_ASSOC')) {
 }
 
 class ADODB_ldap extends ADOConnection {
-	var $databaseType = 'ldap';
-	var $dataProvider = 'ldap';
+	public $databaseType = 'ldap';
+	public $dataProvider = 'ldap';
+		
+	/*
+	* Caches the version info
+	*/
+	protected $version;
+	
 
-	# Connection information
-	var $username = false;
-	var $password = false;
-
-	# Used during searches
-	var $filter;
-	var $dn;
-	var $version;
-	var $port = 389;
-
-	# Options configuration information
-	var $LDAP_CONNECT_OPTIONS;
+	/*
+	* Options configuration information
+	* @deprecated 5.23
+	*/
+	public $LDAP_CONNECT_OPTIONS;
 
 	# error on binding, eg. "Binding: invalid credentials"
-	var $_bind_errmsg = "Binding: %s";
+	protected $_bind_errmsg = "Binding: %s";
 
-	// returns true or false
+	protected $connectionParameters = array(
+		LDAP_OPT_PROTOCOL_VERSION=>3,
+		LDAP_OPT_REFERRALS=>0
+	);
 
-	function _connect( $host, $username, $password, $ldapbase)
+	
+	/**
+	 * Connect to a AD Server
+	 *
+	 * @param string|null $ldapServer The AD Server to connect to.
+	 * @param string|null $username The username to connect as.
+	 * @param string|null $password The password to connect with.
+	 * @param string|null $ldapbase The Base DN
+	 *
+	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
+	 * isn't currently loaded.
+	 */
+	public function _connect( $ldapServer, $username, $password, $ldapbase)
 	{
 		global $LDAP_CONNECT_OPTIONS;
 
-		if ( !function_exists( 'ldap_connect' ) ) return null;
+		if ( !function_exists( 'ldap_connect' ) ) 
+			return null;
 
-		if (strpos($host,'ldap://') === 0 || strpos($host,'ldaps://') === 0) {
-			$this->_connectionID = @ldap_connect($host);
-		} else {
-			$conn_info = array( $host,$this->port);
-
-			if ( strstr( $host, ':' ) ) {
-				$conn_info = explode( ':', $host );
-			}
-
-			$this->_connectionID = @ldap_connect( $conn_info[0], $conn_info[1] );
+		
+		if (strpos($ldapServer,'ldap://') !== 0 && strpos($ldapServer,'ldaps://') !== 0) 
+		{
+			/*
+			* If ldap SSL not explicitly specified, fall back to insecure
+			*/ 
+			$ldapServer = sprintf('ldap://%s',$ldapServer);
 		}
-		if (!$this->_connectionID) {
-			$e = 'Could not connect to ' . $conn_info[0];
+
+		
+		$this->_connectionID = @ldap_connect($ldapServer);
+		
+		if (!$this->_connectionID) 
+		{
+			$e = 'Could not connect to ' . $ldapServer;
 			$this->_errorMsg = $e;
-			if ($this->debug) ADOConnection::outp($e);
+			if ($this->debug) 
+				ADOConnection::outp($e);
+			
 			return false;
 		}
-		if(!empty($LDAP_CONNECT_OPTIONS)) {
+
+		if(!empty($LDAP_CONNECT_OPTIONS) && is_array($LDAP_CONNECT_OPTIONS)) {
+			/*
+			* Convert options to connectionParameters()
+			*/
 			$this->_inject_bind_options( $LDAP_CONNECT_OPTIONS );
+		}
+
+		/*
+		* Iterate over any connection parameters
+		*/
+		foreach ($this->connectionParameters as $parameter => $value)
+		{
+			if (!ldap_set_option($this->_connectionID,$parameter,$value))
+			{
+				if ($this->debug)
+				{
+					$message = sprintf('Warning - Setting connection parameter %s to value %s failed',$parameter,$value);
+					ADOConnection::outp($message);
+					$this->_errorMsg = $message;
+				}
+
+			}
 		}
 
 		if ($username) {
@@ -93,8 +133,10 @@ class ADODB_ldap extends ADOConnection {
 			if ($this->debug) ADOConnection::outp($e);
 			return false;
 		}
+		
 		$this->_errorMsg = '';
-		$this->database = $ldapbase;
+		$this->database  = $ldapbase;
+
 		return $this->_connectionID;
 	}
 
@@ -150,47 +192,89 @@ class ADODB_ldap extends ADOConnection {
 	);
 */
 
-	function _inject_bind_options( $options ) {
-		foreach( $options as $option ) {
-			ldap_set_option( $this->_connectionID, $option["OPTION_NAME"], $option["OPTION_VALUE"] )
-				or die( "Unable to set server option: " . $option["OPTION_NAME"] );
+	/**
+	 * Converts old style global options into connection parameters
+	 *
+	 * @deprecated 5.23
+	 * @param array $options
+	 * @return void
+	 */
+	private function _inject_bind_options( $options ) {
+		foreach( $options as $option ) 
+		{
+			$this->connectionParameters[$option["OPTION_NAME"]] = $option["OPTION_VALUE"];
+			//ldap_set_option( $this->_connectionID, $option["OPTION_NAME"], $option["OPTION_VALUE"] );
+			//	or die( "Unable to set server option: " . $option["OPTION_NAME"] );
 		}
 	}
 
-	function _query($sql,$inputarr=false)
+
+	/**
+	 * Execute a query against the AD Database.
+	 *
+	 * @param string|array $ldapQuery   Query to execute.
+	 * @param array        $inputarr   [Ignored] An optional array of parameters.
+	 *
+	 * @return ldap_query|bool
+	*/
+	function _query($ldapQuery,$inputarr=false)
 	{
-		$rs = @ldap_search( $this->_connectionID, $this->database, $sql );
-		$this->_errorMsg = ($rs) ? '' : 'Search error on '.$sql.': '.ldap_error($this->_connectionID);
+		
+		$rs = ldap_search( $this->_connectionID, $this->database, $ldapQuery );
+		
+		$this->_errorMsg = ($rs) ? '' : 'Search error on '.$ldapQuery.': '.ldap_error($this->_connectionID);
+		
 		return $rs;
 	}
 
-	function ErrorMsg()
-	{
-		return $this->_errorMsg;
-	}
-
-	function ErrorNo()
+	
+	/**
+	 * Returns the last error number from previous AD operation.
+	 *
+	 * @return int The last error number.
+	 */
+	function errorNo()
 	{
 		return @ldap_errno($this->_connectionID);
 	}
 
-	/* closes the LDAP connection */
+	/**
+	 * closes the LDAP connection 
+	 *
+	 * @return void
+	 */ 
 	function _close()
 	{
-		@ldap_close( $this->_connectionID );
+		if (is_resource($this->_connectionID))
+			@ldap_close( $this->_connectionID );
+
 		$this->_connectionID = false;
 	}
 
-	function SelectDB($db) {
-		$this->database = $db;
+	/**
+	 * Switches the baseDN to a new value
+	 *
+	 * @param string $baseDN
+	 * @return void
+	 */
+	public function selectDB($baseDN) {
+		$this->database = $baseDN;
 		return true;
-	} // SelectDB
+	} 
 
-	function ServerInfo()
+	/**
+	 * Get server version info.
+	 *
+	 * @return string[] Array with multiple string elements that define the connection
+	 */
+	public function serverInfo()
 	{
 		if( !empty( $this->version ) ) {
 			return $this->version;
 		}
+
+		if (!is_resource($this->_connectionID))
+			return false;
 
 		$version = array();
 		/*
@@ -291,11 +375,20 @@ class ADODB_ldap extends ADOConnection {
 
 class ADORecordSet_ldap extends ADORecordSet{
 
-	var $databaseType = "ldap";
-	var $canSeek = false;
-	var $_entryID; /* keeps track of the entry resource identifier */
+	public $databaseType = "ldap";
+	public $canSeek      = false;
 
-	function __construct($queryID, $mode=false)
+	protected $_entryID; /* keeps track of the entry resource identifier */
+
+	protected $seekData = array();
+
+	/**
+	 * Constructor
+	 *
+	 * @param resource $queryID
+	 * @param boolean $mode
+	 */
+	public function __construct($queryID, $mode=false)
 	{
 		parent::__construct($queryID, $mode);
 
@@ -314,7 +407,12 @@ class ADORecordSet_ldap extends ADORecordSet{
 		}
 	}
 
-	function _initrs()
+	/**
+	* Recordset initialization stub
+	*
+	* @return void
+	*/
+	protected function _initrs()
 	{
 		/*
 		This could be teaked to respect the $COUNTRECS directive from ADODB
@@ -324,100 +422,178 @@ class ADORecordSet_ldap extends ADORecordSet{
 		$this->_numOfRows = ldap_count_entries( $this->connection->_connectionID, $this->_queryID );
 	}
 
-	/*
-	Return whole recordset as a multi-dimensional associative array
-	*/
-	function GetAssoc($force_array = false, $first2cols = false, $fetchMode = -1)
+	
+	/**
+	 * Returns raw, database specific information about a field.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:recordset:fetchfield
+	 *
+	 * @param int $fieldOffset (Optional) The field number to get information for.
+	 *
+	 * @return ADOFieldObject|bool
+	 */
+	public function fetchField($fieldOffset = -1)
 	{
-		$records = $this->_numOfRows;
-		$results = array();
-		for ( $i=0; $i < $records; $i++ ) {
-			foreach ( $this->fields as $k=>$v ) {
-				if ( is_array( $v ) ) {
-					if ( $v['count'] == 1 ) {
-						$results[$i][$k] = $v[0];
-					} else {
-						array_shift( $v );
-						$results[$i][$k] = $v;
-					}
-				}
-			}
-		}
+		
+		if (!array_key_exists($fieldOffset,$this->seekData))
+			return false;
+		
+		$o = new ADOFieldObject;
+		$o->name = $this->seekData[$fieldOffset];
+		$o->max_length = 1024;
+		$o->type = 'C';
 
-		return $results;
+		return $o;
 	}
 
-	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
+	/**
+	 * Attempt to fetch a result row using the current fetch mode and return whether or not this was successful.
+	 *
+	 * @return bool True if row was fetched successfully, otherwise false.
+	 */
+	public function _fetch()
 	{
-		$results = array();
-		foreach ( $this->fields as $k=>$v ) {
-			if ( is_array( $v ) ) {
-				if ( $v['count'] == 1 ) {
-					$results[$k] = $v[0];
-				} else {
-					array_shift( $v );
-					$results[$k] = $v;
-				}
-			}
-		}
-
-		return $results;
-	}
-
-	function GetRowNums()
-	{
-		$results = array();
-		foreach ( $this->fields as $k=>$v ) {
-			static $i = 0;
-			if (is_array( $v )) {
-				if ( $v['count'] == 1 ) {
-					$results[$i] = $v[0];
-				} else {
-					array_shift( $v );
-					$results[$i] = $v;
-				}
-				$i++;
-			}
-		}
-		return $results;
-	}
-
-	function _fetch()
-	{
-		if ( $this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0 ) {
+		if ( $this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0 ) 
+		{
+			$this->EOF = true;
 			return false;
 		}
+		$this->EOF = false;
 
-		if ( $this->_currentRow == 0 ) {
+		if ( $this->_currentRow == 0 )
+		{
 			$this->_entryID = ldap_first_entry( $this->connection->_connectionID, $this->_queryID );
-		} else {
+		} 
+		else 
+		{
 			$this->_entryID = ldap_next_entry( $this->connection->_connectionID, $this->_entryID );
 		}
 
-		$this->fields = ldap_get_attributes( $this->connection->_connectionID, $this->_entryID );
-		$this->_numOfFields = $this->fields['count'];
+		$r = ldap_get_attributes( $this->connection->_connectionID, $this->_entryID );
 
-		switch ( $this->fetchMode ) {
+		if (!$r)
+		{
+			$this->EOF = true;
+			return false;
+		}
+		
+		$rowentries = $r['count'];
+		unset($r['count']);
 
-			case LDAP_ASSOC:
-				$this->fields = $this->GetRowAssoc();
-				break;
+		$objectClass = false;
 
-			case LDAP_NUM:
-				$this->fields = array_merge($this->GetRowNums(),$this->GetRowAssoc());
-				break;
-
-			case LDAP_BOTH:
-			default:
-				$this->fields = $this->GetRowNums();
-				break;
+		if ($r[0] == 'objectClass')
+		{
+			/*
+			* Always an array, move to the end of the row we want to use getAssoc
+			*/
+			$objectClass = $r['objectClass'];
+			unset($r[0]);
+			unset($r['objectClass']);
+			unset($objectClass['count']);
 		}
 
+		$rowData    = array();
+		$rowIndex   = 0;
+		for ($rowentry=0;$rowentry<$rowentries;$rowentry++)
+		{
+			if (!array_key_exists($rowentry,$r))
+				/*
+				* We moved objectClass
+				*/
+				continue;
+			
+			$eName 		 = $r[$rowentry];
+			$eData 		 = $r[$eName];
+			$dataEntries = $eData['count'];
+			
+			unset($eData['count']);
+
+			if ($dataEntries == 1)
+			{
+				$element = $eData[0];
+			}
+			else
+				$element = $eData;
+
+			switch ( $this->fetchMode ) 
+			{
+	
+				case LDAP_ASSOC:
+				$rowData[$eName]    = $element; 
+				break;
+	
+				case LDAP_NUM:
+				$rowData[$rowIndex] = $element; 
+				break;
+	
+				case LDAP_BOTH:
+				default:
+				$rowData[$eName]    = $element; 
+				$rowData[$rowIndex] = $element; 
+				break;
+			}
+			
+			$this->seekData[$rowIndex] = $eName;
+			
+			$rowIndex++;
+		}
+
+		if ($objectClass)
+		{
+			/*
+			* Append the element onto the end of the row
+			*/
+			switch ( $this->fetchMode ) 
+			{
+	
+				case LDAP_ASSOC:
+				$rowData['objectClass'] = $objectClass; 
+				break;
+	
+				case LDAP_NUM:
+				$rowData[$rowIndex] 	= $objectClass; 
+				break;
+	
+				case LDAP_BOTH:
+				default:
+				$rowData['objectClass'] = $objectClass; 
+				$rowData[$rowIndex] 	= $objectClass; 
+				break;
+			}
+		}
+
+		switch (ADODB_ASSOC_CASE)
+		{
+
+			case ADODB_ASSOC_CASE_UPPER:
+			$rowData = array_change_key_case($rowData,CASE_UPPER);
+			array_map('strtoupper',$this->seekData);
+			break;
+
+			case ADODB_ASSOC_CASE_LOWER:
+			$rowData = array_change_key_case($rowData,CASE_LOWER);
+			array_map('strtolower',$this->seekData);
+			break;
+		}
+
+		$this->bind = array_flip($this->seekData);
+
+		$this->fields 		= $rowData;
+		$this->_numOfFields = count($rowData);
+		
 		return is_array( $this->fields );
 	}
 
-	function _close() {
-		@ldap_free_result( $this->_queryID );
+	/**
+	 * Frees the memory from a query recordset
+	 *
+	 * @return void
+	 */
+	public function _close() {
+		if (is_resource($this->_queryID))
+			@ldap_free_result( $this->_queryID );
+		
 		$this->_queryID = false;
 	}
 
