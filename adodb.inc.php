@@ -957,6 +957,20 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
+	 * Low-level, driver-specific method to connect to the database.
+	 *
+	 * @param string $argHostname     Host to connect to
+	 * @param string $argUsername     Userid to login
+	 * @param string $argPassword     Associated password
+	 * @param string $argDatabaseName Database name
+	 *
+	 * @return bool
+	 * @internal
+	 * @TODO propagate *protected* visibility to child classes
+	 */
+	abstract protected function _connect($argHostname, $argUsername, $argPassword, $argDatabaseName);
+
+	/**
 	 * Connect to database.
 	 *
 	 * @param string $argHostname     Host to connect to
@@ -1017,7 +1031,10 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Always force a new connection to database.
+	 * Low-level method to force a new connection to the database.
+	 *
+	 * Unless the child Driver class overrides it, this method is the same as
+	 * {@see _connect()}.
 	 *
 	 * @param string $argHostname     Host to connect to
 	 * @param string $argUsername     Userid to login
@@ -1025,15 +1042,17 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param string $argDatabaseName Database name
 	 *
 	 * @return bool
+	 * @internal
+	 * @TODO propagate *protected* visibility to child classes
 	 */
-	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName) {
+	protected function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName) {
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName);
 	}
 
 	/**
-	 * Always force a new connection to database.
+	 * Always force a new connection to the database.
 	 *
-	 * Currently this only works with Oracle.
+	 * This is only supported by some drivers.
 	 *
 	 * @param string $argHostname     Host to connect to
 	 * @param string $argUsername     Userid to login
@@ -1044,6 +1063,25 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function NConnect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "") {
 		return $this->Connect($argHostname, $argUsername, $argPassword, $argDatabaseName, true);
+	}
+
+	/**
+	 * Low-level method to establish a persistent connection to the database.
+	 *
+	 * Unless the child Driver class overrides it, this method is the same as
+	 * {@see _connect()}.
+	 *
+	 * @param string $argHostname     Host to connect to
+	 * @param string $argUsername     Userid to login
+	 * @param string $argPassword     Associated password
+	 * @param string $argDatabaseName Database name
+	 *
+	 * @return bool
+	 * @internal
+	 * @TODO propagate *protected* visibility to child classes
+	 */
+	protected function _pconnect($argHostname, $argUsername, $argPassword, $argDatabaseName) {
+		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName);
 	}
 
 	/**
