@@ -119,6 +119,15 @@ class ADODB_pdo extends ADOConnection
 	*/
 	public $pdoParameters = array();
 
+	/*
+	* Set which style is used to bind parameters
+	*
+	* BIND_USE_QUESTION_MARKS   = Use only question marks
+	* BIND_USE_NAMED_PARAMETERS = Use only named parameters
+	* BIND_USE_BOTH             = Use both question marks and named parameters (Default)
+	*/
+	public $bindParameterStyle = self::BIND_USE_BOTH;
+
 	/**
 	 * Connect to a database.
 	 *
@@ -655,29 +664,77 @@ class ADODB_pdo extends ADOConnection
 	}
 
 	/**
-	 * Returns the server information
-	 * 
-	 * @return array()
+	 * Make bind parameters conform to settings.
+	 *
+	 * @param string $sql
+	 * @param array $inputarr
+	 * @return array
 	 */
-	public function serverInfo() 
+	private function conformToBindParameterStyle($sql, $inputarr)
 	{
+		switch ($this->bindParameterStyle)
+		{
+			case self::BIND_USE_QUESTION_MARKS:
+			default:
+				$inputarr = array_values($inputarr);
+				break;
 
-		global $ADODB_FETCH_MODE;
-		static $arr = false;
-		if (is_array($arr))
-			return $arr;
-		if ($this->fetchMode === false) {
-			$savem = $ADODB_FETCH_MODE;
-			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		} elseif ($this->fetchMode >=0 && $this->fetchMode <=2) {
-			$savem = $this->fetchMode;
-		} else
-			$savem = $this->SetFetchMode(ADODB_FETCH_NUM);
+			case self::BIND_USE_NAMED_PARAMETERS:
+				break;
 
-		//$arr = $this->_connectionID->getAttribute(constant("PDO::ATTR_SERVER_INFO"));
-		
-		$ADODB_FETCH_MODE = $savem;
-		return $arr;
+			case self::BIND_USE_BOTH:
+				// inputarr must be numeric if SQL contains a question mark
+				if ($this->containsQuestionMarkPlaceholder($sql)) {
+					$inputarr = array_values($inputarr);
+
+					if ($this->debug) {
+						ADOconnection::outp('improve the performance of this query by setting the bindParameterStyle to BIND_USE_QUESTION_MARKS');
+					}
+				}
+				break;
+		}
+
+		return $inputarr;
+	}
+
+	/**
+	 * Checks for the inclusion of a question mark placeholder.
+	 *
+	 * @param string $sql   SQL string
+	 * @return boolean      Returns true if a question mark placeholder is included
+	 */
+	private function containsQuestionMarkPlaceholder($sql)
+	{
+		$pattern = '/(.\?(:?.|$))/';
+		if (preg_match_all($pattern, $sql, $matches, PREG_SET_ORDER)) {
+			foreach ($matches as $match) {
+				if ($match[1] !== '`?`' && strpos($match[1], '??') === false) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+}
+
+/**
+ * Base class for Database-specific PDO drivers.
+ */
+class ADODB_pdo_base extends ADODB_pdo {
+
+	var $sysDate = "'?'";
+	var $sysTimeStamp = "'?'";
+
+
+	function _init($parentDriver)
+	{
+		$parentDriver->_bindInputArray = true;
+		#$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,true);
+	}
+
+	function ServerInfo()
+	{
+		return ADOConnection::ServerInfo();
 	}
 
 	/**
@@ -787,24 +844,26 @@ class ADORecordSet_pdo extends ADORecordSet {
 	var $databaseType = "pdo";
 	var $dataProvider = "pdo";
 
-	function __construct($id,$mode=false)
-	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->adodbFetchMode = $mode;
-		switch($mode) {
-		case ADODB_FETCH_NUM: $mode = PDO::FETCH_NUM; break;
-		case ADODB_FETCH_ASSOC:  $mode = PDO::FETCH_ASSOC; break;
+	/** @var PDOStatement */
+	var $_queryID;
 
-		case ADODB_FETCH_BOTH:
-		default: $mode = PDO::FETCH_BOTH; break;
+	function __construct($queryID, $mode=false)
+	{
+		parent::__construct($queryID, $mode);
+
+		switch($this->adodbFetchMode) {
+			case ADODB_FETCH_NUM:
+				$mode = PDO::FETCH_NUM;
+				break;
+			case ADODB_FETCH_ASSOC:
+				$mode = PDO::FETCH_ASSOC;
+				break;
+			case ADODB_FETCH_BOTH:
+			default:
+				$mode = PDO::FETCH_BOTH;
+				break;
 		}
 		$this->fetchMode = $mode;
-
-		$this->_queryID = $id;
-		parent::__construct($id);
 	}
 
 	
@@ -938,4 +997,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 
 }
 
-class ADORecordSet_array_pdo extends ADORecordSet_array {}
+class ADORecordSet_array_pdo extends ADORecordSet_array {
+	/** @var PDOStatement */
+	var $_queryID;
+}

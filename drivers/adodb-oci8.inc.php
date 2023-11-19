@@ -69,13 +69,23 @@ class ADODB_oci8 extends ADOConnection {
 	var $_stmt;
 	var $_commit = OCI_COMMIT_ON_SUCCESS;
 	var $_initdate = true; // init date to YYYY-MM-DD
-	var $metaTablesSQL = "select table_name,table_type from cat where table_type in ('TABLE','VIEW') and table_name not like 'BIN\$%'"; // bin$ tables are recycle bin tables
-	var $metaColumnsSQL = "select cname,coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
-	var $metaColumnsSQL2 = "select column_name,data_type,data_length, data_scale, data_precision,
-    case when nullable = 'Y' then 'NULL'
-    else 'NOT NULL' end as nulls,
-    data_default from all_tab_cols
-  where owner='%s' and table_name='%s' order by column_id"; // when there is a schema
+	var $metaTablesSQL = <<<ENDSQL
+		SELECT table_name, table_type
+		FROM user_catalog
+		WHERE table_type IN ('TABLE', 'VIEW') AND table_name NOT LIKE 'BIN\$%'
+		ENDSQL; // bin$ tables are recycle bin tables
+	var $metaColumnsSQL = <<<ENDSQL
+		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
+		FROM user_tab_columns
+		WHERE table_name = '%s'
+		ORDER BY column_id
+		ENDSQL;
+	var $metaColumnsSQL2 = <<<ENDSQL
+		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
+		FROM all_tab_columns
+		WHERE owner = '%s' AND table_name = '%s'
+		ORDER BY column_id
+		ENDSQL; // When there is a schema
 	var $_bindInputArray = true;
 	var $hasGenID = true;
 	var $_genIDSQL = "SELECT (%s.nextval) FROM DUAL";
@@ -92,7 +102,7 @@ END;
 	var $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
 	var $noNullStrings = false;
 	var $connectSID = false;
-	var $_bind = false;
+	var $_bind = array();
 	var $_nestedSQL = true;
 	var $_getarray = false; // currently not working
 	var $leftOuter = '';  // oracle wierdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
@@ -161,7 +171,7 @@ END;
 				}
 				$fld->max_length = $rs->fields[4];
 			}
-			$fld->not_null = (strncmp($rs->fields[5], 'NOT',3) === 0);
+			$fld->not_null = $rs->fields[5] == 'N';
 			$fld->binary = (strpos($fld->type,'BLOB') !== false);
 			$fld->default_value = $rs->fields[6];
 
@@ -289,7 +299,7 @@ END;
 			$argUsername,
 			$argPassword,
 			$argDatabasename,
-			$this->charSet ?: null,
+			$this->charSet ?: '',
 			$sessionMode
 		);
 		if (!$this->_connectionID) {
@@ -346,10 +356,6 @@ END;
 
 	protected function _insertID($table = '', $column = '')
 	{
-
-		if (!$this->seqField)
-			return false;
-
 		if ($this->schema)
 		{
 			$t = strpos($table,'.');
@@ -400,7 +406,7 @@ END;
 			$ds = $d->format($this->fmtDate);
 		}
 		else {
-			$ds = adodb_date($this->fmtDate,$d);
+			$ds = date($this->fmtDate,$d);
 		}
 
 		return "TO_DATE(".$ds.",'".$this->dateformat."')";
@@ -429,7 +435,7 @@ END;
 			$tss = $ts->format("'Y-m-d H:i:s'");
 		}
 		else {
-			$tss = adodb_date("'Y-m-d H:i:s'",$ts);
+			$tss = date("'Y-m-d H:i:s'",$ts);
 		}
 
 		return $tss;
@@ -810,6 +816,11 @@ END;
 			$hint = '';
 		}
 
+		// If non-bound statement, $inputarr is false
+		if (!$inputarr) {
+			$inputarr = array();
+		}
+
 		if ($offset == -1 || ($offset < $this->selectOffsetAlg1 && 0 < $nrows && $nrows < 1000)) {
 			if ($nrows > 0) {
 				if ($offset > 0) {
@@ -817,10 +828,6 @@ END;
 				}
 				$sql = "select * from (".$sql.") where rownum <= :adodb_offset";
 
-				// If non-bound statement, $inputarr is false
-				if (!$inputarr) {
-					$inputarr = array();
-				}
 				$inputarr['adodb_offset'] = $nrows;
 				$nrows = -1;
 			}
@@ -838,32 +845,31 @@ END;
 			}
 			$stmt = $stmt_arr[1];
 
-			if (is_array($inputarr)) {
-				foreach($inputarr as $k => $v) {
-					$i=0;
-					if ($this->databaseType == 'oci8po') {
-						$bv_name = ":".$i++;
+			foreach($inputarr as $k => $v) {
+				$i = 0;
+				if ($this->databaseType == 'oci8po') {
+					$bv_name = ":" . $i++;
+				} else {
+					$bv_name = ":" . $k;
+				}
+				if (is_array($v)) {
+					// suggested by g.giunta@libero.
+					if (sizeof($v) == 2) {
+						oci_bind_by_name($stmt, $bv_name, $inputarr[$k][0], $v[1]);
 					} else {
-						$bv_name = ":".$k;
+						oci_bind_by_name($stmt, $bv_name, $inputarr[$k][0], $v[1], $v[2]);
 					}
-					if (is_array($v)) {
-						// suggested by g.giunta@libero.
-						if (sizeof($v) == 2) {
-							oci_bind_by_name($stmt,$bv_name,$inputarr[$k][0],$v[1]);
-						}
-						else {
-							oci_bind_by_name($stmt,$bv_name,$inputarr[$k][0],$v[1],$v[2]);
-						}
+				} else {
+					$len = -1;
+					if ($v === ' ') {
+						$len = 1;
+					}
+					if (isset($bindarr)) {
+						// prepared sql, so no need to oci_bind_by_name again
+						$bindarr[$k] = $v;
 					} else {
-						$len = -1;
-						if ($v === ' ') {
-							$len = 1;
-						}
-						if (isset($bindarr)) {	// is prepared sql, so no need to oci_bind_by_name again
-							$bindarr[$k] = $v;
-						} else { 				// dynamic sql, so rebind every time
-							oci_bind_by_name($stmt,$bv_name,$inputarr[$k],$len);
-						}
+						// dynamic sql, so rebind every time
+						oci_bind_by_name($stmt, $bv_name, $inputarr[$k], $len);
 					}
 				}
 			}
@@ -1000,16 +1006,6 @@ END;
 		return $rez;
 	}
 
-	/**
-	 * Execute SQL
-	 *
-	 * @param string|array $sql     SQL statement to execute, or possibly an array holding
-	 *                              prepared statement ($sql[0] will hold sql text).
-	 * @param array|false $inputarr holds the input data to bind to.
-	 *                              Null elements will be set to null.
-	 *
-	 * @return ADORecordSet|false
-	 */
 	function Execute($sql,$inputarr=false)
 	{
 		if ($this->fnExecute) {
@@ -1176,10 +1172,11 @@ END;
 		} else
 			$hasref = false;
 
+		/** @var ADORecordset_oci8 $rs */
 		$rs = $this->Execute($stmt);
 		if ($rs) {
 			if ($rs->databaseType == 'array') {
-				oci_free_cursor($stmt[4]);
+				oci_free_statement($stmt[4]);
 			}
 			elseif ($hasref) {
 				$rs->_refcursor = $stmt[4];
@@ -1310,7 +1307,8 @@ END;
 	}
 
 	/**
-	 * returns query ID if successful, otherwise false
+	 * Execute a query.
+	 *
 	 * this version supports:
 	 *
 	 * 1. $db->execute('select * from table');
@@ -1323,6 +1321,11 @@ END;
 	 * 4. $db->prepare('insert into table (a,b,c) values (:0,:1,:2)');
 	 *    $db->bind($stmt,1); $db->bind($stmt,2); $db->bind($stmt,3);
 	 *    $db->execute($stmt);
+	 *
+	 * @param string|array $sql        Query to execute.
+	 * @param array        $inputarr   An optional array of parameters.
+	 *
+	 * @return mixed|bool Query identifier or true if execution successful, false if failed.
 	 */
 	function _query($sql,$inputarr=false)
 	{
@@ -1607,6 +1610,9 @@ SELECT /*+ RULE */ distinct b.column_name
 		if ($this->noNullStrings && strlen($s) == 0) {
 			$s = ' ';
 		}
+		else if (strlen($s) == 0) {
+			return "''";
+		}
 		if ($this->replaceQuote[0] == '\\'){
 			$s = str_replace('\\','\\\\',$s);
 		}
@@ -1625,13 +1631,14 @@ class ADORecordset_oci8 extends ADORecordSet {
 	var $bind=false;
 	var $_fieldobjs;
 
-	function __construct($queryID,$mode=false)
+	/** @var resource Cursor reference */
+	var $_refcursor;
+
+	function __construct($queryID, $mode=false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		switch ($mode) {
+		parent::__construct($queryID, $mode);
+
+		switch ($this->adodbFetchMode) {
 			case ADODB_FETCH_ASSOC:
 				$this->fetchMode = OCI_ASSOC;
 				break;
@@ -1645,8 +1652,6 @@ class ADORecordset_oci8 extends ADORecordSet {
 				break;
 		}
 		$this->fetchMode += OCI_RETURN_NULLS + OCI_RETURN_LOBS;
-		$this->adodbFetchMode = $mode;
-		$this->_queryID = $queryID;
 	}
 
 	/**
@@ -1899,13 +1904,5 @@ class ADORecordset_oci8 extends ADORecordSet {
 		default:
 			return ADODB_DEFAULT_METATYPE;
 		}
-	}
-}
-
-class ADORecordSet_ext_oci8 extends ADORecordSet_oci8 {
-
-	function MoveNext()
-	{
-		return adodb_movenext($this);
 	}
 }

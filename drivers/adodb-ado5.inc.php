@@ -233,7 +233,6 @@ class ADODB_ado extends ADOConnection {
 		return $arr;
 	}
 
-	/* returns queryID or false */
 	function _query($sql,$inputarr=false)
 	{
 		try { // In PHP5, all COM errors are exceptions, so to maintain old behaviour...
@@ -382,16 +381,6 @@ class ADORecordSet_ado extends ADORecordSet {
 	var $_flds; // and field objects
 	var $canSeek = true;
   	var $hideErrors = true;
-
-	function __construct($id,$mode=false)
-	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->fetchMode = $mode;
-		parent::__construct($id);
-	}
 
 
 	// returns the field object
@@ -545,13 +534,13 @@ class ADORecordSet_ado extends ADORecordSet {
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		
+
 		$t = strtoupper($t);
-		
+
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 
-		if (!is_numeric($t)) 
+		if (!is_numeric($t))
 			return $t;
 
 		switch ($t) {
@@ -632,7 +621,7 @@ class ADORecordSet_ado extends ADORecordSet {
 						$val= (float) variant_cast($f->value,VT_R8)*3600*24-2209161600;
 					else
 						$val = $f->value;
-					$this->fields[] = adodb_date('Y-m-d H:i:s',$val);
+					$this->fields[] = date('Y-m-d H:i:s',$val);
 				}
 				break;
 			case 133:// A date value (yyyymmdd)
@@ -647,8 +636,8 @@ class ADORecordSet_ado extends ADORecordSet {
 					if (!is_numeric($f->value)) $val = variant_date_to_timestamp($f->value);
 					else $val = $f->value;
 
-					if (($val % 86400) == 0) $this->fields[] = adodb_date('Y-m-d',$val);
-					else $this->fields[] = adodb_date('Y-m-d H:i:s',$val);
+					if (($val % 86400) == 0) $this->fields[] = date('Y-m-d',$val);
+					else $this->fields[] = date('Y-m-d H:i:s',$val);
 				}
 				break;
 			case 1: // null

@@ -304,13 +304,11 @@ class ADODB_sqlite3 extends ADOConnection {
 		$fmt       = str_replace($fromChars,$toChars,$fmt);
 
 		$fmt = $this->qstr($fmt);
-		return ($col) ? "adodb_date2($fmt,$col)" : "adodb_date($fmt)";
+		return ($col) ? "strftime($fmt,$col)" : "strftime($fmt)";
 	}
 
 	function _createFunctions()
 	{
-		$this->_connectionID->createFunction('adodb_date', 'adodb_date', 1);
-		$this->_connectionID->createFunction('adodb_date2', 'adodb_date2', 2);
 	}
 
 	/** @noinspection PhpUnusedParameterInspection */
@@ -331,7 +329,6 @@ class ADODB_sqlite3 extends ADOConnection {
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename);
 	}
 
-	// returns query ID if successful, otherwise false
 	function _query($sql,$inputarr=false)
 	{
 		$rez = $this->_connectionID->query($sql);
@@ -720,13 +717,10 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	var $_queryID;
 
 	/** @noinspection PhpMissingParentConstructorInspection */
-	function __construct($queryID,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		switch($mode) {
+		parent::__construct($queryID, $mode);
+		switch($this->adodbFetchMode) {
 			case ADODB_FETCH_NUM:
 				$this->fetchMode = SQLITE3_NUM;
 				break;
@@ -737,9 +731,6 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 				$this->fetchMode = SQLITE3_BOTH;
 				break;
 		}
-		$this->adodbFetchMode = $mode;
-
-		$this->_queryID = $queryID;
 
 		$this->_inited = true;
 		$this->fields = array();
@@ -755,7 +746,6 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 
 		return $this->_queryID;
 	}
-
 
 	function FetchField($fieldOffset = -1)
 	{

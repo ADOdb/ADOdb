@@ -19,7 +19,7 @@ If you discover a vulnerability in ADOdb, please contact
 the [project's maintainer](https://github.com/dregad)
 
 - by e-mail (look for it in the Git history)
-- via private chat on [Gitter](https://gitter.im/dregad)
+- via private chat on [Matrix](https://matrix.to/#/@dregad:matrix.org)
 
 Kindly provide the following information in your report:
 

@@ -221,22 +221,62 @@ if (!defined('_ADODB_LAYER')) {
 	// CLASS ADOFieldObject
 	//==============================================================================================
 	/**
-	 * Helper class for FetchFields -- holds info on a column
+	 * Helper class for FetchFields -- holds info on a column.
+	 *
+	 * Note: Dynamic properties are required here, as some drivers may require
+	 * the object to hold database-specific field metadata.
 	 */
+	#[\AllowDynamicProperties]
 	class ADOFieldObject {
-		var $name = '';
-		var $max_length=0;
-		var $type="";
-/*
-		// additional fields by dannym... (danny_milo@yahoo.com)
-		var $not_null = false;
-		// actually, this has already been built-in in the postgres, fbsql AND mysql module? ^-^
-		// so we can as well make not_null standard (leaving it at "false" does not harm anyways)
+		/**
+		 * @var string Field name
+		 */
+		public $name = '';
 
-		var $has_default = false; // this one I have done only in mysql and postgres for now ...
-			// others to come (dannym)
-		var $default_value; // default, if any, and supported. Check has_default first.
-*/
+		/**
+		 * @var int Field size
+		 */
+		public $max_length = 0;
+
+		/**
+		 * @var string Field type.
+		 */
+		public $type = '';
+
+		/**
+		 * @var int|null Numeric field scale.
+		 */
+		public $scale;
+
+		/**
+		 * @var bool True if field can be NULL
+		 */
+		public $not_null = false;
+
+		/**
+		 * @var bool True if field is a primary key
+		 */
+		public $primary_key = false;
+
+		/**
+		 * @var bool True if field is unique key
+		 */
+		public $unique = false;
+
+		/**
+		 * @var bool True if field is automatically incremented
+		 */
+		public $auto_increment = false;
+
+		/**
+		 * @var bool True if field has a default value
+		 */
+		public $has_default = false;
+
+		/**
+		 * @var mixed Default value, if any and supported; check {@see $has_default} first.
+		 */
+		public $default_value;
 	}
 
 
@@ -387,10 +427,7 @@ if (!defined('_ADODB_LAYER')) {
 		 */
 		function getdirname($hash) {
 			global $ADODB_CACHE_DIR;
-			if (!isset($this->notSafeMode)) {
-				$this->notSafeMode = !ini_get('safe_mode');
-			}
-			return ($this->notSafeMode) ? $ADODB_CACHE_DIR.'/'.substr($hash,0,2) : $ADODB_CACHE_DIR;
+			return $ADODB_CACHE_DIR . '/' . substr($hash, 0, 2);
 		}
 
 		/**
@@ -405,7 +442,7 @@ if (!defined('_ADODB_LAYER')) {
 			global $ADODB_CACHE_PERMS;
 
 			$dir = $this->getdirname($hash);
-			if ($this->notSafeMode && !file_exists($dir)) {
+			if (!file_exists($dir)) {
 				$oldu = umask(0);
 				if (!@mkdir($dir, empty($ADODB_CACHE_PERMS) ? 0771 : $ADODB_CACHE_PERMS)) {
 					if(!is_dir($dir) && $debug) {
@@ -458,7 +495,14 @@ if (!defined('_ADODB_LAYER')) {
 	//
 	var $dataProvider = 'native';
 	var $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
-	var $database = '';			/// Name of database to be used.
+
+	/**
+	 * @var string Current database name.
+	 *
+	 * This used to be stored in the $databaseName property, which was marked
+	 * as deprecated in 4.66 and removed in 5.22.5.
+	 */
+	public $database = '';
 
 	/**
 	 * @var string If the driver is PDO, then the dsnType is e.g. sqlsrv, otherwise empty
@@ -469,7 +513,29 @@ if (!defined('_ADODB_LAYER')) {
 	var $port = '';				/// The port of the database server
 	var $user = '';				/// The username which is used to connect to the database server.
 	var $password = '';			/// Password for the username. For security, we no longer store it.
-	var $debug = false;			/// if set to true will output sql statements
+
+	/**
+	 * Debug Mode.
+	 *
+	 * Enables printing of SQL queries execution and additional debugging
+	 * information. Can be enabled/disabled at any time after the database
+	 * Connection has been initialized {@see ADONewConnection()}.
+	 *
+	 * Possible values are:
+	 * - False: Disabled
+	 * - True:  Standard mode, prints executed SQL statements and error
+	 *          information including a Backtrace if the query failed.
+	 * - -1:    Same as standard mode, but without line separators.
+	 * - 99:    Prints a Backtrace after every query execution, even if
+	 *          it was successful.
+	 * - -99:   Debug information is only printed if query execution failed.
+	 *
+	 * @see https://adodb.org/dokuwiki/doku.php?id=v5:userguide:debug
+	 *
+	 * @var bool|int
+	 */
+	public $debug = false;
+
 	var $maxblobsize = 262144;	/// maximum size of blobs or large text fields (262144 = 256K)-- some db's die otherwise like foxpro
 	var $concat_operator = '+'; /// default concat operator -- change to || for Oracle/Interbase
 	var $substr = 'substr';		/// substring operator
@@ -485,8 +551,33 @@ if (!defined('_ADODB_LAYER')) {
 	var $leftBracket = '[';		/// left square bracked for t-sql styled column names
 	var $rightBracket = ']';	/// right square bracked for t-sql styled column names
 	var $charSet=false;			/// character set to use - only for interbase, postgres and oci8
+
+	/** @var string SQL statement to get databases */
 	var $metaDatabasesSQL = '';
+
+	/** @var string SQL statement to get database tables */
 	var $metaTablesSQL = '';
+
+	/** @var string SQL statement to get table columns. */
+	var $metaColumnsSQL;
+
+	/**
+	 * SQL statement to get the last IDENTITY value inserted into an IDENTITY
+	 * column in the same scope.
+	 * @see https://learn.microsoft.com/en-us/sql/t-sql/functions/scope-identity-transact-sql
+	 * @var string
+	 */
+	var $identitySQL;
+
+	/** @var string SQL statement to create a Sequence . */
+	var $_genSeqSQL;
+
+	/** @var string SQL statement to drop a Sequence. */
+	var $_dropSeqSQL;
+
+	/** @var string SQL statement to generate a Sequence ID. */
+	var $_genIDSQL;
+
 	var $uniqueOrderBy = false; /// All order by columns have to be unique
 	var $emptyDate = '&nbsp;';
 	var $emptyTimeStamp = '&nbsp;';
@@ -584,6 +675,10 @@ if (!defined('_ADODB_LAYER')) {
 
 	var $null2null = 'null'; // in autoexecute/getinsertsql/getupdatesql, this value will be converted to a null
 	var $bulkBind = false; // enable 2D Execute array
+
+	/** @var string SQL statement executed by some drivers after successful connection. */
+	public $connectStmt = '';
+
 	//
 	// PRIVATE VARS
 	//
@@ -591,14 +686,34 @@ if (!defined('_ADODB_LAYER')) {
 	var $_transOK = null;
 	/** @var resource Identifier for the native database connection */
 	var $_connectionID = false;
-	var $_errorMsg = false;		/// A variable which was used to keep the returned last error message.  The value will
-								/// then returned by the errorMsg() function
-	var $_errorCode = false;	/// Last error code, not guaranteed to be used - only by oci8
+
+	/**
+	 * Stores the last returned error message.
+	 * @see ADOConnection::errorMsg()
+	 * @var string|false
+	 */
+	var $_errorMsg = false;
+
+	/**
+	 * Stores the last returned error code.
+	 * Not guaranteed to be used. Only some drivers actually populate it.
+	 * @var int|false
+	 */
+	var $_errorCode = false;
+
 	var $_queryID = false;		/// This variable keeps the last created result link identifier
 
 	var $_isPersistentConnection = false;	/// A boolean variable to state whether its a persistent connection or normal connection.	*/
 	var $_bindInputArray = false; /// set to true if ADOConnection.Execute() permits binding of array parameters.
-	var $_evalAll = false;
+
+	/**
+	 * Eval string used to filter data.
+	 * Only used in the deprecated Text driver.
+	 * @see https://adodb.org/dokuwiki/doku.php?id=v5:database:text#workaround
+	 * @var string
+	 */
+	var $evalAll = false;
+
 	var $_affected = false;
 	var $_logsql = false;
 	var $_transmode = ''; // transaction mode
@@ -632,6 +747,12 @@ if (!defined('_ADODB_LAYER')) {
 	 * );
 	 */
 	public $customMetaTypes = array();
+
+	/** @var ADORecordSet Recordset used to retrieve MetaType information */
+	var $_metars;
+
+	/** @var string a specified locale. */
+	var $locale;
 
 
 	/**
@@ -791,21 +912,15 @@ if (!defined('_ADODB_LAYER')) {
 			return;
 		}
 
-		if ($newline) {
-			$msg .= "<br>\n";
-		}
-
-		if (isset($_SERVER['HTTP_USER_AGENT']) || !$newline) {
-			echo $msg;
+		if (isset($_SERVER['HTTP_USER_AGENT'])) {
+			echo $msg . ($newline ? '<br>' :'');
 		} else {
-			echo strip_tags($msg);
+			echo strip_tags($msg) . ($newline ? PHP_EOL : '');
 		}
-
 
 		if (!empty($ADODB_FLUSH) && ob_get_length() !== false) {
 			flush(); //  do not flush if output buffering enabled - useless - thx to Jesse Mullan
 		}
-
 	}
 
 	/**
@@ -840,6 +955,20 @@ if (!defined('_ADODB_LAYER')) {
 			$this->port = $parsed_url['port'];
 		}
 	}
+
+	/**
+	 * Low-level, driver-specific method to connect to the database.
+	 *
+	 * @param string $argHostname     Host to connect to
+	 * @param string $argUsername     Userid to login
+	 * @param string $argPassword     Associated password
+	 * @param string $argDatabaseName Database name
+	 *
+	 * @return bool
+	 * @internal
+	 * @TODO propagate *protected* visibility to child classes
+	 */
+	abstract protected function _connect($argHostname, $argUsername, $argPassword, $argDatabaseName);
 
 	/**
 	 * Connect to database.
@@ -902,7 +1031,10 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Always force a new connection to database.
+	 * Low-level method to force a new connection to the database.
+	 *
+	 * Unless the child Driver class overrides it, this method is the same as
+	 * {@see _connect()}.
 	 *
 	 * @param string $argHostname     Host to connect to
 	 * @param string $argUsername     Userid to login
@@ -910,15 +1042,17 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param string $argDatabaseName Database name
 	 *
 	 * @return bool
+	 * @internal
+	 * @TODO propagate *protected* visibility to child classes
 	 */
-	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName) {
+	protected function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName) {
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName);
 	}
 
 	/**
-	 * Always force a new connection to database.
+	 * Always force a new connection to the database.
 	 *
-	 * Currently this only works with Oracle.
+	 * This is only supported by some drivers.
 	 *
 	 * @param string $argHostname     Host to connect to
 	 * @param string $argUsername     Userid to login
@@ -929,6 +1063,25 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function NConnect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "") {
 		return $this->Connect($argHostname, $argUsername, $argPassword, $argDatabaseName, true);
+	}
+
+	/**
+	 * Low-level method to establish a persistent connection to the database.
+	 *
+	 * Unless the child Driver class overrides it, this method is the same as
+	 * {@see _connect()}.
+	 *
+	 * @param string $argHostname     Host to connect to
+	 * @param string $argUsername     Userid to login
+	 * @param string $argPassword     Associated password
+	 * @param string $argDatabaseName Database name
+	 *
+	 * @return bool
+	 * @internal
+	 * @TODO propagate *protected* visibility to child classes
+	 */
+	protected function _pconnect($argHostname, $argUsername, $argPassword, $argDatabaseName) {
+		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName);
 	}
 
 	/**
@@ -1403,7 +1556,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param array|bool $inputarr holds the input data to bind to.
 	 *                             Null elements will be set to null.
 	 *
-	 * @return ADORecordSet|bool
+	 * @return ADORecordSet|false
 	 */
 	public function Execute($sql, $inputarr = false) {
 		if ($this->fnExecute) {
@@ -1556,9 +1709,6 @@ if (!defined('_ADODB_LAYER')) {
 
 		// error handling if query fails
 		if ($this->_queryID === false) {
-			if ($this->debug == 99) {
-				adodb_backtrace(true,5);
-			}
 			$fn = $this->raiseErrorFn;
 			if ($fn) {
 				$fn($this->databaseType,'EXECUTE',$this->ErrorNo(),$this->ErrorMsg(),$sql,$inputarr,$this);
@@ -1604,6 +1754,18 @@ if (!defined('_ADODB_LAYER')) {
 			}
 		}
 		return $rs;
+	}
+
+	/**
+	 * Execute a query.
+	 *
+	 * @param string|array $sql        Query to execute.
+	 * @param array        $inputarr   An optional array of parameters.
+	 *
+	 * @return mixed|bool Query identifier or true if execution successful, false if failed.
+	 */
+	function _query($sql, $inputarr = false) {
+		return false;
 	}
 
 	function CreateSequence($seqname='adodbseq',$startID=1) {
@@ -2421,7 +2583,7 @@ if (!defined('_ADODB_LAYER')) {
 	 *  - userid
 	 *  - setFetchMode (adodb 4.23)
 	 *
-	 * When not in safe mode, we create 256 sub-directories in the cache directory ($ADODB_CACHE_DIR).
+	 * We create 256 sub-directories in the cache directory ($ADODB_CACHE_DIR).
 	 * Assuming that we can have 50,000 files per directory with good performance,
 	 * then we can scale to 12.8 million unique cached recordsets. Wow!
 	 */
@@ -2562,34 +2724,32 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 
-	/*
-
-
-		$forceUpdate .
-	 */
 	/**
-	 * Similar to PEAR DB's autoExecute(), except that $mode can be 'INSERT'
-	 * or 'UPDATE' or DB_AUTOQUERY_INSERT or DB_AUTOQUERY_UPDATE.
-	 * If $mode == 'UPDATE', then $where is compulsory as a safety measure.
+	 * Simple interface to insert and update records.
 	 *
-	 * @param $table
-	 * @param $fields_values
-	 * @param string $mode
-	 * @param false $where
-	 * @param bool $forceUpdate  If true, perform update even if the data has not changed.
-	 * @param bool $magic_quotes This param is not used since 5.21.0.
-	 *                           It remains for backwards compatibility.
+	 * Automatically generate and execute INSERT and UPDATE statements
+	 * on a given table, similar to PEAR DB's autoExecute().
+	 *
+	 * @param string $table        Name of the table to process.
+	 * @param array $fields_values Associative array of field names => values.
+	 * @param string|int $mode     Execution mode: 'INSERT' (default), 'UPDATE' or
+	 *                             one of the DB_AUTOQUERY_xx constants.
+	 * @param string $where        SQL where clause (mandatory in UPDATE mode as a safety measure)
+	 * @param bool $forceUpdate    If true, update all provided fields, even if they have not changed;
+	 * 							   otherwise only modified fields are updated.
+	 * @param bool $magic_quotes   This param is not used since 5.21.0.
+	 *                             It remains for backwards compatibility.
 	 *
 	 * @return bool
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	function AutoExecute($table, $fields_values, $mode = 'INSERT', $where = false, $forceUpdate = true, $magic_quotes = false) {
+	function autoExecute($table, $fields_values, $mode = 'INSERT', $where = '', $forceUpdate = true, $magic_quotes = false) {
 		if (empty($fields_values)) {
 			$this->outp_throw('AutoExecute: Empty fields array', 'AutoExecute');
 			return false;
 		}
-		if ($where === false && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */) ) {
+		if (empty($where) && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */)) {
 			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause', 'AutoExecute');
 			return false;
 		}
@@ -2601,7 +2761,7 @@ if (!defined('_ADODB_LAYER')) {
 		}
 
 		$rs->tableName = $table;
-		if ($where !== false) {
+		if (!empty($where)) {
 			$sql .= " WHERE $where";
 		}
 		$rs->sql = $sql;
@@ -3273,7 +3433,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$d = ADOConnection::UnixDate($d);
 		}
 
-		return adodb_date($this->fmtDate,$d);
+		return date($this->fmtDate,$d);
 	}
 
 	function BindDate($d) {
@@ -3315,7 +3475,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		# strlen(14) allows YYYYMMDDHHMMSS format
 		if (!is_string($ts) || (is_numeric($ts) && strlen($ts)<14)) {
-			return adodb_date($this->fmtTimeStamp,$ts);
+			return date($this->fmtTimeStamp,$ts);
 		}
 
 		if ($ts === 'null') {
@@ -3326,7 +3486,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			return "'$ts'";
 		}
 		$ts = ADOConnection::UnixTimeStamp($ts);
-		return adodb_date($this->fmtTimeStamp,$ts);
+		return date($this->fmtTimeStamp,$ts);
 	}
 
 	/**
@@ -3339,7 +3499,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (is_object($v)) {
 		// odbtp support
 		//( [year] => 2004 [month] => 9 [day] => 4 [hour] => 12 [minute] => 44 [second] => 8 [fraction] => 0 )
-			return adodb_mktime($v->hour,$v->minute,$v->second,$v->month,$v->day, $v->year);
+			return mktime($v->hour,$v->minute,$v->second,$v->month,$v->day, $v->year);
 		}
 
 		if (is_numeric($v) && strlen($v) !== 8) {
@@ -3354,7 +3514,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 
 		// h-m-s-MM-DD-YY
-		return @adodb_mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
+		return mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
 	}
 
 
@@ -3368,7 +3528,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if (is_object($v)) {
 		// odbtp support
 		//( [year] => 2004 [month] => 9 [day] => 4 [hour] => 12 [minute] => 44 [second] => 8 [fraction] => 0 )
-			return adodb_mktime($v->hour,$v->minute,$v->second,$v->month,$v->day, $v->year);
+			return mktime($v->hour,$v->minute,$v->second,$v->month,$v->day, $v->year);
 		}
 
 		if (!preg_match(
@@ -3381,9 +3541,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 		// h-m-s-MM-DD-YY
 		if (!isset($rr[5])) {
-			return  adodb_mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
+			return mktime(0,0,0,$rr[2],$rr[3],$rr[1]);
 		}
-		return @adodb_mktime($rr[5],$rr[6],$rr[7],$rr[2],$rr[3],$rr[1]);
+		return mktime($rr[5],$rr[6],$rr[7],$rr[2],$rr[3],$rr[1]);
 	}
 
 	/**
@@ -3409,8 +3569,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			// pre-TIMESTAMP_FIRST_YEAR
 		}
 
-		return ($gmt) ? adodb_gmdate($fmt,$tt) : adodb_date($fmt,$tt);
-
+		return ($gmt) ? gmdate($fmt,$tt) : date($fmt,$tt);
 	}
 
 	/**
@@ -3428,7 +3587,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 		# strlen(14) allows YYYYMMDDHHMMSS format
 		if (is_numeric($v) && strlen($v)<14) {
-			return ($gmt) ? adodb_gmdate($fmt,$v) : adodb_date($fmt,$v);
+			return ($gmt) ? gmdate($fmt,$v) : date($fmt,$v);
 		}
 		$tt = $this->UnixTimeStamp($v);
 		// $tt == -1 if pre TIMESTAMP_FIRST_YEAR
@@ -3438,7 +3597,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		if ($tt == 0) {
 			return $this->emptyTimeStamp;
 		}
-		return ($gmt) ? adodb_gmdate($fmt,$tt) : adodb_date($fmt,$tt);
+		return ($gmt) ? gmdate($fmt,$tt) : date($fmt,$tt);
 	}
 
 	/**
@@ -3496,20 +3655,21 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	 * Will select the supplied $page number from a recordset, given that it is paginated in pages of
-	 * $nrows rows per page. It also saves two boolean values saying if the given page is the first
-	 * and/or last one of the recordset. Added by Iván Oliva to provide recordset pagination.
+	 * Execute query with pagination.
 	 *
-	 * See docs-adodb.htm#ex8 for an example of usage.
-	 * NOTE: phpLens uses a different algorithm and does not use PageExecute().
+	 * Will select the supplied $page number from a recordset, divided in
+	 * pages of $nrows rows each. It also saves two boolean values saying
+	 * if the given page is the first and/or last one of the recordset.
 	 *
-	 * @param string $sql
-	 * @param int    $nrows          Number of rows per page to get
-	 * @param int    $page           Page number to get (1-based)
-	 * @param mixed[]|bool $inputarr Array of bind variables
-	 * @param int    $secs2cache     Private parameter only used by jlim
+	 * @param string     $sql        Query to execute
+	 * @param int        $nrows      Number of rows per page
+	 * @param int        $page       Page number to retrieve (1-based)
+	 * @param array|bool $inputarr   Array of bind variables
+	 * @param int        $secs2cache Time-to-live of the cache (in seconds), 0 to force query execution
 	 *
-	 * @return mixed		the recordset ($rs->databaseType == 'array')
+	 * @return ADORecordSet|bool the recordset ($rs->databaseType == 'array')
+	 *
+	 * @author Iván Oliva
 	 */
 	function PageExecute($sql, $nrows, $page, $inputarr=false, $secs2cache=0) {
 		global $ADODB_INCLUDED_LIB;
@@ -3676,17 +3836,55 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 } // end class ADOConnection
 
-
-
-	//==============================================================================================
-	// CLASS ADOFetchObj
-	//==============================================================================================
-
 	/**
-	 * Internal placeholder for record objects. Used by ADORecordSet->FetchObj().
+	 * RecordSet fields data as object.
+	 *
+	 * @see ADORecordSet::fetchObj(), ADORecordSet::fetchObject(),
+	 * @see ADORecordSet::fetchNextObj(), ADORecordSet::fetchNextObject()
 	 */
 	class ADOFetchObj {
-	};
+		/** @var array The RecordSet's fields */
+		protected $data;
+
+		/**
+		 * Constructor.
+		 *
+		 * @param array $fields Associative array with RecordSet's fields (name => value)
+		 */
+		public function __construct(array $fields = [])
+		{
+			$this->data = $fields;
+		}
+
+		public function __set(string $name, $value)
+		{
+			$this->data[$name] = $value;
+		}
+
+		public function __get(string $name)
+		{
+			if (isset($this->data[$name])) {
+				return $this->data[$name];
+			}
+			ADOConnection::outp("Unknown field: $name");
+			return null;
+		}
+
+		public function __isset($name)
+		{
+			return isset($this->data[$name]);
+		}
+
+		public function __debugInfo()
+		{
+			return $this->data;
+		}
+
+		public static function __set_state(array $data)
+		{
+			return new self($data['data']);
+		}
+	}
 
 	/**
 	 * Class ADODB_Iterator_empty
@@ -3813,13 +4011,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 	}
 
-	//==============================================================================================
-	// DATE AND TIME FUNCTIONS
-	//==============================================================================================
-	if (!defined('ADODB_DATE_VERSION')) {
-		include_once(ADODB_DIR.'/adodb-time.inc.php');
-	}
-
 	/**
 	 * Class ADODB_Iterator
 	 */
@@ -3875,11 +4066,21 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
  * means recordcount not known).
  */
 class ADORecordSet implements IteratorAggregate {
+	/**
+	 * Used for cases when a recordset object is not created by executing a query.
+	 */
+	const DUMMY_QUERY_ID = -1;
 
 	/**
 	 * public variables
 	 */
 	var $dataProvider = "native";
+
+	/**
+	 * @var string Table name (used in _adodb_getupdatesql() and _adodb_getinsertsql())-
+	 */
+	public $tableName = '';
+
 	/** @var bool|array  */
 	var $fields = false;	/// holds the current row data
 	var $blobSize = 100;	/// any varchar/char field this size or greater is treated as a blob
@@ -3894,7 +4095,7 @@ class ADORecordSet implements IteratorAggregate {
 	var $timeCreated=0;		/// datetime in Unix format rs created -- for cached recordsets
 
 	var $bind = false;		/// used by Fields() to hold array - should be private?
-	var $fetchMode;			/// default fetch mode
+
 	/** @var ADOConnection The parent connection */
 	var $connection = false;
 	/**
@@ -3902,41 +4103,64 @@ class ADORecordSet implements IteratorAggregate {
 	 */
 	var $_numOfRows = -1;	/** number of rows, or -1 */
 	var $_numOfFields = -1;	/** number of fields in recordset */
-	/** @var resource result link identifier */
-	var $_queryID = -1;
+
+	/**
+	 * @var resource|int|false result link identifier
+	 */
+	var $_queryID = self::DUMMY_QUERY_ID;
+
 	var $_currentRow = -1;	/** This variable keeps the current row in the Recordset.	*/
 	var $_closed = false;	/** has recordset been closed */
 	var $_inited = false;	/** Init() should only be called once */
-	var $_obj;				/** Used by FetchObj */
-	var $_names;			/** Used by FetchObj */
 
-	var $_currentPage = -1;	/** Added by Iván Oliva to implement recordset pagination */
-	var $_atFirstPage = false;	/** Added by Iván Oliva to implement recordset pagination */
-	var $_atLastPage = false;	/** Added by Iván Oliva to implement recordset pagination */
+	// Recordset pagination
+	/** @var int Number of rows per page */
+	var $rowsPerPage;
+	/** @var int Current page number */
+	var $_currentPage = -1;
+	/** @var bool True if current page is the first page */
+	var $_atFirstPage = false;
+	/** @var bool True if current page is the last page */
+	var $_atLastPage = false;
+	/** @var int Last page number */
 	var $_lastPageNo = -1;
+	/** @var int Total number of rows in recordset */
 	var $_maxRecordCount = 0;
+
 	var $datetime = false;
 
 	public $customActualTypes;
 	public $customMetaTypes;
 
+	/** @var int Only used in _adodb_getinsertsql() */
+	public $insertSig;
 
 	/**
-	* @var ADOFieldObject[] Field metadata cache
-	* @see fieldTypesArray()
+	 * @var ADOFieldObject[] Field metadata cache
+	 * @see fieldTypesArray()
 	 */
 	protected $fieldObjectsCache;
-	
+
 	/**
-	* @var bool True if we have retrieved the fields metadata
-	*/
+	 * @var bool True if we have retrieved the fields metadata
+	 */
 	protected $fieldObjectsRetrieved = false;
 
-	/*
-	* Cross-reference the objects by name for easy access
-	*/
+	/**
+	 * @var array Cross-reference the objects by name for easy access
+	 */
 	protected $fieldObjectsIndex = array();
 
+	/**
+	 * @var bool|int Driver-specific fetch mode
+	 */
+	var $fetchMode;
+
+	/**
+	 * @var int Defines the Fetch Mode for a recordset
+	 * See the ADODB_FETCH_* constants
+	 */
+	public $adodbFetchMode;
 
 	/**
 	 * Constructor
@@ -3944,7 +4168,13 @@ class ADORecordSet implements IteratorAggregate {
 	 * @param resource|int $queryID Query ID returned by ADOConnection->_query()
 	 * @param int|bool     $mode    The ADODB_FETCH_MODE value
 	 */
-	function __construct($queryID,$mode=false) {
+	function __construct($queryID, $mode=false) {
+		if ($mode === false) {
+			global $ADODB_FETCH_MODE;
+			$mode = $ADODB_FETCH_MODE;
+		}
+		$this->adodbFetchMode = $this->fetchMode = $mode;
+
 		$this->_queryID = $queryID;
 	}
 
@@ -4279,9 +4509,7 @@ class ADORecordSet implements IteratorAggregate {
 			switch ($showArrayMethod) {
 			case 0:
 
-				if ($fetchMode == ADODB_FETCH_ASSOC
-				||  $fetchMode == ADODB_FETCH_BOTH)
-				{
+				if ($fetchMode != ADODB_FETCH_NUM) {
 					/*
 					* The driver should have already handled the key
 					* casing, but in case it did not. We will check and force
@@ -4336,7 +4564,7 @@ class ADORecordSet implements IteratorAggregate {
 	 */
 	function UserTimeStamp($v,$fmt='Y-m-d H:i:s') {
 		if (is_numeric($v) && strlen($v)<14) {
-			return adodb_date($fmt,$v);
+			return date($fmt,$v);
 		}
 		$tt = $this->UnixTimeStamp($v);
 		// $tt == -1 if pre TIMESTAMP_FIRST_YEAR
@@ -4346,7 +4574,7 @@ class ADORecordSet implements IteratorAggregate {
 		if ($tt === 0) {
 			return $this->emptyTimeStamp;
 		}
-		return adodb_date($fmt,$tt);
+		return date($fmt,$tt);
 	}
 
 
@@ -4366,7 +4594,7 @@ class ADORecordSet implements IteratorAggregate {
 		} else if ($tt == -1) {
 			// pre-TIMESTAMP_FIRST_YEAR
 		}
-		return adodb_date($fmt,$tt);
+		return date($fmt,$tt);
 	}
 
 
@@ -4804,76 +5032,59 @@ class ADORecordSet implements IteratorAggregate {
 	}
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default case is lowercase field names.
+	 * Return the current row as an object for convenience.
 	 *
-	 * @return the object with the properties set to the fields of the current row
+	 * @return ADOFetchObj The object with properties set to the current row's fields.
 	 */
-	function FetchObj() {
-		return $this->FetchObject(false);
+	function fetchObj() {
+		return $this->fetchObject(false);
 	}
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default case is uppercase.
+	 * Return the current row as an object for convenience.
 	 *
-	 * @param bool $isUpper to set the object property names to uppercase
+	 * Field names are converted to uppercase by default.
 	 *
-	 * @return ADOFetchObj The object with properties set to the fields of the current row
+	 * @param bool $isUpper True to convert field names to uppercase.
+	 *
+	 * @return ADOFetchObj The object with properties set to the current row's fields.
 	 */
-	function FetchObject($isUpper=true) {
-		if (empty($this->_obj)) {
-			$this->_obj = new ADOFetchObj();
-			$this->_names = array();
-			for ($i=0; $i <$this->_numOfFields; $i++) {
-				$f = $this->FetchField($i);
-				$this->_names[] = $f->name;
-			}
+	function fetchObject($isUpper = true) {
+		$fields = [];
+		foreach ($this->fieldTypesArray() as $metadata) {
+			$fields[$metadata->name] = $this->fields($metadata->name);
 		}
-		$o = clone($this->_obj);
-
-		for ($i=0; $i <$this->_numOfFields; $i++) {
-			$name = $this->_names[$i];
-			if ($isUpper) {
-				$n = strtoupper($name);
-			} else {
-				$n = $name;
-			}
-
-			$o->$n = $this->Fields($name);
+		if ($isUpper) {
+			$fields = array_change_key_case($fields, CASE_UPPER);
 		}
-		return $o;
+		return new ADOFetchObj($fields);
 	}
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default is lower-case field names.
+	 * Return the current row as an object for convenience and move to next row.
 	 *
-	 * @return ADOFetchObj|false The object with properties set to the fields of the current row
+	 * @return ADOFetchObj|false The object with properties set to the current row's fields.
 	 *                           or false if EOF.
-	 *
-	 * Fixed bug reported by tim@orotech.net
 	 */
-	function FetchNextObj() {
-		return $this->FetchNextObject(false);
+	function fetchNextObj() {
+		return $this->fetchNextObject(false);
 	}
 
 
 	/**
-	 * Return the fields array of the current row as an object for convenience.
-	 * The default is upper case field names.
+	 * Return the current row as an object for convenience and move to next row.
 	 *
-	 * @param bool $isUpper to set the object property names to uppercase
+	 * Field names are converted to uppercase by default.
 	 *
-	 * @return ADOFetchObj|false The object with properties set to the fields of the current row
+	 * @param bool $isUpper True to convert field names to uppercase.
+	 *
+	 * @return ADOFetchObj|false The object with properties set to the current row's fields.
 	 *                           or false if EOF.
-	 *
-	 * Fixed bug reported by tim@orotech.net
 	 */
-	function FetchNextObject($isUpper=true) {
+	function fetchNextObject($isUpper=true) {
 		$o = false;
 		if ($this->_numOfRows != 0 && !$this->EOF) {
-			$o = $this->FetchObject($isUpper);
+			$o = $this->fetchObject($isUpper);
 			$this->_currentRow++;
 			if ($this->_fetch()) {
 				return $o;
@@ -5173,14 +5384,12 @@ class ADORecordSet implements IteratorAggregate {
 		 * @param int|bool     $mode    The ADODB_FETCH_MODE value
 		 */
 		function __construct($queryID, $mode=false) {
-			global $ADODB_FETCH_MODE,$ADODB_COMPAT_FETCH;
+			parent::__construct(self::DUMMY_QUERY_ID);
 
 			// fetch() on EOF does not delete $this->fields
+			global $ADODB_COMPAT_FETCH;
 			$this->compat = !empty($ADODB_COMPAT_FETCH);
-			parent::__construct($queryID); // fake queryID
-			$this->fetchMode = $ADODB_FETCH_MODE;
 		}
-
 
 		/**
 		 * Setup the array.
@@ -5467,7 +5676,6 @@ class ADORecordSet implements IteratorAggregate {
 		if (!defined('ADODB_ASSOC_CASE')) {
 			define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_NATIVE);
 		}
-
 		/*
 		* If we have a pdo and drivern in format \\, we
 		* need to remove the driver portion of the file
@@ -5824,6 +6032,7 @@ class ADORecordSet implements IteratorAggregate {
 		include_once($path);
 		
 		$class = "ADODB2_$cName";
+		/** @var ADODB_DataDict $dict */
 		$dict = new $class();
 		$dict->dataProvider = $conn->dataProvider;
 		$dict->connection = $conn;

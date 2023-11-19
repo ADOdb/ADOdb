@@ -164,30 +164,13 @@ def sed_script(version):
     Build sed script to update version information in source files.
     """
     # Version number and release date
-    script = r"s/{0}\s+{1}/v{2}  {3}/".format(
+    script = r"/ADODB_vers/s/{0}(\s+{1})?/v{2}  {3}/".format(
         _version_regex,
         _release_date_regex,
         version,
         get_release_date(version)
     )
     return script
-
-
-def sed_filelist():
-    """
-    Build list of files to update.
-    """
-    dirlist = []
-    for root, dirs, files in os.walk(".", topdown=True):
-        # Filter files by extensions
-        files = [
-            f for f in files
-            if re.search(r'\.php$', f, re.IGNORECASE)
-            ]
-        for fname in files:
-            dirlist.append(path.join(root, fname))
-
-    return dirlist
 
 
 def sed_run(script, files):
@@ -333,6 +316,9 @@ def update_changelog(version):
         else:
             version_previous = False
 
+    # Remove patch component from previous version (x.y.z -> x.y)
+    version_nopatch = version_parse(version_previous).group(1)
+
     # If version exists, update the release date
     if section_exists(_changelog_file, version):
         print('updating release date')
@@ -341,6 +327,11 @@ def update_changelog(version):
             version,
             get_release_date(version)
             )
+        # Set version link's target to release tag
+        script += r";/^\[{0}\]/s/(\.\.\.).*$/\1v{0}/".format(
+            version_release
+            )
+
     else:
         # If it's a .0 release, treat it as dev
         if (not version_is_patch(version)
@@ -373,13 +364,33 @@ def update_changelog(version):
             version_section += "\\n\\n\\0"
 
         if version_previous:
-            # Adjust previous version number (remove patch component)
-            version_previous = version_parse(version_previous).group(1)
+            # Insert new section
             script = r"1,/^## \[({0}|{2})/s/^## \[({0}|{2}).*$/{1}/".format(
-                version_previous,
+                version_nopatch,
                 version_section,
                 version_release
                 )
+
+            # Version number link target
+            link_head = "v" + version
+            if version_is_patch(version_release):
+                link_search = version_previous
+                if version_is_dev(version):
+                    link_head = r"hotfix\/" + version_nopatch
+            else:
+                if version_is_prerelease(version):
+                    link_search = version_release
+                else:
+                    link_search = version_nopatch
+                if version_is_dev(version):
+                    link_head = r"master\n"
+            link_target = r"[{0}]: {1}v{2}...{3}".format(
+                version_release if not version_is_prerelease(version) else version,
+                "https://github.com/adodb/adodb/compare/".replace('/', r'\/'),
+                version_previous,
+                link_head
+                )
+            script += r";0,/^\[{0}/s//{1}\n&/".format(link_search, link_target)
 
         # We don't have a previous version, insert before the first section
         else:
@@ -404,7 +415,7 @@ def version_set(version, do_commit=True, do_tag=True):
     update_changelog(version)
 
     print("Updating version and date in source files")
-    sed_run(sed_script(version), " ".join(sed_filelist()))
+    sed_run(sed_script(version), "adodb.inc.php")
     print("Version set to {0}".format(version))
 
     if do_commit:
