@@ -119,15 +119,6 @@ class ADODB_pdo extends ADOConnection
 	*/
 	public $pdoParameters = array();
 
-	/*
-	* Set which style is used to bind parameters
-	*
-	* BIND_USE_QUESTION_MARKS   = Use only question marks
-	* BIND_USE_NAMED_PARAMETERS = Use only named parameters
-	* BIND_USE_BOTH             = Use both question marks and named parameters (Default)
-	*/
-	public $bindParameterStyle = self::BIND_USE_BOTH;
-
 	/**
 	 * Connect to a database.
 	 *
@@ -663,58 +654,6 @@ class ADODB_pdo extends ADOConnection
 		return parent::qStr($s,$magic_quotes);
 	}
 
-	/**
-	 * Make bind parameters conform to settings.
-	 *
-	 * @param string $sql
-	 * @param array $inputarr
-	 * @return array
-	 */
-	private function conformToBindParameterStyle($sql, $inputarr)
-	{
-		switch ($this->bindParameterStyle)
-		{
-			case self::BIND_USE_QUESTION_MARKS:
-			default:
-				$inputarr = array_values($inputarr);
-				break;
-
-			case self::BIND_USE_NAMED_PARAMETERS:
-				break;
-
-			case self::BIND_USE_BOTH:
-				// inputarr must be numeric if SQL contains a question mark
-				if ($this->containsQuestionMarkPlaceholder($sql)) {
-					$inputarr = array_values($inputarr);
-
-					if ($this->debug) {
-						ADOconnection::outp('improve the performance of this query by setting the bindParameterStyle to BIND_USE_QUESTION_MARKS');
-					}
-				}
-				break;
-		}
-
-		return $inputarr;
-	}
-
-	/**
-	 * Checks for the inclusion of a question mark placeholder.
-	 *
-	 * @param string $sql   SQL string
-	 * @return boolean      Returns true if a question mark placeholder is included
-	 */
-	private function containsQuestionMarkPlaceholder($sql)
-	{
-		$pattern = '/(.\?(:?.|$))/';
-		if (preg_match_all($pattern, $sql, $matches, PREG_SET_ORDER)) {
-			foreach ($matches as $match) {
-				if ($match[1] !== '`?`' && strpos($match[1], '??') === false) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
 }
 
 /**
