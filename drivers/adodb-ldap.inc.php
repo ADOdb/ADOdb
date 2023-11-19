@@ -34,20 +34,21 @@ if (!defined('LDAP_ASSOC')) {
 class ADODB_ldap extends ADOConnection {
 	public $databaseType = 'ldap';
 	public $dataProvider = 'ldap';
-		
-	/*
-	* Caches the version info
-	*/
-	protected $version;
-	
 
-	/*
-	* Options configuration information
-	* @deprecated 5.23
-	*/
+	/**
+	 * @var string[] Caches the version info
+	 */
+	protected $version;
+
+	/**
+	 * @var string Options configuration information
+	 * @deprecated 5.23.0 Use setConnectionParameter() instead
+	 */
 	public $LDAP_CONNECT_OPTIONS;
 
-	# error on binding, eg. "Binding: invalid credentials"
+	/**
+	 * @var string Bind error message, eg. "Binding: invalid credentials"
+	 */
 	protected $_bind_errmsg = "Binding: %s";
 
 	protected $connectionParameters = array(
@@ -57,9 +58,9 @@ class ADODB_ldap extends ADOConnection {
 
 	
 	/**
-	 * Connect to a AD Server
+	 * Connect to an LDAP Server
 	 *
-	 * @param string|null $ldapServer The AD Server to connect to.
+	 * @param string|null $ldapServer The LDAP Server to connect to.
 	 * @param string|null $username The username to connect as.
 	 * @param string|null $password The password to connect with.
 	 * @param string|null $ldapbase The Base DN
@@ -195,7 +196,7 @@ class ADODB_ldap extends ADOConnection {
 	/**
 	 * Converts old style global options into connection parameters
 	 *
-	 * @deprecated 5.23
+	 * @deprecated 5.23.0
 	 * @param array $options
 	 * @return void
 	 */
@@ -215,8 +216,8 @@ class ADODB_ldap extends ADOConnection {
 	 * @param string|array $ldapQuery   Query to execute.
 	 * @param array        $inputarr   [Ignored] An optional array of parameters.
 	 *
-	 * @return ldap_query|bool
-	*/
+	 * @return resource|false
+	 */
 	function _query($ldapQuery,$inputarr=false)
 	{
 		
@@ -265,7 +266,7 @@ class ADODB_ldap extends ADOConnection {
 	/**
 	 * Get server version info.
 	 *
-	 * @return string[] Array with multiple string elements that define the connection
+	 * @return string[]|false Array with multiple string elements that define the connection
 	 */
 	public function serverInfo()
 	{
