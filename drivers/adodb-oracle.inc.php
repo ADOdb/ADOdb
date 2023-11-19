@@ -41,7 +41,7 @@ class ADODB_oracle extends ADOConnection {
 	{
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
 		if (is_object($d)) $ds = $d->format($this->fmtDate);
-		else $ds = adodb_date($this->fmtDate,$d);
+		else $ds = date($this->fmtDate,$d);
 		return 'TO_DATE('.$ds.",'YYYY-MM-DD')";
 	}
 
@@ -51,7 +51,7 @@ class ADODB_oracle extends ADOConnection {
 
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
 		if (is_object($ts)) $ds = $ts->format($this->fmtDate);
-		else $ds = adodb_date($this->fmtTimeStamp,$ts);
+		else $ds = date($this->fmtTimeStamp,$ts);
 		return 'TO_DATE('.$ds.",'RRRR-MM-DD, HH:MI:SS AM')";
 	}
 

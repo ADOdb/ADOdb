@@ -1120,8 +1120,10 @@ class ADODB_mysqli extends ADOConnection {
 					}
 					$bulkTypeArray[] = $typeArray;
 				}
+				$currentBulkBind = $this->bulkBind;
 				$this->bulkBind = false;
 				$ret = $this->_execute($sql, $bulkTypeArray);
+				$this->bulkBind = $currentBulkBind;
 			} else {
 				$typeArray = $this->getBindParamWithType($inputarr);
 				$ret = $this->_execute($sql, $typeArray);
