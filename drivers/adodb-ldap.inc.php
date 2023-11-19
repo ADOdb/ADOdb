@@ -116,7 +116,6 @@ class ADODB_ldap extends ADOConnection
 		if ($username) {
 			$bind = @ldap_bind($this->_connectionID, $username, $password);
 		} else {
-			$username = 'anonymous';
 			$bind = @ldap_bind($this->_connectionID);
 		}
 
@@ -211,6 +210,7 @@ class ADODB_ldap extends ADOConnection
 	 * @param array $inputarr [Ignored] An optional array of parameters.
 	 *
 	 * @return resource|false
+	 * @noinspection PhpParameterNameChangedDuringInheritanceInspection
 	 */
 	function _query($ldapQuery, $inputarr = false)
 	{
@@ -251,6 +251,7 @@ class ADODB_ldap extends ADOConnection
 	 *
 	 * @param string $baseDN
 	 * @return void
+	 * @noinspection PhpParameterNameChangedDuringInheritanceInspection
 	 */
 	public function selectDB($baseDN)
 	{
@@ -289,12 +290,16 @@ class ADODB_ldap extends ADOConnection
 		switch ($version['LDAP_OPT_DEREF']) {
 			case 0:
 				$version['LDAP_OPT_DEREF'] = 'LDAP_DEREF_NEVER';
+				break;
 			case 1:
 				$version['LDAP_OPT_DEREF'] = 'LDAP_DEREF_SEARCHING';
+				break;
 			case 2:
 				$version['LDAP_OPT_DEREF'] = 'LDAP_DEREF_FINDING';
+				break;
 			case 3:
 				$version['LDAP_OPT_DEREF'] = 'LDAP_DEREF_ALWAYS';
+				break;
 		}
 
 		/*
