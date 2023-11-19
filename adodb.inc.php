@@ -5841,14 +5841,12 @@ class ADORecordSet implements IteratorAggregate {
 				return false;
 			}
 
+			$cls = 'ADODB_'.$db;
 			if ($pdoExtension)
 			{
-				$cls = 'ADODB_pdo_' . $pdoExtension;
+				$cls .= '_' . $pdoExtension;
 			}
-			else
-			{
-				$cls = 'ADODB_'.$db;
-			}
+			
 			if (!class_exists($cls)) {
 				adodb_backtrace();
 				return false;
