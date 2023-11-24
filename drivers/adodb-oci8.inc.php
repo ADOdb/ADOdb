@@ -69,13 +69,23 @@ class ADODB_oci8 extends ADOConnection {
 	var $_stmt;
 	var $_commit = OCI_COMMIT_ON_SUCCESS;
 	var $_initdate = true; // init date to YYYY-MM-DD
-	var $metaTablesSQL = "select table_name,table_type from cat where table_type in ('TABLE','VIEW') and table_name not like 'BIN\$%'"; // bin$ tables are recycle bin tables
-	var $metaColumnsSQL = "select cname,coltype,width, SCALE, PRECISION, NULLS, DEFAULTVAL from col where tname='%s' order by colno"; //changed by smondino@users.sourceforge. net
-	var $metaColumnsSQL2 = "select column_name,data_type,data_length, data_scale, data_precision,
-    case when nullable = 'Y' then 'NULL'
-    else 'NOT NULL' end as nulls,
-    data_default from all_tab_cols
-  where owner='%s' and table_name='%s' order by column_id"; // when there is a schema
+	var $metaTablesSQL = <<<ENDSQL
+		SELECT table_name, table_type
+		FROM user_catalog
+		WHERE table_type IN ('TABLE', 'VIEW') AND table_name NOT LIKE 'BIN\$%'
+		ENDSQL; // bin$ tables are recycle bin tables
+	var $metaColumnsSQL = <<<ENDSQL
+		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
+		FROM user_tab_columns
+		WHERE table_name = '%s'
+		ORDER BY column_id
+		ENDSQL;
+	var $metaColumnsSQL2 = <<<ENDSQL
+		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
+		FROM all_tab_columns
+		WHERE owner = '%s' AND table_name = '%s'
+		ORDER BY column_id
+		ENDSQL; // When there is a schema
 	var $_bindInputArray = true;
 	var $hasGenID = true;
 	var $_genIDSQL = "SELECT (%s.nextval) FROM DUAL";
@@ -92,7 +102,7 @@ END;
 	var $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
 	var $noNullStrings = false;
 	var $connectSID = false;
-	var $_bind = false;
+	var $_bind = array();
 	var $_nestedSQL = true;
 	var $_getarray = false; // currently not working
 	var $leftOuter = '';  // oracle wierdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
@@ -161,7 +171,7 @@ END;
 				}
 				$fld->max_length = $rs->fields[4];
 			}
-			$fld->not_null = (strncmp($rs->fields[5], 'NOT',3) === 0);
+			$fld->not_null = $rs->fields[5] == 'N';
 			$fld->binary = (strpos($fld->type,'BLOB') !== false);
 			$fld->default_value = $rs->fields[6];
 
@@ -396,7 +406,7 @@ END;
 			$ds = $d->format($this->fmtDate);
 		}
 		else {
-			$ds = adodb_date($this->fmtDate,$d);
+			$ds = date($this->fmtDate,$d);
 		}
 
 		return "TO_DATE(".$ds.",'".$this->dateformat."')";
@@ -425,7 +435,7 @@ END;
 			$tss = $ts->format("'Y-m-d H:i:s'");
 		}
 		else {
-			$tss = adodb_date("'Y-m-d H:i:s'",$ts);
+			$tss = date("'Y-m-d H:i:s'",$ts);
 		}
 
 		return $tss;
@@ -1597,8 +1607,8 @@ SELECT /*+ RULE */ distinct b.column_name
 	 */
 	function qStr($s, $magic_quotes=false)
 	{
-		if ($this->noNullStrings && strlen($s) == 0) {
-			$s = ' ';
+		if (strlen((string)$s) == 0) {
+			return $this->noNullStrings ? "' '" : "''";
 		}
 		if ($this->replaceQuote[0] == '\\'){
 			$s = str_replace('\\','\\\\',$s);
@@ -1891,13 +1901,5 @@ class ADORecordset_oci8 extends ADORecordSet {
 		default:
 			return ADODB_DEFAULT_METATYPE;
 		}
-	}
-}
-
-class ADORecordSet_ext_oci8 extends ADORecordSet_oci8 {
-
-	function MoveNext()
-	{
-		return adodb_movenext($this);
 	}
 }

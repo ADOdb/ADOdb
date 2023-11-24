@@ -33,8 +33,17 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 	var $concat_operator='||';
 	var $fmtDate = "'Y-m-d 00:00:00'";
 	var $fmtTimeStamp = "'Y-m-d h:i:sA'";
-	var $metaTablesSQL = 'select table_name from cat';
-	var $metaColumnsSQL = "select cname,coltype,width from col where tname='%s' order by colno";
+	var $metaTablesSQL = <<<ENDSQL
+		SELECT table_name, table_type
+		FROM user_catalog
+		WHERE table_type IN ('TABLE', 'VIEW') AND table_name NOT LIKE 'BIN\$%'
+		ENDSQL; // bin$ tables are recycle bin tables
+	var $metaColumnsSQL = <<<ENDSQL
+		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
+		FROM user_tab_columns
+		WHERE table_name = '%s'
+		ORDER BY column_id
+		ENDSQL;
 	var $sysDate = "TRUNC(SYSDATE)";
 	var $sysTimeStamp = 'SYSDATE';
 
@@ -42,9 +51,8 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 
 	function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
-		$false = false;
 		$rs = $this->Execute($this->metaTablesSQL);
-		if ($rs === false) return $false;
+		if ($rs === false) return false;
 		$arr = $rs->GetArray();
 		$arr2 = array();
 		for ($i=0; $i < sizeof($arr); $i++) {
@@ -60,19 +68,20 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
 		if ($rs === false) {
-			$false = false;
-			return $false;
+			return false;
 		}
 		$retarr = array();
-		while (!$rs->EOF) { //print_r($rs->fields);
+		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
 			$fld->type = $rs->fields[1];
 			$fld->max_length = $rs->fields[2];
 
-
-			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;
-			else $retarr[strtoupper($fld->name)] = $fld;
+			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) {
+				$retarr[] = $fld;
+			} else {
+				$retarr[strtoupper($fld->name)] = $fld;
+			}
 
 			$rs->MoveNext();
 		}

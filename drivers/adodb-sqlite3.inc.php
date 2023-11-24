@@ -304,13 +304,11 @@ class ADODB_sqlite3 extends ADOConnection {
 		$fmt       = str_replace($fromChars,$toChars,$fmt);
 
 		$fmt = $this->qstr($fmt);
-		return ($col) ? "adodb_date2($fmt,$col)" : "adodb_date($fmt)";
+		return ($col) ? "strftime($fmt,$col)" : "strftime($fmt)";
 	}
 
 	function _createFunctions()
 	{
-		$this->_connectionID->createFunction('adodb_date', 'adodb_date', 1);
-		$this->_connectionID->createFunction('adodb_date2', 'adodb_date2', 2);
 	}
 
 	/** @noinspection PhpUnusedParameterInspection */

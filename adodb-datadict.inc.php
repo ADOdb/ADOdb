@@ -1027,7 +1027,6 @@ class ADODB_DataDict {
 	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 		if ($this->connection->fetchMode !== false) $savem = $this->connection->setFetchMode(false);
@@ -1074,15 +1073,20 @@ class ADODB_DataDict {
 					if ($mt == 'X') $ml = $v['SIZE'];
 					if (($mt != $v['TYPE']) || ($ml != $fsize || $sc != $fprec) || (isset($v['AUTOINCREMENT']) && $v['AUTOINCREMENT'] != $obj->auto_increment)) {
 						$holdflds[$k] = $v;
+						$fields_to_alter[$k] = $v;
 					}
 				} else {
+					$fields_to_add[$k] = $v;
 					$holdflds[$k] = $v;
 				}
 			}
 			$flds = $holdflds;
 		}
 
-		$sql = $this->alterColumnSql($tablename, $flds);
+		$sql = array_merge(
+			$this->addColumnSQL($tablename, $fields_to_add),
+			$this->alterColumnSql($tablename, $fields_to_alter)
+		);
 
 		if ($dropOldFlds) {
 			foreach ($cols as $id => $v) {
