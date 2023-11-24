@@ -55,12 +55,13 @@ class ADOCoreLogger extends \ADOdb\addins\logger\ADOLogger
 	*/
 	public function redirectCoreLogging() :void
 	{
-		global $ADODB_OUTP;
-
+		//global $ADODB_OUTP;
+		global $ADODB_LOGGING_OBJECT;
 		/*
 		* This global is seen by the core ADOdb system
 		*/
-		$ADODB_OUTP = $this;
+		//$ADODB_OUTP = $this;
+		$ADODB_LOGGING_OBJECT = $this;
 	}
 
 	/**

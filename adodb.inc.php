@@ -166,7 +166,6 @@ if (!defined('_ADODB_LAYER')) {
 	define('DB_AUTOQUERY_UPDATE', 2);
 
 
-
 	function ADODB_Setup() {
 	GLOBAL
 		$ADODB_vers,		// database version
@@ -754,6 +753,63 @@ if (!defined('_ADODB_LAYER')) {
 	/** @var string a specified locale. */
 	var $locale;
 
+	/*******************************************************
+	* For improved logging functionality, these logging
+	* levels are from Monolog
+	********************************************************/
+
+	/**
+     * Detailed debug information
+     */
+    public const ADODB_LOG_DEBUG = 100;
+
+    /**
+     * Interesting events
+     *
+     * Examples: User logs in, SQL logs.
+     */
+    public const ADODB_LOG_INFO = 200;
+
+    /**
+     * Uncommon events
+     */
+    public const ADODB_LOG_NOTICE = 250;
+
+    /**
+     * Exceptional occurrences that are not errors
+     *
+     * Examples: Use of deprecated APIs, poor use of an API,
+     * undesirable things that are not necessarily wrong.
+     */
+    public const ADODB_LOG_WARNING = 300;
+
+    /**
+     * Runtime errors
+     */
+    public const ADODB_LOG_ERROR = 400;
+
+    /**
+     * Critical conditions
+     *
+     * Example: Application component unavailable, unexpected exception.
+     */
+    public const ADODB_LOG_CRITICAL = 500;
+
+    /**
+     * Action must be taken immediately
+     *
+     * Example: Entire website down, database unavailable, etc.
+     * This should trigger the SMS alerts and wake you up.
+     */
+    public const ADODB_LOG_ALERT = 550;
+
+    /**
+     * Urgent alert.
+     */
+    public const ADODB_LOG_EMERGENCY = 600;
+
+
+	public object $adoLoggingObject = null;
 
 	/**
 	 * Default Constructor.
@@ -899,8 +955,9 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @param string $msg     Message to print
 	 * @param bool   $newline True to add a newline after printing $msg
+	 * @param int	 $logLevel Logging level of message if available
 	 */
-	static function outp($msg,$newline=true) {
+	static function outp($msg,$newline=true,$logLevel=300) {
 		global $ADODB_FLUSH,$ADODB_OUTP;
 
 		if (defined('ADODB_OUTP')) {
@@ -914,9 +971,10 @@ if (!defined('_ADODB_LAYER')) {
 				if (!isset($myArgs[2]))
 					$myArgs[2] = 100; //LOG_DEBUG
 				$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
-				call_user_func($outpObject,$msg,$newline,$myArgs[2]);
+				call_user_func($outpObject,$msg,$newline,$logLevel);
 				return;
 			}
+			
 			call_user_func($ADODB_OUTP,$msg,$newline);
 			return;
 		}
@@ -1156,13 +1214,14 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param string $msg Message
 	 * @param string $src the name of the calling function (in uppercase)
 	 * @param string $sql Optional offending SQL statement
+	 * @param int    $logLevel The logging warning level
 	 */
-	function outp_throw($msg, $src='WARN', $sql='') {
+	function outp_throw($msg, $src='WARN', $sql='',$logLevel=300) {
 		if (defined('ADODB_ERROR_HANDLER') &&  ADODB_ERROR_HANDLER == 'adodb_throw') {
 			adodb_throw($this->databaseType,$src,-9999,$msg,$sql,false,$this);
 			return;
 		}
-		ADOConnection::outp($msg);
+		ADOConnection::outp($msg,$logLevel);
 	}
 
 	/**
