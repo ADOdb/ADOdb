@@ -15,8 +15,6 @@ use \ADOdb\addins\session;
 
 class ADOSession extends \ADOdb\addins\session\ADOSession {
 	
-	protected string $binaryOption = '';
-	
 	/**
 	* Provides the empty large object to the oci database
 	* 

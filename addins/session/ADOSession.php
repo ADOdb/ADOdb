@@ -53,11 +53,6 @@ class ADOSession implements \SessionHandlerInterface{
 	protected string $encryptionKey = 'CRYPTED ADODB SESSIONS ROCK!';
 
 	/*
-	* Are we using binary hinting
-	*/
-	protected string $binaryOption = '';
-
-	/*
 	* Whether we should optimaize the table (if supported)
 	*/
 	protected bool $optimizeTable = false;
@@ -497,11 +492,10 @@ class ADOSession implements \SessionHandlerInterface{
 		$p0 = $this->connection->param('p0');
 		$bind = array('p0'=>$key);
 
-		$sql = sprintf("SELECT %s FROM %s WHERE sesskey = %s %s AND expiry >= %s",
+		$sql = sprintf("SELECT %s FROM %s WHERE sesskey = %s AND expiry >= %s",
 					$this->sessionDefinition->readFields,
 					$this->tableName,
-					$this->binaryOption,
-					$p0,
+					$this->processSessionKey($p0),
 					$this->connection->sysTimeStamp);
 
 		$rs = $this->connection->execute($sql, $bind);
@@ -562,7 +556,6 @@ class ADOSession implements \SessionHandlerInterface{
 
 		$expiry = $this->connection->offsetDate($lifetime/(24*3600),$sysTimeStamp);
 
-		$binary = $this->binaryOption;
 		$crc	= $this->recordCRC;
 		$table  = $this->tableName;
 
@@ -748,7 +741,6 @@ class ADOSession implements \SessionHandlerInterface{
 		$expire_notify	= $this->expireNotify();
 
 		$qkey = $this->connection->quote($key);
-		$binary = $this->binaryOption;
 		$table  = $this->tableName;
 
 		if ($expire_notify) {
@@ -816,8 +808,6 @@ class ADOSession implements \SessionHandlerInterface{
 		$sysTimeStamp = $this->connection->sysTimeStamp;
 
 		$time = $this->connection->offsetDate(-$maxlifetime/24/3600,$sysTimeStamp);
-
-		$binaryOption = $this->binaryOption;
 
 		$table = $this->tableName;
 
@@ -917,5 +907,16 @@ class ADOSession implements \SessionHandlerInterface{
 
 		return $this->lobValue;
 
+	}
+
+	/**
+	 * Returns a required preprocessed session key value for the given value.
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	protected function processSessionKey(string $value): string
+	{
+		return $value;
 	}
 }
