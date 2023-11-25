@@ -23,11 +23,6 @@ final class ADOSession extends \ADOdb\addins\session\ADOSession {
 	protected string $largeObject = '';
 
 	/*
-	* Carried forward from previous version without explanation
-	*/
-	protected string $binaryOption = '/*! BINARY */';
-
-	/*
 	* Whether we should optimaize the table (if supported)
 	*/
 	protected bool $optimizeTable = false;
@@ -43,5 +38,16 @@ final class ADOSession extends \ADOdb\addins\session\ADOSession {
 
 		return sprintf('OPTIMIZE TABLE %s',$this->tableName);
 
+	}
+
+	/**
+	 * Returns a required preprocessed session key value for the given value.
+	 *
+	 * @param string $value
+	 * @return string
+	 */
+	final protected function processSessionKey(string $value): string
+	{
+		return sprintf('CAST(%s AS BINARY)',$value);
 	}
 }

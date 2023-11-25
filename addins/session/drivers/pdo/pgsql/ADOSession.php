@@ -20,8 +20,6 @@ class ADOSession extends \ADOdb\addins\session\ADOSession {
 	*/
 	protected string $largeObject = 'bytea';
 	
-	protected string $binaryOption = '';
-	
 	protected string $lobValue = 'null';	
 	
 	final protected function getLobValue(?string $param1=null) : string {
