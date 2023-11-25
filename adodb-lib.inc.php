@@ -1282,10 +1282,15 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 	
 	if (is_object($ADODB_LOGGING_OBJECT))
 	{
-		
+		/*
+		* we always pass the query to the logging object. 
+		* It might be discarded there.
+		*/
+
 		//$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
 		$msg = sprintf($fmtSql, '', $driverName, $sqlText, $bindParams);
 		$ADODB_LOGGING_OBJECT->log($msg,ADOConnection::ADODB_LOG_DEBUG)
+		
 		//call_user_func($outpObject,$msg,true,100);
 		//if ($queryOutput) 
 		//	call_user_func($outpObject,$queryOutput,true,ADOConnection::ADODB_LOG_CRITICAL);

@@ -1752,6 +1752,9 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	function _Execute($sql,$inputarr=false) {
+		
+		global $ADODB_LOGGING_OBJECT;
+
 		// ExecuteCursor() may send non-string queries (such as arrays),
 		// so we need to ignore those.
 		if( is_string($sql) ) {
@@ -1768,6 +1771,10 @@ if (!defined('_ADODB_LAYER')) {
 			}
 			$this->_queryID = _adodb_debug_execute($this, $sql,$inputarr);
 		} else {
+			if (is_object($ADODB_LOGGING_OBJECT))
+			{
+				
+			}
 			$this->_queryID = @$this->_query($sql,$inputarr);
 		}
 
