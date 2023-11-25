@@ -1179,6 +1179,9 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 */
 function _adodb_debug_execute($zthis, $sql, $inputarr)
 {
+	global $ADODB_OUTP;
+	global $ADODB_LOGGING_OBJECT;
+
 	// Execute the query, capturing any output
 	ob_start();
 	$queryId = $zthis->_query($sql, $inputarr);
@@ -1276,6 +1279,18 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 		echo '</div>' . PHP_EOL;
 	}
 
+	
+	if (is_object($ADODB_LOGGING_OBJECT))
+	{
+		
+		//$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
+		$msg = sprintf($fmtSql, '', $driverName, $sqlText, $bindParams);
+		$ADODB_LOGGING_OBJECT->log($msg,ADOConnection::ADODB_LOG_DEBUG)
+		//call_user_func($outpObject,$msg,true,100);
+		//if ($queryOutput) 
+		//	call_user_func($outpObject,$queryOutput,true,ADOConnection::ADODB_LOG_CRITICAL);
+	}
+	
 	return $queryId;
 }
 
