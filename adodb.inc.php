@@ -809,8 +809,6 @@ if (!defined('_ADODB_LAYER')) {
     public const ADODB_LOG_EMERGENCY = 600;
 
 
-	public object $adoLoggingObject = null;
-
 	/**
 	 * Default Constructor.
 	 * We define it even though it does not actually do anything. This avoids
@@ -1773,7 +1771,25 @@ if (!defined('_ADODB_LAYER')) {
 		} else {
 			if (is_object($ADODB_LOGGING_OBJECT))
 			{
-				
+				if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_INFO))
+				{
+					
+					$logJson = new \ADOdb\addins\logger\ADOjsonLogFormat;
+					$logJson->level = ADOConnection::ADODB_LOG_INFO;
+					$logJson->sqlStatement['sql']    = $sql;
+					$logJson->sqlStatement['params'] = $inputarr;
+					$logJson->driver                 = $this->databaseType;
+					$logJson->ADOdbVersion			 = $this->version();
+
+					$msg  = sprintf('[%s] %s',$this->databaseType,json_encode($logJson));
+					$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_INFO,$msg);
+					
+					//$tags = array('method'=>'_execute');
+					//$fmtSql = '[%s] %s PARAMS: %s';
+					//$msg = sprintf($fmtSql, $this->databaseType, $sql, json_encode($inputarr));
+					//$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_INFO,$msg,$tags);
+				}
+
 			}
 			$this->_queryID = @$this->_query($sql,$inputarr);
 		}
@@ -1784,6 +1800,32 @@ if (!defined('_ADODB_LAYER')) {
 
 		// error handling if query fails
 		if ($this->_queryID === false) {
+			if (is_object($ADODB_LOGGING_OBJECT))
+			{
+				if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_CRITICAL))
+				{
+					
+					
+					$logJson = new \ADOdb\addins\logger\ADOjsonLogFormat;
+					$logJson->level = ADOConnection::ADODB_LOG_CRITICAL;
+					$logJson->errorCode              = $this->errorNo();
+					$logJson->errorMessage           = $this->ErrorMsg();
+					$logJson->sqlStatement['sql']    = $sql;
+					$logJson->sqlStatement['params'] = $inputarr;
+					$logJson->driver                 = $this->databaseType;
+					$logJson->ADOdbVersion			 = $this->version();
+					
+					$msg  = sprintf('[%s] %s',$this->databaseType,json_encode($logJson));
+					$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_CRITICAL,$msg);
+				
+					
+					//$tags = array('method'=>'_execute');
+					//$fmtSql = '[%s] ERRNO: %s ERRMSG: %s SQL: %s PARAMS: %s';
+					//$msg = sprintf($fmtSql, $this->databaseType, $this->ErrorNo(),$this->ErrorMsg(), $sql, json_encode($inputarr));
+				
+				}
+
+			}
 			$fn = $this->raiseErrorFn;
 			if ($fn) {
 				$fn($this->databaseType,'EXECUTE',$this->ErrorNo(),$this->ErrorMsg(),$sql,$inputarr,$this);

@@ -1289,7 +1289,7 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 
 		//$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
 		$msg = sprintf($fmtSql, '', $driverName, $sqlText, $bindParams);
-		$ADODB_LOGGING_OBJECT->log($msg,ADOConnection::ADODB_LOG_DEBUG)
+		$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,$msg);
 		
 		//call_user_func($outpObject,$msg,true,100);
 		//if ($queryOutput) 

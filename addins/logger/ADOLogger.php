@@ -125,20 +125,76 @@ class ADOLogger
 	/**
 	* The core function for feature that uses this system
 	*
-	* @param	int		$logLevel
-	* @param	string	$message
-	*
+	* @param	int		 $logLevel
+	* @param	string	 $message
+	* @param    string[] $tags
 	* @return void
 	*/
-	public function log(int $logLevel,string $message): void{
+	public function log(int $logLevel,string $message, ?array $tags=null): void{
 
+		if (!$tags)
+			$tags = array();
 		/*
 		* Tranmit the message onto to whatever logging
 		* system chosen we ignore any messages sent 
 		* at levels not set
 		*/
-		if (count($this->logAtLevels) == 0 || array_key_exists($logLevel,$this->logAtLevels))
-			$this->loggingObject->log($logLevel,$message);
+		if (count($this->logAtLevels) == 0 || $this->isLevelLogged($logLevel))
+		{
+			$this->loggingObject->log($logLevel,$message,$tags);
+			
+		}
 	}
 
+	/**
+	 * Is a particular level logged
+	 * 
+	 * @param int $logLevel
+	 * @return bool
+	 */
+	public function isLevelLogged(int $logLevel): bool{
+
+		if (count($this->logAtLevels) == 0)
+			return true;
+		if (array_key_exists($logLevel,$this->logAtLevels))
+			return true;
+
+		return false;
+
+	}
+
+}
+
+class ADOjsonLogFormat
+{
+	public string $version = '1.0';
+
+	public string $ADOdbVersion = '';
+
+	public string $level = '0';
+	
+	public string $message = '';
+
+	public array $sqlStatement = array('sql'=>'','params'=>'');
+
+	public int $errorCode = 0;
+	
+	public string $errorMessage = '';
+
+	public string $host = '';
+
+	public string $source = '';
+
+	public string $driver = '';
+
+	public string $php = '';
+
+	public string $os  = '';
+
+	public function __construct()
+	{
+		$this->php    = PHP_VERSION;
+		$this->os     = PHP_OS;
+		$this->source = isset($_SERVER['HTTP_USER_AGENT']) ? 'cgi' : 'cli';
+	}
 }

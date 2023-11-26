@@ -61,6 +61,9 @@ class ADOLogger extends \ADOdb\addins\logger\ADOLogger
 			$this->monologObject->pushHandler($s);
 			$this->logAtLevels[$level] = true;
 		}
+
+		$this->monologObject->pushProcessor(new \Monolog\Processor\MemoryUsageProcessor());
+		
 	}
 
 	/**
@@ -68,12 +71,16 @@ class ADOLogger extends \ADOdb\addins\logger\ADOLogger
 	*
 	* @param int  $logLevel
 	* @param string $message
+	* @param string[] $tags
 	*
 	* @return void
 	*/
-	public function log(int $logLevel,string $message): void
+	public function log(int $logLevel,string $message,?array $tags=null): void
 	{
-		$this->monologObject->log($logLevel,$message);
+		if (!$tags)
+			$tags = array();
+		
+		$this->monologObject->log($logLevel,$message,$tags);
 
 	}
 }
