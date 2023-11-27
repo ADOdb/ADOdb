@@ -1774,12 +1774,12 @@ if (!defined('_ADODB_LAYER')) {
 				if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_INFO))
 				{
 					
-					$logJson = new \ADOdb\addins\logger\ADOjsonLogFormat;
+					$logJson = $ADODB_LOGGING_OBJECT->loadLoggingRecord($this,ADOConnection::ADODB_LOG_INFO);
+
 					$logJson->level = ADOConnection::ADODB_LOG_INFO;
 					$logJson->sqlStatement['sql']    = $sql;
 					$logJson->sqlStatement['params'] = $inputarr;
-					$logJson->driver                 = $this->databaseType;
-					$logJson->ADOdbVersion			 = $this->version();
+			
 
 					$msg  = sprintf('[%s] %s',$this->databaseType,json_encode($logJson));
 					$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_INFO,$msg);

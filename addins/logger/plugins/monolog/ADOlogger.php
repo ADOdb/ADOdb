@@ -31,23 +31,13 @@ class ADOLogger extends \ADOdb\addins\logger\ADOLogger
 	public string $textFile = __DIR__ . '/adodb.log';
 
 	/*
-	* An imported Monolog stream handler. If this is an array,
-	* then the keys are the levels, and the values are the
-	* streams. There are 2 levels,CRITICAL and DEBUG
+	* An imported Monolog object
 	*/
-	//public ?array $streamHandlers = null;
-
 	public ?object $monologObject = null;
-
 
 	final public function __construct(
 			?object $loggingDefinition=null){
-
-		/*
-		* Save off to check for logging existence
-		*/
-		//$this->streamHandlers = $loggingDefinitions->streamHandlers;
-
+		
 		if ($loggingDefinition->debug)
 			$this->log(ADOlogger::DEBUG,'Logging Sytem Startup');
 
@@ -62,7 +52,10 @@ class ADOLogger extends \ADOdb\addins\logger\ADOLogger
 			$this->logAtLevels[$level] = true;
 		}
 
-		$this->monologObject->pushProcessor(new \Monolog\Processor\MemoryUsageProcessor());
+		/*
+		* This can be how we push additional information into the log
+		*/
+		//$this->monologObject->pushProcessor(new \Monolog\Processor\MemoryUsageProcessor());
 		
 	}
 

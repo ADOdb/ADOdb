@@ -1280,16 +1280,25 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 	}
 
 	
-	if (is_object($ADODB_LOGGING_OBJECT))
+	if (is_object($ADODB_LOGGING_OBJECT) && $ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_DEBUG))
 	{
 		/*
 		* we always pass the query to the logging object. 
 		* It might be discarded there.
 		*/
+		$logJson = new \ADOdb\addins\logger\ADOjsonLogFormat;
+		$logJson->level = ADOConnection::ADODB_LOG_DEBUG;
+		$logJson->sqlStatement['sql']    = $sql;
+		$logJson->sqlStatement['params'] = $inputarr;
+		$logJson->driver                 = $this->databaseType;
+		$logJson->ADOdbVersion			 = $this->version();
+
+		$msg  = sprintf('[%s] %s',$this->databaseType,json_encode($logJson));
+		$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,$msg);
 
 		//$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
-		$msg = sprintf($fmtSql, '', $driverName, $sqlText, $bindParams);
-		$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,$msg);
+		//$msg = sprintf($fmtSql, '', $driverName, $sqlText, $bindParams);
+		//$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,$msg);
 		
 		//call_user_func($outpObject,$msg,true,100);
 		//if ($queryOutput) 

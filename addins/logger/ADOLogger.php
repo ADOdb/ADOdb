@@ -81,6 +81,9 @@ class ADOLogger
 	*/
 	protected array $logAtLevels = array();
 
+	public ?object $logJson;  
+
+
 	/**
 	* Constructor
 	*
@@ -163,32 +166,88 @@ class ADOLogger
 
 	}
 
+	public function loadLoggingRecord(object $connection,$logLevel) : void
+	{
+		$logJson = new \ADOdb\addins\logger\ADOjsonLogFormat;
+		$logJson->level = $logLevel;
+		
+		$logJson->driver                 = $connection->databaseType;
+		$logJson->ADOdbVersion			 = $connection->version();
+
+		$this>logJson = $logJson;
+		
+		
+	}
+
+	public function setLoggingParameter($key,$value)
+	{
+		$this->logJson->$key = $value;
+	}
 }
 
+/**
+ * This is the format of the logging object, that is encoded into the log record
+ */
 class ADOjsonLogFormat
 {
+	/*
+	* The log format
+	*/
 	public string $version = '1.0';
 
+	/*
+	* The current AODdb version
+	*/
 	public string $ADOdbVersion = '';
 
+	/*
+	* THe required logging level
+	*/
 	public string $level = '0';
 	
+	/*
+	* Standard non-error message
+	*/
 	public string $message = '';
 
+	/*
+	* The SQL statement and bind statement
+	*/
 	public array $sqlStatement = array('sql'=>'','params'=>'');
 
+	/*
+	* Any error code generated
+	*/
 	public int $errorCode = 0;
 	
+	/*
+	* Any error message generated
+	*/
 	public string $errorMessage = '';
 
+	/*
+	* The host name
+	*/
 	public string $host = '';
 
+	/*
+	* Whether it is CLI or CGI
+	*/
 	public string $source = '';
 
+	/*
+	* The ADOdb driver
+	*/
 	public string $driver = '';
 
+	/*
+	* The PHP version
+	*/
 	public string $php = '';
 
+	/*
+	* The OS Version
+	*/
 	public string $os  = '';
 
 	public function __construct()
