@@ -8,8 +8,8 @@ Older changelogs:
 
 ## 4.990 - 11 Jul 2008
 
-- Added support for multiple recordsets in mysqli Geisel Sierote <geisel#4up.com.br>. See http://phplens.com/lens/lensforum/msgs.php?id=15917
-- Malcolm Cook added new Reload() function to Active Record. See http://phplens.com/lens/lensforum/msgs.php?id=17474
+- Added support for multiple recordsets in mysqli Geisel Sierote <geisel#4up.com.br>. See PHPLens Issue No: 15917
+- Malcolm Cook added new Reload() function to Active Record. See PHPLens Issue No: 17474
 - Thanks Zoltan Monori [monzol#fotoprizma.hu] for bug fixes in iterator, SelectLimit, GetRandRow, etc.
 - Under heavy loads, the performance monitor for oci8 disables Ixora views.
 - Fixed sybase driver SQLDate to use str_replace(). Also for adodb5, changed sybase driver UnixDate and UnixTimeStamp calls to static.
@@ -19,33 +19,33 @@ Older changelogs:
 - New ADODB_Cache_File class for file caching defined in adodb.inc.php.
 - Farsi language file contribution by Peyman Hooshmandi Raad (phooshmand#gmail.com)
 - New API for creating your custom caching class which is stored in $ADODB_CACHE:
-  ```
-include "/path/to/adodb.inc.php";
-$ADODB_CACHE_CLASS = 'MyCacheClass';
-
-class MyCacheClass extends ADODB_Cache_File
-{
-	function writecache($filename, $contents,$debug=false){...}
-	function &readcache($filename, &$err, $secs2cache, $rsClass){ ...}
-		:
-}
-
-$DB = NewADOConnection($driver);
-$DB->Connect(...);  ## MyCacheClass created here and stored in $ADODB_CACHE global variable.
-
-$data = $rs->CacheGetOne($sql); ## MyCacheClass is used here for caching...
-```
+    ```
+    include "/path/to/adodb.inc.php";
+    $ADODB_CACHE_CLASS = 'MyCacheClass';
+    
+    class MyCacheClass extends ADODB_Cache_File
+    {
+        function writecache($filename, $contents,$debug=false){...}
+        function &readcache($filename, &$err, $secs2cache, $rsClass){ ...}
+            :
+    }
+    
+    $DB = NewADOConnection($driver);
+    $DB->Connect(...);  ## MyCacheClass created here and stored in $ADODB_CACHE global variable.
+    
+    $data = $rs->CacheGetOne($sql); ## MyCacheClass is used here for caching...
+    ```
 - Memcache supports multiple pooled hosts now. Only if none of the pooled servers can be contacted will a connect error be generated. Usage example below:
-  ```
-$db = NewADOConnection($driver);
-$db->memCache = true; /// should we use memCache instead of caching in files
-$db->memCacheHost = array($ip1, $ip2, $ip3); /// $db->memCacheHost = $ip1; still works
-$db->memCachePort = 11211; /// this is default memCache port
-$db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
-
-$db->Connect(...);
-$db->CacheExecute($sql);
-```
+    ```
+    $db = NewADOConnection($driver);
+    $db->memCache = true; /// should we use memCache instead of caching in files
+    $db->memCacheHost = array($ip1, $ip2, $ip3); /// $db->memCacheHost = $ip1; still works
+    $db->memCachePort = 11211; /// this is default memCache port
+    $db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
+    
+    $db->Connect(...);
+    $db->CacheExecute($sql);
+    ```
 
 ## 4.98 - 13 Feb 2008
 
@@ -57,8 +57,8 @@ $db->CacheExecute($sql);
 
 - Active Record: $ADODB_ASSOC_CASE=1 did not work properly. Fixed.
 - Modified Fields() in recordset class to support display null fields in FetchNextObject().
-- In ADOdb5, active record implementation, we now support column names with spaces in them - we autoconvert the spaces to `_` using `__set()`. Thx Daniel Cook. http://phplens.com/lens/lensforum/msgs.php?id=17200
-- Removed $arg3 from mysqli SelectLimit. See http://phplens.com/lens/lensforum/msgs.php?id=16243. Thx Zsolt Szeberenyi.
+- In ADOdb5, active record implementation, we now support column names with spaces in them - we autoconvert the spaces to `_` using `__set()`. Thx Daniel Cook. PHPLens Issue No: 17200
+- Removed $arg3 from mysqli SelectLimit. See PHPLens Issue No: 16243. Thx Zsolt Szeberenyi.
 - Changed oci8 FetchField, which returns the max_length of BLOB/CLOB/NCLOB as 4000 (incorrectly) to -1.
 - CacheExecute would sometimes return an error on Windows if it was unable to lock the cache file. This is harmless and has been changed to a warning that can be ignored. Also adodb_write_file() code revised.
 - ADOdb perf code changed to only log sql if execution time &gt;= 0.05 seconds. New $ADODB_PERF_MIN variable holds min sql timing. Any SQL with timing value below this and is not causing an error is not logged.
@@ -114,13 +114,13 @@ $db->CacheExecute($sql);
 - Active Record: $ADODB_ASSOC_CASE=2 did not work properly. Fixed. Thx gmane#auxbuss.com.
 - mysqli had bugs in BeginTrans() and EndTrans(). Fixed.
 - Improved error handling when no database is connected for oci8. Thx Andy Hassall.
-- Names longer than 30 chars in oci8 datadict will be changed to random name. Thx Eugenio. http://phplens.com/lens/lensforum/msgs.php?id=16182
+- Names longer than 30 chars in oci8 datadict will be changed to random name. Thx Eugenio. PHPLens Issue No: 16182
 - Added var $upperCase = 'ucase' to access and ado_access drivers. Thx Renato De Giovanni renato#cria.org.br
-- Postgres64 driver, if preparing plan failed in _query, did not handle error properly. Fixed. See http://phplens.com/lens/lensforum/msgs.php?id=16131.
-- Fixed GetActiveRecordsClass() reference bug. See http://phplens.com/lens/lensforum/msgs.php?id=16120
+- Postgres64 driver, if preparing plan failed in _query, did not handle error properly. Fixed. See PHPLens Issue No: 16131.
+- Fixed GetActiveRecordsClass() reference bug. See PHPLens Issue No: 16120
 - Added handling of nulls in adodb-ado_mssql.inc.php for qstr(). Thx to Felix Rabinovich.
 - Adodb-dict contributions by Gaetano
-    - Support for INDEX in data-dict. Example: idx_ev1. The ability to define indexes using the INDEX keyword was added in ADOdb 4.94. The following example features mutiple indexes, including a compound index idx_ev1.
+    - Support for INDEX in data-dict. Example: idx_ev1. The ability to define indexes using the INDEX keyword was added in ADOdb 4.94. The following example features multiple indexes, including a compound index idx_ev1.
 
         ```
         event_id I(11) NOTNULL AUTOINCREMENT PRIMARY,
@@ -139,7 +139,7 @@ $db->CacheExecute($sql);
   - makes any date defined as DEFAULT value for D and T columns work cross-database, not just the "sysdate" value (as long as it is specified using adodb standard format). See above example.
 - Fixed pdo's GetInsertID() support. Thx Ricky Su.
 - oci8 Prepare() now sets error messages if an error occurs.
-- Added 'PT_BR' to SetDateLocale() -- brazilian portugese.
+- Added 'PT_BR' to SetDateLocale() -- brazilian portuguese.
 - charset in oci8 was not set correctly on `*Connect()`
 - ADOConnection::Transpose() now appends as first column the field names.
 - Added $ADODB_QUOTE_FIELDNAMES. If set to true, will autoquote field names in AutoExecute(),GetInsertSQL(), GetUpdateSQL().
@@ -151,12 +151,12 @@ $db->CacheExecute($sql);
 
 - Added support for multiple database connections in performance monitoring code (adodb-perf.inc.php). Now all sql in multiple database connections can be saved into one database ($ADODB_LOG_CONN).
 - Added MetaIndexes() to odbc_mssql.
-- Added connection property $db->null2null = 'null'. In autoexecute/getinsertsql/getupdatesql, this value will be converted to a null. Set this to a funny invalid value if you do not want null conversion. See http://phplens.com/lens/lensforum/msgs.php?id=15902.
+- Added connection property $db->null2null = 'null'. In autoexecute/getinsertsql/getupdatesql, this value will be converted to a null. Set this to a funny invalid value if you do not want null conversion. See PHPLens Issue No: 15902.
 - Path disclosure problem in mysqli fixed. Thx Andy.
 - Fixed typo in session_schema2.xml.
 - Changed INT in oci8 to return correct precision in $fld->max_length, MetaColumns(). Thx Eloy Lafuente Plaza.
-- Patched postgres64 _connect to handle serverinfo(). see http://phplens.com/lens/lensforum/msgs.php?id=15887.
-- Added pdo fix for null columns. See http://phplens.com/lens/lensforum/msgs.php?id=15889
+- Patched postgres64 _connect to handle serverinfo(). see PHPLens Issue No: 15887.
+- Added pdo fix for null columns. See PHPLens Issue No: 15889
 - For stored procedures, missing connection id now passed into mssql_query(). Thx Ecsy (ecsy#freemail.hu).
 
 ## 4.92a - 30 Aug 2006
@@ -170,28 +170,28 @@ $db->CacheExecute($sql);
 - Added IgnoreErrors() to bypass default error handling.
 - The _adodb_getcount() function in adodb-lib.inc.php, some ORDER BY bug fixes.
 - For ibase and firebird, set $sysTimeStamp = "CURRENT_TIMESTAMP".
-- Fixed postgres connection bug: http://phplens.com/lens/lensforum/msgs.php?id=11057.
+- Fixed postgres connection bug: PHPLens Issue No: 11057.
 - Changed CacheSelectLimit() to flush cache when $secs2cache==-1 due to complaints from other users.
 - Added support for using memcached with CacheExecute/CacheSelectLimit. Requires memcache module PECL extension. Usage:
     ```
-$db = NewADOConnection($driver);
-$db->memCache = true; /// should we use memCache instead of caching in files
-$db->memCacheHost = "126.0.1.1"; /// memCache host
-$db->memCachePort = 11211; /// this is default memCache port
-$db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
-$db->Connect(...);
-$db->CacheExecute($sql);
-```
+    $db = NewADOConnection($driver);
+    $db->memCache = true; /// should we use memCache instead of caching in files
+    $db->memCacheHost = "126.0.1.1"; /// memCache host
+    $db->memCachePort = 11211; /// this is default memCache port
+    $db->memCacheCompress = false; /// Use 'true' to store the item compressed (uses zlib)
+    $db->Connect(...);
+    $db->CacheExecute($sql);
+    ```
 
 - Implemented Transpose() for recordsets. Recordset must be retrieved using ADODB_FETCH_NUM. First column becomes the column name.
     ```
-$db = NewADOConnection('mysql');
-$db->Connect(...);
-$db->SetFetchMode(ADODB_FETCH_NUM);
-$rs = $db->Execute('select productname,productid,unitprice from products limit 10');
-$rs2 = $db->Transpose($rs);
-rs2html($rs2);
-```
+    $db = NewADOConnection('mysql');
+    $db->Connect(...);
+    $db->SetFetchMode(ADODB_FETCH_NUM);
+    $rs = $db->Execute('select productname,productid,unitprice from products limit 10');
+    $rs2 = $db->Transpose($rs);
+    rs2html($rs2);
+    ```
 
 ## 4.91 - 2 Aug 2006
 
@@ -201,9 +201,9 @@ rs2html($rs2);
 - Added to quotes to mysql and mysqli: "SHOW COLUMNS FROM \`%s\`";
 - Removed accidental optgroup handling in GetMenu(). Fixed ibase _BlobDecode for php5 compat, and also mem alloc issues for small blobs, thx salvatori#interia.pl
 - Mysql driver OffsetDate() speedup, useful for adodb-sessions.
-- Fix for GetAssoc() PHP5 compat. See http://phplens.com/lens/lensforum/msgs.php?id=15425
+- Fix for GetAssoc() PHP5 compat. See PHPLens Issue No: 15425
 - Active Record - If inserting a record and the value of a primary key field is null, then we do not insert that field in as we assume it is an auto-increment field. Needed by mssql.
-- Changed postgres7 MetaForeignKeys() see http://phplens.com/lens/lensforum/msgs.php?id=15531
+- Changed postgres7 MetaForeignKeys() see PHPLens Issue No: 15531
 - DB2 will now return db2_conn_errormsg() when it is a connection error.
 
 ## 4.90 - 8 June 2006
@@ -214,7 +214,7 @@ rs2html($rs2);
 - Removed `$off = $fieldOffset - 1` line in db2 driver, FetchField(). Tx Larry Menard.
 - Added support for PHP5 objects as Execute() bind parameters using `__toString` (eg. Simple-XML). Thx Carl-Christian Salvesen.
 - Rounding in tohtml.inc.php did not work properly. Fixed.
-- MetaIndexes in postgres fails when fields are deleted then added in again because the attnum has gaps in it. See http://sourceforge.net/tracker/index.php?func=detail&aid=1451245&group_id=42718&atid=433976. Fixed.
+- MetaIndexes in postgres fails when fields are deleted then added in again because the attnum has gaps in it. See https://sourceforge.net/p/adodb/bugs/45/. Fixed.
 - MetaForeignkeys in mysql and mysqli did not work when fetchMode==ADODB_FETCH_ASSOC used. Fixed.
 - Reference error in AutoExecute() fixed.
 - Added macaddr postgres type to MetaType. Maps to 'C'.
@@ -230,7 +230,7 @@ rs2html($rs2);
 - Fixed variable ref errors in adodb-ado5.inc.php in _query().
 - Mysqli setcharset fix using method_exists().
 - The adodb-perf.inc.php CreateLogTable() code now works for user-defined table names.
-- Error in ibase_blob_open() fixed. See http://phplens.com/lens/lensforum/msgs.php?id=14997
+- Error in ibase_blob_open() fixed. See PHPLens Issue No: 14997
 
 ## 4.80 - 8 Mar 2006
 
@@ -260,14 +260,14 @@ rs2html($rs2);
 - Fixed GetInsertSQL() to support oci8po.
 - Fixed qstr() issue with postgresql with \0 in strings.
 - Fixed some datadict driver loading issues in _adodb_getdriver().
-- Added register shutdown function session_write_close in adodb-session.inc.php for PHP 5 compat. See http://phplens.com/lens/lensforum/msgs.php?id=14200.
+- Added register shutdown function session_write_close in adodb-session.inc.php for PHP 5 compat. See PHPLens Issue No: 14200.
 
 ## 4.70 - 6 Jan 2006
 
 - Many fixes from Danila Ulyanov to ibase, oci8, postgres, mssql, odbc_oracle, odbtp, etc drivers.
-- Changed usage of binary hint in adodb-session.inc.php for mysql. See http://phplens.com/lens/lensforum/msgs.php?id=14160
+- Changed usage of binary hint in adodb-session.inc.php for mysql. See PHPLens Issue No: 14160
 - Fixed invalid variable reference problem in undomq(), adodb-perf.inc.php.
-- Fixed http://phplens.com/lens/lensforum/msgs.php?id=14254 in adodb-perf.inc.php, `_DBParameter()` settings of fetchmode was wrong.
+- Fixed PHPLens Issue No: 14254 in adodb-perf.inc.php, `_DBParameter()` settings of fetchmode was wrong.
 - Fixed security issues in server.php and tmssql.php discussed by Andreas Sandblad in a Secunia security advisory. Added `$ACCEPTIP = 127.0.0.1` and changed suggested root password to something more secure.
 - Changed pager to close recordset after RenderLayout().
 
@@ -349,20 +349,19 @@ rs2html($rs2);
 - Added 'w' (dow as 0-6 or 1-7) and 'l' (dow as string) for SQLDate for oci8, postgres and mysql.
 - Rolled back MetaType() changes for mysqli done in prev version.
 - Datadict change by chris, cblin#tennaxia.com data mappings from:
-
     ```
-oci8:  X->varchar(4000) XL->CLOB
-mssql: X->XL->TEXT
-mysql: X->XL->LONGTEXT
-fbird: X->XL->varchar(4000)
-```
+    oci8:  X->varchar(4000) XL->CLOB
+    mssql: X->XL->TEXT
+    mysql: X->XL->LONGTEXT
+    fbird: X->XL->varchar(4000)
+    ```
   to:
     ```
-oci8:  X->varchar(4000) XL->CLOB
-mssql: X->VARCHAR(4000) XL->TEXT
-mysql: X->TEXT          XL->LONGTEXT
-fbird: X->VARCHAR(4000) XL->VARCHAR(32000)
-```
+    oci8:  X->varchar(4000) XL->CLOB
+    mssql: X->VARCHAR(4000) XL->TEXT
+    mysql: X->TEXT          XL->LONGTEXT
+    fbird: X->VARCHAR(4000) XL->VARCHAR(32000)
+    ```
 - Added $connection->disableBlobs to postgresql to improve performance when no bytea is used (2-5% improvement).
 - Removed all HTTP_* vars.
 - Added $rs->tableName to be set before calling AutoExecute().
@@ -446,7 +445,7 @@ fbird: X->VARCHAR(4000) XL->VARCHAR(32000)
   - MaxDB was padding the defaults of none-string types with spaces
   - MySql now correctly converts enum columns to varchar
 - Ralf also changed Postgresql datadict:
-  - you cant add NOT NULL columns in postgres in one go, they need to be added as NULL and then altered to NOT NULL
+  - you can't add NOT NULL columns in postgres in one go, they need to be added as NULL and then altered to NOT NULL
   - AlterColumnSQL could not change a varchar column with numbers into an integer column, postgres need an explicit conversation
   - a re-created sequence was not set to the correct value, if the name was the old name (no implicit sequence), now always the new name of the implicit sequence is used
 - Sergio Strampelli added extra $intoken check to Lens_ParseArgs() in datadict code.
@@ -499,7 +498,7 @@ fbird: X->VARCHAR(4000) XL->VARCHAR(32000)
 - Fixed out of page bounds bug in _adodb_pageexecute_all_rows() Thx to "Sergio Strampelli" sergio#rir.it
 - Speedup of movenext for mysql and oci8 drivers.
 - Moved debugging code _adodb_debug_execute() to adodb-lib.inc.php.
-- Fixed postgresql bytea detection bug. See http://phplens.com/lens/lensforum/msgs.php?id=9849.
+- Fixed postgresql bytea detection bug. See PHPLens Issue No: 9849.
 - Fixed ibase datetimestamp typo in PHP5. Thx stefan.
 - Removed whitespace at end of odbtp drivers.
 - Added db2 metaprimarykeys fix.
@@ -515,13 +514,13 @@ fbird: X->VARCHAR(4000) XL->VARCHAR(32000)
 - MetaTables() for mysql, $showschema parameter was not backward compatible with older versions of adodb. Fixed.
 - Changed mysql GetOne() to work with mysql 3.23 when using with non-select stmts (e.g. SHOW TABLES).
 - Changed TRIG_ prefix to a variable in datadict-oci8.inc.php. Thx to Luca.Gioppo#csi.it.
-- New to adodb-time code. We allow you to define your own daylights savings function, adodb_daylight_sv for pre-1970 dates. If the function is defined (somewhere in an include), then you can correct for daylights savings. See http://phplens.com/phpeverywhere/node/view/16#daylightsavings for more info.
+- New to adodb-time code. We allow you to define your own daylights savings function, adodb_daylight_sv for pre-1970 dates. If the function is defined (somewhere in an include), then you can correct for daylights savings.
 - New sqlitepo driver. This is because assoc mode does not work like other drivers in sqlite. Namely, when selecting (joining) multiple tables, in assoc mode the table names are included in the assoc keys in the "sqlite" driver. In "sqlitepo" driver, the table names are stripped from the returned column names. When this results in a conflict, the first field get preference. Contributed by Herman Kuiper herman#ozuzo.net
 - Added $forcenull parameter to GetInsertSQL/GetUpdateSQL. Idea by Marco Aurelio Silva.
 - More XHTML changes for GetMenu. By Jeremy Evans.
 - Fixes some ibase date issues. Thx to stefan bogdan.
 - Improvements to mysqli driver to support $ADODB_COUNTRECS.
-- Fixed adodb-csvlib.inc.php problem when reading stream from socket. We need to poll stream continiously.
+- Fixed adodb-csvlib.inc.php problem when reading stream from socket. We need to poll stream continuously.
 
 ## 4.23 - 16 June 2004
 
@@ -532,33 +531,29 @@ fbird: X->VARCHAR(4000) XL->VARCHAR(32000)
 - Added $gmt parameter (true/false) to UserDate and UserTimeStamp in connection class, to force conversion of input (in local time) to be converted to UTC/GMT.
 - Mssql datadict did not support INT types properly (no size param allowed). Added _GetSize() to datadict-mssql.inc.php.
 - For borland_ibase, BeginTrans(), changed:
-
     ```
-$this->_transactionID = $this->_connectionID;
-```
-
+    $this->_transactionID = $this->_connectionID;
+    ```
   to
-
     ```
-$this->_transactionID = ibase_trans($this->ibasetrans, $this->_connectionID);
-```
+    $this->_transactionID = ibase_trans($this->ibasetrans, $this->_connectionID);
+    ```
 
 - Fixed typo in mysqi_field_seek(). Thx to Sh4dow (sh4dow#php.pl).
 - LogSQL did not work with Firebird/Interbase. Fixed.
 - Postgres: made errorno() handling more consistent. Thx to Michael Jahn, Michael.Jahn#mailbox.tu-dresden.de.
 - Added informix patch to better support metatables, metacolumns by "Cecilio Albero" c-albero#eos-i.com
 - Cyril Malevanov contributed patch to oci8 to support passing of LOB parameters:
-
     ```
-$text = 'test test test';
-$sql = "declare rs clob; begin :rs := lobinout(:sa0); end;";
-$stmt = $conn -> PrepareSP($sql);
-$conn -> InParameter($stmt,$text,'sa0', -1, OCI_B_CLOB);
-$rs = '';
-$conn -> OutParameter($stmt,$rs,'rs', -1, OCI_B_CLOB);
-$conn -> Execute($stmt);
-echo "return = ".$rs."<br>";</pre>
-```
+    $text = 'test test test';
+    $sql = "declare rs clob; begin :rs := lobinout(:sa0); end;";
+    $stmt = $conn -> PrepareSP($sql);
+    $conn -> InParameter($stmt,$text,'sa0', -1, OCI_B_CLOB);
+    $rs = '';
+    $conn -> OutParameter($stmt,$rs,'rs', -1, OCI_B_CLOB);
+    $conn -> Execute($stmt);
+    echo "return = ".$rs."<br>";</pre>
+    ```
 
   As he says, the LOBs limitations are:
   - use OCINewDescriptor before binding
@@ -655,7 +650,7 @@ echo "return = ".$rs."<br>";</pre>
 - CacheSelectLimit internal parameters to SelectLimit were wrong. Thx to Nio.
 - Modified adodb_pr() and adodb_backtrace() to support command-line usage (eg. no html).
 - Fixed some fr and it lang errors. Thx to Gaetano G.
-- Added contrib directory, with adodb rs to xmlrpc convertor by Gaetano G.
+- Added contrib directory, with adodb rs to xmlrpc converter by Gaetano G.
 - Fixed array recordset bugs when `_skiprow1` is true. Thx to Gaetano G.
 - Fixed pivot table code when count is false.
 

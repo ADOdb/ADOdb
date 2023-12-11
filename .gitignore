@@ -3,8 +3,21 @@
 *.swp
 *.bak
 *.tmp
+.DS_Store
 .project
 .settings/
 /nbproject/
 .idea/
 
+# Composer
+/vendor/
+/composer.lock
+
+# phpDocumentor
+phpdoc.xml
+docs/api
+docs/cache
+
+# PHPUnit
+/.phpunit.cache
+.phpunit.result.cache

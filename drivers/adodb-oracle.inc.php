@@ -1,18 +1,25 @@
 <?php
-/*
-@version   v5.21.0-dev  ??-???-2016
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-
-  Latest version is available at http://adodb.sourceforge.net
-
-  Oracle data driver. Requires Oracle client. Works on Windows and Unix and Oracle 7.
-
-  If you are using Oracle 8 or later, use the oci8 driver which is much better and more reliable.
-*/
+/**
+ * Oracle data driver
+ *
+ * @deprecated Use oci8 driver instead
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ */
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
@@ -34,7 +41,7 @@ class ADODB_oracle extends ADOConnection {
 	{
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
 		if (is_object($d)) $ds = $d->format($this->fmtDate);
-		else $ds = adodb_date($this->fmtDate,$d);
+		else $ds = date($this->fmtDate,$d);
 		return 'TO_DATE('.$ds.",'YYYY-MM-DD')";
 	}
 
@@ -44,7 +51,7 @@ class ADODB_oracle extends ADOConnection {
 
 		if (is_string($ts)) $ts = ADORecordSet::UnixTimeStamp($ts);
 		if (is_object($ts)) $ds = $ts->format($this->fmtDate);
-		else $ds = adodb_date($this->fmtTimeStamp,$ts);
+		else $ds = date($this->fmtTimeStamp,$ts);
 		return 'TO_DATE('.$ds.",'RRRR-MM-DD, HH:MI:SS AM')";
 	}
 
@@ -174,7 +181,6 @@ class ADODB_oracle extends ADOConnection {
 		}
 
 
-		// returns query ID if successful, otherwise false
 		function _query($sql,$inputarr=false)
 		{
             // <G. Giunta 2003/03/03/> Reset error messages before executing
@@ -217,16 +223,9 @@ class ADORecordset_oracle extends ADORecordSet {
 	var $databaseType = "oracle";
 	var $bind = false;
 
-	function __construct($queryID,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->fetchMode = $mode;
-
-		$this->_queryID = $queryID;
+		parent::__construct($queryID, $mode);
 
 		$this->_inited = true;
 		$this->fields = array();
@@ -243,9 +242,7 @@ class ADORecordset_oracle extends ADORecordSet {
 		return $this->_queryID;
 	}
 
-
-
-	   /*		Returns: an object containing field information.
+		/*		Returns: an object containing field information.
 			   Get column information in the Recordset object. fetchField() can be used in order to obtain information about
 			   fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
 			   fetchField() is retrieved.		*/

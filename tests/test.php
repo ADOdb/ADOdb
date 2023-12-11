@@ -1,16 +1,23 @@
 <?php
-/*
-@version   v5.21.0-dev  ??-???-2016
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-  Set tabs to 4 for best viewing.
-
-  Latest version is available at http://adodb.sourceforge.net
-*/
-
+/**
+ * ADOdb tests.
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ */
 
 //if (!defined('E_STRICT')) define('E_STRICT',0);
 error_reporting(E_ALL|E_STRICT);
@@ -28,7 +35,6 @@ function getmicrotime()
 }
 
 
-if (PHP_VERSION < 5) include_once('../adodb-pear.inc.php');
 //--------------------------------------------------------------------------------------
 //define('ADODB_ASSOC_CASE',1);
 //
@@ -813,12 +819,12 @@ END Adodb;
 	 	print "<p><b>Fail: GetRow returns {$val2[0]}</b></p>";
 	}
 
-	print "<p>FetchObject/FetchNextObject Test</p>";
+	print "<p>fetchObject/fetchNextObject Test</p>";
 	$rs = $db->Execute('select * from ADOXYZ');
 	if ($rs) {
 		if (empty($rs->connection)) print "<b>Connection object missing from recordset</b></br>";
 
-		while ($o = $rs->FetchNextObject()) { // calls FetchObject internally
+		while ($o = $rs->fetchNextObject()) { // calls fetchObject internally
 			if (!is_string($o->FIRSTNAME) || !is_string($o->LASTNAME)) {
 				print_r($o);
 				print "<p><b>Firstname is not string</b></p>";
@@ -830,12 +836,12 @@ END Adodb;
 		die("<p>ADOXYZ table cannot be read - die()");
 	}
 	$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-	print "<p>FetchObject/FetchNextObject Test 2</p>";
+	print "<p>fetchObject/fetchNextObject Test 2</p>";
 	#$db->debug=99;
 	$rs = $db->Execute('select * from ADOXYZ');
 	if (empty($rs->connection)) print "<b>Connection object missing from recordset</b></br>";
 	print_r($rs->fields);
-	while ($o = $rs->FetchNextObject()) { // calls FetchObject internally
+	while ($o = $rs->fetchNextObject()) { // calls fetchObject internally
 		if (!is_string($o->FIRSTNAME) || !is_string($o->LASTNAME)) {
 			print_r($o);
 			print "<p><b>Firstname is not string</b></p>";
@@ -1082,11 +1088,11 @@ END Adodb;
 	$e = $db->ErrorMsg(); $e2 = $db->ErrorNo();
 	echo "Testing error handling, should see illegal column 'x' error=<i>$e ($e2) </i><br>";
 	if (!$e || !$e2) Err("Error handling did not work");
-	print "Testing FetchNextObject for 1 object ";
+	print "Testing fetchNextObject for 1 object ";
 	$rs = $db->Execute("select distinct lastname,firstname from ADOXYZ where firstname='Caroline'");
 	$fcnt = 0;
 	if ($rs)
-	while ($o = $rs->FetchNextObject()) {
+	while ($o = $rs->fetchNextObject()) {
 		$fcnt += 1;
 	}
 	if ($fcnt == 1) print " OK<BR>";
@@ -1346,11 +1352,6 @@ END Adodb;
 
 	$rs = $db->SelectLimit('select id,firstname,lastname,created,\'The	"young man", he said\' from ADOXYZ',10);
 
-	if (PHP_VERSION < 5) {
-		print "<pre>";
-		rs2tabout($rs);
-		print "</pre>";
-	}
 	#print " CacheFlush ";
 	#$db->CacheFlush();
 
@@ -1583,13 +1584,13 @@ END Adodb;
 		else {
 			$name = $db->GetOne("Select firstname from ADOXYZ where id=1");
 			if (trim($name) != "Carolx") Err("Error: CompleteTrans (2) should have succeeded, returned name=$name");
-			else echo "<p> -- Passed StartTrans test2 - commiting</p>";
+			else echo "<p> -- Passed StartTrans test2 - committing</p>";
 		}
 	}
 	flush();
 	$saved = $db->debug;
 	$db->debug=1;
-	$cnt = _adodb_getcount($db, 'select * from ADOXYZ where firstname in (select firstname from ADOXYZ)');
+	$cnt = _adodb_S($db, 'select * from ADOXYZ where firstname in (select firstname from ADOXYZ)');
 	echo "<b>Count=</b> $cnt";
 	$db->debug=$saved;
 
@@ -1645,16 +1646,21 @@ END Adodb;
 	print "<p>Testing Bad Connection</p>";
 	flush();
 
-	if (true || PHP_VERSION < 5)  {
-		if ($db->dataProvider == 'odbtp') $db->databaseType = 'odbtp';
-		$conn = NewADOConnection($db->databaseType);
-		$conn->raiseErrorFn = 'adodb_test_err';
-		if (1) $conn->PConnect('abc','baduser','badpassword');
-		if ($TESTERRS == 2) print "raiseErrorFn tests passed<br>";
-		else print "<b>raiseErrorFn tests failed ($TESTERRS)</b><br>";
-
-		flush();
+	if ($db->dataProvider == 'odbtp') {
+		$db->databaseType = 'odbtp';
 	}
+	$conn = NewADOConnection($db->databaseType);
+	$conn->raiseErrorFn = 'adodb_test_err';
+	$conn->PConnect('abc','baduser','badpassword');
+	if ($TESTERRS == 2) {
+		print "raiseErrorFn tests passed<br>";
+	}
+	else {
+		print "<b>raiseErrorFn tests failed ($TESTERRS)</b><br>";
+	}
+
+	flush();
+
 	////////////////////////////////////////////////////////////////////
 
 	global $nocountrecs;
@@ -1713,7 +1719,7 @@ if (@$_SERVER['COMPUTERNAME'] == 'TIGRESS') {
 
 	CheckWS('firebird');
 	CheckWS('sybase');
-	if (!ini_get('safe_mode')) CheckWS('informix');
+	CheckWS('informix');
 
 	CheckWS('ado_mssql');
 	CheckWS('ado_access');
@@ -1750,7 +1756,7 @@ foreach($_GET as $k=>$v)  {
 
 This script tests the following databases: Interbase, Oracle, Visual FoxPro, Microsoft Access (ODBC and ADO), MySQL, MSSQL (ODBC, native, ADO).
 There is also support for Sybase, PostgreSQL.</p>
-For the latest version of ADODB, visit <a href=http://adodb.sourceforge.net/>adodb.sourceforge.net</a>.</p>
+For the latest version of ADODB, visit <a href=https://adodb.org//>adodb.org</a>.</p>
 
 Test <a href=test4.php>GetInsertSQL/GetUpdateSQL</a> &nbsp;
 	<a href=testsessions.php>Sessions</a> &nbsp;
@@ -1758,9 +1764,6 @@ Test <a href=test4.php>GetInsertSQL/GetUpdateSQL</a> &nbsp;
 	<a href=test-perf.php>Perf Monitor</a><p>
 <?php
 
-
-include_once('../adodb-time.inc.php');
-if (isset($_GET['time'])) adodb_date_test();
 flush();
 
 include_once('./testdatabases.inc.php');

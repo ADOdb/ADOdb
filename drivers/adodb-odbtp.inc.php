@@ -1,15 +1,26 @@
 <?php
-/*
-  @version   v5.21.0-dev  ??-???-2016
-  @copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-  @copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence. See License.txt.
-  Set tabs to 4 for best viewing.
-  Latest version is available at http://adodb.sourceforge.net
-*/
-// Code contributed by "stefan bogdan" <sbogdan#rsb.ro>
+/**
+ * ODBTP driver
+ *
+ * @deprecated will be removed in ADOdb version 6
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ * @author stefan bogdan <sbogdan@rsb.ro>
+ */
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
@@ -34,6 +45,15 @@ class ADODB_odbtp extends ADOConnection{
 	var $_useUnicodeSQL = false;
 	var $_canPrepareSP = false;
 	var $_dontPoolDBC = true;
+
+	/** @var string DBMS name. */
+	var $odbc_name;
+
+	/** @var bool */
+	var $_canSelectDb = false;
+
+	/** @var mixed */
+	var $_lastAffectedRows;
 
 	function ServerInfo()
 	{
@@ -61,7 +81,7 @@ class ADODB_odbtp extends ADOConnection{
 		if ($isfld) return "convert(date, $d, 120)";
 
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
-		$d = adodb_date($this->fmtDate,$d);
+		$d = date($this->fmtDate,$d);
 		return "convert(date, $d, 120)";
 	}
 
@@ -71,12 +91,12 @@ class ADODB_odbtp extends ADOConnection{
 		if ($isfld) return "convert(datetime, $d, 120)";
 
 		if (is_string($d)) $d = ADORecordSet::UnixDate($d);
-		$d = adodb_date($this->fmtDate,$d);
+		$d = date($this->fmtDate,$d);
 		return "convert(datetime, $d, 120)";
 	}
 */
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 	// SCOPE_IDENTITY()
 	// Returns the last IDENTITY value inserted into an IDENTITY column in
@@ -293,7 +313,6 @@ class ADODB_odbtp extends ADOConnection{
 			return false;
 		}
 		$this->database = $dbName;
-		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 		return true;
 	}
 
@@ -382,7 +401,7 @@ class ADODB_odbtp extends ADOConnection{
 		return $arr2;
 	}
 
-	function MetaForeignKeys($table, $owner='', $upper=false)
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -665,15 +684,6 @@ class ADORecordSet_odbtp extends ADORecordSet {
 	var $databaseType = 'odbtp';
 	var $canSeek = true;
 
-	function __construct($queryID,$mode=false)
-	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		$this->fetchMode = $mode;
-		parent::__construct($queryID);
-	}
 
 	function _initrs()
 	{

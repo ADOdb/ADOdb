@@ -1,21 +1,25 @@
 <?php
-/*
-@version   v5.21.0-dev  ??-???-2016
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-Set tabs to 4 for best viewing.
-
-  Latest version is available at http://adodb.sourceforge.net
-
-  Native mssql driver. Requires mssql client. Works on Windows.
-  To configure for Unix, see
-   	http://phpbuilder.com/columns/alberto20000919.php3
-
-*/
-
+/**
+ * Native MSSQL driver.
+ *
+ * Requires mssql client. Works on Windows.
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ */
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
@@ -39,39 +43,7 @@ if (!defined('ADODB_DIR')) die();
 //----------------------------------------------------------------
 
 
-// has datetime converstion to YYYY-MM-DD format, and also mssql_fetch_assoc
-if (ADODB_PHPVER >= 0x4300) {
-// docs say 4.2.0, but testing shows only since 4.3.0 does it work!
-	ini_set('mssql.datetimeconvert',0);
-} else {
-global $ADODB_mssql_mths;		// array, months must be upper-case
-
-
-	$ADODB_mssql_date_order = 'mdy';
-	$ADODB_mssql_mths = array(
-		'JAN'=>1,'FEB'=>2,'MAR'=>3,'APR'=>4,'MAY'=>5,'JUN'=>6,
-		'JUL'=>7,'AUG'=>8,'SEP'=>9,'OCT'=>10,'NOV'=>11,'DEC'=>12);
-}
-
-//---------------------------------------------------------------------------
-// Call this to autoset $ADODB_mssql_date_order at the beginning of your code,
-// just after you connect to the database. Supports mdy and dmy only.
-// Not required for PHP 4.2.0 and above.
-function AutoDetect_MSSQL_Date_Order($conn)
-{
-global $ADODB_mssql_date_order;
-	$adate = $conn->GetOne('select getdate()');
-	if ($adate) {
-		$anum = (int) $adate;
-		if ($anum > 0) {
-			if ($anum > 31) {
-				//ADOConnection::outp( "MSSQL: YYYY-MM-DD date format not supported currently");
-			} else
-				$ADODB_mssql_date_order = 'dmy';
-		} else
-			$ADODB_mssql_date_order = 'mdy';
-	}
-}
+ini_set('mssql.datetimeconvert',0);
 
 class ADODB_mssql extends ADOConnection {
 	var $databaseType = "mssql";
@@ -94,7 +66,6 @@ class ADODB_mssql extends ADOConnection {
 	var $hasGenID = true;
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
 	var $sysTimeStamp = 'GetDate()';
-	var $_has_mssql_init;
 	var $maxParameterLen = 4000;
 	var $arrayClass = 'ADORecordSet_array_mssql';
 	var $uniqueSort = true;
@@ -106,11 +77,6 @@ class ADODB_mssql extends ADOConnection {
 	var $uniqueOrderBy = true;
 	var $_bindInputArray = true;
 	var $forceNewConnect = false;
-
-	function __construct()
-	{
-		$this->_has_mssql_init = (strnatcmp(PHP_VERSION,'4.1.0')>=0);
-	}
 
 	function ServerInfo()
 	{
@@ -148,7 +114,7 @@ class ADODB_mssql extends ADOConnection {
 		return " ISNULL($field, $ifNull) "; // if MS SQL Server
 	}
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 	// SCOPE_IDENTITY()
 	// Returns the last IDENTITY value inserted into an IDENTITY column in
@@ -165,37 +131,22 @@ class ADODB_mssql extends ADOConnection {
 
 
 	/**
-	* Correctly quotes a string so that all strings are escaped. We prefix and append
-	* to the string single-quotes.
-	* An example is  $db->qstr("Don't bother",magic_quotes_runtime());
-	*
-	* @param s         the string to quote
-	* @param [magic_quotes]    if $s is GET/POST var, set to get_magic_quotes_gpc().
-	*              This undoes the stupidity of magic quotes for GPC.
-	*
-	* @return  quoted string to be sent back to database
-	*/
-	function qstr($s,$magic_quotes=false)
+	 * Correctly quotes a string so that all strings are escaped.
+	 * We prefix and append to the string single-quotes.
+	 * An example is  $db->qstr("Don't bother");
+	 *
+	 * @param string $s            The string to quote
+	 * @param bool   $magic_quotes This param is not used since 5.21.0.
+	 *                             It remains for backwards compatibility.
+	 *
+	 * @return string Quoted string to be sent back to database
+	 *
+	 * @noinspection PhpUnusedParameterInspection
+	 */
+	function qStr($s, $magic_quotes=false)
 	{
-		if (!$magic_quotes) {
-			return  "'".str_replace("'",$this->replaceQuote,$s)."'";
-		}
-
-		// undo magic quotes for " unless sybase is on
-		$sybase = ini_get('magic_quotes_sybase');
-		if (!$sybase) {
-			$s = str_replace('\\"','"',$s);
-			if ($this->replaceQuote == "\\'")  // ' already quoted, no need to change anything
-				return "'$s'";
-			else {// change \' to '' for sybase/mssql
-				$s = str_replace('\\\\','\\',$s);
-				return "'".str_replace("\\'",$this->replaceQuote,$s)."'";
-			}
-		} else {
-			return "'".$s."'";
-		}
+		return  "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
-// moodle change end - see readme_moodle.txt
 
 	function _affectedrows()
 	{
@@ -478,7 +429,7 @@ class ADODB_mssql extends ADOConnection {
 		return $indexes;
 	}
 
-	function MetaForeignKeys($table, $owner=false, $upper=false)
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -511,7 +462,11 @@ order by constraint_name, referenced_table_name, keyno";
 		foreach($arr as $k => $v) {
 			foreach($v as $a => $b) {
 				if ($upper) $a = strtoupper($a);
-				$arr2[$a] = $b;
+				if (is_array($arr2[$a])) {	// a previous foreign key was define for this reference table, we merge the new one
+					$arr2[$a] = array_merge($arr2[$a], $b);
+				} else {
+					$arr2[$a] = $b;
+				}
 			}
 		}
 		return $arr2;
@@ -586,7 +541,6 @@ order by constraint_name, referenced_table_name, keyno";
 	function SelectDB($dbName)
 	{
 		$this->database = $dbName;
-		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 		if ($this->_connectionID) {
 			return @mssql_select_db($dbName);
 		}
@@ -665,10 +619,6 @@ order by constraint_name, referenced_table_name, keyno";
 
 	function PrepareSP($sql,$param=true)
 	{
-		if (!$this->_has_mssql_init) {
-			ADOConnection::outp( "PrepareSP: mssql_init only available since PHP 4.1.0");
-			return $sql;
-		}
 		$stmt = mssql_init($sql,$this->_connectionID);
 		if (!$stmt)  return $sql;
 		return array($sql,$stmt);
@@ -723,11 +673,6 @@ order by constraint_name, referenced_table_name, keyno";
 	*/
 	function Parameter(&$stmt, &$var, $name, $isOutput=false, $maxLen=4000, $type=false)
 	{
-		if (!$this->_has_mssql_init) {
-			ADOConnection::outp( "Parameter: mssql_bind only available since PHP 4.1.0");
-			return false;
-		}
-
 		$isNull = is_null($var); // php 4.0.4 and above...
 
 		if ($type === false)
@@ -737,7 +682,7 @@ order by constraint_name, referenced_table_name, keyno";
 			case 'double': $type = SQLFLT8; break;
 			case 'integer': $type = SQLINT4; break;
 			case 'boolean': $type = SQLINT1; break; # SQLBIT not supported in 4.1.0
-			}
+		}
 
 		if  ($this->debug) {
 			$prefix = ($isOutput) ? 'Out' : 'In';
@@ -745,7 +690,7 @@ order by constraint_name, referenced_table_name, keyno";
 			ADOConnection::outp( "{$prefix}Parameter(\$stmt, \$php_var='$var', \$name='$name', \$maxLen=$maxLen, \$type=$ztype);");
 		}
 		/*
-			See http://phplens.com/lens/lensforum/msgs.php?id=7231
+			See PHPLens Issue No: 7231
 
 			RETVAL is HARD CODED into php_mssql extension:
 			The return value (a long integer value) is treated like a special OUTPUT parameter,
@@ -780,7 +725,6 @@ order by constraint_name, referenced_table_name, keyno";
 		return $this->Execute($sql) != false;
 	}
 
-	// returns query ID if successful, otherwise false
 	function _query($sql,$inputarr=false)
 	{
 		$this->_errorMsg = false;
@@ -823,7 +767,7 @@ order by constraint_name, referenced_table_name, keyno";
 						$inputVar = $db->this($v);
 
 					$params .= "@P$i=N" . $inputVar;
-					
+
 				} else if (is_integer($v)) {
 					$decl .= "@P$i INT";
 					$params .= "@P$i=".$v;
@@ -873,16 +817,7 @@ order by constraint_name, referenced_table_name, keyno";
 		return $rez;
 	}
 
-	// mssql uses a default date like Dec 30 2000 12:00AM
-	static function UnixDate($v)
-	{
-		return ADORecordSet_array_mssql::UnixDate($v);
-	}
 
-	static function UnixTimeStamp($v)
-	{
-		return ADORecordSet_array_mssql::UnixTimeStamp($v);
-	}
 
 	/**
 	* Returns a substring of a varchar type field
@@ -919,21 +854,15 @@ class ADORecordset_mssql extends ADORecordSet {
 
 	var $databaseType = "mssql";
 	var $canSeek = true;
-	var $hasFetchAssoc; // see http://phplens.com/lens/lensforum/msgs.php?id=6083
+	var $hasFetchAssoc; // see PHPLens Issue No: 6083
 	// _mths works only in non-localised system
 
-	function __construct($id,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
+		parent::__construct($queryID, $mode);
+
 		// freedts check...
 		$this->hasFetchAssoc = function_exists('mssql_fetch_assoc');
-
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-
-		}
-		$this->fetchMode = $mode;
-		return parent::__construct($id);
 	}
 
 
@@ -1114,17 +1043,6 @@ class ADORecordset_mssql extends ADORecordSet {
 		return true;
 	}
 
-	// mssql uses a default date like Dec 30 2000 12:00AM
-	static function UnixDate($v)
-	{
-		return ADORecordSet_array_mssql::UnixDate($v);
-	}
-
-	static function UnixTimeStamp($v)
-	{
-		return ADORecordSet_array_mssql::UnixTimeStamp($v);
-	}
-
 	/**
 	* Returns the maximum size of a MetaType C field. Because of the
 	* database design, SQL Server places no limits on the size of data inserted
@@ -1152,81 +1070,7 @@ class ADORecordset_mssql extends ADORecordSet {
 }
 
 
-class ADORecordSet_array_mssql extends ADORecordSet_array {
-
-	// mssql uses a default date like Dec 30 2000 12:00AM
-	static function UnixDate($v)
-	{
-
-		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixDate($v);
-
-	global $ADODB_mssql_mths,$ADODB_mssql_date_order;
-
-		//Dec 30 2000 12:00AM
-		if ($ADODB_mssql_date_order == 'dmy') {
-			if (!preg_match( "|^([0-9]{1,2})[-/\. ]+([A-Za-z]{3})[-/\. ]+([0-9]{4})|" ,$v, $rr)) {
-				return parent::UnixDate($v);
-			}
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[1];
-			$themth =  substr(strtoupper($rr[2]),0,3);
-		} else {
-			if (!preg_match( "|^([A-Za-z]{3})[-/\. ]+([0-9]{1,2})[-/\. ]+([0-9]{4})|" ,$v, $rr)) {
-				return parent::UnixDate($v);
-			}
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[2];
-			$themth = substr(strtoupper($rr[1]),0,3);
-		}
-		$themth = $ADODB_mssql_mths[$themth];
-		if ($themth <= 0) return false;
-		// h-m-s-MM-DD-YY
-		return  mktime(0,0,0,$themth,$theday,$rr[3]);
-	}
-
-	static function UnixTimeStamp($v)
-	{
-
-		if (is_numeric(substr($v,0,1)) && ADODB_PHPVER >= 0x4200) return parent::UnixTimeStamp($v);
-
-	global $ADODB_mssql_mths,$ADODB_mssql_date_order;
-
-		//Dec 30 2000 12:00AM
-		if ($ADODB_mssql_date_order == 'dmy') {
-			if (!preg_match( "|^([0-9]{1,2})[-/\. ]+([A-Za-z]{3})[-/\. ]+([0-9]{4}) +([0-9]{1,2}):([0-9]{1,2}) *([apAP]{0,1})|"
-			,$v, $rr)) return parent::UnixTimeStamp($v);
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[1];
-			$themth =  substr(strtoupper($rr[2]),0,3);
-		} else {
-			if (!preg_match( "|^([A-Za-z]{3})[-/\. ]+([0-9]{1,2})[-/\. ]+([0-9]{4}) +([0-9]{1,2}):([0-9]{1,2}) *([apAP]{0,1})|"
-			,$v, $rr)) return parent::UnixTimeStamp($v);
-			if ($rr[3] <= TIMESTAMP_FIRST_YEAR) return 0;
-
-			$theday = $rr[2];
-			$themth = substr(strtoupper($rr[1]),0,3);
-		}
-
-		$themth = $ADODB_mssql_mths[$themth];
-		if ($themth <= 0) return false;
-
-		switch (strtoupper($rr[6])) {
-		case 'P':
-			if ($rr[4]<12) $rr[4] += 12;
-			break;
-		case 'A':
-			if ($rr[4]==12) $rr[4] = 0;
-			break;
-		default:
-			break;
-		}
-		// h-m-s-MM-DD-YY
-		return  mktime($rr[4],$rr[5],0,$themth,$theday,$rr[3]);
-	}
-}
+class ADORecordSet_array_mssql extends ADORecordSet_array {}
 
 /*
 Code Example 1:

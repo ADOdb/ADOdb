@@ -1,29 +1,25 @@
 <?php
-/*
-@version   v5.21.0-dev  ??-???-2016
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-
-  Latest version is available at http://adodb.sourceforge.net
-
-  Interbase data driver. Requires interbase client. Works on Windows and Unix.
-
-  3 Jan 2002 -- suggestions by Hans-Peter Oeri <kampfcaspar75@oeri.ch>
-  	changed transaction handling and added experimental blob stuff
-
-  Docs to interbase at the website
-   http://www.synectics.co.za/php3/tutorial/IB_PHP3_API.html
-
-  To use gen_id(), see
-   http://www.volny.cz/iprenosil/interbase/ip_ib_code.htm#_code_creategen
-
-   $rs = $conn->Execute('select gen_id(adodb,1) from rdb$database');
-   $id = $rs->fields[0];
-   $conn->Execute("insert into table (id, col1,...) values ($id, $val1,...)");
-*/
+/**
+ * Interbase driver.
+ *
+ * Requires interbase client. Works on Windows and Unix.
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ */
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
@@ -260,7 +256,7 @@ class ADODB_ibase extends ADOConnection {
 
 
 	// See http://community.borland.com/article/0,1410,25844,00.html
-	function RowLock($tables,$where,$col=false)
+	function rowLock($table, $where, $col = false)
 	{
 		if ($this->autoCommit) {
 			$this->BeginTrans();
@@ -324,7 +320,7 @@ class ADODB_ibase extends ADOConnection {
 
 	function ErrorMsg()
 	{
-			return $this->_errorMsg;
+		return $this->_errorMsg;
 	}
 
 	function Prepare($sql)
@@ -336,9 +332,8 @@ class ADODB_ibase extends ADOConnection {
 
 	// returns query ID if successful, otherwise false
 	// there have been reports of problems with nested queries - the code is probably not re-entrant?
-	function _query($sql,$iarr=false)
+	function _query($sql, $inputarr = false)
 	{
-
 		if (!$this->autoCommit && $this->_transactionID) {
 			$conn = $this->_transactionID;
 			$docommit = false;
@@ -349,48 +344,35 @@ class ADODB_ibase extends ADOConnection {
 		if (is_array($sql)) {
 			$fn = 'ibase_execute';
 			$sql = $sql[1];
-			if (is_array($iarr)) {
-				if  (ADODB_PHPVER >= 0x4050) { // actually 4.0.4
-					if ( !isset($iarr[0]) ) $iarr[0] = ''; // PHP5 compat hack
-					$fnarr = array_merge( array($sql) , $iarr);
-					$ret = call_user_func_array($fn,$fnarr);
-				} else {
-					switch(sizeof($iarr)) {
-					case 1: $ret = $fn($sql,$iarr[0]); break;
-					case 2: $ret = $fn($sql,$iarr[0],$iarr[1]); break;
-					case 3: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2]); break;
-					case 4: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3]); break;
-					case 5: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4]); break;
-					case 6: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5]); break;
-					case 7: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5],$iarr[6]); break;
-					default: ADOConnection::outp( "Too many parameters to ibase query $sql");
-					case 8: $ret = $fn($sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5],$iarr[6],$iarr[7]); break;
-					}
+			if (is_array($inputarr)) {
+				if (!isset($inputarr[0])) {
+					$inputarr[0] = '';  // PHP5 compat hack
 				}
-			} else $ret = $fn($sql);
+				$fnarr = array_merge(array($sql), $inputarr);
+				$ret = call_user_func_array($fn, $fnarr);
+			} else {
+				$ret = $fn($sql);
+			}
 		} else {
 			$fn = 'ibase_query';
 
-			if (is_array($iarr)) {
-				if (ADODB_PHPVER >= 0x4050) { // actually 4.0.4
-					if (sizeof($iarr) == 0) $iarr[0] = ''; // PHP5 compat hack
-					$fnarr = array_merge( array($conn,$sql) , $iarr);
-					$ret = call_user_func_array($fn,$fnarr);
-				} else {
-					switch(sizeof($iarr)) {
-					case 1: $ret = $fn($conn,$sql,$iarr[0]); break;
-					case 2: $ret = $fn($conn,$sql,$iarr[0],$iarr[1]); break;
-					case 3: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2]); break;
-					case 4: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3]); break;
-					case 5: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4]); break;
-					case 6: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5]); break;
-					case 7: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5],$iarr[6]); break;
-					default: ADOConnection::outp( "Too many parameters to ibase query $sql");
-					case 8: $ret = $fn($conn,$sql,$iarr[0],$iarr[1],$iarr[2],$iarr[3],$iarr[4],$iarr[5],$iarr[6],$iarr[7]); break;
-					}
+			if (is_array($inputarr)) {
+				if (sizeof($inputarr) == 0) {
+					$inputarr[0] = ''; // PHP5 compat hack
 				}
-			} else $ret = $fn($conn,$sql);
+				$fnarr = array_merge(array($conn, $sql), $inputarr);
+				$ret = call_user_func_array($fn, $fnarr);
+			} else {
+				$ret = $fn($conn, $sql);
+			}
 		}
+
+		// ibase_query() and ibase_execute() return number of affected rows
+		// ADOConnection::_Execute() expects true for INSERT/UPDATE/DELETE
+		if (is_numeric($ret)) {
+			$ret = true;
+		}
+
 		if ($docommit && $ret === true) {
 			ibase_commit($this->_connectionID);
 		}
@@ -538,17 +520,24 @@ class ADODB_ibase extends ADOConnection {
 
 				$fld->has_default = true;
 				$d = substr($rs->fields[2],strlen('default '));
-				switch ($fld->type)
-				{
-				case 'smallint':
-				case 'integer': $fld->default_value = (int) $d; break;
-				case 'char':
-				case 'blob':
-				case 'text':
-				case 'varchar': $fld->default_value = (string) substr($d,1,strlen($d)-2); break;
-				case 'double':
-				case 'float': $fld->default_value = (float) $d; break;
-				default: $fld->default_value = $d; break;
+				switch ($fld->type) {
+					case 'smallint':
+					case 'integer':
+						$fld->default_value = (int)$d;
+						break;
+					case 'char':
+					case 'blob':
+					case 'text':
+					case 'varchar':
+						$fld->default_value = (string)substr($d, 1, strlen($d) - 2);
+						break;
+					case 'double':
+					case 'float':
+						$fld->default_value = (float)$d;
+						break;
+					default:
+						$fld->default_value = $d;
+						break;
 				}
 		//	case 35:$tt = 'TIMESTAMP'; break;
 			}
@@ -582,9 +571,6 @@ class ADODB_ibase extends ADOConnection {
 		return $blob;
 	}
 
-
-
-
 	// old blobdecode function
 	// still used to auto-decode all blob's
 	function _BlobDecode_old( $blob )
@@ -601,14 +587,8 @@ class ADODB_ibase extends ADOConnection {
 
 	function _BlobDecode( $blob )
 	{
-		if  (ADODB_PHPVER >= 0x5000) {
-			$blob_data = ibase_blob_info($this->_connectionID, $blob );
-			$blobid = ibase_blob_open($this->_connectionID, $blob );
-		} else {
-
-			$blob_data = ibase_blob_info( $blob );
-			$blobid = ibase_blob_open( $blob );
-		}
+		$blob_data = ibase_blob_info($this->_connectionID, $blob );
+		$blobid    = ibase_blob_open($this->_connectionID, $blob );
 
 		if( $blob_data[0] > $this->maxblobsize ) {
 
@@ -655,34 +635,34 @@ class ADODB_ibase extends ADOConnection {
 	*/
 	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
-	$blob_id = ibase_blob_create($this->_connectionID);
+		$blob_id = ibase_blob_create($this->_connectionID);
 
-	// ibase_blob_add($blob_id, $val);
+		// ibase_blob_add($blob_id, $val);
 
-	// replacement that solves the problem by which only the first modulus 64K /
-	// of $val are stored at the blob field ////////////////////////////////////
-	// Thx Abel Berenstein  aberenstein#afip.gov.ar
-	$len = strlen($val);
-	$chunk_size = 32768;
-	$tail_size = $len % $chunk_size;
-	$n_chunks = ($len - $tail_size) / $chunk_size;
+		// replacement that solves the problem by which only the first modulus 64K /
+		// of $val are stored at the blob field ////////////////////////////////////
+		// Thx Abel Berenstein  aberenstein#afip.gov.ar
+		$len = strlen($val);
+		$chunk_size = 32768;
+		$tail_size = $len % $chunk_size;
+		$n_chunks = ($len - $tail_size) / $chunk_size;
 
-	for ($n = 0; $n < $n_chunks; $n++) {
-		$start = $n * $chunk_size;
-		$data = substr($val, $start, $chunk_size);
-		ibase_blob_add($blob_id, $data);
-	}
+		for ($n = 0; $n < $n_chunks; $n++) {
+			$start = $n * $chunk_size;
+			$data = substr($val, $start, $chunk_size);
+			ibase_blob_add($blob_id, $data);
+		}
 
-	if ($tail_size) {
-		$start = $n_chunks * $chunk_size;
-		$data = substr($val, $start, $tail_size);
-		ibase_blob_add($blob_id, $data);
-	}
-	// end replacement /////////////////////////////////////////////////////////
+		if ($tail_size) {
+			$start = $n_chunks * $chunk_size;
+			$data = substr($val, $start, $tail_size);
+			ibase_blob_add($blob_id, $data);
+		}
+		// end replacement /////////////////////////////////////////////////////////
 
-	$blob_id_str = ibase_blob_close($blob_id);
+		$blob_id_str = ibase_blob_close($blob_id);
 
-	return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blob_id_str)) != false;
+		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where", array($blob_id_str)) != false;
 
 	}
 
@@ -754,20 +734,13 @@ class ADODB_ibase extends ADOConnection {
 	Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordset_ibase extends ADORecordSet
+class ADORecordSet_ibase extends ADORecordSet
 {
 
 	var $databaseType = "ibase";
 	var $bind=false;
 	var $_cacheType;
 
-	function __construct($id,$mode=false)
-	{
-	global $ADODB_FETCH_MODE;
-
-			$this->fetchMode = ($mode === false) ? $ADODB_FETCH_MODE : $mode;
-			parent::__construct($id);
-	}
 
 	/*		Returns: an object containing field information.
 			Get column information in the Recordset object. fetchField() can be used in order to obtain information about
@@ -874,13 +847,12 @@ class ADORecordset_ibase extends ADORecordSet
 		}
 
 		return $this->fields[$this->bind[strtoupper($colname)]];
-
 	}
 
 
 	function _close()
 	{
-			return @ibase_free_result($this->_queryID);
+		return @ibase_free_result($this->_queryID);
 	}
 
 	function MetaType($t,$len=-1,$fieldobj=false)
@@ -890,28 +862,41 @@ class ADORecordset_ibase extends ADORecordSet
 			$t = $fieldobj->type;
 			$len = $fieldobj->max_length;
 		}
-		switch (strtoupper($t)) {
-		case 'CHAR':
-			return 'C';
 
-		case 'TEXT':
-		case 'VARCHAR':
-		case 'VARYING':
-		if ($len <= $this->blobSize) return 'C';
-			return 'X';
-		case 'BLOB':
-			return 'B';
+		$t = strtoupper($t);
 
-		case 'TIMESTAMP':
-		case 'DATE': return 'D';
-		case 'TIME': return 'T';
-				//case 'T': return 'T';
+		if (array_key_exists($t, $this->connection->customActualTypes)) {
+			return $this->connection->customActualTypes[$t];
+		}
 
-				//case 'L': return 'L';
-		case 'INT':
-		case 'SHORT':
-		case 'INTEGER': return 'I';
-		default: return ADODB_DEFAULT_METATYPE;
+		switch ($t) {
+			case 'CHAR':
+				return 'C';
+
+			case 'TEXT':
+			case 'VARCHAR':
+			case 'VARYING':
+				if ($len <= $this->blobSize) {
+					return 'C';
+				}
+				return 'X';
+			case 'BLOB':
+				return 'B';
+
+			case 'TIMESTAMP':
+			case 'DATE':
+				return 'D';
+			case 'TIME':
+				return 'T';
+			//case 'T': return 'T';
+
+			//case 'L': return 'L';
+			case 'INT':
+			case 'SHORT':
+			case 'INTEGER':
+				return 'I';
+			default:
+				return ADODB_DEFAULT_METATYPE;
 		}
 	}
 

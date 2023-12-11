@@ -1,16 +1,26 @@
 <?php
-
-/*
-@version   v5.21.0-dev  ??-???-2016
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-*/
-
- /* this file is used by the ADODB test program: test.php */
- ?>
+/**
+ * ADOdb tests.
+ *
+ * This file is used by the ADODB test program: test.php
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ */
+?>
 
 <table><tr valign=top><td>
 <form method=get>
@@ -22,7 +32,6 @@
 <input type=checkbox name="testmysqli" value=1 <?php echo !empty($testmysqli) ? 'checked' : '' ?>> <b>MySQLi</b>
 <br>
 <td><input type=checkbox name="testsqlite" value=1 <?php echo !empty($testsqlite) ? 'checked' : '' ?>> <b>SQLite</b><br>
-<input type=checkbox name="testproxy" value=1 <?php echo !empty($testproxy) ? 'checked' : '' ?>> <b>MySQL Proxy</b><br>
 <input type=checkbox name="testoracle" value=1 <?php echo !empty($testoracle) ? 'checked' : '' ?>> <b>Oracle (oci8)</b> <br>
 <input type=checkbox name="testpostgres" value=1 <?php echo !empty($testpostgres) ? 'checked' : '' ?>> <b>PostgreSQL</b><br>
 <input type=checkbox name="testpostgres9" value=1 <?php echo !empty($testpostgres9) ? 'checked' : '' ?>> <b>PostgreSQL 9</b><br>
@@ -275,8 +284,7 @@ if (!empty($testvfp)) { // ODBC
 if (!empty($testmysql)) { // MYSQL
 
 
-	if (PHP_VERSION >= 5 || $_SERVER['HTTP_HOST'] == 'localhost') $server = 'localhost';
-	else $server = "mangrove";
+	$server = 'localhost';
 	$user = 'root'; $password = ''; $database = 'northwind';
 	$db = ADONewConnection("mysqlt://$user:$password@$server/$database?persist");
 	print "<h1>Connecting $db->databaseType...</h1>";
@@ -294,8 +302,7 @@ if (!empty($testmysqli)) { // MYSQL
 
 	$db = ADONewConnection('mysqli');
 	print "<h1>Connecting $db->databaseType...</h1>";
-	if (PHP_VERSION >= 5 || $_SERVER['HTTP_HOST'] == 'localhost') $server = 'localhost';
-	else $server = "mangrove";
+	$server = 'localhost';
 	if ($db->PConnect($server, "root", "", "northwind")) {
 		//$db->debug=1;$db->Execute('drop table ADOXYZ');
 		testdb($db,
@@ -310,24 +317,11 @@ if (!empty($testmysqlodbc)) { // MYSQL
 	$db = ADONewConnection('odbc');
 	$db->hasTransactions = false;
 	print "<h1>Connecting $db->databaseType...</h1>";
-	if ($_SERVER['HTTP_HOST'] == 'localhost') $server = 'localhost';
-	else $server = "mangrove";
+	$server = 'localhost';
 	if ($db->PConnect('mysql', "root", ""))
 		testdb($db,
 		"create table ADOXYZ (id int, firstname char(24), lastname char(24), created date) type=innodb");
 	else print "ERROR: MySQL test requires a MySQL server on localhost, userid='admin', password='', database='test'".'<BR>'.$db->ErrorMsg();
-}
-
-if (!empty($testproxy)){
-	$db = ADONewConnection('proxy');
-	print "<h1>Connecting $db->databaseType...</h1>";
-	if ($_SERVER['HTTP_HOST'] == 'localhost') $server = 'localhost';
-
-	if ($db->PConnect('http://localhost/php/phplens/adodb/server.php'))
-		testdb($db,
-		"create table ADOXYZ (id int, firstname char(24), lastname char(24), created date) type=innodb");
-	else print "ERROR: MySQL test requires a MySQL server on localhost, userid='admin', password='', database='test'".'<BR>'.$db->ErrorMsg();
-
 }
 
 ADOLoadCode('oci805');
@@ -358,25 +352,15 @@ if (false && !empty($testoracle)) {
 
 ADOLoadCode("odbc_db2"); // no longer supported
 if (!empty($testdb2)) {
-	if (PHP_VERSION>=5.1) {
-		$db = ADONewConnection("db2");
-		print "<h1>Connecting $db->databaseType...</h1>";
+	$db = ADONewConnection("db2");
+	print "<h1>Connecting $db->databaseType...</h1>";
 
-		#$db->curMode = SQL_CUR_USE_ODBC;
-		#$dsn = "driver={IBM db2 odbc DRIVER};Database=test;hostname=localhost;port=50000;protocol=TCPIP; uid=natsoft; pwd=guest";
-		if ($db->Connect('localhost','natsoft','guest','test')) {
-			testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
-		} else print "ERROR: DB2 test requires an server setup with odbc data source db2_sample".'<BR>'.$db->ErrorMsg();
+	#$db->curMode = SQL_CUR_USE_ODBC;
+	#$dsn = "driver={IBM db2 odbc DRIVER};Database=test;hostname=localhost;port=50000;protocol=TCPIP; uid=natsoft; pwd=guest";
+	if ($db->Connect('localhost','natsoft','guest','test')) {
+		testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
 	} else {
-		$db = ADONewConnection("odbc_db2");
-		print "<h1>Connecting $db->databaseType...</h1>";
-
-		$dsn = "db2test";
-		#$db->curMode = SQL_CUR_USE_ODBC;
-		#$dsn = "driver={IBM db2 odbc DRIVER};Database=test;hostname=localhost;port=50000;protocol=TCPIP; uid=natsoft; pwd=guest";
-		if ($db->Connect($dsn)) {
-			testdb($db,"create table ADOXYZ (id int, firstname varchar(24), lastname varchar(24),created date)");
-		} else print "ERROR: DB2 test requires an server setup with odbc data source db2_sample".'<BR>'.$db->ErrorMsg();
+		print "ERROR: DB2 test requires an server setup with odbc data source db2_sample".'<BR>'.$db->ErrorMsg();
 	}
 echo "<hr />";
 flush();
@@ -432,7 +416,7 @@ if (!empty($testmssql)) { // MS SQL Server via ODBC
 }
 
 ADOLoadCode("ado_mssql");
-if (!empty($testmssql) && !empty($testado) ) { // ADO ACCESS MSSQL -- thru ODBC -- DSN-less
+if (!empty($testmssql) && !empty($testado) ) { // ADO ACCESS MSSQL -- through ODBC -- DSN-less
 
 	$db = ADONewConnection("ado_mssql");
 	//$db->debug=1;

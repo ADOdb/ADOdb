@@ -1,27 +1,34 @@
 <?php
-/*
-@version   v5.21.0-dev  ??-???-2016
-@copyright (c) 2000-2013 John Lim (jlim#natsoft.com). All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-
-  Latest version is available at http://adodb.sourceforge.net
-
-  SQLite info: http://www.hwaci.com/sw/sqlite/
-
-  Install Instructions:
-  ====================
-  1. Place this in adodb/drivers
-  2. Rename the file, remove the .txt prefix.
-*/
+/**
+ * SQLite driver
+ *
+ * @link https://www.sqlite.org/
+ *
+ * @deprecated Use SQLite3 driver instead
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ */
 
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
 class ADODB_sqlite extends ADOConnection {
 	var $databaseType = "sqlite";
+	var $dataProvider = "sqlite";
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $concat_operator='||';
 	var $_errorNo = 0;
@@ -29,8 +36,8 @@ class ADODB_sqlite extends ADOConnection {
 	var $hasInsertID = true; 		/// supports autoincrement ID?
 	var $hasAffectedRows = true; 	/// supports affected rows for update/delete?
 	var $metaTablesSQL = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
-	var $sysDate = "adodb_date('Y-m-d')";
-	var $sysTimeStamp = "adodb_date('Y-m-d H:i:s')";
+	var $sysDate = "date('Y-m-d')";
+	var $sysTimeStamp = "date('Y-m-d H:i:s')";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 
 	function ServerInfo()
@@ -131,7 +138,7 @@ class ADODB_sqlite extends ADOConnection {
 		$parentDriver->hasInsertID = true;
 	}
 
-	function _insertid()
+	protected function _insertID($table = '', $column = '')
 	{
 		return sqlite_last_insert_rowid($this->_connectionID);
 	}
@@ -157,14 +164,12 @@ class ADODB_sqlite extends ADOConnection {
 	function SQLDate($fmt, $col=false)
 	{
 		$fmt = $this->qstr($fmt);
-		return ($col) ? "adodb_date2($fmt,$col)" : "adodb_date($fmt)";
+		return ($col) ? "strftime($fmt,$col)" : "strftime($fmt)";
 	}
 
 
 	function _createFunctions()
 	{
-		@sqlite_create_function($this->_connectionID, 'adodb_date', 'adodb_date', 1);
-		@sqlite_create_function($this->_connectionID, 'adodb_date2', 'adodb_date2', 2);
 	}
 
 
@@ -204,7 +209,6 @@ class ADODB_sqlite extends ADOConnection {
 		return true;
 	}
 
-	// returns query ID if successful, otherwise false
 	function _query($sql,$inputarr=false)
 	{
 		$rez = sqlite_query($sql,$this->_connectionID);
@@ -419,14 +423,11 @@ class ADORecordset_sqlite extends ADORecordSet {
 	var $databaseType = "sqlite";
 	var $bind = false;
 
-	function __construct($queryID,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
+		parent::__construct($queryID, $mode);
 
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		switch($mode) {
+		switch ($this->adodbFetchMode) {
 			case ADODB_FETCH_NUM:
 				$this->fetchMode = SQLITE_NUM;
 				break;
@@ -437,9 +438,6 @@ class ADORecordset_sqlite extends ADORecordSet {
 				$this->fetchMode = SQLITE_BOTH;
 				break;
 		}
-		$this->adodbFetchMode = $mode;
-
-		$this->_queryID = $queryID;
 
 		$this->_inited = true;
 		$this->fields = array();
@@ -455,7 +453,6 @@ class ADORecordset_sqlite extends ADORecordSet {
 
 		return $this->_queryID;
 	}
-
 
 	function FetchField($fieldOffset = -1)
 	{

@@ -1,21 +1,24 @@
 <?php
-/*
-@version   v5.21.0-dev  ??-???-2016
-@copyright (c) 2000-2013 John Lim. All rights reserved.
-@copyright (c) 2014      Damien Regad, Mark Newnham and the ADOdb community
-  Released under both BSD license and Lesser GPL library license.
-  Whenever there is any discrepancy between the two licenses,
-  the BSD license will take precedence.
-  Set tabs to 4 for best viewing.
-
-  Latest version is available at http://adodb.sourceforge.net
-
-  Sybase driver contributed by Toni (toni.tunkkari@finebyte.com)
-
-  - MSSQL date patch applied.
-
-  Date patch by Toni 15 Feb 2002
-*/
+/**
+ * Sybase driver
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ * @author Toni Tunkkari <toni.tunkkari@finebyte.com>
+ */
 
  // security - hide paths
 if (!defined('ADODB_DIR')) die();
@@ -44,11 +47,15 @@ class ADODB_sybase extends ADOConnection {
 
 	var $port;
 
-	// might require begintrans -- committrans
-	function _insertid()
+	/**
+	 * might require begintrans -- committrans
+	 * @inheritDoc
+	 */
+	protected function _insertID($table = '', $column = '')
 	{
 		return $this->GetOne('select @@identity');
 	}
+
 	  // might require begintrans -- committrans
 	function _affectedrows()
 	{
@@ -88,7 +95,9 @@ class ADODB_sybase extends ADOConnection {
 	// http://www.isug.com/Sybase_FAQ/ASE/section6.1.html#6.1.4
 	function RowLock($tables,$where,$col='top 1 null as ignore')
 	{
-		if (!$this->_hastrans) $this->BeginTrans();
+		if (!$this->hasTransactions) {
+			$this->BeginTrans();
+		}
 		$tables = str_replace(',',' HOLDLOCK,',$tables);
 		return $this->GetOne("select $col from $tables HOLDLOCK where $where");
 
@@ -97,7 +106,6 @@ class ADODB_sybase extends ADOConnection {
 	function SelectDB($dbName)
 	{
 		$this->database = $dbName;
-		$this->databaseName = $dbName; # obsolete, retained for compat with older adodb versions
 		if ($this->_connectionID) {
 			return @sybase_select_db($dbName);
 		}
@@ -162,12 +170,11 @@ class ADODB_sybase extends ADOConnection {
 		return true;
 	}
 
-	// returns query ID if successful, otherwise false
 	function _query($sql,$inputarr=false)
 	{
 	global $ADODB_COUNTRECS;
 
-		if ($ADODB_COUNTRECS == false && ADODB_PHPVER >= 0x4300)
+		if ($ADODB_COUNTRECS == false)
 			return sybase_unbuffered_query($sql,$this->_connectionID);
 		else
 			return sybase_query($sql,$this->_connectionID);
@@ -308,15 +315,11 @@ class ADORecordset_sybase extends ADORecordSet {
 	// _mths works only in non-localised system
 	var  $_mths = array('JAN'=>1,'FEB'=>2,'MAR'=>3,'APR'=>4,'MAY'=>5,'JUN'=>6,'JUL'=>7,'AUG'=>8,'SEP'=>9,'OCT'=>10,'NOV'=>11,'DEC'=>12);
 
-	function __construct($id,$mode=false)
+	function __construct($queryID, $mode=false)
 	{
-		if ($mode === false) {
-			global $ADODB_FETCH_MODE;
-			$mode = $ADODB_FETCH_MODE;
-		}
-		if (!$mode) $this->fetchMode = ADODB_FETCH_ASSOC;
-		else $this->fetchMode = $mode;
-		parent::__construct($id);
+		parent::__construct($queryID, $mode);
+
+		$this->fetchMode = $this->adodbFetchMode ?: ADODB_FETCH_ASSOC;
 	}
 
 	/*	Returns: an object containing field information.
@@ -405,7 +408,7 @@ class ADORecordSet_array_sybase extends ADORecordSet_array {
 		$themth = $ADODB_sybase_mths[$themth];
 		if ($themth <= 0) return false;
 		// h-m-s-MM-DD-YY
-		return  adodb_mktime(0,0,0,$themth,$rr[2],$rr[3]);
+		return mktime(0,0,0,$themth,$rr[2],$rr[3]);
 	}
 
 	static function UnixTimeStamp($v)
@@ -432,6 +435,6 @@ class ADORecordSet_array_sybase extends ADORecordSet_array {
 			break;
 		}
 		// h-m-s-MM-DD-YY
-		return  adodb_mktime($rr[4],$rr[5],0,$themth,$rr[2],$rr[3]);
+		return mktime($rr[4],$rr[5],0,$themth,$rr[2],$rr[3]);
 	}
 }

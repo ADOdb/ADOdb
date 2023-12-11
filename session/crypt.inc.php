@@ -1,5 +1,25 @@
 <?php
-//	 Session Encryption by Ari Kuorikoski <ari.kuorikoski@finebyte.com>
+/**
+ * ADOdb Session Management
+ *
+ * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
+ *
+ * @package ADOdb
+ * @link https://adodb.org Project's web site and documentation
+ * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
+ *
+ * The ADOdb Library is dual-licensed, released under both the BSD 3-Clause
+ * and the GNU Lesser General Public Licence (LGPL) v2.1 or, at your option,
+ * any later version. This means you can use it in proprietary products.
+ * See the LICENSE.md file distributed with this source code for details.
+ * @license BSD-3-Clause
+ * @license LGPL-2.1-or-later
+ *
+ * @copyright 2000-2013 John Lim
+ * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ * @author Ari Kuorikoski <ari.kuorikoski@finebyte.com>
+ */
+
 class MD5Crypt{
 		function keyED($txt,$encrypt_key)
 		{
@@ -16,7 +36,6 @@ class MD5Crypt{
 
 		function Encrypt($txt,$key)
 		{
-				srand((double)microtime()*1000000);
 				$encrypt_key = md5(rand(0,32000));
 				$ctr=0;
 				$tmp = "";
@@ -45,7 +64,6 @@ class MD5Crypt{
 		function RandPass()
 		{
 				$randomPassword = "";
-				srand((double)microtime()*1000000);
 				for($i=0;$i<8;$i++)
 				{
 						$randnumber = rand(48,120);
@@ -83,7 +101,6 @@ class SHA1Crypt{
 		function Encrypt($txt,$key)
 		{
 
-				srand((double)microtime()*1000000);
 				$encrypt_key = sha1(rand(0,32000));
 				$ctr=0;
 				$tmp = "";
@@ -133,8 +150,6 @@ class SHA1Crypt{
 		function RandPass()
 		{
 				$randomPassword = "";
-				srand((double)microtime()*1000000);
-
 				for($i=0;$i<8;$i++)
 				{
 
