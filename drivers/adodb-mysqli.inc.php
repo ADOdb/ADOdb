@@ -931,6 +931,9 @@ class ADODB_mysqli extends ADOConnection {
 				   AND table_name='$table'";
 
 		$schemaArray = $this->getAssoc($SQL);
+		if (!$schemaArray)
+			return $false;
+		
 		$schemaArray = array_change_key_case($schemaArray,CASE_LOWER);
 
 		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
