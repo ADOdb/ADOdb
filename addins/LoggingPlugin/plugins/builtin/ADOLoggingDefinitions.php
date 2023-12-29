@@ -9,9 +9,9 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\logger\plugins\builtin;
+namespace ADOdb\addins\LoggingPlugin\plugins\builtin;
 
-class ADOLoggingDefinitions extends \ADOdb\addins\logger\ADOLoggingDefinitions
+class ADOLoggingDefinitions extends \ADOdb\addins\LoggingPlugin\ADOLoggingDefinitions
 {
 
 	/*
@@ -24,12 +24,6 @@ class ADOLoggingDefinitions extends \ADOdb\addins\logger\ADOLoggingDefinitions
 	* has to be somewhere writable by the web server (usually)
 	*/
 	public string $textFile = '/tmp/adodb.log';
-	
-	/*
-	* Determines the output for the levels
-	* If unused, everything is logged to the same file
-	*/
-	public array $streamHandlers = array();
 	
 	
 }

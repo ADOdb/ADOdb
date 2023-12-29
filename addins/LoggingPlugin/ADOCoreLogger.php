@@ -9,9 +9,10 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\logger;
+namespace ADOdb\addins\LoggingPlugin;
+use ADOdb\addins\LoggingPlugin;
 
-class ADOCoreLogger extends \ADOdb\addins\logger\ADOLogger
+class ADOCoreLogger extends \ADOdb\addins\LoggingPlugin\ADOLogger
 {
 
 	/*
@@ -40,10 +41,14 @@ class ADOCoreLogger extends \ADOdb\addins\logger\ADOLogger
 	*
 	*/
 	public function __construct(
-			?object $loggingDefinition=null){
+			mixed $loggingTarget=self::LOG_OUTPUT_BUILTIN,
+			?array $streamHandlers=null,
+			?string $loggingTag=null,
+			int $logFormat=self::LOG_FORMAT_JSON){
 
-		parent::__construct($loggingDefinition);
+		parent::__construct($loggingTarget,$streamHandlers,$loggingTag,$logFormat);
 
+		$this->streamHandlers = $streamHandlers;
 		$this->redirectCoreLogging();
 
 	}
@@ -55,12 +60,12 @@ class ADOCoreLogger extends \ADOdb\addins\logger\ADOLogger
 	*/
 	public function redirectCoreLogging() :void
 	{
-		//global $ADODB_OUTP;
+		global $ADODB_OUTP;
 		global $ADODB_LOGGING_OBJECT;
 		/*
 		* This global is seen by the core ADOdb system
 		*/
-		//$ADODB_OUTP = $this;
+		$ADODB_OUTP = $this;
 		$ADODB_LOGGING_OBJECT = $this;
 	}
 
@@ -78,6 +83,7 @@ class ADOCoreLogger extends \ADOdb\addins\logger\ADOLogger
 	*/
 	public function coreLogger($message,$newline,$errorLevel=self::DEBUG)
 	{
+		
 		/*
 		* We do the best we can here to turn the inbound message
 		* into something that is suitable for logging. Order of

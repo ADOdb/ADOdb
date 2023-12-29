@@ -4,12 +4,12 @@
 *
 * This file is part of the ADOdb package.
 *
-* @copyright 2021 Mark Newnham
+* @copyright 2021-2023 Mark Newnham
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\logger;
+namespace ADOdb\addins\LoggingPlugin;
 
 class ADOLoggingDefinitions
 {
@@ -25,11 +25,21 @@ class ADOLoggingDefinitions
 	*/
 	public bool $debug = false;
 	
-	
 	/*
 	* The default tag that appears in the log file
 	*/
 	public string $loggingTag = 'ADODB';
+
+	/*
+	* Whether we use JSON or Plain Text. JSON = 1, Plain = 0;
+	*/
+	public int $jsonLogging = 1;
+
+	/*
+	* Determines the output for the levels
+	* If unused, everything is logged to the same file
+	*/
+	public ?array $streamHandlers = null;
 		
 		
 }

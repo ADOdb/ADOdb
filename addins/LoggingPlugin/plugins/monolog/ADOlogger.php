@@ -11,9 +11,9 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\logger\plugins\monolog;
+namespace ADOdb\addins\LoggingPlugin\plugins\monolog;
 
-class ADOLogger extends \ADOdb\addins\logger\ADOLogger
+class ADOLogger extends \ADOdb\addins\LoggingPlugin\ADOLogger
 {
 	/*
 	* The default tag that appears in the log file
@@ -33,7 +33,7 @@ class ADOLogger extends \ADOdb\addins\logger\ADOLogger
 	/*
 	* An imported Monolog object
 	*/
-	public ?object $monologObject = null;
+	public ?object $targetObject = null;
 
 	final public function __construct(
 			?object $loggingDefinition=null){
@@ -44,20 +44,26 @@ class ADOLogger extends \ADOdb\addins\logger\ADOLogger
 		/*
 		* Instantiate the monolog logger
 		*/
-		$this->monologObject = new \Monolog\Logger($loggingDefinition->loggingTag);
+		$this->targetObject = new \Monolog\Logger($loggingDefinition->loggingTag);
 
-		foreach($loggingDefinition->streamHandlers as $level=>$s)
+		if (is_array($loggingDefinition->streamHandlers))
 		{
-			$this->monologObject->pushHandler($s);
-			$this->logAtLevels[$level] = true;
+			foreach($loggingDefinition->streamHandlers as $level=>$s)
+			{
+				$this->targetObject->pushHandler($s);
+				$this->logAtLevels[$level] = true;
+			}
 		}
 
 		/*
 		* This can be how we push additional information into the log
 		*/
-		//$this->monologObject->pushProcessor(new \Monolog\Processor\MemoryUsageProcessor());
+		//$this->targetObject->pushProcessor(new \Monolog\Processor\MemoryUsageProcessor());
 		
 	}
+
+	
+	
 
 	/**
 	* Send a message to monolog
@@ -68,12 +74,12 @@ class ADOLogger extends \ADOdb\addins\logger\ADOLogger
 	*
 	* @return void
 	*/
-	public function log(int $logLevel,string $message,?array $tags=null): void
+	public function log(int $logLevel,string $message=null): void
 	{
-		if (!$tags)
-			$tags = array();
+		if (!$this->tagArray)
+			$this->tagArray = array();
 		
-		$this->monologObject->log($logLevel,$message,$tags);
+		$this->targetObject->log($logLevel,$message,$this->tagArray);
 
 	}
 }

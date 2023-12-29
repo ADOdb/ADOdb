@@ -957,22 +957,32 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	static function outp($msg,$newline=true,$logLevel=300) {
 		global $ADODB_FLUSH,$ADODB_OUTP;
+		global $ADODB_LOGGING_OBJECT;
+		
+		$useObjectDebug = false;
+		if (is_object($ADODB_LOGGING_OBJECT))
+		{
+		if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_DEBUG))
+				$useObjectDebug = true;
+		}
 
 		if (defined('ADODB_OUTP')) {
 			$fn = ADODB_OUTP;
 			$fn($msg,$newline);
 			return;
-		} else if (isset($ADODB_OUTP)) {
-			if (is_object($ADODB_OUTP) && isset($ADODB_OUTP->outpMethod))
-			{
-				$myArgs = func_get_args();
-				if (!isset($myArgs[2]))
-					$myArgs[2] = 100; //LOG_DEBUG
-				$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
-				call_user_func($outpObject,$msg,$newline,$logLevel);
-				return;
-			}
-			
+		}
+		else if ($useObjectDebug)
+		{
+			$myArgs = func_get_args();
+			if (!isset($myArgs[2]))
+				$myArgs[2] = 100; //LOG_DEBUG
+			$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
+			call_user_func($outpObject,$msg,$newline,$logLevel);
+			return;
+		
+		} 
+		else if (isset($ADODB_OUTP)) 
+		{	
 			call_user_func($ADODB_OUTP,$msg,$newline);
 			return;
 		}
@@ -1753,6 +1763,12 @@ if (!defined('_ADODB_LAYER')) {
 		
 		global $ADODB_LOGGING_OBJECT;
 
+		$useObjectDebug = false;
+		if (is_object($ADODB_LOGGING_OBJECT))
+		{
+		if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_DEBUG))
+				$useObjectDebug = true;
+		}
 		// ExecuteCursor() may send non-string queries (such as arrays),
 		// so we need to ignore those.
 		if( is_string($sql) ) {
@@ -1762,32 +1778,31 @@ if (!defined('_ADODB_LAYER')) {
 			$sql = str_replace( '_ADODB_COUNT', '', $sql );
 		}
 
-		if ($this->debug) {
+		if ($this->debug || $useObjectDebug) {
 			global $ADODB_INCLUDED_LIB;
 			if (empty($ADODB_INCLUDED_LIB)) {
 				include_once(ADODB_DIR.'/adodb-lib.inc.php');
 			}
 			$this->_queryID = _adodb_debug_execute($this, $sql,$inputarr);
 		} else {
+			/*
+			* The logging class is independant of $db->debug. What levels control
+			* the level of debugging
+			*/
 			if (is_object($ADODB_LOGGING_OBJECT))
 			{
 				if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_INFO))
 				{
 					
-					$logJson = $ADODB_LOGGING_OBJECT->loadLoggingRecord($this,ADOConnection::ADODB_LOG_INFO);
+					$ADODB_LOGGING_OBJECT->loadLoggingRecord($this,ADOConnection::ADODB_LOG_INFO);
 
-					$logJson->level = ADOConnection::ADODB_LOG_INFO;
-					$logJson->sqlStatement['sql']    = $sql;
-					$logJson->sqlStatement['params'] = $inputarr;
-			
-
-					$msg  = sprintf('[%s] %s',$this->databaseType,json_encode($logJson));
-					$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_INFO,$msg);
+					$sqlStatement = array(
+						'sql' => $sql,
+						'params' => $inputarr
+					);
+					$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$sqlStatement);
+					$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_INFO);
 					
-					//$tags = array('method'=>'_execute');
-					//$fmtSql = '[%s] %s PARAMS: %s';
-					//$msg = sprintf($fmtSql, $this->databaseType, $sql, json_encode($inputarr));
-					//$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_INFO,$msg,$tags);
 				}
 
 			}
@@ -1804,25 +1819,18 @@ if (!defined('_ADODB_LAYER')) {
 			{
 				if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_CRITICAL))
 				{
+					$ADODB_LOGGING_OBJECT->loadLoggingRecord($this,ADOConnection::ADODB_LOG_CRITICAL);
+
+					$sqlStatement = array(
+						'sql' => $sql,
+						'params' => $inputarr
+					);
+					$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$sqlStatement);
+					$ADODB_LOGGING_OBJECT->setLoggingParameter('errorCode',$this->errorNo());
+					$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$this->errorMsg());
 					
+					$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_CRITICAL);
 					
-					$logJson = new \ADOdb\addins\logger\ADOjsonLogFormat;
-					$logJson->level = ADOConnection::ADODB_LOG_CRITICAL;
-					$logJson->errorCode              = $this->errorNo();
-					$logJson->errorMessage           = $this->ErrorMsg();
-					$logJson->sqlStatement['sql']    = $sql;
-					$logJson->sqlStatement['params'] = $inputarr;
-					$logJson->driver                 = $this->databaseType;
-					$logJson->ADOdbVersion			 = $this->version();
-					
-					$msg  = sprintf('[%s] %s',$this->databaseType,json_encode($logJson));
-					$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_CRITICAL,$msg);
-				
-					
-					//$tags = array('method'=>'_execute');
-					//$fmtSql = '[%s] ERRNO: %s ERRMSG: %s SQL: %s PARAMS: %s';
-					//$msg = sprintf($fmtSql, $this->databaseType, $this->ErrorNo(),$this->ErrorMsg(), $sql, json_encode($inputarr));
-				
 				}
 
 			}

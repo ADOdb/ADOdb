@@ -1212,6 +1212,27 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 		$driverName .= '-' . $zthis->dsnType;
 	}
 
+	$useObjectDebug = false;
+	if (is_object($ADODB_LOGGING_OBJECT))
+	{
+	if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_DEBUG))
+			$useObjectDebug = true;
+	}
+
+	print "UO=$useObjectDebug"; exit;
+	if ($useObjectDebug)
+	{
+		
+		$sqlStatement = array(
+			'sql' => $sql,
+			'params' => $inputarr
+		);
+		$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$sqlStatement);
+		$ADODB_LOGGING_OBJECT->setLoggingParameter('message',$queryOutput);
+		
+		$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,'DEBUG EXECUTION');
+	}
+
 	// Prepare SQL statement for display (remove newlines and tabs, compress repeating spaces)
 	$sqlText = preg_replace('/\s+/', ' ', is_array($sql) ? $sql[0] : $sql);
 
@@ -1280,30 +1301,7 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 	}
 
 	
-	if (is_object($ADODB_LOGGING_OBJECT) && $ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_DEBUG))
-	{
-		/*
-		* we always pass the query to the logging object. 
-		* It might be discarded there.
-		*/
-		$logJson = new \ADOdb\addins\logger\ADOjsonLogFormat;
-		$logJson->level = ADOConnection::ADODB_LOG_DEBUG;
-		$logJson->sqlStatement['sql']    = $sql;
-		$logJson->sqlStatement['params'] = $inputarr;
-		$logJson->driver                 = $this->databaseType;
-		$logJson->ADOdbVersion			 = $this->version();
-
-		$msg  = sprintf('[%s] %s',$this->databaseType,json_encode($logJson));
-		$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,$msg);
-
-		//$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
-		//$msg = sprintf($fmtSql, '', $driverName, $sqlText, $bindParams);
-		//$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,$msg);
-		
-		//call_user_func($outpObject,$msg,true,100);
-		//if ($queryOutput) 
-		//	call_user_func($outpObject,$queryOutput,true,ADOConnection::ADODB_LOG_CRITICAL);
-	}
+	
 	
 	return $queryId;
 }

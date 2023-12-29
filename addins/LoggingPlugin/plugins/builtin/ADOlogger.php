@@ -4,14 +4,14 @@
 *
 * This file is part of the ADOdb package.
 *
-* @copyright 2021 Mark Newnham
+* @copyright 2021-2023 Mark Newnham
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\logger\plugins\builtin;
+namespace ADOdb\addins\LoggingPlugin\plugins\builtin;
 
-class ADOlogger extends \ADOdb\addins\logger\ADOlogger
+class ADOlogger extends \ADOdb\addins\loggingPlugin\ADOlogger
 {
 	
 	/**
@@ -31,31 +31,24 @@ class ADOlogger extends \ADOdb\addins\logger\ADOlogger
     ];
 	
 	protected array $streamHandlers = array();
+
+	protected int $useTextHandler = 0;
 	
 	final public function __construct(
 			?object $loggingDefinition=null){
 		
-		if (count($loggingDefinition->streamHandlers) == 0)
-		{
-			$filePointer = @fopen($loggingDefinition->textFile,'a');
-			if (!$filePointer)
-			{
-				/*
-				* Nowhere to log, write to STDOUT
-				*/
-				print "Logging file startup error";
-			}
-			else
-				fclose($filePointer);
-		}
-		else
+		$targetObjectIdentifier = '\\ADOdb\\addins\\LoggingPlugin\\plugins\\builtin\\ADOloggingDefinitions';
+
+		$this->targetObject = new $targetObjectIdentifier($loggingDefinition);
+
+		if ($loggingDefinition->streamHandlers)
 		{
 			$this->streamHandlers = $loggingDefinition->streamHandlers;
 			
 			foreach($loggingDefinition->streamHandlers as $level=>$output)
 			{
-				$this->levelInUse[$level] = true;
-				$filePointer = fopen($output,'a');
+				$this->logAtLevels[$level] = true;
+				$filePointer = fopen($output->url,'a');
 				if (!$filePointer)
 				{
 					printf("Logging file at level %s startup error",$this->levels[$level]);
@@ -71,6 +64,32 @@ class ADOlogger extends \ADOdb\addins\logger\ADOlogger
 			$this->log(ADOlogger::DEBUG,'Logging Sytem Startup');
 		
 	}
+
+	/**
+	* Opens the default output if no streamHandlers defined
+	*
+	* @return bool success
+	*/
+	protected function openTextHandler(): bool
+	{
+		
+		$filePointer = @fopen($loggingDefinition->textFile,'a');
+		if (!$filePointer)
+		{
+			/*
+			* Nowhere to log, write to STDOUT
+			*/
+			print "Logging file startup error";
+			return false;
+		}
+		else
+		{
+			fclose($filePointer);
+			$this->useTextHandler = 1;
+			return true;
+		}
+		
+	}
 	
 	/**
 	* An extremely basic log-to-file mechanism. If you
@@ -81,9 +100,14 @@ class ADOlogger extends \ADOdb\addins\logger\ADOlogger
 	*
 	* @return void
 	*/
-	public function log(int $logLevel,string $message): void{
+	public function log(int $logLevel,string $message=null): void{
 		
-				
+		if ($this->tagArray)
+			$tags = json_encode($this->tagArray);
+		else
+			$tags = null;
+
+		//print "LOG HERE"; exit;
 		/*
 		* In case we pass an invalid level
 		*/
@@ -91,30 +115,37 @@ class ADOlogger extends \ADOdb\addins\logger\ADOlogger
 		
 		if (array_key_exists($logLevel,$this->levels))
 			$levelDescription = $this->levels[$logLevel];
-		
-		$line = sprintf('[%s] %s.%s: %s%s',
+
+				
+		$line = sprintf('[%s] %s.%s: %s %s%s',
 						date('c'),
 						$this->loggingTag,
 						$levelDescription,
 						$message,
+						$tags,
 						PHP_EOL
 						);
 		
-		if (count($this->levelInUse) == 0)
-			$output = $this->textFile;
-		else if (array_key_exists($logLevel,$this->levelInUse))
+		if (!$this->streamHandlers)
+			$output = $this->targetObject->textFile;
+		else if (array_key_exists($logLevel,$this->logAtLevels))
 			/*
 			* Write to the appropriate stream 
 			*/
-			$output = $this->streamHandlers[$logLevel];
+			$output = $this->streamHandlers[$logLevel]->url;
 		else
+			/*
+			* Not a valid stream level
+			*/
 			return;
-			
-		$fp = fopen($output,'a');
-		fputs($fp, $line);
-		fclose($fp);
+		
+		$fp = @fopen($output,'a+');
+		if (is_resource($fp))
+		{
+			fputs($fp, $line);
+			fclose($fp);
+		}
 	}
-	
 }
 
 	
