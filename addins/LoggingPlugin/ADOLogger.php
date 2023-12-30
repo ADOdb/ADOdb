@@ -121,7 +121,7 @@ class ADOLogger
 	/*
 	* Any tags we want to transmit
 	*/
-	public ?array $tagArray = null;
+	public ?object $tagJson = null;
 
 	/**********************************************************************
 	 * Section associated with logging Core functionality
@@ -212,9 +212,10 @@ class ADOLogger
 	public function log(int $logLevel,?string $message=null): void
 	{
 		
-		if (is_array($this->tagArray))
+		
+		if (is_array($this->tagJson))
 		{
-			$tags = json_encode($this->tagArray);
+			$tags = json_encode($this->tagJson);
 		} else {
 			$tags = null;
 		}
@@ -224,6 +225,7 @@ class ADOLogger
 		*/
 		if ($this->logFormat == self::LOG_FORMAT_JSON)
 		{
+		
 			if (!is_object($this->logJson))
 			{
 				$this->loadLoggingJson();
@@ -232,16 +234,12 @@ class ADOLogger
 			{
 				$this->logJson->shortMessage = $message;
 			}
-			else
-			{
-				return;
-			}
+			
 			$this->logJson->level = $logLevel;
 			$message = json_encode($this->logJson);
 		}
 
-		/*
-		* Tranmit the message onto to whatever logging
+		/* Tranmit the message onto to whatever logging
 		* system chosen we ignore any messages sent 
 		* at levels not set
 		*/
@@ -364,7 +362,7 @@ class ADOLogger
 	 */
 	public function loadTagJson(object $connection) : void
 	{
-		$tagJson = new \ADOdb\addins\logger\ADOJsonTagFormat;
+		$tagJson = new \ADOdb\addins\LoggingPlugin\ADOJsonTagFormat;
 			
 		$tagJson->driver                 = $connection->databaseType;
 		$tagJson->ADOdbVersion			 = $connection->version();
@@ -381,10 +379,13 @@ class ADOLogger
 	 */
 	public function setLoggingParameter(string $key,mixed $value) : void
 	{
-		if (!$this->logJson)
-			return;
+		if (!is_object($this->logJson))
+		{
+			$this->loadLoggingJson();
+		}
 
-		$this->logJson->$key = $value;
+		$this->logJson->{$key} = $value;
+
 	}
 
 	/**
@@ -442,7 +443,8 @@ class ADOLogger
 
 	/**
 	* The root function takes an inbound ADODb log message
-	* and converts it into a syslog format message.
+	* and converts it into a syslog format message. Note that
+	* SQL execution errors don't pass through here
 	*
 	* The error level comes from a customized function in outp()
 	*

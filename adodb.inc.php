@@ -1794,14 +1794,26 @@ if (!defined('_ADODB_LAYER')) {
 				if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_INFO))
 				{
 					
-					$ADODB_LOGGING_OBJECT->loadLoggingRecord($this,ADOConnection::ADODB_LOG_INFO);
+					if ($ADODB_LOGGING_OBJECT->logFormat == $ADODB_LOGGING_OBJECT::LOG_FORMAT_JSON)
+					{
 
-					$sqlStatement = array(
-						'sql' => $sql,
-						'params' => $inputarr
-					);
-					$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$sqlStatement);
-					$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_INFO);
+						$sqlStatement = array(
+							'sql' => $sql,
+							'params' => $inputarr
+						);
+						$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$sqlStatement);
+						$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_INFO,'QUERY EXECUTION');
+					}
+					else
+					{
+
+						$params = '';
+						if (is_array($inputarr))
+							$params = implode(',',$inputarr);
+						
+						$message = sprintf('Execution of statement: %s , %s',$sql,$params);
+						$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_INFO,$message);
+					}
 					
 				}
 
@@ -1819,24 +1831,38 @@ if (!defined('_ADODB_LAYER')) {
 			{
 				if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_CRITICAL))
 				{
-					$ADODB_LOGGING_OBJECT->loadLoggingRecord($this,ADOConnection::ADODB_LOG_CRITICAL);
+					if ($ADODB_LOGGING_OBJECT->logFormat == $ADODB_LOGGING_OBJECT::LOG_FORMAT_JSON)
+					{
+						$sqlStatement = array(
+							'sql' => $sql,
+							'params' => $inputarr
+						);
+						$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$sqlStatement);
+						$ADODB_LOGGING_OBJECT->setLoggingParameter('errorCode',$this->errorNo());
+						$ADODB_LOGGING_OBJECT->setLoggingParameter('errorMessage',$this->errorMsg());
+						$ADODB_LOGGING_OBJECT->setLoggingParameter('metaErrorCode',$this->metaError($this->errorNo()));
+						$ADODB_LOGGING_OBJECT->setLoggingParameter('metaErrorMessage',$this->metaErrorMsg($this->metaError($this->errorNo())));
 
-					$sqlStatement = array(
-						'sql' => $sql,
-						'params' => $inputarr
-					);
-					$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$sqlStatement);
-					$ADODB_LOGGING_OBJECT->setLoggingParameter('errorCode',$this->errorNo());
-					$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$this->errorMsg());
-					
-					$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_CRITICAL);
+						
+						$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_CRITICAL,'QUERY EXECUTION FAILURE');
+					}
+					else
+					{
+						$params = '';
+						if (is_array($inputarr))
+							$params = implode(',',$inputarr);
+						
+						$message = sprintf('Execution of statement failed: %s , %s / Error: %s %s',$sql,$params,$this->ErrorNo(),$this->ErrorMsg());
+						$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_CRITICAL,$message);
+					}
 					
 				}
 
-			}
-			$fn = $this->raiseErrorFn;
-			if ($fn) {
-				$fn($this->databaseType,'EXECUTE',$this->ErrorNo(),$this->ErrorMsg(),$sql,$inputarr,$this);
+			} else {
+				$fn = $this->raiseErrorFn;
+				if ($fn) {
+					$fn($this->databaseType,'EXECUTE',$this->ErrorNo(),$this->ErrorMsg(),$sql,$inputarr,$this);
+				}
 			}
 			return false;
 		}

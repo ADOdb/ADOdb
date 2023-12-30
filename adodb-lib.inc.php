@@ -1219,7 +1219,7 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 			$useObjectDebug = true;
 	}
 
-	print "UO=$useObjectDebug"; exit;
+	
 	if ($useObjectDebug)
 	{
 		

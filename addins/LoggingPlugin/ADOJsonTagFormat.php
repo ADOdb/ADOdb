@@ -10,7 +10,7 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\logger;
+namespace ADOdb\addins\LoggingPlugin;
 
 
 final class ADOjsonTagFormat
@@ -40,10 +40,19 @@ final class ADOjsonTagFormat
 	*/
 	public string $os  = '';
 
+	/*
+	* The current AODdb version
+	*/
+	public ?string $ADOdbVersion = '';
+
 	public function __construct()
 	{
-		$this->php    = PHP_VERSION;
-		$this->os     = PHP_OS;
+		global $ADODB_vers;
+
+		$this->php    		= PHP_VERSION;
+		$this->os     		= PHP_OS;
+		$this->ADOdbVersion = $ADODB_vers;
+
 		$this->source = isset($_SERVER['HTTP_USER_AGENT']) ? 'cgi' : 'cli';
         $this->host    = gethostname();
 	}

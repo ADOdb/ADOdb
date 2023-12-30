@@ -22,7 +22,7 @@ class ADOjsonLogFormat
 	/*
 	* The current AODdb version
 	*/
-	public string $ADOdbVersion = '';
+	public ?string $ADOdbVersion = '';
 
 	/*
 	* THe required logging level
@@ -48,6 +48,16 @@ class ADOjsonLogFormat
 	* Any error message generated
 	*/
 	public string $errorMessage = '';
+
+	/*
+	* Any meta-error code generated
+	*/
+	public int $metaErrorCode = 0;
+	
+	/*
+	* Any meta-error message generated
+	*/
+	public string $metaErrorMessage = '';
 
     /*
     * Extended data, such as a backtrace
@@ -87,8 +97,12 @@ class ADOjsonLogFormat
 
     public function __construct()
 	{
-		$this->php    = PHP_VERSION;
-		$this->os     = PHP_OS;
+		global $ADODB_vers;
+
+		$this->php    		= PHP_VERSION;
+		$this->os     		= PHP_OS;
+		$this->ADOdbVersion = $ADODB_vers;
+
 		$this->source = isset($_SERVER['HTTP_USER_AGENT']) ? 'cgi' : 'cli';
         $this->host    = gethostname();
 	}

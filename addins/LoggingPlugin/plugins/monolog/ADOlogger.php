@@ -76,10 +76,12 @@ class ADOLogger extends \ADOdb\addins\LoggingPlugin\ADOLogger
 	*/
 	public function log(int $logLevel,string $message=null): void
 	{
-		if (!$this->tagArray)
-			$this->tagArray = array();
+		if ($this->tagJson)
+			$tagArray = (array) $this->tagJson;
+		else
+			$tagArray = array();
 		
-		$this->targetObject->log($logLevel,$message,$this->tagArray);
+		$this->targetObject->log($logLevel,$message,$tagArray);
 
 	}
 }

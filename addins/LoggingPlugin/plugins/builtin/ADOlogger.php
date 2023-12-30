@@ -102,12 +102,11 @@ class ADOlogger extends \ADOdb\addins\loggingPlugin\ADOlogger
 	*/
 	public function log(int $logLevel,string $message=null): void{
 		
-		if ($this->tagArray)
-			$tags = json_encode($this->tagArray);
+		if ($this->tagJson)
+			$tags = json_encode($this->tagJson);
 		else
 			$tags = null;
 
-		//print "LOG HERE"; exit;
 		/*
 		* In case we pass an invalid level
 		*/
