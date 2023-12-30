@@ -9,10 +9,10 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\LoggingPlugin;
-use ADOdb\addins\LoggingPlugin;
+namespace ADOdb\LoggingPlugin;
+use ADOdb\LoggingPlugin;
 
-class ADOLogger
+abstract class ADOLogger
 {
 	
 	/*******************************************
@@ -29,6 +29,11 @@ class ADOLogger
 	public const LOG_FORMAT_JSON      = 1;
 
 	public int $logFormat = self::LOG_FORMAT_JSON;
+
+	/*
+	* The default tag that appears in the log file
+	*/
+	public string $loggingTag = 'ADODB';
 
 	/*********************************************
 	* For extension functionality, these logging
@@ -107,6 +112,11 @@ class ADOLogger
 	protected string $loggingObjectTemplate     = '\\ADOdb\\addins\\LoggingPlugin\\plugins\\%s\\ADOlogger';
 
 	/*
+	* Identifies the plugin
+	*/
+	protected string $plugin = '';
+
+	/*
 	* JSON logging/Plain, imported from loggingDefinitions
 	*/
 	protected int $jsonLogging = 1;
@@ -143,6 +153,12 @@ class ADOLogger
 	* into the logging system
 	*/
 	public bool $logBacktrace = false;
+
+	/*
+	* Appends debugging of the logging class into the trail,
+	* not the same as logging the parent module
+	*/
+	public bool $debug = false;
 	
 	
 	/**
@@ -153,54 +169,31 @@ class ADOLogger
 	* @param $loggingDefinitions
 	*
 	*/
-	public function __construct(
-			mixed $loggingTarget=self::LOG_OUTPUT_BUILTIN,
-			?array $streamHandlers=null,
-			?string $loggingTag=null,
-			int $logFormat=self::LOG_FORMAT_JSON){
+	public function __construct(?array $streamHandlers=null, string $loggingTag='ADODB', int $logFormat=self::LOG_FORMAT_JSON,bool $debug=false){
 
-		if (!is_object($loggingTarget))
-		{
-			/*
-			* Uses the default builtin class
-			*/
-			$loggingDefinitionsIdentifier = sprintf($this->loggingDefinitionTemplate,$loggingTarget);
-			$loggingDefinition = new $loggingDefinitionsIdentifier;
+		$this->debug 		= $debug;
+		$this->loggingTag 	= $loggingTag;
+		$this->logFormat 	= $logFormat;
 
-			if (is_array($streamHandlers))
-				$loggingDefinition->streamHandlers = $streamHandlers;
-
-			if ($loggingTag)
-				$loggingDefinition->loggingTag = $loggingTag;
-
-			$this->logFormat = $logFormat;
-		}
-		else
-		{
-			$loggingDefinition = $loggingTarget;
-		}
-
-		$plugin = $loggingDefinition->loggingMechanism;
-
-		$loggingObjectIdentifier = sprintf($this->loggingObjectTemplate,$plugin);
-
-		$this->loggingObject = new $loggingObjectIdentifier($loggingDefinition);
-
-		if ($loggingDefinition->debug)
+		$this->activateLoggingObject($streamHandlers,$loggingTag);
+		
+		if ($this->debug)
 		{
 			if ($this->loggingObject){
 				$this->loggingObject->log(self::DEBUG,'The logging service was successfully started');
-				$this->loggingObject->log(self::DEBUG,sprintf('The logging service uses the %s plugin',$plugin));
+				$this->loggingObject->log(self::DEBUG,sprintf('The logging service uses the %s plugin',$this->plugin));
 			}
 			else
 				/*
 				* Nothing to write to, throw a message to STDOUT. Because
 				* the logging object is a boolean false, the logging service is disabled
 				*/
-				printf ('A fatal error occurred starting the %s logging service',$plugin);
+				printf ('A fatal error occurred starting the %s logging service',$this->plugin);
 		}
 
 	}
+
+	abstract protected function activateLoggingObject(?array $streamHandlers,string $loggingTag);
 
 	/**
 	* The core function for feature that uses this system
@@ -215,9 +208,9 @@ class ADOLogger
 		
 		if (is_array($this->tagJson))
 		{
-			$tags = json_encode($this->tagJson);
+			$tags = $this->tagJson;
 		} else {
-			$tags = null;
+			$tags = array();
 		}
 
 		/*
@@ -294,13 +287,13 @@ class ADOLogger
 	public function setConnectionObject(object $connection) : void
 	{
 		$this->connection = $connection;
-		$logJson = new \ADOdb\addins\logger\ADOJsonLogFormat;
+		if (!is_object($this->logJson))
+		{
+			$this->loadLoggingJson();
+		}
 		
-		
-		$logJson->driver                 = $connection->databaseType;
-		$logJson->ADOdbVersion			 = $connection->version();
-
-		$this->logJson = $logJson;
+		$this->setLoggingParameter('driver',$connection->databaseType);
+		$this->setLoggingParameter('ADOdbVersion',$connection->version());
 	
 	}
 
@@ -319,15 +312,14 @@ class ADOLogger
 			return false;
 		}
 		
-		$this->loggingObject->streamHandlers = $streamHandlers;
-		$this->streamHandlers = $streamHandlers;
-		
+		//$this->loggingObject->streamHandlers = $streamHandlers;
+				
 		foreach($streamHandlers as $level=>$s)
 		{
 			$this->loggingObject->pushHandler($s);
-			$this->loggingObject->logAtLevels[$level] = true;
+			$this->logAtLevels[$level] = true;
 		}
-		$this->logAtLevels = $this->loggingObject->logAtLevels;
+		
 		return true;
 	
 	}
@@ -342,7 +334,7 @@ class ADOLogger
 	 */
 	protected function loadLoggingJson() : void
 	{
-		$logJson = new \ADOdb\addins\LoggingPlugin\ADOJsonLogFormat;
+		$logJson = new \ADOdb\LoggingPlugin\ADOJsonLogFormat;
 		
 		if ($this->connection)
 		{
@@ -362,7 +354,7 @@ class ADOLogger
 	 */
 	public function loadTagJson(object $connection) : void
 	{
-		$tagJson = new \ADOdb\addins\LoggingPlugin\ADOJsonTagFormat;
+		$tagJson = new \ADOdb\LoggingPlugin\ADOJsonTagFormat;
 			
 		$tagJson->driver                 = $connection->databaseType;
 		$tagJson->ADOdbVersion			 = $connection->version();
@@ -404,7 +396,7 @@ class ADOLogger
 		}
 
 		if (!$this->tagJson)
-			$this->tagJson = new \ADOdb\addins\logger\ADOjsonTagFormat;
+			$this->tagJson = new \ADOdb\LoggingPlugin\ADOjsonTagFormat;
 
 		$this->tagJson->$key = $value;
 	}
@@ -416,7 +408,7 @@ class ADOLogger
 	 */
 	public function pushHandler(object $handler): void
 	{
-		$this->targetObject->pushHandler($handler);
+		$this->loggingObject->pushHandler($handler);
 
 	}
 

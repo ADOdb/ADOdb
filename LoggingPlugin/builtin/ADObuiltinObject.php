@@ -9,11 +9,25 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\LoggingPlugin\plugins\builtin;
+namespace ADOdb\LoggingPlugin\builtin;
 
-class ADOlogger extends \ADOdb\addins\loggingPlugin\ADOlogger
+class ADObuiltinObject
 {
 	
+	/*********************************************
+	* For extension functionality, these logging
+	* levels are from Monolog
+	**********************************************/
+
+    public const DEBUG     = 100;
+    public const INFO      = 200;
+    public const NOTICE    = 250;
+    public const WARNING   = 300;
+    public const ERROR     = 400;
+    public const CRITICAL  = 500;
+    public const ALERT     = 550;
+    public const EMERGENCY = 600;
+
 	/**
     * 
     *
@@ -30,40 +44,43 @@ class ADOlogger extends \ADOdb\addins\loggingPlugin\ADOlogger
         self::EMERGENCY => 'EMERGENCY',
     ];
 	
-	protected array $streamHandlers = array();
-
+	/*
+	* A sane default file location for the log file. This
+	* has to be somewhere writable by the web server (usually)
+	*/
+	public string $textFile = '/tmp/adodb.log';
+	
 	protected int $useTextHandler = 0;
 	
-	final public function __construct(
-			?object $loggingDefinition=null){
-		
-		$targetObjectIdentifier = '\\ADOdb\\addins\\LoggingPlugin\\plugins\\builtin\\ADOloggingDefinitions';
+	protected array $streamHandlers = array();
 
-		$this->targetObject = new $targetObjectIdentifier($loggingDefinition);
+    protected string $loggingTag = 'ADODB';
 
-		if ($loggingDefinition->streamHandlers)
+    public function __construct(string $loggingTag)
+    {
+        $this->loggingTag = $loggingTag;
+    }
+
+	/**
+	 * Push additional information into the log
+	 * 
+	 * @param string  $processorName
+	 * @return void
+	 */
+	 public function pushHandler(object $handler): void
+	 {
+ 
+        $this->streamHandlers[$handler->level] = $handler;
+
+		$filePointer = fopen($handler->url,'a');
+		if (!$filePointer)
 		{
-			$this->streamHandlers = $loggingDefinition->streamHandlers;
-			
-			foreach($loggingDefinition->streamHandlers as $level=>$output)
-			{
-				$this->logAtLevels[$level] = true;
-				$filePointer = fopen($output->url,'a');
-				if (!$filePointer)
-				{
-					printf("Logging file at level %s startup error",$this->levels[$level]);
-				}
-				else
-					fclose($filePointer);
-			}
+			printf("Logging file at level %s startup error",$handler->level);
 		}
-		if ($loggingDefinition->loggingTag)
-			$this->loggingTag = $loggingDefinition->loggingTag;
-			
-		if ($loggingDefinition->debug)
-			$this->log(ADOlogger::DEBUG,'Logging Sytem Startup');
-		
-	}
+		else
+			fclose($filePointer);
+ 
+	 }
 
 	/**
 	* Opens the default output if no streamHandlers defined
@@ -73,7 +90,7 @@ class ADOlogger extends \ADOdb\addins\loggingPlugin\ADOlogger
 	protected function openTextHandler(): bool
 	{
 		
-		$filePointer = @fopen($loggingDefinition->textFile,'a');
+		$filePointer = @fopen($this->textFile,'a+');
 		if (!$filePointer)
 		{
 			/*
@@ -100,13 +117,15 @@ class ADOlogger extends \ADOdb\addins\loggingPlugin\ADOlogger
 	*
 	* @return void
 	*/
-	public function log(int $logLevel,string $message=null): void{
+	public function log(int $logLevel,string $message=null,$tagJson=null): void{
 		
-		if ($this->tagJson)
-			$tags = json_encode($this->tagJson);
-		else
-			$tags = null;
-
+        
+		if (is_array($tagJson))
+		{
+			$tags = json_encode($tagJson);
+		} else {
+			$tags = '';
+		}
 		/*
 		* In case we pass an invalid level
 		*/
@@ -114,7 +133,6 @@ class ADOlogger extends \ADOdb\addins\loggingPlugin\ADOlogger
 		
 		if (array_key_exists($logLevel,$this->levels))
 			$levelDescription = $this->levels[$logLevel];
-
 				
 		$line = sprintf('[%s] %s.%s: %s %s%s',
 						date('c'),
@@ -126,17 +144,13 @@ class ADOlogger extends \ADOdb\addins\loggingPlugin\ADOlogger
 						);
 		
 		if (!$this->streamHandlers)
-			$output = $this->targetObject->textFile;
-		else if (array_key_exists($logLevel,$this->logAtLevels))
+			$output = $this->textFile;
+		else
 			/*
 			* Write to the appropriate stream 
 			*/
 			$output = $this->streamHandlers[$logLevel]->url;
-		else
-			/*
-			* Not a valid stream level
-			*/
-			return;
+		
 		
 		$fp = @fopen($output,'a+');
 		if (is_resource($fp))

@@ -1222,15 +1222,26 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 	
 	if ($useObjectDebug)
 	{
-		
-		$sqlStatement = array(
-			'sql' => $sql,
-			'params' => $inputarr
-		);
-		$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$sqlStatement);
-		$ADODB_LOGGING_OBJECT->setLoggingParameter('message',$queryOutput);
-		
-		$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,'DEBUG EXECUTION');
+		if ($ADODB_LOGGING_OBJECT->logFormat == $ADODB_LOGGING_OBJECT::LOG_FORMAT_JSON)
+		{
+			$sqlStatement = array(
+				'sql' => $sql,
+				'params' => $inputarr
+			);
+			$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$sqlStatement);
+			$ADODB_LOGGING_OBJECT->setLoggingParameter('message',$queryOutput);
+			
+			$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,'DEBUG EXECUTION');
+		}
+		else
+		{
+			$params = '';
+			if (is_array($inputarr))
+				$params = implode(',',$inputarr);
+			
+			$message = sprintf('Execution of statement: %s , %s',$sql,$params);
+			$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,$message);
+		}
 	}
 
 	// Prepare SQL statement for display (remove newlines and tabs, compress repeating spaces)
