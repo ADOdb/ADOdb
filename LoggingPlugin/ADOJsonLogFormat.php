@@ -62,7 +62,7 @@ class ADOjsonLogFormat
     /*
     * Extended data, such as a backtrace
     */
-    public string $extendedData = '';
+    public ?array $callStack;
 
     /****************************************************
      * Information below is identical no matter which
