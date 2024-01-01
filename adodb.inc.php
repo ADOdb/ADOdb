@@ -953,7 +953,7 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @param string $msg     Message to print
 	 * @param bool   $newline True to add a newline after printing $msg
-	 * @param int	 $logLevel Logging level of message if available
+	 * @param int	 $logLevel Logging level of message if available, used by LoggingPlugin
 	 */
 	static function outp($msg,$newline=true,$logLevel=300) {
 		global $ADODB_FLUSH,$ADODB_OUTP;
@@ -966,21 +966,22 @@ if (!defined('_ADODB_LAYER')) {
 				$useObjectDebug = true;
 		}
 
+		if ($useObjectDebug)
+		{
+			/*
+			* Use of the LoggingPlugin does not affect any custom logging feature
+			*/
+			$outpObject = array($ADODB_LOGGING_OBJECT,$ADODB_LOGGING_OBJECT->outpMethod);
+			call_user_func($outpObject,$msg,$newline,$logLevel);
+		} 
+
+
 		if (defined('ADODB_OUTP')) {
 			$fn = ADODB_OUTP;
 			$fn($msg,$newline);
 			return;
 		}
-		else if ($useObjectDebug)
-		{
-			$myArgs = func_get_args();
-			if (!isset($myArgs[2]))
-				$myArgs[2] = 100; //LOG_DEBUG
-			$outpObject = array($ADODB_OUTP,$ADODB_OUTP->outpMethod);
-			call_user_func($outpObject,$msg,$newline,$logLevel);
-			return;
 		
-		} 
 		else if (isset($ADODB_OUTP)) 
 		{	
 			call_user_func($ADODB_OUTP,$msg,$newline);
@@ -1843,7 +1844,14 @@ if (!defined('_ADODB_LAYER')) {
 						$ADODB_LOGGING_OBJECT->setLoggingParameter('metaErrorCode',$this->metaError($this->errorNo()));
 						$ADODB_LOGGING_OBJECT->setLoggingParameter('metaErrorMessage',$this->metaErrorMsg($this->metaError($this->errorNo())));
 
-						
+						// Print backtrace if enabled
+						if ($ADODB_LOGGING_OBJECT->backtraceMethod && $ADODB_LOGGING_OBJECT->logBacktrace)
+						{
+							$btObject = array($ADODB_LOGGING_OBJECT,$ADODB_LOGGING_OBJECT->backtraceMethod);
+							$backtraceData = call_user_func($btObject);
+							$ADODB_LOGGING_OBJECT->setLoggingParameter('extendedData',$backtraceData);
+						}
+							
 						$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_CRITICAL,'QUERY EXECUTION FAILURE');
 					}
 					else
@@ -1857,6 +1865,14 @@ if (!defined('_ADODB_LAYER')) {
 					}
 					
 				}
+				if (!$ADODB_LOGGING_OBJECT->ignoreErrorHandling()) {
+					$fn = $this->raiseErrorFn;
+					if ($fn) {
+						$fn($this->databaseType,'EXECUTE',$this->ErrorNo(),$this->ErrorMsg(),$sql,$inputarr,$this);
+					}
+				}
+			}
+			return false;
 
 			} else {
 				$fn = $this->raiseErrorFn;
@@ -6235,17 +6251,17 @@ class ADORecordSet implements IteratorAggregate {
 	{
 		
 		global $ADODB_OUTP;
+		global $ADODB_LOGGING_OBJECT;
 		/*
-		* This is how we link in the ADOdb\addins\logger logging class
+		* This is how we link in the ADOdb\LoggingPlugin logging class
 		*/
-		if( is_object($ADODB_OUTP) && isset($ADODB_OUTP->backtraceMethod))
+		if( is_object($ADODB_LOGGING_OBJECT) && isset($ADODB_LOGGING_OBJECT->backtraceMethod))
 		{
-			$btObject = array($ADODB_OUTP,$ADODB_OUTP->backtraceMethod);
+			$btObject = array($ADODB_LOGGING_OBJECT,$ADODB_LOGGING_OBJECT->backtraceMethod);
 			/*
 			* Ishtml is ignored by the logger class.
 			*/
 			call_user_func($btObject,$printOrArr,$levels,$ishtml);
-			return;
 		}
 		
 		global $ADODB_INCLUDED_LIB;

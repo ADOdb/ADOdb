@@ -49,12 +49,16 @@ class ADObuiltinObject
 	* has to be somewhere writable by the web server (usually)
 	*/
 	public string $textFile = '/tmp/adodb.log';
-	
-	protected int $useTextHandler = 0;
-	
+		
+	/*
+	* Array of StreamHandler objects that define the output
+	*/
 	protected array $streamHandlers = array();
 
-    protected string $loggingTag = 'ADODB';
+	/*
+	* The tag injected into all logging messages
+	*/
+    protected ?string $loggingTag;
 
     public function __construct(string $loggingTag)
     {
@@ -62,17 +66,17 @@ class ADObuiltinObject
     }
 
 	/**
-	 * Push additional information into the log
+	 * Defines the availablility of the output for the logging level
 	 * 
-	 * @param string  $processorName
+	 * @param object  $handler
 	 * @return void
 	 */
-	 public function pushHandler(object $handler): void
+	 final public function pushHandler(object $handler): void
 	 {
  
         $this->streamHandlers[$handler->level] = $handler;
 
-		$filePointer = fopen($handler->url,'a');
+		$filePointer = fopen($handler->url,'a+');
 		if (!$filePointer)
 		{
 			printf("Logging file at level %s startup error",$handler->level);
@@ -82,32 +86,7 @@ class ADObuiltinObject
  
 	 }
 
-	/**
-	* Opens the default output if no streamHandlers defined
-	*
-	* @return bool success
-	*/
-	protected function openTextHandler(): bool
-	{
 		
-		$filePointer = @fopen($this->textFile,'a+');
-		if (!$filePointer)
-		{
-			/*
-			* Nowhere to log, write to STDOUT
-			*/
-			print "Logging file startup error";
-			return false;
-		}
-		else
-		{
-			fclose($filePointer);
-			$this->useTextHandler = 1;
-			return true;
-		}
-		
-	}
-	
 	/**
 	* An extremely basic log-to-file mechanism. If you
 	* want something more exotic, use monolog
@@ -117,7 +96,7 @@ class ADObuiltinObject
 	*
 	* @return void
 	*/
-	public function log(int $logLevel,string $message=null,$tagJson=null): void{
+	final public function log(int $logLevel,string $message=null,$tagJson=null): void{
 		
         
 		if (is_array($tagJson))
@@ -144,14 +123,16 @@ class ADObuiltinObject
 						);
 		
 		if (!$this->streamHandlers)
+			/*
+			* No handlers defined, use textfile option
+			*/
 			$output = $this->textFile;
 		else
 			/*
 			* Write to the appropriate stream 
 			*/
 			$output = $this->streamHandlers[$logLevel]->url;
-		
-		
+
 		$fp = @fopen($output,'a+');
 		if (is_resource($fp))
 		{

@@ -12,39 +12,22 @@
 namespace ADOdb\LoggingPlugin\builtin;
 use ADOdb\LoggingPlugin\builtin\ADObuiltinObject;
 
-class ADOlogger extends \ADOdb\LoggingPlugin\ADOlogger
+final class ADOlogger extends \ADOdb\LoggingPlugin\ADOlogger
 {
 	
 	/*
 	* Identifies the plugin
 	*/
 	protected string $plugin = 'builtin';
-
+	
 	/**
-    * 
-    *
-    * @var string[] $levels Logging levels with the levels as key
-    */
-    protected array $levels = [
-        self::DEBUG     => 'DEBUG',
-        self::INFO      => 'INFO',
-        self::NOTICE    => 'NOTICE',
-        self::WARNING   => 'WARNING',
-        self::ERROR     => 'ERROR',
-        self::CRITICAL  => 'CRITICAL',
-        self::ALERT     => 'ALERT',
-        self::EMERGENCY => 'EMERGENCY',
-    ];
-	
-	/*
-	* A sane default file location for the log file. This
-	* has to be somewhere writable by the web server (usually)
-	*/
-	public string $textFile = '/tmp/adodb.log';
-	
-	protected int $useTextHandler = 0;
-
-	protected function activateLoggingObject(?array $streamHandlers,string $loggingTag)
+	 * Instantiates the object that does the actual logging
+	 * 
+	 * @param array $streamHandlers
+	 * @param string $loggingTag
+	 * @return bool
+	 */
+	final protected function activateLoggingObject(?array $streamHandlers,string $loggingTag) : bool
 	{
 		
 		/*
@@ -56,9 +39,17 @@ class ADOlogger extends \ADOdb\LoggingPlugin\ADOlogger
 		{
 			return $this->setStreamHandlers($streamHandlers);
 		}
-
+		return true;
 	}
 
+	/** 
+	 * Push additional information into the log using the 
+	 * Processor feature
+	 * 
+	 * @param string  $processorName
+	 * @return void
+	 */
+	final public function pushProcessor(string $processorName): void {}
 	
 }
 

@@ -159,6 +159,11 @@ abstract class ADOLogger
 	* not the same as logging the parent module
 	*/
 	public bool $debug = false;
+
+	/*
+	* Should the logging function prevent the raiseErrorFn from executing
+	*/
+	protected bool $suppressErrorFunction = true;
 	
 	
 	/**
@@ -193,6 +198,13 @@ abstract class ADOLogger
 
 	}
 
+	/**
+	 * Instantiates the object that does the actual logging
+	 * 
+	 * @param array $streamHandlers
+	 * @param string $loggingTag
+	 * @return bool
+	 */
 	abstract protected function activateLoggingObject(?array $streamHandlers,string $loggingTag);
 
 	/**
@@ -204,7 +216,6 @@ abstract class ADOLogger
 	*/
 	public function log(int $logLevel,?string $message=null): void
 	{
-		
 		
 		if (is_array($this->tagJson))
 		{
@@ -239,37 +250,26 @@ abstract class ADOLogger
 		if (count($this->logAtLevels) == 0 || $this->isLevelLogged($logLevel))
 		{
 			/*
-			* Send the message
+			* Send the message to the appropriate handler
 			*/
 			$this->loggingObject->log($logLevel,$message,$tags);
-			$this->logJson = null;
-			return;	
+			
 		}
 		
-		/*
-		* Test
-		*/
-		if (!$message && is_object($this->logJson)){
-			$message = sprintf('[%s] %s',$this->logJson->driver,json_encode($this->logJson));
-		}
-		else if (!$message)
-			return;
-
-		
-
 		$this->logJson = null;
 	}
 
 	/**
-	 * Is a particular level logged
+	 * Is a particular level logged using the predifined levels
 	 * 
 	 * @param int $logLevel
 	 * @return bool
 	 */
-	public function isLevelLogged(int $logLevel): bool{
+	final public function isLevelLogged(int $logLevel): bool{
 
 		if (count($this->logAtLevels) == 0)
 			return true;
+		
 		if (array_key_exists($logLevel,$this->logAtLevels))
 			return true;
 
@@ -284,7 +284,7 @@ abstract class ADOLogger
 	 * @param int    $logLevel
 	 * @return void
 	 */
-	public function setConnectionObject(object $connection) : void
+	final public function setConnectionObject(object $connection) : void
 	{
 		$this->connection = $connection;
 		if (!is_object($this->logJson))
@@ -305,15 +305,13 @@ abstract class ADOLogger
 	 * @param array $streamHandlers
 	 * @return bool
 	 */
-	public function setStreamHandlers(array $streamHandlers) : bool
+	final public function setStreamHandlers(array $streamHandlers) : bool
 	{
 		if (!$this->loggingObject)
 		{
 			return false;
 		}
-		
-		//$this->loggingObject->streamHandlers = $streamHandlers;
-				
+						
 		foreach($streamHandlers as $level=>$s)
 		{
 			$this->loggingObject->pushHandler($s);
@@ -332,12 +330,15 @@ abstract class ADOLogger
 	 * @param int    $logLevel
 	 * @return void
 	 */
-	protected function loadLoggingJson() : void
+	private function loadLoggingJson() : void
 	{
 		$logJson = new \ADOdb\LoggingPlugin\ADOJsonLogFormat;
 		
 		if ($this->connection)
 		{
+			/*
+			* Adds driver specific data to the message
+			*/
 			$logJson->driver                 = $this->connection->databaseType;
 			$logJson->ADOdbVersion			 = $this->connection->version();
 		}
@@ -352,7 +353,7 @@ abstract class ADOLogger
 	 * @param object $connection
 	 * @return void
 	 */
-	public function loadTagJson(object $connection) : void
+	final public function loadTagJson(object $connection) : void
 	{
 		$tagJson = new \ADOdb\LoggingPlugin\ADOJsonTagFormat;
 			
@@ -369,7 +370,7 @@ abstract class ADOLogger
 	 * @param mixed value
 	 * @return void
 	 */
-	public function setLoggingParameter(string $key,mixed $value) : void
+	final public function setLoggingParameter(string $key,mixed $value) : void
 	{
 		if (!is_object($this->logJson))
 		{
@@ -401,36 +402,27 @@ abstract class ADOLogger
 		$this->tagJson->$key = $value;
 	}
 
-	/**
-	 * Pushes handlers into the appropriate logging object 
-	 * 
-	 * @return bool
-	 */
-	public function pushHandler(object $handler): void
-	{
-		$this->loggingObject->pushHandler($handler);
-
-	}
-
 	/************************************************************************
 	 * Methods associated with core logging functions
 	 ************************************************************************/
 
-
 	/**
 	* Inserts this logging system as the default for ADOdb
 	*
+	* @param bool $logBacktrace Adds backtrace information to log
+	* @param bool $suppressErrorFunction Stops the $raiseErrorFn from running
 	* @return void
 	*/
-	public function redirectCoreLogging() :void
+	final public function redirectCoreLogging(bool $logBacktrace=false, bool $suppressErrorFunction=true) :void
 	{
-		global $ADODB_OUTP;
 		global $ADODB_LOGGING_OBJECT;
 		/*
 		* This global is seen by the core ADOdb system
 		*/
-		$ADODB_OUTP = $this;
 		$ADODB_LOGGING_OBJECT = $this;
+
+		$this->logBacktrace = $logBacktrace;
+		$this->suppressErrorFunction = $suppressErrorFunction;
 	}
 
 	/**
@@ -446,7 +438,7 @@ abstract class ADOLogger
 	*
 	* @return void
 	*/
-	public function coreLogger($message,$newline,$errorLevel=self::DEBUG)
+	final public function coreLogger($message,$newline,$errorLevel=self::DEBUG)
 	{
 		
 		/*
@@ -496,34 +488,11 @@ abstract class ADOLogger
 
 		$MAXSTRLEN = 128;
 
-		if (is_array($printOrArr))
-		{
-			$traceArr = $printOrArr;
-			$logLevel = $this::DEBUG;
-			$this->log($logLevel,'----------- DEBUG STARTS ----------');
-		}
-		else
-		{
-			$traceArr = debug_backtrace();
-			$logLevel = $this::CRITICAL;
-			$this->log($logLevel,'----------- ERROR STACK STARTS ----------');
-
-			//print_r($traceArr); exit;
-
-			array_shift($traceArr);
-			array_shift($traceArr);
-
-			$traceObject = $traceArr[0]['object'];
-
-			//print_r($traceObject); exit;
-
-		}
-
-		array_shift($traceArr);
-		array_shift($traceArr);
-
-		//print_r($traceArr); //exit;
+		$traceArr = debug_backtrace();
+		
 		$tabs = sizeof($traceArr)-1;
+
+		$s = '';
 
 		foreach ($traceArr as $arr) {
 			if ($skippy) {
@@ -566,26 +535,28 @@ abstract class ADOLogger
 			}
 			$s .= $arr['function'].'('.implode(', ',$args).')';
 
-
 			$s .= @sprintf($fmt, $arr['line'],$arr['file'],basename($arr['file']));
-
-			$this->log($logLevel,$s);
-			$s = '';
-
 		}
-		if (is_array($printOrArr))
-		{
-			$this->log($logLevel,'----------- DEBUG ENDS ----------');
-		}
-		else
-		{
-			$this->log($logLevel,'----------- ERROR STACK ENDS ----------');
-		}
-		return;
-		if ($printOrArr)
-			print $s;
-
 		return $s;
 	}
+
+	/**
+	 * Returns the status of error function suppression
+	 * 
+	 * @return bool
+	 */
+	final public function ignoreErrorHandling() : bool
+	{
+		return $this->suppressErrorFunction;
+	}
+
+	/** 
+	 * Push additional information into the log using the 
+	 * monolog Processor feature
+	 * 
+	 * @param string  $processorName
+	 * @return void
+	 */
+	 abstract public function pushProcessor(string $processorName): void;
 }
 
