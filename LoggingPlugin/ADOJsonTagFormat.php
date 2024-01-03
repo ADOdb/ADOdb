@@ -5,7 +5,7 @@
 *
 * This file is part of the ADOdb package.
 *
-* @copyright 2023 Mark Newnham
+* @copyright 2023-2024 Mark Newnham
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
