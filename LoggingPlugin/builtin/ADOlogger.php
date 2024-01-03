@@ -24,16 +24,16 @@ final class ADOlogger extends \ADOdb\LoggingPlugin\ADOlogger
 	 * Instantiates the object that does the actual logging
 	 * 
 	 * @param array $streamHandlers
-	 * @param string $loggingTag
+	 * @param string $loggingIdentifier
 	 * @return bool
 	 */
-	final protected function activateLoggingObject(?array $streamHandlers,string $loggingTag) : bool
+	final protected function activateLoggingObject(?array $streamHandlers,string $loggingIdentifier) : bool
 	{
 		
 		/*
 		* Instantiate the builtin logger
 		*/
-		$this->loggingObject = new ADObuiltinObject($loggingTag);
+		$this->loggingObject = new ADObuiltinObject($loggingIdentifier);
 
 		if (is_array($streamHandlers))
 		{
@@ -50,6 +50,14 @@ final class ADOlogger extends \ADOdb\LoggingPlugin\ADOlogger
 	 * @return void
 	 */
 	final public function pushProcessor(string $processorName): void {}
+
+	/** 
+	 * Push tags into the log using the TagProcessor feature
+	 * 
+	 * @param object $connection
+	 * @return void
+	 */
+	final protected function pushTagJson(object $connection) : void{}
 	
 }
 

@@ -58,11 +58,11 @@ class ADObuiltinObject
 	/*
 	* The tag injected into all logging messages
 	*/
-    protected ?string $loggingTag;
+    protected ?string $loggingIdentifier;
 
-    public function __construct(string $loggingTag)
+    public function __construct(string $loggingIdentifier)
     {
-        $this->loggingTag = $loggingTag;
+        $this->loggingIdentifier = $loggingIdentifier;
     }
 
 	/**
@@ -115,7 +115,7 @@ class ADObuiltinObject
 				
 		$line = sprintf('[%s] %s.%s: %s %s%s',
 						date('c'),
-						$this->loggingTag,
+						$this->loggingIdentifier,
 						$levelDescription,
 						$message,
 						$tags,

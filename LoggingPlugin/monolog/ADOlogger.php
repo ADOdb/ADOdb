@@ -21,19 +21,24 @@ final class ADOLogger extends \ADOdb\LoggingPlugin\ADOLogger
 	*/
 	protected string $plugin = 'monolog';
 
+	/*
+	* The available processor
+	*/
+	private string $processorName = '';
+	
 	/**
 	 * Instantiates the object that does the actual logging
 	 * 
 	 * @param array $streamHandlers
-	 * @param string $loggingTag
+	 * @param string $loggingIdentifier
 	 * @return bool
 	 */
-	final protected function activateLoggingObject(?array $streamHandlers,string $loggingTag) :bool
+	final protected function activateLoggingObject(?array $streamHandlers,string $loggingIdentifier) :bool
 	{
 		/*
 		* Instantiate the monolog logger
 		*/
-		$this->loggingObject = new \Monolog\Logger($loggingTag);
+		$this->loggingObject = new \Monolog\Logger($loggingIdentifier);
 
 		if (is_array($streamHandlers))
 		{
@@ -55,6 +60,27 @@ final class ADOLogger extends \ADOdb\LoggingPlugin\ADOLogger
 
 		$newProcessor = sprintf('\\Monolog\\Processor\\%s',$processorName);
 		$this->loggingObject->pushProcessor(new $newProcessor);
+	}
 
+	/** 
+	 * Push tags into the log using the monolog TagProcessor feature
+	 * 
+	 * @param object $connection
+	 * @return void
+	 */
+	final protected function pushTagJson(object $connection) : void
+	{
+
+		if (!$this->switchOnTags)
+			return;
+		
+		if (!$this->tagJson)
+		{
+			$this->loadTagJson($connection);
+		}
+
+		$tagProcessor = new \Monolog\Processor\TagProcessor;
+		$tagProcessor->addTags((array)$this->tagJson);
+		$this->loggingObject->pushProcessor($tagProcessor);
 	}
 }

@@ -4,7 +4,7 @@
 *
 * This file is part of the ADOdb package.
 *
-* @copyright 2021 Mark Newnham
+* @copyright 2021-2024 Mark Newnham
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
@@ -33,7 +33,7 @@ abstract class ADOLogger
 	/*
 	* The default tag that appears in the log file
 	*/
-	public string $loggingTag = 'ADODB';
+	public string $loggingIdentifier = 'ADODB';
 
 	/*********************************************
 	* For extension functionality, these logging
@@ -133,6 +133,16 @@ abstract class ADOLogger
 	*/
 	public ?object $tagJson = null;
 
+	/*
+	* Activate the tagging feature
+	*/
+	protected bool $switchOnTags = false;
+
+	/*
+	* Use a pre-filled set of tags if required
+	*/
+	protected bool $addSystemTags = false;
+
 	/**********************************************************************
 	 * Section associated with logging Core functionality
 	 **********************************************************************/
@@ -163,7 +173,7 @@ abstract class ADOLogger
 	/*
 	* Should the logging function prevent the raiseErrorFn from executing
 	*/
-	protected bool $suppressErrorFunction = true;
+	protected bool $suppressErrorFunction = false;
 	
 	
 	/**
@@ -174,17 +184,17 @@ abstract class ADOLogger
 	* @param $loggingDefinitions
 	*
 	*/
-	public function __construct(?array $streamHandlers=null, string $loggingTag='ADODB', int $logFormat=self::LOG_FORMAT_JSON,bool $debug=false){
+	public function __construct(?array $streamHandlers=null, string $loggingIdentifier='ADODB', int $logFormat=self::LOG_FORMAT_JSON,bool $debug=false){
 
-		$this->debug 		= $debug;
-		$this->loggingTag 	= $loggingTag;
-		$this->logFormat 	= $logFormat;
+		$this->debug 				= $debug;
+		$this->loggingIdentifier 	= $loggingIdentifier;
+		$this->logFormat 			= $logFormat;
 
-		$this->activateLoggingObject($streamHandlers,$loggingTag);
+		$this->activateLoggingObject($streamHandlers,$loggingIdentifier);
 		
 		if ($this->debug)
 		{
-			if ($this->loggingObject){
+			if ($this->loggingObject) {
 				$this->loggingObject->log(self::DEBUG,'The logging service was successfully started');
 				$this->loggingObject->log(self::DEBUG,sprintf('The logging service uses the %s plugin',$this->plugin));
 			}
@@ -202,10 +212,10 @@ abstract class ADOLogger
 	 * Instantiates the object that does the actual logging
 	 * 
 	 * @param array $streamHandlers
-	 * @param string $loggingTag
+	 * @param string $loggingIdentifier
 	 * @return bool
 	 */
-	abstract protected function activateLoggingObject(?array $streamHandlers,string $loggingTag);
+	abstract protected function activateLoggingObject(?array $streamHandlers,string $loggingIdentifier);
 
 	/**
 	* The core function for feature that uses this system
@@ -275,6 +285,19 @@ abstract class ADOLogger
 
 		return false;
 
+	}
+
+	/**
+	 * Is a particular level logged using the predifined levels
+	 * 
+	 * @param int $logLevel
+	 * @return bool
+	 */
+	final public function getLoggedLevels(): array
+	{
+
+		return $this->logAtLevels;
+		
 	}
 
 	/**
@@ -350,18 +373,38 @@ abstract class ADOLogger
 	/**
 	 * Sets the connection into the tags
 	 * 
+	 * @return void
+	 */
+	final public function loadTagJson() : void
+	{
+
+		if (!$this->tagJson)
+		{
+			if ($this->addSystemTags)
+			{
+				$tagJson = new \ADOdb\LoggingPlugin\ADOJsonTagFormat;
+
+				if ($this->connection)
+				{
+					$tagJson->driver                 = $this->connection->databaseType;
+					$tagJson->ADOdbVersion			 = $this->connection->version();
+				}
+			} else {
+				$tagJson = new \stdClass;
+			}
+		}
+
+		$this->tagJson = $tagJson;
+		
+	}
+
+	/** 
+	 * Push tags into the log using the monolog TagProcessor feature
+	 * 
 	 * @param object $connection
 	 * @return void
 	 */
-	final public function loadTagJson(object $connection) : void
-	{
-		$tagJson = new \ADOdb\LoggingPlugin\ADOJsonTagFormat;
-			
-		$tagJson->driver                 = $connection->databaseType;
-		$tagJson->ADOdbVersion			 = $connection->version();
-
-		$this->tagJson = $tagJson;
-	}
+	abstract protected function pushTagJson(object $connection) : void;
 
 	/**
 	 * Appends any custom or standard value into the logging object
@@ -382,13 +425,13 @@ abstract class ADOLogger
 	}
 
 	/**
-	 * Appends a custom value into the tag object
+	 * Appends a custom value into the message tag object
 	 * 
 	 * @param string $key
 	 * @param mixed value
 	 * @return void
 	 */
-	public function setLoggingTag(?string $key,mixed $value=null) : void
+	public function setMessageTag(?string $key,mixed $value=null) : void
 	{
 		if ($key === null)
 		{
@@ -397,11 +440,22 @@ abstract class ADOLogger
 		}
 
 		if (!$this->tagJson)
-			$this->tagJson = new \ADOdb\LoggingPlugin\ADOjsonTagFormat;
-
+			$this->loadTagJson();
+			
 		$this->tagJson->$key = $value;
 	}
 
+	/**
+	 * Activates the message tagging system
+	 * 
+	 * @param bool $switchOnTags
+	 * @param bool $addSystemTags
+	 * @return void
+	 */
+	final public function setMessageTags(bool $switchOnTags,?bool $addSystemTags=false): void{
+		$this->switchOnTags  = $switchOnTags;
+		$this->addSystemTags = $addSystemTags;
+	}
 	/************************************************************************
 	 * Methods associated with core logging functions
 	 ************************************************************************/
@@ -413,15 +467,19 @@ abstract class ADOLogger
 	* @param bool $suppressErrorFunction Stops the $raiseErrorFn from running
 	* @return void
 	*/
-	final public function redirectCoreLogging(bool $logBacktrace=false, bool $suppressErrorFunction=true) :void
+	final public function edirectCoreLogging(bool $logBacktrace=false, bool $suppressErrorFunction=false) :void
 	{
-		global $ADODB_LOGGING_OBJECT;
 		/*
 		* This global is seen by the core ADOdb system
 		*/
+		global $ADODB_LOGGING_OBJECT;
+		
 		$ADODB_LOGGING_OBJECT = $this;
 
-		$this->logBacktrace = $logBacktrace;
+		/*
+		* Save off behavioral indicators
+		*/
+		$this->logBacktrace          = $logBacktrace;
 		$this->suppressErrorFunction = $suppressErrorFunction;
 	}
 
@@ -438,7 +496,7 @@ abstract class ADOLogger
 	*
 	* @return void
 	*/
-	final public function coreLogger($message,$newline,$errorLevel=self::DEBUG)
+	final public function coreLogger($message,$newline,$errorLevel=self::DEBUG) : void
 	{
 		
 		/*
@@ -460,84 +518,184 @@ abstract class ADOLogger
 	}
 
 	/**
-	* Linked to the adodb_backtrace
+	* Logs an invalid SQL execution
 	*
-	* @param bool $printArr
-	* @param int  $levels
-	* @param int  $skippy
-	* @param string $ishtml
+	* @param object $connection
+	* @param string $sql
+	* @param array  input params
 	*
 	* @return void
 	*/
-	public function coreBacktrace($printOrArr=true,$levels=9999,$skippy=0,$ishtml=null)
+	final public function logInvalidSql(object $connection, string $sql,mixed $inputarr) : void
 	{
-		if (!function_exists('debug_backtrace'))
-		{
-			$this->log(self::DEBUG,'function debug_backtrace unavailable');
-			return '';
-		}
-
-		if (!$this->logBacktrace)
-			/*
-			* If we switched off backtrace logging
-			*/
+		if (!$this->isLevelLogged(self::CRITICAL))
 			return;
 
-
-		$fmt =  "%% line %4d, file: %s";
-
-		$MAXSTRLEN = 128;
-
-		$traceArr = debug_backtrace();
+		if (!is_object($this->connection))
+			$this->setConnectionObject($connection);
 		
-		$tabs = sizeof($traceArr)-1;
+		if ($this->logFormat == self::LOG_FORMAT_JSON)
+		{
+			$sqlStatement = array(
+				'sql' => $sql,
+				'params' => $inputarr
+			);
+			$this->setLoggingParameter('sqlStatement',$sqlStatement);
+			/*
+			* Obtain the database specific error notification
+			*/
+			$this->setLoggingParameter('errorCode',$connection->errorNo());
+			$this->setLoggingParameter('errorMessage',$connection->errorMsg());
+			/*
+			* Adds the ADOdb Meta Error in the appropriate language set
+			*/
+			$this->setLoggingParameter('metaErrorCode',$connection->metaError($connection->errorNo()));
+			$this->setLoggingParameter('metaErrorMessage',$connection->metaErrorMsg($connection->metaError($connection->errorNo())));
 
-		$s = '';
+			if ($this->logBacktrace)
+			{
+				$backtraceData = $this->coreBacktrace();
 
-		foreach ($traceArr as $arr) {
-			if ($skippy) {
-				$skippy -= 1;
-				continue;
+				$this->setLoggingParameter('callStack',$backtraceData);
+			}
+			
+			
+			$this->pushTagJson($connection);
+			$this->log(self::CRITICAL,'QUERY EXECUTION FAILURE');
+		}
+		else
+		{
+			$params = '';
+			if (is_array($inputarr))
+				$params = implode(',',$inputarr);
+			
+			$message = sprintf('Execution of statement failed: %s , %s / Error: %s %s',$sql,$params,$connection->ErrorNo(),$connection->ErrorMsg());
+			
+			$this->pushTagJson($connection);
+			$this->log(self::CRITICAL,$message);
+		}
+		
+		if (!$this->ignoreErrorHandling())
+		{
+			/*
+			* Process the error through both LOGGING_OBJECT and raiseErrorFn
+			*/
+			$fn = $connection->raiseErrorFn;
+			if ($fn) {
+				$fn($connection->databaseType,'EXECUTE',$connection->ErrorNo(),$connection->ErrorMsg(),$sql,$inputarr,$connection);
+			}
+		}
+	}
+
+	/**
+	* Logs an valid SQL execution
+	*
+	* @param object $connection
+	* @param string $sql
+	* @param array  input params
+	*
+	* @return void
+	*/
+	final public function logValidSql(object $connection, string $sql,mixed $inputarr) : void
+	{
+		if (!$this->isLevelLogged(self::INFO))
+			return;
+		
+		if (!is_object($this->connection))
+			$this->setConnectionObject($connection);
+				
+		if ($this->logFormat == self::LOG_FORMAT_JSON)
+		{
+
+			$sqlStatement = array(
+				'sql' => $sql,
+				'params' => $inputarr
+			);
+			$this->setLoggingParameter('sqlStatement',$sqlStatement);
+			$this->pushTagJson($connection);
+			$this->log(self::INFO,'SUCCESSFUL QUERY EXECUTION');
+		}
+		else
+		{
+			$params = '';
+			if (is_array($inputarr))
+				$params = implode(',',$inputarr);
+			
+			$message = sprintf('Successful Execution of sql: %s , params: %s',$sql,$params);
+
+			$this->pushTagJson($connection);
+			$this->log(self::INFO,$message);
+		}
+	}
+
+	/**
+	* Produces a backtrace object for JSON logging
+	*
+	* @return array
+	*/
+	final protected function coreBacktrace() : array
+	{
+		
+		$elementArray    = array();
+		
+		// Get 2 extra elements if max depth is specified
+		$elementsToIgnore = 0;
+		$traceArr = debug_backtrace(0, 0);
+		
+		// Remove elements to ignore, plus the first 2 elements that just show
+		// calls to adodb_backtrace
+		for ($elementsToIgnore += 2; $elementsToIgnore > 0; $elementsToIgnore--) {
+			array_shift($traceArr);
+		}
+		$elements = sizeof($traceArr);
+
+		foreach ($traceArr as $element) {
+			
+			$baseClass    = '';
+			$baseFunction = $element['function'];
+			if (isset($element['class'])) {
+				$baseClass = $element['class'];
 			}
 
-			$levels -= 1;
-			if ($levels < 0)
-				break;
-
+			// Function arguments
 			$args = array();
-			$s = sprintf('[STACK %s] ',$tabs);
-			$tabs -= 1;
-
-			if (isset($arr['class']))
-				$s .= $arr['class'].'.';
-
-			if (isset($arr['args']))
+			if (isset($element['args'])) 
 			{
-				foreach($arr['args'] as $v)
-				{
-					if (is_null($v))
+				foreach ($element['args'] as $v) {
+					if (is_null($v)) {
 						$args[] = 'null';
-					else if (is_array($v))
-						$args[] = 'Array['.sizeof($v).']';
-					else if (is_object($v))
-						$args[] = 'Object:'.get_class($v);
-					else if (is_bool($v))
+					} elseif (is_array($v)) {
+						$args[] = 'Array[' . sizeof($v) . ']';
+					} elseif (is_object($v)) {
+						$args[] = 'Object:' . get_class($v);
+					} elseif (is_bool($v)) {
 						$args[] = $v ? 'true' : 'false';
-					else {
-						$v = (string) @$v;
-						$str = str_replace(array("\r","\n"),' ',substr($v,0,$MAXSTRLEN));
-						if (strlen($v) > $MAXSTRLEN)
-							$str .= '...';
-
-						$args[] = $str;
+					} else {
+						// Remove newlines and tabs, compress repeating spaces
+						$v = preg_replace('/\s+/', ' ', $v);
+						$args[] = $v;
 					}
 				}
 			}
-			$s .= $arr['function'].'('.implode(', ',$args).')';
 
-			$s .= @sprintf($fmt, $arr['line'],$arr['file'],basename($arr['file']));
+			$file = str_replace('\\','/',$element['file']) ?? 'unknown file';
+						
+			$elements--;
+
+			$c = new \stdClass;
+			$c->class = $baseClass;
+			$c->function = array(
+				'name'=>$baseFunction,
+				'args'=>$args);
+			$c->file = $file;
+			$c->line = $element['line'] ?? 'unknown';
+			$elementArray[] = $c;
+				
+			
 		}
-		return $s;
+
+		return $elementArray;
+
 	}
 
 	/**
