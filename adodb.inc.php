@@ -1824,7 +1824,7 @@ if (!defined('_ADODB_LAYER')) {
 		if (array_key_exists(self::ADODB_LOG_INFO,$this->loggingPluginLoggedLevels))
 		{
 			global $ADODB_LOGGING_OBJECT;
-			$this->logValidSql($this,$sql,$inputarr);
+			$ADODB_LOGGING_OBJECT->logValidSql($this,$sql,$inputarr);
 		}
 
 		// return simplified recordset for inserts/updates/deletes with lower overhead
