@@ -1179,9 +1179,6 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 */
 function _adodb_debug_execute($zthis, $sql, $inputarr)
 {
-	global $ADODB_OUTP;
-	global $ADODB_LOGGING_OBJECT;
-
 	// Execute the query, capturing any output
 	ob_start();
 	$queryId = $zthis->_query($sql, $inputarr);
@@ -1210,38 +1207,6 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 	if (!isset($zthis->dsnType)) {
 		// Append the PDO driver name
 		$driverName .= '-' . $zthis->dsnType;
-	}
-
-	$useObjectDebug = false;
-	if (is_object($ADODB_LOGGING_OBJECT))
-	{
-	if ($ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADODB_LOG_DEBUG))
-			$useObjectDebug = true;
-	}
-
-	
-	if ($useObjectDebug)
-	{
-		if ($ADODB_LOGGING_OBJECT->logFormat == $ADODB_LOGGING_OBJECT::LOG_FORMAT_JSON)
-		{
-			$sqlStatement = array(
-				'sql' => $sql,
-				'params' => $inputarr
-			);
-			$ADODB_LOGGING_OBJECT->setLoggingParameter('sqlStatement',$sqlStatement);
-			$ADODB_LOGGING_OBJECT->setLoggingParameter('message',$queryOutput);
-			
-			$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,'DEBUG EXECUTION');
-		}
-		else
-		{
-			$params = '';
-			if (is_array($inputarr))
-				$params = implode(',',$inputarr);
-			
-			$message = sprintf('Execution of statement: %s , %s',$sql,$params);
-			$ADODB_LOGGING_OBJECT->log(ADOConnection::ADODB_LOG_DEBUG,$message);
-		}
 	}
 
 	// Prepare SQL statement for display (remove newlines and tabs, compress repeating spaces)
@@ -1311,9 +1276,6 @@ function _adodb_debug_execute($zthis, $sql, $inputarr)
 		echo '</div>' . PHP_EOL;
 	}
 
-	
-	
-	
 	return $queryId;
 }
 
