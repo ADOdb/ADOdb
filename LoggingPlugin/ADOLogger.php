@@ -467,7 +467,7 @@ abstract class ADOLogger
 	* @param bool $suppressErrorFunction Stops the $raiseErrorFn from running
 	* @return void
 	*/
-	final public function edirectCoreLogging(bool $logBacktrace=false, bool $suppressErrorFunction=false) :void
+	final public function setCoreLogging(bool $logBacktrace=false, bool $suppressErrorFunction=false) :void
 	{
 		/*
 		* This global is seen by the core ADOdb system
@@ -613,6 +613,13 @@ abstract class ADOLogger
 			);
 			$this->setLoggingParameter('sqlStatement',$sqlStatement);
 			$this->pushTagJson($connection);
+			
+			if ($this->logBacktrace)
+			{
+				$backtraceData = $this->coreBacktrace();
+
+				$this->setLoggingParameter('callStack',$backtraceData);
+			}
 			$this->log(self::INFO,'SUCCESSFUL QUERY EXECUTION');
 		}
 		else
