@@ -375,7 +375,7 @@ abstract class ADOLogger
 	 * 
 	 * @return void
 	 */
-	final public function loadTagJson() : void
+	private function loadTagJson() : void
 	{
 
 		if (!$this->tagJson)
@@ -487,6 +487,9 @@ abstract class ADOLogger
 	* The root function takes an inbound ADODb log message
 	* and converts it into a syslog format message. Note that
 	* SQL execution errors don't pass through here
+	*
+	* Whilst it is a public function, its sole purpose is to post-process
+	* data from the outp() method.
 	*
 	* The error level comes from a customized function in outp()
 	*
@@ -640,7 +643,7 @@ abstract class ADOLogger
 	*
 	* @return array
 	*/
-	final protected function coreBacktrace() : array
+	private function coreBacktrace() : array
 	{
 		
 		$elementArray    = array();
@@ -706,11 +709,21 @@ abstract class ADOLogger
 	}
 
 	/**
+	 * Returns the status of backtrace addition
+	 * 
+	 * @return bool
+	 */
+	final public function getBacktraceStatus() : bool
+	{
+		return $this->logBacktrace;
+	}
+
+	/**
 	 * Returns the status of error function suppression
 	 * 
 	 * @return bool
 	 */
-	final public function ignoreErrorHandling() : bool
+	final public function getErrorHandlingStatus() : bool
 	{
 		return $this->suppressErrorFunction;
 	}
