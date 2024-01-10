@@ -16,6 +16,13 @@ Older changelogs:
 
 ## [5.22.8] - Unreleased
 
+### Fixed
+
+- Backtrace output is not channeled through ADODB_OUTP
+  [#1018](https://github.com/ADOdb/ADOdb/issues/1018)
+- mysql: catch getAssoc() execution error in metaColumns()
+  [#1016](https://github.com/ADOdb/ADOdb/issues/1016)
+
 
 ## [5.22.7] - 2023-11-04
 
