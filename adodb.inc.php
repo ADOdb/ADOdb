@@ -236,14 +236,14 @@ if (!defined('_ADODB_LAYER')) {
 		public $name = '';
 
 		/**
-		 * @var int Field size
-		 */
-		public $max_length = 0;
-
-		/**
 		 * @var string Field type.
 		 */
 		public $type = '';
+
+		/**
+		 * @var int Field size
+		 */
+		public $max_length = 0;
 
 		/**
 		 * @var int|null Numeric field scale.
