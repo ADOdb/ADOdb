@@ -3025,15 +3025,15 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * GetActiveRecordsClass Performs an 'ALL' query
 	 *
-	 * @param mixed $class This string represents the class of the current active record
-	 * @param mixed $table Table used by the active record object
-	 * @param mixed $whereOrderBy Where, order, by clauses
-	 * @param mixed $bindarr
-	 * @param mixed $primkeyArr
+	 * @param string $class This string represents the class of the current active record
+	 * @param string $table Table used by the active record object
+	 * @param string $whereOrderBy Where, order, by clauses
+	 * @param array $bindarr
+	 * @param array $primkeyArr
 	 * @param array $extra Query extras: limit, offset...
 	 * @param mixed $relations Associative array: table's foreign name, "hasMany", "belongsTo"
 	 * @access public
-	 * @return void
+	 * @return array|false
 	 */
 	function GetActiveRecordsClass(
 			$class, $table,$whereOrderBy=false,$bindarr=false, $primkeyArr=false,
@@ -3050,8 +3050,7 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	function GetActiveRecords($table,$where=false,$bindarr=false,$primkeyArr=false) {
-		$arr = $this->GetActiveRecordsClass('ADODB_Active_Record', $table, $where, $bindarr, $primkeyArr);
-		return $arr;
+		return $this->GetActiveRecordsClass('ADODB_Active_Record', $table, $where, $bindarr, $primkeyArr);
 	}
 
 	/**
