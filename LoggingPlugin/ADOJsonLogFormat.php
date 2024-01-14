@@ -95,7 +95,12 @@ class ADOjsonLogFormat
 	public string $os  = '';
 
 
-    public function __construct()
+	/**
+	* Constructor
+	*
+	* @param ADOConnection $connection
+	*/
+    public function __construct(?object $connection)
 	{
 		global $ADODB_vers;
 
@@ -105,6 +110,12 @@ class ADOjsonLogFormat
 
 		$this->source = isset($_SERVER['HTTP_USER_AGENT']) ? 'cgi' : 'cli';
         $this->host    = gethostname();
+
+		if ($connection)
+		{
+			$this->driver       = $connection->databaseType;
+			$this->ADOdbVersion	= $connection->version();
+		}
 	}
 
 

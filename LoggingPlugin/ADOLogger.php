@@ -374,17 +374,8 @@ abstract class ADOLogger
 	private function loadLoggingJson() : void
 	{
 		$jsonLogObject = $this->jsonLogObject;
-		$logJson = new $jsonLogObject;
+		$logJson = new $jsonLogObject($this->connection);
 		
-		if ($this->connection)
-		{
-			/*
-			* Adds driver specific data to the message
-			*/
-			$logJson->driver                 = $this->connection->databaseType;
-			$logJson->ADOdbVersion			 = $this->connection->version();
-		}
-
 		$this->logJson = $logJson;
 	
 	}
@@ -402,13 +393,7 @@ abstract class ADOLogger
 			if ($this->addSystemTags)
 			{
 				$jsonTagObject = $this->jsonTagObject;
-				$tagJson = new $jsonTagObject;
-
-				if ($this->connection)
-				{
-					$tagJson->driver                 = $this->connection->databaseType;
-					$tagJson->ADOdbVersion			 = $this->connection->version();
-				}
+				$tagJson = new $jsonTagObject($this->connection);
 			} else {
 				$tagJson = new \stdClass;
 			}

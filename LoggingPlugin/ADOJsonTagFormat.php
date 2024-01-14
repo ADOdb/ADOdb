@@ -45,7 +45,12 @@ final class ADOjsonTagFormat
 	*/
 	public ?string $ADOdbVersion = '';
 
-	public function __construct()
+	/**
+	* Constructor
+	*
+	* @param ADOConnection $connection
+	*/
+	public function __construct(?object $connection)
 	{
 		global $ADODB_vers;
 
@@ -55,5 +60,11 @@ final class ADOjsonTagFormat
 
 		$this->source = isset($_SERVER['HTTP_USER_AGENT']) ? 'cgi' : 'cli';
         $this->host    = gethostname();
+
+		if ($connection)
+		{
+			$this->driver       = $connection->databaseType;
+			$this->ADOdbVersion	= $connection->version();
+		}
 	}
 }
