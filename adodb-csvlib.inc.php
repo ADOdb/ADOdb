@@ -207,7 +207,7 @@ $ADODB_INCLUDED_CSV = 1;
 					$rs = unserialize($text);
 					if (is_object($rs)) $rs->timeCreated = $ttl;
 					else {
-						$err = "Unable to unserialize recordset";
+						$err = "Unable to unserialize recordset in CSVLIB";
 						//echo htmlspecialchars($text),' !--END--!<p>';
 					}
 					return $rs;

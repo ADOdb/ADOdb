@@ -4,24 +4,20 @@
 *
 * This file is part of the ADOdb package.
 *
-* @copyright 2020 Mark Newnham
+* @copyright 2020-2024 Mark Newnham
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
 
-namespace ADOdb\CachingPlugin\plugins\filesystem;
+namespace ADOdb\CachingPlugin\filesystem;
 
 /**
 * Defines the attributes passed to the monolog interface
 */
 final class ADOCacheDefinitions extends \ADOdb\CachingPlugin\ADOCacheDefinitions
 {
-	/*
-	* Debugging for cache
-	*/
-	public bool $debug = true;
-	
+		
 	/*
 	* Service flag. Do not modify value
 	*/

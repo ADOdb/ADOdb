@@ -12,12 +12,12 @@
 * file that was distributed with this source code.
 */
 
-namespace ADOdb\addins\cache\plugins\rediscluster;
+namespace ADOdb\CachingPlugin\rediscluster;
 
 /**
 * Defines the attributes passed to the redis interface
 */
-final class ADOCacheDefinitions extends \ADOdb\addins\cache\ADOCacheDefinitions
+final class ADOCacheDefinitions extends \ADOdb\CachingPlugin\ADOCacheDefinitions
 {
 	/*
 	* Debugging for cache

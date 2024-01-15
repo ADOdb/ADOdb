@@ -11,7 +11,7 @@
 */
 namespace ADOdb\CachingPlugin;
 use ADOdb\LoggingPlugin\ADOLogger;
-use ADOdb\CachingPlugin\ADOCacheObject;
+//use ADOdb\CachingPlugin\ADOCacheObject;
 class ADOCacheMethods
 {
 
@@ -38,18 +38,22 @@ class ADOCacheMethods
 	/*	
 	* An integer index into the libraries
 	*/
-	const MCLIB   = 1;
-	const MCLIBD  = 2;
-	const FILESYS = 3;
-	const APCU    = 4;
-	const REDIS   = 5;
+	public const MCLIB   = 1;
+	public const MCLIBD  = 2;
+	public const FILESYS = 3;
+	public const APCU    = 4;
+	public const REDIS   = 5;
+	public const WINCACHE= 6;
+	public const YAC	  = 7;
 	
 	protected array $libraryDescription = array(
 		self::MCLIB=>'MEMCACHE',
 		self::MCLIBD=>'MEMCACHED',
 		self::FILESYS=>'FILESYSTEM',
 		self::APCU=>'APCU',
-		self::REDIS=>'REDIS'
+		self::REDIS=>'REDIS',
+		self::WINCACHE=>'WINCACHE',
+		self::YAC=>'YAC'
 		);
 	
 	/*
@@ -82,13 +86,8 @@ class ADOCacheMethods
 	protected int $numCacheMisses = 0;
 	
 	/*
-	* A default cache options template
+	* A default cache options holder
 	*/
-	protected array $defaultCacheOptions = array(
-			'ttl'=>0,
-			'serverKey'=>null
-			);
-	
 	protected ?object $defaultCacheObject;
 
 	/*
@@ -117,30 +116,6 @@ class ADOCacheMethods
 		$this->databaseType = $connection->databaseType;
 		$this->database     = $connection->database;
 		
-		if ($this->loggingObject)
-		{
-			/*
-			* Not the same as the driver debug, but there must be a
-			* logging object available
-			*/
-			$this->debug = $cacheDefinitions->debug;
-				
-		}
-		
-		if ($this->debug){
-			$message = '=========== CACHE SERVICE STARTUP ===========';
-			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
-			if ($this->connection->databaseType == 'pdo')
-				$dbDriver = 'PDO/' . $this->connection->dsnType;
-			else
-				$dbDriver = $this->connection->databaseType;
-				
-			$message = 'Database driver is ' . $dbDriver;
-			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
-			
-			$message = 'Caching method is ' . $cacheDefinitions->serviceName;
-			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
-		}
 		
 	
 		/*
@@ -158,7 +133,7 @@ class ADOCacheMethods
 		//$rsClass = '\\ADORecordSet_array_' . $this->connection->dataProvider;
 		$classTemplate = new $rsClass(null,$this->connection);
 
-		$cacheConnection = '\\ADOdb\\CachingPlugin\\plugins\\' . $cacheDefinitions->serviceName . '\\ADOCacheMethods';
+		$cacheConnection = '\\ADOdb\\CachingPlugin\\' . $cacheDefinitions->serviceName . '\\ADOCacheMethods';
 		
 		$this->cachingObject = new $cacheConnection($connection,$cacheDefinitions);
 		
@@ -171,12 +146,6 @@ class ADOCacheMethods
 		$rsClass = '\\ADORecordSet_array_' . $this->connection->databaseType;
 		$this->classTemplate = new $rsClass(null,$this->connection);
 
-		
-		$this->writeLoggingPair(
-			$this->cachingObject,
-			'The Caching Service is now active',
-			'The Caching Service failed to activate'
-			);
 		
 	}
 	
@@ -201,6 +170,40 @@ class ADOCacheMethods
 		$this->database     	= $connection->database;
 		
 		$this->debug 			= $cacheDefinitions->debug;
+
+		
+		if ($this->loggingObject)
+		{
+			/*
+			* Not the same as the driver debug, but there must be a
+			* logging object available
+			*/
+			$this->debug = $cacheDefinitions->debug;
+				
+		}
+		
+		if ($this->debug){
+			$message = '=========== CACHE SERVICE STARTUP ===========';
+			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
+			if ($this->connection->databaseType == 'pdo')
+				$dbDriver = 'PDO/' . $this->connection->dsnType;
+			else
+				$dbDriver = $this->connection->databaseType;
+				
+			$message = 'Database driver is ' . $dbDriver;
+			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
+			
+			$message = 'Caching method is ' . $cacheDefinitions->serviceName;
+			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
+		}
+
+		
+		$this->writeLoggingPair(
+			true,
+			'The Caching Service is now active',
+			'The Caching Service failed to activate'
+			);
+		
 	}
 
 	/**
@@ -347,7 +350,7 @@ class ADOCacheMethods
 			/* 
 			* Create a new default object
 			*/
-			$obj = new \ADOdb\CachingPlugin\ADOCacheObject;
+			$obj = new ADOCacheObject;
 			if ($ttl)
 				$obj->ttl = $ttl;
 		}
@@ -510,13 +513,13 @@ class ADOCacheMethods
 			$rs = unserialize($recordSet);
 		
 		if (! is_object($rs)) {
-			$message = sprintf('%s: Unable to unserialize $rs',
+			$message = sprintf('%s: Unable to unserialize $rs in unpackCachedRecordset',
 						strtoupper($this->cacheDefinitions->serviceName));
 
 			if ($this->loggingObject)
 				$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 
-			$err = 'Unable to unserialize $rs';
+			$err = 'Unable to unserialize $rs in unpackCachedRecordset';
 			return array(null,$err);
 		}
 		

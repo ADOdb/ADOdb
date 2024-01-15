@@ -19,6 +19,8 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
+use ADOdb\CachingPlugin\ADOCacheObject;
+
 if (!defined('_ADODB_LAYER')) {
 	define('_ADODB_LAYER',1);
 
@@ -2279,15 +2281,16 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param array|bool  $inputarr    input bind array
 	 * @param bool        $force_array
 	 * @param bool        $first2cols
+	 * @param ADOCacheObject $obj
 	 *
 	 * @return false|array
 	 */
-	public function CacheGetAssoc($secs2cache, $sql = false, $inputarr = false,$force_array = false, $first2cols = false) {
+	public function CacheGetAssoc($secs2cache, $sql = false, $inputarr = false,$force_array = false, $first2cols = false,$obj=null) {
 		if (!is_numeric($secs2cache)) {
 			$first2cols = $force_array;
 			$force_array = $inputarr;
 		}
-		$rs = $this->CacheExecute($secs2cache, $sql, $inputarr);
+		$rs = $this->CacheExecute($secs2cache, $sql, $inputarr,$obj);
 		if (!$rs) {
 			return false;
 		}
@@ -2342,11 +2345,11 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 
-	function CacheGetOne($secs2cache,$sql=false,$inputarr=false) {
+	function CacheGetOne($secs2cache,$sql=false,$inputarr=false,$obj=null) {
 		global $ADODB_GETONE_EOF;
 
 		$ret = false;
-		$rs = $this->CacheExecute($secs2cache,$sql,$inputarr);
+		$rs = $this->CacheExecute($secs2cache,$sql,$inputarr,$obj);
 		if ($rs) {
 			if ($rs->EOF) {
 				$ret = $ADODB_GETONE_EOF;
@@ -2393,8 +2396,8 @@ if (!defined('_ADODB_LAYER')) {
 		return $rv;
 	}
 
-	function CacheGetCol($secs, $sql = false, $inputarr = false,$trim=false) {
-		$rs = $this->CacheExecute($secs, $sql, $inputarr);
+	function CacheGetCol($secs, $sql = false, $inputarr = false,$trim=false,$obj=null) {
+		$rs = $this->CacheExecute($secs, $sql, $inputarr,$obj);
 		if ($rs) {
 			$rv = array();
 			if ($trim) {
@@ -2464,17 +2467,41 @@ if (!defined('_ADODB_LAYER')) {
 		return $arr;
 	}
 
-	function CacheGetAll($secs2cache,$sql=false,$inputarr=false) {
-		return $this->CacheGetArray($secs2cache,$sql,$inputarr);
+	
+	/**
+	* Returns all rows of a cached recordset
+	* Alias of cacheGetArray
+	*
+	* @param int $secs2cache
+	* @param string|false $sql
+	* @param mixed[]|bool $inputarr
+	* @param ADOCacheObject|null      $obj 
+	*
+	* @return mixed
+	*/
+	function cacheGetAll($secs2cache,$sql=false,$inputarr=false,$obj=null) {
+		return $this->CacheGetArray($secs2cache,$sql,$inputarr,$obj);
 	}
 
-	function CacheGetArray($secs2cache,$sql=false,$inputarr=false) {
+	/**
+	* Returns all rows of a cached recordset
+	* Alias of cacheGetAll
+	*
+	* @param int $secs2cache
+	* @param string|false $sql
+	* @param mixed[]|bool $inputarr
+	* @param ADOCacheObject|null      $obj 
+	*
+	* @return mixed
+	*/
+	function CacheGetArray($secs2cache,$sql=false,$inputarr=false,$obj=null) {
+	
 		global $ADODB_COUNTRECS;
 
 		try {
 			$savec = $ADODB_COUNTRECS;
 			$ADODB_COUNTRECS = false;
-			$rs = $this->CacheExecute($secs2cache, $sql, $inputarr);
+			$rs = $this->CacheExecute($secs2cache, $sql, $inputarr,$obj);
 		} finally {
 			$ADODB_COUNTRECS = $savec;
 		}
@@ -2530,13 +2557,18 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * @param int $secs2cache
-	 * @param string|false $sql
-	 * @param mixed[]|bool $inputarr
-	 * @return mixed[]|bool
-	 */
-	function CacheGetRow($secs2cache,$sql=false,$inputarr=false) {
-		$rs = $this->CacheExecute($secs2cache,$sql,$inputarr);
+	* Returns the first row of a cached recordset
+	*
+	* @param int $secs2cache
+	* @param string|false $sql
+	* @param mixed[]|bool $inputarr
+	* @return mixed[]|bool
+	* @param ADOCacheObject|null      $obj
+	*
+	* @return mixed
+	*/
+	function CacheGetRow($secs2cache,$sql=false,$inputarr=false,$obj=null) {
+		$rs = $this->CacheExecute($secs2cache,$sql,$inputarr,$obj);
 		if ($rs) {
 			if (!$rs->EOF) {
 				$arr = $rs->fields;
@@ -2596,10 +2628,17 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param int    $offset     Row to start calculations from (1-based)
 	 * @param int    $nrows      Number of rows to get
 	 * @param array $inputarr    Array of bind variables
+	 * @param ADOCacheObject $obj
 	 *
 	 * @return ADORecordSet The recordset ($rs->databaseType == 'array')
 	 */
-	function CacheSelectLimit($secs2cache,$sql,$nrows=-1,$offset=-1,$inputarr=false) {
+	function cacheSelectLimit($secs2cache,$sql,$nrows=-1,$offset=-1,$inputarr=false,$obj=null) {
+		
+		
+		$cacheSecs = $this->cacheSecs;
+		if (is_object($obj))
+			$cacheSecs = $obj->ttl;		
+		
 		if (!is_numeric($secs2cache)) {
 			if ($sql === false) {
 				$sql = -1;
@@ -2608,12 +2647,12 @@ if (!defined('_ADODB_LAYER')) {
 				$offset = false;
 			}
 												// sql,	nrows, offset,inputarr
-			$rs = $this->SelectLimit($secs2cache,$sql,$nrows,$offset,$this->cacheSecs);
+			$rs = $this->SelectLimit($secs2cache,$sql,$nrows,$offset,$cacheSecs,$obj);
 		} else {
 			if ($sql === false) {
 				$this->outp_throw("Warning: \$sql missing from CacheSelectLimit()",'CacheSelectLimit');
 			}
-			$rs = $this->SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+			$rs = $this->SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache,$obj);
 		}
 		return $rs;
 	}
@@ -2622,7 +2661,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * Flush cached recordsets that match a particular $sql statement.
 	 * If $sql == false, then we purge all files in the cache.
 	 */
-	function CacheFlush($sql=false,$inputarr=false) {
+	function cacheFlush($sql=false,$inputarr=false,$obj=null) {
 		global $ADODB_CACHE_DIR, $ADODB_CACHE;
 
 		# Create cache if it does not exist
@@ -2684,10 +2723,11 @@ if (!defined('_ADODB_LAYER')) {
 	 *                                This is an optional parameter.
 	 * @param string|bool $sql        SQL statement to execute
 	 * @param array|bool  $inputarr   Holds the input data to bind
+	 * @param ADOCacheObject|null    $obj   	  Holds the custom cache parameter class	
 	 *
 	 * @return ADORecordSet RecordSet or false
 	 */
-	function CacheExecute($secs2cache,$sql=false,$inputarr=false) {
+	function cacheExecute($secs2cache,$sql=false,$inputarr=false,$obj=null) {
 		global $ADODB_CACHE;
 
 		if (empty($ADODB_CACHE)) {
@@ -2698,6 +2738,15 @@ if (!defined('_ADODB_LAYER')) {
 			$inputarr = $sql;
 			$sql = $secs2cache;
 			$secs2cache = $this->cacheSecs;
+		}
+
+		
+		if (is_object($obj))
+		{
+			/*
+			* Precendence given to object
+			*/
+			$secs2cache = $obj->ttl;
 		}
 
 		if (is_array($sql)) {
@@ -2711,7 +2760,7 @@ if (!defined('_ADODB_LAYER')) {
 		$err = '';
 
 		if ($secs2cache > 0){
-			$rs = $ADODB_CACHE->readcache($md5file,$err,$secs2cache,$this->arrayClass);
+			$rs = $ADODB_CACHE->readcache($md5file,$err,$secs2cache,$this->arrayClass,$obj);
 			$this->numCacheHits += 1;
 		} else {
 			$err='Timeout 1';
@@ -2733,9 +2782,14 @@ if (!defined('_ADODB_LAYER')) {
 				$eof = $rs->EOF;
 				$rs = $this->_rs2rs($rs); // read entire recordset into memory immediately
 				$rs->timeCreated = time(); // used by caching
-				$txt = _rs2serialize($rs,false,$sql); // serialize
 
-				$ok = $ADODB_CACHE->writecache($md5file,$txt,$this->debug, $secs2cache);
+				if (is_object($ADODB_CACHE) && method_exists($ADODB_CACHE,'_rs2serialize'))
+					$txt = $ADODB_CACHE->_rs2serialize($rs,false,$sql); // serialize
+				else
+
+					$txt = _rs2serialize($rs,false,$sql); // serialize
+
+				$ok = $ADODB_CACHE->writecache($md5file,$txt,$this->debug, $secs2cache,$obj);
 				if (!$ok) {
 					if ($ok === false) {
 						$em = 'Cache write error';
@@ -3762,16 +3816,17 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param int $nrows		is the number of rows per page to get
 	 * @param int $page		is the page number to get (1-based)
 	 * @param mixed[]|bool $inputarr	array of bind variables
+	 * @param ADOCacheObject $obj
 	 * @return mixed	the recordset ($rs->databaseType == 'array')
 	 */
-	function CachePageExecute($secs2cache, $sql, $nrows, $page,$inputarr=false) {
+	function CachePageExecute($secs2cache, $sql, $nrows, $page,$inputarr=false,$obj=null) {
 		/*switch($this->dataProvider) {
 		case 'postgres':
 		case 'mysql':
 			break;
 		default: $secs2cache = 0; break;
 		}*/
-		return $this->PageExecute($sql,$nrows,$page,$inputarr,$secs2cache);
+		return $this->PageExecute($sql,$nrows,$page,$inputarr,$secs2cache,$obj);
 	}
 
 	/**

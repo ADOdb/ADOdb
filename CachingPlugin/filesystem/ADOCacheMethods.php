@@ -9,10 +9,9 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\CachingPlugin\ADOCacheObject;
+namespace ADOdb\CachingPlugin\filesystem;
 
-//use ADOdb\LoggingPlugin\monolog\ADOLogger;
-//use ADOdb\CachingPlugin\ADOCacheObject;
+use ADOdb\CachingPlugin\ADOCacheObject;
 
 final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 {
@@ -213,8 +212,6 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 			int $secs2cache,
 			?object $options=null) : bool {
 
-		print "\n ------- WC ---------------";
-		return true;
 		$success =  $this->adodb_write_file($filename, $contents,$debug);
 
 		if (!is_object($options))

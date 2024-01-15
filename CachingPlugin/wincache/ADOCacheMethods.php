@@ -4,14 +4,14 @@
 *
 * This file is part of the ADOdb package.
 *
-* @copyright 2021 Mark Newnham
+* @copyright 2021-2024 Mark Newnham
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\cache\plugins\wincache;
+namespace ADOdb\CachingPlugin\wincache;
 
-final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
+final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 {
 	
 	

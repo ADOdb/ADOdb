@@ -9,9 +9,9 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\cache\plugins\memcache;
+namespace ADOdb\CachingPlugin\memcache;
 
-final class ADOCacheMethods extends \ADOdb\addins\cache\ADOCacheMethods
+final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 {
 	
 	protected bool  $compress = false;

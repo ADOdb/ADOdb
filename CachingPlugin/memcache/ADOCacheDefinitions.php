@@ -10,12 +10,12 @@
 * file that was distributed with this source code.
 */
 
-namespace ADOdb\addins\cache\plugins\memcache;
+namespace ADOdb\CachingPlugin\memcache;
 
 /**
 * Defines the attributes passed to the monolog interface
 */
-final class ADOCacheDefinitions extends \ADOdb\addins\cache\ADOCacheDefinitions
+final class ADOCacheDefinitions extends \ADOdb\CachingPlugin\ADOCacheDefinitions
 {
 	/*
 	* Debugging for cache
