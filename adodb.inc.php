@@ -4437,6 +4437,7 @@ class ADORecordSet implements IteratorAggregate {
 	 */
 	function getAssoc($force_array = false, $first2cols = false)
 	{
+		global $ADODB_FETCH_MODE;
 		/*
 		* Insufficient rows to show data
 		*/
@@ -4460,6 +4461,9 @@ class ADORecordSet implements IteratorAggregate {
 		* different than ADODB_FETCH_MODE
 		*/
 		$fetchMode = $this->connection->fetchMode;
+		if ($fetchMode === false) {
+			$fetchMode = $ADODB_FETCH_MODE;
+		}
 		if ($fetchMode == ADODB_FETCH_BOTH) {
 			/*
 			* If we are using BOTH, we present the data as if it
