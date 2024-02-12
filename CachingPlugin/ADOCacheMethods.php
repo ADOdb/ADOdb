@@ -10,9 +10,11 @@
 * file that was distributed with this source code.
 */
 namespace ADOdb\CachingPlugin;
+
+use ADOdb\CachingPlugin\ADOCacheRecordset;
 use ADOdb\LoggingPlugin\ADOLogger;
-//use ADOdb\CachingPlugin\ADOCacheObject;
-class ADOCacheMethods
+
+abstract class ADOCacheMethods
 {
 
 	/*
@@ -71,7 +73,12 @@ class ADOCacheMethods
 	/*
 	* Has a connection been established
 	*/
-	public bool $_connected = false;
+	public bool $cachingIsAvailable = false;
+
+	/*
+	* If we could not connect, keep trying
+	*/
+	public bool $retryConnection = true;
 	
 	/*
 	* Holds the instance of the library we will use
@@ -89,35 +96,65 @@ class ADOCacheMethods
 	* A default cache options holder
 	*/
 	protected ?object $defaultCacheObject;
+	
+	/*
+	* The name of the function that will be used to read the cache
+	*/
+	protected string $readCacheFunction = 'get';
+	/*
+	* The name of the function that will be used to write the cache
+	*/
+	protected string $writeCacheFunction = 'set';
 
 	/*
-	* By default, caching service is not file based
+	* The name of the function that will be used to flush the cache
 	*/
-	public bool $createdir = false;
-	
+	protected string $flushAllCacheFunction = 'flush';
+
+	/*
+	* The name of the function that will be used to flush an 
+	* individual set from the cache
+	*/
+	protected string $flushIndividualSetFunction = 'delete';
+
+	/*
+	* The name of the function that will be used to return 
+	* informatton from the cache
+	*/
+	protected string $cacheInfoFunction = 'info';
+
+	/*
+	* The last generated cache key
+	*/
+	protected string $lastRecordsetKey = '';
+
+
+	/**
+	* Constructor
+	*
+	* @param ADOConnection 		 $connection   		A Valid ADOdb Connection
+	* @param ADOCacheDefinitions $cacheDefinitions 	An ADOdbCacheDefinitions Class
+	*
+	* @return obj 
+	*/	
+	public function __construct(object $connection, ?object $cacheDefinitions=null)
+	{
+		$this->setDefaultEnvironment($connection,$cacheDefinitions);
+		
+	}
+
+
 	/**
 	* Constructor, passed a mandatory previously 
 	* established db connection
 	*
 	* @param object connection
 	*/
-	public function __construct(
+	public function xx__construct(
 				object $connection, 
 				object $cacheDefinitions){
 		
-		
-		$this->connection    	= $connection;
-		$this->cacheDefinitions = $cacheDefinitions;
-		
-		$this->loggingObject = $cacheDefinitions->loggingObject;
-
-		$this->defaultCacheObject = new ADOCacheObject;
 			
-		$this->databaseType = $connection->databaseType;
-		$this->database     = $connection->database;
-		
-		
-	
 		/*
 		* Startup the client connection
 		*/
@@ -133,10 +170,7 @@ class ADOCacheMethods
 		//$rsClass = '\\ADORecordSet_array_' . $this->connection->dataProvider;
 		$classTemplate = new $rsClass(null,$this->connection);
 
-		$cacheConnection = '\\ADOdb\\CachingPlugin\\' . $cacheDefinitions->serviceName . '\\ADOCacheMethods';
-		
-		$this->cachingObject = new $cacheConnection($connection,$cacheDefinitions);
-		
+				
 		/*
 		* We do this just to bring the ADORecordSetArray class array into the
 		* class space. We're not going to use it. We get an incomplete class
@@ -153,15 +187,36 @@ class ADOCacheMethods
 	* Sets the default connection environment required by all plugins
 	*
 	* @param obj	$connection The ADOdb connection
-	* @param obj	$cacheDefinitions The connection settings
+	* @param obj	$cacheDefinitions The connection overrides
 	*
 	* @return void
 	*/
 	final protected function setDefaultEnvironment(
-			object $connection, 
-			object $cacheDefinitions) : void {
+			object &$connection, 
+			?object $cacheDefinitions=null) : void {
+
+		global $ADODB_LOGGING_OBJECT;
 				
 		$this->connection    	= $connection;
+
+		if (!is_object($cacheDefinitions))
+		{
+			/*
+			* No cache definitions passed, create a default
+			* The source comes from the type of caching
+			*/
+			$cacheDefinitions = new ADOCacheDefinitions;
+	
+		}
+
+		if (!$cacheDefinitions->loggingObject)
+		{
+			/*
+			* No logging object passed, use the global
+			*/
+			$cacheDefinitions->loggingObject = $ADODB_LOGGING_OBJECT;
+		}
+
 		$this->cacheDefinitions = $cacheDefinitions;
 	
 		$this->loggingObject 	= $cacheDefinitions->loggingObject;
@@ -171,7 +226,12 @@ class ADOCacheMethods
 		
 		$this->debug 			= $cacheDefinitions->debug;
 
-		
+		/*
+		* Initialize the default cache object which will give
+		* us a default TTL etc	
+		*/
+		$this->defaultCacheObject = new ADOCacheObject;
+
 		if ($this->loggingObject)
 		{
 			/*
@@ -203,6 +263,8 @@ class ADOCacheMethods
 			'The Caching Service is now active',
 			'The Caching Service failed to activate'
 			);
+
+		$connection->setCachingPlugin($this);
 		
 	}
 
@@ -211,90 +273,169 @@ class ADOCacheMethods
 	* 
 	* @return bool
 	*/
-	protected function connect(): bool {
-		return true;
-	}
+	abstract protected function connect(): bool;
 	
 	
 	/**
-	* Builds a cached data set
+	* Writes a cached data set
 	*
-	* @param string $filename
+	* @param string $recordsetKey
 	* @param string $contents
-	* @param int    $secs2cache
-	* @param bool   $debug     Ignored
-	* @param obj    $options
+	* @param ADOCacheObject    $options
 	*
 	* @return bool
 	*/
 	public function writecache(
-			string $filename, 
-			string $contents, 
-			bool $debug,
-			int $secs2cache,
-			?object $options=null) : bool {}
-				
+		string $recordsetKey, 
+		string $contents, 
+		?ADOCacheObject $options=null) : bool {
+		
+		if (!$this->checkConnectionStatus())
+			return false;
+			
+		if (!is_object($options))
+			$options = new ADOCacheObject();
+
+		$success = $this->cacheLibrary->{$this->writeCacheFunction}( $recordsetKey , $contents ,$options->ttl );
+		
+		return $this->logWriteCacheEvent(
+			$recordsetKey,
+			$options->ttl,
+			$success);
+
+	}
 		
 	/**
 	* Tries to return a recordset from the cache
 	*
-	* @param string $filename the md5 code of the request
-	* @param string $err      The error by reference
-	* @param int $secs2cache
-	* @param string[] $options
+	* @param string $recordsetKey the md5 code of the request
+	* @param string $arrayClass     e
+	* @param ADOCacheObject    $options
 	*
-	* @return recordset
+	* @return array(ADORecordset,string)
 	*/
 	public function readcache(
-				string $filename,
-				string &$err,
-				int $secs2cache,
-				string $arrayClass,
-				?object $options=null) :?object{}
-			
-	
+		string $recordsetKey,
+		string $arrayClass,
+		?ADOCacheObject $options=null) : array 
+	{
+				
 
-	/**
-	* Flushes all entries from library
-	*
-	* @return void
-	*/
-	public function flushall() : void{}
-	
-
-	/**
-	* Flush an individual query from memcache
-	*
-	* @param string $filename The md5 of the query
-	* @param bool $debug option ignored as $this->debug prevails
-	* @param obj  $options available driver options
-	*
-	* @return void
-	*/
-	public function flushcache(
-					string $filename,
-					bool $debug=false,
-					?object $options=null) : void{}
-					
 		
+		if (!$this->checkConnectionStatus())
+			return array(null,'No connection to cache');
+		
+		/*
+		* If the function succeeds, it returns a json encoded ADOCacheRecordset object
+		* of which the recordset is one part
+		*/
+		$jObject = $this->cacheLibrary->{$this->readCacheFunction}($recordsetKey);
+		if (!$jObject) 
+		{
+			/*
+			* No ADOCacheRecordset found
+			*/
+			$this->numCacheMisses++;
+			if ($this->debug && $this->loggingObject)
+			{
+				$message = sprintf('%s: Item with key %s not found in the cache',
+						strtoupper($this->cacheDefinitions->serviceName),
+						$recordsetKey);
+				$this->loggingObject->log($this->loggingObject::DEBUG,$message);
+			}
+
+			return array(null,'No recordset found in the cache');
+		}
+
+		//print_r($jObject); exit;
+
+		/*
+		* Convert the json encoded ADOCacheRecordset object into an ADORecordset object
+		*/
+		list ($recordSet, $err) = $this->unpackCachedRecordset(
+			$recordsetKey, 
+			$jObject,
+			$options->ttl
+		);
+		
+		return array($recordSet,$err);
+		
+	}
+	/**
+	* Flushes all entries
+	*
+	* @return void
+	*/
+	public function flushall() : void
+	{
+				
+		if (!$this->checkConnectionStatus())
+			return;
+
+		$success = $this->cacheLibrary->{$this->flushAllCacheFunction}();
+		
+		$this->logFlushAllEvent($success);
+		
+	}
+	
+	/**
+	* Flush an individual query from the apcu cache
+	*
+	* @param string $recordsetKey The md5 of the query
+	* @param ADOCacheObject $additional options unused
+	*
+	* @return void
+	*/
+	public function flushIndividualSet(?string $recordsetKey=null,?ADOCacheObject $options=null ) : void {	
+					
+		if (!$this->checkConnectionStatus())
+			return;
+
+		if (!$recordsetKey)
+			$recordsetKey = $this->lastRecordsetKey;
+
+		if (!$recordsetKey)
+			return;
+
+		$success = $this->cacheLibrary->{$this->flushIndividualSetFunction}($recordsetKey);
+
+		$this->logflushCacheEvent($recordsetKey,$success);
+		
+	}
 
 	/**************************************************************************
 	* Public methods
 	**************************************************************************/
-		
+	
+	/**
+	* Alias for flushCacheByQuery
+	*
+	* @param ?string $sql,
+	* @param ?array $inputarr
+	* @param ?ADOCacheObject $options 
+	* 
+	*/
+	final public function cacheFlush(
+		?string $sql=null,
+		?array $inputarr=null,
+		?ADOCacheObject $options=null) : void {
+
+		$this->flushCacheByQuery($sql,$inputarr,$options);
+	}
+
 	/**
 	* Flush cached recordsets that match a particular $sql statement.
 	* If $sql == false, then we purge all files in the cache.
 	*
 	* @param ?string $sql,
 	* @param ?array $inputarr
-	* @param ?object $options 
+	* @param ?ADOCacheObject $options 
 	* 
 	*/
-	final public function cacheFlush(
+	final public function flushCacheByQuery(
 				?string $sql=null,
 				?array $inputarr=null,
-				?object $options=null) : void {
+				?ADOCacheObject $options=null) : void {
 
 		if (!$sql) 
 		{
@@ -307,7 +448,7 @@ class ADOCacheMethods
 
 		$f = $this->generateCacheName($sql.serialize($inputarr),false);
 		
-		$this->flushcache($f,$options);
+		$this->flushCache($f,$options);
 	}
 	
 	/**
@@ -324,77 +465,64 @@ class ADOCacheMethods
 	 *
 	 * @return string
 	 */
-	final protected function generateCacheName(string $sql) : string {
+	public function generateCacheName(string $sql) : string {
+
+		global $ADODB_FETCH_MODE;
 
 		$mode = $this->connection->fetchMode;
-		
-		return md5($sql.$this->databaseType.$this->database.$this->user.$mode);
-		
-	}
-	
-	/**
-	* Unpacks the various inbound cache parameters and
-	* returns a standardized format
-	*
-	* @param obj $obj
-	* @param int $ttl
-	*
-	* @return obj
-	*/
-	final protected function unpackCacheObject(
-		?object $obj, 
-		int $ttl=0) : object {
-		
-		if (!is_object($obj))
-		{
-			/* 
-			* Create a new default object
-			*/
-			$obj = new ADOCacheObject;
-			if ($ttl)
-				$obj->ttl = $ttl;
-		}
-		else
-		{		
+
+		if ($this->connection->fetchMode === false) {
 			
-			if ($ttl)
-				$obj->ttl = $ttl;
+			$mode = $ADODB_FETCH_MODE;
+		} else {
+			$mode = $this->fetchMode;
 		}
 		
-		/*
-		* Now the object is in standard format
-		*/
-		return $obj;
+		$this->lastRecordsetKey = md5($sql.$this->databaseType.$this->database.$this->user.$mode);
+
+		return $this->lastRecordsetKey;
+		
 	}
 	
-	
 	/**
- 	 * convert a recordset into special format
+ 	 * convert a recordset into a format that can be sent to the cache
 	 *
 	 * @param rs	the recordset
 	 *
 	 * @return	the CSV formatted data
 	 */
-	final public function _rs2serialize(
+	final public function packRecordSetForCaching(
 				object &$rs,
 				$conn=false,
-				$sql='') : string 	{
-					
+				$sql='') : array 	{
+			
+		$cObject = new ADOCacheRecordset;
+
+		$cObject->sql = $sql;
 		$max = ($rs) ? $rs->FieldCount() : 0;
 
 		if ($sql) $sql = urlencode($sql);
 		// metadata setup
 
+
 		if ($max <= 0 || $rs->dataProvider == 'empty') { // is insert/update/delete
+			
+			$cObject->operation = -1;
+			$cObject->timeCreated = time();
+						
 			if (is_object($conn)) {
 				$sql .= ','.$conn->Affected_Rows();
 				$sql .= ','.$conn->Insert_ID();
+				
+				$cObject->affectedRows = $conn->Affected_Rows();
+				$cObject->insertID     = $conn->Insert_ID();
 			} else
 				$sql .= ',,';
 
 			$text = "====-1,0,$sql\n";
-			return $text;
+			return array($text,json_encode($cObject));
 		}
+		
 		$tt = $rs->timeCreated;
 		$tt = $tt ? $tt : time();
 
@@ -407,7 +535,6 @@ class ADOCacheMethods
 			$rows = array();
 			while (!$rs->EOF) {
 				$rows[] = $rs->fields;
-				//print_r($rs->fields);
 				$rs->MoveNext();
 			}
 		}
@@ -419,7 +546,6 @@ class ADOCacheMethods
 		$savefetch = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
 		
 		$class = '\\ADORecordSet_array_' . $this->connection->databaseType;
-		//$class = '\\ADORecordSet_array_' . $this->connection->dataProvider;
 		
 		$rs2 = new $class($rs,$this->connection);
 		
@@ -434,21 +560,33 @@ class ADOCacheMethods
 		* Too much recursion
 		*/
 		unset($rs2->_queryID->connection);
+
+		/*
+		* Sets the environment for the recordset
+		* We must serialize the recordset to be able to
+		* retrieve it as a \ADORecordSet_array_ class
+		* later instead of a \stdClass class
+		*/
+		$cObject->operation = 1;
+		$cObject->recordSet = serialize($rs2);
+		$cObject->timeCreated = $rs->timeCreated;
+		$cObject->className = $class;
+		$jcObject = json_encode($cObject);
 		
-		//print_r($rs2); 
-		return $line.serialize($rs2);
+		return array($line.serialize($rs2),$jcObject);
 	}
 	
 	/**
-	* Checks that the library is loaded and tries to connect
+	* Checks that the library is loaded and tries to connect if not
 	*
 	* @return bool connected
 	*/
 	final protected function checkConnectionStatus() : bool
 	{
-		if (!$this->_connected)
+		if (!$this->cachingIsAvailable && $this->retryConnection)
+		{
 			$this->connect();
-		
+		}
 		if (!$this->cacheLibrary) 
 			/*
 			* No object available
@@ -462,25 +600,25 @@ class ADOCacheMethods
 	* Takes an inbound cached/serialized string and 
 	* creates an ADOdb recordset from it. if possible
 	*
-	* @param string $filename
-	* @param string  $recordsets
+	* @param string $recordsetKey
+	* @param string  $jObject	The json encoded ADOCacheRecordset
 	* @param int     $secs2cache
 	* @param string  $text
 	*
 	* @return mixed
 	*/
 	final protected function unpackCachedRecordset(
-			string $filename,
-			string $recordSet,
+			string $recordsetKey,
+			string $jObject,
 			int $secs2cache,
 			?string $text='',
 			bool $unpacked=false) : ?array {
 		
-		if ($this->debug && $this->loggingObject && !$recordSet) 
+		if ($this->debug && $this->loggingObject && !$jObject) 
 		{
 			$message = sprintf('%s: Item with key %s, ttl %s does not exist in the cache %s', 
 							strtoupper($this->cacheDefinitions->serviceName),
-							$filename,
+							$recordsetKey,
 							$secs2cache,
 							$text);
 			$this->loggingObject->log($this->loggingObject::NOTICE,$message);
@@ -490,7 +628,7 @@ class ADOCacheMethods
 		{
 			$message = sprintf('%s: Item with key %s, ttl %s retrieved from the cache %s', 
 					strtoupper($this->cacheDefinitions->serviceName),
-					$filename,
+					$recordsetKey,
 					$secs2cache,
 					$text);
 			
@@ -499,18 +637,20 @@ class ADOCacheMethods
 
 		$err = '';
 
-		if (!$unpacked)
-		{
-			// hack, should actually use _csv2rs
-			$rs = explode("\n", $recordSet);
-			
-			unset($rs[0]);
-			$rs = join("\n", $rs);
-			
-			$rs = unserialize($rs);
+		$cObject = json_decode($jObject);
+
+		if (!$cObject) {
+			$message = sprintf('%s: Unable to decode $cObject in unpackCachedRecordset',
+						strtoupper($this->cacheDefinitions->serviceName));
+
+			if ($this->loggingObject)
+				$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
+
+			$err = 'Unable to decode $cObject in unpackCachedRecordset';
+			return array(null,$err);
 		}
-		else
-			$rs = unserialize($recordSet);
+		
+		$rs = unserialize($cObject->recordSet);
 		
 		if (! is_object($rs)) {
 			$message = sprintf('%s: Unable to unserialize $rs in unpackCachedRecordset',
@@ -578,7 +718,7 @@ class ADOCacheMethods
 			
 			$message = sprintf('%s: Item with key %s, ttl %s has a remaining life of %s seconds', 
 					strtoupper($this->cacheDefinitions->serviceName),
-					$filename,
+					$recordsetKey,
 					$secs2cache,
 					$tdiff);
 			
@@ -590,7 +730,7 @@ class ADOCacheMethods
 	/**
 	* Writes a logging message for the writecache method
 	*
-	* @param string $filename
+	* @param string $recordsetKey
 	* @param int $secs2cache
     * @param bool $success
 	* @param string $text
@@ -598,29 +738,29 @@ class ADOCacheMethods
 	* @return bool
 	*/
 	final protected function logWriteCacheEvent(
-			string $filename,
+			string $recordsetKey,
 			int $secs2cache,
 			bool $success,
 			?string $text='') : bool {
 			
 		$this->writeLoggingPair(
 			$success,
-			sprintf('Successfully saved contents on key %s with a TTL of %s seconds %s',$filename,$secs2cache,$text),
-			sprintf('Failed to save contents of key %s with a TTL of %s seconds %s',$filename,$secs2cache,$text)
+			sprintf('Successfully saved contents on key %s with a TTL of %s seconds %s',$recordsetKey,$secs2cache,$text),
+			sprintf('Failed to save contents of key %s with a TTL of %s seconds %s',$recordsetKey,$secs2cache,$text)
 				);
 		return true;
 	}
 	
 	/**
-	* Writes a logging message for the flushcache method
+	* Writes a logging message for the flushCache method
 	*
-	* @param string $filename
+	* @param string $recordsetKey
     * @param bool $success
 	*	
 	* @return bool
 	*/
-	final protected function logFlushCacheEvent(
-			string $filename,
+	final protected function logflushCacheEvent(
+			string $recordsetKey,
 			bool $success,
 			?string $extraText = '') : bool {
 		
@@ -629,8 +769,8 @@ class ADOCacheMethods
 
 		$this->writeLoggingPair(
 			$success,
-			sprintf('Entry with key %s flushed from cache %s',$filename, $extraText),
-			sprintf('Failed to remove entry with key %s from cache %s',$filename, $extraText),$this->loggingObject::NOTICE
+			sprintf('Entry with key %s flushed from cache %s',$recordsetKey, $extraText),
+			sprintf('Failed to remove entry with key %s from cache %s',$recordsetKey, $extraText),$this->loggingObject::NOTICE
 			);
 		
 		return true;
@@ -656,20 +796,16 @@ class ADOCacheMethods
 	}
 	
 	/**
-	* Unpacks the passed cache object and returns the 
-	* appropriate overrides if available
-	*
-	* @param ?object the cache object
-	* @param string $serverkey
-	* @param int #
-	
-	/**
 	* Prints a set of info about the cache
 	*
 	* @return array
 	*/
 	public function cacheInfo()
 	{
+		
+		if (!$this->checkConnectionStatus())
+			return array();
+		
 		
 		if ($this->debug)
 		{
@@ -679,7 +815,7 @@ class ADOCacheMethods
 			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
 		}
 		
-		return $this->cachingObject->cacheInfo();
+		return $this->cacheLibrary->{$this->cacheInfoFunction}();
 	}
 	
 	/**
@@ -687,7 +823,7 @@ class ADOCacheMethods
 	*
 	* @param	string	$success	An evaluation to true/false
 	* @param	string	$successMessage	 A message if true
-	* @param	string	$successMessage	 A message if false
+	* @param	string	$failMessage	 A message if false
 	* @param	int     $failLevel 
 	*
 	* @return void
@@ -703,14 +839,19 @@ class ADOCacheMethods
 		
 		if ($success && $successMessage && $this->debug)
 		{
+			/*
+			* The process executed successfully, only log if debug is on
+			*/
 			$message = sprintf('%s: %s',
 							   strtoupper($this->cacheDefinitions->serviceName),
 							   $successMessage);
 			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
 		}
-		else if ($failMessage)
+		else if (!$success && $failMessage)
 		{
-			
+			/*
+			* The process failed to execute successfully
+			*/ 
 			if (!$failLevel)
 				$failLevel = $this->loggingObject::CRITICAL;
 			

@@ -58,10 +58,21 @@ class ADODB_borland_ibase extends ADODB_ibase {
 	//		SELECT col1, col2 FROM TABLE ORDER BY col1 ROWS 3 TO 7 -- first 5 skip 2
 	// Firebird uses
 	//		SELECT FIRST 5 SKIP 2 col1, col2 FROM TABLE
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$cacheObject=null)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
+
+		if (is_integer($cacheObject))
+		{
+			/*
+			* Legacy code, $cacheObject used to be the time to live
+			*/
+			$ttl = $cacheObject;
+			$cacheObject = new ADOCacheObject;
+			$cacheObject->ttl = $ttl;
+		}
+
 		if ($nrows > 0) {
 			if ($offset <= 0) $str = " ROWS $nrows ";
 			else {
@@ -76,10 +87,10 @@ class ADODB_borland_ibase extends ADODB_ibase {
 		}
 		$sql .= $str;
 
-		return ($secs2cache) ?
-				$this->CacheExecute($secs2cache,$sql,$inputarr)
-			:
-				$this->Execute($sql,$inputarr);
+		//return ($secs2cache) ?
+		//		$this->CacheExecute($secs2cache,$sql,$inputarr)
+		//	:
+		$this->Execute($sql,$inputarr, $cacheObject);
 	}
 
 };

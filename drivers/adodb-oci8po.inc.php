@@ -58,10 +58,21 @@ class ADODB_oci8po extends ADODB_oci8 {
 		}
 		return ADODB_oci8::Prepare($sql,$cursor);
 	}
-
-	function Execute($sql,$inputarr=false)
+	
+	/**
+	 * Execute SQL
+	 *
+	 * @param string     $sql      SQL statement to execute, or possibly an array
+	 *                             holding prepared statement ($sql[0] will hold sql text)
+	 * @param array|bool $inputarr holds the input data to bind to.
+	 *                             Null elements will be set to null.
+	 * @param ADOCacheObject|null $cacheObject   	  Holds the custom cache parameter class
+	 * 	
+	 * @return ADORecordSet|false
+	 */
+	function Execute($sql,$inputarr=false, $cacheObject = null)
 	{
-		return ADOConnection::Execute($sql,$inputarr);
+		return ADOConnection::Execute($sql,$inputarr,$cacheObject);
 	}
 
 	/**
@@ -70,13 +81,21 @@ class ADODB_oci8po extends ADODB_oci8 {
 	 * from the base class.
 	 * We can't properly handle prepared statements either due to preprocessing
 	 * of query parameters, so we treat them as regular SQL statements.
-	 */
-	function SelectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs2cache=0)
-	{
+	* @param string     $sql
+	* @param int        $offset     Row to start calculations from (1-based)
+	* @param int        $nrows      Number of rows to get
+	* @param array|bool $inputarr   Array of bind variables
+	* @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
+	* 
+	* @return ADORecordSet The recordset ($rs->databaseType == 'array')
+	*/
+	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$cacheObject = null) {
+	   
+		
 		if(is_array($sql)) {
 //			$sql = $sql[0];
 		}
-		return ADOConnection::SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
+		return ADOConnection::SelectLimit($sql, $nrows, $offset, $inputarr, $cacheObject);
 	}
 
 	/**

@@ -6,7 +6,7 @@
 *
 * This file is part of the ADOdb package.
 *
-* @copyright 2021 Mark Newnham
+* @copyright 2021-2024 Mark Newnham
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
@@ -19,11 +19,6 @@ namespace ADOdb\CachingPlugin\rediscluster;
 */
 final class ADOCacheDefinitions extends \ADOdb\CachingPlugin\ADOCacheDefinitions
 {
-	/*
-	* Debugging for cache
-	*/
-	public bool $debug = true;
-	
 	/*
 	* Service flag. Do not modify value
 	*/
@@ -38,11 +33,18 @@ final class ADOCacheDefinitions extends \ADOdb\CachingPlugin\ADOCacheDefinitions
 	* The connection configuration
 	* The cluster hosts format is array('host:port','host:port',.....)
 	*/
-	public array   $redisHosts     = array();
-	public ?string $persistentId  = null;
-	public int 	   $retryInterval = 0;
-	public int 	   $readTimeout   = 0;
-		
+	public array   $clusterHosts     = array();
+	
+	/*
+	* The connection timeout retry interval
+	*/
+	public int 	   $retryInterval 		  = 0;
+
+	/*
+	* The connection read timeout
+	*/
+	public int 	   $readTimeout   		  = 0;
+			
 	/*
 	* Sets the initial redis database
 	*/
@@ -51,23 +53,32 @@ final class ADOCacheDefinitions extends \ADOdb\CachingPlugin\ADOCacheDefinitions
 	/*
 	* Client options as available
 	*/
-	public array $redisClientOptions = array();
-	
+	public array $clientOptions = array();
 	
 	/*
 	* Are we adding a persistent connection 
 	*/
-	public bool $redisPersistent = false;
+	public bool $persistentConnection = false;
 	
 	/*
 	* Allow asynchronous deletion actions
 	*/
-	public bool $redisAsynchronous = false;
+	public bool $asynchronousConnection = false;
 	
 	/*
-	* If used, must contain a string with the password
+	* If used, must contain a string connection password
 	*/
 	public ?string $redisPassword = null;
-	
+
+	/*
+	* If used, must contain an array userid,password
+	*/
+	public array $authCredentials = array();
+
+	/*
+	* If used, must contain a string which is the name of a callback function
+	* that returns an array of user,pass
+	*/
+	public ?string $authCallback = '';
 		
 }

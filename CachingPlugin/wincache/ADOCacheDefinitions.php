@@ -17,10 +17,6 @@ namespace ADOdb\CachingPlugin\wincache;
 */
 final class ADOCacheDefinitions extends \ADOdb\CachingPlugin\ADOCacheDefinitions
 {
-	/*
-	* Debugging for cache
-	*/
-	public bool $debug = true;
 	
 	/*
 	* Service flag. Do not modify value

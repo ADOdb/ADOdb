@@ -293,12 +293,12 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return bool|array|null
 	 */
-	function GetOne($sql, $inputarr = false)
+	function GetOne($sql, $inputarr = false, $cacheObject = null)
 	{
 		global $ADODB_GETONE_EOF;
 
 		$ret = false;
-		$rs = $this->execute($sql,$inputarr);
+		$rs = $this->execute($sql,$inputarr,$cacheObject);
 		if ($rs) {
 			if ($rs->EOF) $ret = $ADODB_GETONE_EOF;
 			else $ret = reset($rs->fields);
@@ -1028,29 +1028,36 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:selectlimit
 	 *
-	 * @param string $sql The SQL to execute.
-	 * @param int $nrows (Optional) The limit for the number of records you want returned. By default, all results.
-	 * @param int $offset (Optional) The offset to use when selecting the results. By default, no offset.
-	 * @param array|bool $inputarr (Optional) Any parameter values required by the SQL statement, or false if none.
-	 * @param int $secs2cache (Optional) If greater than 0, perform a cached execute. By default, normal execution.
-	 *
-	 * @return ADORecordSet|false The query results, or false if the query failed to execute.
-	 */
-	function SelectLimit($sql,
-						 $nrows = -1,
-						 $offset = -1,
-						 $inputarr = false,
-						 $secs2cache = 0)
-	{
-		$nrows = (int) $nrows;
-		$offset = (int) $offset;
+	* @param string     $sql
+	* @param int        $offset     Row to start calculations from (1-based)
+	* @param int        $nrows      Number of rows to get
+	* @param array|bool $inputarr   Array of bind variables
+	* @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
+	* 
+	* @return ADORecordSet The recordset ($rs->databaseType == 'array')
+	*/
+	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$cacheObject = null) {
+	   
+		$nrows = (int)$nrows;
+		$offset = (int)$offset;
+
+		if (is_integer($cacheObject))
+		{
+			/*
+			* Legacy code, $cacheObject used to be the time to live
+			*/
+			$ttl = $cacheObject;
+			$cacheObject = new ADOCacheObject;
+			$cacheObject->ttl = $ttl;
+		}
+		
 		$offsetStr = ($offset >= 0) ? "$offset," : '';
 		if ($nrows < 0) $nrows = '18446744073709551615';
 
-		if ($secs2cache)
-			$rs = $this->cacheExecute($secs2cache, $sql . " LIMIT $offsetStr$nrows" , $inputarr );
-		else
-			$rs = $this->execute($sql . " LIMIT $offsetStr$nrows" , $inputarr );
+		//if ($secs2cache)
+		//	$rs = $this->cacheExecute($secs2cache, $sql . " LIMIT $offsetStr$nrows" , $inputarr );
+		//else
+		$rs = $this->execute($sql . " LIMIT $offsetStr$nrows" , $inputarr, $cacheObject);
 
 		return $rs;
 	}
@@ -1075,7 +1082,19 @@ class ADODB_mysqli extends ADOConnection {
 		return $sql;
 	}
 
-	public function execute($sql, $inputarr = false)
+	
+	/**
+	 * Execute SQL
+	 *
+	 * @param string     $sql      SQL statement to execute, or possibly an array
+	 *                             holding prepared statement ($sql[0] will hold sql text)
+	 * @param array|bool $inputarr holds the input data to bind to.
+	 *                             Null elements will be set to null.
+	 * @param ADOCacheObject|null $cacheObject   	  Holds the custom cache parameter class
+	 * 	
+	 * @return ADORecordSet|false
+	 */
+	public function execute($sql, $inputarr = false,$cacheObject = null)
 	{
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
@@ -1083,6 +1102,12 @@ class ADODB_mysqli extends ADOConnection {
 			if (isset($ret)) {
 				return $ret;
 			}
+		}
+
+		if (is_object($cacheObject))
+		{
+			$ttl = $cacheObject->ttl;
+			return $this->CacheExecute($ttl, $sql, $inputarr, $cacheObject);
 		}
 
 		if ($inputarr === false || $inputarr === []) {

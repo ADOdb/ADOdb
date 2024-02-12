@@ -109,20 +109,36 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		}
 		$this->_bindInputArray = true;
 	}
+	/**
+	* @param string     $sql
+	* @param int        $offset     Row to start calculations from (1-based)
+	* @param int        $nrows      Number of rows to get
+	* @param array|bool $inputarr   Array of bind variables
+	* @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
+	* 
+	* @return ADORecordSet The recordset ($rs->databaseType == 'array')
+	*/
+   function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$cacheObject = null) {
+	   
+	   	$nrows = (int)$nrows;
+	   	$offset = (int)$offset;
 
+	   	if (is_integer($cacheObject))
+	   	{
+		   /*
+		   * Legacy code, $cacheObject used to be the time to live
+		   */
+		   $ttl = $cacheObject;
+		   $cacheObject = new ADOCacheObject;
+		   $cacheObject->ttl = $ttl;
+	   	}
 
-	// the following should be compat with postgresql 7.2,
-	// which makes obsolete the LIMIT limit,offset syntax
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
-	{
-		$nrows = (int) $nrows;
-		$offset = (int) $offset;
 		$offsetStr = ($offset >= 0) ? " OFFSET ".((integer)$offset) : '';
 		$limitStr  = ($nrows >= 0)  ? " LIMIT ".((integer)$nrows) : '';
-		if ($secs2cache)
-			$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
-		else
-			$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
+		//if ($secs2cache)
+		//	$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
+		//else
+		$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr,$cacheObject);
 
 		return $rs;
 	}

@@ -392,7 +392,7 @@ class ADODB_Cache_MemCache
 	 *
 	 * @return bool The response from the memcache server
 	 */
-	public function flushCache($filename, $debug = false)
+	public function flushCaches($filename, $debug = false)
 	{
 		if (!$this->isConnected) {
 			$err = '';
@@ -408,9 +408,9 @@ class ADODB_Cache_MemCache
 
 		if ($debug) {
 			if (!$del) {
-				ADOConnection::outp("flushcache: $filename entry doesn't exist on memcache server!<br>\n");
+				ADOConnection::outp("flushCache: $filename entry doesn't exist on memcache server!<br>\n");
 			} else {
-				ADOConnection::outp("flushcache: $filename entry flushed from memcache server!<br>\n");
+				ADOConnection::outp("flushCache: $filename entry flushed from memcache server!<br>\n");
 			}
 		}
 

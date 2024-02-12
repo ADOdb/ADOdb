@@ -4,12 +4,15 @@
 *
 * This file is part of the ADOdb package.
 *
-* @copyright 2021 Mark Newnham
+* @copyright 2021-2024 Mark Newnham
 *
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
 namespace ADOdb\CachingPlugin\rediscluster;
+
+use ADOdb\CachingPlugin\ADOCacheObject;
+use ADOdb\CachingPlugin\rediscluster\ADOCacheDefinitions;
 
 final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 {
@@ -21,27 +24,13 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 	public string $service = 'redis';
 	
 	public string $serviceName = 'Redis';
-	
-	
-	/**
-	* Constructor
-	*
-	* @param obj $connection   A Valid ADOdb Connection
-	* @param obj $cacheDefinitions An ADOdbCacheDefinitions Class
-	*
-	* @return obj 
-	*/	
-	final public function __construct(object $connection, object $cacheDefinitions)
-	{
-		$this->setDefaultEnvironment($connection,$cacheDefinitions);
+
+	/*
+	* The name of the function that will be used to flush the cache
+	*/
+	protected string $flushallCacheFunction = 'flushDb';
+
 		
-		/*
-		* Startup the client connection
-		*/
-		$this->connect();
-		
-	}
-	
 	/**
 	* Connect to one of the available 
 	* 
@@ -49,23 +38,53 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 	*/
 	final protected function connect() : bool 
 	{
-				
-		$redisHosts	   = $this->cacheDefinitions->redisHosts;
-		$persistent    = $this->cacheDefinitions->redisPersistent;
-		$persistentId  = $this->cacheDefinitions->persistentId;
-		$retryInterval = $this->cacheDefinitions->retryInterval;
-		$readTimeout   = $this->cacheDefinitions->readTimeout;
-		$password      = this->cacheDefinitions->redisPassword;
+
+		/*
+		* Check the hosts array for sanity
+		*/
+		if (!is_array($this->cacheDefinitions->clusterHosts))
+		{
+			$this->writeLoggingPair(
+				false,
+				'The redis cluster hosts list is not an array of host:port pairs',
+				'The redis cluster hosts list is not an array of host:port pairs'
+			);
+			return false;
+		}
 		
+		if (count($this->cacheDefinitions->clusterHosts) < 2)
+		{
+			$this->writeLoggingPair(
+				false,
+				'The redis cluster array must have at least two entries of host:port pairs',
+				'The redis cluster array must have at least two entries of host:port pairs',
+			);
+			return false;
+		}
+
+		/*
+		* If we cannot connect to the cluster, dont keep trying to connect
+		*/
+		$this->retryConnection = false;
+
 		/*
 		* Cluster does not use connect
 		*/
-		$library = new \RedisCluster(null,$redisHosts,$retryInterval,$readTimeout,$persistent,$password);
+		$library = new \RedisCluster(
+			null,
+			$this->cacheDefinitions->clusterHosts,
+			$this->cacheDefinitions->retryInterval,
+			$this->cacheDefinitions->readTimeout,
+			$this->cacheDefinitions->persistentConnection,
+			$this->cacheDefinitions->redisPassword
+		);
+
 		$this->writeLoggingPair(
 			$library,
-			'Attached to Redis Cluster',
-			'Failed to attach to Redis cluster'
+			'Successfully attached to the Redis Cluster',
+			'Failed to attach to the Redis cluster'
 			);
+
 		if (!$library)
 			return false;
 		
@@ -74,30 +93,37 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 		*/
 		$useAuth     = false;
 		$authSuccess = true;
-		if ($this->cacheDefinitions->redisAuthFunction)
+
+		if ($this->cacheDefinitions->authCallback)
 		{
+			/*
+			* 
 			$useAuth = true;
-			$redisAuthFunction = $this->cacheDefinitions->redisAuthFunction;
-			$authSuccess = $this->library->auth($redisAuthFunction());
+			$authCallback = $this->cacheDefinitions->authCallback;
+			$authSuccess = $this->library->auth($authCallback());
 		}
-		else if (is_array($this->cacheDefinitions->redisAuth))
+		else if (is_array($this->cacheDefinitions->authCredentials))
 		{
 			$useAuth = true;
-			$redisAuth = $this->cacheDefinitions->redisAuth;
-			$authSuccess = $this->library->auth($redisAuth);
+			$authCredentials = $this->cacheDefinitions->authCredentials;
+			$authSuccess = $this->library->auth($authCredentials);
 		}	
-		if ($useAuth)
+		
+		$useAuth = false;
+		if ($useAuth == true)
+		{
 			$this->writeLoggingPair(
 				$authSuccess,
 				'Authorized account',
 				'Failed to authorize account');
-
+		}
 		if (!$authSuccess)
 			return false;
 		
-		/*
 		* Select the database
 		*/
+		}
+		
 		$redisDb = $this->cacheDefinitions->redisDatabase;
 		if ($redisDb > 0)
 		{
@@ -114,9 +140,9 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 		/**
 		* Now do the client options. If they fail, we will continue anyway
 		*/
-		if (count ($this->cacheDefinitions->redisClientOptions) > 0)
+		if (count ($this->cacheDefinitions->clientOptions) > 0)
 		{
-			foreach ($this->cacheDefinitions->redisClientOptions as $cOption=>$cValue)
+			foreach ($this->cacheDefinitions->clientOptions as $cOption=>$cValue)
 			{
 				$success = $this->library->setOption($cOption,$cValue);
 				$this->writeLoggingPair(
@@ -128,7 +154,7 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 				
 		}
 
-		$this->_connected = true;
+		$this->cachingIsAvailable = true;
 
 		/*
 		* The Redis connection object
@@ -138,132 +164,35 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 		return true;
 	}
 	
-	
 	/**
-	* Flushes all entries from current active database
+	* Flush an individual query from the apcu cache
+	*
+	* @param string $recordsetKey The md5 of the query
+	* @param ADOCacheObject $additional options unused
 	*
 	* @return void
 	*/
-	final public function flushall() : void
-	{
-				
+	final public function flushIndividualSet(?string $recordsetKey=null,?ADOCacheObject $options=null ) : void 
+	{	
+					
 		if (!$this->checkConnectionStatus())
 			return;
 
-		$this->cacheLibrary->flushDb();
-		
-		$this->logFlushAllEvent(true);
-		
-	}
-	
-	/**
-	* Flush an individual query from memcache
-	*
-	* @param string $filename The md5 of the query
-	* @param bool $debug option ignored as $this->debug prevails
-	* @param obj  $options available driver options
-	*
-	* @return void
-	*/
-	public function flushcache(
-					string $filename,
-					bool $debug=false,
-					?object $options=null) : void{
-								
-		if (!$this->checkConnectionStatus())
+		if (!$recordsetKey)
+			$recordsetKey = $this->lastRecordsetKey;
+
+		if (!$recordsetKey)
 			return;
 
-		if ($this->cacheDefinitions->redisAsynchronous)
+		if ($this->cacheDefinitions->asynchronousConnection)
 			/*
 			* Delete is done offline
 			*/
-			$success = $this->cacheLibrary->unlink($filename);
+			$success = $this->cacheLibrary->unlink($recordsetKey);
 		else
-			$success = $this->cacheLibrary->del($filename);
+			$success = $this->cacheLibrary->del($recordsetKey);
 
-		$this->logFlushCacheEvent($filename,$success);
+		$this->logflushCacheEvent($recordsetKey,$success);
 		
-	}
-		
-/**
-	* Tries to return a recordset from the cache
-	*
-	* @param string $filename the md5 code of the request
-	* @param string $err      The error string by reference
-	* @param int $secs2cache
-	* @param string $arrayClass
-	* @param object $options
-	*
-	* @return recordset
-	*/
-	final public function readcache(
-				string $filename,
-				string &$err,
-				int $secs2cache,
-				string $arrayClass,
-				?object $options=null) :?object{
-				
-		if (!$this->checkConnectionStatus())
-			return null;
-
-/*
-		* Standardize the parameters
-		*/
-		$options = $this->unpackCacheObject($options,$secs2cache);
-
-		$rs = $this->cacheLibrary->get($filename);
-		
-		list ($rs, $err) = $this->unpackCachedRecordset($filename, $rs,$options->ttl);
-		
-		return $rs;
-		
-	}	
-/**
-	* Builds a cached data set
-	*
-	* @param string $filename
-	* @param string $contents
-	* @param bool   $debug     Ignored
-	* @param int    $secs2cache
-	* @param obj    $options
-	*
-	* @return bool
-	*/
-	final public function writecache(
-			string $filename, 
-			string $contents, 
-			bool $debug,
-			int $secs2cache,
-			?object $options=null) : bool {
-		
-		if (!$this->checkConnectionStatus())
-			return false;
-		
-		/*
-		* Standardize the parameters
-		*/
-		$options = $this->unpackCacheObject($options,$secs2cache);
-		
-		$success = $this->cacheLibrary->set ( 
-			$filename , 
-			$contents ,
-			$options->ttl );
-		
-		return $this->logWriteCacheEvent(
-			$filename,
-			$options->ttl,
-			$success);
-
-	}
-	
-	/**
-	* Returns an array of info about the cache
-	*
-	* @return array
-	*/
-	final public function cacheInfo() : array
-	{
-
-		return $this->cacheLibrary->info();
 	}
 }

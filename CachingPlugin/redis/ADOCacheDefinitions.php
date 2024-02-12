@@ -17,10 +17,6 @@ namespace ADOdb\CachingPlugin\redis;
 */
 final class ADOCacheDefinitions extends \ADOdb\CachingPlugin\ADOCacheDefinitions
 {
-	/*
-	* Debugging for cache
-	*/
-	public bool $debug = true;
 	
 	/*
 	* Service flag. Do not modify value
@@ -32,12 +28,35 @@ final class ADOCacheDefinitions extends \ADOdb\CachingPlugin\ADOCacheDefinitions
 	*/
 	public string $serviceDescription = 'REDIS';
 		
-	public array $redisControllerItem = array(
-		'host'=>'',
-		'port'=>6379,
-		'persistentId'=>null,
-		'retryInterval'=>0,
-		'readTimeout'=>0);
+
+	/*
+	* The lazy connector object
+	* @sample 
+	array
+		'host' => '127.0.0.1',
+		'port' => 6379,
+		'connectTimeout' => 2.5,
+		'auth' => ['phpredis', 'phpredis'],
+		'ssl' => ['verify_peer' => false],
+		'backoff' => [
+			'algorithm' => Redis::BACKOFF_ALGORITHM_DECORRELATED_JITTER,
+			'base' => 500,
+			'cap' => 750,
+		],
+	]);
+	*/
+	public array $lazyConnector = array(); 
+	
+	/*
+	* A host or IP for a redis server
+	*/
+	public string $host = '';
+
+	/*
+	* A host:port pair for a redis server
+	* defaukt is 6379
+	*/
+	public string $port = '6379';
 		
 	/*
 	* Sets the initial redis database
@@ -47,31 +66,38 @@ final class ADOCacheDefinitions extends \ADOdb\CachingPlugin\ADOCacheDefinitions
 	/*
 	* Client options as available
 	*/
-	public array $redisClientOptions = array();
+	public array $clientOptions = array();
 	
-	
+	/*
+	* The connection timeout retry interval
+	*/
+	public int $retryInterval 		  = 0;
+
+	/*
+	* The connection read timeout
+	*/
+	public int $readTimeout   		  = 0;
+
 	/*
 	* Are we adding a persistent connection 
 	*/
-	public bool $redisPersistent = false;
+	public bool $persistentConnection = false;
 	
 	/*
 	* Allow asyncronous deletion actions
 	*/
-	public bool $redisAsynchronous = false;
+	public bool $asynchronousConnection = false;
 	
 	/*
 	* If used, must contain an array with at least one element
 	*/
-	public ?array $redisAuth = null;
+	public ?array $authCredentials = null;
 	
 	/*
 	* If used, must contain a string which is the name of a function 
 	* that returns an array of user,pass
 	*/
-	public string $redisAuthFunction = '';
-	
-	
-	
+	public string $authCallback = '';
+		
 	
 }

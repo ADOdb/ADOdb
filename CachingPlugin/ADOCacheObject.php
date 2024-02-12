@@ -30,6 +30,6 @@ class ADOCacheObject
 	/*
 	* Only available for certain target caches
 	*/
-    public ?string $serverKey;
+    public string $serverKey = '';
 		
 }

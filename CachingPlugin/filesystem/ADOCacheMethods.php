@@ -12,6 +12,7 @@
 namespace ADOdb\CachingPlugin\filesystem;
 
 use ADOdb\CachingPlugin\ADOCacheObject;
+use ADOdb\CachingPlugin\filesystem\ADOCacheDefinitions;
 
 final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 {
@@ -26,6 +27,7 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 	*/
 	public bool $createdir = true;
 	
+	protected bool $notSafeMode = true;
 	
 	/*
 	* Overrides the directory permissions from the definitions file
@@ -40,25 +42,24 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 	/**
 	* Constructor
 	*
-	* @param obj $connection   A Valid ADOdb Connection
-	* @param obj $cacheDefinitions An ADOdbCacheDefinitions Class
+	* @param ADOConnection 		 $connection   		A Valid ADOdb Connection
+	* @param ADOCacheDefinitions $cacheDefinitions 	An ADOdbCacheDefinitions Class
 	*
 	* @return obj 
-	*/
-	final public function __construct(
-			object $connection, 
-			object $cacheDefinitions){
+	*/	
+	public function __construct(object $connection, ?object $cacheDefinitions=null)
+	{
 				
 		global $ADODB_CACHE_DIR;
 		
 		$this->setDefaultEnvironment($connection,$cacheDefinitions);
 		
-		$this->defaultCacheObject = new ADOCacheObject;		
+		
 		/*
-		* Sets the custom items from this plugins\memcache
+		* Sets the required special variables
 		*/		
 		
-		$this->cacheDirectory = $cacheDefinitions->cacheDirectory;
+		$this->cacheDirectory = $this->cacheDefinitions->cacheDirectory;
 		
 		$ADODB_CACHE_DIR = $this->cacheDirectory;
 		
@@ -68,9 +69,14 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
 		}
 		
-		if ($cacheDefinitions->cacheDirectoryPermissions)
-			$this->cacheDirectoryPermissions = $cacheDefinitions->cacheDirectoryPermissions;
+		if ($this->cacheDefinitions->cacheDirectoryPermissions)
+			$this->cacheDirectoryPermissions = $this->cacheDefinitions->cacheDirectoryPermissions;
 		
+
+		/*
+		* Make sure the root of the cache directory exists
+		*/
+		$dir = $this->createdir();
 
 		/*
 		* Startup the client connection
@@ -78,6 +84,7 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 		$this->connect();
 		
 	}	
+
 	/**
 	* Connect to one of the available 
 	* 
@@ -103,32 +110,40 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 		/*
 		* Global flag
 		*/
-		$this->_connected = true;
+		$this->cachingIsAvailable = true;
+
+		/*
+		* Because this is a home-written library, we attach ourselves as the end-point
+		*/
 		
 		$this->cacheLibrary = $this;
 		
 		return true;
 	}
 	
-	
 	/**
-	* Flush an individual query from the fs cache
+	* Flush an individual query from the apcu cache
 	*
-	* @param string $filename The md5 of the query
-	* @param bool $debug ignored because because of global
-	* @param object $additional options unused
+	* @param string $recordsetKey The md5 of the query
+	* @param ADOCacheObject $additional options unused
 	*
 	* @return void
 	*/
-	final public function flushcache(
-		string $filename,
-		bool $debug=false,
-		object $options=null ) : void {	
+	final public function flushIndividualSet(?string $recordsetKey=null,?ADOCacheObject $options=null ) : void {	
 		
-		$success = @unlink($filename);
+		if (!$this->checkConnectionStatus())
+			return;
+
+		if (!$recordsetKey)
+			$recordsetKey = $this->lastRecordsetKey;
+
+		if (!$recordsetKey)
+			return;
 		
-		$this->logFlushCacheEvent($filename,$success);
-			
+		$success = @unlink($recordsetKey);
+		
+		$this->logflushCacheEvent($recordsetKey,$success);
+
 	}
 	
 	/**
@@ -150,155 +165,103 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 	/**
 	* Tries to return a recordset from the cache
 	*
-	* @param string $filename the md5 code of the request
-	* @param string $err      The error by reference
-	* @param int $secs2cache
-	* @param string[] $options
+	* @param string $recordsetKey the on disk file name of the request
+	* @param string $arrayClass
+	* @param ADOCacheObject $options
 	*
 	* @return recordset
 	*/
 	final public function readcache(
-				string $fileName,
-				string &$err,
-				int $secs2cache,
+				string $recordsetKey,
 				string $arrayClass,
-				?object $options=null) :?object {
+				?ADOCacheObject $options=null) :array {
 			
 		$err = '';
 		$serializedItem = true;
-		
+
+		if (!is_object($options))
+			$options = $this->defaultCacheObject;
+
+		$message = sprintf('FILESYSTEM: Reading key %s for cached data',$recordsetKey);
+		$this->loggingObject->log($this->loggingObject::DEBUG,$message);
+				
 		/*
-		* Standardize the parameters
+		* Returns the contents of the file as a string
 		*/
-		$options = $this->unpackCacheObject($options,$secs2cache);
-		
-		/*
-		* $err is passed by reference. Would be better to return a list
-		* The value  return is a true serialized recordset.
-		*/
-		$rs = $this->csv2rs($fileName,$err,$options->ttl,$arrayClass);
-		
-		if (!$rs)
-		{
-			$serializedItem = false;
-			$rs = '';
+		list($jObject,$err) = $this->readDataFromFileSystem($recordsetKey,0,$arrayClass);
+				
+		if (!$jObject) {
+			$message = sprintf('FILESYSTEM: Failed to retrieve key %s for reading, %s',$recordsetKey,$err);
+			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
+			return array(false,$err);
 		}
 		
-		list ($rs, $err) = $this->unpackCachedRecordset(
-			$fileName, 
-			$rs,
+		//return array($rs,$err);
+		list ($cObject, $err) = $this->unpackCachedRecordset(
+			$recordsetKey, 
+			$jObject,
 			$options->ttl,
 			'',
 			$serializedItem);
 		
-		return $rs;
+		return array($cObject,$err);
 	}
 	
 	/**
 	* Builds a cached data set
 	*
-	* @param string $filename
+	* @param string $recordsetKey
 	* @param string $contents
-	* @param int    $secs2cache
-	* @param bool   $debug     Ignored
-	* @param obj    $options
+	* @param ADOCacheObject    $options
 	*
 	* @return bool
 	*/
 	final public function writecache(
-			string $filename, 
+			string $recordsetKey, 
 			string $contents, 
-			bool $debug,
-			int $secs2cache,
-			?object $options=null) : bool {
-
-		$success =  $this->adodb_write_file($filename, $contents,$debug);
+			?ADOCacheObject $options=null) : bool {
 
 		if (!is_object($options))
 			$options = $this->defaultCacheObject;
-		
-		return $this->logWriteCacheEvent($filename,$options->ttl,$success);
+			
+		$success =  $this->adodb_write_file($recordsetKey, $contents,$options->debug);
+
+		return $this->logWriteCacheEvent($recordsetKey,$options->ttl,$success);
 
 	}
 	
 	/**
-	* Save a file $filename and its $contents (normally for caching) with file locking
+	* Save a file $recordsetKey and its $contents (normally for caching) with file locking
 	* Returns true if ok, false if fopen/fwrite error, 0 if rename error (eg. file is locked)
 	*/
 	private function adodb_write_file(
-				string $filename, 
+				string $recordsetKey, 
 				string $contents,
 				bool $debug=false) : bool
 	{
-		
-		
-		# http://www.php.net/bugs.php?id=9203 Bug that flock fails on Windows
-		# So to simulate locking, we assume that rename is an atomic operation.
-		# First we delete $filename, then we create a $tempfile write to it and
-		# rename to the desired $filename. If the rename works, then we successfully
-		# modified the file exclusively.
-		# What a stupid need - having to simulate locking.
-		# Risks:
-		# 1. $tempfile name is not unique -- very very low
-		# 2. unlink($filename) fails -- ok, rename will fail
-		# 3. adodb reads stale file because unlink fails -- ok, $rs timeout occurs
-		# 4. another process creates $filename between unlink() and rename() -- ok, rename() fails and  cache updated
-		if (strncmp(PHP_OS,'WIN',3) === 0) 
-		{
-			// skip the decimal place
-			$mtime = substr(str_replace(' ','_',microtime()),2);
-			// getmypid() actually returns 0 on Win98 - never mind!
-			$tmpname = $filename.uniqid($mtime).getmypid();
-			if (!($fd = @fopen($tmpname,'w'))) 
-				return false;
-			
-			if (fwrite($fd,$contents)) 
-				$ok = true;
-			else 
-				$ok = false;
-			fclose($fd);
-
-			if ($ok) {
-				@chmod($tmpname,0644);
-				// the tricky moment
-				@unlink($filename);
-				if (!@rename($tmpname,$filename)) {
-					@unlink($tmpname);
-					$ok = 0;
-				}
-				if (!$ok)
-				{
-					$message = sprintf('FILESYSTEM: Rename %s failed',$tmpname);
-					$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
-				} 
-				else if ($this->debug)
-				{
-					$message = sprintf('FILESYSTEM: Rename %s succeeded',$tmpname);
-					$this->loggingObject->log($this->loggingObject::DEBUG,$message);
-				}
-			}
-			return $ok;
-		}
-		/*
-		* Other *nix systems
-		*/
-		if (!($fd = @fopen($filename, 'a'))) 
+	
+				
+		if (!($fd = @fopen($recordsetKey, 'a'))) 
 			return false;
 		
 		if (flock($fd, LOCK_EX) && ftruncate($fd, 0)) 
 		{
 			if (fwrite( $fd, $contents )) 
+			{
 				$ok = true;
+				$message = sprintf('FILESYSTEM: LOCK_EX succeeded for %s',$recordsetKey);
+				$this->loggingObject->log($this->loggingObject::DEBUG,$message);
+			}
 			else 
 				$ok = false;
 			
 			fclose($fd);
-			@chmod($filename,0644);
+			@chmod($recordsetKey,0644);
 		}
 		else 
 		{
 			fclose($fd);
-			$message = sprintf('FILESYSTEM: Failed acquiring lock for %s',$filename);
+			$message = sprintf('FILESYSTEM: Failed acquiring lock for %s',$recordsetKey);
 			$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 			$ok = false;
 		}
@@ -308,17 +271,14 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 	/**
 	* Open CSV file and convert it into Data.
 	*
-	* @param url  		file/ftp/http url
-	* @param err		returns the error message
-	* @param timeout	dispose if recordset has been alive for $timeout secs
+	* @param string	url  	file/ftp/http url
+	* @param int 	timeout	dispose if recordset has been alive for $timeout secs
+	* @param string rsclass	class name of recordset to return
 	*
-	* @return		recordset, or false if error occurred. If no
-	*			error occurred in sql INSERT/UPDATE/DELETE,
-	*			empty recordset is returned
+	* @return array(recordset, string)
 	*/
-	private function csv2rs(
+	private function readDataFromFileSystem(
 			string $url, 
-			string &$err,
 			?int $timeout=0, 
 			?string $rsclass='ADORecordSet_array') {
 		
@@ -337,163 +297,124 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 		$arr = array();
 		$ttl = 0;
 
-		if ($meta = fgetcsv($fp, 32000, ",")) {
-			// check if error message
-			if (strncmp($meta[0],'****',4) === 0) {
-				$err = trim(substr($meta[0],4,1024));
-				fclose($fp);
-				return null;
-			}
-			// check for meta data
-			// $meta[0] is -1 means return an empty recordset
-			// $meta[1] contains a time
+		/*
+		* Now we have put a flock on the file, we can read it
+		* straight into memory
+		*/
+		$fileContents = file_get_contents($url);
 
-			if (strncmp($meta[0], '====',4) === 0) {
+		$fileObj = json_decode($fileContents);
 
-				if ($meta[0] == "====-1") {
-					if (sizeof($meta) < 5) {
-						$err = "Corrupt first line for format -1";
-						fclose($fp);
-						return null;
-					}
-					fclose($fp);
-
-					if ($timeout > 0) {
-						$err = " Illegal Timeout $timeout ";
-						return null;
-					}
-
-					$rs = new $rsclass($val=true);
-					$rs->fields = array();
-					$rs->timeCreated = $meta[1];
-					$rs->EOF = true;
-					$rs->_numOfFields = 0;
-					$rs->sql = urldecode($meta[2]);
-					$rs->affectedrows = (integer)$meta[3];
-					$rs->insertid = $meta[4];
-					return $rs;
-				}
-				
-				# Under high volume loads, we want only 1 thread/process to _write_file
-				# so that we don't have 50 processes queueing to write the same data.
-				# We use probabilistic timeout, ahead of time.
-				#
-				# -4 sec before timeout, give processes 1/32 chance of timing out
-				# -2 sec before timeout, give processes 1/16 chance of timing out
-				# -1 sec after timeout give processes 1/4 chance of timing out
-				# +0 sec after timeout, give processes 100% chance of timing out
-				
-				if (sizeof($meta) > 1) {
-					if($timeout >0){
-						$tdiff = (integer)( $meta[1]+$timeout - time());
-						if ($tdiff <= 2) {
-							switch($tdiff) {
-							case 4:
-							case 3:
-								if ((rand() & 31) == 0) {
-									fclose($fp);
-									$err = "Timeout 3";
-									return $false;
-								}
-								break;
-							case 2:
-								if ((rand() & 15) == 0) {
-									fclose($fp);
-									$err = "Timeout 2";
-									return $false;
-								}
-								break;
-							case 1:
-								if ((rand() & 3) == 0) {
-									fclose($fp);
-									$err = "Timeout 1";
-									return $false;
-								}
-								break;
-							default:
-								fclose($fp);
-								$err = "Timeout 0";
-								return $false;
-							} // switch
-
-						} // if check flush cache
-					}// (timeout>0)
-					$ttl = $meta[1];
-				}
-				//================================================
-				// new cache format - use serialize extensively...
-				if ($meta[0] === '====1') {
-					// slurp in the data
-
-					$text = fread($fp,$this->cacheReadSize);
-					if (strlen($text)) {
-						while ($txt = fread($fp,$this->cacheReadSize)) {
-							$text .= $txt;
-						}
-					}
-					fclose($fp);
-					$rs = unserialize($text);
-					if (is_object($rs)) 
-						$rs->timeCreated = $ttl;
-					else 
-					{
-						$err = "Unable to unserialize recordset";
-					}
-					return $text;
-				}
-
-				$meta = false;
-				$meta = fgetcsv($fp, 32000, ",");
-				if (!$meta) {
-					fclose($fp);
-					$err = "Unexpected EOF 1";
-					return $false;
-				}
-			}
-
-			// Get Column definitions
-			$flds = array();
-			foreach($meta as $o) {
-				$o2 = explode(':',$o);
-				if (sizeof($o2)!=3) {
-					$arr[] = $meta;
-					$flds = false;
-					break;
-				}
-				$fld = new ADOFieldObject();
-				$fld->name = urldecode($o2[0]);
-				$fld->type = $o2[1];
-				$fld->max_length = $o2[2];
-				$flds[] = $fld;
-			}
-		} else {
+		if (!is_object($fileObj)) {
+			$err = "Unable to decode file contents";
 			fclose($fp);
-			$err = "Recordset had unexpected EOF 2";
-			return $false;
-		}
-
-		// slurp in the data
-
-		$text = '';
-		while ($txt = fread($fp,$this->cacheReadSize)) {
-			$text .= $txt;
+			return array(null,$err);
 		}
 
 		fclose($fp);
-		@$arr = unserialize($text);
-		if (!is_array($arr)) {
-			$message = "FILESYSTEM: Recordset had unexpected EOF (in serialized recordset)";
-			$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
-			return $false;
+
+		if ($timeout > 0) {
+			$err = " Illegal Timeout $timeout ";
+			return array(null,$err);
 		}
-		$rs = new $rsclass();
-		$rs->timeCreated = $ttl;
-		$rs->InitArrayFields($arr,$flds);
-		return $rs;
+
+		if ($fileObj->operation == -1) {
+
+			/*
+			* Re-make an empty recordset
+			*/
+			$rs = new $rsclass($val=true);
+			$rs->fields = array();
+			$rs->timeCreated = $fileObj->timeCreated;
+			$rs->EOF = true;
+			$rs->_numOfFields = 0;
+			$rs->sql = $fileObj->sql;
+			$rs->affectedrows = $fileObj->affectedrows;
+			$rs->insertid = $fileObj->insertid;
+			
+			$fileObj->recordSet = serialize($rs);
+			$fileContents = json_encode($fileObj);
+			return array($fileContents,'');
+		}
+
+		# Under high volume loads, we want only 1 thread/process to _write_file
+		# so that we don't have 50 processes queueing to write the same data.
+		# We use probabilistic timeout, ahead of time.
+		#
+		# -4 sec before timeout, give processes 1/32 chance of timing out
+		# -2 sec before timeout, give processes 1/16 chance of timing out
+		# -1 sec after timeout give processes 1/4 chance of timing out
+		# +0 sec after timeout, give processes 100% chance of timing out
+		
+		
+		if($timeout >0){
+			$tdiff = (integer)( $fileObj->timeCreated + $timeout - time());
+			if ($tdiff <= 2) {
+				switch($tdiff) {
+				case 4:
+				case 3:
+					if ((rand() & 31) == 0) {
+						fclose($fp);
+						$err = "Timeout 3";
+						return array(null,$err);
+					}
+					break;
+				case 2:
+					if ((rand() & 15) == 0) {
+						fclose($fp);
+						$err = "Timeout 2";
+						return array(null,$err);
+					}
+					break;
+				case 1:
+					if ((rand() & 3) == 0) {
+						fclose($fp);
+						$err = "Timeout 1";
+						return array(null,$err);
+					}
+					break;
+				default:
+					fclose($fp);
+					$err = "Timeout 0";
+					return array(null,$err);
+				} // switch
+
+			} // if check flush cache
+		}// (timeout>0)
+			
+		if ($fileObj->operation == '1') 
+		{
+			/*
+			* We know everything is good, so we can just return the contents
+			* of the file. The common decoder in the parent will handle the rest
+			*/
+			return array($fileContents,$err);
+			
+		}
+
+		return array(null,'Unable to obtain file contents');
+	
+	
+	
 	}
 
-	
-	
+	/**
+	 * generates md5 key for caching.
+	 * Filename is generated based on:
+	 * 
+	 * @param string $sql the sql statement
+	 *
+	 * @return string
+	 */
+	final public function generateCacheName(string $sql) : string {
+
+		$hash = parent::generateCacheName($sql);
+
+		$hashDir = $this->createdir($hash);
+		return sprintf('%s/adodb_%s.cache', $hashDir, $hash);
+				
+	}
+		
 	/**
 	* Private function to recursively erase all of the files and 
 	* subdirectories in a directory.
@@ -543,14 +464,16 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 	* create temp directories
 	*
 	* @ param string $hash
-	* @ param bool debug
 	*
 	* @ return string
 	*/
-	final public function createdir(string $hash, bool $debug): ?string {
+	private function createdir(?string $hash=null): string {
 		
+		if ($hash)
+			$dir = $this->getDirName($hash);
+		else 
+			$dir = $this->cacheDirectory;
 
-		$dir = $this->getdirname($hash);
 		if ($this->notSafeMode && !file_exists($dir)) {
 			$oldu = umask(0);
 			if (!@mkdir($dir, $this->cacheDirectoryPermissions)) {
@@ -574,14 +497,14 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 	*
 	* @return string
 	*/
-	final public function getDirName(string $hash) : string {
+	private function getDirName(string $hash) : string {
 		
-		global $ADODB_CACHE_DIR;
-		
-		if (!isset($this->notSafeMode)) {
-			$this->notSafeMode = !ini_get('safe_mode');
-		}
-		return ($this->notSafeMode) ? $ADODB_CACHE_DIR.'/'.substr($hash,0,2) : $ADODB_CACHE_DIR;
+				
+		//if (!isset($this->notSafeMode)) {
+		//	$this->notSafeMode = !ini_get('safe_mode');
+		//}
+
+		return ($this->notSafeMode) ? $this->cacheDirectory .'/'.substr($hash,0,2) : $this->cacheDirectory;
 	}
 	
 	/**

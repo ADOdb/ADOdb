@@ -180,11 +180,31 @@ class ADODB_sybase extends ADOConnection {
 			return sybase_query($sql,$this->_connectionID);
 	}
 
-	// See http://www.isug.com/Sybase_FAQ/ASE/section6.2.html#6.2.12
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
-	{
-		if ($secs2cache > 0) {// we do not cache rowcount, so we have to load entire recordset
-			$rs = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+	/**
+	* @param string     $sql
+	* @param int        $offset     Row to start calculations from (1-based)
+	* @param int        $nrows      Number of rows to get
+	* @param array|bool $inputarr   Array of bind variables
+	* @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
+	* 
+	* @return ADORecordSet The recordset ($rs->databaseType == 'array')
+	*/
+	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$cacheObject = null) {
+	   
+		$nrows = (int)$nrows;
+		$offset = (int)$offset;
+
+		if (is_integer($cacheObject))
+		{
+			/*
+			* Legacy code, $cacheObject used to be the time to live
+			*/
+			$ttl = $cacheObject;
+			$cacheObject = new ADOCacheObject;
+			$cacheObject->ttl = $ttl;
+		}
+		if ($cacheObject) {// we do not cache rowcount, so we have to load entire recordset
+			$rs = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$cacheObject);
 			return $rs;
 		}
 
@@ -195,7 +215,7 @@ class ADODB_sybase extends ADOConnection {
 		if ($offset > 0 && $cnt) $cnt += $offset;
 
 		$this->Execute("set rowcount $cnt");
-		$rs = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,0);
+		$rs = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$cacheObject);
 		$this->Execute("set rowcount 0");
 
 		return $rs;

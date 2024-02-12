@@ -193,21 +193,39 @@ class ADODB_mssql extends ADOConnection {
 		//return $this->GetOne("SELECT CONVERT(varchar(255), NEWID()) AS 'Char'");
 	}
 
+	/**
+	* @param string     $sql
+	* @param int        $offset     Row to start calculations from (1-based)
+	* @param int        $nrows      Number of rows to get
+	* @param array|bool $inputarr   Array of bind variables
+	* @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
+	* 
+	* @return ADORecordSet The recordset ($rs->databaseType == 'array')
+	*/
+   function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$cacheObject = null) {
+	   
+	   	$nrows = (int)$nrows;
+	   	$offset = (int)$offset;
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
-	{
-		$nrows = (int) $nrows;
-		$offset = (int) $offset;
+	   	if (is_integer($cacheObject))
+	   	{
+		   /*
+		   * Legacy code, $cacheObject used to be the time to live
+		   */
+		   $ttl = $cacheObject;
+		   $cacheObject = new ADOCacheObject;
+		   $cacheObject->ttl = $ttl;
+	   	}
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
 				'/(^\s*select\s+(distinctrow|distinct)?)/i','\\1 '.$this->hasTop." $nrows ",$sql);
 
-			if ($secs2cache)
-				$rs = $this->CacheExecute($secs2cache, $sql, $inputarr);
-			else
-				$rs = $this->Execute($sql,$inputarr);
+			//if ($secs2cache)
+			//	$rs = $this->CacheExecute($secs2cache, $sql, $inputarr);
+			//else
+			$rs = $this->Execute($sql,$inputarr,$cacheObject);
 		} else
-			$rs = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
+			$rs = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$cacheObject);
 
 		return $rs;
 	}

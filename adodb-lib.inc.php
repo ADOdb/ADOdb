@@ -377,18 +377,23 @@ function _adodb_getmenu_option($defstr, $compare, $value, $display)
 }
 
 /*
-	Count the number of records this sql statement will return by using
-	query rewriting heuristics...
+	* Count the number of records this sql statement will return by using
+	* query rewriting heuristics...
+	* Does not work with UNIONs, except with postgresql and oracle.
+    *
+	* Usage:
+	*
+	* $conn->Connect(...);
+	* $cnt = _adodb_getcount($conn, $sql);
+	*
+	* @param ADOConnection $zthis      Connection
+	* @param string     $sql        Query to execute
+	* @param int        $nrows      Number of rows per page
+ 	* @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
 
-	Does not work with UNIONs, except with postgresql and oracle.
-
-	Usage:
-
-	$conn->Connect(...);
-	$cnt = _adodb_getcount($conn, $sql);
-
+	* @return int Number of records
 */
-function _adodb_getcount($zthis, $sql,$inputarr=false,$secs2cache=0)
+function _adodb_getcount($zthis, $sql,$inputarr=false,$cacheObject=null)
 {
 	$qryRecs = 0;
 
@@ -461,14 +466,21 @@ function _adodb_getcount($zthis, $sql,$inputarr=false,$secs2cache=0)
 			$rewritesql .= $limitarr[0];
 		}
 
-		if ($secs2cache) {
+		if ($cacheObject) {
 			// we only use half the time of secs2cache because the count can quickly
 			// become inaccurate if new records are added
-			$qryRecs = $zthis->CacheGetOne($secs2cache/2,$rewritesql,$inputarr);
-
-		} else {
-			$qryRecs = $zthis->GetOne($rewritesql,$inputarr);
+			$cacheObject->ttl = floor($cacheObject->ttl/2);
 		}
+		
+		//if ($secs2cache) {
+			
+		//	$qryRecs = $zthis->CacheGetOne($secs2cache/2,$rewritesql,$inputarr);
+
+		//} else {
+		$qryRecs = $zthis->GetOne($rewritesql,$inputarr,$cacheObject);
+		//}
+
+
 		if ($qryRecs !== false) return $qryRecs;
 	}
 
@@ -486,13 +498,14 @@ function _adodb_getcount($zthis, $sql,$inputarr=false,$secs2cache=0)
 		$rewritesql .= $limitarr[0];
 	}
 
-	if ($secs2cache) {
-		$rstest = $zthis->CacheExecute($secs2cache,$rewritesql,$inputarr);
-		if (!$rstest) $rstest = $zthis->CacheExecute($secs2cache,$sql,$inputarr);
-	} else {
-		$rstest = $zthis->Execute($rewritesql,$inputarr);
-		if (!$rstest) $rstest = $zthis->Execute($sql,$inputarr);
-	}
+	//if ($secs2cache) {
+	//	$rstest = $zthis->CacheExecute($secs2cache,$rewritesql,$inputarr);
+	//	if (!$rstest) $rstest = $zthis->CacheExecute($secs2cache,$sql,$inputarr);
+	//} else {
+	$rstest = $zthis->Execute($rewritesql,$inputarr,$cacheObject);
+	if (!$rstest) 
+		$rstest = $zthis->Execute($sql,$inputarr,$cacheObject);
+	//}
 	if ($rstest) {
 		$qryRecs = $rstest->RecordCount();
 		if ($qryRecs == -1) {
@@ -521,13 +534,15 @@ function _adodb_getcount($zthis, $sql,$inputarr=false,$secs2cache=0)
  * @param int           $nrows      Number of rows per page
  * @param int           $page       Page number to retrieve (1-based)
  * @param array         $inputarr   Array of bind variables
- * @param int           $secs2cache Time-to-live of the cache (in seconds), 0 to force query execution
+ * [deprecated]@param int           $secs2cache Time-to-live of the cache (in seconds), 0 to force query execution
+ * @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
+
  *
  * @return ADORecordSet|bool
  *
  * @author Cornel G <conyg@fx.ro>
  */
-function _adodb_pageexecute_all_rows($zthis, $sql, $nrows, $page, $inputarr=false, $secs2cache=0)
+function _adodb_pageexecute_all_rows($zthis, $sql, $nrows, $page, $inputarr=false, $cacheObject=null)
 {
 	$atfirstpage = false;
 	$atlastpage = false;
@@ -535,7 +550,7 @@ function _adodb_pageexecute_all_rows($zthis, $sql, $nrows, $page, $inputarr=fals
 	// If an invalid nrows is supplied, assume a default value of 10 rows per page
 	if (!isset($nrows) || $nrows <= 0) $nrows = 10;
 
-	$qryRecs = _adodb_getcount($zthis,$sql,$inputarr,$secs2cache);
+	$qryRecs = _adodb_getcount($zthis,$sql,$inputarr,$cacheObject);
 	$lastpageno = (int) ceil($qryRecs / $nrows);
 
 	// Check whether $page is the last page or if we are trying to retrieve
@@ -553,10 +568,10 @@ function _adodb_pageexecute_all_rows($zthis, $sql, $nrows, $page, $inputarr=fals
 
 	// We get the data we want
 	$offset = $nrows * ($page-1);
-	if ($secs2cache > 0)
-		$rsreturn = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $offset, $inputarr);
-	else
-		$rsreturn = $zthis->SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
+	//if ($secs2cache > 0)
+	//	$rsreturn = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $offset, $inputarr);
+	//else
+	$rsreturn = $zthis->SelectLimit($sql, $nrows, $offset, $inputarr, $cacheObject);
 
 
 	// Before returning the RecordSet, we set the pagination properties we need
@@ -584,14 +599,17 @@ function _adodb_pageexecute_all_rows($zthis, $sql, $nrows, $page, $inputarr=fals
  * @param int           $nrows      Number of rows per page
  * @param int           $page       Page number to retrieve (1-based)
  * @param array         $inputarr   Array of bind variables
- * @param int           $secs2cache Time-to-live of the cache (in seconds), 0 to force query execution
+ * [deprecated]@param int           $secs2cache Time-to-live of the cache (in seconds), 0 to force query execution
+ * @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
+
  *
  * @return ADORecordSet|bool
  *
  * @author Iván Oliva
  */
-function _adodb_pageexecute_no_last_page($zthis, $sql, $nrows, $page, $inputarr=false, $secs2cache=0)
+function _adodb_pageexecute_no_last_page($zthis, $sql, $nrows, $page, $inputarr=false, $cacheObject=0)
 {
+	
 	$atfirstpage = false;
 	$atlastpage = false;
 
@@ -613,11 +631,11 @@ function _adodb_pageexecute_no_last_page($zthis, $sql, $nrows, $page, $inputarr=
 	// the last page. Therefore allow non-Count() paging with single queries
 	// rather than three queries as was done before.
 	$test_nrows = $nrows + 1;
-	if ($secs2cache > 0) {
-		$rsreturn = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr);
-	} else {
-		$rsreturn = $zthis->SelectLimit($sql, $test_nrows, $pagecounteroffset, $inputarr, $secs2cache);
-	}
+	//if ($secs2cache > 0) {
+	//	$rsreturn = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr);
+	//} else {
+	$rsreturn = $zthis->SelectLimit($sql, $test_nrows, $pagecounteroffset, $inputarr, $cacheObject);
+	//}
 
 	// Now check to see if the number of rows returned was the higher value we asked for or not.
 	if ( $rsreturn->_numOfRows == $test_nrows ) {
@@ -637,12 +655,12 @@ function _adodb_pageexecute_no_last_page($zthis, $sql, $nrows, $page, $inputarr=
 				$pagecounter--;
 				$pagecounteroffset = $nrows * ($pagecounter - 1);
 				$rstest->Close();
-				if ($secs2cache>0) {
-					$rstest = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr);
-				}
-				else {
-					$rstest = $zthis->SelectLimit($sql, $nrows, $pagecounteroffset, $inputarr, $secs2cache);
-				}
+				//if ($secs2cache>0) {
+				//	$rstest = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $pagecounteroffset, $inputarr);
+				//}
+				//else {
+					$rstest = $zthis->SelectLimit($sql, $nrows, $pagecounteroffset, $inputarr, $cacheObject);
+				//}
 			}
 			if ($rstest) $rstest->Close();
 		}
@@ -657,12 +675,12 @@ function _adodb_pageexecute_no_last_page($zthis, $sql, $nrows, $page, $inputarr=
 		}
 		// We get the data we want
 		$offset = $nrows * ($page-1);
-		if ($secs2cache > 0) {
-			$rsreturn = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $offset, $inputarr);
-		}
-		else {
-			$rsreturn = $zthis->SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
-		}
+		//if ($secs2cache > 0) {
+		//	$rsreturn = $zthis->CacheSelectLimit($secs2cache, $sql, $nrows, $offset, $inputarr);
+		//}
+		//else {
+			$rsreturn = $zthis->SelectLimit($sql, $nrows, $offset, $inputarr, $cacheObject);
+		//}
 	} elseif ( $rsreturn->_numOfRows < $test_nrows ) {
 		// Rows is less than what we asked for, so must be at the last page.
 		$atlastpage = true;

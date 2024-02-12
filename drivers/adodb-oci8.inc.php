@@ -784,11 +784,29 @@ END;
 	 *
 	 * Note: FIRST_ROWS hinting is only used if $sql is a string; when
 	 * processing a prepared statement's handle, no hinting is performed.
-	 */
-	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
-	{
-		$nrows = (int) $nrows;
-		$offset = (int) $offset;
+	 * 
+	* @param string     $sql
+	* @param int        $offset     Row to start calculations from (1-based)
+	* @param int        $nrows      Number of rows to get
+	* @param array|bool $inputarr   Array of bind variables
+	* @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
+	* 
+	* @return ADORecordSet The recordset ($rs->databaseType == 'array')
+	*/
+	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$cacheObject = null) {
+	   
+		$nrows = (int)$nrows;
+		$offset = (int)$offset;
+
+		if (is_integer($cacheObject))
+		{
+			/*
+			* Legacy code, $cacheObject used to be the time to live
+			*/
+			$ttl = $cacheObject;
+			$cacheObject = new ADOCacheObject;
+			$cacheObject->ttl = $ttl;
+		}
 		// Since the methods used to limit the number of returned rows rely
 		// on modifying the provided SQL query, we can't work with prepared
 		// statements so we just extract the SQL string.
@@ -833,7 +851,7 @@ END;
 			}
 			// note that $nrows = 0 still has to work ==> no rows returned
 
-			return ADOConnection::SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
+			return ADOConnection::SelectLimit($sql, $nrows, $offset, $inputarr, $cacheObject);
 		} else {
 			// Algorithm by Tomas V V Cox, from PEAR DB oci8.php
 
@@ -902,12 +920,12 @@ END;
 			$inputarr['adodb_nrows'] = $nrows;
 			$inputarr['adodb_offset'] = $offset;
 
-			if ($secs2cache > 0) {
-				$rs = $this->CacheExecute($secs2cache, $sql,$inputarr);
-			}
-			else {
-				$rs = $this->Execute($sql, $inputarr);
-			}
+			i//f ($secs2cache > 0) {
+			//	$rs = $this->CacheExecute($secs2cache, $sql,$inputarr);
+			//}
+			//else {
+			$rs = $this->Execute($sql, $inputarr,$cacheObject);
+			//}
 			return $rs;
 		}
 	}
@@ -1006,7 +1024,18 @@ END;
 		return $rez;
 	}
 
-	function Execute($sql,$inputarr=false)
+	/**
+	 * Execute SQL
+	 *
+	 * @param string     $sql      SQL statement to execute, or possibly an array
+	 *                             holding prepared statement ($sql[0] will hold sql text)
+	 * @param array|bool $inputarr holds the input data to bind to.
+	 *                             Null elements will be set to null.
+	 * @param ADOCacheObject|null $cacheObject   	  Holds the custom cache parameter class
+	 * 	
+	 * @return ADORecordSet|false
+	 */
+	function Execute($sql,$inputarr=false, $cacheObject = null)
 	{
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
@@ -1015,6 +1044,13 @@ END;
 				return $ret;
 			}
 		}
+
+		if (is_object($cacheObject))
+		{
+			$ttl = $cacheObject->ttl;
+			return $this->CacheExecute($ttl, $sql, $inputarr, $cacheObject);
+		}
+		
 		if ($inputarr !== false) {
 			if (!is_array($inputarr)) {
 				$inputarr = array($inputarr);

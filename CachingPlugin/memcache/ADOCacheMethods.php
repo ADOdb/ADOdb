@@ -11,6 +11,9 @@
 */
 namespace ADOdb\CachingPlugin\memcache;
 
+use ADOdb\CachingPlugin\ADOCacheObject;
+use ADOdb\CachingPlugin\memcache\ADOCacheDefinitions;
+
 final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 {
 	
@@ -35,26 +38,25 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 	/**
 	* Constructor
 	*
-	* @param obj $connection   A Valid ADOdb Connection
-	* @param obj $cacheDefinitions An ADOdbCacheDefinitions Class
+	* @param ADOConnection 		 $connection   		A Valid ADOdb Connection
+	* @param ADOCacheDefinitions $cacheDefinitions 	An ADOdbCacheDefinitions Class
 	*
 	* @return obj 
 	*/	
-	final public function __construct(object $connection, object $cacheDefinitions)
+	public function __construct(object $connection, ?object $cacheDefinitions=null)
 	{
+		
 		$this->setDefaultEnvironment($connection,$cacheDefinitions);
 		
 		/*
-		* Sets the custom items from this plugins\memcache
-		*/
-		
-		$this->controllerItems  	= $cacheDefinitions->memcacheControllerItems;
+		* Sets the required special variables
+		*/	
+		$this->controllerItems  	= $cacheDefinitions->controllerItems;
 			
-		$this->compress 			= $cacheDefinitions->memcacheCompress;
+		$this->compress 			= $cacheDefinitions->compress;
 		
-		$this->compressionThreshold = $cacheDefinitions->memcacheCompressionThreshold;
-		
-		
+		$this->compressionThreshold = $cacheDefinitions->compressionThreshold;
+				
 		/*
 		* Startup the client connection
 		*/
@@ -80,6 +82,7 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 			{
 				$message = 'MEMCACHE: Loaded the MemCache Libary';
 				$this->loggingObject->log($this->loggingObject::DEBUG,$message);
+				
 			}
 		
 		} else {
@@ -106,25 +109,27 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 		
 				
 		$failTarget = count($this->controllerItems);
+
 		
-		foreach($this->controllerItems as $cIndex=>$controller)
+		
+		foreach($this->controllerItems as $cIndex=>$controllerItem)
 		{
-			
-			if (!is_array($controller))
+					
+			if (!is_array($controllerItem))
 			{
 				$message = sprintf('MEMCACHE: Entry %s in the memcacheControllerItems array is invalid', $cIndex + 1);
 				$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 				return false;
 			}
 			
-			if (!array_key_exists('host',$controller))
+			if (!array_key_exists('host',$controllerItem))
 			{
 				$message = sprintf('MEMCACHE: Entry %s in the memcacheControllerItems array must contain a host entry', $cIndex + 1);
 				$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 				return false;
 			}
 			
-			$serverPush = array_merge($this->controllerItem,$controller);
+			$serverPush = array_merge($this->controllerItem,$controllerItem);
 	
 	
 			if (count($this->controllerItems) == 1)
@@ -164,10 +169,12 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 				$this->loggingObject->log($this->loggingObject::NOTICE,$message);
 				
 			} else if ($this->debug) {
-				sprintf("MEMCACHE: Added entry %s: server %s on port %s to available connection pool",  		
+				$message = sprintf("MEMCACHE: Added entry %s: server %s on port %s, weight %s to available connection pool",  		
 						$cIndex,
 						$serverPush['host'],
-						$serverPush['port']);
+						$serverPush['port'],
+						$serverPush['weight']
+					);
 						
 				$this->loggingObject->log($this->loggingObject::DEBUG,$message);
 			}
@@ -210,7 +217,7 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 		/*
 		* Global flag
 		*/
-		$this->_connected = true;
+		$this->cachingIsAvailable = true;
 				
 		/*
 		* The memcache connection object
@@ -221,109 +228,36 @@ final class ADOCacheMethods extends \ADOdb\CachingPlugin\ADOCacheMethods
 	}
 	
 	/**
-	* Flushes all entries from wincache
-	*
-	* @return void
-	*/
-	final public function flushall() : void
-	{
-				
-		if (!$this->checkConnectionStatus())
-			return;
-
-		$success = $this->cacheLibrary->flush();
-		
-		$this->logFlushAllEvent($success);
-		
-	}
-	
-	/**
-	* Flush an individual query from the memcache cache
-	*
-	* @param string $filename The md5 of the query
-	* @param bool $debug ignored because because of global
-	* @param object $additional options unused
-	*
-	* @return void
-	*/
-	final public function flushcache(
-		string $filename,
-		bool $debug=false,
-		object $options=null ) : void {	
-				
-		if (!$this->checkConnectionStatus())
-			return;
-
-		$success = $this->cacheLibrary->delete($filename);
-
-		$this->logFlushCacheEvent($filename,$success);
-		
-	}
-	
-	/**
-	* Tries to return a recordset from the cache
-	*
-	* @param string $filename the md5 code of the request
-	* @param string $err      The error string by reference
-	* @param int $secs2cache
-	* @param string $arrayClass
-	* @param object $options
-	*
-	* @return recordset
-	*/
-	final public function readcache(
-				string $filename,
-				string &$err,
-				int $secs2cache,
-				string $arrayClass,
-				?object $options=null) :?object{
-				
-		if (!$this->checkConnectionStatus())
-			return null;
-			
-		/*
-		* Standardize the parameters
-		*/
-		$options = $this->unpackCacheObject($options,$secs2cache);
-		
-		$rs = $this->cacheLibrary->get($filename);
-		
-		list ($rs, $err) = $this->unpackCachedRecordset($filename, $rs,$options->ttl);
-		
-		return $rs;
-	}		
-	
-	/**
 	* Builds a cached data set
 	*
-	* @param string $filename
+	* @param string $recordsetKey
 	* @param string $contents
-	* @param bool   $debug     Ignored
-	* @param int    $secs2cache
-	* @param obj    $options
+	* @param ADOCacheObject    $options
 	*
 	* @return bool
 	*/
 	final public function writecache(
-			string $filename, 
-			string $contents, 
-			bool $debug,
-			int $secs2cache,
-			?object $options=null) : bool {
+		string $recordsetKey, 
+		string $contents, 
+		?ADOCacheObject $options=null) : bool {
 		
 		if (!$this->checkConnectionStatus())
 			return false;
 
-		/*
-		* Standardize the parameters
-		*/
-		$options = $this->unpackCacheObject($options,$secs2cache);
+		if (!is_object($options))
+			$options = $this->defaultCacheObject;
+		
+		if ($this->compress)
+		{
+			$this->loggingObject->log($this->loggingObject::DEBUG,'MEMCACHE: Compressing cache entry');
+		}
+		
 		/*
 		* Windows connection module, allows compression
 		*/
-		$success = $this->cacheLibrary->set($filename, $contents, $this->compress ? MEMCACHE_COMPRESSED : 0, $options->ttl);
+		$success = $this->cacheLibrary->set($recordsetKey, $contents, $this->compress ? MEMCACHE_COMPRESSED : 0, $options->ttl);
 		
-		return $this->logWriteCacheEvent($filename,$options->ttl,$success);
+		return $this->logWriteCacheEvent($recordsetKey,$options->ttl,$success);
 
 	}
 	/**

@@ -983,23 +983,34 @@ class ADODB_firebird extends ADOConnection {
 	 * @param int $nrows (Optional) The limit for the number of records you want returned. By default, all results.
 	 * @param int $offset (Optional) The offset to use when selecting the results. By default, no offset.
 	 * @param array|bool $inputarr (Optional) Any parameter values required by the SQL statement, or false if none.
-	 * @param int $secs2cache (Optional) If greater than 0, perform a cached execute. By default, normal execution.
-	 *
-	 * @return ADORecordSet|false The query results, or false if the query failed to execute.
-	 */
-	public function selectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false, $secs2cache=0)
+	* @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
+	* 
+	* @return ADORecordSet The recordset object.
+	*/
+	function selectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false,$cacheObject=null)
 	{
-		$nrows = (integer) $nrows;
-		$offset = (integer) $offset;
+		
+		$nrows = (int)$nrows;
+		$offset = (int)$offset;
+
+		if (is_integer($cacheObject))
+		{
+			/*
+			* Legacy code, $cacheObject used to be the time to live
+			*/
+			$ttl = $cacheObject;
+			$cacheObject = new ADOCacheObject;
+			$cacheObject->ttl = $ttl;
+		}
 		$str = 'SELECT ';
 		if ($nrows >= 0) $str .= "FIRST $nrows ";
 		$str .=($offset>=0) ? "SKIP $offset " : '';
 
 		$sql = preg_replace('/^[ \t]*select/i',$str,$sql);
-		if ($secs2cache)
-			$rs = $this->cacheExecute($secs2cache,$sql,$inputarr);
-		else
-			$rs = $this->execute($sql,$inputarr);
+		//if ($secs2cache)
+		//	$rs = $this->cacheExecute($secs2cache,$sql,$inputarr,$cacheObject);
+		//else
+		$rs = $this->execute($sql,$inputarr,$cacheObject);
 
 		return $rs;
 	}

@@ -507,17 +507,37 @@ class ADODB_db2 extends ADOConnection {
 		if (empty($this->_dropSeqSQL)) return false;
 		return $this->execute(sprintf($this->_dropSeqSQL,$seqname));
 	}
-
-	function selectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false,$secs2cache=0)
+	/**
+	* @param string     $sql
+	* @param int        $offset     Row to start calculations from (1-based)
+	* @param int        $nrows      Number of rows to get
+	* @param array|bool $inputarr   Array of bind variables
+	* @param ADOCacheObject|null $cacheObject Holds the custom cache parameter class	
+	* 
+	* @return ADORecordSet The recordset object
+	*/
+	function selectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false,$cacheObject=null)
 	{
-		$nrows = (integer) $nrows;
+		
+		$nrows = (int)$nrows;
+		$offset = (int)$offset;
+
+		if (is_integer($cacheObject))
+		{
+			/*
+			* Legacy code, $cacheObject used to be the time to live
+			*/
+			$ttl = $cacheObject;
+			$cacheObject = new ADOCacheObject;
+			$cacheObject->ttl = $ttl;
+		}
 
 		if ($offset <= 0)
 		{
 			if ($nrows >= 0)
 				$sql .=  " FETCH FIRST $nrows ROWS ONLY ";
 
-			$rs = $this->execute($sql,$inputArr);
+			$rs = $this->execute($sql,$inputArr,$cacheObject);
 
 		}
 		else
@@ -533,7 +553,7 @@ class ADODB_db2 extends ADOConnection {
 			/*
 			 * DB2 has no native support for mid table offset
 			 */
-			$rs = ADOConnection::selectLimit($sql,$nrows,$offset,$inputArr);
+			$rs = ADOConnection::selectLimit($sql,$nrows,$offset,$inputArr,$cacheObject);
 
 		}
 
