@@ -1159,7 +1159,13 @@ class ADODB_Active_Record
 		if (!$cnt) {
 			return -1;
 		}
-		$sql = 'UPDATE ' . $this->_table . " SET " . implode(",", $pairs) . " WHERE " . $where;
+
+		$sql = sprintf(/** @lang text */ 'UPDATE %s SET %s WHERE %s',
+			$this->_table,
+			implode(',', $pairs),
+			$where
+		);
+
 		$ok = $db->Execute($sql, $valarr);
 		if ($ok) {
 			$this->_original = $neworig;
