@@ -648,11 +648,11 @@ class ADODB_Active_Record
 	// So, I find that for myTable, I want to reload an active record after saving it. -- Malcolm Cook
 	function Reload()
 	{
-		$db =& $this->DB();
+		$db = $this->DB();
 		if (!$db) {
 			return false;
 		}
-		$table =& $this->TableInfo();
+		$table = $this->TableInfo();
 		$where = $this->GenWhere($db, $table);
 		return ($this->Load($where));
 	}
@@ -768,11 +768,9 @@ class ADODB_Active_Record
 					(strncmp($val, "'", 1) != 0 || substr($val, strlen($val) - 1, 1) != "'")
 				) {
 					return $db->qstr($val);
-					break;
 				}
 			default:
 				return $val;
-				break;
 		}
 	}
 
@@ -804,7 +802,8 @@ class ADODB_Active_Record
 
 		$save = $db->SetFetchMode(ADODB_FETCH_NUM);
 		$qry = "select * from " . $this->_table;
-		$table =& $this->TableInfo();
+		$table = $this->TableInfo();
+
 
 		if (($k = reset($table->keys))) {
 			$hasManyId = $k;
@@ -1178,7 +1177,7 @@ class ADODB_Active_Record
 		return array_keys($table->flds);
 	}
 
-};
+}
 
 function adodb_GetActiveRecordsClass(&$db, $class, $tableObj,$whereOrderBy,$bindarr, $primkeyArr,
 			$extra, $relations)

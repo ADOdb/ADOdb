@@ -335,7 +335,7 @@ class ADODB_Active_Record
 	 * @param int $offset
 	 * @param int $limit
 	 *
-	 * @return array
+	 * @return mixed
 	 */
 	function LoadRelations($name, $whereOrderBy = '', $offset = -1, $limit = -1)
 	{
@@ -758,8 +758,8 @@ class ADODB_Active_Record
 				return 'null';
 			}
 
-			if (strlen($val)>0 &&
-				(strncmp($val,"'",1) != 0 || substr($val,strlen($val)-1,1) != "'")
+			if (strlen($val) > 0 &&
+				(strncmp($val, "'", 1) != 0 || substr($val, strlen($val) - 1, 1) != "'")
 			) {
 				return $db->qstr($val);
 			}
@@ -1123,12 +1123,11 @@ class ADODB_Active_Record
 			return -1;
 		}
 
-		$tableName = $this->nameQuoter($db,$this->_table);
-
 		$sql = sprintf(/** @lang text */ 'UPDATE %s SET %s WHERE %s',
-					   $tableName,
-					   implode(',',$pairs),
-					   $where);
+			$this->nameQuoter($db, $this->_table),
+			implode(',', $pairs),
+			$where
+		);
 
 		$ok = $db->Execute($sql, $valarr);
 		if ($ok) {
