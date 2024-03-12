@@ -59,7 +59,8 @@ class ADODB_Active_DB {
 	var $tables;
 }
 
-class ADODB_Active_Table {
+class ADODB_Active_Table
+{
 	var $name; // table name
 	var $flds; // assoc array of adofieldobjs, indexed by fieldname
 	var $keys; // assoc array of primary keys, indexed by fieldname
@@ -79,8 +80,8 @@ function ADODB_SetDatabaseAdapter($db, $index=false)
 {
 	global $_ADODB_ACTIVE_DBS;
 
-	foreach($_ADODB_ACTIVE_DBS as $k => $d) {
-		if($d->db === $db) {
+	foreach ($_ADODB_ACTIVE_DBS as $k => $d) {
+		if ($d->db === $db) {
 			return $k;
 		}
 	}
@@ -95,11 +96,12 @@ function ADODB_SetDatabaseAdapter($db, $index=false)
 
 	$_ADODB_ACTIVE_DBS[$index] = $obj;
 
-	return sizeof($_ADODB_ACTIVE_DBS)-1;
+	return sizeof($_ADODB_ACTIVE_DBS) - 1;
 }
 
 
-class ADODB_Active_Record {
+class ADODB_Active_Record
+{
 	static $_changeNames = true; // dynamically pluralize table names
 
 	/** @var bool|string Allows override of global $ADODB_QUOTE_FIELDNAMES */
@@ -118,9 +120,9 @@ class ADODB_Active_Record {
 
 	var $lockMode = ' for update '; // you might want to change to
 
-	static function UseDefaultValues($bool=null)
+	static function UseDefaultValues($bool = null)
 	{
-	global $ADODB_ACTIVE_DEFVALS;
+		global $ADODB_ACTIVE_DEFVALS;
 		if (isset($bool)) {
 			$ADODB_ACTIVE_DEFVALS = $bool;
 		}
@@ -156,8 +158,7 @@ class ADODB_Active_Record {
 		if (!$table) {
 			if (!empty($this->_table)) {
 				$table = $this->_table;
-			}
-			else $table = $this->_pluralize(get_class($this));
+			} else $table = $this->_pluralize(get_class($this));
 		}
 		$this->foreignName = strtolower(get_class($this)); // CFR: default foreign name
 		if ($db) {
@@ -181,8 +182,8 @@ class ADODB_Active_Record {
 
 	function __wakeup()
 	{
-  		$class = get_class($this);
-  		new $class;
+		$class = get_class($this);
+		new $class;
 	}
 
 	function _pluralize($table)
@@ -193,8 +194,8 @@ class ADODB_Active_Record {
 
 		$ut = strtoupper($table);
 		$len = strlen($table);
-		$lastc = $ut[$len-1];
-		$lastc2 = substr($ut,$len-2);
+		$lastc = $ut[$len - 1];
+		$lastc2 = substr($ut, $len - 2);
 		switch ($lastc) {
 		case 'S':
 		case 'X':
@@ -215,32 +216,31 @@ class ADODB_Active_Record {
 	// Note: There is an assumption here...and it is that the argument's length >= 4
 	function _singularize($tables)
 	{
-
 		if (!ADODB_Active_Record::$_changeNames) {
 			return $tables;
 		}
 
 		$ut = strtoupper($tables);
 		$len = strlen($tables);
-		if($ut[$len-1] != 'S') {
+		if ($ut[$len - 1] != 'S') {
 			return $tables; // I know...forget oxen
 		}
-		if($ut[$len-2] != 'E') {
-			return substr($tables, 0, $len-1);
+		if ($ut[$len - 2] != 'E') {
+			return substr($tables, 0, $len - 1);
 		}
-		switch($ut[$len-3]) {
+		switch ($ut[$len - 3]) {
 			case 'S':
 			case 'X':
-				return substr($tables, 0, $len-2);
+				return substr($tables, 0, $len - 2);
 			case 'I':
 				return substr($tables, 0, $len-3) . 'y';
 			/** @noinspection PhpMissingBreakStatementInspection */
 			case 'H';
-				if($ut[$len-4] == 'C' || $ut[$len-4] == 'S') {
-					return substr($tables, 0, $len-2);
+				if ($ut[$len - 4] == 'C' || $ut[$len - 4] == 'S') {
+					return substr($tables, 0, $len - 2);
 				}
 			default:
-				return substr($tables, 0, $len-1); // ?
+				return substr($tables, 0, $len - 1); // ?
 		}
 	}
 
@@ -252,7 +252,7 @@ class ADODB_Active_Record {
 		$ar->foreignKey = $foreignKey ?: $foreignRef.ADODB_Active_Record::$_foreignSuffix;
 		$table =& $this->TableInfo();
 		$table->_hasMany[$foreignRef] = $ar;
-	#	$this->$foreignRef = $this->_hasMany[$foreignRef]; // WATCHME Removed assignment by ref. to please __get()
+		#	$this->$foreignRef = $this->_hasMany[$foreignRef]; // WATCHME Removed assignment by ref. to please __get()
 	}
 
 	// use when you don't want ADOdb to auto-pluralize tablename
@@ -268,7 +268,7 @@ class ADODB_Active_Record {
 		if (!is_array($tablePKey)) {
 			$tablePKey = array($tablePKey);
 		}
-		$ar = new ADODB_Active_Record($table,$tablePKey);
+		$ar = new ADODB_Active_Record($table, $tablePKey);
 		$ar->hasMany($foreignRef, $foreignKey, $foreignClass);
 	}
 
@@ -282,32 +282,32 @@ class ADODB_Active_Record {
 	}
 
 
-	function belongsTo($foreignRef,$foreignKey=false, $parentKey='', $parentClass = 'ADODB_Active_Record')
+	function belongsTo($foreignRef, $foreignKey = false, $parentKey = '', $parentClass = 'ADODB_Active_Record')
 	{
 		$ar = new $parentClass($this->_pluralize($foreignRef));
 		$ar->foreignName = $foreignRef;
 		$ar->parentKey = $parentKey;
 		$ar->UpdateActiveTable();
-		$ar->foreignKey = $foreignKey ?: $foreignRef.ADODB_Active_Record::$_foreignSuffix;
+		$ar->foreignKey = $foreignKey ?: $foreignRef . ADODB_Active_Record::$_foreignSuffix;
 
 		$table =& $this->TableInfo();
 		$table->_belongsTo[$foreignRef] = $ar;
-	#	$this->$foreignRef = $this->_belongsTo[$foreignRef];
+		#	$this->$foreignRef = $this->_belongsTo[$foreignRef];
 	}
 
-	static function ClassBelongsTo($class, $foreignRef, $foreignKey=false, $parentKey='', $parentClass = 'ADODB_Active_Record')
+	static function ClassBelongsTo($class, $foreignRef, $foreignKey = false, $parentKey = '', $parentClass = 'ADODB_Active_Record')
 	{
 		$ar = new $class();
 		$ar->belongsTo($foreignRef, $foreignKey, $parentKey, $parentClass);
 	}
 
-	static function TableBelongsTo($table, $foreignRef, $foreignKey=false, $parentKey='', $parentClass = 'ADODB_Active_Record')
+	static function TableBelongsTo($table, $foreignRef, $foreignKey = false, $parentKey = '', $parentClass = 'ADODB_Active_Record')
 	{
 		$ar = new ADODB_Active_Record($table);
 		$ar->belongsTo($foreignRef, $foreignKey, $parentKey, $parentClass);
 	}
 
-	static function TableKeyBelongsTo($table, $tablePKey, $foreignRef, $foreignKey=false, $parentKey='', $parentClass = 'ADODB_Active_Record')
+	static function TableKeyBelongsTo($table, $tablePKey, $foreignRef, $foreignKey = false, $parentKey = '', $parentClass = 'ADODB_Active_Record')
 	{
 		if (!is_array($tablePKey)) {
 			$tablePKey = array($tablePKey);
@@ -322,9 +322,9 @@ class ADODB_Active_Record {
 	 *
 	 * @param mixed $name
 	 * @access protected
-	 * @return array
+	 * @return mixed
 	 */
-	 function __get($name)
+	function __get($name)
 	{
 		return $this->LoadRelations($name, '', -1, -1);
 	}
@@ -337,7 +337,7 @@ class ADODB_Active_Record {
 	 *
 	 * @return array
 	 */
-	function LoadRelations($name, $whereOrderBy='', $offset=-1, $limit=-1)
+	function LoadRelations($name, $whereOrderBy = '', $offset = -1, $limit = -1)
 	{
 		$extras = array();
 		$table = $this->TableInfo();
@@ -356,28 +356,26 @@ class ADODB_Active_Record {
 			}
 		}
 
-		if(!empty($table->_belongsTo[$name])) {
+		if (!empty($table->_belongsTo[$name])) {
 			$obj = $table->_belongsTo[$name];
 			$columnName = $obj->foreignKey;
-			if(empty($this->$columnName)) {
+			if (empty($this->$columnName)) {
 				$this->$name = null;
-			}
-			else {
+			} else {
 				if ($obj->parentKey) {
 					$key = $obj->parentKey;
-				}
-				else {
+				} else {
 					$key = reset($table->keys);
 				}
 
-				$arrayOfOne = $obj->Find($key.'='.$this->$columnName.' '.$whereOrderBy,false,false,$extras);
+				$arrayOfOne = $obj->Find($key . '=' . $this->$columnName . ' ' . $whereOrderBy, false, false, $extras);
 				if ($arrayOfOne) {
 					$this->$name = $arrayOfOne[0];
 					return $arrayOfOne[0];
 				}
 			}
 		}
-		if(!empty($table->_hasMany[$name])) {
+		if (!empty($table->_hasMany[$name])) {
 			$obj = $table->_hasMany[$name];
 			$key = reset($table->keys);
 			$id = @$this->$key;
@@ -385,7 +383,7 @@ class ADODB_Active_Record {
 				$db = $this->DB();
 				$id = $db->qstr($id);
 			}
-			$objs = $obj->Find($obj->foreignKey.'='.$id. ' '.$whereOrderBy,false,false,$extras);
+			$objs = $obj->Find($obj->foreignKey . '=' . $id . ' ' . $whereOrderBy, false, false, $extras);
 			if (!$objs) {
 				$objs = array();
 			}
@@ -405,8 +403,8 @@ class ADODB_Active_Record {
 	 */
 	function UpdateActiveTable($pkeys=false, $forceUpdate=false)
 	{
-	global $_ADODB_ACTIVE_DBS , $ADODB_CACHE_DIR, $ADODB_ACTIVE_CACHESECS;
-	global $ADODB_ACTIVE_DEFVALS,$ADODB_FETCH_MODE;
+		global $_ADODB_ACTIVE_DBS, $ADODB_CACHE_DIR, $ADODB_ACTIVE_CACHESECS;
+		global $ADODB_ACTIVE_DEFVALS, $ADODB_FETCH_MODE;
 
 		$activedb = $_ADODB_ACTIVE_DBS[$this->_dbat];
 
@@ -416,32 +414,30 @@ class ADODB_Active_Record {
 		if (!$forceUpdate && !empty($tables[$tableat])) {
 
 			$acttab = $tables[$tableat];
-			foreach($acttab->flds as $name => $fld) {
+			foreach ($acttab->flds as $name => $fld) {
 				if ($ADODB_ACTIVE_DEFVALS && isset($fld->default_value)) {
 					$this->$name = $fld->default_value;
-				}
-				else {
+				} else {
 					$this->$name = null;
 				}
 			}
 			return;
 		}
 		$db = $activedb->db;
-		$fname = $ADODB_CACHE_DIR . '/adodb_' . $db->databaseType . '_active_'. $table . '.cache';
+		$fname = $ADODB_CACHE_DIR . '/adodb_' . $db->databaseType . '_active_' . $table . '.cache';
 		if (!$forceUpdate && $ADODB_ACTIVE_CACHESECS && $ADODB_CACHE_DIR && file_exists($fname)) {
-			$fp = fopen($fname,'r');
+			$fp = fopen($fname, 'r');
 			@flock($fp, LOCK_SH);
-			$acttab = unserialize(fread($fp,100000));
+			$acttab = unserialize(fread($fp, 100000));
 			fclose($fp);
 			if ($acttab->_created + $ADODB_ACTIVE_CACHESECS - (abs(rand()) % 16) > time()) {
 				// abs(rand()) randomizes deletion, reducing contention to delete/refresh file
 				// ideally, you should cache at least 32 secs
 
-				foreach($acttab->flds as $name => $fld) {
+				foreach ($acttab->flds as $name => $fld) {
 					if ($ADODB_ACTIVE_DEFVALS && isset($fld->default_value)) {
 						$this->$name = $fld->default_value;
-					}
-					else {
+					} else {
 						$this->$name = null;
 					}
 				}
@@ -449,7 +445,7 @@ class ADODB_Active_Record {
 				$activedb->tables[$table] = $acttab;
 
 				//if ($db->debug) ADOConnection::outp("Reading cached active record file: $fname");
-			  	return;
+				return;
 			} else if ($db->debug) {
 				ADOConnection::outp("Refreshing cached active record file: $fname");
 			}
@@ -471,14 +467,14 @@ class ADODB_Active_Record {
 		$ADODB_FETCH_MODE = $save;
 
 		if (!$cols) {
-			$this->Error("Invalid table name: $table",'UpdateActiveTable');
+			$this->Error("Invalid table name: $table", 'UpdateActiveTable');
 			return false;
 		}
 		$fld = reset($cols);
 		if (!$pkeys) {
 			if (isset($fld->primary_key)) {
 				$pkeys = array();
-				foreach($cols as $name => $fld) {
+				foreach ($cols as $name => $fld) {
 					if (!empty($fld->primary_key)) {
 						$pkeys[] = $name;
 					}
@@ -487,7 +483,7 @@ class ADODB_Active_Record {
 				$pkeys = $this->GetPrimaryKeys($db, $table);
 		}
 		if (empty($pkeys)) {
-			$this->Error("No primary key found for table $table",'UpdateActiveTable');
+			$this->Error("No primary key found for table $table", 'UpdateActiveTable');
 			return false;
 		}
 
@@ -495,55 +491,52 @@ class ADODB_Active_Record {
 		$keys = array();
 
 		switch (ADODB_ASSOC_CASE) {
-		case ADODB_ASSOC_CASE_LOWER:
-			foreach($cols as $name => $fldobj) {
-				$name = strtolower($name);
-				if ($ADODB_ACTIVE_DEFVALS && isset($fldobj->default_value)) {
-					$this->$name = $fldobj->default_value;
+			case ADODB_ASSOC_CASE_LOWER:
+				foreach ($cols as $name => $fldobj) {
+					$name = strtolower($name);
+					if ($ADODB_ACTIVE_DEFVALS && isset($fldobj->default_value)) {
+						$this->$name = $fldobj->default_value;
+					} else {
+						$this->$name = null;
+					}
+					$attr[$name] = $fldobj;
 				}
-				else {
-					$this->$name = null;
+				foreach ($pkeys as $k => $name) {
+					$keys[strtolower($name)] = strtolower($name);
 				}
-				$attr[$name] = $fldobj;
-			}
-			foreach($pkeys as $k => $name) {
-				$keys[strtolower($name)] = strtolower($name);
-			}
-			break;
+				break;
 
-		case ADODB_ASSOC_CASE_UPPER:
-			foreach($cols as $name => $fldobj) {
-				$name = strtoupper($name);
+			case ADODB_ASSOC_CASE_UPPER:
+				foreach ($cols as $name => $fldobj) {
+					$name = strtoupper($name);
 
-				if ($ADODB_ACTIVE_DEFVALS && isset($fldobj->default_value)) {
-					$this->$name = $fldobj->default_value;
+					if ($ADODB_ACTIVE_DEFVALS && isset($fldobj->default_value)) {
+						$this->$name = $fldobj->default_value;
+					} else {
+						$this->$name = null;
+					}
+					$attr[$name] = $fldobj;
 				}
-				else {
-					$this->$name = null;
-				}
-				$attr[$name] = $fldobj;
-			}
 
-			foreach($pkeys as $k => $name) {
-				$keys[strtoupper($name)] = strtoupper($name);
-			}
-			break;
-		default:
-			foreach($cols as $fldobj) {
-				$name = $fldobj->name;
+				foreach ($pkeys as $k => $name) {
+					$keys[strtoupper($name)] = strtoupper($name);
+				}
+				break;
+			default:
+				foreach ($cols as $fldobj) {
+					$name = $fldobj->name;
 
-				if ($ADODB_ACTIVE_DEFVALS && isset($fldobj->default_value)) {
-					$this->$name = $fldobj->default_value;
+					if ($ADODB_ACTIVE_DEFVALS && isset($fldobj->default_value)) {
+						$this->$name = $fldobj->default_value;
+					} else {
+						$this->$name = null;
+					}
+					$attr[$name] = $fldobj;
 				}
-				else {
-					$this->$name = null;
+				foreach ($pkeys as $k => $name) {
+					$keys[$name] = $cols[strtoupper($name)]->name;
 				}
-				$attr[$name] = $fldobj;
-			}
-			foreach($pkeys as $k => $name) {
-				$keys[$name] = $cols[strtoupper($name)]->name;
-			}
-			break;
+				break;
 		}
 
 		$activetab->keys = $keys;
@@ -553,9 +546,9 @@ class ADODB_Active_Record {
 			$activetab->_created = time();
 			$s = serialize($activetab);
 			if (!function_exists('adodb_write_file')) {
-				include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
+				include_once(ADODB_DIR . '/adodb-csvlib.inc.php');
 			}
-			adodb_write_file($fname,$s);
+			adodb_write_file($fname, $s);
 		}
 		if (isset($activedb->tables[$table])) {
 			$oldtab = $activedb->tables[$table];
@@ -574,17 +567,16 @@ class ADODB_Active_Record {
 	}
 
 	// error handler for both PHP4+5.
-	function Error($err,$fn)
+	function Error($err, $fn)
 	{
-	global $_ADODB_ACTIVE_DBS;
+		global $_ADODB_ACTIVE_DBS;
 
-		$fn = get_class($this).'::'.$fn;
-		$this->_lasterr = $fn.': '.$err;
+		$fn = get_class($this) . '::' . $fn;
+		$this->_lasterr = $fn . ': ' . $err;
 
 		if ($this->_dbat < 0) {
 			$db = false;
-		}
-		else {
+		} else {
 			$activedb = $_ADODB_ACTIVE_DBS[$this->_dbat];
 			$db = $activedb->db;
 		}
@@ -592,8 +584,7 @@ class ADODB_Active_Record {
 		if (function_exists('adodb_throw')) {
 			if (!$db) {
 				adodb_throw('ADOdb_Active_Record', $fn, -1, $err, 0, 0, false);
-			}
-			else {
+			} else {
 				adodb_throw($db->databaseType, $fn, -1, $err, 0, 0, $db);
 			}
 		} else {
@@ -610,8 +601,7 @@ class ADODB_Active_Record {
 		if (!function_exists('adodb_throw')) {
 			if ($this->_dbat < 0) {
 				$db = false;
-			}
-			else {
+			} else {
 				$db = $this->DB();
 			}
 
@@ -641,7 +631,7 @@ class ADODB_Active_Record {
 	 */
 	function DB()
 	{
-	global $_ADODB_ACTIVE_DBS;
+		global $_ADODB_ACTIVE_DBS;
 
 		if ($this->_dbat < 0) {
 			$this->Error("No database connection set: use ADOdb_Active_Record::SetDatabaseAdaptor(\$db)", "DB");
@@ -674,14 +664,14 @@ class ADODB_Active_Record {
 		}
 		$table = $this->TableInfo();
 		$where = $this->GenWhere($db, $table);
-		return($this->Load($where));
+		return ($this->Load($where));
 	}
 
 
 	// set a numeric array (using natural table field ordering) as object properties
 	function Set($row)
 	{
-	global $ACTIVE_RECORD_SAFETY;
+		global $ACTIVE_RECORD_SAFETY;
 
 		if (!$row) {
 			$this->_saved = false;
@@ -702,18 +692,17 @@ class ADODB_Active_Record {
 				}
 			}
 			if ($bad_size) {
-			$this->Error("Table structure of $this->_table has changed","Load");
-			return false;
-		}
+				$this->Error("Table structure of $this->_table has changed", "Load");
+				return false;
+			}
 			# </AP>
-		}
-		else
+		} else
 			$keys = array_keys($row);
 
 		# <AP>
 		reset($keys);
 		$this->_original = array();
-		foreach($table->flds as $name=>$fld) {
+		foreach ($table->flds as $name => $fld) {
 			$value = $row[current($keys)];
 			$this->$name = $value;
 			$this->_original[] = $value;
@@ -728,9 +717,8 @@ class ADODB_Active_Record {
 	function LastInsertID($db, $fieldname)
 	{
 		if ($db->hasInsertID) {
-			$val = $db->Insert_ID($this->_table,$fieldname);
-		}
-		else {
+			$val = $db->Insert_ID($this->_table, $fieldname);
+		} else {
 			$val = false;
 		}
 
@@ -793,18 +781,18 @@ class ADODB_Active_Record {
 		$keys = $table->keys;
 		$parr = array();
 
-		foreach($keys as $k) {
+		foreach ($keys as $k) {
 			$f = $table->flds[$k];
 			if ($f) {
-				$columnName = $this->nameQuoter($db,$k);
-				$parr[] = $columnName.' = '.$this->doquote($db,$this->$k,$db->MetaType($f->type));
+				$columnName = $this->nameQuoter($db, $k);
+				$parr[] = $columnName . ' = ' . $this->doquote($db, $this->$k, $db->MetaType($f->type));
 			}
 		}
 		return implode(' AND ', $parr);
 	}
 
 
-	function _QName($n,$db=false)
+	function _QName($n, $db = false)
 	{
 		if (!$this->_quoteNames) {
 			return $n;
@@ -815,12 +803,12 @@ class ADODB_Active_Record {
 				return false;
 			}
 		}
-		return $db->nameQuote.$n.$db->nameQuote;
+		return $db->nameQuote . $n . $db->nameQuote;
 	}
 
 	//------------------------------------------------------------ Public functions below
 
-	function Load($where=null,$bindarr=false, $lock = false)
+	function Load($where = null, $bindarr = false, $lock = false)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -840,14 +828,14 @@ class ADODB_Active_Record {
 					   $this->nameQuoter($db,$this->_table)
 					   );
 
-		if($where) {
-			$qry .= ' WHERE '.$where;
+		if ($where) {
+			$qry .= ' WHERE ' . $where;
 		}
 		if ($lock) {
 			$qry .= $this->lockMode;
 		}
 
-		$row = $db->GetRow($qry,$bindarr);
+		$row = $db->GetRow($qry, $bindarr);
 
 		if (isset($savem)) {
 			$db->SetFetchMode($savem);
@@ -857,26 +845,26 @@ class ADODB_Active_Record {
 		return $this->Set($row);
 	}
 
-	function LoadLocked($where=null, $bindarr=false)
+	function LoadLocked($where = null, $bindarr = false)
 	{
-		$this->Load($where,$bindarr,true);
+		$this->Load($where, $bindarr, true);
 	}
 
 	# useful for multiple record inserts
 	# see PHPLens Issue No: 17795
 	function Reset()
 	{
-		$this->_where=null;
+		$this->_where = null;
 		$this->_saved = false;
 		$this->_lasterr = false;
 		$this->_original = false;
-		$vars=get_object_vars($this);
-		foreach($vars as $k=>$v){
-			if(substr($k,0,1)!=='_'){
-				$this->{$k}=null;
+		$vars = get_object_vars($this);
+		foreach ($vars as $k => $v) {
+			if (substr($k, 0, 1) !== '_') {
+				$this->{$k} = null;
 			}
 		}
-		$this->foreignName=strtolower(get_class($this));
+		$this->foreignName = strtolower(get_class($this));
 		return true;
 	}
 
@@ -885,8 +873,7 @@ class ADODB_Active_Record {
 	{
 		if ($this->_saved) {
 			$ok = $this->Update();
-		}
-		else {
+		} else {
 			$ok = $this->Insert();
 		}
 
@@ -908,20 +895,20 @@ class ADODB_Active_Record {
 		$names = array();
 		$valstr = array();
 
-		foreach($table->flds as $name=>$fld) {
+		foreach ($table->flds as $name => $fld) {
 			$val = $this->$name;
 			if(!is_array($val) || !array_key_exists($name, $table->keys)) {
 				$valarr[] = $val;
-				$names[] = $this->nameQuoter($db,$name);
+				$names[] = $this->nameQuoter($db, $name);
 				$valstr[] = $db->Param($cnt);
 				$cnt += 1;
 			}
 		}
 
-		if (empty($names)){
-			foreach($table->flds as $name=>$fld) {
+		if (empty($names)) {
+			foreach ($table->flds as $name => $fld) {
 				$valarr[] = null;
-				$names[] = $this->nameQuoter($db,$name);
+				$names[] = $this->nameQuoter($db, $name);
 				$valstr[] = $db->Param($cnt);
 				$cnt += 1;
 			}
@@ -938,7 +925,7 @@ class ADODB_Active_Record {
 		if ($ok) {
 			$this->_saved = true;
 			$autoinc = false;
-			foreach($table->keys as $k) {
+			foreach ($table->keys as $k) {
 				if (is_null($this->$k)) {
 					$autoinc = true;
 					break;
@@ -946,7 +933,7 @@ class ADODB_Active_Record {
 			}
 			if ($autoinc && sizeof($table->keys) == 1) {
 				$k = reset($table->keys);
-				$this->$k = $this->LastInsertID($db,$k);
+				$this->$k = $this->LastInsertID($db, $k);
 			}
 		}
 
@@ -961,6 +948,10 @@ class ADODB_Active_Record {
 			return false;
 		}
 		$table = $this->TableInfo();
+
+		$where = $this->GenWhere($db, $table);
+
+		$tableName = $this->nameQuoter($db, $this->_table);
 
 		$where = $this->GenWhere($db,$table);
 
@@ -977,7 +968,7 @@ class ADODB_Active_Record {
 	}
 
 	// returns an array of active record objects
-	function Find($whereOrderBy,$bindarr=false,$pkeysArr=false,$extra=array())
+	function Find($whereOrderBy, $bindarr = false, $pkeysArr = false, $extra = array())
 	{
 		$db = $this->DB();
 		if (!$db || empty($this->_table)) {
@@ -999,7 +990,7 @@ class ADODB_Active_Record {
 
 		$pkey = $table->keys;
 
-		foreach($table->flds as $name=>$fld) {
+		foreach ($table->flds as $name => $fld) {
 			$val = $this->$name;
 			/*
 			if (is_null($val)) {
@@ -1022,7 +1013,7 @@ class ADODB_Active_Record {
 			}
 
 			$t = $db->MetaType($fld->type);
-			$arr[$name] = $this->doquote($db,$val,$t);
+			$arr[$name] = $this->doquote($db, $val, $t);
 			$valarr[] = $val;
 		}
 
@@ -1044,23 +1035,23 @@ class ADODB_Active_Record {
 		}
 
 		$newArr = array();
-		foreach($arr as $k=>$v)
-			$newArr[$this->nameQuoter($db,$k)] = $v;
+		foreach ($arr as $k => $v)
+			$newArr[$this->nameQuoter($db, $k)] = $v;
 		$arr = $newArr;
 
 		$newPkey = array();
-		foreach($pkey as $k=>$v)
-			$newPkey[$k] = $this->nameQuoter($db,$v);
+		foreach ($pkey as $k => $v)
+			$newPkey[$k] = $this->nameQuoter($db, $v);
 		$pkey = $newPkey;
 
-		$tableName = $this->nameQuoter($db,$this->_table);
+		$tableName = $this->nameQuoter($db, $this->_table);
 
-		$ok = $db->Replace($tableName,$arr,$pkey);
+		$ok = $db->Replace($tableName, $arr, $pkey);
 		if ($ok) {
 			$this->_saved = true; // 1= update 2=insert
 			if ($ok == 2) {
 				$autoinc = false;
-				foreach($table->keys as $k) {
+				foreach ($table->keys as $k) {
 					if (is_null($this->$k)) {
 						$autoinc = true;
 						break;
@@ -1068,7 +1059,7 @@ class ADODB_Active_Record {
 				}
 				if ($autoinc && sizeof($table->keys) == 1) {
 					$k = reset($table->keys);
-					$this->$k = $this->LastInsertID($db,$k);
+					$this->$k = $this->LastInsertID($db, $k);
 				}
 			}
 
@@ -1099,7 +1090,7 @@ class ADODB_Active_Record {
 		$pairs = array();
 		$i = 0;
 		$cnt = 0;
-		foreach($table->flds as $name=>$fld) {
+		foreach ($table->flds as $name => $fld) {
 			$orig = $this->_original[$i++] ?? null;
 			$val = $this->$name;
 			$neworig[] = $val;
@@ -1112,9 +1103,8 @@ class ADODB_Active_Record {
 				if (isset($fld->not_null) && $fld->not_null) {
 					if (isset($fld->default_value) && strlen($fld->default_value)) {
 						continue;
-					}
-					else {
-						$this->Error("Cannot set field $name to NULL","Update");
+					} else {
+						$this->Error("Cannot set field $name to NULL", "Update");
 						return false;
 					}
 				}
@@ -1125,10 +1115,9 @@ class ADODB_Active_Record {
 			}
 
 			$valarr[] = $val;
-			$pairs[] = $this->nameQuoter($db,$name).'='.$db->Param($cnt);
+			$pairs[] = $this->nameQuoter($db, $name) . '=' . $db->Param($cnt);
 			$cnt += 1;
 		}
-
 
 		if (!$cnt) {
 			return -1;
@@ -1141,7 +1130,7 @@ class ADODB_Active_Record {
 					   implode(',',$pairs),
 					   $where);
 
-		$ok = $db->Execute($sql,$valarr);
+		$ok = $db->Execute($sql, $valarr);
 		if ($ok) {
 			$this->_original = $neworig;
 			return 1;
@@ -1164,8 +1153,8 @@ class ADODB_Active_Record {
 	 * This honours the internal {@see $_quoteNames} property, which overrides
 	 * the global $ADODB_QUOTE_FIELDNAMES directive.
 	 *
-	 * @param ADOConnection $db   The database connection
-	 * @param string        $name The table or column name to quote
+	 * @param ADOConnection $db The database connection
+	 * @param string $name The table or column name to quote
 	 *
 	 * @return string The quoted name
 	 */
