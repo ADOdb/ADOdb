@@ -78,6 +78,13 @@ class ADODB_mysqli extends ADOConnection {
 	var $ssl_capath = null;
 	var $ssl_cipher = null;
 
+	/**
+     * When set to true - ADODb will not use bound variables provided by the database driver and, instead, will use built-in string interpolation and argument quoting from the parent class.
+	 * Setting it to true is needed for some database engines that use mysql wire-protocol but don't support prepared statements like Manticore Search or ClickHouse.
+     * This is strongly discouraged for code handling untrusted input - see https://github.com/ADOdb/ADOdb/issues/1028#issuecomment-2081586024
+     */
+	var $doNotUseBoundVariables = false;
+
 	/** @var mysqli Identifier for the native database connection */
 	var $_connectionID = false;
 
@@ -1087,6 +1094,10 @@ class ADODB_mysqli extends ADOConnection {
 
 	public function execute($sql, $inputarr = false)
 	{
+
+		if ($this->doNotUseBoundVariables)              
+			return parent::execute($sql, $inputarr);
+		
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
 			$ret = $fn($this, $sql, $inputarr);
