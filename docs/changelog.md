@@ -60,12 +60,23 @@ Older changelogs:
 
 ## [5.22.8] - Unreleased
 
+### Added
+
+- mysql: allow forcing use of emulated prepared statements
+  [#1028](https://github.com/ADOdb/ADOdb/issues/1028)
+  
 ### Fixed
 
 - Backtrace output is not channeled through ADODB_OUTP
   [#1018](https://github.com/ADOdb/ADOdb/issues/1018)
+- PHP 8 compatibility
+  [#1021](https://github.com/ADOdb/ADOdb/issues/1021)
+- Fix getAssoc() with ADODB_FETCH_DEFAULT mode
+  [#1023](https://github.com/ADOdb/ADOdb/issues/1023)
 - mysql: catch getAssoc() execution error in metaColumns()
   [#1016](https://github.com/ADOdb/ADOdb/issues/1016)
+- ldap: PHP 8.2 error when $LDAP_CONNECT_OPTIONS not set
+  [#1009](https://github.com/ADOdb/ADOdb/issues/1009)
 
 
 ## [5.22.7] - 2023-11-04

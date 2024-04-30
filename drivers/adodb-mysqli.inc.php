@@ -78,6 +78,25 @@ class ADODB_mysqli extends ADOConnection {
 	var $ssl_capath = null;
 	var $ssl_cipher = null;
 
+	/**
+	 * Forcing emulated prepared statements.
+	 *
+	 * When set to true, ADODb will not execute queries using MySQLi native
+	 * bound variables, and will instead use the built-in string interpolation
+	 * and argument quoting from the parent class {@see ADOConnection::Execute()}.
+	 *
+	 * This is needed for some database engines that use mysql wire-protocol but
+	 * do not support prepared statements, like
+	 * {@see https://manticoresearch.com/ Manticore Search} or
+	 * {@see https://clickhouse.com/ ClickHouse}.
+	 *
+	 * WARNING: This is a potential security risk, and strongly discouraged for code
+	 * handling untrusted input {@see https://github.com/ADOdb/ADOdb/issues/1028#issuecomment-2081586024}.
+	 *
+	 * @var bool $doNotUseBoundVariables
+	 */
+	var $doNotUseBoundVariables = false;
+
 	/** @var mysqli Identifier for the native database connection */
 	var $_connectionID = false;
 
@@ -1087,6 +1106,10 @@ class ADODB_mysqli extends ADOConnection {
 
 	public function execute($sql, $inputarr = false)
 	{
+		if ($this->doNotUseBoundVariables) {
+			return parent::execute($sql, $inputarr);
+		}
+
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
 			$ret = $fn($this, $sql, $inputarr);
