@@ -1044,12 +1044,15 @@ class ADODB_DataDict {
 			return $this->createTableSQL($tablename, $flds, $tableoptions);
 		}
 
+		$sql = [];
 		if (is_array($flds)) {
 		// Cycle through the update fields, comparing
 		// existing fields to fields to update.
 		// if the Metatype and size is exactly the
 		// same, ignore - by Mark Newham
 			$holdflds = array();
+			$fields_to_add = [];
+			$fields_to_alter = [];
 			foreach($flds as $k=>$v) {
 				if ( isset($cols[$k]) && is_object($cols[$k]) ) {
 					// If already not allowing nulls, then don't change
@@ -1081,12 +1084,12 @@ class ADODB_DataDict {
 				}
 			}
 			$flds = $holdflds;
-		}
 
-		$sql = array_merge(
-			$this->addColumnSQL($tablename, $fields_to_add),
-			$this->alterColumnSql($tablename, $fields_to_alter)
-		);
+			$sql = array_merge(
+				$this->addColumnSQL($tablename, $fields_to_add),
+				$this->alterColumnSql($tablename, $fields_to_alter)
+			);
+		}
 
 		if ($dropOldFlds) {
 			foreach ($cols as $id => $v) {
