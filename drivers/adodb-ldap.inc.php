@@ -42,12 +42,6 @@ class ADODB_ldap extends ADOConnection
 	protected $version;
 
 	/**
-	 * @var string Options configuration information
-	 * @deprecated 5.23.0 Use setConnectionParameter() instead
-	 */
-	public $LDAP_CONNECT_OPTIONS;
-
-	/**
 	 * @var string Bind error message, eg. "Binding: invalid credentials"
 	 */
 	protected $_bind_errmsg = "Binding: %s";
@@ -66,7 +60,7 @@ class ADODB_ldap extends ADOConnection
 	 * @param string|null $password The password to connect with.
 	 * @param string|null $ldapbase The Base DN
 	 *
-	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
+	 * @return bool|null True if connected successfully, false if connection failed, or null if the ldap extension
 	 * isn't currently loaded.
 	 */
 	public function _connect($ldapServer, $username, $password, $ldapbase)
@@ -98,6 +92,7 @@ class ADODB_ldap extends ADOConnection
 
 		if(!empty($LDAP_CONNECT_OPTIONS) && is_array($LDAP_CONNECT_OPTIONS)) {
 			// Convert options to connectionParameters()
+			trigger_error('$LDAP_CONNECT_OPTIONS is deprecated, use setConnectionParameter() instead', E_USER_DEPRECATED);	
 			$this->_inject_bind_options($LDAP_CONNECT_OPTIONS);
 		}
 
@@ -247,10 +242,11 @@ class ADODB_ldap extends ADOConnection
 	}
 
 	/**
-	 * Switches the baseDN to a new value
-	 *
-	 * @param string $baseDN
-	 * @return void
+	 * Switches the baseDN to a new value. Just like _connect(),
+	 * its impossible to determine if the parameter is correct 
+	 * until you issue a query
+	 *  
+	 * @return bool true
 	 * @noinspection PhpParameterNameChangedDuringInheritanceInspection
 	 */
 	public function selectDB($baseDN)
