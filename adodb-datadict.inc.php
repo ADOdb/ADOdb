@@ -510,10 +510,12 @@ class ADODB_DataDict {
 	 *
 	 * As some DBMs can't do that on their own, you need to supply the complete definition of the new table,
 	 * to allow recreating the table and copying the content over to the new table
-	 * @param string $tabname table-name
-	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds='' complete definition of the new table, eg. for postgres, default ''
+	 *
+	 * @param string       $tabname table-name
+	 * @param array|string $flds column-name and type for the changed column
+	 * @param string       $tableflds='' complete definition of the new table, eg. for postgres, default ''
 	 * @param array|string $tableoptions='' options for the new table see createTableSQL, default ''
+	 *
 	 * @return array with SQL strings
 	 */
 	function alterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
