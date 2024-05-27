@@ -170,12 +170,17 @@ class ADODB_db2 extends ADOConnection {
 					$db2Options[$k] = $v;
 		}
 
+		$schema = '';
 		if ($useCataloguedConnection)
+		{
 			$this->_connectionID = $db2Function($argDatabasename,
 												$argUsername,
 												$argPassword,
 												$db2Options);
+			$schema = $argDatabasename;
+		}
 		else
+		
 			$this->_connectionID = $db2Function($argDSN,
 												'',
 												'',
@@ -187,6 +192,9 @@ class ADODB_db2 extends ADOConnection {
 		if ($this->_connectionID && $this->connectStmt)
 			$this->execute($this->connectStmt);
 
+		if ($this->_connectionID && $schema)
+			$this->execute("SET SCHEMA=$schema");
+		
 		return $this->_connectionID != false;
 
 	}
