@@ -133,7 +133,9 @@ class ADODB_db2 extends ADOConnection {
 		if ($this->debug){
 			if (strcmp($argDSN,'*LOCAL') == 0)
 			{
-				$connectMessage = '*LOCAL connection'; 
+				$connectMessage = '*LOCAL connection';
+				$schema = $argDatabasename;
+				$argDatabasename = '';
 			}
 			else if ($useCataloguedConnection)
 			{
@@ -226,13 +228,9 @@ class ADODB_db2 extends ADOConnection {
 		*/
 		if (strcmp($argDSN,'*LOCAL') == 0)
 		{
-			$connectionParameters = array(
-				'dsn'=>'*LOCAL',
-				'uid'=>'',
-				'pwd'=>'',
-				'database'=>'',
-				'catalogue'=>true
-			);
+			$connectionParameters['dsn']      = $argDSN;
+			$connectionParameters['database'] = $argDatabasename;
+			
 			return $connectionParameters;
 		}
 
