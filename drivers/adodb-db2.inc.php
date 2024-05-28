@@ -148,11 +148,7 @@ class ADODB_db2 extends ADOConnection {
 			}
 			ADOConnection::outp($connectMessage);
 		}
-		if (strcmp($argDSN,'*LOCAL') == 0)
-		{
-			$schema = $argDatabasename;
-			$argDatabasename = '';
-		}
+
 		/*
 		 * This needs to be set before the connect().
 		 */
@@ -175,14 +171,12 @@ class ADODB_db2 extends ADOConnection {
 					$db2Options[$k] = $v;
 		}
 
-		$schema = '';
 		if ($useCataloguedConnection)
 		{
 			$this->_connectionID = $db2Function($argDatabasename,
 												$argUsername,
 												$argPassword,
 												$db2Options);
-			$schema = $argDatabasename;
 		}
 		else
 		
@@ -197,8 +191,8 @@ class ADODB_db2 extends ADOConnection {
 		if ($this->_connectionID && $this->connectStmt)
 			$this->execute($this->connectStmt);
 
-		if ($this->_connectionID && $schema)
-			$this->execute("SET SCHEMA=$schema");
+		if ($this->_connectionID && $argDatabasename)
+			$this->execute("SET SCHEMA=$argDatabasename");
 		
 		return $this->_connectionID != false;
 
@@ -233,6 +227,7 @@ class ADODB_db2 extends ADOConnection {
 		{
 			$connectionParameters['dsn']      = $argDSN;
 			$connectionParameters['database'] = $argDatabasename;
+			$connectionParameters['catalogue'] = false;
 			
 			return $connectionParameters;
 		}
