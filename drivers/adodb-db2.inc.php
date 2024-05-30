@@ -134,8 +134,6 @@ class ADODB_db2 extends ADOConnection {
 			if (strcmp($argDSN,'*LOCAL') == 0)
 			{
 				$connectMessage = '*LOCAL connection';
-				$schema = $argDatabasename;
-				$argDatabasename = '';
 			}
 			else if ($useCataloguedConnection)
 			{
@@ -149,6 +147,11 @@ class ADODB_db2 extends ADOConnection {
 				$connectMessage = "Uncatalogued connection using DSN: $argDSN";
 			}
 			ADOConnection::outp($connectMessage);
+		}
+		if (strcmp($argDSN,'*LOCAL') == 0)
+		{
+			$schema = $argDatabasename;
+			$argDatabasename = '';
 		}
 		/*
 		 * This needs to be set before the connect().
