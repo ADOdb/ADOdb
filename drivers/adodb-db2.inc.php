@@ -109,10 +109,12 @@ class ADODB_db2 extends ADOConnection {
 			return null;
 		}
 
-		$connectionParameters = $this->unpackParameters($argDSN,
-														$argUsername,
-														$argPassword,
-														$argDatabasename);
+		$connectionParameters = $this->unpackParameters(
+			$argDSN,
+			$argUsername,
+			$argPassword,
+			$argDatabasename
+		);
 
 		if ($connectionParameters == null)
 		{
@@ -129,7 +131,12 @@ class ADODB_db2 extends ADOConnection {
 		$useCataloguedConnection = $connectionParameters['catalogue'];
 
 		if ($this->debug){
-			if ($useCataloguedConnection){
+			if (strcmp($argDSN,'*LOCAL') == 0)
+			{
+				$connectMessage = '*LOCAL connection';
+			}
+			else if ($useCataloguedConnection)
+			{
 				$connectMessage = "Catalogued connection using parameters: ";
 				$connectMessage .= "DB=$argDatabasename / ";
 				$connectMessage .= "UID=$argUsername / ";
@@ -140,6 +147,11 @@ class ADODB_db2 extends ADOConnection {
 				$connectMessage = "Uncatalogued connection using DSN: $argDSN";
 			}
 			ADOConnection::outp($connectMessage);
+		}
+		if (strcmp($argDSN,'*LOCAL') == 0)
+		{
+			$schema = $argDatabasename;
+			$argDatabasename = '';
 		}
 		/*
 		 * This needs to be set before the connect().
@@ -163,15 +175,20 @@ class ADODB_db2 extends ADOConnection {
 					$db2Options[$k] = $v;
 		}
 
+		$schema = '';
 		if ($useCataloguedConnection)
+		{
 			$this->_connectionID = $db2Function($argDatabasename,
 												$argUsername,
 												$argPassword,
 												$db2Options);
+			$schema = $argDatabasename;
+		}
 		else
+		
 			$this->_connectionID = $db2Function($argDSN,
-												null,
-												null,
+												'',
+												'',
 												$db2Options);
 
 
@@ -180,6 +197,9 @@ class ADODB_db2 extends ADOConnection {
 		if ($this->_connectionID && $this->connectStmt)
 			$this->execute($this->connectStmt);
 
+		if ($this->_connectionID && $schema)
+			$this->execute("SET SCHEMA=$schema");
+		
 		return $this->_connectionID != false;
 
 	}
@@ -198,12 +218,24 @@ class ADODB_db2 extends ADOConnection {
 	{
 
 
-		$connectionParameters = array('dsn'=>'',
-									  'uid'=>'',
-									  'pwd'=>'',
-									  'database'=>'',
-									  'catalogue'=>true
-									  );
+		$connectionParameters = array(
+			'dsn'=>'',
+			'uid'=>'',
+			'pwd'=>'',
+			'database'=>'',
+			'catalogue'=>true
+		);
+
+		/*
+		* Shortcut for *LOCAL
+		*/
+		if (strcmp($argDSN,'*LOCAL') == 0)
+		{
+			$connectionParameters['dsn']      = $argDSN;
+			$connectionParameters['database'] = $argDatabasename;
+			
+			return $connectionParameters;
+		}
 
 		/*
 		 * Uou can either connect to a catalogued connection
