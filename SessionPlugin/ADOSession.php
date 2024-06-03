@@ -9,8 +9,8 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\session;
-use ADOdb\addins\logger;
+namespace ADOdb\SessionPlugin;
+use ADOdb\LoggingPlugin;
 
 class ADOSession implements \SessionHandlerInterface{
 
@@ -157,7 +157,7 @@ class ADOSession implements \SessionHandlerInterface{
 		if (is_object($sessionDefinition->loggingObject))
 			$this->loggingObject = $sessionDefinition->loggingObject;
 		else
-			$this->loggingObject = new \ADOdb\addins\logger\ADOlogger;
+			$this->loggingObject = new \ADOdb\LoggingPlugin\ADOlogger;
 
 		if (!is_object($connection))
 		{
@@ -275,7 +275,7 @@ class ADOSession implements \SessionHandlerInterface{
 		* If no session definition is passed, build a default set
 		*/
 		if (!$sessionDefinition)
-			$sessionDefinition = new \ADOdb\addins\session\ADOSessionDefinitions;
+			$sessionDefinition = new \ADOdb\SessionPlugin\ADOSessionDefinitions;
 
 		/*
 		* Load the session, against an existing connection.

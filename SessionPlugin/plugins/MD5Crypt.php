@@ -9,10 +9,10 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\session\plugins;
-use \ADOdb\addins\session;
+namespace ADOdb\SessionPlugin\plugins;
+use \ADOdb\SessionPlugin;
 
-class MD5Crypt extends \ADOdb\addins\session\plugins\ADOCrypt{
+class MD5Crypt extends \ADOdb\SessionPlugin\plugins\ADOCrypt{
 
 	/**
 	* Fetches the encryption key for the scheme

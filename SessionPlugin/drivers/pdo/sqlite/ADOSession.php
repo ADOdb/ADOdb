@@ -9,9 +9,9 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\session\drivers\pdo\sqlite;
+namespace ADOdb\SessionPlugin\drivers\pdo\sqlite;
 
-use \ADOdb\addins\session;
-use \ADOdb\addins\session\drivers;
+use \ADOdb\SessionPlugin;
+use \ADOdb\SessionPlugin\drivers;
 
-final class ADOSession extends \ADOdb\addins\session\drivers\sqlite3\ADOSession {}
+final class ADOSession extends \ADOdb\SessionPlugin\drivers\sqlite3\ADOSession {}

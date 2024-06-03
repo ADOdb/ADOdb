@@ -12,10 +12,10 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\session\plugins;
-use \ADOdb\addins\session;
+namespace ADOdb\SessionPlugin\plugins;
+use \ADOdb\SessionPlugin;
 
-class MCrypt extends \ADOdb\addins\session\plugins\ADOCrypt {
+class MCrypt extends \ADOdb\SessionPlugin\plugins\ADOCrypt {
 
 	protected array $coreOptions = array(
 		'cipher'=>MCRYPT_RIJNDAEL_256,

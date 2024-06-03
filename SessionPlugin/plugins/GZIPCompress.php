@@ -9,10 +9,10 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\session\plugins;
-use \ADOdb\addins\session;
+namespace ADOdb\SessionPlugin\plugins;
+use \ADOdb\SessionPlugin;
 
-class GZIPCompress extends \ADOdb\addins\session\plugins\ADOCompress {
+class GZIPCompress extends \ADOdb\SessionPlugin\plugins\ADOCompress {
 
 	
 	protected array $coreOptions = array(

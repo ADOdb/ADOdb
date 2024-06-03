@@ -9,11 +9,11 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\session\drivers\sqlite3;
+namespace ADOdb\SessionPlugin\drivers\sqlite3;
 
-use \ADOdb\addins\session;
+use \ADOdb\SessionPlugin;
 
-class ADOSession extends \ADOdb\addins\session\ADOSession {
+class ADOSession extends \ADOdb\SessionPlugin\ADOSession {
 		
 	/*
 	* large object handling required

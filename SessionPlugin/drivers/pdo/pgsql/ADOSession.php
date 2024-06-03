@@ -9,11 +9,11 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\session\drivers\pdo\pgsql;
+namespace ADOdb\SessionPlugin\drivers\pdo\pgsql;
 
-use \ADOdb\addins\session;
+use \ADOdb\SessionPlugin;
 
-class ADOSession extends \ADOdb\addins\session\ADOSession {
+class ADOSession extends \ADOdb\SessionPlugin\ADOSession {
 	
 	/*
 	* Large object handling required

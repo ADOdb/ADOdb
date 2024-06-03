@@ -9,7 +9,7 @@
 * For the full copyright and license information, please view the LICENSE
 * file that was distributed with this source code.
 */
-namespace ADOdb\addins\session;
+namespace ADOdb\SessionPlugin;
 
 final class ADOSessionDefinitions
 {
