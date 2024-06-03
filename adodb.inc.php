@@ -3092,15 +3092,15 @@ if (!defined('_ADODB_LAYER')) {
 	/**
 	 * GetActiveRecordsClass Performs an 'ALL' query
 	 *
-	 * @param mixed $class This string represents the class of the current active record
-	 * @param mixed $table Table used by the active record object
-	 * @param mixed $whereOrderBy Where, order, by clauses
-	 * @param mixed $bindarr
-	 * @param mixed $primkeyArr
+	 * @param string $class This string represents the class of the current active record
+	 * @param string $table Table used by the active record object
+	 * @param string $whereOrderBy Where, order, by clauses
+	 * @param array $bindarr
+	 * @param array $primkeyArr
 	 * @param array $extra Query extras: limit, offset...
 	 * @param mixed $relations Associative array: table's foreign name, "hasMany", "belongsTo"
 	 * @access public
-	 * @return void
+	 * @return array|false
 	 */
 	function GetActiveRecordsClass(
 			$class, $table,$whereOrderBy=false,$bindarr=false, $primkeyArr=false,
@@ -3117,8 +3117,7 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	function GetActiveRecords($table,$where=false,$bindarr=false,$primkeyArr=false) {
-		$arr = $this->GetActiveRecordsClass('ADODB_Active_Record', $table, $where, $bindarr, $primkeyArr);
-		return $arr;
+		return $this->GetActiveRecordsClass('ADODB_Active_Record', $table, $where, $bindarr, $primkeyArr);
 	}
 
 	/**
@@ -4486,11 +4485,11 @@ class ADORecordSet implements IteratorAggregate {
 	 * it will return a 1 dimensional array of key-value pairs unless
 	 * $force_array == true. This recordset method is currently part of
 	 * the API, but may not be in later versions of ADOdb. By preference, use
-	 * ADOconnnection::getAssoc()
+	 * ADOConnection::getAssoc()
 	 *
 	 * @param bool	$force_array	(optional) Has only meaning if we have 2 data
 	 *								columns. If false, a 1 dimensional
-	 * 								array is returned, otherwise a 2 dimensional
+	 * 								array is returned, otherwise a 2-dimensional
 	 *								array is returned. If this sounds confusing,
 	 * 								read the source.
 	 *
@@ -4500,125 +4499,97 @@ class ADORecordSet implements IteratorAggregate {
 	 *								array[col0] => array(remaining cols),
 	 *								return array[col0] => col1
 	 *
-	 * @return mixed[]|false
-	 *
+	 * @return array|false
 	 */
 	function getAssoc($force_array = false, $first2cols = false)
 	{
-		/*
-		* Insufficient rows to show data
-		*/
-		if ($this->_numOfFields < 2)
-			  return;
+		global $ADODB_FETCH_MODE;
 
-		/*
-		* Empty recordset
-		*/
+		// Insufficient rows to show data
+		if ($this->_numOfFields < 2) {
+			return false;
+		}
+
+		// Empty recordset
 		if (!$this->fields) {
 			return array();
 		}
 
-		/*
-		* The number of fields is half the actual returned in BOTH mode
-		*/
+		// The number of fields is half the actual returned in BOTH mode
 		$numberOfFields = $this->_numOfFields;
 
-		/*
-		* Get the fetch mode when the call was executed, this may be
-		* different than ADODB_FETCH_MODE
-		*/
-		$fetchMode = $this->connection->fetchMode;
-		if ($fetchMode == ADODB_FETCH_BOTH) {
-			/*
-			* If we are using BOTH, we present the data as if it
-			* was in ASSOC mode. This could be enhanced by adding
-			* a BOTH_ASSOC_MODE class property
-			* We build a template of numeric keys. you could improve the
-			* speed by caching this, indexed by number of keys
-			*/
-			$testKeys = array_fill(0,$numberOfFields,0);
+		// Get the fetch mode when the call was executed, this may be
+		// different from ADODB_FETCH_MODE
+		$fetchMode = $this->adodbFetchMode;
+		if ($fetchMode == ADODB_FETCH_BOTH || $fetchMode == ADODB_FETCH_DEFAULT) {
+			// If we are using BOTH, we present the data as if it were in ASSOC mode.
+			// This could be enhanced by adding a BOTH_ASSOC_MODE class property.
+			// We build a template of numeric keys. you could improve the speed
+			// by caching this, indexed by number of keys.
+			$testKeys = array_fill(0, $numberOfFields, 0);
 		}
 
 		$showArrayMethod = 0;
 
-		if ($numberOfFields == 2)
-			/*
-			* Key is always value of first element
-			* Value is always value of second element
-			*/
+		if ($numberOfFields == 2) {
+			// Key is always the value of first element
+			// Value is always value of second element
 			$showArrayMethod = 1;
+		}
 
-		if ($force_array)
+		if ($force_array) {
 			$showArrayMethod = 0;
+		}
 
-		if ($first2cols)
+		if ($first2cols) {
 			$showArrayMethod = 1;
+		}
 
-		$results  = array();
+		$results = array();
 
-		while (!$this->EOF){
-
+		while (!$this->EOF) {
 			$myFields = $this->fields;
 
-			if ($fetchMode == ADODB_FETCH_BOTH) {
-				/*
-				* extract the associative keys
-				*/
-				$myFields = array_diff_key($myFields,$testKeys);
+			if ($fetchMode == ADODB_FETCH_BOTH || $fetchMode == ADODB_FETCH_DEFAULT) {
+				// extract the associative keys
+				/** @noinspection PhpUndefinedVariableInspection */
+				$myFields = array_diff_key($myFields, $testKeys);
 			}
 
-			/*
-			* key is value of first element, rest is data,
-			* The key is not case processed
-			*/
+			// Key is value of the first element, the rest is data.
+			// The key is not case processed.
 			$key = array_shift($myFields);
 
 			switch ($showArrayMethod) {
-			case 0:
+				case 0:
+					if ($fetchMode != ADODB_FETCH_NUM) {
+						// The driver should have already handled the key casing, but in case it did not.
+						// We will check and force this in later versions of ADOdb
+						if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
+							$myFields = array_change_key_case($myFields, CASE_UPPER);
+						}
+						elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
+							$myFields = array_change_key_case($myFields, CASE_LOWER);
+						}
 
-				if ($fetchMode != ADODB_FETCH_NUM) {
-					/*
-					* The driver should have already handled the key
-					* casing, but in case it did not. We will check and force
-					* this in later versions of ADOdb
-					*/
-					if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER)
-						$myFields = array_change_key_case($myFields,CASE_UPPER);
+						// We have already shifted the key off the front, so the rest is the value
+						$results[$key] = $myFields;
+					} else
+						// I want the values in a numeric array, nicely re-indexed from zero
+						$results[$key] = array_values($myFields);
+					break;
 
-					elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER)
-						$myFields = array_change_key_case($myFields,CASE_LOWER);
-
-					/*
-					* We have already shifted the key off
-					* the front, so the rest is the value
-					*/
-					$results[$key] = $myFields;
-
-				}
-				else
-					/*
-					 * I want the values in a numeric array,
-					 * nicely re-indexed from zero
-					 */
-					$results[$key] = array_values($myFields);
-				break;
-
-			case 1:
-
-				/*
-				 * Don't care how long the array is,
-				 * I just want value of second column, and it doesn't
-				 * matter whether the array is associative or numeric
-				 */
-				$results[$key] = array_shift($myFields);
-				break;
+				/** @noinspection PhpConditionAlreadyCheckedInspection */
+				case 1:
+					// Don't care how long the array is, I just want value of second column,
+					// and it doesn't matter whether the array is associative or numeric
+					$results[$key] = array_shift($myFields);
+					break;
 			}
 
 			$this->MoveNext();
 		}
-		/*
-		 * Done
-		 */
+
 		return $results;
 	}
 

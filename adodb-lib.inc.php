@@ -1377,7 +1377,7 @@ function _adodb_backtrace($printOrArr=true, $maximumDepth=0, $elementsToIgnore=0
 	}
 
 	if ($printOrArr) {
-		print $s;
+		ADOConnection::outp($s);
 	}
 
 	return $s;
