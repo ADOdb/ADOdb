@@ -16,10 +16,19 @@ use \ADOdb\SessionPlugin;
 class ADOCrypt {
 	
 	protected ?object $connection = null;
+
+	protected string $encryptionMethod = '';
+	protected bool   $encryptionEnabled = false;
 	
-	public function __construct($connection)
+	public function __construct($connection,$encryptionMethod)
 	{
 		$this->connection = $connection;
+		$this->encryptionMethod = $encryptionMethod;
+		
+		if (in_array($this->encryptionMethod,hash_algos()))
+			$this->encryptionEnabled = true;
+
+
 	}
 	
 	/**
@@ -27,12 +36,19 @@ class ADOCrypt {
 	*
 	* @return string
 	*/
-	protected function fetchEncryptionKey() :string {}
+	protected function fetchEncryptionKey() : string 
+	{
+
+		if (!$this->encryptionEnabled)
+			return '';
+		
+		return hash($this->encryptionMethod, rand(0,32000),false);
+	}
 	
 	/**
 	* Loads any override options
 	*
-	* @param array $options
+	* @param null|array $options
 	*
 	* @return void
 	*/
@@ -159,6 +175,15 @@ class ADOCrypt {
 			$randomPassword .= chr($randnumber);
 		}
 		return $randomPassword;
+	}
+
+	/**
+	 * Is encryption enabled
+	 *
+	 * @return boolean
+	 */
+	public function isCryptEnabled() : bool {
+		return $this->encryptionEnabled;
 	}
 
 }

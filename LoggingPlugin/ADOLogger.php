@@ -708,7 +708,7 @@ abstract class ADOLogger
 				}
 			}
 
-			$file = str_replace('\\','/',$element['file']) ?? 'unknown file';
+			$file = str_replace('\\','/',$element['file'] ?? 'unknown file');
 						
 			$elements--;
 

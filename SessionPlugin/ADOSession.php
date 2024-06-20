@@ -126,6 +126,9 @@ class ADOSession implements \SessionHandlerInterface{
 	*/
 	protected string $lobValue = 'null';
 
+	public ?object $sessionObject = null;
+
+	public ?string $binary = null;
 	/**
 	* Constructor, loads session parameters
 	*
@@ -141,14 +144,14 @@ class ADOSession implements \SessionHandlerInterface{
 		if (!$sessionDefinition)
 			return;
 
-		$selfName = get_class();
+		$selfName = get_class($this);
 
 
 		$this->sessionDefinition = $sessionDefinition;
 
-		$this->debug = $sessionDefinition->debug;
+		$this->debug 			 = $sessionDefinition->debug;
 
-		$this->connection = $connection;
+		$this->connection 		 = $connection;
 
 		$this->connection->setFetchMode(ADODB_FETCH_NUM);
 
@@ -220,16 +223,20 @@ class ADOSession implements \SessionHandlerInterface{
 			/*
 			* PHP must have the correct crypto method available
 			*/
-			if (array_key_exists($sessionDefinition->cryptoMethod,$this->cryptoPluginClasses))
+			if ($sessionDefinition->cryptoMethod)
 			{
-				$plugin 	 = $this->cryptoPluginClasses[$sessionDefinition->cryptoMethod];
-				$cryptoClass = '\\ADOdb\\addins\\session\\plugins\\' . $plugin;
-				$this->readWriteFilters[] = new $cryptoClass($connection);
+				$plugin = new \ADOdb\SessionPlugin\plugins\ADOCrypt($connection,$sessionDefinition->cryptoMethod);
+				$this->readWriteFilters[] = $plugin;
 
-				if ($this->debug)
+				if ($plugin->isCryptEnabled() && $this->debug)
 				{
-					$message = sprintf('Loading crypto plugin %s',$plugin);
+					$message = sprintf('Loading crypto plugin %s',$sessionDefinition->cryptoMethod);
 					$this->loggingObject->log($this->loggingObject::DEBUG,$message);
+				}
+				else if (!$plugin->isCryptEnabled())
+				{
+					$message = sprintf('Crypto plugin %s could not enabled',$sessionDefinition->cryptoMethod);
+					$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 				}
 			}
 		}
@@ -244,7 +251,7 @@ class ADOSession implements \SessionHandlerInterface{
 			if (array_key_exists($sessionDefinition->compressionMethod,$this->compressionPluginClasses))
 			{
 				$plugin 	 = $this->compressionPluginClasses[$sessionDefinition->compressionMethod];
-				$compressionClass = '\\ADOdb\\addins\\session\\plugins\\' . $plugin;
+				$compressionClass = '\\ADOdb\\SessionPlugin\\plugins\\' . $plugin;
 				$this->readWriteFilters[] = new $compressionClass($connection);
 
 				if ($this->debug)
@@ -267,10 +274,15 @@ class ADOSession implements \SessionHandlerInterface{
 	* @return object
 	*/
 	final public function startSession(
-			object $connection,
+			object $connection=null,
 			?object $sessionDefinition=null) : ?object
 	{
 
+		if (!$connection)
+			$connection = $this->connection;
+		
+		if (!$sessionDefinition)
+			$sessionDefinition = $this->sessionDefinition;
 		/*
 		* If no session definition is passed, build a default set
 		*/
@@ -285,7 +297,7 @@ class ADOSession implements \SessionHandlerInterface{
 		if ($driver == 'pdo')
 			$driver .= '\\' . $connection->dsnType;
 
-		$sessionClass = sprintf('\\ADOdb\\addins\\session\\drivers\\%s\\ADOSession',
+		$sessionClass = sprintf('\\ADOdb\\SessionPlugin\\drivers\\%s\\ADOSession',
 		$driver);
 
 		$this->sessionObject = new $sessionClass($connection,$sessionDefinition);
@@ -357,12 +369,12 @@ class ADOSession implements \SessionHandlerInterface{
 
 		if ($ok && $this->debug)
 		{
-			$message = sprintf('Regeneration of key %s succeeded',$key);
+			$message = sprintf('Regeneration of key %s succeeded, now %s',$old_id,$new_id);
 			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
 		}
 		else if (!$ok)
 		{
-			$message = sprintf('Regeneration of key %s failed',$key);
+			$message = sprintf('Regeneration of key %s failed',$old_id);
 			$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 		}
 
@@ -428,9 +440,10 @@ class ADOSession implements \SessionHandlerInterface{
 	/**
 	* Sets or gets the encryption key
 	*
-	* @param string $encrtyptional key
+	* @param string $encryption key
 	*
 	* @return mixed
+	*
 	*/
 	public function encryptionKey(?string $encryption_key = null) : string {
 
@@ -441,28 +454,29 @@ class ADOSession implements \SessionHandlerInterface{
 		return $this->encryptionKey;
 	}
 
-
-
 	/** 
-	* Creates a new encryption key
+	* Creates a new encryption key for crypted sessions
+	* crypt the used key, ADODB_Session::encryptionKey() as key and
+	* session_id() as salt
 	*
 	* @return string the new encryption key
 	*/
-	public function _sessionKey():string 
+	public function getEncryptedSessionId() : string 
 	{
-		
-		/* use this function to create the encryption key for crypted sessions
-		* crypt the used key, ADODB_Session::encryptionKey() as key and
-		* session_id() as salt
-		*/
-		return crypt($this->encryptionKey(), session_id());
+			return crypt($this->encryptionKey(), session_id());
 	}
 
-	protected function expireNotify($expire_notify = null)
+	/**
+	 * If set, sets a notification callback for when a session has expired
+	 *
+	 * @param array|null $expiryNotificationCallback
+	 * @return array|null
+	 */
+	public function setNotificationForExpiryCallback(?array $expiryNotificationCallback = null) : ?array
 	{
 
-		if (!is_null($expire_notify)) {
-			$this->sessionHasExpired = $expire_notify;
+		if (!is_null($expiryNotificationCallback)) {
+			$this->sessionHasExpired = $expiryNotificationCallback;
 		}
 
 		return $this->sessionHasExpired;
@@ -473,11 +487,11 @@ class ADOSession implements \SessionHandlerInterface{
 	* Slurp in the session variables and return the serialized string
 	* cannot type hint impleted class
 	*
-	* @param	string 	$key
+	* @param string 	$key
 	*
-	* @return string
+	* @return string|false
 	*/
-	final public function read($key) {
+	public function read(string $key) : string|false{
 
 
 		if ($this->debug)
@@ -518,7 +532,7 @@ class ADOSession implements \SessionHandlerInterface{
 				$filter = array_reverse($filter);
 				foreach ($filter as $f) {
 					if (is_object($f)) {
-						$v = $f->read($v, $this->_sessionKey());
+						$v = $f->read($v, $this->getEncryptedSessionId());
 					}
 				}
 				$v = rawurldecode($v);
@@ -539,12 +553,12 @@ class ADOSession implements \SessionHandlerInterface{
 		return '';
 	}
 
-	/*!
+	/**
 	* Write the serialized data to a database.
 	*
 	* If the data has not been modified since the last read(), we do not write.
 	*/
-	public function write($key, $oval)
+	public function write($key, $oval): bool
 	{
 
 		if ($this->sessionDefinition->readOnly)
@@ -558,8 +572,9 @@ class ADOSession implements \SessionHandlerInterface{
 
 		$crc	= $this->recordCRC;
 		$table  = $this->tableName;
+		$binary = $this->binary;
 
-		$expire_notify	= $this->expireNotify();
+		$expiryNotificationCallback	= $this->setNotificationForExpiryCallback();
 		$filter         = $this->filter();
 
 		$clob			= $this->largeObject;
@@ -575,8 +590,8 @@ class ADOSession implements \SessionHandlerInterface{
 			}
 
 			$expirevar = '';
-			if ($expire_notify) {
-				$var = reset($expire_notify);
+			if ($expiryNotificationCallback) {
+				$var = reset($expiryNotificationCallback);
 				global $$var;
 				if (isset($$var)) {
 					$expirevar = $$var;
@@ -586,12 +601,18 @@ class ADOSession implements \SessionHandlerInterface{
 			$p0 = $this->connection->param('p0');
 			$p1 = $this->connection->param('p1');
 
-			$bind = array('p0'=>$expirevar,'p1'=>$key);
+			$bind = array(
+				'p0'=>$expirevar,
+				'p1'=>$key
+			);
 
-			$sql = "UPDATE $table
-					SET expiry = $expiry ,expireref=$p0 modified = $sysTimeStamp
-					 WHERE $binary sesskey = $p1
-					 AND expiry >= $sysTimeStamp";
+			$sql = sprintf("
+			UPDATE $table
+			SET expiry = $expiry ,expireref=$p0, modified = $sysTimeStamp
+					 WHERE sesskey=%s
+					 AND expiry >= $sysTimeStamp",
+			$this->processSessionKey($p1)
+			);
 
 			$rs = $this->connection->execute($sql,$bind);
 			return true;
@@ -607,14 +628,14 @@ class ADOSession implements \SessionHandlerInterface{
 		
 		foreach ($filter as $f) {
 			if (is_object($f)) {
-				$val = $f->write($val, $this->_sessionKey());
+				$val = $f->write($val, $this->getEncryptedSessionId());
 			}
 		}
 
 		$expireref = 0;
-		if ($expire_notify) 
+		if ($expiryNotificationCallback) 
 		{
-			$var = reset($expire_notify);
+			$var = reset($expiryNotificationCallback);
 			global $$var;
 			if (isset($$var)) {
 				$expireref = $$var;
@@ -628,12 +649,15 @@ class ADOSession implements \SessionHandlerInterface{
 			* no special lob handling for example in MySQL
 			*/
 			$this->connection->param(false);
-			$p0 = $this->connection->param('p0');
-			$bind = array('p0'=>$key);
+			
+			$p0 	= $this->connection->param('p0');
+			$bind 	= array('p0'=>$key);
 
-			$sql = "SELECT COUNT(*) AS cnt
+			$sql = sprintf("SELECT COUNT(*) AS cnt
 					  FROM $table
-					 WHERE $binary sesskey = $p0";
+					 WHERE sesskey = %s",
+					 $this->processSessionKey($p0)
+					);
 
 			$rs = $this->connection->execute($sql,$bind);
 			if ($rs)
@@ -650,16 +674,23 @@ class ADOSession implements \SessionHandlerInterface{
 
 			if ($rs && reset($rs->fields) > 0)
 			{
-				$sql = "UPDATE $table SET expiry=$expiry, sessdata=$p0, expireref=$p1,modified=$sysTimeStamp WHERE sesskey = $p2";
+				$sql = sprintf("UPDATE $table 
+								   SET expiry=$expiry, sessdata=$p0, expireref=$p1,modified=$sysTimeStamp 
+								 WHERE sesskey = %s",
+								 $this->processSessionKey($p2)
+				);
 
 			} else {
 
-				$sql = "INSERT INTO $table (expiry, sessdata, expireref, sesskey, created, modified) VALUES ($expiry, $p0,$p1,$p2, $sysTimeStamp, $sysTimeStamp)";
-
+				$sql = sprintf("INSERT INTO $table 
+							(expiry, sessdata, expireref, sesskey, created, modified) 
+							VALUES ($expiry, $p0,$p1,%s, $sysTimeStamp, $sysTimeStamp)",
+							$this->processSessionKey($p2)
+							);
 			}
 
 			$rs = $this->connection->Execute($sql,$bind);
-
+  
 		} else {
 
 			/*
@@ -676,9 +707,11 @@ class ADOSession implements \SessionHandlerInterface{
 
 			$bind = array('p0'=>$key);
 
-			$sql = "SELECT COUNT(*) AS cnt
-					 FROM $table
-					WHERE $binary sesskey=$p0";
+			$sql = sprintf("SELECT COUNT(*) AS cnt
+					 		  FROM $table
+						     WHERE sesskey=%s",
+							 $this->processSessionKey($p0)
+							);
 
 			$rs = $this->connection->execute($sql,$bind);
 
@@ -689,13 +722,19 @@ class ADOSession implements \SessionHandlerInterface{
 			$bind = array('p0'=>$expireref,'p1'=>$key);
 
 			if ($rs && reset($rs->fields) > 0) {
-				$sql = "UPDATE $table SET expiry=$expiry, sessdata=$lob_value, expireref=$p0,modified=$sysTimeStamp
-						 WHERE sesskey = $p1";
+				$sql = sprintf("UPDATE $table 
+								   SET expiry=$expiry, sessdata=$lob_value, expireref=$p0,modified=$sysTimeStamp
+						         WHERE sesskey = %s",
+								 $this->processSessionKey($p1)
+								);
 
 			} else {
 
-				$sql = "INSERT INTO $table (expiry, sessdata, expireref, sesskey, created, modified)
-					VALUES ($expiry, $lob_value, $p0, $p1, $sysTimeStamp, $sysTimeStamp)";
+				$sql = sprintf("INSERT INTO $table 
+							    (expiry, sessdata, expireref, sesskey, created, modified)
+								VALUES ($expiry, $lob_value, $p0, %s, $sysTimeStamp, $sysTimeStamp)",
+								$this->processSessionKey($p1)
+								);
 			}
 			$rs = $this->connection->execute($sql,$bind);
 
@@ -729,7 +768,7 @@ class ADOSession implements \SessionHandlerInterface{
 	*
 	* @return bool
 	*/
-	final public function destroy($key)
+	final public function destroy($key) : bool
 	{
 
 		if ($this->debug)
@@ -738,24 +777,26 @@ class ADOSession implements \SessionHandlerInterface{
 			$this->loggingObject->log($this->loggingObject::DEBUG,$message);
 		}
 
-		$expire_notify	= $this->expireNotify();
+		$expiryNotificationCallback	= $this->setNotificationForExpiryCallback();
 
 		$qkey = $this->connection->quote($key);
 		$table  = $this->tableName;
 
-		if ($expire_notify) {
-			reset($expire_notify);
+		if ($expiryNotificationCallback) {
+			reset($expiryNotificationCallback);
 
-			$fn = next($expire_notify);
+			$callbackFunction = next($expiryNotificationCallback);
 
 			$this->connection->setFetchMode($this->connection::ADODB_FETCH_NUM);
 			$this->connection->param(false);
 			$p1 = $this->connection->param('p1');
 			$bind = array('p1'=>$key);
 
-			$sql = "SELECT expireref, sesskey
+			$sql = sprintf("SELECT expireref, sesskey
 					  FROM $table
-					 WHERE $binary sesskey=$p1";
+					 WHERE sesskey=%s",
+					 $this->processSessionKey($p1)
+					);
 
 			$rs = $this->connection->execute($sql,$bind);
 
@@ -766,13 +807,20 @@ class ADOSession implements \SessionHandlerInterface{
 			if (!$rs->EOF) {
 				$ref = $rs->fields[0];
 				$key = $rs->fields[1];
-				$fn($ref, $key);
+				$callbackFunction($ref, $key);
 			}
 			$rs->close();
 		}
 
-		$sql = "DELETE FROM $table
-				 WHERE $binary sesskey=$p1";
+		$this->connection->param(false);
+
+		$p0 = $this->connection->param('p0');
+		$bind = array('p0'=>$key);
+		
+		$sql = sprintf(
+			   "DELETE FROM $table WHERE sesskey=%s",
+				 $this->processSessionKey($p0)
+				);
 
 		$rs = $this->connection->execute($sql,$bind);
 		if ($rs) {
@@ -786,17 +834,15 @@ class ADOSession implements \SessionHandlerInterface{
 		return $rs ? true : false;
 	}
 
-	/*
+	/**
 	* Garbage Collection - Part of sessionHandlerInterface
-	*
 	* @param int $maxlifetime
-	*
-	* @return bool
+	* @return bool 
 	*/
-	final public function gc($maxlifetime)
+	function gc(int $maxlifetime) : bool
 	{
 
-		$expire_notify	= $this->expireNotify();
+		$expiryNotificationCallback	= $this->setNotificationForExpiryCallback();
 		$optimize		= $this->optimizeTable;
 
 		if ($this->debug) {
@@ -811,11 +857,11 @@ class ADOSession implements \SessionHandlerInterface{
 
 		$table = $this->tableName;
 
-		if ($expire_notify) {
-			reset($expire_notify);
-			$fn = next($expire_notify);
+		if ($expiryNotificationCallback) {
+			reset($expiryNotificationCallback);
+			$callbackFunction = next($expiryNotificationCallback);
 		} else {
-			$fn = false;
+			$callbackFunction = false;
 		}
 
 		$this->connection->SetFetchMode($this->connection::ADODB_FETCH_NUM);
@@ -837,15 +883,16 @@ class ADOSession implements \SessionHandlerInterface{
 
 				$ref = $rs->fields[0];
 				$key = $rs->fields[1];
-				if ($fn)
-					$fn($ref, $key);
+				if ($callbackFunction)
+					$callbackFunction($ref, $key);
 
 				$this->connection->param(false);
-				$p1 = $this->connection->param('p1');
-				$bind = array($p1=>$key);
+				$p0 = $this->connection->param('p0');
+				$bind = array($p0=>$key);
 
-				$sql = "DELETE FROM $table
-						 WHERE sesskey=$p1";
+				$sql = sprintf("DELETE FROM $table WHERE sesskey=%s",
+						 		$this->processSessionKey($p0)
+							  );
 
 				$del = $this->connection->execute($sql,$bind);
 
