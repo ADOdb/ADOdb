@@ -49,14 +49,9 @@ final class ADOSessionDefinitions
 	
 	/*
 	* Defines the crypto method. Default none
+	* use any of the hash_algos() methods
 	*/
-	const CRYPTO_NONE 	= 0;
-	const CRYPTO_MD5  	= 1;
-	const CRYPTO_MCRYPT = 2;
-	const CRYPTO_SHA1   = 3;
-	const CRYPTO_SECRET = 4;
-
-	public int $cryptoMethod = 0;
+	public string $cryptoMethod = '';
 
 	/*
 	* Defines the compression method - Default none

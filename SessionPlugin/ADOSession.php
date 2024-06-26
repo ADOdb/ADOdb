@@ -82,24 +82,6 @@ class ADOSession implements \SessionHandlerInterface{
 	*/
 	protected int $debug = 0;
 
-	/*
-	* Defines the crypto method. Default none
-
-	const CRYPTO_NONE 	= 0;
-	const CRYPTO_MD5  	= 1;
-	const CRYPTO_MCRYPT = 2;
-	const CRYPTO_SHA1   = 3;
-	const CRYPTO_SECRET = 4;
-	*/
-
-	protected $cryptoPluginClasses = array(
-		'',
-		'MD5Crypt',
-		'MCrypt',
-		'SHA1Crypt',
-		'HordeSecret'
-		);
-
 	protected $compressionPluginClasses = array(
 		'',
 		'BZIP2Compress',
@@ -218,26 +200,23 @@ class ADOSession implements \SessionHandlerInterface{
 		/*
 		* Load filters from the sessionDefinition
 		*/
-		if ($sessionDefinition->cryptoMethod > 0)
+		if ($sessionDefinition->cryptoMethod)
 		{
 			/*
 			* PHP must have the correct crypto method available
 			*/
-			if ($sessionDefinition->cryptoMethod)
-			{
-				$plugin = new \ADOdb\SessionPlugin\plugins\ADOCrypt($connection,$sessionDefinition->cryptoMethod);
-				$this->readWriteFilters[] = $plugin;
+			$plugin = new \ADOdb\SessionPlugin\plugins\ADOCrypt($connection,$sessionDefinition->cryptoMethod);
+			$this->readWriteFilters[] = $plugin;
 
-				if ($plugin->isCryptEnabled() && $this->debug)
-				{
-					$message = sprintf('Loading crypto plugin %s',$sessionDefinition->cryptoMethod);
-					$this->loggingObject->log($this->loggingObject::DEBUG,$message);
-				}
-				else if (!$plugin->isCryptEnabled())
-				{
-					$message = sprintf('Crypto plugin %s could not enabled',$sessionDefinition->cryptoMethod);
-					$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
-				}
+			if ($plugin->isCryptEnabled() && $this->debug)
+			{
+				$message = sprintf('Loading crypto plugin %s',$sessionDefinition->cryptoMethod);
+				$this->loggingObject->log($this->loggingObject::DEBUG,$message);
+			}
+			else if (!$plugin->isCryptEnabled())
+			{
+				$message = sprintf('Crypto plugin %s could not enabled',$sessionDefinition->cryptoMethod);
+				$this->loggingObject->log($this->loggingObject::CRITICAL,$message);
 			}
 		}
 
@@ -835,13 +814,14 @@ class ADOSession implements \SessionHandlerInterface{
 	}
 
 	/**
-	* Garbage Collection - Part of sessionHandlerInterface
+	* Garbage Collection
 	* @param int $maxlifetime
-	* @return bool 
+	* @return int|false 
 	*/
-	function gc(int $maxlifetime) : bool
+	function gc(int $maxlifetime) : int|false
 	{
 
+		$deletedSessions = 0;
 		$expiryNotificationCallback	= $this->setNotificationForExpiryCallback();
 		$optimize		= $this->optimizeTable;
 
@@ -877,7 +857,7 @@ class ADOSession implements \SessionHandlerInterface{
 			$this->connection->beginTrans();
 
 			$keys = array();
-			$ccnt = 0;
+			
 
 			while (!$rs->EOF) {
 
@@ -897,9 +877,9 @@ class ADOSession implements \SessionHandlerInterface{
 				$del = $this->connection->execute($sql,$bind);
 
 				$rs->MoveNext();
-				$ccnt += 1;
+				$deletedSessions += 1;
 
-				if ($ccnt % $COMMITNUM == 0) {
+				if ($deletedSessions % $COMMITNUM == 0) {
 					if ($this->debug) {
 						$message = 'Garbage Collecton complete';
 						$this->loggingObject->log($this->loggingObject::DEBUG,$message);
@@ -912,6 +892,8 @@ class ADOSession implements \SessionHandlerInterface{
 
 			$this->connection->commitTrans();
 		}
+		else
+			return false;
 
 		if ($optimize)
 		{
@@ -931,7 +913,7 @@ class ADOSession implements \SessionHandlerInterface{
 		}
 
 
-		return true;
+		return $deletedSessions;
 	}
 
 	/*
