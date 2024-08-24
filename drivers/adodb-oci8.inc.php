@@ -920,7 +920,7 @@ END;
 			$inputarr['adodb_nrows'] = $nrows;
 			$inputarr['adodb_offset'] = $offset;
 
-			i//f ($secs2cache > 0) {
+			//if ($secs2cache > 0) {
 			//	$rs = $this->CacheExecute($secs2cache, $sql,$inputarr);
 			//}
 			//else {
