@@ -376,18 +376,23 @@ function _adodb_getmenu_option($defstr, $compare, $value, $display)
 	return "\n<option $value$selected>" . htmlspecialchars($display) . '</option>';
 }
 
-/*
-	Count the number of records this sql statement will return by using
-	query rewriting heuristics...
-
-	Does not work with UNIONs, except with postgresql and oracle.
-
-	Usage:
-
-	$conn->Connect(...);
-	$cnt = _adodb_getcount($conn, $sql);
-
-*/
+/**
+ * Count the number of records this sql statement will return by using
+ * query rewriting heuristics...
+ *
+ * Does not work with UNIONs, except with postgresql and oracle.
+ *
+ * Usage:
+ *     $conn->Connect(...);
+ *     $cnt = _adodb_getcount($conn, $sql);
+ *
+ * @param ADOConnection $zthis
+ * @param string        $sql
+ * @param bool          $inputarr
+ * @param int           $secs2cache
+ *
+ * @return false|int|mixed
+ */
 function _adodb_getcount($zthis, $sql,$inputarr=false,$secs2cache=0)
 {
 	$qryRecs = 0;
