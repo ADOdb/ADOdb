@@ -231,9 +231,18 @@ class ADODB_mysqli extends ADOConnection {
 
 		// SSL Connections for MySQLI
 		if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
+
 			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cert, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
-			$this->socket = MYSQLI_CLIENT_SSL;
-			$this->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+
+			// Check for set SSL client flag, NOTE: bitwise operations.
+			$ssl_client = ($this->clientFlags & MYSQLI_CLIENT_SSL);
+			$ssl_verify_cert = ($this->clientFlags & MYSQLI_CLIENT_SSL_VERIFY_SERVER_CERT);
+			$ssl_dont_verify_cert = ($this->clientFlags & MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT);
+
+			// Add SSL client flag to client flag(s) if not set, NOTE: bitwise operations.
+			if (!$ssl_client && !$ssl_verify_cert && !$ssl_dont_verify_cert) {
+				$this->clientFlags |= MYSQLI_CLIENT_SSL_VERIFY_SERVER_CERT;
+			}
 		}
 
 		$ok = @mysqli_real_connect($this->_connectionID,
