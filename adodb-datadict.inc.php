@@ -22,144 +22,6 @@
 // security - hide paths
 if (!defined('ADODB_DIR')) die();
 
-/**
- * Test script for parser
- */
-function lens_ParseTest()
-{
-$str = "`zcol ACOL` NUMBER(32,2) DEFAULT 'The \"cow\" (and Jim''s dog) jumps over the moon' PRIMARY, INTI INT AUTO DEFAULT 0, zcol2\"afs ds";
-print "<p>$str</p>";
-$a= lens_ParseArgs($str);
-print "<pre>";
-print_r($a);
-print "</pre>";
-}
-
-
-//Lens_ParseTest();
-
-/**
-	Parse arguments, treat "text" (text) and 'text' as quotation marks.
-	To escape, use "" or '' or ))
-
-	Will read in "abc def" sans quotes, as: abc def
-	Same with 'abc def'.
-	However if `abc def`, then will read in as `abc def`
-
-	@param endstmtchar    Character that indicates end of statement
-	@param tokenchars     Include the following characters in tokens apart from A-Z and 0-9
-	@returns 2 dimensional array containing parsed tokens.
-*/
-function lens_ParseArgs($args,$endstmtchar=',',$tokenchars='_.-')
-{
-	$pos = 0;
-	$intoken = false;
-	$stmtno = 0;
-	$endquote = false;
-	$tokens = array();
-	$tokens[$stmtno] = array();
-	$max = strlen($args);
-	$quoted = false;
-	$tokarr = array();
-
-	while ($pos < $max) {
-		$ch = substr($args,$pos,1);
-		switch($ch) {
-		case ' ':
-		case "\t":
-		case "\n":
-		case "\r":
-			if (!$quoted) {
-				if ($intoken) {
-					$intoken = false;
-					$tokens[$stmtno][] = implode('',$tokarr);
-				}
-				break;
-			}
-
-			$tokarr[] = $ch;
-			break;
-
-		case '`':
-			if ($intoken) $tokarr[] = $ch;
-		case '(':
-		case ')':
-		case '"':
-		case "'":
-
-			if ($intoken) {
-				if (empty($endquote)) {
-					$tokens[$stmtno][] = implode('',$tokarr);
-					if ($ch == '(') $endquote = ')';
-					else $endquote = $ch;
-					$quoted = true;
-					$intoken = true;
-					$tokarr = array();
-				} else if ($endquote == $ch) {
-					$ch2 = substr($args,$pos+1,1);
-					if ($ch2 == $endquote) {
-						$pos += 1;
-						$tokarr[] = $ch2;
-					} else {
-						$quoted = false;
-						$intoken = false;
-						$tokens[$stmtno][] = implode('',$tokarr);
-						$endquote = '';
-					}
-				} else
-					$tokarr[] = $ch;
-
-			}else {
-
-				if ($ch == '(') $endquote = ')';
-				else $endquote = $ch;
-				$quoted = true;
-				$intoken = true;
-				$tokarr = array();
-				if ($ch == '`') $tokarr[] = '`';
-			}
-			break;
-
-		default:
-
-			if (!$intoken) {
-				if ($ch == $endstmtchar) {
-					$stmtno += 1;
-					$tokens[$stmtno] = array();
-					break;
-				}
-
-				$intoken = true;
-				$quoted = false;
-				$endquote = false;
-				$tokarr = array();
-
-			}
-
-			if ($quoted) $tokarr[] = $ch;
-			else if (ctype_alnum($ch) || strpos($tokenchars,$ch) !== false) $tokarr[] = $ch;
-			else {
-				if ($ch == $endstmtchar) {
-					$tokens[$stmtno][] = implode('',$tokarr);
-					$stmtno += 1;
-					$tokens[$stmtno] = array();
-					$intoken = false;
-					$tokarr = array();
-					break;
-				}
-				$tokens[$stmtno][] = implode('',$tokarr);
-				$tokens[$stmtno][] = $ch;
-				$intoken = false;
-			}
-		}
-		$pos += 1;
-	}
-	if ($intoken) $tokens[$stmtno][] = implode('',$tokarr);
-
-	return $tokens;
-}
-
-
 class ADODB_DataDict {
 	/** @var ADOConnection */
 	var $connection;
@@ -661,8 +523,7 @@ class ADODB_DataDict {
 			$padding = '     ';
 			$txt = $flds.$padding;
 			$flds = array();
-			$flds0 = lens_ParseArgs($txt,',');
-			$flds0 = array_filter($flds0);
+			$flds0 = $this->parseArgs($txt);
 			$hasparam = false;
 			foreach($flds0 as $f0) {
 				$f1 = array();
@@ -1144,4 +1005,144 @@ class ADODB_DataDict {
 		}
 		return $sql;
 	}
+
+
+	/**
+	 * Parse Dictionary Column Attributes string.
+	 *
+	 * Treat "text" (text) and 'text' as quotation marks. To escape, use "" or '' or ))
+	 *
+	 * Will read in "abc def" sans quotes, as: abc def
+	 * Same with 'abc def'.
+	 * However if `abc def`, then will read in as `abc def`
+	 *
+	 * @param string $args        String to parse.
+	 * @param string $endstmtchar Character that indicates end of statement.
+	 * @param string $tokenchars  Chars to include in tokens in addition to A-Z and 0-9.
+	 *
+	 * @returns array 2-dimensional array containing parsed tokens.
+	 * @internal
+	 */
+	private function parseArgs(string $args, string $endstmtchar=',', string $tokenchars='_.-'): array
+	{
+		$pos = 0;
+		$intoken = false;
+		$stmtno = 0;
+		$endquote = false;
+		$tokens = array();
+		$tokens[$stmtno] = array();
+		$max = strlen($args);
+		$quoted = false;
+		$tokarr = array();
+
+		while ($pos < $max) {
+			$ch = substr($args, $pos, 1);
+			switch ($ch) {
+				case ' ':
+				case "\t":
+				case "\n":
+				case "\r":
+					if (!$quoted) {
+						if ($intoken) {
+							$intoken = false;
+							$tokens[$stmtno][] = implode('', $tokarr);
+						}
+						break;
+					}
+					$tokarr[] = $ch;
+					break;
+
+				case '`':
+					if ($intoken) {
+						$tokarr[] = $ch;
+					}
+				case '(':
+				case ')':
+				case '"':
+				case "'":
+					if ($intoken) {
+						if (empty($endquote)) {
+							$tokens[$stmtno][] = implode('', $tokarr);
+							if ($ch == '(') {
+								$endquote = ')';
+							} else {
+								$endquote = $ch;
+							}
+							$quoted = true;
+							$intoken = true;
+							$tokarr = array();
+						} else {
+							if ($endquote == $ch) {
+								$ch2 = substr($args, $pos + 1, 1);
+								if ($ch2 == $endquote) {
+									$pos += 1;
+									$tokarr[] = $ch2;
+								} else {
+									$quoted = false;
+									$intoken = false;
+									$tokens[$stmtno][] = implode('', $tokarr);
+									$endquote = '';
+								}
+							} else {
+								$tokarr[] = $ch;
+							}
+						}
+					} else {
+						if ($ch == '(') {
+							$endquote = ')';
+						} else {
+							$endquote = $ch;
+						}
+						$quoted = true;
+						$intoken = true;
+						$tokarr = array();
+						if ($ch == '`') {
+							$tokarr[] = '`';
+						}
+					}
+					break;
+
+				default:
+					if (!$intoken) {
+						if ($ch == $endstmtchar) {
+							$stmtno += 1;
+							$tokens[$stmtno] = array();
+							break;
+						}
+
+						$intoken = true;
+						$quoted = false;
+						$endquote = false;
+						$tokarr = array();
+					}
+
+					if ($quoted) {
+						$tokarr[] = $ch;
+					} else {
+						if (ctype_alnum($ch) || strpos($tokenchars, $ch) !== false) {
+							$tokarr[] = $ch;
+						} else {
+							$tokens[$stmtno][] = implode('', $tokarr);
+							if ($ch == $endstmtchar) {
+								$stmtno += 1;
+								$tokens[$stmtno] = array();
+								$intoken = false;
+								$tokarr = array();
+								break;
+							}
+							$tokens[$stmtno][] = $ch;
+							$intoken = false;
+						}
+					}
+			}
+			$pos += 1;
+		} // parser loop
+
+		if ($intoken) {
+			$tokens[$stmtno][] = implode('', $tokarr);
+		}
+
+		return $tokens;
+	}
+
 } // class
