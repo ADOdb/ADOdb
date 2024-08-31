@@ -516,19 +516,31 @@ class ADODB_DataDict {
 	}
 
 
-
-	function _genFields($flds,$widespacing=false)
+	/**
+	 * Parse Dictionary Column Attributes.
+	 *
+	 * Second pass of the process to generate the columns definition SQL
+	 * from textual representation.
+	 * @see https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:column_attributes
+	 * @see ADODB_DataDict::parseArgs() First Pass
+	 * @see ADODB_DataDict::_genFields() Third Pass
+	 *
+	 * @param string $flds String to parse.
+	 *
+	 * @return array 2-d array: column index => column's attributes
+	 * @internal
+	 */
+	private function genFieldsArray(string $flds): array
 	{
-		if (is_string($flds)) {
-			$padding = '     ';
-			$txt = $flds.$padding;
-			$flds = array();
-			$flds0 = $this->parseArgs($txt);
-			$hasparam = false;
-			foreach($flds0 as $f0) {
-				$f1 = array();
-				foreach($f0 as $token) {
-					switch (strtoupper($token)) {
+		$padding = '     ';
+		$txt = $flds . $padding;
+		$flds = array();
+		$flds0 = $this->parseArgs($txt);
+		$hasparam = false;
+		foreach ($flds0 as $f0) {
+			$f1 = array();
+			foreach ($f0 as $token) {
+				switch (strtoupper($token)) {
 					case 'INDEX':
 						$f1['INDEX'] = '';
 						// fall through intentionally
@@ -537,30 +549,54 @@ class ADODB_DataDict {
 						$hasparam = $token;
 						break;
 					default:
-						if ($hasparam) $f1[$hasparam] = $token;
-						else $f1[] = $token;
+						if ($hasparam) {
+							$f1[$hasparam] = $token;
+						} else {
+							$f1[] = $token;
+						}
 						$hasparam = false;
 						break;
-					}
 				}
-				// 'index' token without a name means single column index: name it after column
-				if (array_key_exists('INDEX', $f1) && $f1['INDEX'] == '') {
-					$f1['INDEX'] = isset($f0['NAME']) ? $f0['NAME'] : $f0[0];
-					// check if column name used to create an index name was quoted
-					if (($f1['INDEX'][0] == '"' || $f1['INDEX'][0] == "'" || $f1['INDEX'][0] == "`") &&
-						($f1['INDEX'][0] == substr($f1['INDEX'], -1))) {
-						$f1['INDEX'] = $f1['INDEX'][0].'idx_'.substr($f1['INDEX'], 1, -1).$f1['INDEX'][0];
-					}
-					else
-						$f1['INDEX'] = 'idx_'.$f1['INDEX'];
-				}
-				// reset it, so we don't get next field 1st token as INDEX...
-				$hasparam = false;
-
-				$flds[] = $f1;
-
 			}
+
+			// 'index' token without a name means single column index: name it after column
+			if (array_key_exists('INDEX', $f1) && $f1['INDEX'] == '') {
+				$f1['INDEX'] = isset($f0['NAME']) ? $f0['NAME'] : $f0[0];
+				// check if column name used to create an index name was quoted
+				if (($f1['INDEX'][0] == '"' || $f1['INDEX'][0] == "'" || $f1['INDEX'][0] == "`") &&
+					($f1['INDEX'][0] == substr($f1['INDEX'], -1))) {
+					$f1['INDEX'] = $f1['INDEX'][0] . 'idx_' . substr($f1['INDEX'], 1, -1) . $f1['INDEX'][0];
+				} else {
+					$f1['INDEX'] = 'idx_' . $f1['INDEX'];
+				}
+			}
+			// reset it, so we don't get next field 1st token as INDEX...
+			$hasparam = false;
+
+			$flds[] = $f1;
 		}
+		return $flds;
+	}
+
+
+	/**
+	 * Generate fields definition SQL from Dictionary Column Attributes.
+	 *
+	 * Third and final part of the process to generate the columns definition SQL.
+	 *
+ 	 * @param string|array $flds String to parse or array from {@see genFieldsArray()}
+	 * @param bool $widespacing If true, column names are padded with spaces
+	 *
+	 * @return array|false SQL DDL statements to execute, or false
+	 *                     if columns definition is not valid.
+	 * @internal
+	 */
+	function _genFields($flds, $widespacing=false)
+	{
+		if (is_string($flds)) {
+			$flds = $this->genFieldsArray($flds);
+		}
+
 		$this->autoIncrement = false;
 		$lines = array();
 		$pkey = array();
@@ -1009,6 +1045,8 @@ class ADODB_DataDict {
 
 	/**
 	 * Parse Dictionary Column Attributes string.
+	 *
+	 * First pass of the process to generate the columns definition SQL.
 	 *
 	 * Treat "text" (text) and 'text' as quotation marks. To escape, use "" or '' or ))
 	 *
