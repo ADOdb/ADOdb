@@ -152,7 +152,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName($tabname);
 		$f = array();
-		list($lines,$pkey) = $this->_GenFields($flds);
+		list($lines,$pkey) = $this->_genFields($flds);
 		$s = "ALTER TABLE $tabname ADD (";
 		foreach($lines as $v) {
 			$f[] = "\n $v";
@@ -167,7 +167,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName($tabname);
 		$f = array();
-		list($lines,$pkey) = $this->_GenFields($flds);
+		list($lines,$pkey) = $this->_genFields($flds);
 		$s = "ALTER TABLE $tabname MODIFY(";
 		foreach($lines as $v) {
 			$f[] = "\n $v";

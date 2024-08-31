@@ -137,7 +137,7 @@ class ADODB2_mssql extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName ($tabname);
 		$f = array();
-		list($lines,$pkey) = $this->_GenFields($flds);
+		list($lines,$pkey) = $this->_genFields($flds);
 		$s = "ALTER TABLE $tabname $this->addCol";
 		foreach($lines as $v) {
 			$f[] = "\n $v";
@@ -152,7 +152,7 @@ class ADODB2_mssql extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
-		list($lines,$pkey) = $this->_GenFields($flds);
+		list($lines,$pkey) = $this->_genFields($flds);
 		foreach($lines as $v) {
 			$sql[] = "ALTER TABLE $tabname $this->alterCol $v";
 		}

@@ -119,7 +119,7 @@ class ADODB2_sapdb extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
-		list($lines,$pkey) = $this->_GenFields($flds);
+		list($lines,$pkey) = $this->_genFields($flds);
 		return array( 'ALTER TABLE ' . $tabname . ' ADD (' . implode(', ',$lines) . ')' );
 	}
 
@@ -127,7 +127,7 @@ class ADODB2_sapdb extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
-		list($lines,$pkey) = $this->_GenFields($flds);
+		list($lines,$pkey) = $this->_genFields($flds);
 		return array( 'ALTER TABLE ' . $tabname . ' MODIFY (' . implode(', ',$lines) . ')' );
 	}
 

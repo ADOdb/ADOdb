@@ -163,7 +163,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName ($tabname);
 		$f = array();
-		list($lines,) = $this->_GenFields($flds);
+		list($lines,) = $this->_genFields($flds);
 		$s = "ALTER TABLE $tabname $this->addCol";
 		foreach($lines as $v) {
 			$f[] = "\n $v";
@@ -193,7 +193,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
 
-		list($lines,,$idxs) = $this->_GenFields($flds);
+		list($lines,,$idxs) = $this->_genFields($flds);
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 		foreach($lines as $v) {
 			if ($not_null = preg_match('/NOT NULL/i',$v)) {

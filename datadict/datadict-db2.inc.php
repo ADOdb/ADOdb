@@ -86,7 +86,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
-		list($lines,$pkey,$idxs) = $this->_GenFields($flds);
+		list($lines,$pkey,$idxs) = $this->_genFields($flds);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
@@ -194,7 +194,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 		}
 
 		// already exists, alter table instead
-		list($lines,$pkey) = $this->_GenFields($flds);
+		list($lines,$pkey) = $this->_genFields($flds);
 		$alter = 'ALTER TABLE ' . $this->tableName($tablename);
 		$sql = array();
 

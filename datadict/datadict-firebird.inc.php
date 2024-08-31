@@ -161,7 +161,7 @@ class ADODB2_firebird extends ADODB_DataDict
 	 */
 	function createTableSQL($tabname, $flds, $tableoptions = array())
 	{
-		list($lines, $pkey, $idxs) = $this->_GenFields($flds, true);
+		list($lines, $pkey, $idxs) = $this->_genFields($flds, true);
 		// genfields can return FALSE at times
 		if ($lines == null) {
 			$lines = array();
@@ -250,7 +250,7 @@ class ADODB2_firebird extends ADODB_DataDict
 	{
 		$tabname = $this->TableName($tabname);
 		$sql = array();
-		list($lines, , $idxs) = $this->_GenFields($flds);
+		list($lines, , $idxs) = $this->_genFields($flds);
 		// genfields can return FALSE at times
 
 		if ($lines == null) {
