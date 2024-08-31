@@ -400,7 +400,7 @@ class ADODB_DataDict {
 	{
 		$tabname = $this->tableName($tabname);
 		$sql = array();
-		list($lines,$pkey,$idxs) = $this->_genFields($flds);
+		list($lines,, $idxs) = $this->_genFields($flds);
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
@@ -463,10 +463,12 @@ class ADODB_DataDict {
 	function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->tableName($tabname);
-		if (!is_array($flds)) $flds = explode(',',$flds);
+		if (!is_array($flds)) {
+			$flds = explode(',', $flds);
+		}
 		$sql = array();
 		$alter = 'ALTER TABLE ' . $tabname . $this->dropCol . ' ';
-		foreach($flds as $v) {
+		foreach ($flds as $v) {
 			$sql[] = $alter . $this->nameQuote($v);
 		}
 		return $sql;
@@ -532,50 +534,50 @@ class ADODB_DataDict {
 	 */
 	private function genFieldsArray(string $flds): array
 	{
-		$padding = '     ';
-		$txt = $flds . $padding;
-		$flds = array();
-		$flds0 = $this->parseArgs($txt);
-		$hasparam = false;
-		foreach ($flds0 as $f0) {
-			$f1 = array();
-			foreach ($f0 as $token) {
+		$parsed_columns = [];
+		$has_param = false;
+		foreach ($this->parseArgs($flds) as $raw_column) {
+			$column = [];
+			foreach ($raw_column as $token) {
 				switch (strtoupper($token)) {
+					/** @noinspection PhpMissingBreakStatementInspection */
 					case 'INDEX':
-						$f1['INDEX'] = '';
+						$column['INDEX'] = '';
 						// fall through intentionally
 					case 'CONSTRAINT':
 					case 'DEFAULT':
-						$hasparam = $token;
+						$has_param = $token;
 						break;
 					default:
-						if ($hasparam) {
-							$f1[$hasparam] = $token;
+						if ($has_param) {
+							$column[$has_param] = $token;
 						} else {
-							$f1[] = $token;
+							$column[] = $token;
 						}
-						$hasparam = false;
+						$has_param = false;
 						break;
 				}
 			}
 
 			// 'index' token without a name means single column index: name it after column
-			if (array_key_exists('INDEX', $f1) && $f1['INDEX'] == '') {
-				$f1['INDEX'] = isset($f0['NAME']) ? $f0['NAME'] : $f0[0];
+			if (array_key_exists('INDEX', $column) && $column['INDEX'] == '') {
+				$column['INDEX'] = $raw_column['NAME'] ?? $raw_column[0];
 				// check if column name used to create an index name was quoted
-				if (($f1['INDEX'][0] == '"' || $f1['INDEX'][0] == "'" || $f1['INDEX'][0] == "`") &&
-					($f1['INDEX'][0] == substr($f1['INDEX'], -1))) {
-					$f1['INDEX'] = $f1['INDEX'][0] . 'idx_' . substr($f1['INDEX'], 1, -1) . $f1['INDEX'][0];
+				$first_char = $column['INDEX'][0];
+				if (($first_char == '"' || $first_char == "'" || $first_char == "`") &&
+					($first_char == $column['INDEX'][-1])
+				) {
+					$column['INDEX'] = $first_char . 'idx_' . substr($column['INDEX'], 1, -1) . $first_char;
 				} else {
-					$f1['INDEX'] = 'idx_' . $f1['INDEX'];
+					$column['INDEX'] = 'idx_' . $column['INDEX'];
 				}
 			}
 			// reset it, so we don't get next field 1st token as INDEX...
-			$hasparam = false;
+			$has_param = false;
 
-			$flds[] = $f1;
+			$parsed_columns[] = $column;
 		}
-		return $flds;
+		return $parsed_columns;
 	}
 
 
@@ -601,9 +603,10 @@ class ADODB_DataDict {
 		$lines = array();
 		$pkey = array();
 		$idxs = array();
-		foreach($flds as $fld) {
-			if (is_array($fld))
-				$fld = array_change_key_case($fld,CASE_UPPER);
+		foreach ($flds as $fld) {
+			if (is_array($fld)) {
+				$fld = array_change_key_case($fld, CASE_UPPER);
+			}
 			$fname = false;
 			$fdefault = false;
 			$fautoinc = false;
@@ -619,66 +622,86 @@ class ADODB_DataDict {
 			$funsigned = false;
 			$findex = '';
 			$funiqueindex = false;
-			$fOptions	  = array();
+			$fOptions = array();
 
 			//-----------------
 			// Parse attributes
-			foreach($fld as $attr => $v) {
-				if ($attr == 2 && is_numeric($v))
+			foreach ($fld as $attr => $v) {
+				if ($attr == 2 && is_numeric($v)) {
 					$attr = 'SIZE';
-				elseif ($attr == 2 && strtoupper($ftype) == 'ENUM')
+				} elseif ($attr == 2 && strtoupper($ftype) == 'ENUM') {
 					$attr = 'ENUM';
-				else if (is_numeric($attr) && $attr > 1 && !is_numeric($v))
-					$attr = strtoupper($v);
-
-				switch($attr) {
-				case '0':
-				case 'NAME': 	$fname = $v; break;
-				case '1':
-				case 'TYPE':
-
-					$ty = $v;
-					$ftype = $this->actualType(strtoupper($v));
-					break;
-
-				case 'SIZE':
-					$dotat = strpos($v,'.');
-					if ($dotat === false)
-						$dotat = strpos($v,',');
-					if ($dotat === false)
-						$fsize = $v;
-					else {
-
-						$fsize = substr($v,0,$dotat);
-						$fprec = substr($v,$dotat+1);
-
+				} else {
+					if (is_numeric($attr) && $attr > 1 && !is_numeric($v)) {
+						$attr = strtoupper($v);
 					}
-					break;
-				case 'UNSIGNED': $funsigned = true; break;
-				case 'AUTOINCREMENT':
-				case 'AUTO':	$fautoinc = true; $fnotnull = true; break;
-				case 'KEY':
-                // a primary key col can be non unique in itself (if key spans many cols...)
-				case 'PRIMARY':	$fprimary = $v; $fnotnull = true; /*$funiqueindex = true;*/ break;
-				case 'DEF':
-				case 'DEFAULT': $fdefault = $v; break;
-				case 'NOTNULL': $fnotnull = $v; break;
-				case 'NOQUOTE': $fnoquote = $v; break;
-				case 'DEFDATE': $fdefdate = $v; break;
-				case 'DEFTIMESTAMP': $fdefts = $v; break;
-				case 'CONSTRAINT': $fconstraint = $v; break;
-				// let INDEX keyword create a 'very standard' index on column
-				case 'INDEX': $findex = $v; break;
-				case 'UNIQUE': $funiqueindex = true; break;
-				case 'ENUM':
-					$fOptions['ENUM'] = $v; break;
-				} //switch
+				}
+
+				switch ($attr) {
+					case '0':
+					case 'NAME':
+						$fname = $v;
+						break;
+					case '1':
+					case 'TYPE':
+						$ty = $v;
+						$ftype = $this->actualType(strtoupper($v));
+						break;
+					case 'SIZE':
+						list($fsize, $fprec) = $this->_getSizePrec($v);
+						break;
+					case 'UNSIGNED':
+						$funsigned = true;
+						break;
+					case 'AUTOINCREMENT':
+					case 'AUTO':
+						$fautoinc = true;
+						$fnotnull = true;
+						break;
+					case 'KEY':
+						// a primary key col can be non-unique in itself (if key spans many cols...)
+					case 'PRIMARY':
+						$fprimary = $v;
+						$fnotnull = true; /*$funiqueindex = true;*/
+						break;
+					case 'DEF':
+					case 'DEFAULT':
+						$fdefault = $v;
+						break;
+					case 'NOTNULL':
+						$fnotnull = $v;
+						break;
+					case 'NOQUOTE':
+						$fnoquote = $v;
+						break;
+					case 'DEFDATE':
+						$fdefdate = $v;
+						break;
+					case 'DEFTIMESTAMP':
+						$fdefts = $v;
+						break;
+					case 'CONSTRAINT':
+						$fconstraint = $v;
+						break;
+						// let INDEX keyword create a 'very standard' index on column
+					case 'INDEX':
+						$findex = $v;
+						break;
+					case 'UNIQUE':
+						$funiqueindex = true;
+						break;
+					case 'ENUM':
+						$fOptions['ENUM'] = $v;
+						break;
+				}
 			} // foreach $fld
 
 			//--------------------
 			// VALIDATE FIELD INFO
 			if (!strlen($fname)) {
-				if ($this->debug) ADOConnection::outp("Undefined NAME");
+				if ($this->debug) {
+					ADOConnection::outp("Undefined NAME");
+				}
 				return false;
 			}
 
@@ -686,7 +709,9 @@ class ADODB_DataDict {
 			$fname = $this->nameQuote($fname);
 
 			if (!strlen($ftype)) {
-				if ($this->debug) ADOConnection::outp("Undefined TYPE for field '$fname'");
+				if ($this->debug) {
+					ADOConnection::outp("Undefined TYPE for field '$fname'");
+				}
 				return false;
 			} else {
 				$ftype = strtoupper($ftype);
@@ -694,41 +719,41 @@ class ADODB_DataDict {
 
 			$ftype = $this->_getSize($ftype, $ty, $fsize, $fprec, $fOptions);
 
-			if (($ty == 'X' || $ty == 'X2' || $ty == 'XL' || $ty == 'B') && !$this->blobAllowsNotNull)
-				/*
-				* some blob types do not accept nulls, so we override the
-				* previously defined value
-				*/
+			$is_blob = $ty == 'X' || $ty == 'X2' || $ty == 'XL' || $ty == 'B';
+			if ($is_blob && !$this->blobAllowsNotNull) {
+				// some blob types do not accept nulls, so we override the previously defined value
 				$fnotnull = false;
-
-			if ($fprimary)
-				$pkey[] = $fname;
-
-			if (($ty == 'X' || $ty == 'X2' || $ty == 'XL' || $ty == 'B') && !$this->blobAllowsDefaultValue)
-				/*
-				* some databases do not allow blobs to have defaults, so we
-				* override the previously defined value
-				*/
+			}
+			if ($is_blob && !$this->blobAllowsDefaultValue) {
+				// some databases do not allow blobs to have defaults,
+				// so we override the previously defined value
 				$fdefault = false;
+			}
+
+			if ($fprimary) {
+				$pkey[] = $fname;
+			}
 
 			// build list of indexes
 			if ($findex != '') {
 				if (array_key_exists($findex, $idxs)) {
 					$idxs[$findex]['cols'][] = ($fname);
 					if (in_array('UNIQUE', $idxs[$findex]['opts']) != $funiqueindex) {
-						if ($this->debug) ADOConnection::outp("Index $findex defined once UNIQUE and once not");
+						if ($this->debug) {
+							ADOConnection::outp("Index $findex defined once UNIQUE and once not");
+						}
 					}
-					if ($funiqueindex && !in_array('UNIQUE', $idxs[$findex]['opts']))
+					if ($funiqueindex && !in_array('UNIQUE', $idxs[$findex]['opts'])) {
 						$idxs[$findex]['opts'][] = 'UNIQUE';
-				}
-				else
-				{
+					}
+				} else {
 					$idxs[$findex] = array();
 					$idxs[$findex]['cols'] = array($fname);
-					if ($funiqueindex)
+					if ($funiqueindex) {
 						$idxs[$findex]['opts'] = array('UNIQUE');
-					else
+					} else {
 						$idxs[$findex]['opts'] = array();
+					}
 				}
 			}
 
@@ -744,38 +769,43 @@ class ADODB_DataDict {
 
 					if (($ty == 'D' || $ty == 'T') && strtolower($fdefault) != 'null') {
 						// convert default date into database-aware code
-						if ($ty == 'T')
-						{
+						if ($ty == 'T') {
 							$fdefault = $this->connection->dbTimeStamp($fdefault);
-						}
-						else
-						{
+						} else {
 							$fdefault = $this->connection->dbDate($fdefault);
 						}
+					} else {
+						if (strlen($fdefault) != 1 && substr($fdefault, 0, 1) == ' ' && substr($fdefault,
+								strlen($fdefault) - 1) == ' ') {
+							$fdefault = trim($fdefault);
+						} else {
+							if (strtolower($fdefault) != 'null') {
+								$fdefault = $this->connection->qstr($fdefault);
+							}
+						}
 					}
-					else
-					if (strlen($fdefault) != 1 && substr($fdefault,0,1) == ' ' && substr($fdefault,strlen($fdefault)-1) == ' ')
-						$fdefault = trim($fdefault);
-					else if (strtolower($fdefault) != 'null')
-						$fdefault = $this->connection->qstr($fdefault);
 				}
 			}
 			$suffix = $this->_createSuffix($fname, $ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, $pkey);
 
 			// add index creation
-			if ($widespacing) $fname = str_pad($fname,24);
+			if ($widespacing) {
+				$fname = str_pad($fname, 24);
+			}
 
-			 // check for field names appearing twice
-            if (array_key_exists($fid, $lines)) {
-            	 ADOConnection::outp("Field '$fname' defined twice");
-            }
+			// check for field names appearing twice
+			if (array_key_exists($fid, $lines)) {
+				ADOConnection::outp("Field '$fname' defined twice");
+			}
 
-			$lines[$fid] = $fname.' '.$ftype.$suffix;
+			$lines[$fid] = $fname . ' ' . $ftype . $suffix;
 
-			if ($fautoinc) $this->autoIncrement = true;
+			if ($fautoinc) {
+				$this->autoIncrement = true;
+			}
 		} // foreach $flds
 
-		return array($lines,$pkey,$idxs);
+		return array($lines, $pkey, $idxs);
 	}
 
 	/**
@@ -941,14 +971,16 @@ class ADODB_DataDict {
 
 	function _getSizePrec($size)
 	{
-		$fsize = false;
 		$fprec = false;
-		$dotat = strpos($size,'.');
-		if ($dotat === false) $dotat = strpos($size,',');
-		if ($dotat === false) $fsize = $size;
-		else {
-			$fsize = substr($size,0,$dotat);
-			$fprec = substr($size,$dotat+1);
+		$dotat = strpos($size, '.');
+		if ($dotat === false) {
+			$dotat = strpos($size, ',');
+		}
+		if ($dotat === false) {
+			$fsize = $size;
+		} else {
+			$fsize = substr($size, 0, $dotat);
+			$fprec = substr($size, $dotat + 1);
 		}
 		return array($fsize, $fprec);
 	}
@@ -981,7 +1013,7 @@ class ADODB_DataDict {
 		if (isset($savem)) $this->connection->setFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 
-		if ( empty($cols)) {
+		if (empty($cols)) {
 			return $this->createTableSQL($tablename, $flds, $tableoptions);
 		}
 
@@ -1001,7 +1033,7 @@ class ADODB_DataDict {
 					if (isset($obj->not_null) && $obj->not_null)
 						$v = str_replace('NOT NULL','',$v);
 					if (isset($obj->auto_increment) && $obj->auto_increment && empty($v['AUTOINCREMENT']))
-					    $v = str_replace('AUTOINCREMENT','',$v);
+						$v = str_replace('AUTOINCREMENT','',$v);
 
 					$c = $cols[$k];
 					$ml = $c->max_length;
