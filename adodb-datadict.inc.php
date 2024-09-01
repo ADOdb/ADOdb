@@ -1097,18 +1097,33 @@ class ADODB_DataDict {
 			$flds = $holdflds;
 		}
 
+		try {
+			$lines = $this->_genFieldsArray($flds);
+		} catch (Exception $e) {
+			// Catching the error for backwards-compatibility.
+			return [];
+		}
+
+		$fields_to_add = $fields_to_alter = [];
+		foreach ($lines as $id => $def) {
+			if(array_key_exists($id, $cols)) {
+				$fields_to_alter[$id] = $def;
+			} else {
+				$fields_to_add[$id] = $def;
+			}
+		}
+
 		$sql = array_merge(
 			$this->addColumnSQL($tablename, $fields_to_add),
 			$this->alterColumnSql($tablename, $fields_to_alter)
 		);
 
+		// Drop all columns in the table that were neither added nor altered
 		if ($dropOldFlds) {
-			foreach ($cols as $id => $v) {
-				if (!isset($lines[$id])) {
-					$sql[] = $this->dropColumnSQL($tablename, $flds);
-				}
-			}
+			$fields_to_drop = array_keys(array_diff_key($cols, $lines));
+			$sql = array_merge($sql, $this->dropColumnSQL($tablename, $fields_to_drop));
 		}
+
 		return $sql;
 	}
 
