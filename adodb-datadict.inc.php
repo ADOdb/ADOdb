@@ -558,6 +558,7 @@ class ADODB_DataDict {
 	 * @param string $flds String to parse.
 	 *
 	 * @return array 2-d array: column index => column's attributes
+	 * @throws Exception If string is not a valid columns definition..
 	 * @internal
 	 */
 	function genFieldsArray(string $flds): array
@@ -606,7 +607,7 @@ class ADODB_DataDict {
 			// reset it, so we don't get next field 1st token as INDEX...
 			$has_param = false;
 
-			$parsed_columns[] = $column;
+			$parsed_columns[$id] = $column;
 		}
 		return $parsed_columns;
 	}
@@ -627,7 +628,11 @@ class ADODB_DataDict {
 	function _genFields($flds, $widespacing=false)
 	{
 		if (is_string($flds)) {
-			$flds = $this->genFieldsArray($flds);
+			try {
+				$flds = $this->genFieldsArray($flds);
+			} catch (Exception $e) {
+				return false;
+			}
 		}
 
 		$this->autoIncrement = false;
