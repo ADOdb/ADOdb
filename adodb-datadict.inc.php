@@ -519,7 +519,35 @@ class ADODB_DataDict {
 
 
 	/**
-	 * Parse Dictionary Column Attributes.
+	 * Derive a field's Id from its name.
+	 *
+	 * Remove backquotes if present, and convert to upper case.
+	 *
+	 * @param string $name Field name.
+	 * @param array $fields List of fields, to check for duplicates.
+	 *
+	 * @return string Field Id.
+	 * @throws Exception If the field is not valid.
+	 */
+	private function getFieldIdFromName(string $name, array $fields = []): string
+	{
+		$id = strtoupper(preg_replace('/^`(.+)`$/', '$1', $name));
+
+		// check for field names appearing twice
+		if (array_key_exists($id, $fields)) {
+			$msg = "Field '$name' defined twice";
+			if ($this->debug) {
+				ADOConnection::outp($msg);
+			}
+			throw new Exception($msg);
+		}
+
+		return $id;
+	}
+
+
+	/**
+	 * Parse Dictionary Column Attributes - Pass 1.
 	 *
 	 * Second pass of the process to generate the columns definition SQL
 	 * from textual representation.
@@ -532,7 +560,7 @@ class ADODB_DataDict {
 	 * @return array 2-d array: column index => column's attributes
 	 * @internal
 	 */
-	private function genFieldsArray(string $flds): array
+	function genFieldsArray(string $flds): array
 	{
 		$parsed_columns = [];
 		$has_param = false;
@@ -558,6 +586,9 @@ class ADODB_DataDict {
 						break;
 				}
 			}
+
+			// Field ID
+			$id = $this->getFieldIdFromName($column[0], $parsed_columns);
 
 			// 'index' token without a name means single column index: name it after column
 			if (array_key_exists('INDEX', $column) && $column['INDEX'] == '') {
@@ -640,7 +671,12 @@ class ADODB_DataDict {
 				switch ($attr) {
 					case '0':
 					case 'NAME':
-						$fname = $v;
+						$fname = $this->nameQuote($v);
+						try {
+							$fid = $this->getFieldIdFromName($v, $lines);
+						} catch (Exception $e) {
+							return false;
+						}
 						break;
 					case '1':
 					case 'TYPE':
@@ -704,9 +740,6 @@ class ADODB_DataDict {
 				}
 				return false;
 			}
-
-			$fid = strtoupper(preg_replace('/^`(.+)`$/', '$1', $fname));
-			$fname = $this->nameQuote($fname);
 
 			if (!strlen($ftype)) {
 				if ($this->debug) {
@@ -791,11 +824,6 @@ class ADODB_DataDict {
 			// add index creation
 			if ($widespacing) {
 				$fname = str_pad($fname, 24);
-			}
-
-			// check for field names appearing twice
-			if (array_key_exists($fid, $lines)) {
-				ADOConnection::outp("Field '$fname' defined twice");
 			}
 
 			$lines[$fid] = $fname . ' ' . $ftype . $suffix;
@@ -1093,7 +1121,7 @@ class ADODB_DataDict {
 	 * @returns array 2-dimensional array containing parsed tokens.
 	 * @internal
 	 */
-	private function parseArgs(string $args, string $endstmtchar=',', string $tokenchars='_.-'): array
+	function parseArgs(string $args, string $endstmtchar=',', string $tokenchars='_.-'): array
 	{
 		$pos = 0;
 		$intoken = false;
