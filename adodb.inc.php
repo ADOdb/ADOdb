@@ -3092,13 +3092,14 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @param string $table
 	 * @param string $column
-	 * @param string $val      Filename containing blob data
-	 * @param mixed  $where    {@see updateBlob()}
+	 * @param string $val      string containing blob data
+	 * @param mixed  $where    String containing the where clause
 	 * @param string $blobtype supports 'BLOB' (default) and 'CLOB'
 	 *
 	 * @return bool success
 	 */
-	function updateBlob($table, $column, $val, $where, $blobtype='BLOB') {
+	function updateBlob($table, $column, $val, $where, $blobtype='BLOB') 
+	{
 		return $this->Execute("UPDATE $table SET $column=? WHERE $where",array($val)) != false;
 	}
 
