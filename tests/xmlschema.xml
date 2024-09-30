@@ -17,13 +17,13 @@
   </table>
   <sql>
     <descr>SQL to be executed only on specific platforms</descr>
-    <query platform="postgres|postgres7">
+    <query platform="postgres">
       insert into mytable ( row1, row2 ) values ( 12, 'postgres stuff' )
     </query>
     <query platform="mysql">
       insert into mytable ( row1, row2 ) values ( 12, 'mysql stuff' )
     </query>
-	<query platform="mssql">
+    <query platform="mssql">
       insert into mytable ( row1, row2 ) values ( 12, 'Microsoft stuff' )
     </query>
   </sql>
