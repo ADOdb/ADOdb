@@ -171,6 +171,18 @@ class ADODB2_postgres extends ADODB_DataDict
 				$sql[] = $alter . str_replace('DEFAULT '.$default,'',$v);
 				$sql[] = 'UPDATE '.$tabname.' SET '.$colname.'='.$default.' WHERE '.$colname.' IS NULL ';
 				$sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET DEFAULT ' . $default;
+			}
+			// SERIAL is not a true type in PostgreSQL and is only allowed when creating a new table.
+			// See http://www.postgresql.org/docs/9.4/static/datatype-numeric.html, 8.1.4. Serial Types.
+			elseif (preg_match('/^([^ ]+) .*SERIAL/i',$v,$matches)) {
+			       list(,$colname,$default) = $matches;
+			       $sql[] = 'CREATE SEQUENCE '.$tabname.'_'.$colname.'_seq';
+			       $sql[] = $alter.$colname.' INTEGER';
+			       $sql[] = 'ALTER SEQUENCE '.$tabname.'_'.$colname.'_seq OWNED BY '.$tabname.'.'.$colname;
+			       $sql[] = 'UPDATE '.$tabname.' SET '.$colname.' = nextval(\''.$tabname.'_'.$colname.'_seq\')';
+			       $sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET DEFAULT nextval(\''.$tabname.'_'.$colname.'_seq\')';
+			       $sql[] = 'ALTER TABLE '.$tabname.' ALTER COLUMN '.$colname.' SET NOT NULL';
+			       $not_null = false;
 			} else {
 				$sql[] = $alter . $v;
 			}
@@ -226,7 +238,12 @@ class ADODB2_postgres extends ADODB_DataDict
 					// the default value
 					$v = preg_replace('/(?<!DEFAULT)\sNULL/i','',$v);
 				}
-
+				// SERIAL is not a true type in PostgreSQL and is only allowed when creating a new table.
+				// See http://www.postgresql.org/docs/9.4/static/datatype-numeric.html, 8.1.4. Serial Types.
+				// Just skip, no failsafe solution found yet.
+				if (preg_match('/SERIAL/i',$v)) {
+					continue;
+				}
 				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
 					$existing = $this->metaColumns($tabname);
 					list(,$colname,$default) = $matches;
