@@ -366,7 +366,7 @@ function _adodb_getmenu_select($name, $defstr = '', $blank1stItem = true,
 function _adodb_getmenu_option($defstr, $compare, $value, $display)
 {
 	if (   is_array($defstr) && in_array($compare, $defstr)
-		|| !is_array($defstr) && strcasecmp($compare, $defstr) == 0
+		|| !is_array($defstr) && strcasecmp($compare, $defstr ?? '') == 0
 	) {
 		$selected = ' selected="selected"';
 	} else {
