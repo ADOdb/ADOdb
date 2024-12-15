@@ -547,7 +547,7 @@ class ADODB_DataDict {
 	 * @param string $flds='' complete column-definition-string like for addColumnSQL, only used by mysql atm., default=''
 	 * @return array with SQL strings
 	 */
-	function renameColumnSQL($tabname,$oldcolumn,$newcolumn,$flds='')
+	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
 	{
 		$tabname = $this->tableName($tabname);
 		if ($flds) {
@@ -571,7 +571,7 @@ class ADODB_DataDict {
 	 * @param array|string $tableoptions='' options for the new table see createTableSQL, default ''
 	 * @return array with SQL strings
 	 */
-	function dropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->tableName($tabname);
 		if (!is_array($flds)) $flds = explode(',',$flds);
