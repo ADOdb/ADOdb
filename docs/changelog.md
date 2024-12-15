@@ -24,6 +24,8 @@ Older changelogs:
   [#805](https://github.com/ADOdb/ADOdb/issues/805)
 - pdo: bind support both '?'-style and named parameters
   [#880](https://github.com/ADOdb/ADOdb/issues/880)
+- sqlite: support for DROP and RENAME COLUMN
+  [#1053](https://github.com/ADOdb/ADOdb/issues/1053)
 
 ### Changed
 
