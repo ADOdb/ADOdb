@@ -135,7 +135,7 @@ class ADODB2_firebird extends ADODB_DataDict
 	}
 
 
-	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned,$fprimary,&$pkey)
+	function _createSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned,$fprimary,&$pkey)
 	{
 		$suffix = '';
 
