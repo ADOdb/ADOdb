@@ -32,44 +32,54 @@ class ADODB2_sqlite extends ADODB_DataDict {
 
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;
-    
-	function ActualType($meta)
+
+	function actualType($meta)
 	{
-		
 		$meta = strtoupper($meta);
-		
-		/*
-		* Add support for custom meta types. We do this
-		* first, that allows us to override existing types
-		*/
-		if (isset($this->connection->customMetaTypes[$meta]))
+
+		// Add support for custom meta types.
+		// We do this first, that allows us to override existing types
+		if (isset($this->connection->customMetaTypes[$meta])) {
 			return $this->connection->customMetaTypes[$meta]['actual'];
-		
+		}
+
 		switch(strtoupper($meta)) {
-		case 'C': return 'VARCHAR'; //  TEXT , TEXT affinity
-		case 'XL':return 'LONGTEXT'; //  TEXT , TEXT affinity
-		case 'X': return 'TEXT'; //  TEXT , TEXT affinity
+			case 'C':
+			case 'C2':
+				return 'VARCHAR'; //  TEXT , TEXT affinity
+			case 'XL':
+			case 'X2':
+				return 'LONGTEXT'; //  TEXT , TEXT affinity
+			case 'X':
+				return 'TEXT'; //  TEXT , TEXT affinity
 
-		case 'C2': return 'VARCHAR'; //  TEXT , TEXT affinity
-		case 'X2': return 'LONGTEXT'; //  TEXT , TEXT affinity
+			case 'B':
+				return 'LONGBLOB'; //  TEXT , NONE affinity , BLOB
 
-		case 'B': return 'LONGBLOB'; //  TEXT , NONE affinity , BLOB
+			case 'D':
+				return 'DATE'; // NUMERIC , NUMERIC affinity
+			case 'T':
+				return 'DATETIME'; // NUMERIC , NUMERIC affinity
 
-		case 'D': return 'DATE'; // NUMERIC , NUMERIC affinity
-		case 'T': return 'DATETIME'; // NUMERIC , NUMERIC affinity
-		case 'L': return 'TINYINT'; // NUMERIC , INTEGER affinity
+			case 'I':
+			case 'R':
+			case 'I4':
+				return 'INTEGER'; // NUMERIC , INTEGER affinity
+			case 'L':
+			case 'I1':
+				return 'TINYINT'; // NUMERIC , INTEGER affinity
+			case 'I2':
+				return 'SMALLINT'; // NUMERIC , INTEGER affinity
+			case 'I8':
+				return 'BIGINT'; // NUMERIC , INTEGER affinity
 
-		case 'R':
-		case 'I4':
-		case 'I': return 'INTEGER'; // NUMERIC , INTEGER affinity
-		case 'I1': return 'TINYINT'; // NUMERIC , INTEGER affinity
-		case 'I2': return 'SMALLINT'; // NUMERIC , INTEGER affinity
-		case 'I8': return 'BIGINT'; // NUMERIC , INTEGER affinity
+			case 'F':
+				return 'DOUBLE'; // NUMERIC , REAL affinity
+			case 'N':
+				return 'NUMERIC'; // NUMERIC , NUMERIC affinity
 
-		case 'F': return 'DOUBLE'; // NUMERIC , REAL affinity
-		case 'N': return 'NUMERIC'; // NUMERIC , NUMERIC affinity
-		default:
-			return $meta;
+			default:
+				return $meta;
 		}
 	}
 
@@ -89,22 +99,34 @@ class ADODB2_sqlite extends ADODB_DataDict {
 		return $suffix;
 	}
 
-	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	function alterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
-		if ($this->debug) ADOConnection::outp("AlterColumnSQL not supported natively by SQLite");
+		if ($this->debug) {
+			ADOConnection::outp("AlterColumnSQL not supported natively by SQLite");
+		}
 		return array();
 	}
 
-	function DropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
-		if ($this->debug) ADOConnection::outp("DropColumnSQL not supported natively by SQLite");
-		return array();
+		if (SQLite3::version()['versionNumber'] < 3035000) {
+			if ($this->debug) {
+				ADOConnection::outp("DropColumnSQL is only supported since SQLite 3.35.0");
+			}
+			return array();
+		}
+		return parent::dropColumnSQL($tabname, $flds, $tableflds, $tableoptions);
 	}
 
-	function RenameColumnSQL($tabname,$oldcolumn,$newcolumn,$flds='')
+	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
 	{
-		if ($this->debug) ADOConnection::outp("RenameColumnSQL not supported natively by SQLite");
-		return array();
+		if (SQLite3::version()['versionNumber'] < 3025000) {
+			if ($this->debug) {
+				ADOConnection::outp("renameColumnSQL is only supported since SQLite 3.25.0");
+			}
+			return array();
+		}
+		return parent::renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds);
 	}
 
 }

@@ -510,10 +510,12 @@ class ADODB_DataDict {
 	 *
 	 * As some DBMs can't do that on their own, you need to supply the complete definition of the new table,
 	 * to allow recreating the table and copying the content over to the new table
-	 * @param string $tabname table-name
-	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds='' complete definition of the new table, eg. for postgres, default ''
+	 *
+	 * @param string       $tabname table-name
+	 * @param array|string $flds column-name and type for the changed column
+	 * @param string       $tableflds='' complete definition of the new table, eg. for postgres, default ''
 	 * @param array|string $tableoptions='' options for the new table see createTableSQL, default ''
+	 *
 	 * @return array with SQL strings
 	 */
 	function alterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
@@ -538,16 +540,20 @@ class ADODB_DataDict {
 	}
 
 	/**
-	 * Rename one column
+	 * Rename one column.
 	 *
-	 * Some DBMs can only do this together with changeing the type of the column (even if that stays the same, eg. mysql)
-	 * @param string $tabname table-name
-	 * @param string $oldcolumn column-name to be renamed
-	 * @param string $newcolumn new column-name
-	 * @param string $flds='' complete column-definition-string like for addColumnSQL, only used by mysql atm., default=''
-	 * @return array with SQL strings
+	 * Some DBs can only do this together with changing the type of the column
+	 * (even if that stays the same, eg. MySQL).
+	 *
+	 * @param string $tabname   Table name.
+	 * @param string $oldcolumn Column to be renamed.
+	 * @param string $newcolumn New column name.
+	 * @param string $flds      Complete column definition string like for {@see addColumnSQL};
+	 *                          This is currently only used by MySQL. Defaults to ''.
+	 *
+	 * @return array SQL statements.
 	 */
-	function renameColumnSQL($tabname,$oldcolumn,$newcolumn,$flds='')
+	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
 	{
 		$tabname = $this->tableName($tabname);
 		if ($flds) {
@@ -561,17 +567,21 @@ class ADODB_DataDict {
 	}
 
 	/**
-	 * Drop one column
+	 * Drop one column.
 	 *
-	 * Some DBM's can't do that on their own, you need to supply the complete definition of the new table,
-	 * to allow, recreating the table and copying the content over to the new table
-	 * @param string $tabname table-name
-	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds='' complete definition of the new table, eg. for postgres, default ''
-	 * @param array|string $tableoptions='' options for the new table see createTableSQL, default ''
-	 * @return array with SQL strings
+	 * Some DBs can't do that on their own (e.g. PostgreSQL), so you need
+	 * to supply the complete definition of the new table, to allow recreating
+	 * it and copying the content over to the new table.
+	 *
+	 * @param string       $tabname      Table name.
+	 * @param string       $flds         Column name and type for the changed column.
+	 * @param string       $tableflds    Complete definition of the new table. Defaults to ''.
+	 * @param array|string $tableoptions Options for the new table {@see createTableSQL()},
+	 *                                   defaults to ''.
+	 *
+	 * @return array SQL statements.
 	 */
-	function dropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->tableName($tabname);
 		if (!is_array($flds)) $flds = explode(',',$flds);
@@ -1044,12 +1054,15 @@ class ADODB_DataDict {
 			return $this->createTableSQL($tablename, $flds, $tableoptions);
 		}
 
+		$sql = [];
 		if (is_array($flds)) {
 		// Cycle through the update fields, comparing
 		// existing fields to fields to update.
 		// if the Metatype and size is exactly the
 		// same, ignore - by Mark Newham
 			$holdflds = array();
+			$fields_to_add = [];
+			$fields_to_alter = [];
 			foreach($flds as $k=>$v) {
 				if ( isset($cols[$k]) && is_object($cols[$k]) ) {
 					// If already not allowing nulls, then don't change

@@ -956,13 +956,11 @@ class ADODB_mysqli extends ADOConnection {
 				   AND table_name='$table'";
 
 		$schemaArray = $this->getAssoc($SQL);
-		if (!$schemaArray) {
-			return false;
+		if (is_array($schemaArray)) {
+			$schemaArray = array_change_key_case($schemaArray,CASE_LOWER);
+			$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
 		}
 
-		$schemaArray = array_change_key_case($schemaArray,CASE_LOWER);
-
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 		if (!is_object($rs))

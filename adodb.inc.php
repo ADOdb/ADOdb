@@ -2484,7 +2484,9 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Insert or replace a single record. Note: this is not the same as MySQL's replace.
+	 * Insert or replace a single record (upsert).
+	 *
+	 * Note: this is not the same as MySQL's replace.
 	 * ADOdb's Replace() uses update-insert semantics, not insert-delete-duplicates of MySQL.
 	 * Also note that no table locking is done currently, so it is possible that the
 	 * record be inserted twice by two programs...
