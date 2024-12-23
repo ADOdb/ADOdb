@@ -206,7 +206,7 @@ class dbObject {
 /**
  * Creates a table object in ADOdb's datadict format
  *
- * This class stores information about a database table. As charactaristics
+ * This class stores information about a database table. As characteristics
  * of the table are loaded from the external source, methods and properties
  * of this class are used to build up the table description in ADOdb's
  * datadict format.
@@ -263,7 +263,7 @@ class dbTable extends dbObject {
 	var $data;
 
 	/**
-	 * Iniitializes a new table object.
+	 * Initializes a new table object.
 	 *
 	 * @param string $prefix DB Object prefix
 	 * @param array $attributes Array of table attributes.
@@ -656,7 +656,7 @@ class dbTable extends dbObject {
 /**
  * Creates an index object in ADOdb's datadict format
  *
- * This class stores information about a database index. As charactaristics
+ * This class stores information about a database index. As characteristics
  * of the index are loaded from the external source, methods and properties
  * of this class are used to build up the index description in ADOdb's
  * datadict format.

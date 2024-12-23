@@ -284,7 +284,7 @@ class ADODB2_postgres extends ADODB_DataDict
 
 		// does not have alter column
 		if (!$tableflds) {
-			if ($this->debug) ADOConnection::outp("AlterColumnSQL needs a complete table-definiton for PostgreSQL");
+			if ($this->debug) ADOConnection::outp("AlterColumnSQL needs a complete table-definition for PostgreSQL");
 			return array();
 		}
 		return $this->_recreate_copy_table($tabname, false, $tableflds,$tableoptions);
@@ -306,7 +306,7 @@ class ADODB2_postgres extends ADODB_DataDict
 		$has_drop_column = 7.3 <= (float) @$this->serverInfo['version'];
 		if (!$has_drop_column && !$tableflds) {
 			if ($this->debug) {
-				ADOConnection::outp("dropColumnSQL needs complete table-definiton for PostgreSQL < 7.3");
+				ADOConnection::outp("dropColumnSQL needs complete table-definition for PostgreSQL < 7.3");
 			}
 			return array();
 		}
@@ -335,7 +335,7 @@ class ADODB2_postgres extends ADODB_DataDict
 		foreach($this->metaColumns($tabname) as $fld) {
 			if (preg_match('/'.$fld->name.' (\w+)/i', $tableflds, $matches)) {
 				$new_type = strtoupper($matches[1]);
-				// AlterColumn of a char column to a nummeric one needs an explicit conversation
+				// AlterColumn of a char column to a numeric one needs an explicit conversation
 				if (in_array($new_type, array('I', 'I2', 'I4', 'I8', 'N', 'F')) &&
 					in_array($fld->type, array('varchar','char','text','bytea'))
 				) {
@@ -412,7 +412,7 @@ class ADODB2_postgres extends ADODB_DataDict
 		return $suffix;
 	}
 
-	// search for a sequence for the given table (asumes the seqence-name contains the table-name!)
+	// search for a sequence for the given table (assumes the sequence-name contains the table-name!)
 	// if yes return sql to drop it
 	// this is still necessary if postgres < 7.3 or the SERIAL was created on an earlier version!!!
 	function _dropAutoIncrement($tabname)

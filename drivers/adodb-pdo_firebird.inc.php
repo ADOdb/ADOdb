@@ -33,7 +33,7 @@ class ADODB_pdo_firebird extends ADODB_pdo
 	var $arrayClass = 'ADORecordSet_array_pdo_firebird';
 
 	/**
-	 * Gets the version iformation from the server
+	 * Gets the version information from the server
 	 *
 	 * @return string[]
 	 */

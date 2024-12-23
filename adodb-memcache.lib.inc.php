@@ -35,7 +35,7 @@ if (empty($ADODB_INCLUDED_CSV)) {
 class ADODB_Cache_MemCache
 {
 	/**
-	 * @var bool Prevents parent class calling non-existant function
+	 * @var bool Prevents parent class calling non-existent function
 	 */
 	public $createdir = false;
 

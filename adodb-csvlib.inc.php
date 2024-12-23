@@ -270,7 +270,7 @@ $ADODB_INCLUDED_CSV = 1;
 	*/
 	function adodb_write_file($filename, $contents,$debug=false)
 	{
-	# http://www.php.net/bugs.php?id=9203 Bug that flock fails on Windows
+	# https://www.php.net/bugs.php?id=9203 Bug that flock fails on Windows
 	# So to simulate locking, we assume that rename is an atomic operation.
 	# First we delete $filename, then we create a $tempfile write to it and
 	# rename to the desired $filename. If the rename works, then we successfully

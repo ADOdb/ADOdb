@@ -61,7 +61,7 @@ class ADODB_netezza extends ADODB_postgres64 {
 	var $fmtTimeStamp = "'Y-m-d G:i:s'"; // used by DBTimeStamp as the default timestamp fmt.
 	var $ansiOuter = true;
 	var $autoRollback = true; // apparently pgsql does not autorollback properly before 4.3.4
-							// http://bugs.php.net/bug.php?id=25404
+							// https://bugs.php.net/bug.php?id=25404
 
 
 	function MetaColumns($table,$upper=true)
