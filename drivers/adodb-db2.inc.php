@@ -11,7 +11,7 @@
  * about all the changes, see the update information on the ADOdb website
  * for version 5.21.0.
  *
- * @link http://pecl.php.net/package/ibm_db2 PECL Extension For DB2
+ * @link https://pecl.php.net/package/ibm_db2 PECL Extension For DB2
  *
  * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
  *
@@ -179,7 +179,7 @@ class ADODB_db2 extends ADOConnection {
 												$db2Options);
 		}
 		else
-		
+
 			$this->_connectionID = $db2Function($argDSN,
 												'',
 												'',
@@ -193,7 +193,7 @@ class ADODB_db2 extends ADOConnection {
 
 		if ($this->_connectionID && $argDatabasename)
 			$this->execute("SET SCHEMA=$argDatabasename");
-		
+
 		return $this->_connectionID != false;
 
 	}
@@ -228,7 +228,7 @@ class ADODB_db2 extends ADOConnection {
 			$connectionParameters['dsn']      = $argDSN;
 			$connectionParameters['database'] = $argDatabasename;
 			$connectionParameters['catalogue'] = false;
-			
+
 			return $connectionParameters;
 		}
 

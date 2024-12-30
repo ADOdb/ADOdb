@@ -1059,7 +1059,7 @@ Committed_AS:   348732 kB
     /**
      * Reorganise current database.
      * Default implementation loops over all <code>MetaTables()</code> and
-     * optimize each using <code>optmizeTable()</code>
+     * optimize each using <code>optimizeTable()</code>
      *
      * @author Markus Staab
 	 * @return bool true on success, false on error

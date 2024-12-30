@@ -106,7 +106,7 @@ $err_count = 0;
 	$db->Execute("insert into songs (recordid, name, artistid) values(1,'No Hiding Place', 1)");
 	$db->Execute("insert into songs (recordid, name, artistid) values(2,'American Gangster Time', 1)");
 
-	// This class _implicitely_ relies on the 'people' table (pluralized form of 'person')
+	// This class _implicitly_ relies on the 'people' table (pluralized form of 'person')
 	class Person extends ADOdb_Active_Record
 	{
 		function __construct()
@@ -115,7 +115,7 @@ $err_count = 0;
 			$this->hasMany('children');
 		}
 	}
-	// This class _implicitely_ relies on the 'children' table
+	// This class _implicitly_ relies on the 'children' table
 	class Child extends ADOdb_Active_Record
 	{
 		function __construct()
@@ -124,7 +124,7 @@ $err_count = 0;
 			$this->belongsTo('person');
 		}
 	}
-	// This class _explicitely_ relies on the 'children' table and shares its metadata with Child
+	// This class _explicitly_ relies on the 'children' table and shares its metadata with Child
 	class Kid extends ADOdb_Active_Record
 	{
 		function __construct()
@@ -133,7 +133,7 @@ $err_count = 0;
 			$this->belongsTo('person');
 		}
 	}
-	// This class _explicitely_ relies on the 'children' table but does not share its metadata
+	// This class _explicitly_ relies on the 'children' table but does not share its metadata
 	class Rugrat extends ADOdb_Active_Record
 	{
 		function __construct()

@@ -82,7 +82,7 @@ class ADODB_postgres64 extends ADOConnection{
 							// http://bugs.php.net/bug.php?id=25404
 
 	var $uniqueIisR = true;
-	var $_bindInputArray = false; // requires postgresql 7.3+ and ability to modify database
+	var $_bindInputArray = false; // requires PostgreSQL 7.3+ and ability to modify database
 	var $disableBlobs = false; // set to true to disable blob checking, resulting in 2-5% improvement in performance.
 
 	/** @var int $_pnum Number of the last assigned query parameter {@see param()} */
@@ -96,7 +96,7 @@ class ADODB_postgres64 extends ADOConnection{
 	// and writes these time in this format: "2001-03-01 18:59:26+02".
 	// There is no code for the "+02" time zone information, so I just left that out.
 	// I'm not familiar enough with both ADODB as well as Postgres
-	// to know what the concequences are. The other values are correct (wheren't in 0.94)
+	// to know what the consequences are. The other values are correct (weren't in 0.94)
 	// -- Freek Dijkstra
 
 	/**

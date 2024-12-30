@@ -1162,7 +1162,7 @@ other database types as well; all drivers derived from the above are also impact
 - odbc: clear fields before fetching. See PHPLens Issue No: 17539
 - oci8: GetRowAssoc now works in ADODB_FETCH_ASSOC fetch mode
 - oci8: MetaType and MetaForeignKeys argument count are now strict-standards compliant
-- oci8: Added trailing `;` on trigger creation for sequence fields, prevents occurence of ORA-24344
+- oci8: Added trailing `;` on trigger creation for sequence fields, prevents occurrence of ORA-24344
 - oci8quercus: new oci8 driver with support for quercus jdbc data types.
 - pdo: Fixed concat recursion bug in 5.3. See PHPLens Issue No: 19285
 - pgsql: Default driver (postgres/pgsql) is now postgres8

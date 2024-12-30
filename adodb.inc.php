@@ -1484,7 +1484,7 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
-	 * Complete a transation.
+	 * Complete a transaction.
 	 *
 	 * Used together with StartTrans() to end a transaction. Monitors connection
 	 * for sql errors, and will commit or rollback as appropriate.
@@ -2301,7 +2301,7 @@ if (!defined('_ADODB_LAYER')) {
 	 *                             This is only relevant if the returned string
 	 *                             is coming from a CHAR type field.
 	 *
-	 * @return array|bool 1D array containning the first row of the query
+	 * @return array|bool 1D array containing the first row of the query
 	 */
 	function GetCol($sql, $inputarr = false, $trim = false) {
 
@@ -3085,9 +3085,9 @@ if (!defined('_ADODB_LAYER')) {
 		$this->_transmode  = $transaction_mode;
 	}
 /*
-http://msdn2.microsoft.com/en-US/ms173763.aspx
-http://dev.mysql.com/doc/refman/5.0/en/innodb-transaction-isolation.html
-http://www.postgresql.org/docs/8.1/interactive/sql-set-transaction.html
+https://msdn2.microsoft.com/en-US/ms173763.aspx
+https://dev.mysql.com/doc/refman/5.0/en/innodb-transaction-isolation.html
+https://www.postgresql.org/docs/8.1/interactive/sql-set-transaction.html
 http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_10005.htm
 */
 	function MetaTransaction($mode,$db) {
@@ -4533,7 +4533,7 @@ class ADORecordSet implements IteratorAggregate {
 	 * @param mixed $v		is the character timestamp in YYYY-MM-DD hh:mm:ss format
 	 * @param string [$fmt]	is the format to apply to it, using date()
 	 *
-	 * @return string a timestamp formated as user desires
+	 * @return string a timestamp formatted as user desires
 	 */
 	function UserTimeStamp($v,$fmt='Y-m-d H:i:s') {
 		if (is_numeric($v) && strlen($v)<14) {

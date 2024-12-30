@@ -105,7 +105,7 @@ END;
 	var $_bind = array();
 	var $_nestedSQL = true;
 	var $_getarray = false; // currently not working
-	var $leftOuter = '';  // oracle wierdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
+	var $leftOuter = '';  // oracle weirdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
 	var $session_sharing_force_blob = false; // alter session on updateblob if set to true
 	var $firstrows = true; // enable first rows optimization on SelectLimit()
 	var $selectOffsetAlg1 = 1000; // when to use 1st algorithm of selectlimit.
