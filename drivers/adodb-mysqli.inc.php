@@ -152,22 +152,74 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	/**
-	 * Adds a parameter to the connection string.
+	 * Adds a parameter to the connection string, can also set connection property values.
 	 *
 	 * Parameter must be one of the constants listed in mysqli_options().
 	 * @see https://www.php.net/manual/en/mysqli.options.php
-	 *
-	 * @param int    $parameter The parameter to set
-	 * @param string $value     The value of the parameter
+	 * 
+	 * OR 
+	 * 
+	 * Parameter must be a string matching one of the following special cases.
+	 * 'ssl' - SSL values e.g. ('ssl' => ['ca' => '/path/to/ca.crt.pem'])
+	 * 'clientflags' - Client flags of type 'MYSQLI_CLIENT_'
+	 * @see https://www.php.net/manual/en/mysqli.real-connect.php
+	 * @see https://www.php.net/manual/en/mysqli.constants.php
+	 * 'socket' - The socket or named pipe that should be used
+	 * 'port' - The port number to attempt to connect to the MySQL server
+	 * 
+	 * @param string|int $parameter The parameter to set
+	 * @param string|int|array $value The value of the parameter
 	 *
 	 * @return bool
 	 */
 	public function setConnectionParameter($parameter, $value) {
-		if(!is_numeric($parameter)) {
-			$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
-			return false;
+
+		// Special case for setting SSL values.
+		if ("ssl" === $parameter && is_array($value)) {
+			if (isset($value["key"])) {
+				$this->ssl_key = $value["key"];
+			}
+			if (isset($value["cert"])) {
+				$this->ssl_cert = $value["cert"];
+			}
+			if (isset($value["ca"])) {
+				$this->ssl_ca = $value["ca"];
+			}
+			if (isset($value["capath"])) {
+				$this->ssl_capath = $value["capath"];
+			}
+			if (isset($value["cipher"])) {
+				$this->ssl_cipher = $value["cipher"];
+			}
+
+			return true;
 		}
-		return parent::setConnectionParameter($parameter, $value);
+
+		// Special case for setting the client flag(s).
+		if ("clientflags" === $parameter && is_numeric($value)) {
+			$this->clientFlags = $value;
+			return true;
+		}
+
+		// Special case for setting the socket.
+		if ("socket" === $parameter && is_string($value)) {
+			$this->socket = $value;
+			return true;
+		}
+
+		// Special case for setting the port.
+		if ("port" === $parameter && is_numeric($value)) {
+			$this->port = (int)$value;
+			return true;
+		}
+
+		// Standard mysqli_options.
+		if (is_numeric($parameter)) {
+			return parent::setConnectionParameter($parameter, $value);
+		}
+
+		$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
+		return false;
 	}
 
 	/**
@@ -231,9 +283,14 @@ class ADODB_mysqli extends ADOConnection {
 
 		// SSL Connections for MySQLI
 		if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
+
 			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cert, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
-			$this->socket = MYSQLI_CLIENT_SSL;
-			$this->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+
+			// Check for any SSL client flag set, NOTE: bitwise operation.
+			if (!($this->clientFlags & MYSQLI_CLIENT_SSL)) {
+        			ADOConnection::outp('When using certificates, set the client flag MYSQLI_CLIENT_SSL_VERIFY_SERVER_CERT or MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT');
+				return false;
+			}
 		}
 
 		$ok = @mysqli_real_connect($this->_connectionID,
