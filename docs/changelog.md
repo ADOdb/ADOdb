@@ -20,19 +20,37 @@ Older changelogs:
 
 - mysql: allow forcing use of emulated prepared statements
   [#1028](https://github.com/ADOdb/ADOdb/issues/1028)
+- Georgian language strings
+  [#1042](https://github.com/ADOdb/ADOdb/issues/1042)
+
+### Changed
+
+- mysqli: Improve setConnectionParameter()
+  [#1044](https://github.com/ADOdb/ADOdb/issues/1044)
   
 ### Fixed
 
 - Backtrace output is not channeled through ADODB_OUTP
   [#1018](https://github.com/ADOdb/ADOdb/issues/1018)
+- changeColumnSQL not handling new vs changed columns correctly #1010
+  [#1010](https://github.com/ADOdb/ADOdb/issues/1010)
 - PHP 8 compatibility
-  [#1021](https://github.com/ADOdb/ADOdb/issues/1021)
-- Fix getAssoc() with ADODB_FETCH_DEFAULT mode
-  [#1023](https://github.com/ADOdb/ADOdb/issues/1023)
-- mysql: catch getAssoc() execution error in metaColumns()
-  [#1016](https://github.com/ADOdb/ADOdb/issues/1016)
-- ldap: PHP 8.2 error when $LDAP_CONNECT_OPTIONS not set
   [#1009](https://github.com/ADOdb/ADOdb/issues/1009)
+  [#1012](https://github.com/ADOdb/ADOdb/issues/1012)
+  [#1021](https://github.com/ADOdb/ADOdb/issues/1021)
+  [#1045](https://github.com/ADOdb/ADOdb/issues/1045)
+- db2: fix connections using *LOCAL on IBM i series
+  [#1031](https://github.com/ADOdb/ADOdb/issues/1031)
+  [#1032](https://github.com/ADOdb/ADOdb/issues/1032)
+- mysqli: catch getAssoc() execution error in metaColumns()
+  [#1016](https://github.com/ADOdb/ADOdb/issues/1016)
+- mysqli: fix getAssoc() with ADODB_FETCH_DEFAULT mode
+  [#1023](https://github.com/ADOdb/ADOdb/issues/1023)
+- mysqli: SSL not working due to wrong socket/flags
+  [#919](https://github.com/ADOdb/ADOdb/issues/919)
+  [#1043](https://github.com/ADOdb/ADOdb/issues/1043)
+- pgsql: fix serverInfo() version number
+  [#1059](https://github.com/ADOdb/ADOdb/issues/1059)
 
 
 ## [5.22.7] - 2023-11-04
