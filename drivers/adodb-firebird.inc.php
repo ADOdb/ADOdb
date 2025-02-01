@@ -72,7 +72,7 @@ class ADODB_firebird extends ADOConnection {
 	*/
 	public $dialect = 3;
 
-	var $nameQuote = '';		/// string to use to quote identifiers and names
+	var $nameQuote = '"';		/// string to use to quote identifiers and names - Added by MAB - Jan/2025
 
 	function __construct()
 	{
@@ -1023,8 +1023,7 @@ class ADORecordset_firebird extends ADORecordSet
 	 * @var bool Flag to indicate if the result has a blob
 	 */
 	private $fieldObjectsHaveBlob = false;
-
-
+	
 	/**
 	 * Returns: an object containing field information.
 	 *
