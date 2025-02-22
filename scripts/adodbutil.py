@@ -29,8 +29,7 @@ from os import path
 
 import requests
 import yaml
-from markdown import markdown
-
+from markdown_it import MarkdownIt
 
 class Environment:
     # See env.yml.sample for details about these config variables
@@ -161,7 +160,8 @@ class Matrix:
 
         :return: Posted message's ID
         """
-        html = markdown(message)
+        md = MarkdownIt()
+        html = md.render(message)
         plain_text = re.sub(r'(<!--.*?-->|<[^>]*>)', '', html)
         payload = {
             'msgtype': 'm.text',
