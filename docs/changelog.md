@@ -18,6 +18,8 @@ Older changelogs:
 
 ### Fixed
 
+- sqlite: Fulfill PRIMARY KEY AUTOINCREMENT requirements
+  [#1055](https://github.com/ADOdb/ADOdb/issues/1055)
 - sqlite: fix error reporting
   [#1061](https://github.com/ADOdb/ADOdb/issues/1061)
 
