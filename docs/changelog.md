@@ -16,6 +16,12 @@ Older changelogs:
 
 ## [5.22.9] - Unreleased
 
+### Fixed
+
+- sqlite: fix error reporting
+  [#1061](https://github.com/ADOdb/ADOdb/issues/1061)
+
+
 ## [5.22.8] - 2025-01-25
 
 ### Added
