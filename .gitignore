@@ -8,6 +8,7 @@
 .settings/
 /nbproject/
 .idea/
+travis/credentials.json
 
 # Composer
 /vendor/
