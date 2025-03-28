@@ -359,9 +359,9 @@ class ADODB_ibase extends ADOConnection {
 			if (is_array($inputarr)) {
 				if (sizeof($inputarr) == 0) {
 					$inputarr[0] = ''; // PHP5 compat hack
-					$ret = ibase_query($conn,$sql); //Added by MAB - Jan/2025
+					$ret = ibase_query($conn,$sql);
 				}
-				else {//Added by MAB - Jan/2025
+				else {
 				  $fnarr = array_merge(array($conn, $sql), $inputarr);
 				  $ret = call_user_func_array($fn, $fnarr);
 				}  
@@ -782,10 +782,7 @@ class ADORecordSet_ibase extends ADORecordSet
 	function _initrs()
 	{
 		$this->_numOfRows = -1;
-		//Added by MAB - Jan/2025
-		//As the function ibase_query returns an integer value when execute a 
-		//INSERT, UPDATE and DELETE statement, we must ask first if returns an integer value
-		//in order to call ibase_num_fields 
+		
 		if (!is_int($this->_queryID))
 		  $this->_numOfFields = @ibase_num_fields($this->_queryID);
 	    else
@@ -861,11 +858,8 @@ class ADORecordSet_ibase extends ADORecordSet
 
 	function _close()
 	{
-		//Added by MAB - Jan/2024
 		if (isset($this->rs))
 		  return @ibase_free_result($this->rs);  
-	  
-	  //return @ibase_free_result($this->_queryID);
 	}
 
 	function MetaType($t,$len=-1,$fieldobj=false)

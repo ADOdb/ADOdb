@@ -72,7 +72,7 @@ class ADODB_firebird extends ADOConnection {
 	*/
 	public $dialect = 3;
 
-	var $nameQuote = '"';		/// string to use to quote identifiers and names - Added by MAB - Jan/2025
+	var $nameQuote = '"';            /// string to use to quote identifiers and names
 
 	function __construct()
 	{
