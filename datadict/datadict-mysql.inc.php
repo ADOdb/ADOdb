@@ -35,7 +35,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 	
 	function metaType($t,$len=-1,$fieldobj=false)
 	{
-		
+
 		if (is_object($t)) {
 			$fieldobj = $t;
 			$t = $fieldobj->type;
@@ -146,6 +146,10 @@ class ADODB2_mysql extends ADODB_DataDict {
 	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
+		if (stripos($fconstraint, 'CHARACTER SET') === 0) {
+			$suffix .= ' '.$fconstraint;
+			unset($fconstraint);
+		}
 		if ($funsigned) $suffix .= ' UNSIGNED';
 		if ($fnotnull) $suffix .= ' NOT NULL';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
