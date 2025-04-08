@@ -2190,7 +2190,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param bool       $force_array
 	 * @param bool       $first2cols
 	 *
-	 * @return array|bool
+	 * @return array|false
 	 */
 	public function GetAssoc($sql, $inputarr = false, $force_array = false, $first2cols = false) {
 		$rs = $this->Execute($sql, $inputarr);
@@ -2301,10 +2301,10 @@ if (!defined('_ADODB_LAYER')) {
 	 *                             This is only relevant if the returned string
 	 *                             is coming from a CHAR type field.
 	 *
-	 * @return array|bool 1D array containing the first row of the query
+	 * @return array|false 1D array containing each row's first column;
+	 *                     false if the statement execution fails.
 	 */
 	function GetCol($sql, $inputarr = false, $trim = false) {
-
 		$rs = $this->Execute($sql, $inputarr);
 		if ($rs) {
 			$rv = array();
@@ -3161,7 +3161,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * return the databases that the driver can connect to.
 	 * Some databases will return an empty array.
 	 *
-	 * @return array|bool an array of database names.
+	 * @return array|false an array of database names.
 	 */
 	function MetaDatabases() {
 		global $ADODB_FETCH_MODE;
