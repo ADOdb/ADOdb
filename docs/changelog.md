@@ -22,6 +22,8 @@ Older changelogs:
   [#1055](https://github.com/ADOdb/ADOdb/issues/1055)
 - sqlite: fix error reporting
   [#1061](https://github.com/ADOdb/ADOdb/issues/1061)
+- Creation of dynamic property deprecated warning with PHP 8.2
+  [#1068](https://github.com/ADOdb/ADOdb/issues/1068)
 
 
 ## [5.22.8] - 2025-01-25
