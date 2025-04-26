@@ -143,6 +143,7 @@ class ADODB_postgres64 extends ADOConnection{
 	 * @return int|false
 	 *
 	 * @noinspection PhpUnused
+	 * @deprecated 5.22.9 Use {@see insert_ID()} method instead.
 	 */
 	function pg_insert_id($tablename, $fieldname)
 	{
