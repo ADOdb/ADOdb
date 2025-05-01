@@ -16,6 +16,11 @@ Older changelogs:
 
 ## [5.22.9] - Unreleased
 
+### Security
+ 
+- pgsql: SQL injection in pg_insert_id() method (CVE-2025-46337)
+  [#1070](https://github.com/ADOdb/ADOdb/issues/1070)
+
 ### Fixed
 
 - sqlite: Fulfill PRIMARY KEY AUTOINCREMENT requirements
