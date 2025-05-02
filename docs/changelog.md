@@ -24,6 +24,8 @@ Older changelogs:
   [#805](https://github.com/ADOdb/ADOdb/issues/805)
 - pdo: bind support both '?'-style and named parameters
   [#880](https://github.com/ADOdb/ADOdb/issues/880)
+- sqlite: support for DROP and RENAME COLUMN
+  [#1053](https://github.com/ADOdb/ADOdb/issues/1053)
 
 ### Changed
 
@@ -56,6 +58,62 @@ Older changelogs:
   [#883](https://github.com/ADOdb/ADOdb/issues/883)
 - pgsql: affected_rows() always returns false on PHP 8.1
   [#833](https://github.com/ADOdb/ADOdb/issues/833)
+
+
+## [5.22.9] - 2025-05-01
+
+### Security
+ 
+- pgsql: SQL injection in pg_insert_id() method (CVE-2025-46337)
+  [#1070](https://github.com/ADOdb/ADOdb/issues/1070)
+
+### Fixed
+
+- sqlite: Fulfill PRIMARY KEY AUTOINCREMENT requirements
+  [#1055](https://github.com/ADOdb/ADOdb/issues/1055)
+- sqlite: fix error reporting
+  [#1061](https://github.com/ADOdb/ADOdb/issues/1061)
+- Creation of dynamic property deprecated warning with PHP 8.2
+  [#1068](https://github.com/ADOdb/ADOdb/issues/1068)
+
+
+## [5.22.8] - 2025-01-25
+
+### Added
+
+- mysql: allow forcing use of emulated prepared statements
+  [#1028](https://github.com/ADOdb/ADOdb/issues/1028)
+- Georgian language strings
+  [#1042](https://github.com/ADOdb/ADOdb/issues/1042)
+
+### Changed
+
+- mysqli: Improve setConnectionParameter()
+  [#1044](https://github.com/ADOdb/ADOdb/issues/1044)
+  
+### Fixed
+
+- Backtrace output is not channeled through ADODB_OUTP
+  [#1018](https://github.com/ADOdb/ADOdb/issues/1018)
+- changeColumnSQL not handling new vs changed columns correctly #1010
+  [#1010](https://github.com/ADOdb/ADOdb/issues/1010)
+- PHP 8 compatibility
+  [#1009](https://github.com/ADOdb/ADOdb/issues/1009)
+  [#1012](https://github.com/ADOdb/ADOdb/issues/1012)
+  [#1021](https://github.com/ADOdb/ADOdb/issues/1021)
+  [#1045](https://github.com/ADOdb/ADOdb/issues/1045)
+- db2: fix connections using *LOCAL on IBM i series
+  [#1031](https://github.com/ADOdb/ADOdb/issues/1031)
+  [#1032](https://github.com/ADOdb/ADOdb/issues/1032)
+- mysqli: catch getAssoc() execution error in metaColumns()
+  [#1016](https://github.com/ADOdb/ADOdb/issues/1016)
+- mysqli: fix getAssoc() with ADODB_FETCH_DEFAULT mode
+  [#1023](https://github.com/ADOdb/ADOdb/issues/1023)
+- mysqli: SSL not working due to wrong socket/flags
+  [#919](https://github.com/ADOdb/ADOdb/issues/919)
+  [#1043](https://github.com/ADOdb/ADOdb/issues/1043)
+- pgsql: fix serverInfo() version number
+  [#1059](https://github.com/ADOdb/ADOdb/issues/1059)
 
 
 ## [5.22.7] - 2023-11-04
@@ -1139,7 +1197,7 @@ other database types as well; all drivers derived from the above are also impact
 - odbc: clear fields before fetching. See PHPLens Issue No: 17539
 - oci8: GetRowAssoc now works in ADODB_FETCH_ASSOC fetch mode
 - oci8: MetaType and MetaForeignKeys argument count are now strict-standards compliant
-- oci8: Added trailing `;` on trigger creation for sequence fields, prevents occurence of ORA-24344
+- oci8: Added trailing `;` on trigger creation for sequence fields, prevents occurrence of ORA-24344
 - oci8quercus: new oci8 driver with support for quercus jdbc data types.
 - pdo: Fixed concat recursion bug in 5.3. See PHPLens Issue No: 19285
 - pgsql: Default driver (postgres/pgsql) is now postgres8
@@ -1478,8 +1536,10 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[5.23.0]: https://github.com/adodb/adodb/compare/v5.22.6...master
+[5.23.0]: https://github.com/adodb/adodb/compare/v5.22.8...master
 
+[5.22.9]: https://github.com/adodb/adodb/compare/v5.22.8...v5.22.9
+[5.22.8]: https://github.com/adodb/adodb/compare/v5.22.7...v5.22.8
 [5.22.7]: https://github.com/adodb/adodb/compare/v5.22.6...v5.22.7
 [5.22.6]: https://github.com/adodb/adodb/compare/v5.22.5...v5.22.6
 [5.22.5]: https://github.com/adodb/adodb/compare/v5.22.4...v5.22.5

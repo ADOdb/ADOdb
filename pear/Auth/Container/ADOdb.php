@@ -289,7 +289,7 @@ class Auth_Container_ADOdb extends Auth_Container
 
         $retVal = array();
 
-        // Find if db_fileds contains a *, i so assume all col are selected
+        // Find if db_fields contains a *, i so assume all col are selected
         if(strstr($this->options['db_fields'], '*')){
             $sql_from = "*";
         }
