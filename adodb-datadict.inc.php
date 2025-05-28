@@ -646,6 +646,7 @@ class ADODB_DataDict {
 			$flds = array();
 			$flds0 = lens_ParseArgs($txt,',');
 			$hasparam = false;
+			print_r($flds0); exit;
 			foreach($flds0 as $f0) {
 				$f1 = array();
 				foreach($f0 as $token) {
@@ -1051,60 +1052,170 @@ class ADODB_DataDict {
 	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
 	{
 	global $ADODB_FETCH_MODE;
+		
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-		if ($this->connection->fetchMode !== false) $savem = $this->connection->setFetchMode(false);
+		
+		if ($this->connection->fetchMode !== false) 
+			$savem = $this->connection->setFetchMode(false);
 
 		// check table exists
+
 		$save_handler = $this->connection->raiseErrorFn;
 		$this->connection->raiseErrorFn = '';
 		$cols = $this->metaColumns($tablename);
+		//print "MC=" . $tablename;
+		/*
+		* This gives us the status of the columns before the update
+		*/
+
+		//print_r($cols);
+		//print "\n---------------------------------------\n";
 		$this->connection->raiseErrorFn = $save_handler;
 
-		if (isset($savem)) $this->connection->setFetchMode($savem);
-		$ADODB_FETCH_MODE = $save;
+		
 
 		if ( empty($cols)) {
 			return $this->createTableSQL($tablename, $flds, $tableoptions);
 		}
 
-		$sql = [];
-		if (is_array($flds)) {
+		$cols = array_change_key_case($cols,CASE_UPPER);
+
+		//print $flds;
+		
+		if (!is_array($flds))
+		{
+			$padding = '     ';
+			$txt = $flds.$padding;
+			$flds = array();
+			$nlines = lens_ParseArgs($txt,',');
+					/*
+			* This always returns a numeric array, so we have to convert it to an associative array
+			*/
+			$lines = array();
+			foreach($nlines as $lpa){
+				$lpa = array_change_key_case($lpa,CASE_UPPER);
+				$lines[strtoupper($lpa[0])] = $lpa;
+			} 
+
+
+			//list($lines,$pkey,$idxs) = $this->_genFields($flds, true);
+			// genfields can return FALSE at times
+			//print_r($lines); exit;
+			if ($lines == null) 
+				$lines = array();
+		}
+		
+		$sql 				= [];
+		$holdflds 			= array();
+		$fields_to_add 		= [];
+		$fields_to_alter 	= [];
+		$fields_to_delete   = $cols;
+
+		if (isset($savem)) 
+			$this->connection->setFetchMode($savem);
+		$ADODB_FETCH_MODE = $save;
+		
+		//print "\n Do lines...";
+		if (is_array($lines)) 
+		{
 		// Cycle through the update fields, comparing
 		// existing fields to fields to update.
 		// if the Metatype and size is exactly the
 		// same, ignore - by Mark Newham
-			$holdflds = array();
-			$fields_to_add = [];
-			$fields_to_alter = [];
-			foreach($flds as $k=>$v) {
-				if ( isset($cols[$k]) && is_object($cols[$k]) ) {
+			
+			foreach($lines as $k=>$v) {
+		
+				//print "Starting line $k\n";
+				$v = array_change_key_case($v,CASE_UPPER);
+
+				
+				//print "V=$v\n";
+				if ( isset($cols[$k]) && is_object($cols[$k]) ) 
+				{
+					
 					// If already not allowing nulls, then don't change
 					$obj = $cols[$k];
-					if (isset($obj->not_null) && $obj->not_null)
-						$v = str_replace('NOT NULL','',$v);
-					if (isset($obj->auto_increment) && $obj->auto_increment && empty($v['AUTOINCREMENT']))
-					    $v = str_replace('AUTOINCREMENT','',$v);
 
-					$c = $cols[$k];
-					$ml = $c->max_length;
-					$mt = $this->metaType($c->type,$ml);
+					unset($fields_to_delete[$k]);
 
-					if (isset($c->scale)) $sc = $c->scale;
-					else $sc = 99; // always force change if scale not known.
+					/*
+					* Now compare $v (incoming) with $obj (existing)
+					*/
+					//print_r($v);
+					//print_r($obj); 
 
-					if ($sc == -1) $sc = false;
-					list($fsize, $fprec) = $this->_getSizePrec($v['SIZE']);
 
-					if ($ml == -1) $ml = '';
-					if ($mt == 'X') $ml = $v['SIZE'];
-					if (($mt != $v['TYPE']) || ($ml != $fsize || $sc != $fprec) || (isset($v['AUTOINCREMENT']) && $v['AUTOINCREMENT'] != $obj->auto_increment)) {
-						$holdflds[$k] = $v;
-						$fields_to_alter[$k] = $v;
+					$flagCount = array();
+				
+
+					$flagCount[] = $this->compareFieldModes($obj,$v,'not_null','NOTNULL');
+					$flagCount[] = $this->compareFieldModes($obj,$v,'auto_increment','AUTOINCREMENT'); 
+					$flagCount[] = $this->compareFieldModes($obj,$v,'has_default','DEFAULT');
+					$flagCount[] = $this->compareFieldModes($obj,$v,'primary_key','PRIMARY');
+
+					/*
+					* Check for changes in the field type and size
+					*/
+					$mt = $this->metaType($obj->type);			
+					print "MT=$mt\n";
+					if (in_array($mt, array('C','N','I')))
+					{
+						/*
+						* Do an old-school check for length and precision
+						*/
+						$ml = $obj->max_length;
+
+						print "ML=$ml {$v[2]}\n";
+						if (isset($obj->scale)) 
+							$sc = $obj->scale;
+						else 
+							$sc = 99; // always force change if scale not known.
+
+						if ($sc == -1) 
+							$sc = false;
+						
+						list($fsize, $fprec) = $this->_getSizePrec($v[2]);
+
+						if ($fsize <> $ml) 
+							$flagCount[] = 1;
+						if ($fprec <> $sc) 
+							$flagCount[] = 1;
 					}
+					else if ($mt == 'L' && !in_array('LOGICAL',$v))
+						$flagCount[] = 1;
+					else if ($mt != 'L' && in_array('LOGICAL',$v))
+						$flagCount[] = 1;
+					//else if ($mt == 'X' && in_array($mt, array('X','XL','X2'))) 
+					//{
+					//	$mt = $obj->type;
+					//}
+					
+					/*
+					
+					if (($mt != $v['TYPE']) || ($ml != $fsize || $sc != $fprec) || (isset($v['AUTOINCREMENT']) && $v['AUTOINCREMENT'] != $obj->auto_increment)) {
+					*/
+			
+
+
+					if (array_sum($flagCount) > 0) 
+					{
+						/*
+						* Changing the notnull status
+						*/
+						$fieldsToAlter[$k] = $v;
+						$holdflds[$k] = $v;
+						unset($lines[$k]);
+						continue;
+					}
+
 				} else {
+					/*
+					* This is a new field, so we need to add it to the table.
+					*/
 					$fields_to_add[$k] = $v;
 					$holdflds[$k] = $v;
+					unset($lines[$k]);
 				}
 			}
 			$flds = $holdflds;
@@ -1115,13 +1226,50 @@ class ADODB_DataDict {
 			$this->alterColumnSql($tablename, $fields_to_alter)
 		);
 
+		//print "Lines:\n";
+		//print_r($fields_to_delete); exit;
+
 		if ($dropOldFlds) {
-			foreach ($cols as $id => $v) {
-				if (!isset($lines[$id])) {
-					$sql[] = $this->dropColumnSQL($tablename, $flds);
-				}
+			foreach ($fields_to_delete as $id => $v) 
+			{
+				//$deleteField = sprintf('ALTER TABLE %s DROP COLUMN %s',$tablename,$this->nameQuote($id));
+				$sql[] = array_merge(
+					$sql,
+					$this->dropColumnSQL($tablename, $id)
+				);
 			}
 		}
 		return $sql;
+	}
+
+	protected function compareFieldModes($current,$future,$objectName,$stringName)
+	{
+		$fieldMode = 0;
+		$fieldMode += $this->addCompareFieldModes($current,$future,$objectName,$stringName);
+		$fieldMode += $this->removeCompareFieldModes($current,$future,$objectName,$stringName);
+		return $fieldMode;
+
+	}
+
+	/**
+	 * Compare the current and future field modes.
+	 * @param object $current Current field mode
+	 * @param array  $future  Future field mode
+	 * @param string $objectName Object name to check
+	 * @param string $stringName String name to check
+	 *
+	 * @return int 1 if the field mode is different, 0 otherwise
+	 */
+	protected function addCompareFieldModes($current,$future,$objectName,$stringName)
+	{
+		if (isset($current->$objectName) && $current->$objectName && !in_array($stringName,$future))
+			return 1;
+		return 0;
+	}
+	protected function removeCompareFieldModes($current,$future,$objectName,$stringName)
+	{
+		if (!isset($current->$objectName) || !$current->$objectName && in_array($stringName,$future))
+			return 1;
+		return 0;
 	}
 } // class

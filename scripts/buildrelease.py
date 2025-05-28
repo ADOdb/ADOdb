@@ -37,10 +37,9 @@ import updateversion
 
 
 # ADOdb Repository reference
-origin_repo = "https://github.com/ADOdb/ADOdb.git"
-release_branch = "master"
-release_prefix = "adodb"
-
+origin_repo = "https://github.com/mnewnham/ADOdb-plus.git"
+release_branch = "master=add-session-plugin"
+release_prefix = "adodb-plus"
 # Directories and files to exclude from release tarballs
 # For consistency, this should match the list in .gitattributes
 exclude_list = (".git*",

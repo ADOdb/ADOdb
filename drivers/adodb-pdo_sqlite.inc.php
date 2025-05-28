@@ -15,41 +15,37 @@
  * @license BSD-3-Clause
  * @license LGPL-2.1-or-later
  *
- * @copyright 2000-2013 John Lim
- * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ * @copyright 2022 Damien Regad, Mark Newnham and the ADOdb community
  * @author Diogo Toscano <diogo@scriptcase.net>
  * @author Sid Dunayer <sdunayer@interserv.com>
  */
 
 class ADODB_pdo_sqlite extends ADODB_pdo {
+
 	var $metaTablesSQL   = "SELECT name FROM sqlite_master WHERE type='table'";
 	var $sysDate         = 'current_date';
 	var $sysTimeStamp    = 'current_timestamp';
 	var $nameQuote       = '`';
 	var $replaceQuote    = "''";
 	var $hasGenID        = true;
-	var $_genIDSQL       = "UPDATE %s SET id=id+1 WHERE id=%s";
-	var $_genSeqSQL      = "CREATE TABLE %s (id integer)";
-	var $_genSeqCountSQL = 'SELECT COUNT(*) FROM %s';
-	var $_genSeq2SQL     = 'INSERT INTO %s VALUES(%s)';
-	var $_dropSeqSQL     = 'DROP TABLE %s';
+	
 	var $concat_operator = '||';
-	var $pdoDriver       = false;
 	var $random='abs(random())';
 
-	function _init($parentDriver)
-	{
-		$this->pdoDriver = $parentDriver;
-		$parentDriver->_bindInputArray = true;
-		$parentDriver->hasTransactions = false; // // should be set to false because of PDO SQLite driver not supporting changing autocommit mode
-		$parentDriver->hasInsertID = true;
-	}
+	public $bindInputArray = true;
+	public $hasTransactions = false; // // should be set to false because of PDO SQLite driver not supporting changing autocommit mode
+	public $hasInsertID = true;
 
-	function ServerInfo()
+	/**
+	 * Get information about the current SQLite database
+	 *
+	 * @return array
+	 */
+	public function serverInfo()
 	{
-		$parent = $this->pdoDriver;
-		@($ver = array_pop($parent->GetCol("SELECT sqlite_version()")));
-		@($enc = array_pop($parent->GetCol("PRAGMA encoding")));
+		
+		@($ver = array_pop($this->GetCol("SELECT sqlite_version()")));
+		@($enc = array_pop($this->GetCol("PRAGMA encoding")));
 
 		$arr['version']     = $ver;
 		$arr['description'] = 'SQLite ';
@@ -58,116 +54,239 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		return $arr;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	/**
+	 * Executes a provided SQL statement and returns a handle to the result, with the ability to supply a starting
+	 * offset and record count.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:selectlimit
+	 *
+	 * @param string $sql The SQL to execute.
+	 * @param int $nrows (Optional) The limit for the number of records you want returned. By default, all results.
+	 * @param int $offset (Optional) The offset to use when selecting the results. By default, no offset.
+	 * @param array|bool $inputarr (Optional) Any parameter values required by the SQL statement, or false if none.
+	 * @param int $secs (Optional) If greater than 0, perform a cached execute. By default, normal execution.
+	 *
+	 * @return ADORecordSet|false The query results, or false if the query failed to execute.
+	 */
+	public function selectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
-		$parent = $this->pdoDriver;
+
 		$offsetStr = ($offset >= 0) ? " OFFSET $offset" : '';
 		$limitStr  = ($nrows >= 0)  ? " LIMIT $nrows" : ($offset >= 0 ? ' LIMIT 999999999' : '');
 		if ($secs2cache)
-			$rs = $parent->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
+			$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
 		else
-			$rs = $parent->Execute($sql."$limitStr$offsetStr",$inputarr);
+			$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
 
 		return $rs;
 	}
 
-	function GenID($seq='adodbseq',$start=1)
+	/**
+	 * A portable method of creating sequence numbers.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:genid
+	 *
+	 * @param string $seqname (Optional) The name of the sequence to use.
+	 * @param int $startID (Optional) The point to start at in the sequence.
+	 *
+	 * @return bool|int|string
+	 */
+	public function GgenId($seq='adodbseq',$start=1)
 	{
-		$parent = $this->pdoDriver;
 		// if you have to modify the parameter below, your database is overloaded,
 		// or you need to implement generation of id's yourself!
 		$MAXLOOPS = 100;
+		//$this->debug=1;
 		while (--$MAXLOOPS>=0) {
-			@($num = array_pop($parent->GetCol("SELECT id FROM {$seq}")));
-			if ($num === false || !is_numeric($num)) {
-				@$parent->Execute(sprintf($this->_genSeqSQL ,$seq));
+			@($num = $this->GetOne("select id from $seq"));
+			if ($num === false) {
+				$this->Execute(sprintf($this->_genSeqSQL ,$seq));
 				$start -= 1;
 				$num = '0';
-				$cnt = $parent->GetOne(sprintf($this->_genSeqCountSQL,$seq));
-				if (!$cnt) {
-					$ok = $parent->Execute(sprintf($this->_genSeq2SQL,$seq,$start));
+				$ok = $this->Execute("insert into $seq values($start)");
+				if (!$ok) {
+					return false;
 				}
-				if (!$ok) return false;
 			}
-			$parent->Execute(sprintf($this->_genIDSQL,$seq,$num));
+			$this->Execute("update $seq set id=id+1 where id=$num");
 
-			if ($parent->affected_rows() > 0) {
-                	        $num += 1;
-                		$parent->genID = intval($num);
-                		return intval($num);
+			if ($this->affected_rows() > 0) {
+				$num += 1;
+				$this->genID = $num;
+				return $num;
 			}
 		}
-		if ($fn = $parent->raiseErrorFn) {
-			$fn($parent->databaseType,'GENID',-32000,"Unable to generate unique id after $MAXLOOPS attempts",$seq,$num);
+		if ($fn = $this->raiseErrorFn) {
+			$fn($this->databaseType,'GENID',-32000,"Unable to generate unique id after $MAXLOOPS attempts",$seq,$num);
 		}
 		return false;
 	}
 
-	function CreateSequence($seqname='adodbseq',$start=1)
+
+	/**
+	 * Sets the isolation level of a transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:settransactionmode
+	 *
+	 * @param string $transaction_mode The transaction mode to set.
+	 *
+	 * @return void
+	 */
+	public function setTransactionMode($transaction_mode)
 	{
-		$parent = $this->pdoDriver;
-		$ok = $parent->Execute(sprintf($this->_genSeqSQL,$seqname));
-		if (!$ok) return false;
-		$start -= 1;
-		return $parent->Execute("insert into $seqname values($start)");
+		$this->_transmode = strtoupper($transaction_mode);
 	}
 
-	function SetTransactionMode($transaction_mode)
+	/**
+	 * Begins a granular transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:begintrans
+	 *
+	 * @return bool Always returns true.
+	 */
+	public function beginTrans()
 	{
-		$parent = $this->pdoDriver;
-		$parent->_transmode = strtoupper($transaction_mode);
+
+		if ($this->transOff) return true;
+		$this->transCnt += 1;
+		$this->_autocommit = false;
+		return $this->Execute("BEGIN {$this->_transmode}");
 	}
 
-	function BeginTrans()
+	/**
+	 * Commits a granular transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:committrans
+	 *
+	 * @param bool $ok (Optional) If false, will rollback the transaction instead.
+	 *
+	 * @return bool Always returns true.
+	 */
+	public function commitTrans($ok=true)
 	{
-		$parent = $this->pdoDriver;
-		if ($parent->transOff) return true;
-		$parent->transCnt += 1;
-		$parent->_autocommit = false;
-		return $parent->Execute("BEGIN {$parent->_transmode}");
-	}
 
-	function CommitTrans($ok=true)
-	{
-		$parent = $this->pdoDriver;
-		if ($parent->transOff) return true;
-		if (!$ok) return $parent->RollbackTrans();
-		if ($parent->transCnt) $parent->transCnt -= 1;
-		$parent->_autocommit = true;
+		if ($this->transOff) return true;
+		if (!$ok) return $this->RollbackTrans();
+		if ($this->transCnt) $this->transCnt -= 1;
+		$this->_autocommit = true;
 
-		$ret = $parent->Execute('COMMIT');
+		$ret = $this->Execute('COMMIT');
 		return $ret;
 	}
 
-	function RollbackTrans()
+	/**
+	 * Rollback a smart transaction.
+	 *
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:rollbacktrans
+	 *
+	 * @return bool Always returns true.
+	 */
+	public function rollbackTrans()
 	{
-		$parent = $this->pdoDriver;
-		if ($parent->transOff) return true;
-		if ($parent->transCnt) $parent->transCnt -= 1;
-		$parent->_autocommit = true;
 
-		$ret = $parent->Execute('ROLLBACK');
+		if ($this->transOff) return true;
+		if ($this->transCnt) $this->transCnt -= 1;
+		$this->_autocommit = true;
+
+		$ret = $this->Execute('ROLLBACK');
 		return $ret;
 	}
 
+	
+	/**
+	 * Returns a list of Foreign Keys associated with a specific table.
+	 *
+	 * If there are no foreign keys then the function returns false.
+	 *
+	 * @param string $table       The name of the table to get the foreign keys for.
+	 * @param string $owner       Table owner/schema.
+	 * @param bool   $upper       If true, only matches the table with the uppercase name.
+	 * @param bool   $associative Returns the result in associative mode;
+	 *                            if ADODB_FETCH_MODE is already associative, then
+	 *                            this parameter is discarded.
+	 *
+	 * @return string[]|false An array where keys are tables, and values are foreign keys;
+	 *                        false if no foreign keys could be found.
+	 */
+	public function metaForeignKeys($table, $owner = '', $upper =  false, $associative =  false)
+	{
+	    global $ADODB_FETCH_MODE;
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
+		|| $this->fetchMode == ADODB_FETCH_ASSOC)
+		$associative = true;
 
-    // mark newnham
-	function MetaColumns($tab,$normalize=true)
+	    /*
+		* Read sqlite master to find foreign keys
+		*/
+		$sql = "SELECT sql
+				 FROM (
+				SELECT sql sql, type type, tbl_name tbl_name, name name
+				  FROM sqlite_master
+			          )
+				WHERE type != 'meta'
+				  AND sql NOTNULL
+				  AND LOWER(name) ='" . strtolower($table) . "'";
+
+		$tableSql = $this->getOne($sql);
+
+		$fkeyList = array();
+		$ylist = preg_split("/,+/",$tableSql);
+		foreach ($ylist as $y)
+		{
+			if (!preg_match('/FOREIGN/',$y))
+				continue;
+
+			$matches = false;
+			preg_match_all('/\((.+?)\)/i',$y,$matches);
+			$tmatches = false;
+			preg_match_all('/REFERENCES (.+?)\(/i',$y,$tmatches);
+
+			if ($associative)
+			{
+				if (!isset($fkeyList[$tmatches[1][0]]))
+					$fkeyList[$tmatches[1][0]]	= array();
+				$fkeyList[$tmatches[1][0]][$matches[1][0]] = $matches[1][1];
+			}
+			else
+				$fkeyList[$tmatches[1][0]][] = $matches[1][0] . '=' . $matches[1][1];
+		}
+
+		if ($associative)
+		{
+			if ($upper)
+				$fkeyList = array_change_key_case($fkeyList,CASE_UPPER);
+			else
+				$fkeyList = array_change_key_case($fkeyList,CASE_LOWER);
+		}
+		return $fkeyList;
+	}
+
+    /**
+	 * List columns in a database as an array of ADOFieldObjects.
+	 * See top of file for definition of object.
+	 *
+	 * @param $table	table name to query
+	 * @param $normalize	makes table name case-insensitive (required by some databases)
+	 * @schema is optional database schema to use - not supported by all databases.
+	 *
+	 * @return  array of ADOFieldObjects for current table.
+	 */
+	public function metaColumns($tab,$normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
 
-		$parent = $this->pdoDriver;
 		$false = false;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-		if ($parent->fetchMode !== false) {
-			$savem = $parent->SetFetchMode(false);
+		if ($this->fetchMode !== false) {
+
+			$savem = $this->SetFetchMode(false);
 		}
-		$rs = $parent->Execute("PRAGMA table_info('$tab')");
+		$rs = $this->Execute("PRAGMA table_info('$tab')");
 		if (isset($savem)) {
-			$parent->SetFetchMode($savem);
+			$this->SetFetchMode($savem);
 		}
 		if (!$rs) {
 			$ADODB_FETCH_MODE = $save;
@@ -200,17 +319,25 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 		return $arr;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	/**
+	 * Retrieves a list of tables based on given criteria
+	 *
+	 * @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
+	 * @param string|bool $showSchema (Optional) schema name, false = current schema (default)
+	 * @param string|bool $mask (Optional) filters the table by name
+	 *
+	 * @return array list of tables
+	 */
+	public function metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
-		$parent = $this->pdoDriver;
-
+	
 		if ($mask) {
 			$save = $this->metaTablesSQL;
 			$mask = $this->qstr(strtoupper($mask));
 			$this->metaTablesSQL .= " AND name LIKE $mask";
 		}
 
-		$ret = $parent->GetCol($this->metaTablesSQL);
+		$ret = $this->GetCol($this->metaTablesSQL);
 
 		if ($mask) {
 			$this->metaTablesSQL = $save;
@@ -230,4 +357,17 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	{
 		return sprintf(':%s', $name);
 	}
+
+	/**
+	  * Gets the database name from the DSN
+	  *
+	  * @param	string	$dsnString
+	  *
+	  * @return string
+	  */
+	  protected function getDatabasenameFromDsn($dsnString){
+
+		return $dsnString;
+	}
+	
 }

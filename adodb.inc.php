@@ -686,8 +686,8 @@ if (!defined('_ADODB_LAYER')) {
 	//
 	var $_oldRaiseFn =  false;
 	var $_transOK = null;
-	/** @var resource Identifier for the native database connection */
-	var $_connectionID = false;
+	/** @var object Identifier for the native database connection */
+	var $_connectionID;
 
 	/**
 	 * Stores the last returned error message.
@@ -2002,6 +2002,8 @@ if (!defined('_ADODB_LAYER')) {
 		return false;
 	}
 
+	abstract function _affectedrows();
+
 
 	/**
 	 * @return string the last error message
@@ -2052,9 +2054,9 @@ if (!defined('_ADODB_LAYER')) {
 		if (sizeof($p)) {
 			return $p;
 		}
-		if (function_exists('ADODB_VIEW_PRIMARYKEYS')) {
-			return ADODB_VIEW_PRIMARYKEYS($this->databaseType, $this->database, $table, $owner);
-		}
+		//if (function_exists('ADODB_VIEW_PRIMARYKEYS')) {
+		//	return ADODB_VIEW_PRIMARYKEYS($this->databaseType, $this->database, $table, $owner);
+		//}
 		return false;
 	}
 
@@ -2142,8 +2144,8 @@ if (!defined('_ADODB_LAYER')) {
 						$sql
 					);
 
-					if ($secs2cache != 0) {
-						$ret = $this->CacheExecute($secs2cache, $sql,$inputarr);
+					if ($cacheObject->ttl != 0) {
+						$ret = $this->CacheExecute($cacheObject->ttl, $sql,$inputarr);
 					} else {
 						$ret = $this->Execute($sql,$inputarr);
 					}
@@ -3286,6 +3288,8 @@ if (!defined('_ADODB_LAYER')) {
 		return $rez;
 	}
 
+	abstract function _close();
+
 	/**
 	 * Begin a Transaction.
 	 *
@@ -3523,6 +3527,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			if (isset($savem)) {
 				$this->SetFetchMode($savem);
 			}
+			
 			$ADODB_FETCH_MODE = $save;
 			if ($rs === false || $rs->EOF) {
 				return false;
@@ -3531,6 +3536,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 			$retarr = array();
 			while (!$rs->EOF) { //print_r($rs->fields);
 				$fld = new ADOFieldObject();
+				
 				$fld->name = $rs->fields[0];
 				$fld->type = $rs->fields[1];
 				if (isset($rs->fields[3]) && $rs->fields[3]) {
@@ -3553,6 +3559,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				$rs->MoveNext();
 			}
 			$rs->Close();
+			
 			return $retarr;
 		}
 		return false;
@@ -4331,7 +4338,7 @@ class ADORecordSet implements IteratorAggregate {
 	var $debug = false;
 	var $timeCreated=0;		/// datetime in Unix format rs created -- for cached recordsets
 
-	var $bind = false;		/// used by Fields() to hold array - should be private?
+	var $bind;		/// used by Fields() to hold array - should be private?
 
 	/** @var ADOConnection The parent connection */
 	var $connection = false;
@@ -4398,6 +4405,8 @@ class ADORecordSet implements IteratorAggregate {
 	 * See the ADODB_FETCH_* constants
 	 */
 	public $adodbFetchMode;
+
+	public $databaseType;
 
 	/**
 	 * Constructor
@@ -5783,7 +5792,8 @@ class ADORecordSet implements IteratorAggregate {
 	/**
 	 * Load the code for a specific database driver. Private function. Do not use.
 	 */
-	function ADOLoadCode($dbType) {
+	function ADOLoadCode($dbType,$pdoExtension=false) {
+
 		global $ADODB_LASTDB;
 
 		if (!$dbType) {
@@ -5812,6 +5822,18 @@ class ADORecordSet implements IteratorAggregate {
 				break;
 
 			default:
+				
+				if (strcmp('pdo',$db) == 0 && $pdoExtension)
+				{
+					
+					/*
+					* Loads the necessary PDO driver files
+					*/
+					include_once ADODB_DIR . '/drivers/adodb-pdo.inc.php';
+					include_once ADODB_DIR . '/drivers/adodb-pdo_' . $pdoExtension . '.inc.php';
+				
+					return 'pdo';
+				}
 				if (substr($db, 0, 4) === 'pdo_') {
 					ADOConnection::outp("Invalid database type: $db");
 					return false;
@@ -5820,8 +5842,9 @@ class ADORecordSet implements IteratorAggregate {
 				$class = $db;
 				break;
 		}
-
+		
 		$file = "drivers/adodb-$db.inc.php";
+
 		@include_once(ADODB_DIR . '/' . $file);
 		$ADODB_LASTDB = $class;
 		if (class_exists("ADODB_" . $class)) {
@@ -5863,6 +5886,28 @@ class ADORecordSet implements IteratorAggregate {
 		if (!defined('ADODB_ASSOC_CASE')) {
 			define('ADODB_ASSOC_CASE', ADODB_ASSOC_CASE_NATIVE);
 		}
+		/*
+		* If we have a pdo and drivern in format \\, we
+		* need to remove the driver portion of the file
+		*/
+		$pdoExtension = '';
+		$pdoSplit = preg_split('/^pdo[_\\\]/i',$db);
+				
+		if (count($pdoSplit) > 1)
+		{
+			$extSplit = explode('://',$pdoSplit[1]);
+			$pdoExtension = $extSplit[0];
+				
+			$db = 'pdo';
+			if (count($extSplit) > 1)
+				$db .= '://' . $extSplit[1];
+
+			/*
+			* Carry on as normal
+			*/
+		}
+		else if (strcasecmp($db,'pdo') == 0 && count($pdoSplit) == 1)
+			die('PDO drivers now require the driver name to be passed in the format PDO\<drivername>');
 
 		/*
 		* Are there special characters in the dsn password
@@ -5976,6 +6021,8 @@ class ADORecordSet implements IteratorAggregate {
 			$obj = $ADODB_NEWCONNECTION($db);
 
 		}
+		
+		
 
 		if(empty($obj)) {
 
@@ -5985,8 +6032,9 @@ class ADORecordSet implements IteratorAggregate {
 			if (empty($db)) {
 				$db = $ADODB_LASTDB;
 			}
+			
 			if ($db != $ADODB_LASTDB) {
-				$db = ADOLoadCode($db);
+				$db = ADOLoadCode($db,$pdoExtension);
 			}
 
 			if (!$db) {
@@ -6006,14 +6054,23 @@ class ADORecordSet implements IteratorAggregate {
 			}
 
 			$cls = 'ADODB_'.$db;
+			if ($pdoExtension)
+			{
+				$cls .= '_' . $pdoExtension;
+			}
+
+			
 			if (!class_exists($cls)) {
 				adodb_backtrace();
 				return false;
 			}
 
+			
 			$obj = new $cls();
+
 		}
 
+	
 		# constructor should not fail
 		if ($obj) {
 			if ($errorfn) {
@@ -6165,14 +6222,30 @@ class ADORecordSet implements IteratorAggregate {
 
 		include_once(ADODB_DIR.'/adodb-lib.inc.php');
 		include_once(ADODB_DIR.'/adodb-datadict.inc.php');
-		$path = ADODB_DIR."/datadict/datadict-$drivername.inc.php";
+		
+		if ($conn->dsnType)
+		{
+			$cName = sprintf('%s_%s',$drivername,$conn->dsnType);
+			$dName = sprintf('datadict-%s-%s.inc.php',$drivername,$conn->dsnType);
+		}
+		else
+		{
+			$cName = $drivername;
+			$dName = sprintf('datadict-%s.inc.php',$drivername);
+		}
+		
+		$path = ADODB_DIR."/datadict/" . $dName;
 
 		if (!file_exists($path)) {
+
 			ADOConnection::outp("Dictionary driver '$path' not available");
 			return false;
+		
 		}
+
 		include_once($path);
-		$class = "ADODB2_$drivername";
+		
+		$class = "ADODB2_$cName";
 		/** @var ADODB_DataDict $dict */
 		$dict = new $class();
 		$dict->dataProvider = $conn->dataProvider;
@@ -6182,7 +6255,7 @@ class ADORecordSet implements IteratorAggregate {
 		if (!empty($conn->_connectionID)) {
 			$dict->serverInfo = $conn->ServerInfo();
 		}
-
+		
 		return $dict;
 	}
 

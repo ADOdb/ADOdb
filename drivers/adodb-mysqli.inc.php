@@ -1018,6 +1018,11 @@ class ADODB_mysqli extends ADOConnection {
 			$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
 		}
 
+		if (!is_object($rs)) {
+			ADOConnection::outp("MetaColumns failed: " . $this->errorMsg());
+			return false;
+		}
+	
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 		if (!is_object($rs))
@@ -1078,7 +1083,6 @@ class ADODB_mysqli extends ADOConnection {
 			}
 			$rs->moveNext();
 		}
-
 		$rs->close();
 		return $retarr;
 	}
