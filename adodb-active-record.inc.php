@@ -717,7 +717,7 @@ class ADODB_Active_Record {
 	}
 
 	// quote data in where clause
-	function doquote(&$db, $val,$t)
+	function doquote(&$db, $val, $t)
 	{
 		switch($t) {
 		case 'L':
@@ -736,7 +736,9 @@ class ADODB_Active_Record {
 			if (is_null($val)) {
 				return 'null';
 			}
-
+			if ('' === (string) $val) {
+				return "''";
+			}
 			if (strlen($val)>0 &&
 				(strncmp($val,"'",1) != 0 || substr($val,strlen($val)-1,1) != "'")
 			) {
