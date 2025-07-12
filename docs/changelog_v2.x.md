@@ -249,7 +249,7 @@ $conn->Connect($dsn);
 - Mssql date regex had error. Fixed - reported by Minh Hoang vb_user#yahoo.com.
 - DBTimeStamp() and DBDate() now accept iso dates and unix timestamps. This means that the PostgreSQL handling of dates in GetInsertSQL() and GetUpdateSQL() can be removed. Also if these functions are passed '' or null or false, we return a SQL null.
 - GetInsertSQL() and GetUpdateSQL() now accept a new parameter, $magicq to indicate whether quotes should be inserted based on magic quote settings - suggested by dj#4ict.com.
-- Reformated docs slightly based on suggestions by Chris Small.
+- Reformatted docs slightly based on suggestions by Chris Small.
 
 ## 1.65 - 28 Dec 2001
 
@@ -462,7 +462,7 @@ $conn->Connect($dsn);
 - Changed behaviour of RecordSet.GetMenu() to support size parameter (listbox) properly.
 - Added emptyDate and emptyTimeStamp to RecordSet class that defines how to represent empty dates.
 - Added MetaColumns($table) that returns an array of ADOFieldObject's listing the columns of a table.
-- Added transaction support for PostgresSQL -- thanks to "Eric G. Werk" egw#netguide.dk.
+- Added transaction support for PostgreSQL -- thanks to "Eric G. Werk" egw#netguide.dk.
 - Added adodb-session.php for session support.
 
 ## 0.80 - 30 Nov 2000

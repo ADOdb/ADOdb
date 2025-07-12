@@ -55,7 +55,7 @@ class ADODB_pdo_firebird extends ADODB_pdo
 	function _init($parentDriver){}
 
 	/**
-	 * Gets the version iformation from the server
+	 * Gets the version information from the server
 	 *
 	 * @return string[]
 	 */

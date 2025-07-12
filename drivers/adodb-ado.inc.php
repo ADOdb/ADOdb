@@ -122,7 +122,7 @@ class ADODB_ado extends ADOConnection {
 	adSchemaConstraintColumnUsage	= 6,
 	adSchemaConstraintTableUsage	= 7,
 	adSchemaKeyColumnUsage	= 8,
-	adSchemaReferentialContraints	= 9,
+	adSchemaReferentialConstraints	= 9,
 	adSchemaTableConstraints	= 10,
 	adSchemaColumnsDomainUsage	= 11,
 	adSchemaIndexes	= 12,

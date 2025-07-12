@@ -22,6 +22,9 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ *
+ * @noinspection PhpComposerExtensionStubsInspection, SqlNoDataSourceInspection
+ * @noinspection PhpMissingFieldTypeInspection, PhpMissingParamTypeInspection, PhpMissingReturnTypeInspection
  */
 
 // security - hide paths
@@ -44,7 +47,8 @@ class ADODB_mysqli extends ADOConnection {
 	var $dataProvider = 'mysql';
 	var $hasInsertID = true;
 	var $hasAffectedRows = true;
-	var $metaTablesSQL = "SELECT
+	var $metaTablesSQL = /** @lang text */
+		"SELECT
 			TABLE_NAME,
 			CASE WHEN TABLE_TYPE = 'VIEW' THEN 'V' ELSE 'T' END
 		FROM INFORMATION_SCHEMA.TABLES
@@ -74,15 +78,38 @@ class ADODB_mysqli extends ADOConnection {
 	var $ssl_capath = null;
 	var $ssl_cipher = null;
 
+	/**
+	 * Forcing emulated prepared statements.
+	 *
+	 * When set to true, ADODb will not execute queries using MySQLi native
+	 * bound variables, and will instead use the built-in string interpolation
+	 * and argument quoting from the parent class {@see ADOConnection::Execute()}.
+	 *
+	 * This is needed for some database engines that use mysql wire-protocol but
+	 * do not support prepared statements, like
+	 * {@see https://manticoresearch.com/ Manticore Search} or
+	 * {@see https://clickhouse.com/ ClickHouse}.
+	 *
+	 * WARNING: This is a potential security risk, and strongly discouraged for code
+	 * handling untrusted input {@see https://github.com/ADOdb/ADOdb/issues/1028#issuecomment-2081586024}.
+	 *
+	 * @var bool $doNotUseBoundVariables
+	 */
+	var $doNotUseBoundVariables = false;
+
 	/** @var mysqli Identifier for the native database connection */
 	var $_connectionID = false;
 
 	/**
 	 * Tells the insert_id method how to obtain the last value, depending on whether
 	 * we are using a stored procedure or not
+	 * @var bool
+	 * @noinspection PhpPropertyOnlyWrittenInspection
 	 */
 	private $usePreparedStatement = false;
 	private $useLastInsertStatement = false;
+
+	/** @noinspection PhpPropertyOnlyWrittenInspection */
 	private $usingBoundVariables = false;
 	private $statementAffectedRows = -1;
 
@@ -125,42 +152,94 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	/**
-	 * Adds a parameter to the connection string.
+	 * Adds a parameter to the connection string, can also set connection property values.
 	 *
 	 * Parameter must be one of the constants listed in mysqli_options().
 	 * @see https://www.php.net/manual/en/mysqli.options.php
-	 *
-	 * @param int    $parameter The parameter to set
-	 * @param string $value     The value of the parameter
+	 * 
+	 * OR 
+	 * 
+	 * Parameter must be a string matching one of the following special cases.
+	 * 'ssl' - SSL values e.g. ('ssl' => ['ca' => '/path/to/ca.crt.pem'])
+	 * 'clientflags' - Client flags of type 'MYSQLI_CLIENT_'
+	 * @see https://www.php.net/manual/en/mysqli.real-connect.php
+	 * @see https://www.php.net/manual/en/mysqli.constants.php
+	 * 'socket' - The socket or named pipe that should be used
+	 * 'port' - The port number to attempt to connect to the MySQL server
+	 * 
+	 * @param string|int $parameter The parameter to set
+	 * @param string|int|array $value The value of the parameter
 	 *
 	 * @return bool
 	 */
 	public function setConnectionParameter($parameter, $value) {
-		if(!is_numeric($parameter)) {
-			$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
-			return false;
+
+		// Special case for setting SSL values.
+		if ("ssl" === $parameter && is_array($value)) {
+			if (isset($value["key"])) {
+				$this->ssl_key = $value["key"];
+			}
+			if (isset($value["cert"])) {
+				$this->ssl_cert = $value["cert"];
+			}
+			if (isset($value["ca"])) {
+				$this->ssl_ca = $value["ca"];
+			}
+			if (isset($value["capath"])) {
+				$this->ssl_capath = $value["capath"];
+			}
+			if (isset($value["cipher"])) {
+				$this->ssl_cipher = $value["cipher"];
+			}
+
+			return true;
 		}
-		return parent::setConnectionParameter($parameter, $value);
+
+		// Special case for setting the client flag(s).
+		if ("clientflags" === $parameter && is_numeric($value)) {
+			$this->clientFlags = $value;
+			return true;
+		}
+
+		// Special case for setting the socket.
+		if ("socket" === $parameter && is_string($value)) {
+			$this->socket = $value;
+			return true;
+		}
+
+		// Special case for setting the port.
+		if ("port" === $parameter && is_numeric($value)) {
+			$this->port = (int)$value;
+			return true;
+		}
+
+		// Standard mysqli_options.
+		if (is_numeric($parameter)) {
+			return parent::setConnectionParameter($parameter, $value);
+		}
+
+		$this->outp_throw("Invalid connection parameter '$parameter'", __METHOD__);
+		return false;
 	}
 
 	/**
 	 * Connect to a database.
 	 *
-	 * @todo add: parameter int $port, parameter string $socket
-	 *
 	 * @param string|null $argHostname (Optional) The host to connect to.
 	 * @param string|null $argUsername (Optional) The username to connect as.
 	 * @param string|null $argPassword (Optional) The password to connect with.
-	 * @param string|null $argDatabasename (Optional) The name of the database to start in when connected.
+	 * @param string|null $argDatabaseName (Optional) The name of the database to start in when connected.
 	 * @param bool $persist (Optional) Whether or not to use a persistent connection.
 	 *
 	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
 	 * isn't currently loaded.
+	 *@todo add: parameter int $port, parameter string $socket
+	 *
 	 */
 	function _connect($argHostname = null,
 					  $argUsername = null,
 					  $argPassword = null,
-					  $argDatabasename = null,
+					  $argDatabaseName = null,
 					  $persist = false)
 	{
 		if(!extension_loaded("mysqli")) {
@@ -204,24 +283,28 @@ class ADODB_mysqli extends ADOConnection {
 
 		// SSL Connections for MySQLI
 		if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
+
 			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cert, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
-			$this->socket = MYSQLI_CLIENT_SSL;
-			$this->clientFlags = MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT;
+
+			// Check for any SSL client flag set, NOTE: bitwise operation.
+			if (!($this->clientFlags & MYSQLI_CLIENT_SSL)) {
+        			ADOConnection::outp('When using certificates, set the client flag MYSQLI_CLIENT_SSL_VERIFY_SERVER_CERT or MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT');
+				return false;
+			}
 		}
 
-		/** @noinspection PhpCastIsUnnecessaryInspection */
 		$ok = @mysqli_real_connect($this->_connectionID,
 					$argHostname,
 					$argUsername,
 					$argPassword,
-					$argDatabasename,
+					$argDatabaseName,
 					# PHP7 compat: port must be int. Use default port if cast yields zero
 					(int)$this->port != 0 ? (int)$this->port : 3306,
 					$this->socket,
 					$this->clientFlags);
 
 		if ($ok) {
-			if ($argDatabasename)  return $this->selectDB($argDatabasename);
+			if ($argDatabaseName)  return $this->selectDB($argDatabaseName);
 			return true;
 		} else {
 			if ($this->debug) {
@@ -238,14 +321,14 @@ class ADODB_mysqli extends ADOConnection {
 	 * @param string|null $argHostname The host to connect to.
 	 * @param string|null $argUsername The username to connect as.
 	 * @param string|null $argPassword The password to connect with.
-	 * @param string|null $argDatabasename The name of the database to start in when connected.
+	 * @param string|null $argDatabaseName The name of the database to start in when connected.
 	 *
 	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
 	 * isn't currently loaded.
 	 */
-	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabaseName)
 	{
-		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename, true);
+		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName, true);
 	}
 
 	/**
@@ -478,7 +561,7 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	// Reference on Last_Insert_ID on the recommended way to simulate sequences
-	var $_genIDSQL = "update %s set id=LAST_INSERT_ID(id+1);";
+	var $_genIDSQL = /** @lang text */ "update %s set id=LAST_INSERT_ID(id+1);";
 	var $_genSeqSQL = "create table if not exists %s (id int not null)";
 	var $_genSeqCountSQL = "select count(*) from %s";
 	var $_genSeq2SQL = "insert into %s values (%s)";
@@ -601,7 +684,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		// parse index data into array
 		while ($row = $rs->fetchRow()) {
-			if ($primary == FALSE AND $row[2] == 'PRIMARY') {
+			if (!$primary AND $row[2] == 'PRIMARY') {
 				continue;
 			}
 
@@ -868,7 +951,7 @@ class ADODB_mysqli extends ADOConnection {
 
 		$this->setFetchMode($savem);
 
-		$create_sql = isset($a_create_table["Create Table"]) ? $a_create_table["Create Table"] : $a_create_table["Create View"];
+		$create_sql = $a_create_table["Create Table"] ?? $a_create_table["Create View"];
 
 		$matches = array();
 
@@ -893,7 +976,7 @@ class ADODB_mysqli extends ADOConnection {
 				if ( $associative ) {
 					$foreign_keys[$ref_table][$ref_field[$j]] = $my_field[$j];
 				} else {
-					$foreign_keys[$ref_table][] = "{$my_field[$j]}={$ref_field[$j]}";
+					$foreign_keys[$ref_table][] = $my_field[$j] . '=' . $ref_field[$j];
 				}
 			}
 		}
@@ -911,9 +994,8 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function MetaColumns($table, $normalize = true)
 	{
-		$false = false;
 		if (!$this->metaColumnsSQL)
-			return $false;
+			return false;
 
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
@@ -927,17 +1009,19 @@ class ADODB_mysqli extends ADOConnection {
 
 		$SQL = "SELECT column_name, column_type
 				  FROM information_schema.columns
-				 WHERE table_schema='{$this->database}'
+				 WHERE table_schema='$this->database'
 				   AND table_name='$table'";
 
 		$schemaArray = $this->getAssoc($SQL);
-		$schemaArray = array_change_key_case($schemaArray,CASE_LOWER);
+		if (is_array($schemaArray)) {
+			$schemaArray = array_change_key_case($schemaArray,CASE_LOWER);
+			$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
+		}
 
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
 		if (isset($savem)) $this->SetFetchMode($savem);
 		$ADODB_FETCH_MODE = $save;
 		if (!is_object($rs))
-			return $false;
+			return false;
 
 		$retarr = array();
 		while (!$rs->EOF) {
@@ -1077,6 +1161,10 @@ class ADODB_mysqli extends ADOConnection {
 
 	public function execute($sql, $inputarr = false)
 	{
+		if ($this->doNotUseBoundVariables) {
+			return parent::execute($sql, $inputarr);
+		}
+
 		if ($this->fnExecute) {
 			$fn = $this->fnExecute;
 			$ret = $fn($this, $sql, $inputarr);
@@ -1467,7 +1555,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	{
 		$fieldnr = $fieldOffset;
 		if ($fieldOffset != -1) {
-			$fieldOffset = @mysqli_field_seek($this->_queryID, $fieldnr);
+			@mysqli_field_seek($this->_queryID, $fieldnr);
 		}
 		$o = @mysqli_fetch_field($this->_queryID);
 		if (!$o) return false;
@@ -1680,16 +1768,16 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @param string|object $t The type to get the MetaType character for.
 	 * @param int $len (Optional) Redundant. Will always be set to -1.
-	 * @param bool|object $fieldobj (Optional)
+	 * @param bool|object $fieldObj (Optional)
 	 *
 	 * @return string The MetaType
 	 */
-	function metaType($t, $len = -1, $fieldobj = false)
+	function metaType($t, $len = -1, $fieldObj = false)
 	{
 		if (is_object($t)) {
-			$fieldobj = $t;
-			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
+			$fieldObj = $t;
+			$t = $fieldObj->type;
+			$len = $fieldObj->max_length;
 		}
 
 		$t = strtoupper($t);
@@ -1715,7 +1803,8 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			case MYSQLI_TYPE_STRING :
 			case MYSQLI_TYPE_ENUM :
 			case MYSQLI_TYPE_SET :
-			case 253 :
+			/** @noinspection PhpMissingBreakStatementInspection */
+			case MYSQLI_TYPE_VAR_STRING :
 				if ($len <= $this->blobSize) {
 					return 'C';
 				}
@@ -1735,7 +1824,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			case MYSQLI_TYPE_BLOB :
 			case MYSQLI_TYPE_LONG_BLOB :
 			case MYSQLI_TYPE_MEDIUM_BLOB :
-				return !empty($fieldobj->binary) ? 'B' : 'X';
+				return !empty($fieldObj->binary) ? 'B' : 'X';
 
 			case 'YEAR':
 			case 'DATE':
@@ -1765,7 +1854,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 			case MYSQLI_TYPE_LONGLONG :
 			case MYSQLI_TYPE_SHORT :
 			case MYSQLI_TYPE_TINY :
-				if (!empty($fieldobj->primary_key)) {
+				if (!empty($fieldObj->primary_key)) {
 					return 'R';
 				}
 				return 'I';
@@ -1799,16 +1888,16 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 	 *
 	 * @param string|object $t The type to get the MetaType character for.
 	 * @param int $len (Optional) Redundant. Will always be set to -1.
-	 * @param bool|object $fieldobj (Optional)
+	 * @param bool|object $fieldObj (Optional)
 	 *
 	 * @return string The MetaType
 	 */
-	function MetaType($t, $len = -1, $fieldobj = false)
+	function MetaType($t, $len = -1, $fieldObj = false)
 	{
 		if (is_object($t)) {
-			$fieldobj = $t;
-			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
+			$fieldObj = $t;
+			$t = $fieldObj->type;
+			$len = $fieldObj->max_length;
 		}
 
 		$t = strtoupper($t);
@@ -1832,7 +1921,8 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 			case MYSQLI_TYPE_STRING :
 			case MYSQLI_TYPE_ENUM :
 			case MYSQLI_TYPE_SET :
-			case 253 :
+			/** @noinspection PhpMissingBreakStatementInspection */
+			case MYSQLI_TYPE_VAR_STRING :
 				if ($len <= $this->blobSize) {
 					return 'C';
 				}
@@ -1852,7 +1942,7 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 			case MYSQLI_TYPE_BLOB :
 			case MYSQLI_TYPE_LONG_BLOB :
 			case MYSQLI_TYPE_MEDIUM_BLOB :
-				return !empty($fieldobj->binary) ? 'B' : 'X';
+				return !empty($fieldObj->binary) ? 'B' : 'X';
 
 			case 'YEAR':
 			case 'DATE':
@@ -1882,7 +1972,7 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 			case MYSQLI_TYPE_LONGLONG :
 			case MYSQLI_TYPE_SHORT :
 			case MYSQLI_TYPE_TINY :
-				if (!empty($fieldobj->primary_key)) {
+				if (!empty($fieldObj->primary_key)) {
 					return 'R';
 				}
 				return 'I';

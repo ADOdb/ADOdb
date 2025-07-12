@@ -510,10 +510,12 @@ class ADODB_DataDict {
 	 *
 	 * As some DBMs can't do that on their own, you need to supply the complete definition of the new table,
 	 * to allow recreating the table and copying the content over to the new table
-	 * @param string $tabname table-name
-	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds='' complete definition of the new table, eg. for postgres, default ''
+	 *
+	 * @param string       $tabname table-name
+	 * @param array|string $flds column-name and type for the changed column
+	 * @param string       $tableflds='' complete definition of the new table, eg. for postgres, default ''
 	 * @param array|string $tableoptions='' options for the new table see createTableSQL, default ''
+	 *
 	 * @return array with SQL strings
 	 */
 	function alterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
@@ -538,16 +540,20 @@ class ADODB_DataDict {
 	}
 
 	/**
-	 * Rename one column
+	 * Rename one column.
 	 *
-	 * Some DBMs can only do this together with changeing the type of the column (even if that stays the same, eg. mysql)
-	 * @param string $tabname table-name
-	 * @param string $oldcolumn column-name to be renamed
-	 * @param string $newcolumn new column-name
-	 * @param string $flds='' complete column-definition-string like for addColumnSQL, only used by mysql atm., default=''
-	 * @return array with SQL strings
+	 * Some DBs can only do this together with changing the type of the column
+	 * (even if that stays the same, eg. MySQL).
+	 *
+	 * @param string $tabname   Table name.
+	 * @param string $oldcolumn Column to be renamed.
+	 * @param string $newcolumn New column name.
+	 * @param string $flds      Complete column definition string like for {@see addColumnSQL};
+	 *                          This is currently only used by MySQL. Defaults to ''.
+	 *
+	 * @return array SQL statements.
 	 */
-	function renameColumnSQL($tabname,$oldcolumn,$newcolumn,$flds='')
+	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
 	{
 		$tabname = $this->tableName($tabname);
 		if ($flds) {
@@ -561,17 +567,21 @@ class ADODB_DataDict {
 	}
 
 	/**
-	 * Drop one column
+	 * Drop one column.
 	 *
-	 * Some DBM's can't do that on their own, you need to supply the complete definition of the new table,
-	 * to allow, recreating the table and copying the content over to the new table
-	 * @param string $tabname table-name
-	 * @param string $flds column-name and type for the changed column
-	 * @param string $tableflds='' complete definition of the new table, eg. for postgres, default ''
-	 * @param array|string $tableoptions='' options for the new table see createTableSQL, default ''
-	 * @return array with SQL strings
+	 * Some DBs can't do that on their own (e.g. PostgreSQL), so you need
+	 * to supply the complete definition of the new table, to allow recreating
+	 * it and copying the content over to the new table.
+	 *
+	 * @param string       $tabname      Table name.
+	 * @param string       $flds         Column name and type for the changed column.
+	 * @param string       $tableflds    Complete definition of the new table. Defaults to ''.
+	 * @param array|string $tableoptions Options for the new table {@see createTableSQL()},
+	 *                                   defaults to ''.
+	 *
+	 * @return array SQL statements.
 	 */
-	function dropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->tableName($tabname);
 		if (!is_array($flds)) $flds = explode(',',$flds);
@@ -843,7 +853,7 @@ class ADODB_DataDict {
 						$fdefault = $this->connection->qstr($fdefault);
 				}
 			}
-			$suffix = $this->_createSuffix($fname,$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned);
+			$suffix = $this->_createSuffix($fname, $ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, $pkey);
 
 			// add index creation
 			if ($widespacing) $fname = str_pad($fname,24);
@@ -896,8 +906,22 @@ class ADODB_DataDict {
 	}
 
 
-	// return string must begin with space
-	function _createSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
+	/**
+	 * Construct an database specific SQL string of constraints for column.
+	 *
+	 * @param string $fname         column name
+	 * @param string & $ftype       column type
+	 * @param bool   $fnotnull      NOT NULL flag
+	 * @param string|bool $fdefault DEFAULT value
+	 * @param bool   $fautoinc      AUTOINCREMENT flag
+	 * @param string $fconstraint   CONSTRAINT value
+	 * @param bool   $funsigned     UNSIGNED flag
+	 * @param string|bool $fprimary PRIMARY value
+	 * @param array  & $pkey        array of primary key column names
+	 *
+	 * @return string Combined constraint string, must start with a space
+	 */
+	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
@@ -1027,7 +1051,6 @@ class ADODB_DataDict {
 	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
 	{
 	global $ADODB_FETCH_MODE;
-
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 		if ($this->connection->fetchMode !== false) $savem = $this->connection->setFetchMode(false);
@@ -1045,12 +1068,15 @@ class ADODB_DataDict {
 			return $this->createTableSQL($tablename, $flds, $tableoptions);
 		}
 
+		$sql = [];
 		if (is_array($flds)) {
 		// Cycle through the update fields, comparing
 		// existing fields to fields to update.
 		// if the Metatype and size is exactly the
 		// same, ignore - by Mark Newham
 			$holdflds = array();
+			$fields_to_add = [];
+			$fields_to_alter = [];
 			foreach($flds as $k=>$v) {
 				if ( isset($cols[$k]) && is_object($cols[$k]) ) {
 					// If already not allowing nulls, then don't change
@@ -1074,15 +1100,20 @@ class ADODB_DataDict {
 					if ($mt == 'X') $ml = $v['SIZE'];
 					if (($mt != $v['TYPE']) || ($ml != $fsize || $sc != $fprec) || (isset($v['AUTOINCREMENT']) && $v['AUTOINCREMENT'] != $obj->auto_increment)) {
 						$holdflds[$k] = $v;
+						$fields_to_alter[$k] = $v;
 					}
 				} else {
+					$fields_to_add[$k] = $v;
 					$holdflds[$k] = $v;
 				}
 			}
 			$flds = $holdflds;
 		}
 
-		$sql = $this->alterColumnSql($tablename, $flds);
+		$sql = array_merge(
+			$this->addColumnSQL($tablename, $fields_to_add),
+			$this->alterColumnSql($tablename, $fields_to_alter)
+		);
 
 		if ($dropOldFlds) {
 			foreach ($cols as $id => $v) {

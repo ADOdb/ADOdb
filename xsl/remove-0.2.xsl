@@ -8,7 +8,7 @@
 	<xsl:template match="/">
 		<xsl:comment>
 ADODB XMLSchema
-http://adodb-xmlschema.sourceforge.net
+https://adodb-xmlschema.sourceforge.net
 </xsl:comment>
 
 		<xsl:comment>

@@ -82,7 +82,7 @@ class ADODB_postgres64 extends ADOConnection{
 							// http://bugs.php.net/bug.php?id=25404
 
 	var $uniqueIisR = true;
-	var $_bindInputArray = false; // requires postgresql 7.3+ and ability to modify database
+	var $_bindInputArray = false; // requires PostgreSQL 7.3+ and ability to modify database
 	var $disableBlobs = false; // set to true to disable blob checking, resulting in 2-5% improvement in performance.
 
 	/** @var int $_pnum Number of the last assigned query parameter {@see param()} */
@@ -96,7 +96,7 @@ class ADODB_postgres64 extends ADOConnection{
 	// and writes these time in this format: "2001-03-01 18:59:26+02".
 	// There is no code for the "+02" time zone information, so I just left that out.
 	// I'm not familiar enough with both ADODB as well as Postgres
-	// to know what the concequences are. The other values are correct (wheren't in 0.94)
+	// to know what the consequences are. The other values are correct (weren't in 0.94)
 	// -- Freek Dijkstra
 
 	/**
@@ -117,11 +117,12 @@ class ADODB_postgres64 extends ADOConnection{
 			}
 
 			$version = pg_version($this->_connectionID);
+			// If PHP has been compiled with PostgreSQL 7.3 or lower, then
+			// server_version is not set so we use pg_parameter_status() instead.
+			$version_server = $version['server'] ?? pg_parameter_status($this->_connectionID, 'server_version');
+
 			$this->version = array(
-				// If PHP has been compiled with PostgreSQL 7.3 or lower, then
-				// server version is not set so we use pg_parameter_status()
-				// which includes logic to obtain values server_version
-				'version' => $version['server'] ?? pg_parameter_status($this->_connectionID, 'server_version'),
+				'version' => $this->_findvers($version_server),
 				'client' => $version['client'],
 				'description' => null,
 			);
@@ -139,17 +140,19 @@ class ADODB_postgres64 extends ADOConnection{
 	}
 
 	/**
-	 * Get the last id - never tested.
+	 * Get the last inserted id.
 	 *
 	 * @param string $tablename
 	 * @param string $fieldname
-	 * @return false|mixed
+	 * @return int|false
 	 *
 	 * @noinspection PhpUnused
+	 * @deprecated 5.22.9 Use {@see insert_ID()} method instead.
 	 */
-	function pg_insert_id($tablename,$fieldname)
+	function pg_insert_id($tablename, $fieldname)
 	{
-		$result=pg_query($this->_connectionID, 'SELECT last_value FROM '. $tablename .'_'. $fieldname .'_seq');
+		$sequence = pg_escape_identifier($this->_connectionID, $tablename .'_'. $fieldname .'_seq');
+		$result = pg_query($this->_connectionID, 'SELECT last_value FROM '. $sequence);
 		if ($result) {
 			$arr = @pg_fetch_row($result,0);
 			pg_free_result($result);
