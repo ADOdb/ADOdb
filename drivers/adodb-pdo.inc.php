@@ -64,7 +64,7 @@ function adodb_pdo_type($t)
 
 /*----------------------------------------------------------------------------*/
 
-class ADODB_pdo extends ADOConnection 
+abstract class ADODB_pdo extends ADOConnection 
 {
 	
 	const BIND_USE_QUESTION_MARKS = 0;
@@ -97,28 +97,50 @@ class ADODB_pdo extends ADOConnection
 	var $_errorno = false;
 
 	var $stmt = false;
+
+	public $_stmt;
 	
-	/*
+	/**
 	* Set which style is used to bind parameters
 	*
 	* BIND_USE_QUESTION_MARKS   = Use only question marks
 	* BIND_USE_NAMED_PARAMETERS = Use only named parameters
 	* BIND_USE_BOTH             = Use both question marks and named parameters (Default)
+	* @var int $bindParameterStyle
 	*/
-	public $bindParameterStyle = self::BIND_USE_BOTH;
+	public int $bindParameterStyle = self::BIND_USE_BOTH;
 
-	/*
+	/**
 	 * Holds the current database name
+	 * @var string $databaseName
 	 */
-	protected $databaseName = '';
+	protected string $databaseName = '';
 
-	/*
+	/**
 	* Describe parameters passed directly to the PDO driver
 	*
 	* @example $db->pdoParameters = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
+	* @var array $pdoParameters
 	*/
-	public $pdoParameters = array();
+	public array $pdoParameters = array();
 
+	
+	var $sysDate = "'?'";
+	var $sysTimeStamp = "'?'";
+
+
+	function _init($parentDriver)
+	{
+		$parentDriver->_bindInputArray = true;
+		#$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,true);
+	}
+
+	function ServerInfo()
+	{
+		return ADOConnection::ServerInfo();
+	}
+	
+	
 	/**
 	 * Connect to a database.
 	 *
@@ -148,13 +170,19 @@ class ADODB_pdo extends ADOConnection
 		*/
 		$driverClass      = array_pop($driverClassArray);
 	
-		$at = strpos($argDSN,':');
-		if ($at > 0)
+		$dsnSplit = explode(':', $argDSN ?? '', 2);  
+		if (count($dsnSplit) > 1) 
 		{
 		
-			$this->dsnType = substr($argDSN,0,$at);
+			$this->dsnType = $dsnSplit[0];
 			if (strcmp($this->dsnType,$driverClass) <> 0)
-				die('If a database type is specified, it must match the previously defined driver');
+			{
+				$this->outp_throw(
+					'If a database type is specified, it must match the previously defined driver',
+					'CONNECT',
+					$argDSN
+				);
+			}
 		}
 		else
 		{
@@ -493,7 +521,7 @@ class ADODB_pdo extends ADOConnection
 	* @param string|array $sql
 	* @param array $inputarr
 	*
-	* @return bool|mysqli_result
+	* @return bool|pdo_result
 	*/
 	public function _query($sql,$inputarr=false)
 	{
@@ -554,7 +582,7 @@ class ADODB_pdo extends ADOConnection
 	*
 	* @return array
 	*/
-	private function conformToBindParameterStyle($sql, $inputarr)
+	private function conformToBindParameterStyle(string $sql, array $inputarr) : array
 	{
 		switch ($this->bindParameterStyle)
 		{
@@ -587,7 +615,7 @@ class ADODB_pdo extends ADOConnection
 	 * @param string $sql   SQL string
 	 * @return boolean      Returns true if a question mark placeholder is included
 	 */
-	private function containsQuestionMarkPlaceholder($sql)
+	private function containsQuestionMarkPlaceholder(string $sql) : bool
 	{
 		$pattern = '/(.\?(:?.|$))/';
 		if (preg_match_all($pattern, $sql, $matches, PREG_SET_ORDER)) {
@@ -654,6 +682,21 @@ class ADODB_pdo extends ADOConnection
 		return parent::qStr($s,$magic_quotes);
 	}
 
+	/**
+	  * Gets the database name from the DSN
+	  *
+	  * @param	string	$dsnString
+	  *
+	  * @return string
+	  */
+	protected function getDatabasenameFromDsn(string $dsnString): string{
+
+		$dsnArray = preg_split('/[;=]+/',$dsnString);
+		$dbIndex  = array_search('database',$dsnArray);
+
+		return $dsnArray[$dbIndex + 1];
+	}
+
 }
 
 /**
@@ -683,7 +726,7 @@ class ADODB_pdo_base extends ADODB_pdo {
 	  *
 	  * @return string
 	  */
-	  protected function getDatabasenameFromDsn($dsnString){
+	protected function xgetDatabasenameFromDsn($dsnString){
 
 		$dsnArray = preg_split('/[;=]+/',$dsnString);
 		$dbIndex  = array_search('database',$dsnArray);
