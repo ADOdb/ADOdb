@@ -158,17 +158,35 @@ final class ADODB2_pdo_mysql extends ADODB_DataDict {
 	}
 
 	/**
-	 * 
-	 * @return string
+	 * Construct an database specific SQL string of constraints for column.
+	 *
+	 * @param string $fname         column name
+	 * @param string & $ftype       column type
+	 * @param bool   $fnotnull      NOT NULL flag
+	 * @param string|bool $fdefault DEFAULT value
+	 * @param bool   $fautoinc      AUTOINCREMENT flag
+	 * @param string $fconstraint   CONSTRAINT value
+	 * @param bool   $funsigned     UNSIGNED flag
+	 * @param string|bool $fprimary PRIMARY value
+	 * @param array  & $pkey        array of primary key column names
+	 *
+	 * @return string Combined constraint string, must start with a space
 	 */
-	public function _createSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
+	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
-		if ($funsigned) $suffix .= ' UNSIGNED';
-		if ($fnotnull) $suffix .= ' NOT NULL';
-		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
-		if ($fautoinc) $suffix .= ' AUTO_INCREMENT';
-		if ($fconstraint) $suffix .= ' '.$fconstraint;
+		
+		if ($funsigned) 
+			$suffix .= ' UNSIGNED';
+		if ($fnotnull) 
+			$suffix .= ' NOT NULL';
+		if (strlen($fdefault ?? '') > 0) 
+			$suffix .= " DEFAULT $fdefault";
+		if ($fautoinc) 
+			$suffix .= ' AUTO_INCREMENT';
+		if ($fconstraint) 
+			$suffix .= ' '.$fconstraint;
+		
 		return $suffix;
 	}
 
