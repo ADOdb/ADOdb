@@ -266,15 +266,38 @@ final class ADODB2_pdo_sqlsrv extends ADODB_DataDict {
 
 	// return string must begin with space
 
-	/** @noinspection DuplicatedCode */
-	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
+	/**
+	 * Construct an database specific SQL string of constraints for column.
+	 *
+	 * @param string $fname         column name
+	 * @param string & $ftype       column type
+	 * @param bool   $fnotnull      NOT NULL flag
+	 * @param string|bool $fdefault DEFAULT value
+	 * @param bool   $fautoinc      AUTOINCREMENT flag
+	 * @param string $fconstraint   CONSTRAINT value
+	 * @param bool   $funsigned     UNSIGNED flag
+	 * @param string|bool $fprimary PRIMARY value
+	 * @param array  & $pkey        array of primary key column names
+	 *
+	 * @return string Combined constraint string, must start with a space
+	 */
+	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+
 	{
 		$suffix = '';
-		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
-		if ($fautoinc) $suffix .= ' IDENTITY(1,1)';
-		if ($fnotnull) $suffix .= ' NOT NULL';
-		else if ($suffix == '') $suffix .= ' NULL';
-		if ($fconstraint) $suffix .= ' '.$fconstraint;
+		
+		if (strlen($fdefault ?? '')) 
+			$suffix .= " DEFAULT $fdefault";
+		if ($fautoinc) 
+			$suffix .= ' IDENTITY(1,1)';
+		if ($fnotnull) 
+			$suffix .= ' NOT NULL';
+		else if ($suffix == '') 
+			$suffix .= ' NULL';
+		
+		if ($fconstraint) 
+			$suffix .= ' '.$fconstraint;
+		
 		return $suffix;
 	}
 
