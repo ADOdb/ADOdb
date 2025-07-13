@@ -53,7 +53,13 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 	public $fmtDate 		= "'Y-m-d'";
 	public $cachedSchemaFlush = false;
 
-	function _init(ADODB_pdo $parentDriver)
+	public string $mssql_version = '';
+
+	protected int $sequence = 0;
+
+	protected array $sequences = [];
+
+	function x_init(ADODB_pdo $parentDriver)
 	{
 
 	}
@@ -67,12 +73,20 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 	 */
 	public function beginTrans()
 	{
-		$this->_transmode  = $transaction_mode;
-		if (empty($transaction_mode)) {
+		if ($this->transOff) 
+			return true;
+		$this->transCnt += 1;
+		
+		if (empty($this->_transmode))
+		{
 			$this->_connectionID->query('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
 			return;
 		}
-		if (!stristr($transaction_mode,'isolation')) $transaction_mode = 'ISOLATION LEVEL '.$transaction_mode;
+
+		$transaction_mode = $this->_transmode;
+		if (!stristr($this->_transmode,'isolation')) 
+			$transaction_mode = 'ISOLATION LEVEL '.$transaction_mode;
+		
 		$this->_connectionID->query("SET TRANSACTION ".$transaction_mode);
 	}
 

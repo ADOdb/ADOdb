@@ -365,7 +365,7 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	  *
 	  * @return string
 	  */
-	  protected function getDatabasenameFromDsn($dsnString){
+	  protected function getDatabasenameFromDsn(string $dsnString): string{
 
 		return $dsnString;
 	}

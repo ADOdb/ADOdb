@@ -451,12 +451,12 @@ class ADODB_pdo_ibm extends ADODB_pdo {
 				$fld->type ='INT';
 				$fld->max_length = $rs->fields[4];
 			}
-			$fld->not_null = (strncmp($rs->fields[5], 'NOT',3) === 0);
+			$fld->not_null = (strncmp($rs->fields[5] ?? '', 'NOT',3) === 0);
 			$fld->binary = (strpos($fld->type,'BLOB') !== false);
 			$fld->default_value = $rs->fields[6];
 
 			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;
-			else $retarr[strtoupper($fld->name)] = $fld;
+			else $retarr[strtoupper($fld->name ?? '')] = $fld;
 			$rs->MoveNext();
 		}
 		$rs->Close();
@@ -530,17 +530,17 @@ class ADODB_pdo_ibm extends ADODB_pdo {
 	 *
 	 * @return string
 	 */
-	private function getMetaCasedValue($value)
+	private function getMetaCasedValue(string $value) :string
 	{
 		global $ADODB_ASSOC_CASE;
 
 		switch($ADODB_ASSOC_CASE)
 		{
 		case ADODB_ASSOC_CASE_LOWER:
-			$value = strtolower($value);
+			$value = strtolower($value ?? '');
 			break;
 		case ADODB_ASSOC_CASE_UPPER:
-			$value = strtoupper($value);
+			$value = strtoupper($value ?? '');
 			break;
 		}
 		return $value;
