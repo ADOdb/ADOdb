@@ -73,7 +73,7 @@ abstract class ADODB_pdo extends ADOConnection
 	
 	var $databaseType = "pdo";
 	var $dataProvider = "pdo";
-	var $fmtDate = "'Y-m-d'";
+
 	var $fmtTimeStamp = "'Y-m-d, h:i:sA'";
 	var $replaceQuote = "''"; // string to use to replace quotes
 	var $hasAffectedRows = true;

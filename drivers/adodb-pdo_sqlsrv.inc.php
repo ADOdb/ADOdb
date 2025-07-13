@@ -50,7 +50,7 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo
 	public $_bindInputArray = true;
 	public $hasInsertID 	= true;
 	public $fmtTimeStamp 	= "'Y-m-d H:i:s'";
-	public $fmtDate 		= "'Y-m-d'";
+
 	public $cachedSchemaFlush = false;
 
 	public string $mssql_version = '';
