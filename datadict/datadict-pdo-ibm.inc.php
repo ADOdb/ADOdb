@@ -70,14 +70,35 @@ final class ADODB2_pdo_ibm extends ADODB_DataDict {
 		}
 	}
 
-	// return string must begin with space
-	function _CreateSuffix($fname,&$ftype,$fnotnull,$fdefault,$fautoinc,$fconstraint,$funsigned)
+	/**
+	 * Construct an database specific SQL string of constraints for column.
+	 *
+	 * @param string $fname         column name
+	 * @param string & $ftype       column type
+	 * @param bool   $fnotnull      NOT NULL flag
+	 * @param string|bool $fdefault DEFAULT value
+	 * @param bool   $fautoinc      AUTOINCREMENT flag
+	 * @param string $fconstraint   CONSTRAINT value
+	 * @param bool   $funsigned     UNSIGNED flag
+	 * @param string|bool $fprimary PRIMARY value
+	 * @param array  & $pkey        array of primary key column names
+	 *
+	 * @return string Combined constraint string, must start with a space
+	 */
+	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
-		if ($fautoinc) return ' GENERATED ALWAYS AS IDENTITY'; # as identity start with
-		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
-		if ($fnotnull) $suffix .= ' NOT NULL';
-		if ($fconstraint) $suffix .= ' '.$fconstraint;
+		
+		if ($fautoinc) 
+			return ' GENERATED ALWAYS AS IDENTITY'; # as identity start with
+		if (strlen($fdefault ?? '') > 0)
+			 $suffix .= " DEFAULT $fdefault";
+		if ($fnotnull) 
+			$suffix .= ' NOT NULL';
+		
+		if ($fconstraint) 
+			$suffix .= ' '.$fconstraint;
+		
 		return $suffix;
 	}
 
@@ -123,8 +144,8 @@ final class ADODB2_pdo_ibm extends ADODB_DataDict {
 	{
 		
 		
-		$tabname = $this->connection->getMetaCasedValue($tabname);
-		$flds    = $this->connection->getMetaCasedValue($flds);
+		$tabname = $this->getMetaCasedValue($tabname);
+		$flds    = $this->getMetaCasedValue($flds);
 		
 		if (ADODB_ASSOC_CASE  == ADODB_ASSOC_CASE_NATIVE )
 		{
@@ -144,9 +165,9 @@ final class ADODB2_pdo_ibm extends ADODB_DataDict {
 	{
 
 		/**
-		  Allow basic table changes to DB2 databases
-		  DB2 will fatally reject changes to non character columns
-
+		*  Allow basic table changes to DB2 databases
+		*  DB2 will fatally reject changes to non character columns
+		*
 		*/
 
 		$validTypes = array("CHAR","VARC");
@@ -173,11 +194,11 @@ final class ADODB2_pdo_ibm extends ADODB_DataDict {
 			$id = str_replace($this->connection->nameQuote,'',$id);
 			if ( isset($cols[$id]) && is_object($cols[$id]) ) {
 				/**
-				  If the first field of $v is the fieldname, and
-				  the second is the field type/size, we assume its an
-				  attempt to modify the column size, so check that it is allowed
-				  $v can have an indeterminate number of blanks between the
-				  fields, so account for that too
+				* If the first field of $v is the fieldname, and
+				* the second is the field type/size, we assume its an
+				* attempt to modify the column size, so check that it is allowed
+				* $v can have an indeterminate number of blanks between the
+				* fields, so account for that too
 				 */
 				$vargs = explode(' ' , $v);
 				// assume that $vargs[0] is the field name.
@@ -212,6 +233,32 @@ final class ADODB2_pdo_ibm extends ADODB_DataDict {
 		}
 
 		return $sql;
+	}
+
+	/**
+	 * Gets a meta cased parameter
+	 *
+	 * Receives an input variable to be processed per the metaCasing
+	 * rule, and returns the same value, processed
+	 *
+	 * @param string $value
+	 *
+	 * @return string
+	 */
+	private function getMetaCasedValue(string $value) :string
+	{
+		global $ADODB_ASSOC_CASE;
+
+		switch($ADODB_ASSOC_CASE)
+		{
+		case ADODB_ASSOC_CASE_LOWER:
+			$value = strtolower($value ?? '');
+			break;
+		case ADODB_ASSOC_CASE_UPPER:
+			$value = strtoupper($value ?? '');
+			break;
+		}
+		return $value;
 	}
 
 }
