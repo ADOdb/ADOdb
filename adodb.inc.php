@@ -685,7 +685,7 @@ if (!defined('_ADODB_LAYER')) {
 	var $_oldRaiseFn =  false;
 	var $_transOK = null;
 	/** @var resource Identifier for the native database connection */
-	var $_connectionID = false;
+	public $_connectionID;
 
 	/**
 	 * Stores the last returned error message.
@@ -5345,8 +5345,9 @@ class ADORecordSet implements IteratorAggregate {
 		var $sql = '';
 		var $compat = false;
 
-		
+		public $_transmode;
 
+		public $_connectionID;
 		/**
 		 * Constructor
 		 *
