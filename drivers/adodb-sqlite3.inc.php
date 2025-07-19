@@ -439,17 +439,6 @@ class ADODB_sqlite3 extends ADOConnection {
 		}
 
 		$table = strtolower($table);
-		$pragmaData = array();
-
-		/*
-		* If we want the primary key, we must extract
-		* it from the table statement, and the pragma
-		*/
-		if ($primary)
-		{
-			$sql = 'PRAGMA table_info(?)';
-			$pragmaData = $this->getAll($sql, [$table]);
-		}
 
 		// Exclude the empty entry for the primary index
 		$sql = "SELECT name,sql
@@ -487,21 +476,9 @@ class ADODB_sqlite3 extends ADOConnection {
 			$indexes[$row[0]]['columns'] = array_map('trim',explode(',',$indexExpression[1][0]));
 		}
 
-		if (isset($savem)) {
-			$this->SetFetchMode($savem);
-			$ADODB_FETCH_MODE = $save;
-		}
-
-		/*
-		* If we want primary, add it here
-		*/
+		// If we want the primary key, we must extract it from the pragma
 		if ($primary){
-
-			/*
-			* Check the previously retrieved pragma to search
-			* with a closure
-			*/
-
+			$pragmaData = $this->getAll('PRAGMA table_info(?);', [$table]);
 			$pkIndexData = array('unique'=>1,'columns'=>array());
 
 			$pkCallBack = function ($value, $key) use (&$pkIndexData) {
@@ -524,6 +501,11 @@ class ADODB_sqlite3 extends ADOConnection {
 			*/
 			if (count($pkIndexData['columns']) > 0)
 				$indexes['PRIMARY'] = $pkIndexData;
+		}
+
+		if (isset($savem)) {
+			$this->SetFetchMode($savem);
+			$ADODB_FETCH_MODE = $save;
 		}
 
 		return $indexes;
