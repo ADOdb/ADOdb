@@ -219,8 +219,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		*/
 		$sql = "SELECT sql
 				FROM sqlite_master
-				WHERE type != 'meta'
-				  AND sql NOTNULL
+				WHERE sql NOTNULL
 				  AND LOWER(name) = ?";
 		$tableSql = $this->getOne($sql, [strtolower($table)]);
 
