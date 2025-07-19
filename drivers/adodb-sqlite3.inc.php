@@ -19,6 +19,9 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ *
+ * @TODO Duplicate code is due to the legacy sqlite driver - delete this when removing the old driver
+ * @noinspection DuplicatedCode
  */
 
 // security - hide paths
@@ -95,7 +98,6 @@ class ADODB_sqlite3 extends ADOConnection {
 		{
 			$fieldobj = $t;
 			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
 		}
 
 		$t = strtoupper($t);
@@ -162,7 +164,6 @@ class ADODB_sqlite3 extends ADOConnection {
 	function MetaColumns($table, $normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
-		$false = false;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 		if ($this->fetchMode !== false) {
@@ -174,18 +175,19 @@ class ADODB_sqlite3 extends ADOConnection {
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
 		}
+
 		if (!$rs) {
 			$ADODB_FETCH_MODE = $save;
-			return $false;
+			return false;
 		}
+
 		$arr = array();
 		while ($r = $rs->FetchRow()) {
-			$type = explode('(',$r['type']);
+			$type = explode('(', $r['type']);
 			$size = '';
-			if (sizeof($type)==2) {
-				$size = trim($type[1],')');
+			if (sizeof($type) == 2) {
+				$size = trim($type[1], ')');
 			}
-			$fn = strtoupper($r['name']);
 			$fld = new ADOFieldObject;
 			$fld->name = $r['name'];
 			$fld->type = $type[0];
@@ -194,7 +196,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			$fld->default_value = $r['dflt_value'];
 			$fld->scale = 0;
 			if (isset($r['pk']) && $r['pk']) {
-				$fld->primary_key=1;
+				$fld->primary_key = 1;
 			}
 			if ($save == ADODB_FETCH_NUM) {
 				$arr[] = $fld;
@@ -209,52 +211,45 @@ class ADODB_sqlite3 extends ADOConnection {
 
 	public function metaForeignKeys($table, $owner = '', $upper =  false, $associative =  false)
 	{
-	    global $ADODB_FETCH_MODE;
-		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
-		|| $this->fetchMode == ADODB_FETCH_ASSOC)
-		$associative = true;
+		global $ADODB_FETCH_MODE;
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC || $this->fetchMode == ADODB_FETCH_ASSOC) {
+			$associative = true;
+		}
 
-	    /*
-		* Read sqlite master to find foreign keys
-		*/
+		// Read sqlite master to find foreign keys
 		$sql = "SELECT sql
 				FROM sqlite_master
 				WHERE sql NOTNULL
 				  AND LOWER(name) = ?";
-		$tableSql = $this->getOne($sql, [strtolower($table)]);
 
+		$tableSql = $this->getOne($sql, [strtolower($table)]);
 		$fkeyList = array();
-		$ylist = preg_split("/,+/",$tableSql);
-		foreach ($ylist as $y)
-		{
-			if (!preg_match('/FOREIGN/',$y))
+		$ylist = preg_split("/,+/", $tableSql);
+		foreach ($ylist as $y) {
+			if (!preg_match('/FOREIGN/', $y)) {
 				continue;
+			}
 
 			$matches = false;
-			preg_match_all('/\((.+?)\)/i',$y,$matches);
+			preg_match_all('/\((.+?)\)/i', $y, $matches);
 			$tmatches = false;
-			preg_match_all('/REFERENCES (.+?)\(/i',$y,$tmatches);
+			preg_match_all('/REFERENCES (.+?)\(/i', $y, $tmatches);
 
-			if ($associative)
-			{
-				if (!isset($fkeyList[$tmatches[1][0]]))
-					$fkeyList[$tmatches[1][0]]	= array();
+			if ($associative) {
+				if (!isset($fkeyList[$tmatches[1][0]])) {
+					$fkeyList[$tmatches[1][0]] = array();
+				}
 				$fkeyList[$tmatches[1][0]][$matches[1][0]] = $matches[1][1];
-			}
-			else
+			} else {
 				$fkeyList[$tmatches[1][0]][] = $matches[1][0] . '=' . $matches[1][1];
+			}
 		}
 
-		if ($associative)
-		{
-			if ($upper)
-				$fkeyList = array_change_key_case($fkeyList,CASE_UPPER);
-			else
-				$fkeyList = array_change_key_case($fkeyList,CASE_LOWER);
+		if ($associative) {
+			$fkeyList = array_change_key_case($fkeyList, $upper ? CASE_UPPER : CASE_LOWER);
 		}
 		return $fkeyList;
 	}
-
 
 	function _init($parentDriver)
 	{
@@ -368,24 +363,24 @@ class ADODB_sqlite3 extends ADOConnection {
 	*/
 	var $_genSeqSQL = "create table %s (id integer)";
 
-	function GenID($seq='adodbseq',$start=1)
+	function GenID($seqname='adodbseq', $startID=1)
 	{
 		// if you have to modify the parameter below, your database is overloaded,
 		// or you need to implement generation of id's yourself!
 		$MAXLOOPS = 100;
 		//$this->debug=1;
 		while (--$MAXLOOPS>=0) {
-			@($num = $this->GetOne("select id from $seq"));
+			@($num = $this->GetOne("select id from $seqname"));
 			if ($num === false) {
-				$this->Execute(sprintf($this->_genSeqSQL ,$seq));
-				$start -= 1;
+				$this->Execute(sprintf($this->_genSeqSQL ,$seqname));
+				$startID -= 1;
 				$num = '0';
-				$ok = $this->Execute("insert into $seq values($start)");
+				$ok = $this->Execute("insert into $seqname values($startID)");
 				if (!$ok) {
 					return false;
 				}
 			}
-			$this->Execute("update $seq set id=id+1 where id=$num");
+			$this->Execute("update $seqname set id=id+1 where id=$num");
 
 			if ($this->affected_rows() > 0) {
 				$num += 1;
@@ -394,7 +389,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			}
 		}
 		if ($fn = $this->raiseErrorFn) {
-			$fn($this->databaseType,'GENID',-32000,"Unable to generate unique id after $MAXLOOPS attempts",$seq,$num);
+			$fn($this->databaseType, 'GENID', -32000, "Unable to generate unique id after $MAXLOOPS attempts", $seqname, $num);
 		}
 		return false;
 	}
@@ -427,15 +422,14 @@ class ADODB_sqlite3 extends ADOConnection {
 		return $this->_connectionID->close();
 	}
 
-	function metaIndexes($table, $primary = FALSE, $owner = false)
+	function metaIndexes($table, $primary = false, $owner = false)
 	{
-		$false = false;
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		if ($this->fetchMode !== FALSE) {
-			$savem = $this->SetFetchMode(FALSE);
+		if ($this->fetchMode !== false) {
+			$savem = $this->SetFetchMode(false);
 		}
 
 		$table = strtolower($table);
@@ -453,27 +447,21 @@ class ADODB_sqlite3 extends ADOConnection {
 				$this->SetFetchMode($savem);
 			}
 			$ADODB_FETCH_MODE = $save;
-			return $false;
+			return false;
 		}
 
-		$indexes = array ();
+		$indexes = array();
 
-		while ($row = $rs->FetchRow())
-		{
-
+		while ($row = $rs->FetchRow()) {
 			if (!isset($indexes[$row[0]])) {
 				$indexes[$row[0]] = array(
-					'unique' => preg_match("/unique/i",$row[1]),
-					'columns' => array()
+					'unique' => preg_match("/unique/i", $row[1]),
 				);
 			}
-			/**
-			 * The index elements appear in the SQL statement
-			 * in cols[1] between parentheses
-			 * e.g CREATE UNIQUE INDEX ware_0 ON warehouse (org,warehouse)
-			 */
-			preg_match_all('/\((.*)\)/',$row[1],$indexExpression);
-			$indexes[$row[0]]['columns'] = array_map('trim',explode(',',$indexExpression[1][0]));
+			// Index elements appear in the SQL statement in cols[1] between parentheses
+			// e.g CREATE UNIQUE INDEX ware_0 ON warehouse (org,warehouse)
+			preg_match_all('/\((.*)\)/', $row[1], $indexExpression);
+			$indexes[$row[0]]['columns'] = array_map('trim', explode(',', $indexExpression[1][0]));
 		}
 
 		// If we want the primary key, we must extract it from the pragma
@@ -482,25 +470,17 @@ class ADODB_sqlite3 extends ADOConnection {
 			$pkIndexData = array('unique'=>1,'columns'=>array());
 
 			$pkCallBack = function ($value, $key) use (&$pkIndexData) {
-
-				/*
-				* As we iterate the elements check for pk index and sort
-				*/
-				if ($value[5] > 0)
-				{
+				// As we iterate the elements check for pk index
+				if ($value[5] > 0) {
 					$pkIndexData['columns'][$value[5]] = strtolower($value[1]);
-					ksort($pkIndexData['columns']);
 				}
 			};
+			array_walk($pragmaData, $pkCallBack);
 
-			array_walk($pragmaData,$pkCallBack);
-
-			/*
-			* If we found no columns, there is no
-			* primary index
-			*/
-			if (count($pkIndexData['columns']) > 0)
+			// If we found no columns, there is no primary index
+			if (count($pkIndexData['columns']) > 0) {
 				$indexes['PRIMARY'] = $pkIndexData;
+			}
 		}
 
 		if (isset($savem)) {
