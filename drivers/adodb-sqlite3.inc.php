@@ -218,10 +218,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		* Read sqlite master to find foreign keys
 		*/
 		$sql = "SELECT sql
-				 FROM (
-				SELECT sql sql, type type, tbl_name tbl_name, name name
-				  FROM sqlite_master
-			          )
+				FROM sqlite_master
 				WHERE type != 'meta'
 				  AND sql NOTNULL
 				  AND LOWER(name) = ?";
