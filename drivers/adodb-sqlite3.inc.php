@@ -168,7 +168,9 @@ class ADODB_sqlite3 extends ADOConnection {
 		if ($this->fetchMode !== false) {
 			$savem = $this->SetFetchMode(false);
 		}
-		$rs = $this->Execute("PRAGMA table_info('$table')");
+
+		$rs = $this->execute("PRAGMA table_info(?)", array($table));
+
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
 		}
@@ -222,9 +224,8 @@ class ADODB_sqlite3 extends ADOConnection {
 			          )
 				WHERE type != 'meta'
 				  AND sql NOTNULL
-				  AND LOWER(name) ='" . strtolower($table) . "'";
-
-		$tableSql = $this->getOne($sql);
+				  AND LOWER(name) = ?";
+		$tableSql = $this->getOne($sql, [strtolower($table)]);
 
 		$fkeyList = array();
 		$ylist = preg_split("/,+/",$tableSql);
@@ -441,6 +442,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			$savem = $this->SetFetchMode(FALSE);
 		}
 
+		$table = strtolower($table);
 		$pragmaData = array();
 
 		/*
@@ -449,26 +451,17 @@ class ADODB_sqlite3 extends ADOConnection {
 		*/
 		if ($primary)
 		{
-			$sql = sprintf('PRAGMA table_info([%s]);',
-						   strtolower($table)
-						   );
-			$pragmaData = $this->getAll($sql);
+			$sql = 'PRAGMA table_info(?)';
+			$pragmaData = $this->getAll($sql, [$table]);
 		}
 
-		/*
-		* Exclude the empty entry for the primary index
-		*/
-		$sqlite = "SELECT name,sql
-					 FROM sqlite_master
-					WHERE type='index'
-					  AND sql IS NOT NULL
-					  AND LOWER(tbl_name)='%s'";
-
-		$SQL = sprintf($sqlite,
-				     strtolower($table)
-					 );
-
-		$rs = $this->execute($SQL);
+		// Exclude the empty entry for the primary index
+		$sql = "SELECT name,sql
+				FROM sqlite_master
+				WHERE type='index'
+				  AND sql IS NOT NULL
+				  AND LOWER(tbl_name)=?";
+		$rs = $this->execute($sql, [$table]);
 
 		if (!is_object($rs)) {
 			if (isset($savem)) {
