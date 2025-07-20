@@ -226,7 +226,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		$fkeyList = array();
 		$ylist = preg_split("/,+/", $tableSql);
 		foreach ($ylist as $y) {
-			if (!preg_match('/FOREIGN/', $y)) {
+			if (!preg_match('/FOREIGN/i', $y)) {
 				continue;
 			}
 
