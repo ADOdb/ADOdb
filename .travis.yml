@@ -1,0 +1,16 @@
+language: php
+
+services:
+    - mysql
+    - postgresql
+
+sudo: false
+
+install:
+    - mysql -u root -e "CREATE DATABASE adodb_test;"
+    - psql -U postgres -c "CREATE DATABASE adodb_test;"
+    - sh travis/travis.sh
+
+script:
+    - phpunit -d max_execution_time=0 -c phpunit.xml
+
