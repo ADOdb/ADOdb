@@ -221,33 +221,31 @@ class ADODB_sqlite3 extends ADOConnection {
 				FROM sqlite_master
 				WHERE sql NOTNULL
 				  AND LOWER(name) = ?";
-
 		$tableSql = $this->getOne($sql, [strtolower($table)]);
-		$fkeyList = array();
-		$ylist = preg_split("/,+/", $tableSql);
-		foreach ($ylist as $y) {
-			if (!preg_match('/FOREIGN/i', $y)) {
-				continue;
-			}
 
-			$matches = false;
-			preg_match_all('/\((.+?)\)/i', $y, $matches);
-			$tmatches = false;
-			preg_match_all('/REFERENCES (.+?)\(/i', $y, $tmatches);
+		// Regex will identify foreign keys in both column and table constraints
+		// Reference: https://sqlite.org/syntax/foreign-key-clause.html
+		// Subpatterns: 1/2 = source columns; 3 = parent table; 4 = parent columns.
+		preg_match_all(
+			'/[(,]\s*(?:FOREIGN\s+KEY\s*\(([^)]+)\)|(\w+).*?)\s*REFERENCES\s+(\w+|"[^"]+")\(([^)]+)\)/i',
+			$tableSql,
+			$fkeyMatches,
+			PREG_SET_ORDER
+		);
+
+		$fkeyList = array();
+		foreach ($fkeyMatches as $fkey) {
+			$src_col = $fkey[1] ?: $fkey[2];
+			$ref_table = $upper ? strtoupper($fkey[3]) : $fkey[3];
+			$ref_col = $fkey[4];
 
 			if ($associative) {
-				if (!isset($fkeyList[$tmatches[1][0]])) {
-					$fkeyList[$tmatches[1][0]] = array();
-				}
-				$fkeyList[$tmatches[1][0]][$matches[1][0]] = $matches[1][1];
+				$fkeyList[$ref_table][$src_col] = $ref_col;
 			} else {
-				$fkeyList[$tmatches[1][0]][] = $matches[1][0] . '=' . $matches[1][1];
+				$fkeyList[$ref_table][] = $src_col . '=' . $ref_col;
 			}
 		}
 
-		if ($associative) {
-			$fkeyList = array_change_key_case($fkeyList, $upper ? CASE_UPPER : CASE_LOWER);
-		}
 		return $fkeyList;
 	}
 
