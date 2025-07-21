@@ -201,7 +201,7 @@ class CoreSqlTest extends TestCase
 	 *
 	 * @return array [string(getRe, array return value]
 	 */
-	public function providerTestGetRows(): array
+	public function providerTestGetRow(): array
 	{
 		$p1 = $GLOBALS['ADOdbConnection']->param('p1');
 		$bind = array('p1'=>'LINE 1');
