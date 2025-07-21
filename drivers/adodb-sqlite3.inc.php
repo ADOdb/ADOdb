@@ -400,17 +400,15 @@ class ADODB_sqlite3 extends ADOConnection {
 	 */
 	function sqlDate($fmt, $col=false)
 	{
-		/*
-		* In order to map the values correctly, we must ensure the proper
-		* casing for certain fields
-		* Y must be UC, because y is a 2 digit year
-		* d must be LC, because D is 3 char day
-		* A must be UC  because a is non-portable am
-		* Q must be UC  because q means nothing
-		*/
-		$fromChars = array('y','D','a','q');
-		$toChars   = array('Y','d','A','Q');
-		$fmt       = str_replace($fromChars,$toChars,$fmt);
+		// In order to map the values correctly, we must ensure the proper
+		// casing for certain fields:
+		// - Y must be UC, because y is a 2 digit year
+		// - d must be LC, because D is 3 char day
+		// - A must be UC  because a is non-portable am
+		// - Q must be UC  because q means nothing
+		$fromChars = array('y', 'D', 'a', 'q');
+		$toChars = array('Y', 'd', 'A', 'Q');
+		$fmt = str_replace($fromChars, $toChars, $fmt);
 
 		$fmt = $this->qstr($fmt);
 		return $col ? "adodb_date($fmt,$col)" : "adodb_date($fmt)";
