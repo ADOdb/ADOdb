@@ -119,6 +119,7 @@ $GLOBALS['ADOdriver']       = $adoDriver;
 $db->startTrans();
 
 $table1Schema = sprintf('%s/DatabaseSetup/%s/table1-schema.sql',dirname(__FILE__),$adoDriver);
+
 if (!file_exists($table1Schema))
 	die('Schema file for table 1 not found');
 
@@ -126,9 +127,10 @@ $table1Sql = file_get_contents($table1Schema);
 $t1Sql = explode(';',$table1Sql);
 
 foreach($t1Sql as $sql)
-	if ($sql)
+{
+	if (trim($sql ?? ''))
 		$db->execute($sql);
-
+}
 $db->completeTrans();
 	
 $db->startTrans();
@@ -142,7 +144,7 @@ if (!file_exists($table1Data))
 $table1Sql = file_get_contents($table1Data);
 $t1Sql = explode(';',$table1Sql);
 foreach($t1Sql as $sql)
-	if ($sql)
+	if (trim($sql ?? ''))
 		$db->execute($sql);
 
 $db->completeTrans();

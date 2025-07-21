@@ -59,7 +59,9 @@ class DbStringFunctionsTest extends TestCase
 			'mysqli'=>"'Famed author James O\\'Sullivan'",
 			'sqlite3'=>"'Famed author James O''Sullivan'",
 			'pdo-mysql'=>"'Famed author James O\\'Sullivan'",
-			'pdo-sqlite'=>"'Famed author James O''Sullivan'"
+			'pdo-sqlite'=>"'Famed author James O''Sullivan'",
+			'postgres9'=>"'Famed author James O''Sullivan'",
+			'pdo-pgsql'=>"'Famed author James O''Sullivan'"
 		);
 		
 		
@@ -85,7 +87,10 @@ class DbStringFunctionsTest extends TestCase
 			'mysqli'=>"Famed author James O\\'Sullivan",
 			'sqlite3'=>"Famed author James O''Sullivan",
 			'pdo-mysql'=>"Famed author James O\\'Sullivan",
-			'pdo-sqlite'=>"Famed author James O''Sullivan"
+			'pdo-sqlite'=>"Famed author James O''Sullivan",
+			'pdo-sqlite'=>"Famed author James O''Sullivan",
+			'postgres9'=>"Famed author James O\\'Sullivan",
+			'pdo-pgsql'=>"Famed author James O\\'Sullivan"
 		);
 		
 		
