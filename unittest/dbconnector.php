@@ -92,9 +92,11 @@ if ($credentials['parameters'])
 	foreach($p as $param)
 	{
 		$scp = explode('=',$param);
-		$db->setConnectionParameter($scp[0],$scp[1]);
+		print_r($scp);
+		$db->setConnectionParameter($scp[0],(int)$scp[1]);
 	}
 }
+//exit;
 if ($credentials['dsn'])
 	$db->connect($credentials['dsn']);
 else
@@ -132,7 +134,7 @@ foreach($t1Sql as $sql)
 		$db->execute($sql);
 }
 $db->completeTrans();
-	
+
 $db->startTrans();
 /*
 * Load Data into the table
