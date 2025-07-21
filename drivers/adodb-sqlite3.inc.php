@@ -413,19 +413,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		$fmt       = str_replace($fromChars,$toChars,$fmt);
 
 		$fmt = $this->qstr($fmt);
-		return ($col) ? "strftime($fmt,$col)" : "strftime($fmt)";
-	}
-
-	/**
-	 * Creates any custom functions for SQLite
-	 *
-	 * This function is a placeholder for creating custom SQLite functions.
-	 * Currently, it does not implement any custom functions.
-	 *
-	 * @return void
-	 */
-	function _createFunctions()
-	{
+		return $col ? "adodb_date($fmt,$col)" : "adodb_date($fmt)";
 	}
 
 	/**
@@ -446,7 +434,19 @@ class ADODB_sqlite3 extends ADOConnection {
 			$argHostname = $argDatabasename;
 		}
 		$this->_connectionID = new SQLite3($argHostname);
-		$this->_createFunctions();
+
+		// Register date conversion function for SQLDate() method
+		// Replaces the legacy adodb_date() functions removed in 5.23.0
+		$this->_connectionID->createFunction('adodb_date',
+			function (string $fmt, $date = null) : string {
+				if ($date === null || $date === false) {
+					return date($fmt);
+				}
+
+				// If it's an int then assume a Unix timestamp, otherwise convert it
+				return date($fmt, is_int($date) ? $date : strtotime($date));
+			}
+		);
 
 		return true;
 	}
