@@ -92,11 +92,11 @@ if ($credentials['parameters'])
 	foreach($p as $param)
 	{
 		$scp = explode('=',$param);
-		print_r($scp);
+		
 		$db->setConnectionParameter($scp[0],(int)$scp[1]);
 	}
 }
-//exit;
+
 if ($credentials['dsn'])
 	$db->connect($credentials['dsn']);
 else
