@@ -61,7 +61,8 @@ class DbStringFunctionsTest extends TestCase
 			'pdo-mysql'=>"'Famed author James O\\'Sullivan'",
 			'pdo-sqlite'=>"'Famed author James O''Sullivan'",
 			'postgres9'=>"'Famed author James O''Sullivan'",
-			'pdo-pgsql'=>"'Famed author James O''Sullivan'"
+			'pdo-pgsql'=>"'Famed author James O''Sullivan'",
+			'mssqlnative'=>"'Famed author James O''Sullivan'"
 		);
 		
 		
@@ -90,7 +91,8 @@ class DbStringFunctionsTest extends TestCase
 			'pdo-sqlite'=>"Famed author James O''Sullivan",
 			'pdo-sqlite'=>"Famed author James O''Sullivan",
 			'postgres9'=>"Famed author James O\\'Sullivan",
-			'pdo-pgsql'=>"Famed author James O\\'Sullivan"
+			'pdo-pgsql'=>"Famed author James O\\'Sullivan",
+			'mssqlnative'=>"Famed author James O\\'Sullivan"
 		);
 		
 		
@@ -115,10 +117,31 @@ class DbStringFunctionsTest extends TestCase
 		$sql = "SELECT $field FROM testtable_1 WHERE varchar_field='LINE 1'";
 		$result = $this->db->getOne($sql);
 		
-		
 		$this->assertSame($expectedValue, $result, '3 value concat');
 			
 	}
-	
-	
+
+	/**
+     * Test for {@see ADODConnection::concat()]
+     *
+	*/
+	public function testIfNull(): void
+	{
+
+		/*
+		* Set up a test record that has a NULL value
+		*/
+		$sql = "UPDATE testtable_1 SET date_field = null WHERE varchar_field='LINE 1'";
+
+		$this->db->Execute($sql);
+
+		/*
+		* Now get a wierd value back from the ifnull function
+		*/
+		$sql = "SELECT IFNULL(date_field,'1970-01-01') FROM testtable_1 WHERE varchar_field='LINE 1'";	
+		$result = $this->db->getOne($sql);		
+		$this->assertSame('1970-01-01', $result,'Test of ifnull function');
+			
+	}
+
 }
