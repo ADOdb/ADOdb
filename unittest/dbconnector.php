@@ -68,6 +68,16 @@ $availableCredentials = parse_ini_file($iniFile,true);
 if (!isset($availableCredentials[$adoDriver]))
 	die('login credentials not available for driver ' . $adoDriver); 
 
+$iniParams = $availableCredentials['globals'];
+if (is_array($iniParams))
+{
+	foreach($iniParams as $key => $value)
+	{
+				
+		ini_set($key,$value);
+	}
+}
+
 $template = array(
 	'dsn'=>'',
 	'host'=>null,
@@ -77,7 +87,8 @@ $template = array(
 	'parameters'=>null,
 	'debug'=>0
 	);
-	
+
+
 $credentials = array_merge($template,$availableCredentials[$adoDriver]);
 
 $loadDriver = str_replace('pdo-','PDO\\',$adoDriver);
@@ -92,8 +103,12 @@ if ($credentials['parameters'])
 	foreach($p as $param)
 	{
 		$scp = explode('=',$param);
+		if (preg_match('/^[0-9]+$/',$scp[0]))
+			$scp[0] = (int)$scp[0];
+		if (preg_match('/^[0-9]+$/',$scp[1]))
+			$scp[1] = (int)$scp[1];
 		
-		$db->setConnectionParameter($scp[0],(int)$scp[1]);
+		$db->setConnectionParameter($scp[0],$scp[1]);
 	}
 }
 

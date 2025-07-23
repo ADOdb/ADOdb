@@ -160,11 +160,17 @@ class CoreSqlTest extends TestCase
 	public function testGetCol(int $expectedValue, string $sql, ?array $bind): void
 	{
 		if ($bind)
-			$this->assertSame($expectedValue, count("{$this->db->getCol($sql,$bind)}"),'ADOConnection::getCol with bound variables()');
+		{
+			$cols = $this->db->getCol($sql,$bind);
+			$this->assertSame($expectedValue, count($cols),'ADOConnection::getCol with bound variables()');
+		}
 		else
-			$this->assertSame($expectedValue, count("{$this->db->getCol($sql)}"),'ADOConnection::getOne without bind variables()');
-	}
+		{
+			$cols = $this->db->getCol($sql);
+			$this->assertSame($expectedValue, count($cols),'ADOConnection::getCol without bind variables()');
 	
+		}
+	}
 	/**
 	 * Data provider for {@see testGetCol`()}
 	 *
@@ -175,9 +181,7 @@ class CoreSqlTest extends TestCase
 		$p1 = $GLOBALS['ADOdbConnection']->param('p1');
 		$bind = array('p1'=>'LINE 1');
 		return [
-			 'Return First Col, Unbound' => 
 				[11, "SELECT varchar_field FROM testtable_1 ORDER BY id", null],
-			 'Return Multiple Cols, take first, Bound' => 
 				[1, "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
 
 			];
@@ -190,10 +194,32 @@ class CoreSqlTest extends TestCase
 	*/
 	public function testGetRow(int $expectedValue, string $sql, ?array $bind): void
 	{
+		
+		$fields = [ '0' => 'id',
+					  '1' => 'varchar_field',
+					  '2' => 'datetime_field',
+					  '3' => 'integer_field',
+					  '4' => 'decimal_field'
+	];
+		
 		if ($bind)
-			$this->assertSame($expectedValue, count("{$this->db->getRow($sql,$bind)}"),'ADOConnection::getRow` with bound variables()');
+		{
+			$this->db->setFetchMode(ADODB_FETCH_ASSOC);
+			$record = $this->db->getRow($sql,$bind);
+			foreach($fields as $key => $value)
+			{
+				$this->assertArrayHasKey($value, $fields, 'Checking if associative key exists in fields array');
+			}
+		}
 		else
-			$this->assertSame($expectedValue, count("{$this->db->getRow($sql)}"),'ADOConnection::getOne without bind variables()');
+		{
+			$this->db->setFetchMode(ADODB_FETCH_NUM);
+			$record = $this->db->getRow($sql,$bind);
+			foreach($fields as $key => $value)
+			{
+				$this->assertArrayHasKey($key, $fields, 'Checking if numeric key exists in fields array');
+			}
+		}
 	}
 	
 	/**
@@ -206,12 +232,130 @@ class CoreSqlTest extends TestCase
 		$p1 = $GLOBALS['ADOdbConnection']->param('p1');
 		$bind = array('p1'=>'LINE 1');
 		return [
-			 'Return First Col, Unbound' => 
-				[11, "SELECT varchar_field FROM testtable_1 ORDER BY id", null],
-			 'Return Multiple Cols, take first, Bound' => 
+				[1, "SELECT varchar_field FROM testtable_1 ORDER BY id", null],
 				[1, "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
-
 			];
+	}
+
+	/**
+	 * Test for {@see ADODConnection::getAll()}
+	 *
+	 * @dataProvider providerTestGetAll
+	*/
+	public function testGetAll(int $fetchMode,array $expectedValue, string $sql, ?array $bind): void
+	{
+		$this->db->setFetchMode($fetchMode);
+
+		if($bind)
+			$returnedRows = $this->db->getAll($sql,$bind);
+		else	
+			$returnedRows = $this->db->getAll($sql);
+		
+		
+		$this->assertSame($expectedValue,$returnedRows, 'ADOConnection::selectLimit()');
+	}
+	
+	/**
+	 * Data provider for {@see testGetAll()}
+	 *
+	 * @return array [string(getRe, array return value]
+	 */
+	public function providerTestGetAll(): array
+	{
+		$p1 = $GLOBALS['ADOdbConnection']->param('p1');
+		$p2 = $GLOBALS['ADOdbConnection']->param('p2');
+		$bind = array('p1'=>'LINE 3',
+					  'p2'=>'LINE 6'
+					);
+		return [
+			 'Unbound, FETCH_ASSOC' => 
+				[ADODB_FETCH_ASSOC, 
+					array(
+						array('varchar_field'=>'LINE 3'),
+						array('varchar_field'=>'LINE 4'),
+						array('varchar_field'=>'LINE 5'),
+						array('varchar_field'=>'LINE 6')
+					),
+					 "SELECT testtable_1.varchar_field 
+					    FROM testtable_1 
+					   WHERE varchar_field BETWEEN 'LINE 3' AND 'LINE 6'
+					ORDER BY id", null],
+		    'Bound, FETCH_NUM' => 
+				[ADODB_FETCH_NUM, 
+					array(
+						array('0'=>'LINE 3'),
+						array('0'=>'LINE 4'),
+						array('0'=>'LINE 5'),
+						array('0'=>'LINE 6')
+						),
+					"SELECT testtable_1.varchar_field 
+					   FROM testtable_1 
+					  WHERE varchar_field BETWEEN $p1 AND $p2
+				   ORDER BY id", $bind],
+
+				];
+	}
+
+
+	/**
+     * Test for {@see ADODConnection::execute() in select mode]
+     *
+	 * @dataProvider providerTestSelectLimit
+	*/
+	public function testSelectLimit(int $fetchMode,array $expectedValue, string $sql, ?array $bind): void
+	{
+		$this->db->setFetchMode($fetchMode);
+
+		if($bind)
+			$result = $this->db->selectLimit($sql,4,2,$bind);
+		else	
+			$result = $this->db->selectLimit($sql,4,2);
+		
+		$returnedRows = array();
+		foreach($result as $index => $row)
+		{
+			$returnedRows[] = $row;
+
+		}
+	
+		$this->assertSame($expectedValue,$returnedRows, 'ADOConnection::selectLimit()');
+			
+	}
+	
+	/**
+	 * Data provider for {@see testSelectLimit()}
+	 *
+	 * @return array [int $fetchMode, array $result, string $sql, ?array $bind]
+	 */
+	public function providerTestSelectLimit(): array
+	{
+		$p1 = $GLOBALS['ADOdbConnection']->param('p1');
+		
+		$bind = array(
+			'p1'=>'LINE 0'
+		);
+
+		return [
+			 'Select Unbound, FETCH_ASSOC' => 
+				[ADODB_FETCH_ASSOC, 
+					array(
+						array('varchar_field'=>'LINE 3'),
+						array('varchar_field'=>'LINE 4'),
+						array('varchar_field'=>'LINE 5'),
+						array('varchar_field'=>'LINE 6')
+					),
+					 "SELECT testtable_1.varchar_field FROM testtable_1 ORDER BY id", null],
+		    'Select, Bound, FETCH_NUM' => 
+				[ADODB_FETCH_NUM, 
+					array(
+						array('0'=>'LINE 3'),
+						array('0'=>'LINE 4'),
+						array('0'=>'LINE 5'),
+						array('0'=>'LINE 6')
+						),
+					"SELECT testtable_1.varchar_field FROM testtable_1 WHERE varchar_field>$p1 ORDER BY id", $bind],
+
+				];
 	}
 }
 	

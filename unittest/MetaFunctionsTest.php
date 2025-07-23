@@ -144,14 +144,27 @@ class MetaFunctionsTest extends TestCase
      * Test for {@see ADODConnection::metaColumns()]
      *
 	 * @dataProvider providerTestMetaColumns
-     
-    public function testMetaColumns(bool $returnType, array $expectedResult): void
+     */   
+	public function testMetaColumns(array $expectedResult): void
     {
-        $executionResult = $this->db->metaColumns('testtable_1',$returnType);
-		//print_r($executionResult);
-		$this->assertSame($expectedResult, $executionResult);
+        $executionResult = $this->db->metaColumns('testtable_1');
+		print_r($expectedResult);	
+		$eResult = [];
+		foreach($expectedResult as $expectedField)
+		{
+			$this->assertArrayHasKey($expectedField, $executionResult, 'Checking for expected field in metaColumns return value');
+			if (!isset($executionResult[$expectedField]))
+				continue;
+
+			$typeof = get_class($executionResult[$expectedField]);
+			$this->assertSame('ADOFieldObject', $typeof, 'Checking that metaColumns returns an ADOFieldObject object');
+			if (strcmp($typeof, 'ADOFieldObject') !== 0)
+				continue;
+
+		}
+		
     }
-	*/
+	
 	/**
 	 * Data provider for {@see testMetaColumns()}
 	 *
@@ -160,25 +173,15 @@ class MetaFunctionsTest extends TestCase
 	public function providerTestMetaColumns(): array
 	{
 		return [
-			 'Returning Associative Array' => [
-				 false,
-					[ 'ID' => 'id',
-					  'VARCHAR_FIELD' => 'varchar_field',
-					  'DATETIME_FIELD' => 'datetime_field',
-					  'INTEGER_FIELD' => 'integer_field',
-					  'DECIMAL_FIELD' => 'decimal_field'
-					]
-				],
-				'Returning Numeric Array' => [
-				 true,
-					[ '0' => 'id',
-					  '1' => 'varchar_field',
-					  '2' => 'datetime_field',
-					  '3' => 'integer_field',
-					  '4' => 'decimal_field'
-					]
+			
+				['0' => 'id',
+				'1' => 'varchar_field',
+				'2' => 'datetime_field',
+				'3' => 'integer_field',
+				'4' => 'decimal_field'
 				]
-			];
+		];
+	
 	}
 	
 	/**
@@ -217,9 +220,8 @@ class MetaFunctionsTest extends TestCase
 	}
 	
 	/**
-     * Test 3 for {@see ADODConnection::metaColumns()]
-	 * Checks that every returned element is an ADOFieldObject
-     *
+     * Test for {@see ADODConnection::metaPrimaryKeys()]
+	 *
      */
     public function testMetaPrimaryKeys(): void
     {
@@ -227,6 +229,20 @@ class MetaFunctionsTest extends TestCase
 		$this->assertSame('id', $executionResult[0]);
 
     }
+
+	/**
+     * Test for {@see ADODConnection::metaForeignKeys()]
+	 * Checks that the correct list of foreigh keys is returned
+     */
+	public function testMetaForeignKeys(): void
+	{
+		$this->db->setFetchMode(ADODB_FETCH_ASSOC);
+		$executionResult = $this->db->metaForeignKeys('testtable_2');
+		
+		$this->assertArrayHasKey('testtable_1', $executionResult);
+		$this->assertArrayHasKey('integer_field', $executionResult['testtable_1']);
+		
+	} 
 	
 	/**
      * Test for {@see ADODConnection::metaType()]

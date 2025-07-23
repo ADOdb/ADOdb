@@ -122,7 +122,7 @@ class DbStringFunctionsTest extends TestCase
 	}
 
 	/**
-     * Test for {@see ADODConnection::concat()]
+     * Test for {@see ADODConnection::ifNull()]
      *
 	*/
 	public function testIfNull(): void
@@ -136,7 +136,7 @@ class DbStringFunctionsTest extends TestCase
 		$this->db->Execute($sql);
 
 		/*
-		* Now get a wierd value back from the ifnull function
+		* Now get a weird value back from the ifnull function
 		*/
 		$sql = "SELECT IFNULL(date_field,'1970-01-01') FROM testtable_1 WHERE varchar_field='LINE 1'";	
 		$result = $this->db->getOne($sql);		
