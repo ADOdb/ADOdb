@@ -6,6 +6,6 @@ INSERT INTO testtable_1 (varchar_field,	datetime_field,date_field, integer_field
 INSERT INTO testtable_1 (varchar_field,	datetime_field,date_field, integer_field,decimal_field) values ('LINE 6','2025-01-01 05:00:01','2025-06-01',9006,1000.51);
 INSERT INTO testtable_1 (varchar_field,	datetime_field,date_field, integer_field,decimal_field) values ('LINE 7','2025-01-01 06:00:01','2025-07-01',9007,1000.61);
 INSERT INTO testtable_1 (varchar_field,	datetime_field,date_field, integer_field,decimal_field) values ('LINE 8','2025-01-01 07:00:01','2025-08-01',9008,1000.71);
-INSERT INTO testtable_1 (varchar_field,	datetime_field,date_field, integer_field,decimal_field) values ('LINE 9','2025-01-01 08:00:01','2025-09-01',9009,1000.81);
+INSERT INTO testtable_1 (varchar_field,	datetime_field,date_field, integer_field,decimal_field) values ('LINE 9','2025-01-01 08:00:01','1959-08-29',9009,1000.81);
 INSERT INTO testtable_1 (varchar_field,	datetime_field,date_field, integer_field,decimal_field) values ('LINE 10','2025-01-01 09:00:01','2025-10-01',9010,1000.91);
 INSERT INTO testtable_1 (varchar_field,	datetime_field,date_field, integer_field,decimal_field) values ('LINE 11','2025-01-01 23:00:01','1725-11-01',-9011,-1000.11);
