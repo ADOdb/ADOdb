@@ -131,7 +131,7 @@ if (!$db->isConnected()) {
 */
 $GLOBALS['ADOdbConnection'] = $db;
 $GLOBALS['ADOdriver']       = $adoDriver;
-
+$GLOBALS['TestingControl']  = $availableCredentials;
 
 $db->startTrans();
 
