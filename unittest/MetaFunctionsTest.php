@@ -98,7 +98,8 @@ class MetaFunctionsTest extends TestCase
 					  'DATETIME_FIELD' => 'datetime_field',
 					  'DATE_FIELD' => 'date_field',
 					  'INTEGER_FIELD' => 'integer_field',
-					  'DECIMAL_FIELD' => 'decimal_field'
+					  'DECIMAL_FIELD' => 'decimal_field',
+					  'EMPTY_FIELD' => 'empty_field'
 					]
 				],
 				'Returning Numeric Array' => [
@@ -108,7 +109,8 @@ class MetaFunctionsTest extends TestCase
 					  '2' => 'datetime_field',
 					  '3' => 'date_field',
 					  '4' => 'integer_field',
-					  '5' => 'decimal_field'
+					  '5' => 'decimal_field',
+					  '6' => 'empty_field'
 					]
 				]
 			];
@@ -121,8 +123,9 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaColumnCount(): void
     {
+		$expectedResult  = 7;
         $executionResult = $this->db->metaColumns('testtable_1');
-		$this->assertSame(6, count($executionResult));
+		$this->assertSame($expectedResult, count($executionResult));
     }
 	
 	/**
@@ -178,7 +181,8 @@ class MetaFunctionsTest extends TestCase
 				'1' => 'varchar_field',
 				'2' => 'datetime_field',
 				'3' => 'integer_field',
-				'4' => 'decimal_field'
+				'4' => 'decimal_field',
+				'5' => 'empty_field'
 				]
 		];
 	
@@ -215,7 +219,7 @@ class MetaFunctionsTest extends TestCase
 	{
 		return [
 			 'Index vdx1 is unique' => [true,'vdx1'],
-			 'Index vdx2 is notunique' => [false,'vdx2'],
+			 'Index vdx2 is unique' => [true,'vdx2'],
 				];
 	}
 	
@@ -279,7 +283,9 @@ class MetaFunctionsTest extends TestCase
 			'Field 3 Is DATE' => ['D',3],
 			'Field 4 Is INTEGER' => ['I',4],
 			'Field 5 Is NUMBER' => ['N',5],
-			'Field 6 Does not Exist' => [null,6]
+			'Field 6 Is VARCHAR' => ['C',6],
+			'Field 7 Does not Exist' => [null,7],
+	
 			 
 		];
 	}
