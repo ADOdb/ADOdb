@@ -52,9 +52,30 @@ class DbStringFunctionsTest extends TestCase
 	public function testQstr(): void
 	{
 		/*
-		* The expected result is db dependent
+		* The expected result is db dependent, so we will
+		* inser the string into the empty_field column
+		* and see if it fails to insert or not.
 		*/
+		$testString = "Famed author James O'Sullivan";
+
+		$SQL = "UPDATE testtable_1 SET empty_field = {$this->db->qstr($testString)}";
 		
+		$this->db->Execute($SQL);
+		
+		$expectedValue = 11;
+		$actualValue = $this->db->Affected_Rows();
+
+		// We should have updated 11 rows
+		$this->assertSame($expectedValue,$actualValue, 'Test of qStr');
+
+		// Now we will check the value in the empty_field column
+		$sql = "SELECT empty_field FROM testtable_1";
+
+		$returnValue = $this->db->getOne($sql);
+
+		$this->assertSame($testString, $returnValue, 'Test of qStr - value in empty_field column');
+		return;
+
 		$resultsArray = array(
 			'mysqli'=>"'Famed author James O\\'Sullivan'",
 			'sqlite3'=>"'Famed author James O''Sullivan'",
@@ -80,6 +101,34 @@ class DbStringFunctionsTest extends TestCase
 	*/
 	public function testAddq(): void
 	{
+		
+		/*
+		* The expected result is db dependent, so we will
+		* insert the string into the empty_field column
+		* and see if it fails to insert or not.
+		*/
+		$testString = "Famed author James O'Sullivan";
+		$p1 = $this->db->param('p1');
+		$bind = array(
+			'p1' => $this->db->addQ($testString)
+		);
+
+
+		$SQL = "UPDATE testtable_1 SET empty_field = $p1";
+		
+		$this->db->Execute($SQL,$bind);
+
+		// We should have updated 11 rows
+		$this->assertSame(11, $this->db->Affected_Rows(), 'Test of addQ');
+
+		// Now we will check the value in the empty_field column
+		$sql = "SELECT empty_field FROM testtable_1";
+
+		$returnValue = $this->db->getOne($sql);
+
+		$this->assertSame($testString, $returnValue, 'Test of addQ - value in empty_field column');
+		return;
+		
 		/*
 		* The expected result is db dependent
 		*/
