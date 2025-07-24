@@ -6,11 +6,12 @@ CREATE TABLE testtable_1 (
 	datetime_field TIME,
 	date_field DATE,
 	integer_field SMALLINT DEFAULT 0,
-	decimal_field decimal(12,2) DEFAULT 0.0
+	decimal_field decimal(12,2) DEFAULT 0.0,
+	empty_field VARCHAR(240) DEFAULT ''
 );
 
-create unique index vdx1 ON testtable_1 (varchar_field);
-create unique index vdx2 ON testtable_1 (integer_field,date_field);
+CREATE	UNIQUE INDEX vdx1 ON testtable_1 (varchar_field);
+CREATE	UNIQUE INDEX vdx2 ON testtable_1 (integer_field,date_field);
 
 CREATE TABLE testtable_2 (
     id SERIAL PRIMARY KEY,

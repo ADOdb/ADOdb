@@ -7,9 +7,10 @@ CREATE TABLE testtable_1 (
 	date_field DATE,
 	integer_field INT(2) DEFAULT 0,
 	decimal_field decimal(12.2) DEFAULT 0,
+	empty_field VARCHAR(240) DEFAULT '',
 	PRIMARY KEY(id),
-	unique index vdx1 (varchar_field),
-	index vdx2 (integer_field,date_field)
+	unique INDEX vdx1 (varchar_field),
+	UNIQUE INDEX vdx2 (integer_field,date_field)
 );
 
 CREATE TABLE testtable_2 (
