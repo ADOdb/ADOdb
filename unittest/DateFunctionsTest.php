@@ -120,42 +120,56 @@ class DateFunctionsTest extends TestCase
 	
 	/**
      * Test for {@see ADOConnection::year())
-     *
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:year
      */
 	public function testYear(): void
 	{
-		$today = sprintf("'%s'",date('Y-m-d'));
-		$year  = date('Y');
-		
-		$sql = "SELECT " . $this->db->year($today);
+		/*
+		* Retrieve a record with a known year
+		*/
+		$sql = "SELECT {$this->db->year('date_field')} FROM testtable_1 WHERE varchar_field='LINE 9'";
 
-		$this->assertSame($year, $this->db->getOne($sql));
+		$testResult 	= (string)$this->db->getOne($sql);
+		$expectedResult = (string)date('Y', strtotime('1959-08-29'));
+		
+		$this->assertSame( $expectedResult, $testResult,'Test of year function');
 	}
 	
 	/**
      * Test for {@see ADOConnection::month()
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:month
      *
      */
 	public function testMonth(): void
 	{
-		$today = sprintf("'%s'",date('Y-m-d'));
-		$month  = date('m');
+		/*
+		* Retrieve a record with a known month
+		*/
+		$sql = "SELECT {$this->db->month('date_field')} FROM testtable_1 WHERE varchar_field='LINE 9'";
+
+		$testResult 	= (string)$this->db->getOne($sql);
+		$expectedResult = (string)date('m', strtotime('1959-08-29'));
 		
-		$sql = "SELECT " . $this->db->month($today);
-		$this->assertSame($month, $this->db->getOne($sql));
+		$this->assertSame( $expectedResult, $testResult,'Test of month function');
 	}
 	
 	/**
      * Test for {@see ADOConnection::day())
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:day
      *
      */
 	public function testDay(): void
 	{
-		$today = sprintf("'%s'",date('Y-m-d'));
-		$day  = date('d');
 		
-		$sql = "SELECT " . $this->db->day($today);
-		$this->assertSame($day, $this->db->getOne($sql));
+		/*
+		* Set up a test record that has a NULL value
+		*/
+		$sql = "SELECT {$this->db->day('date_field')} FROM testtable_1 WHERE varchar_field='LINE 9'";
+
+		$testResult 	= (string)$this->db->getOne($sql);
+		$expectedResult = (string)date('d', strtotime('1959-08-29'));
+		
+		$this->assertSame($testResult, $expectedResult, 'Test of day function');
 	}
 	
 	/**
