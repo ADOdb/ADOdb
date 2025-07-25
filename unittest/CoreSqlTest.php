@@ -208,16 +208,16 @@ class CoreSqlTest extends TestCase
 			$record = $this->db->getRow($sql,$bind);
 			foreach($fields as $key => $value)
 			{
-				$this->assertArrayHasKey($value, $fields, 'Checking if associative key exists in fields array');
+				$this->assertArrayHasKey($value, $record, 'Checking if associative key exists in fields array');
 			}
 		}
 		else
 		{
 			$this->db->setFetchMode(ADODB_FETCH_NUM);
-			$record = $this->db->getRow($sql,$bind);
+			$record = $this->db->getRow($sql);
 			foreach($fields as $key => $value)
 			{
-				$this->assertArrayHasKey($key, $fields, 'Checking if numeric key exists in fields array');
+				$this->assertArrayHasKey($key, $record, 'Checking if numeric key exists in fields array');
 			}
 		}
 	}
@@ -232,8 +232,8 @@ class CoreSqlTest extends TestCase
 		$p1 = $GLOBALS['ADOdbConnection']->param('p1');
 		$bind = array('p1'=>'LINE 1');
 		return [
-				[1, "SELECT varchar_field FROM testtable_1 ORDER BY id", null],
-				[1, "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
+				[1, "SELECT * FROM testtable_1 ORDER BY id", null],
+				[1, "SELECT * FROM testtable_1 WHERE varchar_field=$p1", $bind],
 			];
 	}
 
