@@ -53,24 +53,27 @@ class CacheSqlTest extends TestCase
             return;
         }
 
-        if ($this->cacheMethod == 1)
-        {
-            $ADODB_CACHE_DIR = $cacheParams['cacheDir'] ?? '';
-            if (!is_dir($ADODB_CACHE_DIR) || !is_writable($ADODB_CACHE_DIR)) {
-                $this->skipAllTests = true;
-                return;
-            }
-
-            global $ADODB_CACHE_DIR;
-        }
-
-        $this->db->cacheFlush();
+		$this->db->cacheFlush();
 	}
 	
 	public function tearDown(): void
 	{
 		
 	}
+
+	public function setEmptyColumn($value): void
+	{
+
+		if (!$value)
+			$value = 'NULL';
+		else
+			$value = $this->db->qstr($value);
+		$sql = "UPDATE testtable_1 SET empty_field = $value";
+		$this->db->execute($sql);
+	}
+
+
+
 	
 	/**
      * Test for {@see ADODConnection::execute() in select mode]
@@ -79,6 +82,8 @@ class CacheSqlTest extends TestCase
 	*/
 	public function testSelectCacheExecute(bool $expectedValue, string $sql, ?array $bind): void
 	{
+		
+		global $ADODB_CACHE_DIR;
 		if ($this->skipAllTests)
         {
             $this->markTestSkipped('Skipping tests as caching not configured');
@@ -91,7 +96,15 @@ class CacheSqlTest extends TestCase
 			$result = $this->db->cacheExecute($this->timeout,$sql);
 		
 		
-		$this->assertSame($expectedValue, is_object($result), 'ADOConnection::execute() in SELECT mode');
+		$this->assertSame($expectedValue, is_object($result), 'First access of cacheExecute in SELECT mode sets cache');
+
+		if($bind)
+			$result = $this->db->cacheExecute($this->timeout,$sql,$bind);
+		else	
+			$result = $this->db->cacheExecute($this->timeout,$sql);
+		
+		
+		$this->assertSame($expectedValue, is_object($result), 'Second access of cacheexecute() in SELECT mode should read object from cache, not database');
 			
 	}
 	
@@ -122,6 +135,8 @@ class CacheSqlTest extends TestCase
 	*/
 	public function testNonSelectCacheExecute(bool $expectedValue, string $sql, ?array $bind): void
 	{
+	
+		global $ADODB_CACHE_DIR;
         if ($this->skipAllTests)
         {
             $this->markTestSkipped('Skipping tests as caching not configured');
@@ -165,15 +180,38 @@ class CacheSqlTest extends TestCase
 	*/
 	public function testCacheGetOne(string $expectedValue, string $sql, ?array $bind): void
 	{
+		global $ADODB_CACHE_DIR;
         if ($this->skipAllTests)
         {
             $this->markTestSkipped('Skipping tests as caching not configured');
             return;
         }
 		if ($bind)
-			$this->assertSame($expectedValue, "{$this->db->cacheGetOne($this->timeout,$sql,$bind)}",'ADOConnection::getOne()');
+		{
+			$actualValue = $this->db->cacheGetOne($this->timeout,$sql,$bind);
+			$this->assertSame($expectedValue, $actualValue,'First access of cacheGetOne() with bind reads from database and sets cache');
+		}
 		else
-			$this->assertSame($expectedValue, "{$this->db->getOne($this->timeout,$sql)}",'ADOConnection::getOne()');
+		{
+			$actualValue = $this->db->cacheGetOne($this->timeout,$sql);
+			$this->assertSame($expectedValue, $actualValue,'First access of cacheGetOne() reads from database and sets cache');
+		}
+
+		$rewriteSql = "UPDATE testtable_1 SET varchar_field = null WHERE varchar_field = 'LINE 1'";
+		$this->db->execute($rewriteSql);
+
+		if ($bind)
+		{
+			$actualValue = $this->db->cacheGetOne($this->timeout,$sql,$bind);
+			$this->assertSame($expectedValue, $actualValue,'Second access of cacheGetOne() with bind reads from cache, not database');
+		}
+		else
+		{
+			$actualValue = $this->db->cacheGetOne($this->timeout,$sql);
+			$this->assertSame($expectedValue, $actualValue,'Second access of cacheGetOne() reads from cache, not database');
+		}
+		$rewriteSql = "UPDATE testtable_1 SET varchar_field = 'LINE 1' WHERE varchar_field IS NULL";
+		$this->db->execute($rewriteSql);
 	}
 
 	/**
@@ -204,6 +242,7 @@ class CacheSqlTest extends TestCase
 	*/
 	public function testGetCacheCol(int $expectedValue, string $sql, ?array $bind): void
 	{
+		global $ADODB_CACHE_DIR;
         if ($this->skipAllTests)
         {
             $this->markTestSkipped('Skipping tests as caching not configured');
@@ -212,14 +251,32 @@ class CacheSqlTest extends TestCase
 		if ($bind)
 		{
 			$cols = $this->db->cacheGetCol($sql,$bind);
-			$this->assertSame($expectedValue, count($cols),'ADOConnection::getCol with bound variables()');
+			$this->assertSame($expectedValue, count($cols),'First access of cacheGetCol with bound variables() sets cache');
 		}
 		else
 		{
 			$cols = $this->db->cacheGetCol($sql);
-			$this->assertSame($expectedValue, count($cols),'ADOConnection::getCol without bind variables()');
+			$this->assertSame($expectedValue, count($cols),'First access of cacheGetCol without bound variables() sets cache');
 	
 		}
+
+		$rewriteSql = "UPDATE testtable_1 SET varchar_field = null WHERE varchar_field = 'LINE 1'";
+		$this->db->execute($rewriteSql);
+
+		if ($bind)
+		{
+			$cols = $this->db->cacheGetCol($sql,$bind);
+			$this->assertSame($expectedValue, count($cols),'Second access of cacheGetCol with bound variables() should read cache, not database');
+		}
+		else
+		{
+			$cols = $this->db->cacheGetCol($sql);
+			$this->assertSame($expectedValue, count($cols),'Second access of cacheGetCol without bound variables() should read cache not database');
+	
+		}
+		$rewriteSql = "UPDATE testtable_1 SET varchar_field = 'LINE 1' WHERE varchar_field = NULL";
+		$this->db->execute($rewriteSql);
+
 	}
 	/**
 	 * Data provider for {@see testGetCol`()}
@@ -231,7 +288,7 @@ class CacheSqlTest extends TestCase
 		$p1 = $GLOBALS['ADOdbConnection']->param('p1');
 		$bind = array('p1'=>'LINE 1');
 		return [
-				[11, "SELECT varchar_field FROM testtable_1 ORDER BY id", null],
+				[11, "SELECT varchar_field FROM testtable_1 WHERE varchar_field IS NOT NULL ORDER BY id", null],
 				[1, "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
 
 			];
@@ -244,38 +301,82 @@ class CacheSqlTest extends TestCase
 	*/
 	public function testCacheGetRow(int $expectedValue, string $sql, ?array $bind): void
 	{
-		
+		global $ADODB_CACHE_DIR;
         if ($this->skipAllTests)
         {
             $this->markTestSkipped('Skipping tests as caching not configured');
             return;
         }
 
-		$fields = [ '0' => 'id',
-					  '1' => 'varchar_field',
-					  '2' => 'datetime_field',
-					  '3' => 'integer_field',
-					  '4' => 'decimal_field'
-	];
+		/*
+		* Set a value to cache
+		*/
+		$this->setEmptyColumn('80111');
+	
+
+		$fields = [ 
+			'0' => 'id',
+			'1' => 'varchar_field',
+			'2' => 'datetime_field',
+			'3' => 'integer_field',
+			'4' => 'decimal_field',
+			'5' => 'empty_field'
+		];
 		
-		if ($bind)
+		if ($bind != null)
 		{
 			$this->db->setFetchMode(ADODB_FETCH_ASSOC);
+	
 			$record = $this->db->cacheGetRow($this->timeout,$sql,$bind);
 			foreach($fields as $key => $value)
 			{
-				$this->assertArrayHasKey($value, $fields, 'Checking if associative key exists in fields array');
+				$this->assertArrayHasKey($value, $record, 'Checking if associative key exists in returned record');
 			}
 		}
 		else
 		{
 			$this->db->setFetchMode(ADODB_FETCH_NUM);
+			$record = $this->db->cacheGetRow($this->timeout,$sql);
+			foreach($fields as $key => $value)
+			{
+				$this->assertArrayHasKey($key, $record, 'Checking if numeric key exists in fields array');
+			}
+		}
+
+		/*
+		* Now update the empty_field column
+		*/
+		$this->setEmptyColumn(null);
+
+		/*
+		* Reread the cached row
+		* and check that the empty_field column is 80111
+		*/
+		if ($bind != null)
+		{
+			$this->db->setFetchMode(ADODB_FETCH_ASSOC);
+	
 			$record = $this->db->cacheGetRow($this->timeout,$sql,$bind);
 			foreach($fields as $key => $value)
 			{
-				$this->assertArrayHasKey($key, $fields, 'Checking if numeric key exists in fields array');
+				$this->assertArrayHasKey($value, $record, 'Checking if associative key exists in returned record');
 			}
+			$this->assertSame('80111', $record['empty_field'], 'Checking that empty_field column is read from cache as 80111');
 		}
+		else
+		{
+			
+			$this->db->setFetchMode(ADODB_FETCH_NUM);
+			$record = $this->db->cacheGetRow($this->timeout,$sql);
+			foreach($fields as $key => $value)
+			{
+				$this->assertArrayHasKey($key, $record, 'Checking if numeric key exists in fields array');
+			}
+
+			$this->assertSame('80111', $record[6], 'Checking that empty_field column is read from cache as 80111');
+		}
+
+
 	}
 	
 	/**
@@ -286,10 +387,13 @@ class CacheSqlTest extends TestCase
 	public function providerTestCacheGetRow(): array
 	{
 		$p1 = $GLOBALS['ADOdbConnection']->param('p1');
-		$bind = array('p1'=>'LINE 1');
+		$bind = array(
+			'p1'=>'LINE 1'
+		);
+
 		return [
-				[1, "SELECT varchar_field FROM testtable_1 ORDER BY id", null],
-				[1, "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
+				[1, "SELECT * FROM testtable_1 ORDER BY id", null],
+				[1, "SELECT * FROM testtable_1 WHERE varchar_field=$p1", $bind],
 			];
 	}
 
@@ -300,11 +404,14 @@ class CacheSqlTest extends TestCase
 	*/
 	public function testCacheGetAll(int $fetchMode,array $expectedValue, string $sql, ?array $bind): void
 	{
+		
+
         if ($this->skipAllTests)
         {
             $this->markTestSkipped('Skipping tests as caching not configured');
             return;
         }
+		
 		$this->db->setFetchMode($fetchMode);
 
 		if($bind)
@@ -313,7 +420,22 @@ class CacheSqlTest extends TestCase
 			$returnedRows = $this->db->cacheGetAll($this->timeout,$sql);
 		
 		
-		$this->assertSame($expectedValue,$returnedRows, 'ADOConnection::selectLimit()');
+		$this->assertSame($expectedValue,$returnedRows, 'Initial read of cacheGetAll()');
+
+		$rewriteSql = "UPDATE testtable_1 SET varchar_field = null WHERE varchar_field = 'LINE 3'";
+		$this->db->execute($rewriteSql);
+
+		if($bind)
+			$returnedRows = $this->db->cacheGetAll($this->timeout,$sql,$bind);
+		else	
+			$returnedRows = $this->db->cacheGetAll($this->timeout,$sql);
+		
+		
+		$this->assertSame($expectedValue,$returnedRows, 'Second read of cacheGetAll should return cache not current()');
+
+		$sql = "UPDATE testtable_1 SET varchar_field = 'LINE 3' WHERE varchar_field IS NULL";
+		$this->db->execute($sql);
+
 	}
 	
 	/**
@@ -365,6 +487,7 @@ class CacheSqlTest extends TestCase
 	*/
 	public function testCacheSelectLimit(int $fetchMode,array $expectedValue, string $sql, ?array $bind): void
 	{
+		global $ADODB_CACHE_DIR;
         if ($this->skipAllTests)
         {
             $this->markTestSkipped('Skipping tests as caching not configured');
@@ -385,8 +508,28 @@ class CacheSqlTest extends TestCase
 
 		}
 	
-		$this->assertSame($expectedValue,$returnedRows, 'ADOConnection::selectLimit()');
+		$this->assertSame($expectedValue,$returnedRows, 'First read of cacheSelectLimit(), builds cache');
 			
+		$rewriteSql = "UPDATE testtable_1 SET varchar_field = null WHERE varchar_field = 'LINE 3'";
+		$this->db->execute($rewriteSql);
+
+		if($bind)
+			$result = $this->db->cacheSelectLimit($this->timeout,$sql,4,2,$bind);
+		else	
+			$result = $this->db->cacheSelectLimit($this->timeout,$sql,4,2);
+		
+		$returnedRows = array();
+		foreach($result as $index => $row)
+		{
+			$returnedRows[] = $row;
+
+		}
+	
+		$this->assertSame($expectedValue,$returnedRows, 'Second read of cacheSelectLimit(), should re-read cache, not database');
+
+		$rewriteSql = "UPDATE testtable_1 SET varchar_field = 'LINE 3' WHERE varchar_field IS NULL";
+		$this->db->execute($rewriteSql);
+	
 	}
 	
 	/**
