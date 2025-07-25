@@ -146,13 +146,24 @@ class MetaFunctionsTest extends TestCase
 	/**
      * Test for {@see ADODConnection::metaColumns()]
      *
-	 * @dataProvider providerTestMetaColumns
+	 * @xdataProvider providerTestMetaColumns
      */   
-	public function testMetaColumns(array $expectedResult): void
+	public function testMetaColumns(): void
     {
+		$expectedResult = [
+			'0' => 'ID',
+			'1' => 'VARCHAR_FIELD',
+			'2' => 'DATETIME_FIELD',
+			'3' => 'DATE_FIELD',
+			'4' => 'INTEGER_FIELD',
+			'5' => 'DECIMAL_FIELD',
+			'6' => 'EMPTY_FIELD'
+		];
+		
         $executionResult = $this->db->metaColumns('testtable_1');
-		print_r($expectedResult);	
-		$eResult = [];
+		
+		print "\nChecking that metaColumns returns the expected fields\n";
+
 		foreach($expectedResult as $expectedField)
 		{
 			$this->assertArrayHasKey($expectedField, $executionResult, 'Checking for expected field in metaColumns return value');
@@ -173,7 +184,7 @@ class MetaFunctionsTest extends TestCase
 	 *
 	 * @return array [bool array type, array return value]
 	 */
-	public function providerTestMetaColumns(): array
+	public function xproviderTestMetaColumns(): array
 	{
 		return [
 			
