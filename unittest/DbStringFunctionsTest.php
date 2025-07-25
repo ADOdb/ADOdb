@@ -58,6 +58,14 @@ class DbStringFunctionsTest extends TestCase
 		*/
 		$testString = "Famed author James O'Sullivan";
 
+		/*
+		* Blank out the empty_field column first to ensure that
+		* the total number of rows updated is correct
+		*/
+		$SQL = "UPDATE testtable_1 SET empty_field = null";
+		
+		$this->db->Execute($SQL);
+
 		$SQL = "UPDATE testtable_1 SET empty_field = {$this->db->qstr($testString)}";
 		
 		$this->db->Execute($SQL);
