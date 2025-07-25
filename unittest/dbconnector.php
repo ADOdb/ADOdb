@@ -165,3 +165,15 @@ foreach($t1Sql as $sql)
 		$db->execute($sql);
 
 $db->completeTrans();
+
+$ADODB_CACHE_DIR = '';
+if (array_key_exists('caching',$availableCredentials))
+{
+	
+	$cacheParams = $availableCredentials['caching'];
+	if ($cacheParams['cacheMethod'] == 1)
+    {
+        $ADODB_CACHE_DIR = $cacheParams['cacheDir'] ?? '';
+        
+    }
+}
