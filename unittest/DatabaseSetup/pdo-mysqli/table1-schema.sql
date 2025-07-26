@@ -1,3 +1,8 @@
+-- Standard format for the unit testing
+-- All drivers must have the same table and column structure
+-- so that all tests run the same way
+DROP TABLE IF EXISTS insertion_table;
+DROP TABLE IF EXISTS insertion_table_renamed;
 DROP TABLE IF EXISTS testtable_2;
 DROP TABLE IF EXISTS testtable_1;
 CREATE TABLE testtable_1 (
@@ -7,9 +12,10 @@ CREATE TABLE testtable_1 (
 	date_field DATE,
 	integer_field INT(2) DEFAULT 0,
 	decimal_field decimal(12.2) DEFAULT 0,
+	empty_field VARCHAR(240) DEFAULT '',
 	PRIMARY KEY(id),
-	unique index vdx1 (varchar_field),
-	index vdx2 (integer_field,date_field)
+	unique INDEX vdx1 (varchar_field),
+	UNIQUE INDEX vdx2 (integer_field,date_field)
 );
 
 CREATE TABLE testtable_2 (

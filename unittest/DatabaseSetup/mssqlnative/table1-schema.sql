@@ -1,3 +1,6 @@
+-- Standard format for the unit testing
+-- All drivers must have the same table and column structure
+-- so that all tests run the same way
 DROP TABLE IF EXISTS insertion_table;
 DROP TABLE IF EXISTS insertion_table_renamed;
 DROP TABLE IF EXISTS testtable_2;
