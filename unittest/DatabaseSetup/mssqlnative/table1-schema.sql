@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS insertion_table;
+DROP TABLE IF EXISTS insertion_table_renamed;
 DROP TABLE IF EXISTS testtable_2;
 DROP TABLE IF EXISTS testtable_1;
 CREATE TABLE testtable_1 (
