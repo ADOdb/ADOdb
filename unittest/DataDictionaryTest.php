@@ -59,7 +59,6 @@ class DataDictionaryTest extends TestCase
 	public function testBuildBasicTable(): void
 	{
 
-       // $this->db->debug = true;
         $this->db->execute("DROP TABLE IF EXISTS {$this->testTableName}");
 
         $flds = " 
@@ -383,6 +382,31 @@ class DataDictionaryTest extends TestCase
         $this->assertArrayNotHasKey($this->testTableName, $metaTables, 'Test of dropTableSQL - table should not exist');
 
        
+    }
+
+    /**
+     * Test for {@see ADODConnection::createDatabase()}
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:createdatabase
+     * @return void
+     */
+    public function testCreateDatabase(): void
+    {
+        if ($this->skipFollowingTests) {
+            $this->markTestSkipped('Skipping tests as the table was not created successfully');
+            return;
+        }
+
+        $dbName = 'unittest_database';
+        $sqlArray = $this->dataDictionary->createDatabase($dbName);
+
+        $this->dataDictionary->executeSqlArray($sqlArray);
+
+        // Check if the database was created successfully
+        $metaDatabases = $this->db->metaDatabases();
+        $this->assertContains($dbName, $metaDatabases, 'Test of createDatabase - database should exist');
+
+        // Clean up by dropping the database
+        $this->dataDictionary->dropDatabase($dbName);
     }
    
 }
