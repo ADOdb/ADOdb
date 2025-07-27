@@ -4,7 +4,7 @@
  *
  * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
  *
- * @authot Mark Newnham
+ * @author Mark Newnham
  * @package ADOdb
  * @link https://adodb.org Project's web site and documentation
  * @link https://github.com/ADOdb/ADOdb Source code and issue tracker
@@ -33,6 +33,7 @@ class CacheSqlTest extends TestCase
     protected $skipAllTests = false;
     protected $cacheMethod = 0;
     protected $timeout = 120;
+    
     /**
      * Set up the test environment
      *
@@ -70,10 +71,12 @@ class CacheSqlTest extends TestCase
     public function setEmptyColumn($value): void
     {
 
-        if (!$value)
+        if (!$value) {
             $value = 'NULL';
-        else
+        } else {
             $value = $this->db->qstr($value);
+        }
+
         $sql = "UPDATE testtable_1 SET empty_field = $value";
         $this->db->execute($sql);
     }
@@ -105,7 +108,11 @@ class CacheSqlTest extends TestCase
             $result = $this->db->cacheExecute($this->timeout, $sql);
         }
         
-        $this->assertSame($expectedValue, is_object($result), 'First access of cacheExecute in SELECT mode sets cache');
+        $this->assertSame(
+            $expectedValue, 
+            is_object($result), 
+            'First access of cacheExecute in SELECT mode sets cache'
+        );
 
         if ($bind) {
             $result = $this->db->cacheExecute($this->timeout, $sql, $bind);
@@ -113,7 +120,11 @@ class CacheSqlTest extends TestCase
             $result = $this->db->cacheExecute($this->timeout, $sql);
         }
         
-        $this->assertSame($expectedValue, is_object($result), 'Second access of cacheexecute() in SELECT mode should read object from cache, not database');
+        $this->assertSame(
+            $expectedValue, 
+            is_object($result), 
+            'Second access of cacheexecute() in SELECT mode should read object from cache, not database'
+        );
             
     }
     
@@ -165,7 +176,11 @@ class CacheSqlTest extends TestCase
             $result = $this->db->cacheExecute($this->timeout, $sql);
         }
         
-        $this->assertSame($expectedValue, is_object($result) && get_class($result) == 'ADORecordSet_empty', 'ADOConnection::execute() in INSERT/UPDATE/DELETE mode returns ADORecordSet_empty');
+        $this->assertSame(
+            $expectedValue, 
+            is_object($result) && get_class($result) == 'ADORecordSet_empty', 
+            'ADOConnection::execute() in INSERT/UPDATE/DELETE mode returns ADORecordSet_empty'
+        );
             
     }
     
@@ -210,7 +225,7 @@ class CacheSqlTest extends TestCase
      * @return void
      * 
      * @dataProvider providerTestCacheGetOne
-    */
+     */
     public function testCacheGetOne(string $expectedValue, string $sql, ?array $bind): void
     {
         global $ADODB_CACHE_DIR;
@@ -220,22 +235,43 @@ class CacheSqlTest extends TestCase
         }
         if ($bind) {
             $actualValue = $this->db->cacheGetOne($this->timeout, $sql, $bind);
-            $this->assertSame($expectedValue, $actualValue, 'First access of cacheGetOne() with bind reads from database and sets cache');
+
+            $this->assertSame(
+                $expectedValue, 
+                $actualValue, 
+                'First access of cacheGetOne() with bind reads from database and sets cache'
+            );
         } else {
-            $actualValue = $this->db->cacheGetOne($this->timeout,$sql);
-            $this->assertSame($expectedValue, $actualValue,'First access of cacheGetOne() reads from database and sets cache');
+            
+            $actualValue = $this->db->cacheGetOne($this->timeout, $sql);
+            
+            $this->assertSame(
+                $expectedValue, 
+                $actualValue, 
+                'First access of cacheGetOne() reads from database and sets cache'
+            );
         }
 
-        $rewriteSql = "UPDATE testtable_1 SET varchar_field = null WHERE varchar_field = 'LINE 1'";
+        $rewriteSql = "UPDATE testtable_1 
+                          SET varchar_field = null 
+                        WHERE varchar_field = 'LINE 1'";
+
         $this->db->execute($rewriteSql);
 
-        if ($bind)
-        {
-            $actualValue = $this->db->cacheGetOne($this->timeout,$sql,$bind);
-            $this->assertSame($expectedValue, $actualValue,'Second access of cacheGetOne() with bind reads from cache, not database');
+        if ($bind) {
+            $actualValue = $this->db->cacheGetOne($this->timeout, $sql, $bind);
+            $this->assertSame(
+                $expectedValue, 
+                $actualValue,
+                'Second access of cacheGetOne() with bind reads from cache, not database'
+            );
         } else {
-            $actualValue = $this->db->cacheGetOne($this->timeout,$sql);
-            $this->assertSame($expectedValue, $actualValue,'Second access of cacheGetOne() reads from cache, not database');
+            $actualValue = $this->db->cacheGetOne($this->timeout, $sql);
+            $this->assertSame(
+                $expectedValue, 
+                $actualValue,
+                'Second access of cacheGetOne() reads from cache, not database'
+            );
         }
         $rewriteSql = "UPDATE testtable_1 SET varchar_field = 'LINE 1' WHERE varchar_field IS NULL";
         $this->db->execute($rewriteSql);
@@ -252,58 +288,90 @@ class CacheSqlTest extends TestCase
         $bind = array('p1'=>'LINE 1');
 
         return [
-             'Return First Col, Unbound' => 
-                ['LINE 1', "SELECT varchar_field FROM testtable_1 ORDER BY id", null],
-         'Return Multiple Cols, take first, Unbound' => 
-                ['LINE 1', "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 ORDER BY id", null],
-         'Return Multiple Cols, take first, Bound' => 
-                ['LINE 1', "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
+            'Return First Col, Unbound' => [
+                'LINE 1', 
+                "SELECT varchar_field FROM testtable_1 ORDER BY id", 
+                null
+            ],
+            'Return Multiple Cols, take first, Unbound' => [
+                'LINE 1', 
+                "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 ORDER BY id",
+                null
+            ],
+            'Return Multiple Cols, take first, Bound' => [
+                'LINE 1', 
+                "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", 
+                $bind
+            ],
 
-            ];
+        ];
     }
     
     /**
      * Test for {@see ADODConnection::cachegetCol()]
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:cachegetcol
+     * 
+     * @param int $expectedValue Expected value of the result
+     * @param string $sql SQL query to execute
+     * @param ?array $bind Optional array of bind parameters
+     * 
+     * @return void
      *
      * @dataProvider providerTestCacheGetCol
     */
     public function testGetCacheCol(int $expectedValue, string $sql, ?array $bind): void
     {
         global $ADODB_CACHE_DIR;
-        if ($this->skipAllTests)
-        {
+        if ($this->skipAllTests) {
             $this->markTestSkipped('Skipping tests as caching not configured');
             return;
         }
-        if ($bind)
-        {
-            $cols = $this->db->cacheGetCol($sql,$bind);
-            $this->assertSame($expectedValue, count($cols),'First access of cacheGetCol with bound variables() sets cache');
+        if ($bind) {
+            $cols = $this->db->cacheGetCol($sql, $bind);
+            $this->assertSame(
+                $expectedValue, 
+                count($cols),
+                'First access of cacheGetCol with bound variables() sets cache'
+            );
         } else {
             $cols = $this->db->cacheGetCol($sql);
-            $this->assertSame($expectedValue, count($cols),'First access of cacheGetCol without bound variables() sets cache');
+            $this->assertSame(
+                $expectedValue, 
+                count($cols),
+                'First access of cacheGetCol without bound variables() sets cache'
+            );
     
         }
 
         $rewriteSql = "UPDATE testtable_1 SET varchar_field = null WHERE varchar_field = 'LINE 1'";
         $this->db->execute($rewriteSql);
 
-        if ($bind)
-        {
-            $cols = $this->db->cacheGetCol($sql,$bind);
-            $this->assertSame($expectedValue, count($cols),'Second access of cacheGetCol with bound variables() should read cache, not database');
+        if ($bind) {
+            $cols = $this->db->cacheGetCol($sql, $bind);
+            $this->assertSame(
+                $expectedValue, 
+                count($cols),
+                'Second access of cacheGetCol with bound variables() should read cache, not database'
+            );
         } else {
             $cols = $this->db->cacheGetCol($sql);
-            $this->assertSame($expectedValue, count($cols),'Second access of cacheGetCol without bound variables() should read cache not database');
+            $this->assertSame(
+                $expectedValue, 
+                count($cols), 
+                'Second access of cacheGetCol without bound variables() should read cache not database'
+            );
     
         }
-        $rewriteSql = "UPDATE testtable_1 SET varchar_field = 'LINE 1' WHERE varchar_field = NULL";
+        $rewriteSql = "UPDATE testtable_1 
+                          SET varchar_field = 'LINE 1' 
+                        WHERE varchar_field = NULL";
+
         $this->db->execute($rewriteSql);
 
     }
     /**
-     * Data provider for {@see testGetCol`()}
+     * Data provider for {@see testCacheGetCol()}
      *
      * @return array [string(getRe, array return value]
      */
@@ -312,23 +380,37 @@ class CacheSqlTest extends TestCase
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         $bind = array('p1'=>'LINE 1');
         return [
-                [11, "SELECT varchar_field FROM testtable_1 WHERE varchar_field IS NOT NULL ORDER BY id", null],
-                [1, "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
+                [
+                    11, 
+                    "SELECT varchar_field FROM testtable_1 WHERE varchar_field IS NOT NULL ORDER BY id", 
+                    null
+                ],[
+                    1, 
+                    "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", 
+                    $bind
+                ],
 
             ];
     }
     
     /**
      * Test for {@see ADODConnection::cachegetRow()]
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:cachegetrow
+     * 
+     * @param int $expectedValue Expected value of the result
+     * @param string $sql SQL query to execute
+     * @param ?array $bind Optional array of bind parameters
+     * 
+     * @return void
      *
      * @dataProvider providerTestCacheGetRow
-    */
+     */
     public function testCacheGetRow(int $expectedValue, string $sql, ?array $bind): void
     {
         global $ADODB_CACHE_DIR;
-        if ($this->skipAllTests)
-        {
+
+        if ($this->skipAllTests) {
             $this->markTestSkipped('Skipping tests as caching not configured');
             return;
         }
@@ -348,21 +430,29 @@ class CacheSqlTest extends TestCase
             '5' => 'empty_field'
         ];
         
-        if ($bind != null)
-        {
+        if ($bind != null) {
+
             $this->db->setFetchMode(ADODB_FETCH_ASSOC);
     
-            $record = $this->db->cacheGetRow($this->timeout,$sql,$bind);
-            foreach($fields as $key => $value)
-            {
-                $this->assertArrayHasKey($value, $record, 'Checking if associative key exists in returned record');
+            $record = $this->db->cacheGetRow($this->timeout, $sql, $bind);
+
+            foreach ($fields as $key => $value){
+                $this->assertArrayHasKey(
+                    $value, 
+                    $record, 
+                    'Checking if associative key exists in returned record'
+                );
             }
          } else {
             $this->db->setFetchMode(ADODB_FETCH_NUM);
-            $record = $this->db->cacheGetRow($this->timeout,$sql);
-            foreach($fields as $key => $value)
-            {
-                $this->assertArrayHasKey($key, $record, 'Checking if numeric key exists in fields array');
+            $record = $this->db->cacheGetRow($this->timeout, $sql);
+            
+            foreach ($fields as $key => $value) {
+                $this->assertArrayHasKey(
+                    $key, 
+                    $record, 
+                    'Checking if numeric key exists in fields array'
+                );
             }
         }
 
@@ -386,7 +476,12 @@ class CacheSqlTest extends TestCase
                     'Checking if associative key exists in returned record'
                 );
             }
-            $this->assertSame('80111', $record['empty_field'], 'Checking that empty_field column is read from cache as 80111');
+
+            $this->assertSame(
+                '80111', 
+                $record['empty_field'], 
+                'Checking that empty_field column is read from cache as 80111'
+            );
         
         } else {
             
