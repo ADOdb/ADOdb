@@ -177,3 +177,10 @@ if (array_key_exists('caching',$availableCredentials))
         
     }
 }
+
+/**
+ * Set some global variables for the tests
+ */
+$ADODB_QUOTE_FIELDNAMES = false;
+$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+$ADODB_GETONE_EOF = null;
