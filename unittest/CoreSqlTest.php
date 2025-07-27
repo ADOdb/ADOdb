@@ -45,7 +45,7 @@ class CoreSqlTest extends TestCase
 	
 	/**
      * Test for {@see ADODConnection::execute() in select mode]
-     *
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:execute
 	 * @dataProvider providerTestSelectExecute
 	*/
 	public function testSelectExecute(bool $expectedValue, string $sql, ?array $bind): void
@@ -55,7 +55,6 @@ class CoreSqlTest extends TestCase
 		else	
 			$result = $this->db->execute($sql);
 		
-		
 		$this->assertSame($expectedValue, is_object($result), 'ADOConnection::execute() in SELECT mode');
 			
 	}
@@ -63,7 +62,7 @@ class CoreSqlTest extends TestCase
 	/**
 	 * Data provider for {@see testSelectExecute()}
 	 *
-	 * @return array [string(getRe, array return value]
+	 * @return array [bool success, string sql ?array bind]
 	 */
 	public function providerTestSelectExecute(): array
 	{
@@ -82,8 +81,14 @@ class CoreSqlTest extends TestCase
 	
 	/**
      * Test for {@see ADODConnection::execute() in non-seelct mode]
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:execute
      *
 	 * @dataProvider providerTestNonSelectExecute
+	 * 
+	 * @param bool $expectedValue
+	 * @param string $sql
+	 * @param ?array $bind
+	 * @return void
 	*/
 	public function testNonSelectExecute(bool $expectedValue, string $sql, ?array $bind): void
 	{
@@ -100,7 +105,7 @@ class CoreSqlTest extends TestCase
 	/**
 	 * Data provider for {@see testNonSelectExecute()}
 	 *
-	 * @return array [string(getRe, array return value]
+	 * @return array [string success, string sql, ?array bind]
 	 */
 	public function providerTestNonSelectExecute(): array
 	{
@@ -117,10 +122,15 @@ class CoreSqlTest extends TestCase
 			];
 	}
 	
-	
 	/**
      * Test for {@see ADODConnection::getOne()]
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getone
      *
+	 * @param string $expectedValue
+	 * @param string $sql
+	 * @param ?array $bind
+	 * @return void
+	 * 
 	 * @dataProvider providerTestGetOne
 	*/
 	public function testGetOne(string $expectedValue, string $sql, ?array $bind): void
@@ -134,7 +144,7 @@ class CoreSqlTest extends TestCase
 	/**
 	 * Data provider for {@see testGetOne()}
 	 *
-	 * @return array [string(getRe, array return value]
+	 * @return array [string expected value, string sql ?array bind]
 	 */
 	public function providerTestGetOne(): array
 	{
@@ -154,7 +164,13 @@ class CoreSqlTest extends TestCase
 	
 	/**
      * Test for {@see ADODConnection::getCol()]
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getcol
      *
+	 * @param int $expectedValue
+	 * @param string $sql
+	 * @param ?array $bind
+	 * @return void
+	 * 
 	 * @dataProvider providerTestGetCol
 	*/
 	public function testGetCol(int $expectedValue, string $sql, ?array $bind): void
@@ -162,12 +178,12 @@ class CoreSqlTest extends TestCase
 		if ($bind)
 		{
 			$cols = $this->db->getCol($sql,$bind);
-			$this->assertSame($expectedValue, count($cols),'ADOConnection::getCol with bound variables()');
+			$this->assertSame($expectedValue, count($cols),'Get col with bind variables should return expected number of rows');
 		}
 		else
 		{
 			$cols = $this->db->getCol($sql);
-			$this->assertSame($expectedValue, count($cols),'ADOConnection::getCol without bind variables()');
+			$this->assertSame($expectedValue, count($cols),'getCol without bind variables should return expected number of rows');
 	
 		}
 	}
@@ -189,7 +205,13 @@ class CoreSqlTest extends TestCase
 	
 	/**
      * Test for {@see ADODConnection::getRow()]
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getrow
      *
+	 * @param int $expectedValue
+	 * @param string $sql
+	 * @param ?array $bind
+	 * @return void
+	 * 
 	 * @dataProvider providerTestGetRow
 	*/
 	public function testGetRow(int $expectedValue, string $sql, ?array $bind): void
@@ -225,8 +247,8 @@ class CoreSqlTest extends TestCase
 	/**
 	 * Data provider for {@see testGetRow()}
 	 *
-	 * @return array [string(getRe, array return value]
-	 */
+	 * @return array [int numOfRows, string sql, ?array bind]
+	 */ 
 	public function providerTestGetRow(): array
 	{
 		$p1 = $GLOBALS['ADOdbConnection']->param('p1');
@@ -239,7 +261,14 @@ class CoreSqlTest extends TestCase
 
 	/**
 	 * Test for {@see ADODConnection::getAll()}
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getall
 	 *
+	 * @param int $fetchMode
+	 * @param array $expectedValue
+	 * @param string $sql
+	 * @param ?array $bind
+	 * @return void
+	 * 
 	 * @dataProvider providerTestGetAll
 	*/
 	public function testGetAll(int $fetchMode,array $expectedValue, string $sql, ?array $bind): void
@@ -252,13 +281,13 @@ class CoreSqlTest extends TestCase
 			$returnedRows = $this->db->getAll($sql);
 		
 		
-		$this->assertSame($expectedValue,$returnedRows, 'ADOConnection::selectLimit()');
+		$this->assertSame($expectedValue,$returnedRows, 'getall() should return expected rows');
 	}
 	
 	/**
 	 * Data provider for {@see testGetAll()}
 	 *
-	 * @return array [string(getRe, array return value]
+	 * @return array [int fetchmode, array expected result, string sql, ?array bind]
 	 */
 	public function providerTestGetAll(): array
 	{
@@ -298,18 +327,27 @@ class CoreSqlTest extends TestCase
 
 
 	/**
-     * Test for {@see ADODConnection::execute() in select mode]
+     * Test for {@see ADODConnection::selectlimit]
+	 * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:selectlimit
      *
+	 * @param int $fetchMode
+	 * @param array $expectedValue
+	 * @param string $sql
+	 * @param int $count
+	 * @param int $offset
+	 * @param ?array $bind
+	 * @return void
+	 * 
 	 * @dataProvider providerTestSelectLimit
 	*/
-	public function testSelectLimit(int $fetchMode,array $expectedValue, string $sql, ?array $bind): void
+	public function testSelectLimit(int $fetchMode,array $expectedValue, string $sql, $count, $offset, ?array $bind): void
 	{
 		$this->db->setFetchMode($fetchMode);
 
 		if($bind)
-			$result = $this->db->selectLimit($sql,4,2,$bind);
+			$result = $this->db->selectLimit($sql,$count,$offset,$bind);
 		else	
-			$result = $this->db->selectLimit($sql,4,2);
+			$result = $this->db->selectLimit($sql,$count,$offset);
 		
 		$returnedRows = array();
 		foreach($result as $index => $row)
@@ -325,7 +363,7 @@ class CoreSqlTest extends TestCase
 	/**
 	 * Data provider for {@see testSelectLimit()}
 	 *
-	 * @return array [int $fetchMode, array $result, string $sql, ?array $bind]
+	 * @return array [int $fetchMode, array $result, string $sql, int rows, int offset, ?array $bind]
 	 */
 	public function providerTestSelectLimit(): array
 	{
@@ -344,7 +382,8 @@ class CoreSqlTest extends TestCase
 						array('varchar_field'=>'LINE 5'),
 						array('varchar_field'=>'LINE 6')
 					),
-					 "SELECT testtable_1.varchar_field FROM testtable_1 ORDER BY id", null],
+					 "SELECT testtable_1.varchar_field FROM testtable_1 ORDER BY id", 4, 2, null
+				],
 		    'Select, Bound, FETCH_NUM' => 
 				[ADODB_FETCH_NUM, 
 					array(
@@ -353,10 +392,16 @@ class CoreSqlTest extends TestCase
 						array('0'=>'LINE 5'),
 						array('0'=>'LINE 6')
 						),
-					"SELECT testtable_1.varchar_field FROM testtable_1 WHERE varchar_field>$p1 ORDER BY id", $bind],
+					"SELECT testtable_1.varchar_field FROM testtable_1 WHERE varchar_field>$p1 ORDER BY id", 4, 2, $bind
+				],
+			'Select Unbound, FETCH_ASSOC Get first record' => 
+				[ADODB_FETCH_ASSOC, 
+					array(
+						array('varchar_field'=>'LINE 3'),					),
+				"SELECT testtable_1.varchar_field FROM testtable_1 ORDER BY id", 1, -1, null
+				],
+		];
 
-				];
 	}
 }
-	
 	
