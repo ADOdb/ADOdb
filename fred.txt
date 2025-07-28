@@ -1,0 +1,444 @@
+PHPUnit 9.3.0 by Sebastian Bergmann and contributors.
+
+..........F.F.FFF......FFF.F.FFFFFFFFFF.FF..E.E......F...F..FFFFF 65 / 96 ( 67%)
+SELECT  CASE WHEN date_field is null THEN '1970-01-01' ELSE date_field END  
+                  FROM testtable_1 
+                 WHERE varchar_field='LINE 1'..F.F.F.....
+Checking that metaColumns returns the expected fields
+....EF.FFFF.E..F<p>Bad $rs in GetInsertSQL. Connection or SQL invalid. Try using $connection->debug=true;</p>F..                                   96 / 96 (100%)
+
+Time: 00:00.228, Memory: 8.00 MB
+
+There were 4 errors:
+
+1) DataDictionaryTest::testRenameTable
+SQLite3Result::fetchArray(): Unable to execute statement: no such table: insertion_table
+
+C:\dev\github\ADOdb\drivers\adodb-sqlite3.inc.php:798
+C:\dev\github\ADOdb\drivers\adodb-sqlite3.inc.php:745
+C:\dev\github\ADOdb\adodb.inc.php:1738
+C:\dev\github\ADOdb\adodb.inc.php:1680
+C:\dev\github\ADOdb\adodb-datadict.inc.php:405
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:349
+
+2) DataDictionaryTest::testCreateDatabase
+TypeError: PHPUnit\Framework\Assert::assertContains(): Argument #2 ($haystack) must be of type iterable, bool given, called in C:\dev\github\ADOdb\unittest\DataDictionaryTest.php on line 406
+
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:406
+
+3) MetaFunctionsTest::testMetaForeignKeys
+Undefined array key 0
+
+C:\dev\github\ADOdb\drivers\adodb-sqlite3.inc.php:243
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:255
+
+4) MetaFunctionsTest::testMetaTypes with data set "Field 7 Does not Exist" (null, 7)
+Undefined array key 7
+
+C:\dev\github\ADOdb\adodb.inc.php:5455
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+
+--
+
+There were 38 failures:
+
+1) CacheSqlTest::testGetCacheCol with data set #1 (1, 'SELECT testtable_1.varchar_fi...ield=?', array('LINE 1'))
+First access of cacheGetCol with bound variables() sets cache
+Failed asserting that 0 is identical to 1.
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:335
+
+2) CacheSqlTest::testCacheGetRow with data set #1 (1, 'SELECT * FROM testtable_1 WHE...ield=?', array('LINE 1'))
+Checking if associative key exists in returned record
+Failed asserting that an array has the key 'id'.
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:443
+
+3) CacheSqlTest::testCacheGetAll with data set "Bound, FETCH_NUM" (1, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', array('LINE 3', 'LINE 6'))
+Initial read of cacheGetAll()
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 (
+     0 => Array &1 (
+-        0 => 'LINE 3'
++        0 => 'LINE 4'
+     )
+     1 => Array &2 (
+-        0 => 'LINE 4'
++        0 => 'LINE 5'
+     )
+     2 => Array &3 (
+-        0 => 'LINE 5'
+-    )
+-    3 => Array &4 (
+         0 => 'LINE 6'
+     )
+ )
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:561
+
+4) CacheSqlTest::testCacheSelectLimit with data set "Select Unbound, FETCH_ASSOC" (2, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', null)
+First read of cacheSelectLimit(), builds cache
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 (
+     0 => Array &1 (
+-        'varchar_field' => 'LINE 3'
++        'varchar_field' => null
+     )
+     1 => Array &2 (
+         'varchar_field' => 'LINE 4'
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:667
+
+5) CacheSqlTest::testCacheSelectLimit with data set "Select, Bound, FETCH_NUM" (1, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', array('LINE 0'))
+First read of cacheSelectLimit(), builds cache
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 (
+     0 => Array &1 (
+-        0 => 'LINE 3'
++        0 => 'LINE 5'
+     )
+     1 => Array &2 (
+-        0 => 'LINE 4'
++        0 => 'LINE 6'
+     )
+     2 => Array &3 (
+-        0 => 'LINE 5'
++        0 => 'LINE 7'
+     )
+     3 => Array &4 (
+-        0 => 'LINE 6'
++        0 => 'LINE 8'
+     )
+ )
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:667
+
+6) CoreSqlTest::testGetOne with data set "Return First Col, Unbound" ('LINE 1', 'SELECT varchar_field FROM tes... BY id', null)
+ADOConnection::getOne()
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'LINE 1'
++''
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:184
+
+7) CoreSqlTest::testGetOne with data set "Return Multiple Cols, take first, Unbound" ('LINE 1', 'SELECT testtable_1.varchar_fi... BY id', null)
+ADOConnection::getOne()
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'LINE 1'
++''
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:184
+
+8) CoreSqlTest::testGetOne with data set "Return Multiple Cols, take first, Bound" ('LINE 1', 'SELECT testtable_1.varchar_fi...ield=?', array('LINE 1'))
+ADOConnection::getOne()
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'LINE 1'
++''
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:178
+
+9) CoreSqlTest::testGetCol with data set #1 (1, 'SELECT testtable_1.varchar_fi...ield=?', array('LINE 1'))
+Get col with bind variables should return expected number of rows
+Failed asserting that 0 is identical to 1.
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:226
+
+10) CoreSqlTest::testGetRow with data set #1 (1, 'SELECT * FROM testtable_1 WHE...ield=?', array('LINE 1'))
+Checking if associative key exists in fields array
+Failed asserting that an array has the key 'id'.
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:278
+
+11) CoreSqlTest::testGetAll with data set "Unbound, FETCH_ASSOC" (2, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', null)
+getall() should return expected rows
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 (
+     0 => Array &1 (
+-        'varchar_field' => 'LINE 3'
++        'varchar_field' => 'LINE 4'
+     )
+     1 => Array &2 (
+-        'varchar_field' => 'LINE 4'
++        'varchar_field' => 'LINE 5'
+     )
+     2 => Array &3 (
+-        'varchar_field' => 'LINE 5'
+-    )
+-    3 => Array &4 (
+         'varchar_field' => 'LINE 6'
+     )
+ )
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:329
+
+12) CoreSqlTest::testGetAll with data set "Bound, FETCH_NUM" (1, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', array('LINE 3', 'LINE 6'))
+getall() should return expected rows
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 (
+     0 => Array &1 (
+-        0 => 'LINE 3'
++        0 => 'LINE 4'
+     )
+     1 => Array &2 (
+-        0 => 'LINE 4'
++        0 => 'LINE 5'
+     )
+     2 => Array &3 (
+-        0 => 'LINE 5'
+-    )
+-    3 => Array &4 (
+         0 => 'LINE 6'
+     )
+ )
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:329
+
+13) CoreSqlTest::testSelectLimit with data set "Select Unbound, FETCH_ASSOC" (2, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', 4, 2, null)
+ADOConnection::selectLimit()
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 (
+     0 => Array &1 (
+-        'varchar_field' => 'LINE 3'
++        'varchar_field' => null
+     )
+     1 => Array &2 (
+         'varchar_field' => 'LINE 4'
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:404
+
+14) CoreSqlTest::testSelectLimit with data set "Select, Bound, FETCH_NUM" (1, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', 4, 2, array('LINE 0'))
+ADOConnection::selectLimit()
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 (
+     0 => Array &1 (
+-        0 => 'LINE 3'
++        0 => 'LINE 5'
+     )
+     1 => Array &2 (
+-        0 => 'LINE 4'
++        0 => 'LINE 6'
+     )
+     2 => Array &3 (
+-        0 => 'LINE 5'
++        0 => 'LINE 7'
+     )
+     3 => Array &4 (
+-        0 => 'LINE 6'
++        0 => 'LINE 8'
+     )
+ )
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:404
+
+15) CoreSqlTest::testSelectLimit with data set "Select Unbound, FETCH_ASSOC Get first record" (2, array(array('LINE 3')), 'SELECT testtable_1.varchar_fi... BY id', 1, -1, null)
+ADOConnection::selectLimit()
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 (
+     0 => Array &1 (
+-        'varchar_field' => 'LINE 3'
++        'varchar_field' => null
+     )
+ )
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:404
+
+16) DataDictionaryTest::testBuildBasicTable
+Test of CreateTableSQL
+Failed asserting that an array contains 'insertion_table'.
+
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:76
+
+17) DataDictionaryTest::testaddColumnToBasicTable
+Test of AddColumnSQL
+Failed asserting that an array has the key 'VARCHAR_FIELD'.
+
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:114
+
+18) DataDictionaryTest::testalterColumnInBasicTable
+Test of AlterColumnSQL
+Failed asserting that an array has the key 'VARCHAR_FIELD'.
+
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:143
+
+19) DataDictionaryTest::testRenameColumnInBasicTable
+Test of RenameColumnSQL
+Failed asserting that an array has the key 'ANOTHER_VARCHAR_FIELD'.
+
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:168
+
+20) DataDictionaryTest::testaddIndexToBasicTableViaString
+Test of AddIndexSQL Using String For Fields
+Failed asserting that an array has the key 'insertion_index_1'.
+
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:237
+
+21) DataDictionaryTest::testaddIndexToBasicTableViaArray
+Test of AddIndexSQL Using Array For Fields
+Failed asserting that an array has the key 'insertion_index_2'.
+
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:269
+
+22) DateFunctionsTest::testFmtTimeStamp
+fmtTimeStamp should return a timestamp in the format set in the fmtTimeStamp property
+Failed asserting that 1753742184 is identical to '2025-07-28 16:36:24'.
+
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:173
+
+23) DateFunctionsTest::testSqlDate
+sqlDate should return the date in the format set in the first parameter
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'07/28/2025'
++'m/d/Y'
+
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:271
+
+24) DateFunctionsTest::testOffsetDate
+Offset date should return the date 1 week in the future
+Failed asserting that 2032 is identical to '2025-08-04'.
+
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:351
+
+25) DbStringFunctionsTest::testQstr
+Qstr should have returned a string with the apostrophe escaped
+Failed asserting that 0 is identical to true.
+
+C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:93
+
+26) DbStringFunctionsTest::testAddq
+addQ should have returned a string with the apostrophe escaped
+Failed asserting that 1 is identical to true.
+
+C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:144
+
+27) DbStringFunctionsTest::testConcat
+3 value concat
+Failed asserting that null is identical to 'LINE 1|LINE 1'.
+
+C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:171
+
+28) DbStringFunctionsTest::testIfNull
+Test of ifnull function
+Failed asserting that null is identical to '1970-01-01'.
+
+C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:209
+
+29) MetaFunctionsTest::testMetaTables with data set "Show only Views" (false, 'VIEWS', '')
+Failed asserting that true is identical to false.
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:54
+
+30) MetaFunctionsTest::testMetaTables with data set "Show only [V]iews" (false, 'V', '')
+Failed asserting that true is identical to false.
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:54
+
+31) MetaFunctionsTest::testMetaTables with data set "Show only tables beginning notest%" (false, '', 'notest%')
+Failed asserting that true is identical to false.
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:54
+
+32) MetaFunctionsTest::testMetaTypes with data set "Field 0 Is INTEGER" ('I', 0)
+Checking MetaType
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'I'
++'C'
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+
+33) MetaFunctionsTest::testMetaTypes with data set "Field 2 Is DATETIME" ('T', 2)
+Checking MetaType
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'T'
++'C'
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+
+34) MetaFunctionsTest::testMetaTypes with data set "Field 3 Is DATE" ('D', 3)
+Checking MetaType
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'D'
++'C'
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+
+35) MetaFunctionsTest::testMetaTypes with data set "Field 4 Is INTEGER" ('I', 4)
+Checking MetaType
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'I'
++'C'
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+
+36) MetaFunctionsTest::testMetaTypes with data set "Field 5 Is NUMBER" ('N', 5)
+Checking MetaType
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'N'
++'C'
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+
+37) VariablesTest::testQuotingExecute
+Data insertion should not succed using Unquoted field and table names
+Failed asserting that false is of type "object".
+
+C:\dev\github\ADOdb\unittest\VariablesTest.php:76
+
+38) VariablesTest::testFetchMode
+Row should have a numeric column
+Failed asserting that an array has the key 0.
+
+C:\dev\github\ADOdb\unittest\VariablesTest.php:117
+
+ERRORS!
+Tests: 96, Assertions: 141, Errors: 4, Failures: 38.
