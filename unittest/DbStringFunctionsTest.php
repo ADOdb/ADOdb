@@ -42,7 +42,6 @@ class DbStringFunctionsTest extends TestCase
         
     }
     
-    
     /**
      * Test for {@see ADODConnection::qstr()}
      * 
@@ -75,7 +74,11 @@ class DbStringFunctionsTest extends TestCase
         $actualValue = $this->db->Affected_Rows();
 
         // We should have updated 11 rows
-        $this->assertSame($expectedValue,$actualValue, 'All rows should have been updated with the test string');
+        $this->assertSame(
+            $expectedValue,
+            $actualValue, 
+            'All rows should have been updated with the test string'
+        );
 
         // Now we will check the value in the empty_field column
         $sql = "SELECT empty_field FROM testtable_1";
@@ -84,7 +87,11 @@ class DbStringFunctionsTest extends TestCase
 
         $testResult = preg_match('/^(Famed author James O)[\\\'](\'Sullivan)$/', $returnValue);
                 
-        $this->assertSame(true, $testResult, 'Qstr should have returned a string with the apostrophe escaped');
+        $this->assertSame(
+            true, 
+            $testResult, 
+            'Qstr should have returned a string with the apostrophe escaped'
+        );
             
     }
     
@@ -108,13 +115,16 @@ class DbStringFunctionsTest extends TestCase
             'p1' => $this->db->addQ($testString)
         );
 
-
         $SQL = "UPDATE testtable_1 SET empty_field = $p1";
         
         $this->db->Execute($SQL, $bind);
 
         // We should have updated 11 rows
-        $this->assertSame(11, $this->db->Affected_Rows(), 'All rows should have been updated with the test string');
+        $this->assertSame(
+            11, 
+            $this->db->Affected_Rows(), 
+            'All rows should have been updated with the test string'
+        );
 
         // Now we will check the value in the empty_field column
         $sql = "SELECT empty_field FROM testtable_1";
@@ -128,33 +138,46 @@ class DbStringFunctionsTest extends TestCase
 
         $testResult = preg_match('/^(Famed author James O)[\\\'](\'Sullivan)$/', $returnValue);
                 
-        $this->assertSame(true, $testResult, 'addQ should have returned a string with the apostrophe escaped');
+        $this->assertSame(
+            true, 
+            $testResult, 
+            'addQ should have returned a string with the apostrophe escaped'
+        );
             
     }
     
     /**
      * Test for {@see ADODConnection::concat()}
      * 
-     * @link   https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:concat
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:concat
+     * 
      * @return void
      */
     public function testConcat(): void
     {
         $expectedValue = 'LINE 1|LINE 1';
         
-        $field = $this->db->Concat('varchar_field',"'|'",'varchar_field');
+        $field = $this->db->Concat('varchar_field', "'|'", 'varchar_field');
         
-        $sql = "SELECT $field FROM testtable_1 WHERE varchar_field='LINE 1'";
+        $sql = "SELECT $field 
+                  FROM testtable_1 
+                 WHERE varchar_field='LINE 1'";
+
         $result = $this->db->getOne($sql);
         
-        $this->assertSame($expectedValue, $result, '3 value concat');
+        $this->assertSame(
+            $expectedValue,
+            $result,
+            '3 value concat'
+        );
             
     }
 
     /**
      * Test for {@see ADODConnection::ifNull()}
      * 
-     * @link   https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:ifnull
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:ifnull
+     * 
      * @return void
      */
     public function testIfNull(): void
@@ -163,16 +186,27 @@ class DbStringFunctionsTest extends TestCase
         /*
         * Set up a test record that has a NULL value
         */
-        $sql = "UPDATE testtable_1 SET date_field = null WHERE varchar_field='LINE 1'";
+        $sql = "UPDATE testtable_1 
+                   SET date_field = null 
+                 WHERE varchar_field='LINE 1'";
 
         $this->db->Execute($sql);
 
         /*
         * Now get a weird value back from the ifnull function
         */
-        $sql = "SELECT IFNULL(date_field,'1970-01-01') FROM testtable_1 WHERE varchar_field='LINE 1'";	
-        $result = $this->db->getOne($sql);		
-        $this->assertSame('1970-01-01', $result,'Test of ifnull function');
+        $ninetySeventy = $this->db->dbDate('1970-01-01');
+        $sql = "SELECT {$this->db->ifNull('date_field',$ninetySeventy)} 
+                  FROM testtable_1 
+                 WHERE varchar_field='LINE 1'";
+
+        $expectedResult = $this->db->getOne($sql);
+        
+        $this->assertSame(
+            '1970-01-01',
+            $expectedResult,
+            'Test of ifnull function'
+        );
             
     }
 
