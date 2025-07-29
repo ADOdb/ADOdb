@@ -127,6 +127,7 @@ class VariablesTest extends TestCase
     {
         global $ADODB_FETCH_MODE;
 
+        $expectedResult = 'ID';
         /*
         * Fetch a template row from the table
         */
@@ -134,15 +135,16 @@ class VariablesTest extends TestCase
         $testRow = $this->db->getRow($sql);
 
         $this->assertArrayHasKey(
-            'id',
+            $expectedResult,
             $testRow,
             'Row should have an id column'
         );        
 
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-
+        //$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+        $this->db->setFetchMode(ADODB_FETCH_NUM);
         $testRow = $this->db->getRow($sql);
 
+        print_r($testRow);
         $this->assertArrayHasKey(
             0,
             $testRow, 

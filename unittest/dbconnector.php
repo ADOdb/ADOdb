@@ -29,37 +29,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-require_once dirname(__FILE__) . '/../adodb.inc.php';
-require_once dirname(__FILE__) . '/../adodb-lib.inc.php';
-
-global $argv;
-global $db;
-
-$shortopts = ''; 
-$longopts = array('adodb-driver');
-$errors   = '';
-$options = getopt($shortopts, $longopts);
-
-$o = (preg_grep('/dbconnector/', $argv));
-
-if (!$o) {
-    die('unit tests must contain a dbconnector argument');
-}
-
-$o = array_keys($o);
-$oIndex = $o[0] + 1;
-
-if (!array_key_exists($oIndex, $argv)) {
-    die('The dbconnector argument must be followed by the name of the driver');
-}
-/*
-* Match the location of the bootstrap load
-* the driver name is the next argument
-*/
-
-$adoDriver = strtolower($argv[$oIndex]);
-
-$iniFile = stream_resolve_include_path('adodb-unittest.ini');
+$iniFile = stream_resolve_include_path ('adodb-unittest.ini');
 
 if (!$iniFile) {
     die('could not find adodb-unittest.ini in the PHP include_path');
@@ -67,10 +37,79 @@ if (!$iniFile) {
 
 $availableCredentials = parse_ini_file($iniFile, true);
 
+if (!array_key_exists('ADOdb', $availableCredentials)) {
+    /* 
+    * If the ADOdb section is not present, we assume the directory is the parent of the
+    * current directory
+    */
+    $availableCredentials['ADOdb'] = array(
+        'directory' => dirname(__DIR__),
+        'casing' => 1 // 1= Upper Case
+    );
+}
+
+$ADOdbSettings        = $availableCredentials['ADOdb'];
+
+require_once $ADOdbSettings['directory'] . '/adodb.inc.php';
+
+global $argv;
+global $db;
+
+$adoDriver = '';
+
+define('ADODB_ASSOC_CASE', $ADOdbSettings['casing'] ?? 1);
+
+
+/*
+* First try to use the active flag in the ini file because
+* Version 12 of PHPUnit does not support the unnammed parameters
+*/
+foreach ($availableCredentials as $driver=>$driverOptions) {
+    if (isset($driverOptions['active']) && $driverOptions['active']) {
+        $adoDriver = $driver;
+        break;
+    }
+}
+
+if (!$adoDriver) {
+ 
+    $o = (preg_grep('/dbconnector/', $argv));
+
+    if (!$o) {
+        die('unit tests must contain either an entry in the INI file or a dbconnector argument');
+    }
+
+    /*
+    * See if there is an unnamed parameter
+    */
+    $o = array_keys($o);
+    $oIndex = $o[0] + 1;
+
+    if (!array_key_exists($oIndex, $argv)) {
+        die('The dbconnector argument must be followed by the name of the driver');
+    }
+    /*
+    * Match the location of the bootstrap load
+    * the driver name is the next argument
+    */
+
+    $adoDriver = strtolower($argv[$oIndex] ?? '');
+
+    unset($argv[$oIndex]);
+
+}
+
+/*
+* At the point we either have a driver via the active flog or the command line
+*/
+
 if (!isset($availableCredentials[$adoDriver])) {
     die('login credentials not available for driver ' . $adoDriver); 
 }
 
+/*
+* Push global settings into the ini file
+*/
 $iniParams = $availableCredentials['globals'];
 if (is_array($iniParams)) {
     foreach ($iniParams as $key => $value) {
@@ -78,6 +117,7 @@ if (is_array($iniParams)) {
         ini_set($key, $value);
     }
 }
+
 
 $template = array(
     'dsn'=>'',
@@ -87,17 +127,20 @@ $template = array(
     'database'=>null,
     'parameters'=>null,
     'debug'=>0
-    );
+);
 
 
-$credentials = array_merge($template, $availableCredentials[$adoDriver]);
+$credentials = array_merge(
+    $template, 
+    $availableCredentials[$adoDriver]
+);
 
 $loadDriver = str_replace('pdo-', 'PDO\\', $adoDriver);
 
 $db = newAdoConnection($loadDriver);
 $db->debug = $credentials['debug'];
 
-if ($credentials['parameters']) { 
+if ($credentials['parameters']) {
 
     $p = explode(';', $credentials['parameters']);
     $p = array_filter($p);
@@ -128,7 +171,7 @@ if (!$db->isConnected()) {
 }
 
 /*
-* This is now available to unittests
+* This is now available to unittests. The caching section will need this info
 */
 $GLOBALS['ADOdbConnection'] = $db;
 $GLOBALS['ADOdriver']       = $adoDriver;
@@ -142,8 +185,9 @@ $table1Schema = sprintf(
     $adoDriver
 );
 
-if (!file_exists($table1Schema))
+if (!file_exists($table1Schema)) {
     die('Schema file for table 1 not found');
+}
 
 $table1Sql = file_get_contents($table1Schema);
 $t1Sql = explode(';', $table1Sql);
@@ -161,8 +205,9 @@ $db->startTrans();
 * Load Data into the table
 */
 $table1Data = sprintf('%s/DatabaseSetup/table1-data.sql', dirname(__FILE__));
-if (!file_exists($table1Data))
+if (!file_exists($table1Data)) {
     die('Data file for table 1 not found');
+}
 
 $table1Sql = file_get_contents($table1Data);
 $t1Sql = explode(';', $table1Sql);
@@ -180,7 +225,7 @@ if (array_key_exists('caching', $availableCredentials)) {
     $cacheParams = $availableCredentials['caching'];
     if ($cacheParams['cacheMethod'] == 1) {
         $ADODB_CACHE_DIR = $cacheParams['cacheDir'] ?? '';
-        
+
     }
 }
 
