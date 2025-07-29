@@ -140,13 +140,17 @@ class VariablesTest extends TestCase
             'Row should have an id column'
         );        
 
+        // Cannot set the fetch mode to ADODB_FETCH_NUM this way
         //$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+        // must do it through the db object
         $this->db->setFetchMode(ADODB_FETCH_NUM);
+
         $testRow = $this->db->getRow($sql);
 
-        print_r($testRow);
+        $expectedResult = '0'; // Numeric index for the first column
+
         $this->assertArrayHasKey(
-            0,
+            $expectedResult,
             $testRow, 
             'Row should have a numeric column'
         );
