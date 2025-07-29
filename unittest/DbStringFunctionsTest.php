@@ -183,6 +183,7 @@ class DbStringFunctionsTest extends TestCase
     public function testIfNull(): void
     {
 
+       
         /*
         * Set up a test record that has a NULL value
         */
@@ -191,12 +192,12 @@ class DbStringFunctionsTest extends TestCase
                  WHERE varchar_field='LINE 1'";
 
         $this->db->Execute($sql);
-
+        
         /*
         * Now get a weird value back from the ifnull function
         */
-        $ninetySeventy = $this->db->dbDate('1970-01-01');
-        $sql = "SELECT {$this->db->ifNull('date_field',$ninetySeventy)} 
+        $nineteenSeventy = $this->db->dbDate('1970-01-01');
+        $sql = "SELECT {$this->db->ifNull('date_field',$nineteenSeventy)} 
                   FROM testtable_1 
                  WHERE varchar_field='LINE 1'";
 

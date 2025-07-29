@@ -209,26 +209,33 @@ class CoreSqlTest extends TestCase
     
     /**
      * Test for {@see ADODConnection::getCol()]
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getcol
      *
      * @param int $expectedValue
      * @param string $sql
      * @param ?array $bind
+     * 
      * @return void
      * 
      * @dataProvider providerTestGetCol
-    */
+     */
     public function testGetCol(int $expectedValue, string $sql, ?array $bind): void
     {
-        if ($bind)
-        {
+        if ($bind) {
             $cols = $this->db->getCol($sql,$bind);
-            $this->assertSame($expectedValue, count($cols),'Get col with bind variables should return expected number of rows');
-        }
-        else
-        {
+            $this->assertSame(
+                $expectedValue, 
+                count($cols),
+                'Get col with bind variables should return expected number of rows'
+            );
+        } else {
             $cols = $this->db->getCol($sql);
-            $this->assertSame($expectedValue, count($cols),'getCol without bind variables should return expected number of rows');
+            $this->assertSame(
+                $expectedValue, 
+                count($cols),
+                'getCol without bind variables should return expected number of rows'
+            );
     
         }
     }
@@ -250,6 +257,7 @@ class CoreSqlTest extends TestCase
     
     /**
      * Test for {@see ADODConnection::getRow()]
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getrow
      *
      * @param int $expectedValue
@@ -258,33 +266,36 @@ class CoreSqlTest extends TestCase
      * @return void
      * 
      * @dataProvider providerTestGetRow
-    */
+     */
     public function testGetRow(int $expectedValue, string $sql, ?array $bind): void
     {
         
         $fields = [ '0' => 'id',
-                      '1' => 'varchar_field',
+                      '1' => 'VARCHAR_FIELD',
                       '2' => 'datetime_field',
                       '3' => 'integer_field',
                       '4' => 'decimal_field'
     ];
         
-        if ($bind)
-        {
+        if ($bind) {
             $this->db->setFetchMode(ADODB_FETCH_ASSOC);
-            $record = $this->db->getRow($sql,$bind);
-            foreach($fields as $key => $value)
-            {
-                $this->assertArrayHasKey($value, $record, 'Checking if associative key exists in fields array');
+            $record = $this->db->getRow($sql, $bind);
+            foreach ($fields as $key => $value) {
+                $this->assertArrayHasKey(
+                    $value, 
+                    $record, 
+                    'Checking if associative key exists in fields array'
+                );
             }
-        }
-        else
-        {
+        } else {
             $this->db->setFetchMode(ADODB_FETCH_NUM);
             $record = $this->db->getRow($sql);
-            foreach($fields as $key => $value)
-            {
-                $this->assertArrayHasKey($key, $record, 'Checking if numeric key exists in fields array');
+            foreach ($fields as $key => $value) {
+                $this->assertArrayHasKey(
+                    $key,
+                    $record,
+                    'Checking if numeric key exists in fields array'
+                );
             }
         }
     }
@@ -298,7 +309,7 @@ class CoreSqlTest extends TestCase
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         $bind = array('p1'=>'LINE 1');
-        return [
+        return [    
                 [1, "SELECT * FROM testtable_1 ORDER BY id", null],
                 [1, "SELECT * FROM testtable_1 WHERE varchar_field=$p1", $bind],
             ];
@@ -306,27 +317,33 @@ class CoreSqlTest extends TestCase
 
     /**
      * Test for {@see ADODConnection::getAll()}
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getall
      *
      * @param int $fetchMode
      * @param array $expectedValue
      * @param string $sql
      * @param ?array $bind
+     * 
      * @return void
      * 
      * @dataProvider providerTestGetAll
-    */
+     */
     public function testGetAll(int $fetchMode,array $expectedValue, string $sql, ?array $bind): void
     {
         $this->db->setFetchMode($fetchMode);
 
-        if($bind)
-            $returnedRows = $this->db->getAll($sql,$bind);
-        else	
+        if ($bind) {
+            $returnedRows = $this->db->getAll($sql, $bind);
+        } else {
             $returnedRows = $this->db->getAll($sql);
+        }
         
-        
-        $this->assertSame($expectedValue,$returnedRows, 'getall() should return expected rows');
+        $this->assertSame(
+            $expectedValue,
+            $returnedRows,
+            'getall() should return expected rows'
+        );
     }
     
     /**
@@ -345,10 +362,10 @@ class CoreSqlTest extends TestCase
              'Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('varchar_field'=>'LINE 3'),
-                        array('varchar_field'=>'LINE 4'),
-                        array('varchar_field'=>'LINE 5'),
-                        array('varchar_field'=>'LINE 6')
+                        array('VARCHAR_FIELD'=>'LINE 3'),
+                        array('VARCHAR_FIELD'=>'LINE 4'),
+                        array('VARCHAR_FIELD'=>'LINE 5'),
+                        array('VARCHAR_FIELD'=>'LINE 6')
                     ),
                      "SELECT testtable_1.varchar_field 
                         FROM testtable_1 
@@ -373,6 +390,7 @@ class CoreSqlTest extends TestCase
 
     /**
      * Test for {@see ADODConnection::selectlimit]
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:selectlimit
      *
      * @param int $fetchMode
@@ -381,6 +399,7 @@ class CoreSqlTest extends TestCase
      * @param int $count
      * @param int $offset
      * @param ?array $bind
+     * 
      * @return void
      * 
      * @dataProvider providerTestSelectLimit
@@ -415,35 +434,43 @@ class CoreSqlTest extends TestCase
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         
         $bind = array(
-            'p1'=>'LINE 0'
+            'p1'=>'LINE 3'
         );
 
         return [
-             'Select Unbound, FETCH_ASSOC' => 
+            'Select Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('varchar_field'=>'LINE 3'),
-                        array('varchar_field'=>'LINE 4'),
-                        array('varchar_field'=>'LINE 5'),
-                        array('varchar_field'=>'LINE 6')
+                        array('VARCHAR_FIELD'=>'LINE 6'),
+                        array('VARCHAR_FIELD'=>'LINE 7'),
+                        array('VARCHAR_FIELD'=>'LINE 8'),
+                        array('VARCHAR_FIELD'=>'LINE 9')
                     ),
-                     "SELECT testtable_1.varchar_field FROM testtable_1 ORDER BY id", 4, 2, null
+                     "SELECT testtable_1.varchar_field 
+                        FROM testtable_1 
+                          WHERE varchar_field>='LINE 3'
+                    ORDER BY id", 4, 2, null
                 ],
             'Select, Bound, FETCH_NUM' => 
                 [ADODB_FETCH_NUM, 
                     array(
-                        array('0'=>'LINE 3'),
-                        array('0'=>'LINE 4'),
-                        array('0'=>'LINE 5'),
-                        array('0'=>'LINE 6')
+                        array('0'=>'LINE 6'),
+                        array('0'=>'LINE 7'),
+                        array('0'=>'LINE 8'),
+                        array('0'=>'LINE 9')
                         ),
-                    "SELECT testtable_1.varchar_field FROM testtable_1 WHERE varchar_field>$p1 ORDER BY id", 4, 2, $bind
+                    "SELECT testtable_1.varchar_field 
+                       FROM testtable_1 
+                      WHERE varchar_field>=$p1 
+                   ORDER BY id", 4, 2, $bind
                 ],
             'Select Unbound, FETCH_ASSOC Get first record' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('varchar_field'=>'LINE 3'),					),
-                "SELECT testtable_1.varchar_field FROM testtable_1 ORDER BY id", 1, -1, null
+                        array('VARCHAR_FIELD'=>'LINE 6'),                    ),
+                        "SELECT testtable_1.varchar_field 
+                          FROM testtable_1 
+                      ORDER BY id", 1, -1, null
                 ],
         ];
 

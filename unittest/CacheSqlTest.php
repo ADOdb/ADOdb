@@ -713,12 +713,15 @@ class CacheSqlTest extends TestCase
             'Select Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('varchar_field'=>'LINE 3'),
-                        array('varchar_field'=>'LINE 4'),
-                        array('varchar_field'=>'LINE 5'),
-                        array('varchar_field'=>'LINE 6')
+                        array('VARCHAR_FIELD'=>'LINE 3'),
+                        array('VARCHAR_FIELD'=>'LINE 4'),
+                        array('VARCHAR_FIELD'=>'LINE 5'),
+                        array('VARCHAR_FIELD'=>'LINE 6')
                     ),
-                     "SELECT testtable_1.varchar_field FROM testtable_1 ORDER BY id",
+                     "SELECT testtable_1.varchar_field 
+                        FROM testtable_1 
+                       WHERE varchar_field>'LINE 0' 
+                    ORDER BY varchar_field, id",
                      null
                 ],
             'Select, Bound, FETCH_NUM' => [
@@ -729,7 +732,10 @@ class CacheSqlTest extends TestCase
                     array('0'=>'LINE 5'),
                     array('0'=>'LINE 6')
                     ),
-                "SELECT testtable_1.varchar_field FROM testtable_1 WHERE varchar_field>$p1 ORDER BY id", 
+                "SELECT testtable_1.varchar_field 
+                   FROM testtable_1 
+                  WHERE varchar_field>$p1 
+               ORDER BY varchar_field,id", 
                 $bind
             ],
 
