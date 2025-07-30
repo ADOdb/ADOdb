@@ -308,8 +308,7 @@ class MetaFunctionsTest extends TestCase
         $this->db->setFetchMode(ADODB_FETCH_ASSOC);
         $executionResult = $this->db->metaForeignKeys('testtable_2');
         
-        print_r($executionResult);
-        
+
         $this->assertArrayHasKey(
             'testtable_1', 
             $executionResult,
