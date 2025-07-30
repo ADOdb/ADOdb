@@ -155,13 +155,12 @@ class DbStringFunctionsTest extends TestCase
      */
     public function testConcat(): void
     {
-        $expectedValue = 'LINE 1|LINE 1';
-        
+        $expectedValue = 'LINE 10|LINE 10';
         $field = $this->db->Concat('varchar_field', "'|'", 'varchar_field');
         
         $sql = "SELECT $field 
                   FROM testtable_1 
-                 WHERE varchar_field='LINE 1'";
+                 WHERE varchar_field='LINE 10'";
 
         $result = $this->db->getOne($sql);
         
@@ -189,7 +188,7 @@ class DbStringFunctionsTest extends TestCase
         */
         $sql = "UPDATE testtable_1 
                    SET date_field = null 
-                 WHERE varchar_field='LINE 1'";
+                 WHERE varchar_field='LINE 10'";
 
         $this->db->Execute($sql);
         
@@ -199,7 +198,7 @@ class DbStringFunctionsTest extends TestCase
         $nineteenSeventy = $this->db->dbDate('1970-01-01');
         $sql = "SELECT {$this->db->ifNull('date_field',$nineteenSeventy)} 
                   FROM testtable_1 
-                 WHERE varchar_field='LINE 1'";
+                 WHERE varchar_field='LINE 10'";
 
         $expectedResult = $this->db->getOne($sql);
         
