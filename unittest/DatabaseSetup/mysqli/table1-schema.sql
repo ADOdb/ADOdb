@@ -12,6 +12,7 @@ CREATE TABLE testtable_1 (
 	date_field DATE,
 	integer_field INT(2) DEFAULT 0,
 	decimal_field decimal(12.2) DEFAULT 0,
+	boolean_field BOOLEAN DEFAULT 0,
 	empty_field VARCHAR(240) DEFAULT '',
 	PRIMARY KEY(id),
 	unique INDEX vdx1 (varchar_field),
