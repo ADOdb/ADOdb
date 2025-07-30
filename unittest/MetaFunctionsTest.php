@@ -308,14 +308,18 @@ class MetaFunctionsTest extends TestCase
         $this->db->setFetchMode(ADODB_FETCH_ASSOC);
         $executionResult = $this->db->metaForeignKeys('testtable_2');
         
+        print_r($executionResult);
+        
         $this->assertArrayHasKey(
             'testtable_1', 
-            $executionResult
+            $executionResult,
+            'Checking for foreign key testtable_1 in testtable_2'
         );
         
         $this->assertArrayHasKey(
             'integer_field', 
-            $executionResult['testtable_1']
+            $executionResult['testtable_1'],
+            'Checking for foreign key field integer_field in testtable_2 foreign key testtable_1'
         );
 
     } 
