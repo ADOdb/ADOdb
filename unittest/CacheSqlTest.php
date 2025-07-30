@@ -285,21 +285,21 @@ class CacheSqlTest extends TestCase
     public function providerTestCacheGetOne(): array
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
-        $bind = array('p1'=>'LINE 1');
+        $bind = array('p1'=>'LINE 11');
 
         return [
-            'Return First Col, Unbound' => [
-                'LINE 1', 
-                "SELECT varchar_field FROM testtable_1 ORDER BY id", 
+            'Return Last Col, Unbound' => [
+                'LINE 11', 
+                "SELECT varchar_field FROM testtable_1 ORDER BY id DESC", 
                 null
             ],
             'Return Multiple Cols, take first, Unbound' => [
-                'LINE 1', 
-                "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 ORDER BY id",
+                'LINE 11', 
+                "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 ORDER BY id DESC",
                 null
             ],
             'Return Multiple Cols, take first, Bound' => [
-                'LINE 1', 
+                'LINE 11', 
                 "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", 
                 $bind
             ],
@@ -378,11 +378,11 @@ class CacheSqlTest extends TestCase
     public function providerTestCacheGetCol(): array
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
-        $bind = array('p1'=>'LINE 1');
+        $bind = array('p1'=>'LINE 11');
         return [
                 [
                     11, 
-                    "SELECT varchar_field FROM testtable_1 WHERE varchar_field IS NOT NULL ORDER BY id", 
+                    "SELECT varchar_field FROM testtable_1", 
                     null
                 ],[
                     1, 
@@ -422,12 +422,12 @@ class CacheSqlTest extends TestCase
     
 
         $fields = [ 
-            '0' => 'id',
-            '1' => 'varchar_field',
-            '2' => 'datetime_field',
-            '3' => 'integer_field',
-            '4' => 'decimal_field',
-            '5' => 'empty_field'
+            '0' => 'ID',
+            '1' => 'VARCHAR_FIELD',
+            '2' => 'DATETIME_FIELD',
+            '3' => 'INTEGER_FIELD',
+            '4' => 'DECIMAL_FIELD',
+            '5' => 'EMPTY_FIELD'
         ];
         
         if ($bind != null) {
@@ -436,7 +436,7 @@ class CacheSqlTest extends TestCase
     
             $record = $this->db->cacheGetRow($this->timeout, $sql, $bind);
 
-            foreach ($fields as $key => $value){
+            foreach ($fields as $key => $value) {
                 $this->assertArrayHasKey(
                     $value, 
                     $record, 
@@ -496,9 +496,10 @@ class CacheSqlTest extends TestCase
                 );
             }
 
+            //print_r($record);
             $this->assertSame(
                 '80111', 
-                $record[6], 
+                $record[7], 
                 'Checking that empty_field column is read from cache as 80111'
             );
         }
@@ -515,11 +516,11 @@ class CacheSqlTest extends TestCase
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         $bind = array(
-            'p1'=>'LINE 1'
+            'p1'=>'LINE 11'
         );
 
         return [
-                [1, "SELECT * FROM testtable_1 ORDER BY id", null],
+                [1, "SELECT * FROM testtable_1 ORDER BY id DESC", null],
                 [1, "SELECT * FROM testtable_1 WHERE varchar_field=$p1", $bind],
             ];
     }
@@ -592,22 +593,22 @@ class CacheSqlTest extends TestCase
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         $p2 = $GLOBALS['ADOdbConnection']->param('p2');
-        $bind = array('p1'=>'LINE 3',
+        $bind = array('p1'=>'LINE 2',
                       'p2'=>'LINE 6'
                     );
         return [
             'Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('varchar_field'=>'LINE 3'),
-                        array('varchar_field'=>'LINE 4'),
-                        array('varchar_field'=>'LINE 5'),
-                        array('varchar_field'=>'LINE 6')
+                        ARRAY('VARCHAR_FIELD'=>'LINE 3'),
+                        ARRAY('VARCHAR_FIELD'=>'LINE 4'),
+                        ARRAY('VARCHAR_FIELD'=>'LINE 5'),
+                        ARRAY('VARCHAR_FIELD'=>'LINE 6')
                     ),
                      "SELECT testtable_1.varchar_field 
                         FROM testtable_1 
-                       WHERE varchar_field BETWEEN 'LINE 3' AND 'LINE 6'
-                    ORDER BY id", null],
+                       WHERE varchar_field BETWEEN 'LINE 2' AND 'LINE 6'
+                    ORDER BY varchar_field", null],
             'Bound, FETCH_NUM' => 
                 [ADODB_FETCH_NUM, 
                     array(
@@ -619,7 +620,7 @@ class CacheSqlTest extends TestCase
                     "SELECT testtable_1.varchar_field 
                        FROM testtable_1 
                       WHERE varchar_field BETWEEN $p1 AND $p2
-                   ORDER BY id", $bind],
+                   ORDER BY varchar_field", $bind],
 
                 ];
     }
@@ -706,7 +707,7 @@ class CacheSqlTest extends TestCase
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         
         $bind = array(
-            'p1'=>'LINE 0'
+            'p1'=>'LINE 2'
         );
 
         return [
@@ -720,7 +721,7 @@ class CacheSqlTest extends TestCase
                     ),
                      "SELECT testtable_1.varchar_field 
                         FROM testtable_1 
-                       WHERE varchar_field>'LINE 0' 
+                       WHERE varchar_field>'LINE 2' 
                     ORDER BY varchar_field, id",
                      null
                 ],
