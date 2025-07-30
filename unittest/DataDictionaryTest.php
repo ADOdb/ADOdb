@@ -185,8 +185,6 @@ class DataDictionaryTest extends TestCase
             );
             return;
         }
-
-        $this->db->debug = true;
        
         $sqlArray = $this->dataDictionary->renameColumnSQL(
             $this->testTableName, 
@@ -438,32 +436,33 @@ class DataDictionaryTest extends TestCase
         }
 
         $sqlArray = $this->dataDictionary->renameTableSQL(
-            $this->testTableName, 
+            'insertion_table', 
             'insertion_table_renamed'
         );
               
+
         $this->dataDictionary->executeSqlArray($sqlArray);
 
         $this->db->completeTrans();
 
         $metaTables = $this->db->metaTables();
-       
-        $this->assertArrayHasKey(
+
+        $this->assertContains(
             'insertion_table_renamed', 
             $metaTables, 
             'Test of renameTableSQL - renamed table exists'
         );
 
-        $this->assertArrayNotHasKey(
-            $this->testTableName, 
+        $this->assertNotContains(
+            'insertion_table', 
             $metaTables, 
-            'Test of renameTableSQL - old table does not exist'
+            'Test of renameTableSQL - old table should not exist'
         );
 
         $this->db->startTrans();
         $sqlArray = $this->dataDictionary->renameTableSQL(
             'insertion_table_renamed',
-            $this->testTableName
+            'insertion_table'
         );
               
         $this->dataDictionary->executeSqlArray($sqlArray);
