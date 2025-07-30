@@ -219,6 +219,11 @@ foreach ($t1Sql as $sql) {
 
 $db->completeTrans();
 
+/*
+* Set up the data dictionary
+*/
+$GLOBALS['ADOdataDictionary'] = NewDataDictionary($db);
+
 $ADODB_CACHE_DIR = '';
 if (array_key_exists('caching', $availableCredentials)) {   
 
