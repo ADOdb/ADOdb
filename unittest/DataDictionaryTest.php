@@ -27,8 +27,8 @@ use PHPUnit\Framework\TestCase;
  */
 class DataDictionaryTest extends TestCase
 {
-	protected ?object $db;
-	protected ?string $adoDriver;
+    protected ?object $db;
+    protected ?string $adoDriver;
     protected ?object $dataDictionary;
 
     protected bool $skipFollowingTests = false;
@@ -37,27 +37,30 @@ class DataDictionaryTest extends TestCase
     protected string $testIndexName1 = 'insertion_index_1';
     protected string $testIndexName2 = 'insertion_index_2';
 
-	public function setUp(): void
-	{
-
-        $this->db        = $GLOBALS['ADOdbConnection'];
-		$this->adoDriver = $GLOBALS['ADOdriver'];
-        $this->dataDictionary = NewdataDictionary($this->db);
-
-	}
-	
-	public function tearDown(): void
-	{
-		//$this->db->execute("DROP TABLE IF EXISTS {$this->testTableName}");
-	}
-
     /**
-     * Test for {@see ADODConnection::CreateTableSQL()}
-     * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:createtablesql
+     * Set up the test environment
+     *
      * @return void
      */
-	public function testBuildBasicTable(): void
-	{
+    public function setUp(): void
+    {
+
+        $this->db        = $GLOBALS['ADOdbConnection'];
+        $this->adoDriver = $GLOBALS['ADOdriver'];
+        $this->dataDictionary = $GLOBALS['ADOdataDictionary'];
+
+    }
+    
+    
+    /**
+     * Test for {@see ADODConnection::CreateTableSQL()}
+     * 
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:createtablesql
+     * 
+     * @return void
+     */
+    public function testBuildBasicTable(): void
+    {
 
         $this->db->execute("DROP TABLE IF EXISTS {$this->testTableName}");
 
@@ -73,7 +76,11 @@ class DataDictionaryTest extends TestCase
 
         $metaTables = $this->db->metaTables();
 
-        $this->assertContains($this->testTableName, $metaTables, 'Test of CreateTableSQL');
+        $this->assertContains(
+            $this->testTableName, 
+            $metaTables, 
+            'Test of CreateTableSQL'
+        );
  
         if (!array_key_exists($this->testTableName, $metaTables)) {
             $this->skipFollowingTests = true;
@@ -83,13 +90,17 @@ class DataDictionaryTest extends TestCase
 
     /**
      * Test for {@see ADODConnection::addColumnSQL()}
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:addcolumnsql
+     * 
      * @return void
      */
     public function testaddColumnToBasicTable(): void
     {
         if ($this->skipFollowingTests) {
-            $this->markTestSkipped('Skipping tests as the table was not created successfully');
+            $this->markTestSkipped(
+                'Skipping tests as the table was not created successfully'
+            );
             return;
         }
 
@@ -102,16 +113,15 @@ class DataDictionaryTest extends TestCase
 
         $sqlArray = $this->dataDictionary->AddColumnSQL($this->testTableName, $flds);
 
-        /*
-        * create the SQL statement necessary to add the column
-        */
-
-       
         $this->dataDictionary->executeSqlArray($sqlArray);
 
         $metaColumns = $this->db->metaColumns($this->testTableName);
 
-        $this->assertArrayHasKey('VARCHAR_FIELD', $metaColumns, 'Test of AddColumnSQL');
+        $this->assertArrayHasKey(
+            'VARCHAR_FIELD',
+            $metaColumns,
+            'Test of AddColumnSQL'
+        );
 
         if (!array_key_exists('VARCHAR_FIELD', $metaColumns)) {
             $this->skipFollowingTests = true;
@@ -120,13 +130,17 @@ class DataDictionaryTest extends TestCase
 
     /**
      * Test for {@see ADODConnection::alterColumnSQL()}
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:altercolumnsql
+     * 
      * @return void
      */
     public function testalterColumnInBasicTable(): void
     {
         if ($this->skipFollowingTests) {
-            $this->markTestSkipped('Skipping tests as the table was not created successfully');
+            $this->markTestSkipped(
+                'Skipping tests as the table was not created successfully'
+            );
             return;
         }
 
@@ -134,42 +148,74 @@ class DataDictionaryTest extends TestCase
             VARCHAR_FIELD VARCHAR(120) NOTNULL DEFAULT ''
             ";
 
-        $sqlArray = $this->dataDictionary->alterColumnSQL($this->testTableName, $flds);
+        $sqlArray = $this->dataDictionary->alterColumnSQL(
+            $this->testTableName,
+            $flds
+        );
 
         $this->dataDictionary->executeSqlArray($sqlArray);
 
         $metaColumns = $this->db->metaColumns($this->testTableName);
 
-        $this->assertArrayHasKey('VARCHAR_FIELD', $metaColumns, 'Test of AlterColumnSQL');
+        $this->assertArrayHasKey(
+            'VARCHAR_FIELD', 
+            $metaColumns, 
+            'Test of AlterColumnSQL'
+        );
 
-        $this->assertSame('120', $metaColumns['VARCHAR_FIELD']->max_length, 'Test of AlterColumnSQL - Increase of length of VARCHAR_FIELD to 120');
+        $this->assertSame(
+            '120',
+            $metaColumns['VARCHAR_FIELD']->max_length, 
+            'Test of AlterColumnSQL - Increase of length of VARCHAR_FIELD to 120'
+        );
     }
 
     /**
      * Test for {@see ADODConnection::renameColumnSQL()}
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:renamecolumnsql
+     * 
      * @return void
      */
     public function testRenameColumnInBasicTable(): void
     {
         if ($this->skipFollowingTests) {
-            $this->markTestSkipped('Skipping tests as the table was not created successfully');
+            $this->markTestSkipped(
+                'Skipping tests as the table was not created successfully'
+            );
             return;
         }
 
+        $this->db->debug = true;
        
-        $sqlArray = $this->dataDictionary->alterColumnSQL($this->testTableName, 'VARCHAR_FIELD', 'ANOTHER_VARCHAR_FIELD');
+        $sqlArray = $this->dataDictionary->renameColumnSQL(
+            $this->testTableName, 
+            'BOOLEAN_FIELD', 
+            'ANOTHER_BOOLEAN_FIELD'
+        );
 
         $this->dataDictionary->executeSqlArray($sqlArray);
 
         
         $metaColumns = $this->db->metaColumns($this->testTableName);
 
-        $this->assertArrayHasKey('ANOTHER_VARCHAR_FIELD', $metaColumns, 'Test of RenameColumnSQL');
+        $this->assertArrayHasKey(
+            'ANOTHER_BOOLEAN_FIELD', 
+            $metaColumns, 
+            'Test of RenameColumnSQL by renaming BOOLEAN_FIELD to ANOTHER_BOOLEAN_FIELD' .print_r($sqlArray, true)
+        );
 
-        if (array_key_exists('ANOTHER_VARCHAR_FIELD', $metaColumns)) {
+        if (array_key_exists('ANOTHER_BOOLEAN_FIELD', $metaColumns)) {
         
-            $sqlArray = $this->dataDictionary->alterColumnSQL($this->testTableName, 'ANOTHER_VARCHAR_FIELD', 'VARCHAR_FIELD');
+            /*
+            * reset the column name back to original
+            */
+            $sqlArray = $this->dataDictionary->alterColumnSQL(
+                $this->testTableName, 
+                'ANOTHER_BOOLEAN_FIELD', 
+                'BOOLEAN_FIELD'
+            );
+            
             $this->dataDictionary->executeSqlArray($sqlArray);
         }
     
@@ -177,7 +223,9 @@ class DataDictionaryTest extends TestCase
 
     /**
      * Test for {@see ADODConnection::dropColumnSQL()}
+     * 
      * Written entirely by Copilot
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:dropcolumnsql
      *
      * @return void
@@ -185,17 +233,26 @@ class DataDictionaryTest extends TestCase
     public function testDropColumnInBasicTable(): void
     {
         if ($this->skipFollowingTests) {
-            $this->markTestSkipped('Skipping tests as the table was not created successfully');
+            $this->markTestSkipped(
+                'Skipping tests as the table was not created successfully'
+            );
             return;
         }
 
-        $sqlArray = $this->dataDictionary->dropColumnSQL($this->testTableName, 'DROPPABLE_FIELD');
+        $sqlArray = $this->dataDictionary->dropColumnSQL(
+            $this->testTableName, 
+            'DROPPABLE_FIELD'
+        );
 
         $this->dataDictionary->executeSqlArray($sqlArray);
 
         $metaColumns = $this->db->metaColumns($this->testTableName);
 
-        $this->assertArrayNotHasKey('DROPPABLE_FIELD', $metaColumns, 'Test of DropColumnSQL');
+        $this->assertArrayNotHasKey(
+            'DROPPABLE_FIELD', 
+            $metaColumns, 
+            'Test of DropColumnSQL'
+        );
 
         if (array_key_exists('DROPPABLE_FIELD', $metaColumns)) {
             $this->skipFollowingTests = true;
@@ -371,6 +428,8 @@ class DataDictionaryTest extends TestCase
      */
     public function testRenameTable(): void
     {
+        $this->db->startTrans();
+
         if ($this->skipFollowingTests) {
             $this->markTestSkipped(
                 'Skipping tests as the table was not created successfully'
@@ -384,6 +443,8 @@ class DataDictionaryTest extends TestCase
         );
               
         $this->dataDictionary->executeSqlArray($sqlArray);
+
+        $this->db->completeTrans();
 
         $metaTables = $this->db->metaTables();
        
@@ -399,12 +460,15 @@ class DataDictionaryTest extends TestCase
             'Test of renameTableSQL - old table does not exist'
         );
 
+        $this->db->startTrans();
         $sqlArray = $this->dataDictionary->renameTableSQL(
             'insertion_table_renamed',
             $this->testTableName
         );
               
         $this->dataDictionary->executeSqlArray($sqlArray);
+
+        $this->db->completeTrans();
        
     }
 
@@ -453,6 +517,23 @@ class DataDictionaryTest extends TestCase
             );
             return;
         }
+
+        /*
+        * The default configuration for the tests is to skip database creation 
+        * Because this needs Create db privileges
+        */
+        if (!array_key_exists('meta', $GLOBALS['TestingControl'])) {
+ 
+            $this->markTestSkipped(
+                'Skipping database creation test as per configuration'
+            );
+            return;
+        } else if ($GLOBALS['TestingControl']['meta']['skipDbCreation']) {
+            $this->markTestSkipped(
+                'Skipping database creation test as per configuration'
+            );
+            return;
+        }   
 
         $dbName = 'unittest_database';
         $sqlArray = $this->dataDictionary->createDatabase($dbName);
