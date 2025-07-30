@@ -273,7 +273,7 @@ class DateFunctionsTest extends TestCase
         
         $fmt = 'd/m/Y';
 
-        $sql = sprint(
+        $sql = sprintf(
             "SELECT %s 
                FROM testtable_1 
               WHERE varchar_field='LINE 9'", 
