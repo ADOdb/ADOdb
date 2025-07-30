@@ -40,6 +40,29 @@ class CoreSqlTest extends TestCase
     {
         $this->db        = $GLOBALS['ADOdbConnection'];
         $this->adoDriver = $GLOBALS['ADOdriver'];
+       
+        /*
+        * Refresh the data set
+        */
+        $this->db->Execute("TRUNCATE TABLE testtable_1");       
+
+        /*
+        *reload Data into the table
+        */
+        $this->db->startTrans();
+
+        $table1Data = sprintf('%s/DatabaseSetup/table1-data.sql', dirname(__FILE__));
+        $table1Sql = file_get_contents($table1Data);
+        $t1Sql = explode(';', $table1Sql);
+        foreach ($t1Sql as $sql) {
+            if (trim($sql ?? '')) {
+                $this->db->execute($sql);
+            }
+        }
+
+        $this->db->completeTrans();
+
+        
         
     }
     
@@ -159,11 +182,12 @@ class CoreSqlTest extends TestCase
     
     /**
      * Test for {@see ADODConnection::getOne()]
+     * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:getone
      *
-     * @param string $expectedValue
-     * @param string $sql
-     * @param ?array $bind
+     * @param string $expectedValue The expected value to be returned
+     * @param string $sql The SQL query to execute
+     * @param ?array $bind An optional array of bind parameters
      * 
      * @return void
      * 
@@ -175,13 +199,13 @@ class CoreSqlTest extends TestCase
             $this->assertSame(
                 $expectedValue, 
                 "{$this->db->getOne($sql,$bind)}",
-                'ADOConnection::getOne()'
+                'Test of getOne with bind variables'
             );
         } else {
             $this->assertSame(
                 $expectedValue, 
                 "{$this->db->getOne($sql)}",
-                'ADOConnection::getOne()'
+                'Test of getOne without bind variables'
             );
         }
     }
@@ -194,15 +218,15 @@ class CoreSqlTest extends TestCase
     public function providerTestGetOne(): array
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
-        $bind = array('p1'=>'LINE 1');
+        $bind = array('p1'=>'LINE 11');
 
         return [
              'Return First Col, Unbound' => 
-                ['LINE 1', "SELECT varchar_field FROM testtable_1 ORDER BY id", null],
+                ['LINE 11', "SELECT varchar_field FROM testtable_1 ORDER BY id DESC", null],
          'Return Multiple Cols, take first, Unbound' => 
-                ['LINE 1', "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 ORDER BY id", null],
+                ['LINE 11', "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 ORDER BY id DESC", null],
          'Return Multiple Cols, take first, Bound' => 
-                ['LINE 1', "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
+                ['LINE 11', "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
 
             ];
     }
@@ -223,7 +247,7 @@ class CoreSqlTest extends TestCase
     public function testGetCol(int $expectedValue, string $sql, ?array $bind): void
     {
         if ($bind) {
-            $cols = $this->db->getCol($sql,$bind);
+            $cols = $this->db->getCol($sql, $bind);
             $this->assertSame(
                 $expectedValue, 
                 count($cols),
@@ -247,7 +271,7 @@ class CoreSqlTest extends TestCase
     public function providerTestGetCol(): array
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
-        $bind = array('p1'=>'LINE 1');
+        $bind = array('p1'=>'LINE 11');
         return [
                 [11, "SELECT varchar_field FROM testtable_1 ORDER BY id", null],
                 [1, "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
@@ -270,7 +294,7 @@ class CoreSqlTest extends TestCase
     public function testGetRow(int $expectedValue, string $sql, ?array $bind): void
     {
         
-        $fields = [ '0' => 'id',
+        $fields = [ '0' => 'ID',
                     '1' => 'VARCHAR_FIELD',
                     '2' => 'DATETIME_FIELD',
                     '3' => 'DATE_FIELD',
@@ -311,7 +335,7 @@ class CoreSqlTest extends TestCase
     public function providerTestGetRow(): array
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
-        $bind = array('p1'=>'LINE 1');
+        $bind = array('p1'=>'LINE 11');
         return [    
                 [1, "SELECT * FROM testtable_1 ORDER BY id", null],
                 [1, "SELECT * FROM testtable_1 WHERE varchar_field=$p1", $bind],
@@ -358,11 +382,11 @@ class CoreSqlTest extends TestCase
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         $p2 = $GLOBALS['ADOdbConnection']->param('p2');
-        $bind = array('p1'=>'LINE 3',
+        $bind = array('p1'=>'LINE 2',
                       'p2'=>'LINE 6'
                     );
         return [
-             'Unbound, FETCH_ASSOC' => 
+            'Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
                         array('VARCHAR_FIELD'=>'LINE 3'),
@@ -372,8 +396,8 @@ class CoreSqlTest extends TestCase
                     ),
                      "SELECT testtable_1.varchar_field 
                         FROM testtable_1 
-                       WHERE varchar_field BETWEEN 'LINE 3' AND 'LINE 6'
-                    ORDER BY id", null],
+                       WHERE varchar_field BETWEEN 'LINE 2' AND 'LINE 6'
+                    ORDER BY varchar_field", null],
             'Bound, FETCH_NUM' => 
                 [ADODB_FETCH_NUM, 
                     array(
@@ -385,7 +409,7 @@ class CoreSqlTest extends TestCase
                     "SELECT testtable_1.varchar_field 
                        FROM testtable_1 
                       WHERE varchar_field BETWEEN $p1 AND $p2
-                   ORDER BY id", $bind],
+                   ORDER BY varchar_field", $bind],
 
                 ];
     }
@@ -411,19 +435,23 @@ class CoreSqlTest extends TestCase
     {
         $this->db->setFetchMode($fetchMode);
 
-        if($bind)
-            $result = $this->db->selectLimit($sql,$count,$offset,$bind);
-        else	
-            $result = $this->db->selectLimit($sql,$count,$offset);
-        
-        $returnedRows = array();
-        foreach($result as $index => $row)
-        {
-            $returnedRows[] = $row;
+        if ($bind) {
+            $result = $this->db->selectLimit($sql, $count, $offset, $bind);
+        } else {
+            $result = $this->db->selectLimit($sql, $count, $offset);
+        }
 
+        $returnedRows = array();
+        
+        foreach ($result as $index => $row) {
+            $returnedRows[] = $row;
         }
     
-        $this->assertSame($expectedValue,$returnedRows, 'ADOConnection::selectLimit()');
+        $this->assertSame(
+            $expectedValue,
+            $returnedRows, 
+            'ADOConnection::selectLimit()'
+        );
             
     }
     
@@ -437,7 +465,7 @@ class CoreSqlTest extends TestCase
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         
         $bind = array(
-            'p1'=>'LINE 3'
+            'p1'=>'LINE 0'
         );
 
         return [
@@ -465,7 +493,7 @@ class CoreSqlTest extends TestCase
                     "SELECT testtable_1.varchar_field 
                        FROM testtable_1 
                       WHERE varchar_field>=$p1 
-                   ORDER BY id", 4, 2, $bind
+                   ORDER BY varchar_field", 4, 2, $bind
                 ],
             'Select Unbound, FETCH_ASSOC Get first record' => 
                 [ADODB_FETCH_ASSOC, 
