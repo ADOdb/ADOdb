@@ -117,6 +117,7 @@ class MetaFunctionsTest extends TestCase
                       'DATE_FIELD' => 'date_field',
                       'INTEGER_FIELD' => 'integer_field',
                       'DECIMAL_FIELD' => 'decimal_field',
+                      'BOOLEAN_FIELD' => 'boolean_field',
                       'EMPTY_FIELD' => 'empty_field'
                     ]
                 ],
@@ -128,7 +129,8 @@ class MetaFunctionsTest extends TestCase
                       '3' => 'date_field',
                       '4' => 'integer_field',
                       '5' => 'decimal_field',
-                      '6' => 'empty_field'
+                      '6' => 'boolean_field',
+                      '7' => 'empty_field'
                     ]
                 ]
             ];
@@ -142,7 +144,7 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaColumnCount(): void
     {
-        $expectedResult  = 7;
+        $expectedResult  = 8;
         
         $executionResult = $this->db->metaColumns('testtable_1');
         
@@ -186,13 +188,13 @@ class MetaFunctionsTest extends TestCase
             '3' => 'DATE_FIELD',
             '4' => 'INTEGER_FIELD',
             '5' => 'DECIMAL_FIELD',
-            '6' => 'EMPTY_FIELD'
+            '6' => 'BOOLEAN_FIELD',
+            '7' => 'EMPTY_FIELD'
         ];
         
         $executionResult = $this->db->metaColumns('testtable_1');
         
-        print "\nChecking that metaColumns returns the expected fields\n";
-
+    
         foreach ($expectedResult as $expectedField) {
             
             $this->assertArrayHasKey(
@@ -280,7 +282,6 @@ class MetaFunctionsTest extends TestCase
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:metaprimarykeys
      * 
      * @return void
-     * 
      */
     public function testMetaPrimaryKeys(): void
     {
@@ -288,7 +289,8 @@ class MetaFunctionsTest extends TestCase
         
         $this->assertSame(
             'id',
-            $executionResult[0]
+            $executionResult[0],
+            'Validating the primary key is on column ID'
         );
 
     }
@@ -361,14 +363,15 @@ class MetaFunctionsTest extends TestCase
         */
         
         return [
-             'Field 0 Is INTEGER' => ['I',0],
+            'Field 0 Is INTEGER' => ['I',0],
             'Field 1 Is VARCHAR' => ['C',1],
             'Field 2 Is DATETIME' => ['T',2],
             'Field 3 Is DATE' => ['D',3],
             'Field 4 Is INTEGER' => ['I',4],
             'Field 5 Is NUMBER' => ['N',5],
-            'Field 6 Is VARCHAR' => ['C',6],
-            'Field 7 Does not Exist' => [null,7],
+            'Field 6 Is BOOLEAN' => ['L',6],
+            'Field 7 Is VARCHAR' => ['C',7],
+            'Field 8 Does not Exist' => [null,8],
     
              
         ];

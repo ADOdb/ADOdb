@@ -271,11 +271,14 @@ class CoreSqlTest extends TestCase
     {
         
         $fields = [ '0' => 'id',
-                      '1' => 'VARCHAR_FIELD',
-                      '2' => 'datetime_field',
-                      '3' => 'integer_field',
-                      '4' => 'decimal_field'
-    ];
+                    '1' => 'VARCHAR_FIELD',
+                    '2' => 'DATETIME_FIELD',
+                    '3' => 'DATE_FIELD',
+                    '4' => 'INTEGER_FIELD',
+                    '5' => 'DECIMAL_FIELD',
+                    '6' => 'BOOLEAN_FIELD',
+                    '7' => 'EMPTY_FIELD'
+                  ];
         
         if ($bind) {
             $this->db->setFetchMode(ADODB_FETCH_ASSOC);
