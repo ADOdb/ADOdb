@@ -39,16 +39,24 @@ $availableCredentials = parse_ini_file($iniFile, true);
 
 if (!array_key_exists('ADOdb', $availableCredentials)) {
     /* 
-    * If the ADOdb section is not present, we assume the directory is the parent of the
-    * current directory
+    * If the ADOdb section is not present, we assume the directory is the 
+    * parent of the current directory
     */
     $availableCredentials['ADOdb'] = array(
         'directory' => dirname(__DIR__),
-        'casing' => 1 // 1= Upper Case
+        'casing' => 1, // 1= Upper Case
+        
     );
 }
 
 $ADOdbSettings        = $availableCredentials['ADOdb'];
+if (!array_key_exists('casing', $ADOdbSettings)) {
+    $ADOdbSettings['casing'] = 1; // 1= Upper Case
+}
+
+if (!array_key_exists('blob', $availableCredentials)) {
+    die('blob section not found in adodb-unittest.ini. See the documentation for details on how to set this up');
+}
 
 require_once $ADOdbSettings['directory'] . '/adodb.inc.php';
 
@@ -57,7 +65,7 @@ global $db;
 
 $adoDriver = '';
 
-define('ADODB_ASSOC_CASE', $ADOdbSettings['casing'] ?? 1);
+define('ADODB_ASSOC_CASE', $ADOdbSettings['casing']);
 
 
 /*
@@ -71,13 +79,13 @@ foreach ($availableCredentials as $driver=>$driverOptions) {
     }
 }
 
-if (!$adoDriver) {
+//if (!$adoDriver) {
  
     $o = (preg_grep('/dbconnector/', $argv));
 
-    if (!$o) {
-        die('unit tests must contain either an entry in the INI file or a dbconnector argument');
-    }
+    if ($o) {
+        //die('unit tests must contain either an entry in the INI file or a dbconnector argument');
+    //}
 
     /*
     * See if there is an unnamed parameter
@@ -85,9 +93,9 @@ if (!$adoDriver) {
     $o = array_keys($o);
     $oIndex = $o[0] + 1;
 
-    if (!array_key_exists($oIndex, $argv)) {
-        die('The dbconnector argument must be followed by the name of the driver');
-    }
+    //if (!array_key_exists($oIndex, $argv)) {
+      //  die('The dbconnector argument must be followed by the name of the driver');
+    //}
     /*
     * Match the location of the bootstrap load
     * the driver name is the next argument
@@ -96,8 +104,9 @@ if (!$adoDriver) {
     $adoDriver = strtolower($argv[$oIndex] ?? '');
 
     unset($argv[$oIndex]);
+    }
 
-}
+//}
 
 /*
 * At the point we either have a driver via the active flog or the command line
@@ -173,12 +182,12 @@ if (!$db->isConnected()) {
 /*
 * This is now available to unittests. The caching section will need this info
 */
-$GLOBALS['ADOdbConnection'] = $db;
+$GLOBALS['ADOdbConnection'] = &$db;
 $GLOBALS['ADOdriver']       = $adoDriver;
 $GLOBALS['TestingControl']  = $availableCredentials;
 
 $db->startTrans();
-
+$db->debug = true;
 $table1Schema = sprintf(
     '%s/DatabaseSetup/%s/table1-schema.sql', 
     dirname(__FILE__), 
@@ -197,7 +206,7 @@ foreach ($t1Sql as $sql) {
         $db->execute($sql);
     }
 }
-
+$db->debug = false;
 $db->completeTrans();
 
 $db->startTrans();
@@ -218,6 +227,7 @@ foreach ($t1Sql as $sql) {
 }
 
 $db->completeTrans();
+
 
 /*
 * Set up the data dictionary
