@@ -36,34 +36,66 @@ class CoreSqlTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    public function setup(): void
     {
-        $this->db        = $GLOBALS['ADOdbConnection'];
+        $this->db        = &$GLOBALS['ADOdbConnection'];
         $this->adoDriver = $GLOBALS['ADOdriver'];
+    }
+
+    /**
+     * Set up the test environment first time
+     *
+     * @return void
+     */
+    public static function setupBeforeClass(): void
+    {
+        $db        = &$GLOBALS['ADOdbConnection'];
+        $adoDriver = $GLOBALS['ADOdriver'];
        
+        return;
         /*
         * Refresh the data set
         */
-        $this->db->Execute("TRUNCATE TABLE testtable_1");       
+        $db->Execute("DELETE FROM testtable_1");       
 
         /*
         *reload Data into the table
         */
-        $this->db->startTrans();
+        $db->startTrans();
 
         $table1Data = sprintf('%s/DatabaseSetup/table1-data.sql', dirname(__FILE__));
         $table1Sql = file_get_contents($table1Data);
         $t1Sql = explode(';', $table1Sql);
         foreach ($t1Sql as $sql) {
             if (trim($sql ?? '')) {
-                $this->db->execute($sql);
+                $db->execute($sql);
             }
         }
 
-        $this->db->completeTrans();
+        $db->completeTrans();
 
-        
-        
+    }
+
+    /**
+     * Changes the casing of the keys in an associative array
+     * based on the value of ADODB_ASSOC_CASE
+     *
+     * @param array $input  by reference
+     * 
+     * @return void
+     */
+    protected function changeKeyCasing(array &$input) : void
+    {
+        if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
+            $input = array_change_key_case($input, CASE_UPPER);
+        } elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
+            $input = array_change_key_case($input, CASE_LOWER);
+        } elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_NATURAL) {
+            // No change needed
+        } else {
+            throw new InvalidArgumentException('Invalid ADODB_ASSOC_CASE value');
+        }   
+
     }
     
     /**
@@ -367,7 +399,7 @@ class CoreSqlTest extends TestCase
         }
         
         $this->assertSame(
-            $expectedValue,
+            $this->changeKeyCasing($expectedValue),
             $returnedRows,
             'getall() should return expected rows'
         );
@@ -389,10 +421,10 @@ class CoreSqlTest extends TestCase
             'Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('VARCHAR_FIELD'=>'LINE 3'),
-                        array('VARCHAR_FIELD'=>'LINE 4'),
-                        array('VARCHAR_FIELD'=>'LINE 5'),
-                        array('VARCHAR_FIELD'=>'LINE 6')
+                        array('varchar_field'=>'LINE 3'),
+                        array('varchar_field'=>'LINE 4'),
+                        array('varchar_field'=>'LINE 5'),
+                        array('varchar_field'=>'LINE 6')
                     ),
                      "SELECT testtable_1.varchar_field 
                         FROM testtable_1 
@@ -448,7 +480,7 @@ class CoreSqlTest extends TestCase
         }
     
         $this->assertSame(
-            $expectedValue,
+            $this->changeKeyCasing($expectedValue),
             $returnedRows, 
             'ADOConnection::selectLimit()'
         );
@@ -472,10 +504,10 @@ class CoreSqlTest extends TestCase
             'Select Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('VARCHAR_FIELD'=>'LINE 6'),
-                        array('VARCHAR_FIELD'=>'LINE 7'),
-                        array('VARCHAR_FIELD'=>'LINE 8'),
-                        array('VARCHAR_FIELD'=>'LINE 9')
+                        array('varchar_field'=>'LINE 6'),
+                        array('varchar_field'=>'LINE 7'),
+                        array('varchar_field'=>'LINE 8'),
+                        array('varchar_field'=>'LINE 9')
                     ),
                      "SELECT testtable_1.varchar_field 
                         FROM testtable_1 
@@ -498,7 +530,7 @@ class CoreSqlTest extends TestCase
             'Select Unbound, FETCH_ASSOC Get first record' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('VARCHAR_FIELD'=>'LINE 6'),                    ),
+                        array('varchar_field'=>'LINE 6'),                    ),
                         "SELECT testtable_1.varchar_field 
                           FROM testtable_1 
                       ORDER BY id", 1, -1, null
@@ -507,4 +539,3 @@ class CoreSqlTest extends TestCase
 
     }
 }
-    

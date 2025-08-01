@@ -35,9 +35,9 @@ class DbStringFunctionsTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    public function setup(): void
     {
-        $this->db        = $GLOBALS['ADOdbConnection'];
+        $this->db        = &$GLOBALS['ADOdbConnection'];
         $this->adoDriver = $GLOBALS['ADOdriver'];
         
     }

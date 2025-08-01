@@ -39,26 +39,65 @@ class CacheSqlTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    public static function setupBeforeClass(): void
     {
-        $this->db        = $GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
+        $db        = &$GLOBALS['ADOdbConnection'];
         
         if (!isset($GLOBALS['TestingControl']['caching'])) {
-            $this->skipAllTests = true;
-            return;
+             return;
         } 
+
+        return; 
+        /*
+        * Refresh the data set
+        */
+        $db->Execute("DELETE FROM testtable_1");       
+
+        /*
+        *reload Data into the table
+        */
+        $db->startTrans();
+
+        $table1Data = sprintf('%s/DatabaseSetup/table1-data.sql', dirname(__FILE__));
+        $table1Sql = file_get_contents($table1Data);
+        $t1Sql = explode(';', $table1Sql);
+        foreach ($t1Sql as $sql) {
+            if (trim($sql ?? '')) {
+                $db->execute($sql);
+            }
+        }
+
+        $db->completeTrans();
+
+       
+    }
+
+    /**
+     * Set up the test environment before each test
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        $this->db        = &$GLOBALS['ADOdbConnection'];
+        $this->adoDriver = $GLOBALS['ADOdriver'];
+        
         $cacheParams = $GLOBALS['TestingControl']['caching'];
         
-        $this->cacheMethod = $cacheParams['cacheMethod'];
+        $cacheMethod = $cacheParams['cacheMethod'];
         
-        if ($this->cacheMethod == 0) {
+        if ($cacheMethod == 0) {
             
             $this->skipAllTests = true;
             return;
         }
 
-        $this->db->cacheFlush();
+
+        if ($this->skipAllTests) {
+            $this->markTestSkipped('Skipping tests as caching not configured');
+        }
+
+         $this->db->cacheFlush();
     }
    
     /**
@@ -79,6 +118,28 @@ class CacheSqlTest extends TestCase
 
         $sql = "UPDATE testtable_1 SET empty_field = $value";
         $this->db->execute($sql);
+    }
+
+    /**
+     * Changes the casing of the keys in an associative array
+     * based on the value of ADODB_ASSOC_CASE
+     *
+     * @param array $input  by reference
+     * 
+     * @return void
+     */
+    protected function changeKeyCasing(array &$input) : void
+    {
+        if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
+            $input = array_change_key_case($input, CASE_UPPER);
+        } elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
+            $input = array_change_key_case($input, CASE_LOWER);
+        } elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_NATURAL) {
+            // No change needed
+        } else {
+            throw new InvalidArgumentException('Invalid ADODB_ASSOC_CASE value');
+        }   
+
     }
 
     /**
@@ -422,13 +483,23 @@ class CacheSqlTest extends TestCase
     
 
         $fields = [ 
-            '0' => 'ID',
-            '1' => 'VARCHAR_FIELD',
-            '2' => 'DATETIME_FIELD',
-            '3' => 'INTEGER_FIELD',
-            '4' => 'DECIMAL_FIELD',
-            '5' => 'EMPTY_FIELD'
+            '0' => 'id',
+            '1' => 'varchar_field',
+            '2' => 'datetime_field',
+            '3' => 'date_field',
+            '4' => 'integer_field',
+            '5' => 'decimal_field',
+            '6' => 'boolean_field',            
+            '7' => 'empty_field'
         ];
+
+        $fields = array_flip($fields);
+
+        $this->changeKeyCasing($fields);
+
+        $fields = array_flip($fields);
+
+
         
         if ($bind != null) {
 
@@ -496,7 +567,7 @@ class CacheSqlTest extends TestCase
                 );
             }
 
-            //print_r($record);
+           
             $this->assertSame(
                 '80111', 
                 $record[7], 
@@ -508,9 +579,9 @@ class CacheSqlTest extends TestCase
     }
     
     /**
-     * Data provider for {@see testGetRow()}
+     * Data provider for {@see testCacheGetRow()}
      *
-     * @return array [string(getRe, array return value]
+     * @return array [int success, string sql, ?array bind]
      */
     public function providerTestCacheGetRow(): array
     {
@@ -555,7 +626,12 @@ class CacheSqlTest extends TestCase
         } else {
             $returnedRows = $this->db->cacheGetAll($this->timeout, $sql);
         }
-        
+         
+        foreach ($expectedValue as $eIndex => $eRow) {
+            $this->changeKeyCasing($expectedValue[$eIndex]);
+        }
+
+
         $this->assertSame(
             $expectedValue,
             $returnedRows, 
@@ -574,7 +650,7 @@ class CacheSqlTest extends TestCase
         }
         
         $this->assertSame(
-            $expectedValue, 
+            $this->changeKeyCasing($expectedValue), 
             $returnedRows, 
             'Second read of cacheGetAll should return cache not current()'
         );
@@ -600,10 +676,10 @@ class CacheSqlTest extends TestCase
             'Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        ARRAY('VARCHAR_FIELD'=>'LINE 3'),
-                        ARRAY('VARCHAR_FIELD'=>'LINE 4'),
-                        ARRAY('VARCHAR_FIELD'=>'LINE 5'),
-                        ARRAY('VARCHAR_FIELD'=>'LINE 6')
+                        array('varchar_field'=>'LINE 3'),
+                        array('varchar_field'=>'LINE 4'),
+                        array('varchar_field'=>'LINE 5'),
+                        array('varchar_field'=>'LINE 6')
                     ),
                      "SELECT testtable_1.varchar_field 
                         FROM testtable_1 
@@ -634,13 +710,15 @@ class CacheSqlTest extends TestCase
      * @param int $fetchMode Fetch mode to use
      * @param array $expectedValue Expected value of the result
      * @param string $sql SQL query to execute
+     * @param int $rows Number of rows to return
+     * @param int $offset Offset to start returning rows from
      * @param ?array $bind Optional array of bind parameters
      * 
      * @return void
      * 
      * @dataProvider providerTestCacheSelectLimit
      */
-    public function testCacheSelectLimit(int $fetchMode,array $expectedValue, string $sql, ?array $bind): void
+    public function testCacheSelectLimit(int $fetchMode,array $expectedValue, string $sql, int $rows, int $offset, ?array $bind): void
     {
         global $ADODB_CACHE_DIR;
         if ($this->skipAllTests) {
@@ -650,20 +728,32 @@ class CacheSqlTest extends TestCase
 
         $this->db->setFetchMode($fetchMode);
 
+
         if ($bind) {
-            $result = $this->db->cacheSelectLimit($this->timeout, $sql, 4, 2, $bind);
+            $result = $this->db->cacheSelectLimit(
+                $this->timeout, 
+                $sql, 
+                $rows, 
+                $offset, 
+                $bind
+            );
         } else {
-            $result = $this->db->cacheSelectLimit($this->timeout, $sql, 4, 2);
+            $result = $this->db->cacheSelectLimit(
+                $this->timeout, 
+                $sql, 
+                $rows, 
+                $offset
+            );
         }
 
         $returnedRows = array();
-        foreach ($result as $index => $row) {
+        while ($row = $result->fetchRow()) {
             $returnedRows[] = $row;
 
         }
     
         $this->assertSame(
-            $expectedValue, 
+            $this->changeKeyCasing($expectedValue), 
             $returnedRows, 
             'First read of cacheSelectLimit(), builds cache'
         );
@@ -672,19 +762,30 @@ class CacheSqlTest extends TestCase
         $this->db->execute($rewriteSql);
 
         if ($bind) {
-            $result = $this->db->cacheSelectLimit($this->timeout, $sql, 4, 2, $bind);
+            $result = $this->db->cacheSelectLimit(
+                $this->timeout,
+                $sql, 
+                $rows, 
+                $offset, 
+                $bind
+            );
         } else {
-            $result = $this->db->cacheSelectLimit($this->timeout, $sql, 4, 2);
+            $result = $this->db->cacheSelectLimit(
+                $this->timeout, 
+                $sql,
+                $rows, 
+                $offset
+            );
         }
 
         $returnedRows = array();
-        foreach ($result as $index => $row) {
+        while ($row = $result->fetchRow()) {
             $returnedRows[] = $row;
 
         }
     
         $this->assertSame(
-            $expectedValue, 
+            $this->changeKeyCasing($expectedValue), 
             $returnedRows, 
             'Second read of cacheSelectLimit(), should re-read cache, not database'
         );
@@ -700,7 +801,7 @@ class CacheSqlTest extends TestCase
     /**
      * Data provider for {@see testSelectLimit()}
      *
-     * @return array [int $fetchMode, array $result, string $sql, ?array $bind]
+     * @return array [int $fetchMode, array $result, string $sql, int $offset, int $rows, ?array $bind]
      */
     public function providerTestCacheSelectLimit(): array
     {
@@ -714,34 +815,36 @@ class CacheSqlTest extends TestCase
             'Select Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('VARCHAR_FIELD'=>'LINE 3'),
-                        array('VARCHAR_FIELD'=>'LINE 4'),
-                        array('VARCHAR_FIELD'=>'LINE 5'),
-                        array('VARCHAR_FIELD'=>'LINE 6')
+                        array('varchar_field'=>'LINE 5'),
+                        array('varchar_field'=>'LINE 6'),
+                        array('varchar_field'=>'LINE 7'),
+                        array('varchar_field'=>'LINE 8')
                     ),
-                     "SELECT testtable_1.varchar_field 
+                    "SELECT testtable_1.varchar_field 
                         FROM testtable_1 
                        WHERE varchar_field>'LINE 2' 
                     ORDER BY varchar_field, id",
-                     null
+                    4,
+                    2,
+                    null
                 ],
             'Select, Bound, FETCH_NUM' => [
                 ADODB_FETCH_NUM, 
                 array(
-                    array('0'=>'LINE 3'),
-                    array('0'=>'LINE 4'),
                     array('0'=>'LINE 5'),
-                    array('0'=>'LINE 6')
+                    array('0'=>'LINE 6'),
+                    array('0'=>'LINE 7'),
+                    array('0'=>'LINE 8')
                     ),
                 "SELECT testtable_1.varchar_field 
                    FROM testtable_1 
                   WHERE varchar_field>$p1 
                ORDER BY varchar_field,id", 
+                4,
+                2,
                 $bind
             ],
 
         ];
     }
 }
-    
-    

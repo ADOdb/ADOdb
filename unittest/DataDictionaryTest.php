@@ -42,10 +42,10 @@ class DataDictionaryTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    public function setup(): void
     {
 
-        $this->db        = $GLOBALS['ADOdbConnection'];
+        $this->db        = &$GLOBALS['ADOdbConnection'];
         $this->adoDriver = $GLOBALS['ADOdriver'];
         $this->dataDictionary = $GLOBALS['ADOdataDictionary'];
 
@@ -200,7 +200,7 @@ class DataDictionaryTest extends TestCase
         $this->assertArrayHasKey(
             'ANOTHER_BOOLEAN_FIELD', 
             $metaColumns, 
-            'Test of RenameColumnSQL by renaming BOOLEAN_FIELD to ANOTHER_BOOLEAN_FIELD' .print_r($sqlArray, true)
+            'Test of RenameColumnSQL by renaming BOOLEAN_FIELD to ANOTHER_BOOLEAN_FIELD'
         );
 
         if (array_key_exists('ANOTHER_BOOLEAN_FIELD', $metaColumns)) {
@@ -390,7 +390,8 @@ class DataDictionaryTest extends TestCase
         $flds = " 
             VARCHAR_FIELD VARCHAR(50) NOTNULL DEFAULT '',
             DATE_FIELD DATE NOTNULL,
-            ANOTHER_INTEGER_FIELD INTEGER NOTNULL DEFAULT 0
+            ANOTHER_INTEGER_FIELD INTEGER NOTNULL DEFAULT 0,
+            YET_ANOTHER_VARCHAR_FIELD VARCHAR(50) NOTNULL DEFAULT ''
             ";
 
         $sqlArray = $this->dataDictionary->changeTableSQL($this->testTableName, $flds);
@@ -409,6 +410,13 @@ class DataDictionaryTest extends TestCase
             'ANOTHER_INTEGER_FIELD',
             $metaColumns,
             'Test of changeTableSQL - New column added'
+        );
+
+        
+        $this->assertArrayHasKey(
+            'YET_ANOTHER_VARCHAR_FIELD',
+            $metaColumns,
+            'Test of changeTableSQL - New varchar [yet_another_varchar_field] column added'
         );
 
         if (!array_key_exists('ANOTHER_VARCHAR_FIELD', $metaColumns)) {

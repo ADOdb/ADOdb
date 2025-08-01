@@ -38,10 +38,10 @@ class VariablesTest extends TestCase
      *
      * @return void
      */
-    public function setUp(): void
+    public function setup(): void
     {
 
-        $this->db        = $GLOBALS['ADOdbConnection'];
+        $this->db        = &$GLOBALS['ADOdbConnection'];
         $this->adoDriver = $GLOBALS['ADOdriver'];
         
     }
@@ -54,6 +54,28 @@ class VariablesTest extends TestCase
     public function tearDown(): void
     {
         //$this->db->execute("DROP TABLE IF EXISTS {$this->testTableName}");
+    }
+
+    /**
+     * Changes the casing of the keys in an associative array
+     * based on the value of ADODB_ASSOC_CASE
+     *
+     * @param array $input  by reference
+     * 
+     * @return void
+     */
+    protected function changeKeyCasing(array &$input) : void
+    {
+        if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
+            $input = array_change_key_case($input, CASE_UPPER);
+        } elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
+            $input = array_change_key_case($input, CASE_LOWER);
+        } elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_NATURAL) {
+            // No change needed
+        } else {
+            throw new InvalidArgumentException('Invalid ADODB_ASSOC_CASE value');
+        }   
+
     }
 
     /**
@@ -85,9 +107,10 @@ class VariablesTest extends TestCase
         
         $success = $this->db->execute($sql);
 
-        $this->assertIsObject(
+        $this->assertSame(
+            false,
             $success, 
-            'Data insertion should not succed using Unquoted field and table names'
+            'Data insertion should not succeed using Unquoted field and table names'
         );
 
         $count = $this->db->getOne("SELECT COUNT(*) FROM `table_name`");
@@ -110,7 +133,8 @@ class VariablesTest extends TestCase
         
         $success = $this->db->execute($sql);
 
-        $this->assertIsObject(
+        $this->assertSame(
+            true,
             $success, 
             'Data insertion failed Using Quoted field and table names. The failing SQL was: ' . $sql
         );
@@ -127,7 +151,17 @@ class VariablesTest extends TestCase
     {
         global $ADODB_FETCH_MODE;
 
-        $expectedResult = 'ID';
+        switch (ADODB_ASSOC_CASE) {
+        case ADODB_ASSOC_CASE_UPPER:
+            $expectedResult = 'ID';
+            break;
+        case ADODB_ASSOC_CASE_LOWER:
+        case ADODB_ASSOC_CASE_NATURAL:
+            $expectedResult = 'id';
+            break;
+
+        }
+        
         /*
         * Fetch a template row from the table
         */
