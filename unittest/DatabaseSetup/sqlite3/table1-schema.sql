@@ -12,6 +12,7 @@ CREATE TABLE testtable_1 (
 	date_field DATE,
 	integer_field INT(2) DEFAULT 0,
 	decimal_field decimal(12.2) DEFAULT 0,
+	boolean_field BOOLEAN DEFAULT 0,
 	empty_field VARCHAR(240) DEFAULT ''
 );
 CREATE	UNIQUE INDEX vdx1 ON testtable_1 (varchar_field);
@@ -21,5 +22,13 @@ CREATE TABLE testtable_2 (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	integer_field INT(2) DEFAULT 0,
 	date_field DATE,
+	blob_field BLOB,
 	FOREIGN KEY (integer_field,date_field) REFERENCES testtable_1(integer_field,date_field)
+);
+
+-- This table is used to test the quoting of table and field names
+DROP TABLE IF EXISTS `table_name`;
+CREATE TABLE `table_name` (
+	`id` INTEGER PRIMARY KEY AUTOINCREMENT,
+	`column_name` VARCHAR(20)
 );

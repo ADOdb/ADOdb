@@ -12,6 +12,7 @@ CREATE TABLE testtable_1 (
 	date_field DATE,
 	integer_field SMALLINT DEFAULT 0,
 	decimal_field DECIMAL(12,2) DEFAULT 0,
+	boolean_field BIT DEFAULT 0,
 	empty_field VARCHAR(240) DEFAULT '',
 );
 CREATE	unique index vdx1 ON testtable_1 (varchar_field);
@@ -22,4 +23,12 @@ CREATE TABLE testtable_2 (
     integer_field SMALLINT DEFAULT 0,
 	date_field DATE,
     FOREIGN KEY (integer_field,date_field) REFERENCES testtable_1(integer_field,date_field)
+);
+
+
+-- This table is used to test the quoting of table and field names
+DROP TABLE IF EXISTS [table_name];
+CREATE TABLE [table_name] (
+	[id] IINTEGER PRIMARY KEY AUTOINCREMENT,
+	[column_name] VARCHAR(20)
 );
