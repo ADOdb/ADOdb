@@ -558,5 +558,68 @@ class DataDictionaryTest extends TestCase
         // Clean up by dropping the database
         $this->dataDictionary->dropDatabase($dbName);
     }
+
+    /**
+     * Tests setting a comment on a column using {@see ADODConnection::setCommentSQL()}
+     * 
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:setcommentsql
+     *
+     * @return void
+     */
+    public function testSetCommentSql(): void
+    {
+        if ($this->skipFollowingTests) {
+            $this->markTestSkipped(
+                'Skipping tests as the table was not created successfully'
+            );
+            return;
+        }
+
+        $sql = $this->dataDictionary->setCommentSQL(
+            $this->testTableName, 
+            'varchar_field',
+            'varchar_test_comment'
+        );
+
+        print "Comment SQL: $sql\n";
+        $ok = $this->db->execute($sql);
+
+        $this->assertEquals(
+            true,
+            $ok, 
+            'Test of setCommentSQL - should return true if the comment was set successfully'
+        );
+    }
+
+    /**
+     * Tests getting a comment on a column
+     * 
+     * @see ADODConnection::getCommentSQL()
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:getcommentsql
+     *
+     * @return void
+     */
+    public function testGetCommentSql(): void
+    {
+        if ($this->skipFollowingTests) {
+            $this->markTestSkipped(
+                'Skipping tests as the table was not created successfully'
+            );
+            return;
+        }
+
+        $sql = $this->dataDictionary->getCommentSQL(
+            $this->testTableName, 
+            'varchar_field'
+        );
+
+         $comment = $this->db->getone($sql);
+
+        $this->assertEquals(
+            'varchar_test_comment', 
+            $comment, 
+            'Test of getCommentSQL - should return the comment set previously'
+        );
+    }
    
 }
