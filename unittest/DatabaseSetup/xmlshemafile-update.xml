@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<schema version="0.3">
+  <table name="testxmltable_1">
+    <descr>A test table for xmlschema unit testing</descr>
+    <field name="id" type="I">
+        <descr>A unique ID assigned to each record.</descr>
+        <KEY/>
+        <AUTOINCREMENT/>
+    </field> 
+    <descr>Varchar_field increases the size to 280 characters</descr>
+    <field name="varchar_field" type="C" size="280"><NOTNULL/></field>
+    <field name="decimal_field" type="N" size="12.4" default="1"></field>
+    <field name="integer_field" type="I4" default="999"></field>
+    <field name="logical_field" type="L" default="1"></field>
+    <field name="blob_field" type="XL"></field>
+    <index name="integer_field_index">
+        <descr>Put a unique index on the integer_field</descr>
+        <col>integer_field</col>
+        <UNIQUE/>
+    </index>
+    </table>
+</schema>	

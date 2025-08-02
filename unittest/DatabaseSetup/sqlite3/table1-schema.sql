@@ -5,6 +5,7 @@ DROP TABLE IF EXISTS insertion_table;
 DROP TABLE IF EXISTS insertion_table_renamed;
 DROP TABLE IF EXISTS testtable_2;
 DROP TABLE IF EXISTS testtable_1;
+DROP TABLE IF EXISTS testxmltable_1;
 CREATE TABLE testtable_1 (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
 	varchar_field VARCHAR(20),

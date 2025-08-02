@@ -59,6 +59,7 @@ if (!array_key_exists('blob', $availableCredentials)) {
 }
 
 require_once $ADOdbSettings['directory'] . '/adodb.inc.php';
+require_once $ADOdbSettings['directory'] . '/adodb-xmlschema03.inc.php';
 
 global $argv;
 global $db;
@@ -184,10 +185,11 @@ if (!$db->isConnected()) {
 */
 $GLOBALS['ADOdbConnection'] = &$db;
 $GLOBALS['ADOdriver']       = $adoDriver;
+$GLOBALS['ADOxmlSchema']    = false;
 $GLOBALS['TestingControl']  = $availableCredentials;
 
 $db->startTrans();
-$db->debug = true;
+
 $table1Schema = sprintf(
     '%s/DatabaseSetup/%s/table1-schema.sql', 
     dirname(__FILE__), 
@@ -206,7 +208,7 @@ foreach ($t1Sql as $sql) {
         $db->execute($sql);
     }
 }
-$db->debug = false;
+
 $db->completeTrans();
 
 $db->startTrans();
