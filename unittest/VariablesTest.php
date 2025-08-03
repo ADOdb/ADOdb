@@ -60,7 +60,7 @@ class VariablesTest extends TestCase
      * Changes the casing of the keys in an associative array
      * based on the value of ADODB_ASSOC_CASE
      *
-     * @param array $input  by reference
+     * @param array $input by reference
      * 
      * @return void
      */
