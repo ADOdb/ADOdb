@@ -14,6 +14,23 @@ Older changelogs:
 
 --------------------------------------------------------------------------------
 
+## [5.22.10] - 2025-08-03
+
+### Security
+
+- pgsql: SQL injection in pg_insert_id() method (CVE-2025-54119)
+  [#1083](https://github.com/ADOdb/ADOdb/issues/1083)
+
+### Fixed
+
+- sqlite: metaForeignKeys() returns nothing when FOREIGN keyword is in lower case
+  [#1078](https://github.com/ADOdb/ADOdb/issues/1078)
+- sqlite: metaForeignKeys() does not support column-levels constraints
+  [#1079](https://github.com/ADOdb/ADOdb/issues/1079)
+- sqlite: metaForeignKeys() composite foreign keys are not supported
+  [#1080](https://github.com/ADOdb/ADOdb/issues/1080)
+
+
 ## [5.22.9] - 2025-05-01
 
 ### Security
@@ -1490,6 +1507,7 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
+[5.22.10]: https://github.com/adodb/adodb/compare/v5.22.9...v5.22.10
 [5.22.9]: https://github.com/adodb/adodb/compare/v5.22.8...v5.22.9
 [5.22.8]: https://github.com/adodb/adodb/compare/v5.22.7...v5.22.8
 [5.22.7]: https://github.com/adodb/adodb/compare/v5.22.6...v5.22.7
