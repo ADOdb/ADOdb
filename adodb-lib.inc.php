@@ -125,6 +125,13 @@ function _adodb_replace($zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_a
 {
 	// Add Quote around table name to support use of spaces / reserved keywords
 	$table=sprintf('%s%s%s', $zthis->nameQuote,$table,$zthis->nameQuote);
+    if($zthis->dataProvider == "postgres" 
+      && substr($table,0,1) == '"' 
+      && substr($table,-1,1) == '"' 
+      && strstr($table,'.')) {
+        // handle postgresql "table" when using schema. "schema.table" is invalid, but "schema"."table" is OK.
+        $table = str_replace('.', '"."', $table);
+    }
 
 	if (count($fieldArray) == 0) return 0;
 
