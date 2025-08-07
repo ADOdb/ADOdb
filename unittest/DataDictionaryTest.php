@@ -97,6 +97,8 @@ class DataDictionaryTest extends TestCase
      */
     public function testaddColumnToBasicTable(): void
     {
+        
+        $this->db->startTrans();
         if ($this->skipFollowingTests) {
             $this->markTestSkipped(
                 'Skipping tests as the table was not created successfully'
@@ -105,15 +107,17 @@ class DataDictionaryTest extends TestCase
         }
 
         $flds = " 
-            VARCHAR_FIELD VARCHAR(50) NOTNULL DEFAULT '',
-            DATE_FIELD DATE NOTNULL,
-            INTEGER_FIELD INTEGER NOTNULL DEFAULT 0,
-            DROPPABLE_FIELD DECIMAL(10,6) NOTNULL DEFAULT 80.111
+            VARCHAR_FIELD C(50) NOTNULL DEFAULT '',
+            DATE_FIELD D NOTNULL DEFAULT '2010-01-01',
+            INTEGER_FIELD I NOTNULL DEFAULT 0,
+            DROPPABLE_FIELD N(10.6) DEFAULT 80.111
             ";
 
         $sqlArray = $this->dataDictionary->AddColumnSQL($this->testTableName, $flds);
 
         $this->dataDictionary->executeSqlArray($sqlArray);
+
+        $this->db->completeTrans();
 
         $metaColumns = $this->db->metaColumns($this->testTableName);
 
@@ -237,6 +241,7 @@ class DataDictionaryTest extends TestCase
             return;
         }
 
+        $this->db->startTrans();
         $sqlArray = $this->dataDictionary->dropColumnSQL(
             $this->testTableName, 
             'DROPPABLE_FIELD'
@@ -244,6 +249,8 @@ class DataDictionaryTest extends TestCase
 
         $this->dataDictionary->executeSqlArray($sqlArray);
 
+        $this->db->completeTrans();
+        
         $metaColumns = $this->db->metaColumns($this->testTableName);
 
         $this->assertArrayNotHasKey(
@@ -389,7 +396,7 @@ class DataDictionaryTest extends TestCase
 
         $flds = " 
             VARCHAR_FIELD VARCHAR(50) NOTNULL DEFAULT '',
-            DATE_FIELD DATE NOTNULL,
+            DATE_FIELD DATE NOTNULL DEFAULT '2010-01-01',
             ANOTHER_INTEGER_FIELD INTEGER NOTNULL DEFAULT 0,
             YET_ANOTHER_VARCHAR_FIELD VARCHAR(50) NOTNULL DEFAULT ''
             ";
