@@ -190,20 +190,20 @@ $GLOBALS['TestingControl']  = $availableCredentials;
 
 $db->startTrans();
 
-$table1Schema = sprintf(
-    '%s/DatabaseSetup/%s/table1-schema.sql', 
+$tableSchema = sprintf(
+    '%s/DatabaseSetup/%s/table-schema.sql', 
     dirname(__FILE__), 
     $adoDriver
 );
 
-if (!file_exists($table1Schema)) {
-    die('Schema file for table 1 not found');
+if (!file_exists($tableSchema)) {
+    die('Schema file for unit testing not found');
 }
 
-$table1Sql = file_get_contents($table1Schema);
-$t1Sql = explode(';', $table1Sql);
+$tableSql = file_get_contents($tableSchema);
+$tSql = explode(';', $tableSql);
 
-foreach ($t1Sql as $sql) {
+foreach ($tSql as $sql) {
     if (trim($sql ?? '')) {
         $db->execute($sql);
     }
@@ -211,18 +211,20 @@ foreach ($t1Sql as $sql) {
 
 $db->completeTrans();
 
-$db->startTrans();
 /*
-* Load Data into the table
+* Loads the test data into table 3
 */
-$table1Data = sprintf('%s/DatabaseSetup/table1-data.sql', dirname(__FILE__));
-if (!file_exists($table1Data)) {
-    die('Data file for table 1 not found');
+$db->startTrans();
+
+
+$table3Data = sprintf('%s/DatabaseSetup/table3-data.sql', dirname(__FILE__));
+if (!file_exists($table3Data)) {
+    die('Data file for table 3 not found');
 }
 
-$table1Sql = file_get_contents($table1Data);
-$t1Sql = explode(';', $table1Sql);
-foreach ($t1Sql as $sql) {
+$table3Sql = file_get_contents($table3Data);
+$t3Sql = explode(';', $table3Sql);
+foreach ($t3Sql as $sql) {
     if (trim($sql ?? '')) {
         $db->execute($sql);
     }
@@ -240,9 +242,15 @@ $ADODB_CACHE_DIR = '';
 if (array_key_exists('caching', $availableCredentials)) {   
 
     $cacheParams = $availableCredentials['caching'];
-    if ($cacheParams['cacheMethod'] == 1) {
+    switch ($cacheParams['cacheMethod'] ?? 0) {
+    case 1:
         $ADODB_CACHE_DIR = $cacheParams['cacheDir'] ?? '';
-
+        break;
+    case 2:
+        $db->memCache     = true;
+        $db->memCacheHost = $cacheParams['cacheHost'];
+        $db->memCachePort = 11211;
+        break;
     }
 }
 

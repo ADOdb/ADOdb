@@ -47,28 +47,34 @@ class CacheSqlTest extends TestCase
              return;
         } 
 
-        return; 
-        /*
-        * Refresh the data set
-        */
-        $db->Execute("DELETE FROM testtable_1");       
+        $db->startTrans();
+        $SQL = "SELECT COUNT(*) AS cache_table3_count FROM testtable_3";
+        $table3DataExists = $db->getOne($SQL);
+        
+        $db->completeTrans();
+        if ($table3DataExists) {
+            // Data already exists, no need to reload
+            return;
+        }
+        
+            
 
         /*
-        *reload Data into the table
+        *load Data into the table
         */
+      
         $db->startTrans();
 
-        $table1Data = sprintf('%s/DatabaseSetup/table1-data.sql', dirname(__FILE__));
-        $table1Sql = file_get_contents($table1Data);
-        $t1Sql = explode(';', $table1Sql);
-        foreach ($t1Sql as $sql) {
+        $table3Data = sprintf('%s/DatabaseSetup/table3-data.sql', dirname(__FILE__));
+        $table3Sql = file_get_contents($table3Data);
+        $t3Sql = explode(';', $table3Sql);
+        foreach ($t3Sql as $sql) {
             if (trim($sql ?? '')) {
                 $db->execute($sql);
             }
         }
 
         $db->completeTrans();
-
        
     }
 
@@ -116,7 +122,7 @@ class CacheSqlTest extends TestCase
             $value = $this->db->qstr($value);
         }
 
-        $sql = "UPDATE testtable_1 SET empty_field = $value";
+        $sql = "UPDATE testtable_3 SET empty_field = $value";
         $this->db->execute($sql);
     }
 
@@ -197,14 +203,19 @@ class CacheSqlTest extends TestCase
     public function providerTestSelectCacheExecute(): array
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
-        $bind = array('p1'=>'LINE 1');
+        $bind = array('p1'=>1);
         return [
-             'Select Unbound' => 
-                [true, "SELECT * FROM testtable_1 ORDER BY id", null],
-         'Invalid' => 
-                [false, "SELECT testtable_1.varchar_fieldx FROM testtable_1 ORDER BY id", null],
-         'Select, Bound' => 
-                [true, "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
+            'Select Unbound' => 
+                [true, "SELECT * FROM testtable_3 ORDER BY number_run_field", null],
+            'Invalid' => 
+                [false, "SELECT testtable_3.varchar_fieldx 
+                           FROM testtable_3 
+                       ORDER BY number_run_field", 
+                       null],
+            'Select, Bound' => 
+                [true, "SELECT testtable_3.varchar_field,testtable_3.* 
+                         FROM testtable_3 
+                        WHERE number_run_field=$p1", $bind],
 
             ];
     }
@@ -257,17 +268,17 @@ class CacheSqlTest extends TestCase
         return [
              'Update Unbound' => [
                 true, 
-                "UPDATE testtable_1 SET integer_field=2000 WHERE id=1", 
+                "UPDATE testtable_3 SET integer_field=2000 WHERE id=1", 
                 null
             ],
               'Invalid' => [
                 false, 
-                "UPDATE testtable_1 SET xinteger_field=2000 WHERE id=1",
+                "UPDATE testtable_3 SET xinteger_field=2000 WHERE id=1",
                  null
             ],
               'Select, Bound' =>  [
                 true, 
-                "UPDATE testtable_1 SET integer_field=2000 WHERE varchar_field=$p1",
+                "UPDATE testtable_3 SET integer_field=2000 WHERE varchar_field=$p1",
                  $bind
             ],
         ];
@@ -313,7 +324,7 @@ class CacheSqlTest extends TestCase
             );
         }
 
-        $rewriteSql = "UPDATE testtable_1 
+        $rewriteSql = "UPDATE testtable_3 
                           SET varchar_field = null 
                         WHERE varchar_field = 'LINE 1'";
 
@@ -334,7 +345,7 @@ class CacheSqlTest extends TestCase
                 'Second access of cacheGetOne() reads from cache, not database'
             );
         }
-        $rewriteSql = "UPDATE testtable_1 SET varchar_field = 'LINE 1' WHERE varchar_field IS NULL";
+        $rewriteSql = "UPDATE testtable_3 SET varchar_field = 'LINE 1' WHERE varchar_field IS NULL";
         $this->db->execute($rewriteSql);
     }
 
@@ -351,17 +362,17 @@ class CacheSqlTest extends TestCase
         return [
             'Return Last Col, Unbound' => [
                 'LINE 11', 
-                "SELECT varchar_field FROM testtable_1 ORDER BY id DESC", 
+                "SELECT varchar_field FROM testtable_3 ORDER BY number_run_field DESC", 
                 null
             ],
             'Return Multiple Cols, take first, Unbound' => [
                 'LINE 11', 
-                "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 ORDER BY id DESC",
+                "SELECT testtable_3.varchar_field,testtable_3.* FROM testtable_3 ORDER BY number_run_field DESC",
                 null
             ],
             'Return Multiple Cols, take first, Bound' => [
                 'LINE 11', 
-                "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", 
+                "SELECT testtable_3.varchar_field,testtable_3.* FROM testtable_3 WHERE varchar_field=$p1", 
                 $bind
             ],
 
@@ -405,7 +416,7 @@ class CacheSqlTest extends TestCase
     
         }
 
-        $rewriteSql = "UPDATE testtable_1 SET varchar_field = null WHERE varchar_field = 'LINE 1'";
+        $rewriteSql = "UPDATE testtable_3 SET varchar_field = null WHERE varchar_field = 'LINE 1'";
         $this->db->execute($rewriteSql);
 
         if ($bind) {
@@ -424,7 +435,7 @@ class CacheSqlTest extends TestCase
             );
     
         }
-        $rewriteSql = "UPDATE testtable_1 
+        $rewriteSql = "UPDATE testtable_3 
                           SET varchar_field = 'LINE 1' 
                         WHERE varchar_field = NULL";
 
@@ -443,11 +454,11 @@ class CacheSqlTest extends TestCase
         return [
                 [
                     11, 
-                    "SELECT varchar_field FROM testtable_1", 
+                    "SELECT varchar_field FROM testtable_3", 
                     null
                 ],[
                     1, 
-                    "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", 
+                    "SELECT testtable_3.varchar_field,testtable_3.* FROM testtable_3 WHERE varchar_field=$p1", 
                     $bind
                 ],
 
@@ -490,7 +501,8 @@ class CacheSqlTest extends TestCase
             '4' => 'integer_field',
             '5' => 'decimal_field',
             '6' => 'boolean_field',            
-            '7' => 'empty_field'
+            '7' => 'empty_field',
+            '8' => 'number_run_field'
         ];
 
         $fields = array_flip($fields);
@@ -500,6 +512,7 @@ class CacheSqlTest extends TestCase
         $fields = array_flip($fields);
 
 
+        //$this->db->debug = true;
         
         if ($bind != null) {
 
@@ -567,6 +580,7 @@ class CacheSqlTest extends TestCase
                 );
             }
 
+            //$this->db->debug = false;
            
             $this->assertSame(
                 '80111', 
@@ -574,7 +588,7 @@ class CacheSqlTest extends TestCase
                 'Checking that empty_field column is read from cache as 80111'
             );
         }
-
+        $this->skipAllTests = true;
 
     }
     
@@ -591,8 +605,8 @@ class CacheSqlTest extends TestCase
         );
 
         return [
-                [1, "SELECT * FROM testtable_1 ORDER BY id DESC", null],
-                [1, "SELECT * FROM testtable_1 WHERE varchar_field=$p1", $bind],
+                [1, "SELECT * FROM testtable_3 ORDER BY number_run_field DESC", null],
+                [1, "SELECT * FROM testtable_3 WHERE varchar_field=$p1", $bind],
             ];
     }
 
@@ -627,9 +641,9 @@ class CacheSqlTest extends TestCase
             $returnedRows = $this->db->cacheGetAll($this->timeout, $sql);
         }
          
-        foreach ($expectedValue as $eIndex => $eRow) {
-            $this->changeKeyCasing($expectedValue[$eIndex]);
-        }
+        //foreach ($expectedValue as $eIndex => $eRow) {
+         //   $this->changeKeyCasing($expectedValue[$eIndex]);
+        //}
 
 
         $this->assertSame(
@@ -638,9 +652,13 @@ class CacheSqlTest extends TestCase
             'Initial read of cacheGetAll()'
         );
 
-        $rewriteSql = "UPDATE testtable_1 
+        /*
+        * This changes the value of the varchar_field in the database
+        * but the cache should still return the original value
+        */
+        $rewriteSql = "UPDATE testtable_3 
                           SET varchar_field = null 
-                        WHERE varchar_field = 'LINE 3'";
+                        WHERE number_run_field = 3";
         $this->db->execute($rewriteSql);
 
         if ($bind) {
@@ -650,13 +668,16 @@ class CacheSqlTest extends TestCase
         }
         
         $this->assertSame(
-            $this->changeKeyCasing($expectedValue), 
+            $expectedValue, 
             $returnedRows, 
             'Second read of cacheGetAll should return cache not current()'
         );
 
-        $sql = "UPDATE testtable_1 SET varchar_field = 'LINE 3' WHERE varchar_field IS NULL";
-        $this->db->execute($sql);
+         $rewriteSql = "UPDATE testtable_3 
+                          SET varchar_field = 'LINE 3' 
+                        WHERE number_run_field = 3";
+        $this->db->execute($rewriteSql);
+
 
     }
     
@@ -669,34 +690,36 @@ class CacheSqlTest extends TestCase
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         $p2 = $GLOBALS['ADOdbConnection']->param('p2');
-        $bind = array('p1'=>'LINE 2',
-                      'p2'=>'LINE 6'
+        $bind = array('p1'=>2,
+                      'p2'=>6
                     );
         return [
-            'Unbound, FETCH_ASSOC' => 
+            'Numbers Between 2 and 6,Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('varchar_field'=>'LINE 3'),
-                        array('varchar_field'=>'LINE 4'),
-                        array('varchar_field'=>'LINE 5'),
-                        array('varchar_field'=>'LINE 6')
+                        array('VARCHAR_FIELD'=>'LINE 2'),
+                        array('VARCHAR_FIELD'=>'LINE 3'),
+                        array('VARCHAR_FIELD'=>'LINE 4'),
+                        array('VARCHAR_FIELD'=>'LINE 5'),
+                        array('VARCHAR_FIELD'=>'LINE 6')
                     ),
-                     "SELECT testtable_1.varchar_field 
-                        FROM testtable_1 
-                       WHERE varchar_field BETWEEN 'LINE 2' AND 'LINE 6'
-                    ORDER BY varchar_field", null],
+                     "SELECT testtable_3.varchar_field 
+                        FROM testtable_3 
+                       WHERE number_run_field BETWEEN 2 AND 6
+                    ORDER BY number_run_field", null],
             'Bound, FETCH_NUM' => 
                 [ADODB_FETCH_NUM, 
                     array(
+                        array('0'=>'LINE 2'),
                         array('0'=>'LINE 3'),
                         array('0'=>'LINE 4'),
                         array('0'=>'LINE 5'),
                         array('0'=>'LINE 6')
                         ),
-                    "SELECT testtable_1.varchar_field 
-                       FROM testtable_1 
-                      WHERE varchar_field BETWEEN $p1 AND $p2
-                   ORDER BY varchar_field", $bind],
+                    "SELECT testtable_3.varchar_field 
+                       FROM testtable_3
+                        WHERE number_run_field BETWEEN $p1 AND $p2 
+                     ORDER BY number_run_field", $bind],
 
                 ];
     }
@@ -728,6 +751,7 @@ class CacheSqlTest extends TestCase
 
         $this->db->setFetchMode($fetchMode);
 
+        $this->db->startTrans();
 
         if ($bind) {
             $result = $this->db->cacheSelectLimit(
@@ -752,14 +776,22 @@ class CacheSqlTest extends TestCase
 
         }
     
+        $this->db->completeTrans();
+        $this->db->startTrans();
         $this->assertSame(
-            $this->changeKeyCasing($expectedValue), 
+            $expectedValue, 
             $returnedRows, 
             'First read of cacheSelectLimit(), builds cache'
         );
             
-        $rewriteSql = "UPDATE testtable_1 SET varchar_field = null WHERE varchar_field = 'LINE 3'";
+        $rewriteSql = "UPDATE testtable_3 
+                          SET varchar_field = null 
+                        WHERE number_run_field = 3
+                          AND varchar_field = 'LINE 3'";
         $this->db->execute($rewriteSql);
+
+         $this->db->completeTrans();
+        $this->db->startTrans();
 
         if ($bind) {
             $result = $this->db->cacheSelectLimit(
@@ -783,19 +815,25 @@ class CacheSqlTest extends TestCase
             $returnedRows[] = $row;
 
         }
+
+         $this->db->completeTrans();
+        $this->db->startTrans();
     
         $this->assertSame(
-            $this->changeKeyCasing($expectedValue), 
+            $expectedValue, 
             $returnedRows, 
             'Second read of cacheSelectLimit(), should re-read cache, not database'
         );
 
-        $rewriteSql = "UPDATE testtable_1 
+        $rewriteSql = "UPDATE testtable_3 
                           SET varchar_field = 'LINE 3' 
-                        WHERE varchar_field IS NULL";
+                        WHERE number_run_field = 3
+                          AND varchar_field IS NULL";
 
         $this->db->execute($rewriteSql);
     
+         $this->db->completeTrans();
+        
     }
     
     /**
@@ -808,22 +846,22 @@ class CacheSqlTest extends TestCase
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         
         $bind = array(
-            'p1'=>'LINE 2'
+            'p1'=>'2'
         );
 
         return [
             'Select Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('varchar_field'=>'LINE 5'),
-                        array('varchar_field'=>'LINE 6'),
-                        array('varchar_field'=>'LINE 7'),
-                        array('varchar_field'=>'LINE 8')
+                        array('VARCHAR_FIELD'=>'LINE 5'),
+                        array('VARCHAR_FIELD'=>'LINE 6'),
+                        array('VARCHAR_FIELD'=>'LINE 7'),
+                        array('VARCHAR_FIELD'=>'LINE 8')
                     ),
-                    "SELECT testtable_1.varchar_field 
-                        FROM testtable_1 
-                       WHERE varchar_field>'LINE 2' 
-                    ORDER BY varchar_field, id",
+                    "SELECT testtable_3.varchar_field 
+                        FROM testtable_3 
+                       WHERE number_run_field>2 
+                    ORDER BY number_run_field",
                     4,
                     2,
                     null
@@ -836,10 +874,10 @@ class CacheSqlTest extends TestCase
                     array('0'=>'LINE 7'),
                     array('0'=>'LINE 8')
                     ),
-                "SELECT testtable_1.varchar_field 
-                   FROM testtable_1 
-                  WHERE varchar_field>$p1 
-               ORDER BY varchar_field,id", 
+                "SELECT testtable_3.varchar_field 
+                   FROM testtable_3 
+                  WHERE number_run_field>$p1 
+               ORDER BY number_run_field", 
                 4,
                 2,
                 $bind

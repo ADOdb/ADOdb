@@ -57,12 +57,16 @@ class BlobHandlingTest extends TestCase
         if (!file_exists($testBlobFile)) {
             return;
         }
+
+        $GLOBALS['ADOdbConnection']->startTrans();
         
         $sql = "INSERT INTO testtable_2 (integer_field, date_field)
                      VALUES (9002,'2025-02-01')";
        
        
         $GLOBALS['ADOdbConnection']->Execute($sql);
+
+        $GLOBALS['ADOdbConnection']->completeTrans();
     }
     
     
@@ -117,6 +121,8 @@ class BlobHandlingTest extends TestCase
             return;
         }
 
+        $this->db->startTrans();
+
         $fd   = file_get_contents($this->testBlobFile);
         $blob = $this->db->blobEncode($fd);
 
@@ -127,6 +133,8 @@ class BlobHandlingTest extends TestCase
             $hasData,
             'Blob encoding should not return an empty string'
         );
+
+        $this->db->completeTrans();
     }
 
     /**
@@ -146,6 +154,9 @@ class BlobHandlingTest extends TestCase
             return;
         }
    
+        $saveDebug = $this->db->debug;
+
+        $this->db->debug = false; // Disable debug output for this test
         $fd = file_get_contents($this->testBlobFile);
         $blob = $this->db->blobEncode($fd);
 
@@ -159,6 +170,8 @@ class BlobHandlingTest extends TestCase
         );
 
         $this->db->completeTrans();
+
+        $this->db->debug = $saveDebug; // Restore debug setting
 
         $this->assertTrue(
             $result,

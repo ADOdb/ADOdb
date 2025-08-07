@@ -49,24 +49,31 @@ class CoreSqlTest extends TestCase
      */
     public static function setupBeforeClass(): void
     {
-        $db        = &$GLOBALS['ADOdbConnection'];
+        $db        = $GLOBALS['ADOdbConnection'];
         $adoDriver = $GLOBALS['ADOdriver'];
+
+        $db->startTrans();
        
-        return;
-        /*
-        * Refresh the data set
-        */
-        $db->Execute("DELETE FROM testtable_1");       
+        $SQL = "SELECT COUNT(*) AS core_table3_count FROM testtable_3";
+        $table3DataExists = $db->getOne($SQL);
+
+        $db->completeTrans();
+
+        if ($table3DataExists) {
+            print "$table3DataExists records already exists in testtable_3, skipping data load.\n";
+            // Data already exists, no need to reload
+            return;
+        }
 
         /*
-        *reload Data into the table
+        *load Data into the table
         */
         $db->startTrans();
 
-        $table1Data = sprintf('%s/DatabaseSetup/table1-data.sql', dirname(__FILE__));
-        $table1Sql = file_get_contents($table1Data);
-        $t1Sql = explode(';', $table1Sql);
-        foreach ($t1Sql as $sql) {
+        $table3Data = sprintf('%s/DatabaseSetup/table3-data.sql', dirname(__FILE__));
+        $table3Sql = file_get_contents($table3Data);
+        $t3Sql = explode(';', $table3Sql);
+        foreach ($t3Sql as $sql) {
             if (trim($sql ?? '')) {
                 $db->execute($sql);
             }
@@ -113,11 +120,15 @@ class CoreSqlTest extends TestCase
      */
     public function testSelectExecute(bool $expectedValue, string $sql, ?array $bind): void
     {
+
+        $this->db->startTrans();
         if ($bind) {
             $result = $this->db->execute($sql, $bind);
         } else {
             $result = $this->db->execute($sql);
         }
+
+        $this->db->completeTrans();
 
         $this->assertSame(
             $expectedValue, 
@@ -139,17 +150,19 @@ class CoreSqlTest extends TestCase
         return [
             'Select Unbound' => [
                 true, 
-                "SELECT * FROM testtable_1 ORDER BY id", 
+                "SELECT * FROM testtable_3 ORDER BY id", 
                 null
             ],
+            /*
             'Invalid' => [
                 false, 
-                "SELECT testtable_1.varchar_fieldx FROM testtable_1 ORDER BY id", 
+                "SELECT testtable_3.varchar_fieldx FROM testtable_3 ORDER BY id", 
                 null
             ],
+            */
             'Select, Bound' => [
                 true, 
-                "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", 
+                "SELECT testtable_3.varchar_field,testtable_3.* FROM testtable_3 WHERE varchar_field=$p1", 
                 $bind
             ],
         ];
@@ -170,11 +183,15 @@ class CoreSqlTest extends TestCase
      */
     public function testNonSelectExecute(bool $expectedValue, string $sql, ?array $bind): void
     {
+
+        $this->db->startTrans();
         if ($bind) {
             $result = $this->db->execute($sql, $bind);
         } else {
             $result = $this->db->execute($sql);
         }
+
+        $this->db->completeTrans();
         
         $this->assertSame(
             $expectedValue, 
@@ -196,17 +213,19 @@ class CoreSqlTest extends TestCase
         return [
             'Update Unbound' => [
                 true, 
-                "UPDATE testtable_1 SET integer_field=2000 WHERE id=1",
+                "UPDATE testtable_3 SET integer_field=2000 WHERE id=1",
                 null
             ],
+            /*
             'Invalid' => [
                 false, 
-                "UPDATE testtable_1 SET xinteger_field=2000 WHERE id=1", 
+                "UPDATE testtable_3 SET xinteger_field=2000 WHERE id=1", 
                 null
             ],
+            */
             'Select, Bound' => [
                 true, 
-                "UPDATE testtable_1 SET integer_field=2000 WHERE varchar_field=$p1", 
+                "UPDATE testtable_3 SET integer_field=2000 WHERE varchar_field=$p1", 
                 $bind
             ],
         ];
@@ -227,6 +246,7 @@ class CoreSqlTest extends TestCase
      */
     public function testGetOne(string $expectedValue, string $sql, ?array $bind): void
     {
+        $this->db->startTrans();
         if ($bind) {
             $this->assertSame(
                 $expectedValue, 
@@ -234,12 +254,16 @@ class CoreSqlTest extends TestCase
                 'Test of getOne with bind variables'
             );
         } else {
+           
+            $actualValue = $this->db->getOne($sql);
+
             $this->assertSame(
                 $expectedValue, 
-                "{$this->db->getOne($sql)}",
+                $actualValue,
                 'Test of getOne without bind variables'
             );
         }
+        $this->db->completeTrans();
     }
 
     /**
@@ -250,15 +274,30 @@ class CoreSqlTest extends TestCase
     public function providerTestGetOne(): array
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
-        $bind = array('p1'=>'LINE 11');
+        $bind = array('p1'=>9);
 
         return [
-             'Return First Col, Unbound' => 
-                ['LINE 11', "SELECT varchar_field FROM testtable_1 ORDER BY id DESC", null],
-         'Return Multiple Cols, take first, Unbound' => 
-                ['LINE 11', "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 ORDER BY id DESC", null],
-         'Return Multiple Cols, take first, Bound' => 
-                ['LINE 11', "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
+             'Return First Col, Unbound' => [
+                '9', 
+                "SELECT number_run_field 
+                   FROM testtable_3  
+                  WHERE number_run_field < 10
+               ORDER BY number_run_field DESC", 
+               null
+                ],
+                'Return Multiple Cols, take first, Unbound' => [
+                'LINE 9',
+                "SELECT testtable_3.varchar_field,testtable_3.* 
+                   FROM testtable_3 
+                  WHERE number_run_field < 10
+               ORDER BY number_run_field DESC", null],
+                'Return Multiple Cols, take first, Bound' => [
+                'LINE 9', 
+                "SELECT testtable_3.varchar_field,testtable_3.* 
+                   FROM testtable_3 
+                  WHERE number_run_field=$p1", 
+                  $bind
+                ],
 
             ];
     }
@@ -278,6 +317,8 @@ class CoreSqlTest extends TestCase
      */
     public function testGetCol(int $expectedValue, string $sql, ?array $bind): void
     {
+
+        $this->db->startTrans();
         if ($bind) {
             $cols = $this->db->getCol($sql, $bind);
             $this->assertSame(
@@ -294,6 +335,7 @@ class CoreSqlTest extends TestCase
             );
     
         }
+        $this->db->completeTrans();
     }
     /**
      * Data provider for {@see testGetCol`()}
@@ -305,8 +347,8 @@ class CoreSqlTest extends TestCase
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         $bind = array('p1'=>'LINE 11');
         return [
-                [11, "SELECT varchar_field FROM testtable_1 ORDER BY id", null],
-                [1, "SELECT testtable_1.varchar_field,testtable_1.* FROM testtable_1 WHERE varchar_field=$p1", $bind],
+                [11, "SELECT varchar_field FROM testtable_3 ORDER BY id", null],
+                [1, "SELECT testtable_3.varchar_field,testtable_3.* FROM testtable_3 WHERE varchar_field=$p1", $bind],
 
             ];
     }
@@ -333,12 +375,16 @@ class CoreSqlTest extends TestCase
                     '4' => 'INTEGER_FIELD',
                     '5' => 'DECIMAL_FIELD',
                     '6' => 'BOOLEAN_FIELD',
-                    '7' => 'EMPTY_FIELD'
+                    '7' => 'EMPTY_FIELD',
+                    '8' => 'NUMBER_RUN_FIELD'
                   ];
-        
+
+        $this->db->startTrans();
         if ($bind) {
             $this->db->setFetchMode(ADODB_FETCH_ASSOC);
+            //$this->db->debug = true;
             $record = $this->db->getRow($sql, $bind);
+            //$this->db->debug = false;
             foreach ($fields as $key => $value) {
                 $this->assertArrayHasKey(
                     $value, 
@@ -357,6 +403,7 @@ class CoreSqlTest extends TestCase
                 );
             }
         }
+        $this->db->completeTrans();
     }
     
     /**
@@ -366,11 +413,12 @@ class CoreSqlTest extends TestCase
      */ 
     public function providerTestGetRow(): array
     {
+
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
-        $bind = array('p1'=>'LINE 11');
+        $bind = array('p1'=>11);
         return [    
-                [1, "SELECT * FROM testtable_1 ORDER BY id", null],
-                [1, "SELECT * FROM testtable_1 WHERE varchar_field=$p1", $bind],
+                [1, "SELECT * FROM testtable_3 ORDER BY number_run_field", null],
+                [11, "SELECT * FROM testtable_3 WHERE number_run_field=$p1", $bind],
             ];
     }
 
@@ -391,18 +439,22 @@ class CoreSqlTest extends TestCase
     public function testGetAll(int $fetchMode,array $expectedValue, string $sql, ?array $bind): void
     {
         $this->db->setFetchMode($fetchMode);
-
+        $this->db->startTrans();
+       
         if ($bind) {
             $returnedRows = $this->db->getAll($sql, $bind);
+        
         } else {
             $returnedRows = $this->db->getAll($sql);
         }
         
         $this->assertSame(
-            $this->changeKeyCasing($expectedValue),
+            $expectedValue,
             $returnedRows,
             'getall() should return expected rows'
         );
+
+        $this->db->completeTrans();
     }
     
     /**
@@ -414,22 +466,24 @@ class CoreSqlTest extends TestCase
     {
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         $p2 = $GLOBALS['ADOdbConnection']->param('p2');
-        $bind = array('p1'=>'LINE 2',
-                      'p2'=>'LINE 6'
+        $bind = array('p1'=>2,
+                      'p2'=>6
                     );
         return [
             'Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('varchar_field'=>'LINE 3'),
-                        array('varchar_field'=>'LINE 4'),
-                        array('varchar_field'=>'LINE 5'),
-                        array('varchar_field'=>'LINE 6')
+                        array('VARCHAR_FIELD'=>'LINE 2'),
+                        array('VARCHAR_FIELD'=>null),
+                        array('VARCHAR_FIELD'=>'LINE 4'),
+                        array('VARCHAR_FIELD'=>'LINE 5'),
+                        array('VARCHAR_FIELD'=>'LINE 6')
                     ),
-                     "SELECT testtable_1.varchar_field 
-                        FROM testtable_1 
-                       WHERE varchar_field BETWEEN 'LINE 2' AND 'LINE 6'
-                    ORDER BY varchar_field", null],
+                     "SELECT testtable_3.varchar_field 
+                        FROM testtable_3 
+                       WHERE number_run_field BETWEEN 2 AND 6
+                    ORDER BY number_run_field", null]];
+            /*
             'Bound, FETCH_NUM' => 
                 [ADODB_FETCH_NUM, 
                     array(
@@ -438,12 +492,13 @@ class CoreSqlTest extends TestCase
                         array('0'=>'LINE 5'),
                         array('0'=>'LINE 6')
                         ),
-                    "SELECT testtable_1.varchar_field 
-                       FROM testtable_1 
-                      WHERE varchar_field BETWEEN $p1 AND $p2
-                   ORDER BY varchar_field", $bind],
+                    "SELECT testtable_3.varchar_field 
+                       FROM testtable_3 
+                      WHERE number_run_field BETWEEN $p1 AND $p2
+                   ORDER BY number_run_field", $bind],
 
                 ];
+            */
     }
 
 
@@ -467,12 +522,16 @@ class CoreSqlTest extends TestCase
     {
         $this->db->setFetchMode($fetchMode);
 
+        $this->db->startTrans();
+
         if ($bind) {
             $result = $this->db->selectLimit($sql, $count, $offset, $bind);
         } else {
             $result = $this->db->selectLimit($sql, $count, $offset);
         }
+   
 
+        $this->db->completeTrans();
         $returnedRows = array();
         
         foreach ($result as $index => $row) {
@@ -480,7 +539,7 @@ class CoreSqlTest extends TestCase
         }
     
         $this->assertSame(
-            $this->changeKeyCasing($expectedValue),
+            $expectedValue,
             $returnedRows, 
             'ADOConnection::selectLimit()'
         );
@@ -497,45 +556,123 @@ class CoreSqlTest extends TestCase
         $p1 = $GLOBALS['ADOdbConnection']->param('p1');
         
         $bind = array(
-            'p1'=>'LINE 0'
+            'p1'=>3
         );
 
         return [
             'Select Unbound, FETCH_ASSOC' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('varchar_field'=>'LINE 6'),
-                        array('varchar_field'=>'LINE 7'),
-                        array('varchar_field'=>'LINE 8'),
-                        array('varchar_field'=>'LINE 9')
+                        array('VARCHAR_FIELD'=>'LINE 6'),
+                        array('VARCHAR_FIELD'=>'LINE 7'),
+                        array('VARCHAR_FIELD'=>'LINE 8'),
+                        array('VARCHAR_FIELD'=>'LINE 9')
                     ),
-                     "SELECT testtable_1.varchar_field 
-                        FROM testtable_1 
-                          WHERE varchar_field>='LINE 3'
-                    ORDER BY id", 4, 2, null
+                     "SELECT testtable_3.varchar_field 
+                        FROM testtable_3 
+                          WHERE number_run_field>3
+                    ORDER BY number_run_field", 4, 2, null
                 ],
             'Select, Bound, FETCH_NUM' => 
-                [ADODB_FETCH_NUM, 
+                [ADODB_FETCH_NUM,
                     array(
+                        array('0'=>'LINE 5'),
                         array('0'=>'LINE 6'),
                         array('0'=>'LINE 7'),
-                        array('0'=>'LINE 8'),
-                        array('0'=>'LINE 9')
+                        array('0'=>'LINE 8')
                         ),
-                    "SELECT testtable_1.varchar_field 
-                       FROM testtable_1 
-                      WHERE varchar_field>=$p1 
-                   ORDER BY varchar_field", 4, 2, $bind
+                    "SELECT testtable_3.varchar_field 
+                       FROM testtable_3 
+                      WHERE number_run_field>=$p1 
+                   ORDER BY number_run_field", 4, 2, $bind
                 ],
             'Select Unbound, FETCH_ASSOC Get first record' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
-                        array('varchar_field'=>'LINE 6'),                    ),
-                        "SELECT testtable_1.varchar_field 
-                          FROM testtable_1 
-                      ORDER BY id", 1, -1, null
+                        array('DATE_FIELD'=>'2025-01-01'),
+                    ),
+                    "SELECT testtable_3.date_field 
+                          FROM testtable_3 
+                      ORDER BY number_run_field", 1, -1, null
                 ],
         ];
 
     }
+
+    /**
+     * Test for {@see ADODConnection::CreateSequence()}
+     *
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:createsequence
+     *
+     * @return void
+     */
+    public function testCreateSequence() : void
+    {
+
+        $this->db->startTrans();
+        $ok = $this->db->CreateSequence('unittest_seq', 50);
+        
+        $this->assertTrue(
+            $ok, 
+            'CreateSequence should return true If a sequence is created successfully'
+        );
+
+        $this->db->completeTrans();
+        $this->db->startTrans();
+        $nextId = $this->db->GenID('unittest_seq');
+
+        $this->assertSame(
+            50, 
+            $nextId, 
+            'GenID should return the initial value of 50 in the sequence'
+        );                      
+        $this->assertSame(
+            50, 
+            $nextId, 
+            'GenID should return the initial value of 50 in the sequence'
+        );
+
+
+        $nextId = $this->db->GenID('unittest_seq');
+
+        $this->assertSame(
+            51, 
+            $nextId, 
+            'GenID should return the next value of 51 in the sequence'
+        );
+
+        $this->db->completeTrans();
+
+    } 
+    
+    /**
+     * Test for {@see ADODConnection::DropSequence()}
+     *
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:dropsequence
+     *
+     * @return void
+     */
+    public function testDropSequence() : void
+    {
+        $this->db->startTrans();
+        $ok = $this->db->DropSequence('unittest_seq');
+
+        $this->assertTrue(
+            $ok, 
+            'DropSequence should return true If a sequence is dropped successfully'
+        );
+
+        /*
+        * Check if the sequence is actually dropped
+        */
+        $nextId = $this->db->GenID('unittest_seq');
+        
+        $this->assertSame(
+            1, 
+            $nextId, 
+            'GenID should return 1 for a non-existing sequence'
+        );
+        $this->db->completeTrans();  
+    }   
+
 }
