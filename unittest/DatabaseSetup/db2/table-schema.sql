@@ -20,13 +20,12 @@ CREATE TABLE testtable_1 (
 	id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1),
 	varchar_field VARCHAR(20),
 	datetime_field DATETIME,
-	date_field DATE,
+	date_field DATE DEFAULT CURRENT DATE,
 	integer_field SMALLINT NOT NULL DEFAULT 0,
 	decimal_field DECIMAL(12,2) DEFAULT 0,
-	boolean_field BIT DEFAULT 0,
+	boolean_field BOOLEAN WITH DEFAULT FALSE,
     empty_field VARCHAR(240) DEFAULT '',
-	number_run_field SMALLINT NOT NULL DEFAULT 0,
-    PRIMARY KEY (id)
+	number_run_field SMALLINT NOT NULL DEFAULT 0
 );
 CREATE	UNIQUE INDEX vdx1 ON testtable_1 (varchar_field);
 CREATE	UNIQUE INDEX vdx2 ON testtable_1 (integer_field,date_field);
@@ -39,23 +38,22 @@ CREATE	UNIQUE INDEX vdx3 ON testtable_1 (number_run_field);
 CREATE TABLE testtable_2 (
 	id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1),
 	integer_field SMALLINT NOT NULL DEFAULT 0,
-	date_field DATE,
-    PRIMARY KEY (id)
+	date_field DATE DEFAULT CURRENT DATE,
+	blob_field BLOB
+    
 );
 
--- Testtable_1 is used to test the basic functionality of the meta functions
--- It has a variety of data types but contains no data
-CREATE TABLE testtable_1 (
+-- Testtable_3 is loaded with data for testing the cache and sql functions
+CREATE TABLE testtable_3 (
 	id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1),
 	varchar_field VARCHAR(20),
 	datetime_field DATETIME,
-	date_field DATE,
+	date_field DATE DEFAULT CURRENT DATE,
 	integer_field SMALLINT NOT NULL DEFAULT 0,
 	decimal_field DECIMAL(12,2) DEFAULT 0,
-	boolean_field BIT DEFAULT 0,
+	boolean_field BOOLEAN WITH DEFAULT FALSE,
     empty_field VARCHAR(240) DEFAULT '',
-	number_run_field SMALLINT NOT NULL DEFAULT 0,
-    PRIMARY KEY (id)
+	number_run_field SMALLINT NOT NULL DEFAULT 0
 );
 CREATE	UNIQUE INDEX vdx31 ON testtable_3 (varchar_field);
 CREATE	UNIQUE INDEX vdx33 ON testtable_3 (number_run_field);
