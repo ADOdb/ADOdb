@@ -26,7 +26,7 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class FirebirdDriverTest extends TestCase
+class MssqlnativeDriverTest extends TestCase
 {
     protected ?object $db;
     protected ?string $adoDriver;
