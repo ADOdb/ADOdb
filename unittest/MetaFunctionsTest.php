@@ -118,10 +118,11 @@ class MetaFunctionsTest extends TestCase
                       'INTEGER_FIELD' => 'integer_field',
                       'DECIMAL_FIELD' => 'decimal_field',
                       'BOOLEAN_FIELD' => 'boolean_field',
-                      'EMPTY_FIELD' => 'empty_field'
-                    ]
+                      'EMPTY_FIELD' => 'empty_field',
+                      'NUMBER_RUN_FIELD' => 'number_run_field']
                 ],
                 'Returning Numeric Array' => [
+                    
                  true,
                     [ '0' => 'id',
                       '1' => 'varchar_field',
@@ -130,7 +131,8 @@ class MetaFunctionsTest extends TestCase
                       '4' => 'integer_field',
                       '5' => 'decimal_field',
                       '6' => 'boolean_field',
-                      '7' => 'empty_field'
+                      '7' => 'empty_field',
+                      '8' => 'number_run_field'
                     ]
                 ]
             ];
@@ -144,7 +146,7 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaColumnCount(): void
     {
-        $expectedResult  = 8;
+        $expectedResult  = 9;
         
         $executionResult = $this->db->metaColumns('testtable_1');
         
@@ -234,7 +236,7 @@ class MetaFunctionsTest extends TestCase
         $executionResult = $this->db->metaIndexes('testtable_1');
         
         $this->assertSame(
-            2,
+            3,
             count($executionResult),
             'Checking Index Count'
         );
@@ -374,7 +376,8 @@ class MetaFunctionsTest extends TestCase
             'Field 5 Is NUMBER' => ['N',5],
             'Field 6 Is BOOLEAN' => ['L',6],
             'Field 7 Is VARCHAR' => ['C',7],
-            'Field 8 Does not Exist' => [null,8],
+            'Field 8 Is INTEGER' => ['I',8],
+            'Field 9 Does not Exist' => [null,9],
     
              
         ];
