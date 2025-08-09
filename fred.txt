@@ -1,444 +1,1011 @@
+------------------------------------------------------------------------------
+oci8: ALTER SESSION SET NLS_DATE_FORMAT='YYYY-MM-DD'
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  DROP TABLE IF EXISTS insertion_table_renamed
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  DROP TABLE IF EXISTS testtable_3
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  -- Must drop testtable_2 before testtable_1 because of foreign key constraints DROP TABLE IF EXISTS testtable_2
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  DROP TABLE IF EXISTS testtable_1
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  -- This table will be built by XMLschema tests DROP TABLE IF EXISTS testxmltable_1
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  CREATE TABLE testtable_1 ( id INTEGER NOT NULL, varchar_field VARCHAR(20), datetime_field TIMESTAMP, date_field DATE, integer_field SMALLINT NOT NULL, decimal_field NUMBER(12,2), boolean_field NUMBER(1,0), empty_field VARCHAR(240) DEFAULT '', number_run_field SMALLINT NOT NULL )
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  CREATE UNIQUE INDEX vdx1 ON testtable_1 (varchar_field)
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  CREATE UNIQUE INDEX vdx2 ON testtable_1 (integer_field,date_field)
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  CREATE UNIQUE INDEX vdx3 ON testtable_1 (number_run_field)
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  CREATE TABLE testtable_2 ( id INTEGER NOT NULL, integer_field SMALLINT NOT NULL, date_field DATE, blob_field BLOB )
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  CREATE TABLE testtable_3 ( id INTEGER NOT NULL, varchar_field VARCHAR(20), datetime_field TIMESTAMP, date_field DATE, integer_field SMALLINT NOT NULL, decimal_field NUMBER(12,2), boolean_field NUMBER(1,0), empty_field VARCHAR(240) DEFAULT '', number_run_field SMALLINT NOT NULL )
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  CREATE UNIQUE INDEX vdx31 ON testtable_3 (varchar_field)
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  CREATE UNIQUE INDEX vdx33 ON testtable_3 (number_run_field)
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  DROP TABLE IF EXISTS "table_name"
+------------------------------------------------------------------------------
+------------------------------------------------------------------------------
+oci8:  CREATE TABLE "table_name" ( "id" INTEGER NOT NULL, "column_name" VARCHAR(20) )
+------------------------------------------------------------------------------
+Smart Commit occurred
+------------------------------------------------------------------------------
+oci8: -- Populate testtable_3 with sample data INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 1','2025-01-01 00:00:01','2025-01-01',9001,1000.01,1)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute(-- Populate testtable_3 with sample data INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decima..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute(-- Populate testtable_3 with sample data INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decima...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 2','2025-01-01 01:00:01','2025-02-01',9002,1000.11,2)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 3','2025-01-01 02:00:01','2025-03-01',9003,1000.21,3)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 4','2025-01-01 03:00:01','2025-04-01',9004,1000.31,4)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 5','2025-01-01 04:00:01','2025-05-01',9005,1000.41,5)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 6','2025-01-01 05:00:01','2025-06-01',9006,1000.51,6)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 7','2025-01-01 06:00:01','2025-07-01',9007,1000.61,7)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 8','2025-01-01 07:00:01','2025-08-01',9008,1000.71,8)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 9','2025-01-01 08:00:01','1959-08-29',9009,1000.81,9)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 10','2025-01-01 09:00:01','2025-10-01',9010,1000.91,10)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 11','2025-01-01 23:00:01','1725-11-01',-9011,-1000.11,11)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_3"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( INSERT INTO testtable_3 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE ...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+------------------------------------------------------------------------------
+oci8:  -- Force a foreign key constraint into testtable_1 for later foreign key tests INSERT INTO testtable_1 (varchar_field, datetime_field,date_field, integer_field,decimal_field,number_run_field) values ('LINE 2','2025-01-01 01:00:01','2025-02-01',9002,1000.11,2)
+------------------------------------------------------------------------------
+
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_1"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_1"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
+
+Call stack (most recent call first):
+10. ADOConnection::_Execute( -- Force a foreign key constraint into testtable_1 for later foreign key tests INSERT INTO testtable_1 (varchar_field, datetime..., false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 9. ADODB_oci8::Execute( -- Force a foreign key constraint into testtable_1 for later foreign key tests INSERT INTO testtable_1 (varchar_field, datetime...) in ...\unittest\dbconnector.php line 230
+ 8. include_once(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 61
+ 7. PHPUnit\Util\FileLoader::load(C:\dev\github\ADOdb\unittest\dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\Util\FileLoader.php line 49
+ 6. PHPUnit\Util\FileLoader::checkAndLoad(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 537
+ 5. PHPUnit\TextUI\Command::handleBootstrap(./unittest/dbconnector.php) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 388
+ 4. PHPUnit\TextUI\Command::handleArguments(Array[4]) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 111
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
+
+Smart Rollback occurred
+------------------------------------------------------------------------------
+oci8: select value from sys.database_compatible_level
+------------------------------------------------------------------------------
 PHPUnit 9.3.0 by Sebastian Bergmann and contributors.
 
-..........F.F.FFF......FFF.F.FFFFFFFFFF.FF..E.E......F...F..FFFFF 65 / 96 ( 67%)
-SELECT  CASE WHEN date_field is null THEN '1970-01-01' ELSE date_field END  
-                  FROM testtable_1 
-                 WHERE varchar_field='LINE 1'..F.F.F.....
-Checking that metaColumns returns the expected fields
-....EF.FFFF.E..F<p>Bad $rs in GetInsertSQL. Connection or SQL invalid. Try using $connection->debug=true;</p>F..                                   96 / 96 (100%)
+------------------------------------------------------------------------------
+oci8: INSERT INTO testtable_2 (integer_field, date_field) VALUES (9002,'2025-02-01')
+------------------------------------------------------------------------------
 
-Time: 00:00.228, Memory: 8.00 MB
+Warning: oci_execute(): ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_2"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/ in C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php on line 1401
+1400: ORA-01400: cannot insert NULL into ("SYSTEM"."TESTTABLE_2"."ID")
+Help: https://docs.oracle.com/error-help/db/ora-01400/
 
-There were 4 errors:
+Call stack (most recent call first):
+ 9. ADOConnection::_Execute(INSERT INTO testtable_2 (integer_field, date_field) VALUES (9002,'2025-02-01'), false) in ...\drivers\adodb-oci8.inc.php line 1088
+ 8. ADODB_oci8::Execute(INSERT INTO testtable_2 (integer_field, date_field) VALUES (9002,'2025-02-01')) in ...\unittest\BlobHandlingTest.php line 67
+ 7. BlobHandlingTest::setUpBeforeClass() in C:\dev\github\vendor\phpunit\phpunit\src\Framework\TestSuite.php line 610
+ 6. PHPUnit\Framework\TestSuite::run(Object:PHPUnit\Framework\TestResult) in C:\dev\github\vendor\phpunit\phpunit\src\Framework\TestSuite.php line 665
+ 5. PHPUnit\Framework\TestSuite::run(Object:PHPUnit\Framework\TestResult) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\TestRunner.php line 685
+ 4. PHPUnit\TextUI\TestRunner::run(Object:PHPUnit\Framework\TestSuite, Array[64], Array[0], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 143
+ 3. PHPUnit\TextUI\Command::run(Array[4], true) in C:\dev\github\vendor\phpunit\phpunit\src\TextUI\Command.php line 96
+ 2. PHPUnit\TextUI\Command::main() in C:\dev\github\vendor\phpunit\phpunit\phpunit line 61
+ 1. include(C:\dev\github\vendor\phpunit\phpunit\phpunit) in C:\dev\github\vendor\bin\phpunit line 122
 
-1) DataDictionaryTest::testRenameTable
-SQLite3Result::fetchArray(): Unable to execute statement: no such table: insertion_table
+Smart Rollback occurred
+.Smart Commit occurred
+EEF......FFFFFFFFFFF....FFFFFFFFFFFFFF..E.FF.EF.SFComment SQL: COMMENT ON COLUMN insertion_table.varchar_field IS 'varchar_test_comment'
+FF.FF.FFFFFF  63 / 115 ( 54%)
+...WFFFFWFF.F.F.FF....EEEE......F..E..WWWWWWF<p>Bad $rs in GetInsertSQL. Connection or SQL invalid. Try using $connection->debug=true;</p>F.FF.F.            115 / 115 (100%)
 
-C:\dev\github\ADOdb\drivers\adodb-sqlite3.inc.php:798
-C:\dev\github\ADOdb\drivers\adodb-sqlite3.inc.php:745
-C:\dev\github\ADOdb\adodb.inc.php:1738
-C:\dev\github\ADOdb\adodb.inc.php:1680
-C:\dev\github\ADOdb\adodb-datadict.inc.php:405
-C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:349
+Time: 00:02.571, Memory: 14.00 MB
 
-2) DataDictionaryTest::testCreateDatabase
-TypeError: PHPUnit\Framework\Assert::assertContains(): Argument #2 ($haystack) must be of type iterable, bool given, called in C:\dev\github\ADOdb\unittest\DataDictionaryTest.php on line 406
+There were 9 errors:
 
-C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:406
+1) BlobHandlingTest::testUpdateBlob
+OCILob::save(): OCI_INVALID_HANDLE
 
-3) MetaFunctionsTest::testMetaForeignKeys
-Undefined array key 0
+C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php:960
+C:\dev\github\ADOdb\unittest\BlobHandlingTest.php:169
 
-C:\dev\github\ADOdb\drivers\adodb-sqlite3.inc.php:243
-C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:255
+2) BlobHandlingTest::testUpdateBlobFile
+OCILob::saveFile(): OCI_INVALID_HANDLE
 
-4) MetaFunctionsTest::testMetaTypes with data set "Field 7 Does not Exist" (null, 7)
-Undefined array key 7
+C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php:998
+C:\dev\github\ADOdb\unittest\BlobHandlingTest.php:206
 
-C:\dev\github\ADOdb\adodb.inc.php:5455
-C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+3) DataDictionaryTest::testRenameColumnInBasicTable
+Undefined variable $column_def
+
+C:\dev\github\ADOdb\adodb-datadict.inc.php:566
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:196
+
+4) DataDictionaryTest::testChangeTable
+Undefined variable $fields_to_add
+
+C:\dev\github\ADOdb\adodb-datadict.inc.php:1114
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:404
+
+5) MetaFunctionsTest::testMetaIndexUniqueness with data set "Index vdx1 is unique" (true, 'vdx1')
+Undefined array key "vdx1"
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:261
+
+6) MetaFunctionsTest::testMetaIndexUniqueness with data set "Index vdx2 is unique" (true, 'vdx2')
+Undefined array key "vdx2"
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:261
+
+7) MetaFunctionsTest::testMetaPrimaryKeys
+Trying to access array offset on value of type bool
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:294
+
+8) MetaFunctionsTest::testMetaForeignKeys
+PHPUnit\Framework\InvalidArgumentException: Argument #2 of PHPUnit\Framework\Assert::assertArrayHasKey() must be an array or ArrayAccess
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:317
+
+9) MetaFunctionsTest::testMetaTypes with data set "Field 9 Does not Exist" (null, 9)
+Undefined array key 9
+
+C:\dev\github\ADOdb\drivers\adodb-oci8.inc.php:1750
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:343
 
 --
 
-There were 38 failures:
+There were 8 warnings:
 
-1) CacheSqlTest::testGetCacheCol with data set #1 (1, 'SELECT testtable_1.varchar_fi...ield=?', array('LINE 1'))
+1) Warning
+No tests found in class "Db2DriverTest".
+
+2) Warning
+No tests found in class "FirebirdDriverTest".
+
+3) Warning
+No tests found in class "MssqlnativeDriverTest".
+
+4) Warning
+No tests found in class "MysqliDriverTest".
+
+5) Warning
+No tests found in class "Oci8DriverTest".
+
+6) Warning
+No tests found in class "PdoDriverTest".
+
+7) Warning
+No tests found in class "Postgres9DriverTest".
+
+8) Warning
+No tests found in class "Sqlite3DriverTest".
+
+--
+
+There were 56 failures:
+
+1) BlobHandlingTest::testBlobDecode
+The blob field should contain data
+Failed asserting that null is greater than 0.
+
+C:\dev\github\ADOdb\unittest\BlobHandlingTest.php:246
+
+2) CacheSqlTest::testCacheGetOne with data set "Return Last Col, Unbound" ('LINE 11', 'SELECT varchar_field FROM tes...d DESC', null)
+First access of cacheGetOne() reads from database and sets cache
+Failed asserting that null is identical to 'LINE 11'.
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:323
+
+3) CacheSqlTest::testCacheGetOne with data set "Return Multiple Cols, take first, Unbound" ('LINE 11', 'SELECT testtable_3.varchar_fi...d DESC', null)
+First access of cacheGetOne() reads from database and sets cache
+Failed asserting that null is identical to 'LINE 11'.
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:323
+
+4) CacheSqlTest::testCacheGetOne with data set "Return Multiple Cols, take first, Bound" ('LINE 11', 'SELECT testtable_3.varchar_fi...ld=:p1', array('LINE 11'))
+First access of cacheGetOne() with bind reads from database and sets cache
+Failed asserting that null is identical to 'LINE 11'.
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:314
+
+5) CacheSqlTest::testGetCacheCol with data set #0 (11, 'SELECT varchar_field FROM testtable_3', null)
+First access of cacheGetCol without bound variables() sets cache
+Failed asserting that 0 is identical to 11.
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:414
+
+6) CacheSqlTest::testGetCacheCol with data set #1 (1, 'SELECT testtable_3.varchar_fi...ld=:p1', array('LINE 11'))
 First access of cacheGetCol with bound variables() sets cache
 Failed asserting that 0 is identical to 1.
 
-C:\dev\github\ADOdb\unittest\CacheSqlTest.php:335
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:407
 
-2) CacheSqlTest::testCacheGetRow with data set #1 (1, 'SELECT * FROM testtable_1 WHE...ield=?', array('LINE 1'))
+7) CacheSqlTest::testCacheGetRow with data set #0 (1, 'SELECT * FROM testtable_3 ORD...d DESC', null)
+Checking if numeric key exists in fields array
+Failed asserting that an array has the key 0.
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:538
+
+8) CacheSqlTest::testCacheGetRow with data set #1 (1, 'SELECT * FROM testtable_3 WHE...ld=:p1', array('LINE 11'))
 Checking if associative key exists in returned record
-Failed asserting that an array has the key 'id'.
+Failed asserting that an array has the key 'ID'.
 
-C:\dev\github\ADOdb\unittest\CacheSqlTest.php:443
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:527
 
-3) CacheSqlTest::testCacheGetAll with data set "Bound, FETCH_NUM" (1, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', array('LINE 3', 'LINE 6'))
+9) CacheSqlTest::testCacheGetAll with data set "Numbers Between 2 and 6,Unbound, FETCH_ASSOC" (2, array(array('LINE 2'), array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_3.varchar_fi..._field', null)
 Initial read of cacheGetAll()
 Failed asserting that two arrays are identical.
 --- Expected
 +++ Actual
 @@ @@
- Array &0 (
-     0 => Array &1 (
--        0 => 'LINE 3'
-+        0 => 'LINE 4'
-     )
-     1 => Array &2 (
--        0 => 'LINE 4'
-+        0 => 'LINE 5'
-     )
-     2 => Array &3 (
--        0 => 'LINE 5'
+-Array &0 (
+-    0 => Array &1 (
+-        'VARCHAR_FIELD' => 'LINE 2'
+-    )
+-    1 => Array &2 (
+-        'VARCHAR_FIELD' => 'LINE 3'
+-    )
+-    2 => Array &3 (
+-        'VARCHAR_FIELD' => 'LINE 4'
 -    )
 -    3 => Array &4 (
-         0 => 'LINE 6'
-     )
- )
+-        'VARCHAR_FIELD' => 'LINE 5'
+-    )
+-    4 => Array &5 (
+-        'VARCHAR_FIELD' => 'LINE 6'
+-    )
+-)
++Array &0 ()
 
-C:\dev\github\ADOdb\unittest\CacheSqlTest.php:561
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:652
 
-4) CacheSqlTest::testCacheSelectLimit with data set "Select Unbound, FETCH_ASSOC" (2, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', null)
-First read of cacheSelectLimit(), builds cache
+10) CacheSqlTest::testCacheGetAll with data set "Bound, FETCH_NUM" (1, array(array('LINE 2'), array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_3.varchar_fi..._field', array(2, 6))
+Initial read of cacheGetAll()
 Failed asserting that two arrays are identical.
 --- Expected
 +++ Actual
 @@ @@
- Array &0 (
-     0 => Array &1 (
--        'varchar_field' => 'LINE 3'
-+        'varchar_field' => null
-     )
-     1 => Array &2 (
-         'varchar_field' => 'LINE 4'
-
-C:\dev\github\ADOdb\unittest\CacheSqlTest.php:667
-
-5) CacheSqlTest::testCacheSelectLimit with data set "Select, Bound, FETCH_NUM" (1, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', array('LINE 0'))
-First read of cacheSelectLimit(), builds cache
-Failed asserting that two arrays are identical.
---- Expected
-+++ Actual
-@@ @@
- Array &0 (
-     0 => Array &1 (
+-Array &0 (
+-    0 => Array &1 (
+-        0 => 'LINE 2'
+-    )
+-    1 => Array &2 (
 -        0 => 'LINE 3'
-+        0 => 'LINE 5'
-     )
-     1 => Array &2 (
+-    )
+-    2 => Array &3 (
 -        0 => 'LINE 4'
-+        0 => 'LINE 6'
-     )
-     2 => Array &3 (
+-    )
+-    3 => Array &4 (
 -        0 => 'LINE 5'
-+        0 => 'LINE 7'
-     )
-     3 => Array &4 (
+-    )
+-    4 => Array &5 (
 -        0 => 'LINE 6'
-+        0 => 'LINE 8'
-     )
- )
+-    )
+-)
++Array &0 ()
 
-C:\dev\github\ADOdb\unittest\CacheSqlTest.php:667
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:652
 
-6) CoreSqlTest::testGetOne with data set "Return First Col, Unbound" ('LINE 1', 'SELECT varchar_field FROM tes... BY id', null)
-ADOConnection::getOne()
+11) CacheSqlTest::testCacheSelectLimit with data set "Select Unbound, FETCH_ASSOC" (2, array(array('LINE 5'), array('LINE 6'), array('LINE 7'), array('LINE 8')), 'SELECT testtable_3.varchar_fi..._field', 4, 2, null)
+First read of cacheSelectLimit(), builds cache
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 (
+-    0 => Array &1 (
+-        'VARCHAR_FIELD' => 'LINE 5'
+-    )
+-    1 => Array &2 (
+-        'VARCHAR_FIELD' => 'LINE 6'
+-    )
+-    2 => Array &3 (
+-        'VARCHAR_FIELD' => 'LINE 7'
+-    )
+-    3 => Array &4 (
+-        'VARCHAR_FIELD' => 'LINE 8'
+-    )
+-)
++Array &0 ()
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:784
+
+12) CacheSqlTest::testCacheSelectLimit with data set "Select, Bound, FETCH_NUM" (1, array(array('LINE 5'), array('LINE 6'), array('LINE 7'), array('LINE 8')), 'SELECT testtable_3.varchar_fi..._field', 4, 2, array('2'))
+First read of cacheSelectLimit(), builds cache
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+-Array &0 (
+-    0 => Array &1 (
+-        0 => 'LINE 5'
+-    )
+-    1 => Array &2 (
+-        0 => 'LINE 6'
+-    )
+-    2 => Array &3 (
+-        0 => 'LINE 7'
+-    )
+-    3 => Array &4 (
+-        0 => 'LINE 8'
+-    )
+-)
++Array &0 ()
+
+C:\dev\github\ADOdb\unittest\CacheSqlTest.php:784
+
+13) CoreSqlTest::testGetOne with data set "Return First Col, Unbound" ('9', 'SELECT number_run_field \r\n ...d DESC', null)
+Test of getOne without bind variables
+Failed asserting that null is identical to '9'.
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:263
+
+14) CoreSqlTest::testGetOne with data set "Return Multiple Cols, take first, Unbound" ('LINE 9', 'SELECT testtable_3.varchar_fi...d DESC', null)
+Test of getOne without bind variables
+Failed asserting that null is identical to 'LINE 9'.
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:263
+
+15) CoreSqlTest::testGetOne with data set "Return Multiple Cols, take first, Bound" ('LINE 9', 'SELECT testtable_3.varchar_fi...ld=:p1', array(9))
+Test of getOne with bind variables
 Failed asserting that two strings are identical.
 --- Expected
 +++ Actual
 @@ @@
--'LINE 1'
+-'LINE 9'
 +''
 
-C:\dev\github\ADOdb\unittest\CoreSqlTest.php:184
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:254
 
-7) CoreSqlTest::testGetOne with data set "Return Multiple Cols, take first, Unbound" ('LINE 1', 'SELECT testtable_1.varchar_fi... BY id', null)
-ADOConnection::getOne()
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'LINE 1'
-+''
+16) CoreSqlTest::testGetCol with data set #0 (11, 'SELECT varchar_field FROM tes... BY id', null)
+getCol without bind variables should return expected number of rows
+Failed asserting that 0 is identical to 11.
 
-C:\dev\github\ADOdb\unittest\CoreSqlTest.php:184
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:334
 
-8) CoreSqlTest::testGetOne with data set "Return Multiple Cols, take first, Bound" ('LINE 1', 'SELECT testtable_1.varchar_fi...ield=?', array('LINE 1'))
-ADOConnection::getOne()
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'LINE 1'
-+''
-
-C:\dev\github\ADOdb\unittest\CoreSqlTest.php:178
-
-9) CoreSqlTest::testGetCol with data set #1 (1, 'SELECT testtable_1.varchar_fi...ield=?', array('LINE 1'))
+17) CoreSqlTest::testGetCol with data set #1 (1, 'SELECT testtable_3.varchar_fi...ld=:p1', array('LINE 11'))
 Get col with bind variables should return expected number of rows
 Failed asserting that 0 is identical to 1.
 
-C:\dev\github\ADOdb\unittest\CoreSqlTest.php:226
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:327
 
-10) CoreSqlTest::testGetRow with data set #1 (1, 'SELECT * FROM testtable_1 WHE...ield=?', array('LINE 1'))
+18) CoreSqlTest::testGetRow with data set #0 (1, 'SELECT * FROM testtable_3 ORD..._field', null)
+Checking if numeric key exists in fields array
+Failed asserting that an array has the key 0.
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:402
+
+19) CoreSqlTest::testGetRow with data set #1 (11, 'SELECT * FROM testtable_3 WHE...ld=:p1', array(11))
 Checking if associative key exists in fields array
-Failed asserting that an array has the key 'id'.
+Failed asserting that an array has the key 'ID'.
 
-C:\dev\github\ADOdb\unittest\CoreSqlTest.php:278
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:392
 
-11) CoreSqlTest::testGetAll with data set "Unbound, FETCH_ASSOC" (2, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', null)
+20) CoreSqlTest::testGetAll with data set "Unbound, FETCH_ASSOC" (2, array(array('LINE 2'), array(null), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_3.varchar_fi..._field', null)
 getall() should return expected rows
 Failed asserting that two arrays are identical.
 --- Expected
 +++ Actual
 @@ @@
- Array &0 (
-     0 => Array &1 (
--        'varchar_field' => 'LINE 3'
-+        'varchar_field' => 'LINE 4'
-     )
-     1 => Array &2 (
--        'varchar_field' => 'LINE 4'
-+        'varchar_field' => 'LINE 5'
-     )
-     2 => Array &3 (
--        'varchar_field' => 'LINE 5'
+-Array &0 (
+-    0 => Array &1 (
+-        'VARCHAR_FIELD' => 'LINE 2'
+-    )
+-    1 => Array &2 (
+-        'VARCHAR_FIELD' => null
+-    )
+-    2 => Array &3 (
+-        'VARCHAR_FIELD' => 'LINE 4'
 -    )
 -    3 => Array &4 (
-         'varchar_field' => 'LINE 6'
-     )
- )
-
-C:\dev\github\ADOdb\unittest\CoreSqlTest.php:329
-
-12) CoreSqlTest::testGetAll with data set "Bound, FETCH_NUM" (1, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', array('LINE 3', 'LINE 6'))
-getall() should return expected rows
-Failed asserting that two arrays are identical.
---- Expected
-+++ Actual
-@@ @@
- Array &0 (
-     0 => Array &1 (
--        0 => 'LINE 3'
-+        0 => 'LINE 4'
-     )
-     1 => Array &2 (
--        0 => 'LINE 4'
-+        0 => 'LINE 5'
-     )
-     2 => Array &3 (
--        0 => 'LINE 5'
+-        'VARCHAR_FIELD' => 'LINE 5'
 -    )
--    3 => Array &4 (
-         0 => 'LINE 6'
-     )
- )
+-    4 => Array &5 (
+-        'VARCHAR_FIELD' => 'LINE 6'
+-    )
+-)
++Array &0 ()
 
-C:\dev\github\ADOdb\unittest\CoreSqlTest.php:329
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:454
 
-13) CoreSqlTest::testSelectLimit with data set "Select Unbound, FETCH_ASSOC" (2, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', 4, 2, null)
+21) CoreSqlTest::testSelectLimit with data set "Select Unbound, FETCH_ASSOC" (2, array(array('LINE 6'), array('LINE 7'), array('LINE 8'), array('LINE 9')), 'SELECT testtable_3.varchar_fi..._field', 4, 2, null)
 ADOConnection::selectLimit()
 Failed asserting that two arrays are identical.
 --- Expected
 +++ Actual
 @@ @@
- Array &0 (
-     0 => Array &1 (
--        'varchar_field' => 'LINE 3'
-+        'varchar_field' => null
-     )
-     1 => Array &2 (
-         'varchar_field' => 'LINE 4'
+-Array &0 (
+-    0 => Array &1 (
+-        'VARCHAR_FIELD' => 'LINE 6'
+-    )
+-    1 => Array &2 (
+-        'VARCHAR_FIELD' => 'LINE 7'
+-    )
+-    2 => Array &3 (
+-        'VARCHAR_FIELD' => 'LINE 8'
+-    )
+-    3 => Array &4 (
+-        'VARCHAR_FIELD' => 'LINE 9'
+-    )
+-)
++Array &0 ()
 
-C:\dev\github\ADOdb\unittest\CoreSqlTest.php:404
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:544
 
-14) CoreSqlTest::testSelectLimit with data set "Select, Bound, FETCH_NUM" (1, array(array('LINE 3'), array('LINE 4'), array('LINE 5'), array('LINE 6')), 'SELECT testtable_1.varchar_fi... BY id', 4, 2, array('LINE 0'))
+22) CoreSqlTest::testSelectLimit with data set "Select, Bound, FETCH_NUM" (1, array(array('LINE 5'), array('LINE 6'), array('LINE 7'), array('LINE 8')), 'SELECT testtable_3.varchar_fi..._field', 4, 2, array(3))
 ADOConnection::selectLimit()
 Failed asserting that two arrays are identical.
 --- Expected
 +++ Actual
 @@ @@
- Array &0 (
-     0 => Array &1 (
--        0 => 'LINE 3'
-+        0 => 'LINE 5'
-     )
-     1 => Array &2 (
--        0 => 'LINE 4'
-+        0 => 'LINE 6'
-     )
-     2 => Array &3 (
+-Array &0 (
+-    0 => Array &1 (
 -        0 => 'LINE 5'
-+        0 => 'LINE 7'
-     )
-     3 => Array &4 (
+-    )
+-    1 => Array &2 (
 -        0 => 'LINE 6'
-+        0 => 'LINE 8'
-     )
- )
+-    )
+-    2 => Array &3 (
+-        0 => 'LINE 7'
+-    )
+-    3 => Array &4 (
+-        0 => 'LINE 8'
+-    )
+-)
++Array &0 ()
 
-C:\dev\github\ADOdb\unittest\CoreSqlTest.php:404
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:544
 
-15) CoreSqlTest::testSelectLimit with data set "Select Unbound, FETCH_ASSOC Get first record" (2, array(array('LINE 3')), 'SELECT testtable_1.varchar_fi... BY id', 1, -1, null)
+23) CoreSqlTest::testSelectLimit with data set "Select Unbound, FETCH_ASSOC Get first record" (2, array(array('2025-01-01')), 'SELECT testtable_3.date_field..._field', 1, -1, null)
 ADOConnection::selectLimit()
 Failed asserting that two arrays are identical.
 --- Expected
 +++ Actual
 @@ @@
- Array &0 (
-     0 => Array &1 (
--        'varchar_field' => 'LINE 3'
-+        'varchar_field' => null
-     )
- )
+-Array &0 (
+-    0 => Array &1 (
+-        'DATE_FIELD' => '2025-01-01'
+-    )
+-)
++Array &0 ()
 
-C:\dev\github\ADOdb\unittest\CoreSqlTest.php:404
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:544
 
-16) DataDictionaryTest::testBuildBasicTable
+24) CoreSqlTest::testCreateSequence
+CreateSequence should return true If a sequence is created successfully
+Failed asserting that ADORecordSet_empty Object &000000002c73efc80000000024ebf3a0 (
+    'dataProvider' => 'empty'
+    'databaseType' => false
+    'EOF' => true
+    '_numOfRows' => 0
+    'fields' => false
+    'connection' => false
+) is true.
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:617
+
+25) CoreSqlTest::testDropSequence
+DropSequence should return true If a sequence is dropped successfully
+Failed asserting that ADORecordSet_empty Object &000000002c73ee450000000024ebf3a0 (
+    'dataProvider' => 'empty'
+    'databaseType' => false
+    'EOF' => true
+    '_numOfRows' => 0
+    'fields' => false
+    'connection' => false
+) is true.
+
+C:\dev\github\ADOdb\unittest\CoreSqlTest.php:662
+
+26) DataDictionaryTest::testBuildBasicTable
 Test of CreateTableSQL
 Failed asserting that an array contains 'insertion_table'.
 
-C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:76
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:82
 
-17) DataDictionaryTest::testaddColumnToBasicTable
-Test of AddColumnSQL
-Failed asserting that an array has the key 'VARCHAR_FIELD'.
-
-C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:114
-
-18) DataDictionaryTest::testalterColumnInBasicTable
-Test of AlterColumnSQL
-Failed asserting that an array has the key 'VARCHAR_FIELD'.
-
-C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:143
-
-19) DataDictionaryTest::testRenameColumnInBasicTable
-Test of RenameColumnSQL
-Failed asserting that an array has the key 'ANOTHER_VARCHAR_FIELD'.
-
-C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:168
-
-20) DataDictionaryTest::testaddIndexToBasicTableViaString
+27) DataDictionaryTest::testaddIndexToBasicTableViaString
 Test of AddIndexSQL Using String For Fields
 Failed asserting that an array has the key 'insertion_index_1'.
 
-C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:237
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:304
 
-21) DataDictionaryTest::testaddIndexToBasicTableViaArray
+28) DataDictionaryTest::testaddIndexToBasicTableViaArray
 Test of AddIndexSQL Using Array For Fields
 Failed asserting that an array has the key 'insertion_index_2'.
 
-C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:269
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:346
 
-22) DateFunctionsTest::testFmtTimeStamp
+29) DataDictionaryTest::testRenameTable
+Test of renameTableSQL - renamed table exists
+Failed asserting that an array contains 'insertion_table_renamed'.
+
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:468
+
+30) DataDictionaryTest::testSetCommentSql
+Test of setCommentSQL - should return true if the comment was set successfully
+Failed asserting that false matches expected true.
+
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:597
+
+31) DataDictionaryTest::testGetCommentSql
+Test of getCommentSQL - should return the comment set previously
+Failed asserting that null matches expected 'varchar_test_comment'.
+
+C:\dev\github\ADOdb\unittest\DataDictionaryTest.php:628
+
+32) DateFunctionsTest::testDbDate
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-''2025-08-08''
++'TO_DATE('2025-08-08','YYYY-MM-DD')'
+
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:56
+
+33) DateFunctionsTest::testDbTimestamp
+dbTimestamp should return a quoted timestamp
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-''2025-08-08 21:33:28''
++'TO_DATE('2025-08-08 21:33:28','RRRR-MM-DD, HH24:MI:SS')'
+
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:88
+
+34) DateFunctionsTest::testBindTimestamp
+bindTimestamp should return a timestamp without quotes
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'2025-08-08 21:33:28'
++''2025-08-08 21:33:28''
+
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:106
+
+35) DateFunctionsTest::testSysTimestamp
+sysTimeStamp should return the current timestamp based on the server's timezone
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'2025-08-08 21:33:28'
++'2025-08-08'
+
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:147
+
+36) DateFunctionsTest::testFmtTimeStamp
 fmtTimeStamp should return a timestamp in the format set in the fmtTimeStamp property
-Failed asserting that 1753742184 is identical to '2025-07-28 16:36:24'.
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'2025-08-08 21:33:28'
++'TO_DATE(1754710408,'YYYY-MM-DD')'
 
 C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:173
 
-23) DateFunctionsTest::testSqlDate
-sqlDate should return the date in the format set in the first parameter
+37) DateFunctionsTest::testYear
+Test of year function
 Failed asserting that two strings are identical.
 --- Expected
 +++ Actual
 @@ @@
--'07/28/2025'
-+'m/d/Y'
+-'1959'
++''
 
-C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:271
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:197
 
-24) DateFunctionsTest::testOffsetDate
-Offset date should return the date 1 week in the future
-Failed asserting that 2032 is identical to '2025-08-04'.
+38) DateFunctionsTest::testMonth
+Test of month function
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-'08'
++''
 
-C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:351
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:223
 
-25) DbStringFunctionsTest::testQstr
-Qstr should have returned a string with the apostrophe escaped
-Failed asserting that 0 is identical to true.
+39) DateFunctionsTest::testDay
+Test of day function
+Failed asserting that two strings are identical.
+--- Expected
++++ Actual
+@@ @@
+-''
++'29'
 
-C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:93
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:250
 
-26) DbStringFunctionsTest::testAddq
-addQ should have returned a string with the apostrophe escaped
-Failed asserting that 1 is identical to true.
+40) DateFunctionsTest::testSqlDate
+sqlDate should return the date in the format set in the first parameter based on the date_field column
+Failed asserting that null is identical to '29/08/1959'.
 
-C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:144
+C:\dev\github\ADOdb\unittest\DateFunctionsTest.php:288
 
-27) DbStringFunctionsTest::testConcat
+41) DbStringFunctionsTest::testQstr
+All rows should have been updated with the test string
+Failed asserting that 0 is identical to 11.
+
+C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:80
+
+42) DbStringFunctionsTest::testAddq
+All rows should have been updated with the test string
+Failed asserting that 0 is identical to 11.
+
+C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:126
+
+43) DbStringFunctionsTest::testConcat
 3 value concat
-Failed asserting that null is identical to 'LINE 1|LINE 1'.
+Failed asserting that null is identical to 'LINE 10|LINE 10'.
 
-C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:171
+C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:170
 
-28) DbStringFunctionsTest::testIfNull
+44) DbStringFunctionsTest::testIfNull
 Test of ifnull function
 Failed asserting that null is identical to '1970-01-01'.
 
-C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:209
+C:\dev\github\ADOdb\unittest\DbStringFunctionsTest.php:208
 
-29) MetaFunctionsTest::testMetaTables with data set "Show only Views" (false, 'VIEWS', '')
-Failed asserting that true is identical to false.
+45) MetaFunctionsTest::testMetaTables with data set "Show both Tables & Views" (true, '', '')
+Failed asserting that false is identical to true.
 
-C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:54
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:62
 
-30) MetaFunctionsTest::testMetaTables with data set "Show only [V]iews" (false, 'V', '')
-Failed asserting that true is identical to false.
+46) MetaFunctionsTest::testMetaTables with data set "Show only Tables" (true, 'TABLES', '')
+Failed asserting that false is identical to true.
 
-C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:54
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:62
 
-31) MetaFunctionsTest::testMetaTables with data set "Show only tables beginning notest%" (false, '', 'notest%')
-Failed asserting that true is identical to false.
+47) MetaFunctionsTest::testMetaTables with data set "Show only [T]ables" (true, 'T', '')
+Failed asserting that false is identical to true.
 
-C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:54
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:62
 
-32) MetaFunctionsTest::testMetaTypes with data set "Field 0 Is INTEGER" ('I', 0)
+48) MetaFunctionsTest::testMetaTables with data set "Show only tables beginning test%" (true, '', 'test%')
+Failed asserting that false is identical to true.
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:62
+
+49) MetaFunctionsTest::testMetaColumnNames with data set "Returning Associative Array" (false, array('id', 'varchar_field', 'datetime_field', 'date_field', 'integer_field', 'decimal_field', 'boolean_field', 'empty_field', 'number_run_field'))
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 (
+-    'ID' => 'id'
+-    'VARCHAR_FIELD' => 'varchar_field'
+-    'DATETIME_FIELD' => 'datetime_field'
+-    'DATE_FIELD' => 'date_field'
+-    'INTEGER_FIELD' => 'integer_field'
+-    'DECIMAL_FIELD' => 'decimal_field'
+-    'BOOLEAN_FIELD' => 'boolean_field'
+-    'EMPTY_FIELD' => 'empty_field'
+-    'NUMBER_RUN_FIELD' => 'number_run_field'
++    'ID' => 'ID'
++    'VARCHAR_FIELD' => 'VARCHAR_FIELD'
++    'DATETIME_FIELD' => 'DATETIME_FIELD'
++    'DATE_FIELD' => 'DATE_FIELD'
++    'INTEGER_FIELD' => 'INTEGER_FIELD'
++    'DECIMAL_FIELD' => 'DECIMAL_FIELD'
++    'BOOLEAN_FIELD' => 'BOOLEAN_FIELD'
++    'EMPTY_FIELD' => 'EMPTY_FIELD'
++    'NUMBER_RUN_FIELD' => 'NUMBER_RUN_FIELD'
+ )
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:99
+
+50) MetaFunctionsTest::testMetaColumnNames with data set "Returning Numeric Array" (true, array('id', 'varchar_field', 'datetime_field', 'date_field', 'integer_field', 'decimal_field', 'boolean_field', 'empty_field', 'number_run_field'))
+Failed asserting that two arrays are identical.
+--- Expected
++++ Actual
+@@ @@
+ Array &0 (
+-    0 => 'id'
+-    1 => 'varchar_field'
+-    2 => 'datetime_field'
+-    3 => 'date_field'
+-    4 => 'integer_field'
+-    5 => 'decimal_field'
+-    6 => 'boolean_field'
+-    7 => 'empty_field'
+-    8 => 'number_run_field'
++    0 => 'ID'
++    1 => 'VARCHAR_FIELD'
++    2 => 'DATETIME_FIELD'
++    3 => 'DATE_FIELD'
++    4 => 'INTEGER_FIELD'
++    5 => 'DECIMAL_FIELD'
++    6 => 'BOOLEAN_FIELD'
++    7 => 'EMPTY_FIELD'
++    8 => 'NUMBER_RUN_FIELD'
+ )
+
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:99
+
+51) MetaFunctionsTest::testMetaTypes with data set "Field 6 Is BOOLEAN" ('L', 6)
 Checking MetaType
 Failed asserting that two strings are identical.
 --- Expected
 +++ Actual
 @@ @@
--'I'
-+'C'
+-'L'
++'I'
 
-C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:348
 
-33) MetaFunctionsTest::testMetaTypes with data set "Field 2 Is DATETIME" ('T', 2)
-Checking MetaType
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'T'
-+'C'
+52) VariablesTest::testQuotingExecute
+Data insertion should not succeed using Unquoted field and table names
+Failed asserting that ADORecordSet_empty Object &000000002c73e8a60000000024ebf3a0 (
+    'dataProvider' => 'empty'
+    'databaseType' => false
+    'EOF' => true
+    '_numOfRows' => 0
+    'fields' => false
+    'connection' => false
+) is identical to false.
 
-C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+C:\dev\github\ADOdb\unittest\VariablesTest.php:113
 
-34) MetaFunctionsTest::testMetaTypes with data set "Field 3 Is DATE" ('D', 3)
-Checking MetaType
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'D'
-+'C'
+53) VariablesTest::testFetchMode
+Row should have an id column
+Failed asserting that an array has the key 'ID'.
 
-C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+C:\dev\github\ADOdb\unittest\VariablesTest.php:174
 
-35) MetaFunctionsTest::testMetaTypes with data set "Field 4 Is INTEGER" ('I', 4)
-Checking MetaType
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'I'
-+'C'
+54) VariablesTest::testCountRecs
+With ADODB_COUNTRECS set to true, the record count should be 11
+Failed asserting that 0 matches expected 11.
 
-C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+C:\dev\github\ADOdb\unittest\VariablesTest.php:244
 
-36) MetaFunctionsTest::testMetaTypes with data set "Field 5 Is NUMBER" ('N', 5)
-Checking MetaType
-Failed asserting that two strings are identical.
---- Expected
-+++ Actual
-@@ @@
--'N'
-+'C'
+55) XmlSchemaTest::testXmlSchemaUpdate
+XML Schema creation failed
+Failed asserting that 0 is identical to 2.
 
-C:\dev\github\ADOdb\unittest\MetaFunctionsTest.php:270
+C:\dev\github\ADOdb\unittest\XmlSchemaTest.php:116
 
-37) VariablesTest::testQuotingExecute
-Data insertion should not succed using Unquoted field and table names
-Failed asserting that false is of type "object".
+56) XmlSchemaTest::testXmlSchemaCreation
+XML Schema update failed
+Failed asserting that 0 is identical to true.
 
-C:\dev\github\ADOdb\unittest\VariablesTest.php:76
-
-38) VariablesTest::testFetchMode
-Row should have a numeric column
-Failed asserting that an array has the key 0.
-
-C:\dev\github\ADOdb\unittest\VariablesTest.php:117
+C:\dev\github\ADOdb\unittest\XmlSchemaTest.php:201
 
 ERRORS!
-Tests: 96, Assertions: 141, Errors: 4, Failures: 38.
+Tests: 115, Assertions: 131, Errors: 9, Failures: 56, Warnings: 8, Skipped: 1.
