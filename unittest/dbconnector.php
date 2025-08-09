@@ -201,15 +201,16 @@ if (!file_exists($tableSchema)) {
 }
 
 $tableSql = file_get_contents($tableSchema);
-$tSql = explode(';', $tableSql);
+$tSql = preg_split('/;|(^\n)/', $tableSql);
 
 foreach ($tSql as $sql) {
-    if (trim($sql ?? '')) {
+    if (trim($sql ?? '') && !preg_match('/^--/', $sql)) {
         $db->execute($sql);
     }
 }
 
 $db->completeTrans();
+
 
 /*
 * Loads the test data into table 3
