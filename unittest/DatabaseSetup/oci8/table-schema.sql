@@ -8,8 +8,10 @@ DROP TABLE IF EXISTS testtable_1;
 
 DROP TABLE IF EXISTS testxmltable_1;
 
-DROP SEQUENCE testtable_3_seq;
-DROP SEQUENCE table_name_seq;
+DROP SEQUENCE IF EXISTS testtable_1_seq;
+DROP SEQUENCE IF EXISTS testtable_2_seq;
+DROP SEQUENCE IF EXISTS testtable_3_seq;
+DROP SEQUENCE IF EXISTS table_name_seq;
 
 CREATE TABLE testtable_1 (
 	id INTEGER NOT NULL,
@@ -42,7 +44,7 @@ CREATE TABLE testtable_2 (
 );
 CREATE UNIQUE INDEX vdx21 ON testtable_2 (integer_field,date_field);
  
-ALTER TABLE testtable_2 ADD CONSTRAINT fk_column
+ALTER TABLE testtable_2 ADD CONSTRAINT vdx21
     FOREIGN KEY (integer_field,date_field)
     REFERENCES testtable_1 (integer_field,date_field);
 
