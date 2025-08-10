@@ -52,6 +52,7 @@ if (!array_key_exists('ADOdb', $availableCredentials)) {
 $ADOdbSettings        = $availableCredentials['ADOdb'];
 if (!array_key_exists('casing', $ADOdbSettings)) {
     $ADOdbSettings['casing'] = 1; // 1= Upper Case
+    $availableCredentials['ADOdb']['casing'] = 1;
 }
 
 if (!array_key_exists('blob', $availableCredentials)) {
@@ -201,13 +202,18 @@ if (!file_exists($tableSchema)) {
 }
 
 $tableSql = file_get_contents($tableSchema);
-$tSql = preg_split('/;|(^\n)/', $tableSql);
+$tSql = preg_split('/(;[\r\n]|^\-\-.*[\r\n])/', $tableSql);
+$tSql = array_map('trim', $tSql);
+
+$tSql = array_filter($tSql);
 
 foreach ($tSql as $sql) {
+
     if (trim($sql ?? '') && !preg_match('/^--/', $sql)) {
         $db->execute($sql);
     }
 }
+
 
 $db->completeTrans();
 
@@ -224,8 +230,12 @@ if (!file_exists($table3Data)) {
 }
 
 $table3Sql = file_get_contents($table3Data);
-$t3Sql = explode(';', $table3Sql);
-foreach ($t3Sql as $sql) {
+$tSql = preg_split('/(;[\r|\n]|^\-\-*?[\r|\n])/', $table3Sql);
+$tSql = array_map('trim', $tSql);
+$tSql = array_filter($tSql);
+
+
+foreach ($tSql as $sql) {
     if (trim($sql ?? '')) {
         $db->execute($sql);
     }
