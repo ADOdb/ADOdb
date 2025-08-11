@@ -556,6 +556,7 @@ class ADODB_DataDict {
 	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
 	{
 		$tabname = $this->tableName($tabname);
+		$column_def = '';
 		if ($flds) {
 			list($lines,$pkey,$idxs) = $this->_genFields($flds);
 			// genfields can return FALSE at times
