@@ -29,6 +29,51 @@
 
 use PHPUnit\Framework\TestCase;
 
+/**
+ * Reads an external SQL file and executes its statements against the database.
+ * The format of the SQL file must match the database's SQL dialect.
+ *
+ * @param ADOConnection $db The database connection object.
+ * @param string $fileName The name of the SQL file to read.
+ * 
+ * @return void
+ */
+function readSqlIntoDatabase(ADOConnection $db, string $fileName) : void
+{
+    
+    if (!file_exists($fileName)) {
+        die('Schema ' . $fileName . ' file for unit testing not found');
+    }
+    $filePointer = fopen($fileName, 'r');
+    $executionPoint = '';
+    while ($filePointer && !feof($filePointer)) {
+        $line = fgets($filePointer);
+        $line = trim($line);
+        
+        if (!$line) {
+            continue; // skip empty lines
+        }
+        
+        if (substr($line, 0, 2) === '--') {
+            continue; // skip comments
+        }   
+
+        $executionPoint .= $line . ' ';
+        if (preg_match('/;$/', $line)) {
+            $executionPoint = trim($executionPoint, ';');
+            if ($executionPoint) {
+                $db->execute($executionPoint);
+            }
+            $executionPoint = ''; // reset for the next statement
+            continue; 
+        }
+        $executionPoint .= ' ';
+        
+    }
+    fclose($filePointer);
+}
+
+
 $iniFile = stream_resolve_include_path ('adodb-unittest.ini');
 
 if (!$iniFile) {
@@ -167,7 +212,12 @@ if ($credentials['parameters']) {
 }
 
 if ($credentials['dsn']) {
-    $db->connect($credentials['dsn']);
+    $db->connect(
+        $credentials['dsn'],
+        $credentials['user'],
+        $credentials['password'],
+        $credentials['database']
+    );
 } else {
     $db->connect(
         $credentials['host'],
@@ -189,7 +239,7 @@ $GLOBALS['ADOdriver']       = $adoDriver;
 $GLOBALS['ADOxmlSchema']    = false;
 $GLOBALS['TestingControl']  = $availableCredentials;
 
-$db->startTrans();
+//$db->startTrans();
 
 $tableSchema = sprintf(
     '%s/DatabaseSetup/%s/table-schema.sql', 
@@ -197,51 +247,16 @@ $tableSchema = sprintf(
     $adoDriver
 );
 
-if (!file_exists($tableSchema)) {
-    die('Schema file for unit testing not found');
-}
-
-$tableSql = file_get_contents($tableSchema);
-$tSql = preg_split('/(;[\r\n]|^\-\-.*[\r\n])/', $tableSql);
-$tSql = array_map('trim', $tSql);
-
-$tSql = array_filter($tSql);
-
-foreach ($tSql as $sql) {
-
-    if (trim($sql ?? '') && !preg_match('/^--/', $sql)) {
-        $db->execute($sql);
-    }
-}
-
-
-$db->completeTrans();
+readSqlIntoDatabase($db, $tableSchema);
 
 
 /*
-* Loads the test data into table 3
+* Reads common format data and nserts it into the database
 */
-$db->startTrans();
-
-
 $table3Data = sprintf('%s/DatabaseSetup/table3-data.sql', dirname(__FILE__));
-if (!file_exists($table3Data)) {
-    die('Data file for table 3 not found');
-}
 
-$table3Sql = file_get_contents($table3Data);
-$tSql = preg_split('/(;[\r|\n]|^\-\-*?[\r|\n])/', $table3Sql);
-$tSql = array_map('trim', $tSql);
-$tSql = array_filter($tSql);
+readSqlIntoDatabase($db, $table3Data);
 
-
-foreach ($tSql as $sql) {
-    if (trim($sql ?? '')) {
-        $db->execute($sql);
-    }
-}
-
-$db->completeTrans();
 
 
 /*
