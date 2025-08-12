@@ -2940,6 +2940,14 @@ if (!defined('_ADODB_LAYER')) {
 		return true;
 	}
 
+	/**
+	 * Return string with a database specific IFNULL statement 
+	 *
+	 * @param string $field
+	 * @param string $ifNull
+	 * 
+	 * @return void
+	 */
 	function IfNull( $field, $ifNull ) {
 		return " CASE WHEN $field is null THEN $ifNull ELSE $field END ";
 	}
