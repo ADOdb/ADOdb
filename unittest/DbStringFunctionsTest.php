@@ -155,22 +155,41 @@ class DbStringFunctionsTest extends TestCase
      */
     public function testConcat(): void
     {
-        $expectedValue = 'LINE 10|LINE 10';
+        
+        /*
+        * Find a record that has a varchar_field value
+        */
+
+        $sql = "SELECT number_run_field, varchar_field 
+                  FROM testtable_1 
+                 WHERE varchar_field IS NOT NULL";
+
+
+        $row = $this->db->getRow($sql);
+
+        $expectedValue = sprintf(
+            '%s|%s',
+            $row['varchar_field'],
+            $row['varchar_field']
+        );
+
         $field = $this->db->Concat('varchar_field', "'|'", 'varchar_field');
         
         $sql = "SELECT $field 
                   FROM testtable_1 
-                 WHERE varchar_field='LINE 10'";
+                 WHERE number_run_field={$row['number_run_field']}";
+
 
         $result = $this->db->getOne($sql);
-        
+
         $this->assertSame(
             $expectedValue,
             $result,
-            '3 value concat'
+            sprintf('3 value concat should return %s', $expectedValue)
         );
             
     }
+
 
     /**
      * Test for {@see ADODConnection::ifNull()}
@@ -182,13 +201,19 @@ class DbStringFunctionsTest extends TestCase
     public function testIfNull(): void
     {
 
+        
+        $sql = "SELECT number_run_field, date_field 
+                  FROM testtable_1 
+                 WHERE date_field IS NOT NULL";
+
+        $row = $this->db->getRow($sql);
        
         /*
         * Set up a test record that has a NULL value
         */
         $sql = "UPDATE testtable_1 
                    SET date_field = null 
-                 WHERE varchar_field='LINE 10'";
+                 WHERE number_run_field={$row['number_run_field']}";
 
         $this->db->Execute($sql);
         
@@ -198,15 +223,24 @@ class DbStringFunctionsTest extends TestCase
         $nineteenSeventy = $this->db->dbDate('1970-01-01');
         $sql = "SELECT {$this->db->ifNull('date_field',$nineteenSeventy)} 
                   FROM testtable_1 
-                 WHERE varchar_field='LINE 10'";
+                 WHERE number_run_field=2";
 
         $expectedResult = $this->db->getOne($sql);
         
         $this->assertSame(
             '1970-01-01',
             $expectedResult,
-            'Test of ifnull function'
+            'Test of ifnull function ' . $this->db->ifNull('date_field',$nineteenSeventy)
         );
+
+        /*
+        * Reset the date_field to a non-null value
+        */
+        $sql = "UPDATE testtable_1 
+                   SET date_field = {$this->db->dbDate($row['date_field'])} 
+                 WHERE number_run_field={$row['number_run_field']}";
+
+        $this->db->Execute($sql);
             
     }
 
