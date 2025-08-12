@@ -54,6 +54,18 @@ class ADODB_sqlite3 extends ADOConnection {
 		return $arr;
 	}
 
+	/**
+	 * Return string with a database specific IFNULL statement 
+	 *
+	 * @param string $field Field name to check for null
+	 * @param string $ifNull Value to return if $field is null
+	 * 
+	 * @return string
+	 */
+	function IfNull( $field, $ifNull ) {
+		return " IFNULL($field, $ifNull) "; // if SQLite 3.X
+	}
+
 	function BeginTrans()
 	{
 		if ($this->transOff) {
