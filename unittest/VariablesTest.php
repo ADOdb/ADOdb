@@ -233,9 +233,10 @@ class VariablesTest extends TestCase
     public function testCountRecs(): void
     {   
         global $ADODB_COUNTRECS;
+        $ADODB_COUNTRECS = true; // Set to true by default
 
  
-        $sql = "SELECT * FROM testtable_1";
+        $sql = "SELECT * FROM testtable_3";
         $result = $this->db->Execute($sql);
 
         $this->assertEquals(
