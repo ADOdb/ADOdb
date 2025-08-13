@@ -186,16 +186,20 @@ class DateFunctionsTest extends TestCase
         /*
         * Retrieve a record with a known year
         */
-        $sql = "SELECT {$this->db->year('date_field')} FROM testtable_1 WHERE varchar_field='LINE 9'";
+        
+        $sql = "SELECT {$this->db->year('date_field')} 
+                  FROM testtable_3 
+                 WHERE number_run_field=9";
 
         $testResult     = (string)$this->db->getOne($sql);
-        $expectedResult = (string)date('Y', strtotime('1959-08-29'));
+        $expectedResult = '1959';
         
         $this->assertSame( 
             $expectedResult, 
             $testResult,
-            'Test of year function'
+            'Expected year portion of date_field to be 1959'
         );
+       
     }
     
     /**
@@ -211,16 +215,16 @@ class DateFunctionsTest extends TestCase
         * Retrieve a record with a known month
         */
         $sql = "SELECT {$this->db->month('date_field')}
-                  FROM testtable_1 
-                 WHERE varchar_field='LINE 9'";
+                  FROM testtable_3 
+                 WHERE number_run_field=9";
 
         $testResult     = (string)$this->db->getOne($sql);
-        $expectedResult = (string)date('m', strtotime('1959-08-29'));
+        $expectedResult = '08';
         
         $this->assertSame(
             $expectedResult,
             $testResult,
-            'Test of month function'
+            'Test of month portion of date_field should be 08'
         );
     }
     
@@ -235,19 +239,20 @@ class DateFunctionsTest extends TestCase
     {
         
         /*
-        * Set up a test record that has a NULL value
+        * Retrieve a record with a known day
         */
         $sql = "SELECT {$this->db->day('date_field')} 
-                  FROM testtable_1 
-                 WHERE varchar_field='LINE 9'";
+                  FROM testtable_3 
+                 WHERE number_run_field=9"; 
+                
 
         $testResult 	= (string)$this->db->getOne($sql);
-        $expectedResult = (string)date('d', strtotime('1959-08-29'));
+        $expectedResult = '29';
         
         $this->assertSame(
             $testResult, 
             $expectedResult, 
-            'Test of day function'
+            'Test of day portion of date_field should be 29'
         );
     }
     
