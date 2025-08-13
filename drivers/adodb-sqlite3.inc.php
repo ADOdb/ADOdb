@@ -195,6 +195,8 @@ class ADODB_sqlite3 extends ADOConnection {
 
 		$arr = array();
 		while ($r = $rs->FetchRow()) {
+			$r = array_change_key_case($r, CASE_LOWER);
+
 			$type = explode('(', $r['type']);
 			$size = '';
 			if (sizeof($type) == 2) {
@@ -754,9 +756,20 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 		return false;
 	}
 
+	/**
+	 * Uses the SQLite3 fetchArray method to retrieve the next row.
+	 *
+	 * @param bool $ignore_fields discarded for SQLite3.
+	 *
+	 * @return bool
+	 */
 	function _fetch($ignore_fields=false)
 	{
 		$this->fields = $this->_queryID->fetchArray($this->fetchMode);
+		if (!empty($this->fields) && ADODB_ASSOC_CASE != ADODB_ASSOC_CASE_NATIVE) {
+			$this->fields = array_change_key_case($this->fields, ADODB_ASSOC_CASE);
+		}
+
 		return !empty($this->fields);
 	}
 
