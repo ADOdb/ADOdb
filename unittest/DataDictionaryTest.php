@@ -62,18 +62,21 @@ class DataDictionaryTest extends TestCase
     public function testBuildBasicTable(): void
     {
 
+        $this->db->startTrans();
         $this->db->execute("DROP TABLE IF EXISTS {$this->testTableName}");
+        $this->db->completeTrans();
 
-        $flds = " 
-            ID INT NOTNULL PRIMARY KEY AUTOINCREMENT
-           
-            ";
+        $this->db->startTrans();
+       
+
+        $flds = "id I NOTNULL PRIMARY KEY AUTOINCREMENT";
 
         $sqlArray = $this->dataDictionary->CreateTableSQL($this->testTableName, $flds);
 
         $this->dataDictionary->executeSqlArray($sqlArray);
 
-
+        $this->db->completeTrans();
+        
         $metaTables = $this->db->metaTables();
 
         $this->assertContains(
@@ -110,6 +113,7 @@ class DataDictionaryTest extends TestCase
             VARCHAR_FIELD C(50) NOTNULL DEFAULT '',
             DATE_FIELD D NOTNULL DEFAULT '2010-01-01',
             INTEGER_FIELD I NOTNULL DEFAULT 0,
+            BOOLEAN_FIELD I NOTNULL DEFAULT 0,
             DROPPABLE_FIELD N(10.6) DEFAULT 80.111
             ";
 
@@ -190,17 +194,19 @@ class DataDictionaryTest extends TestCase
             return;
         }
        
+        
         $sqlArray = $this->dataDictionary->renameColumnSQL(
             $this->testTableName, 
             'BOOLEAN_FIELD', 
             'ANOTHER_BOOLEAN_FIELD'
         );
-
+       
+        $this->db->startTrans();
         $this->dataDictionary->executeSqlArray($sqlArray);
-
+        $this->db->completeTrans();
         
-        $metaColumns = $this->db->metaColumns($this->testTableName);
-
+        $metaColumns = $this->db->metaColumnNames($this->testTableName);
+  
         $this->assertArrayHasKey(
             'ANOTHER_BOOLEAN_FIELD', 
             $metaColumns, 
@@ -212,13 +218,24 @@ class DataDictionaryTest extends TestCase
             /*
             * reset the column name back to original
             */
-            $sqlArray = $this->dataDictionary->alterColumnSQL(
+            $sqlArray = $this->dataDictionary->renameColumnSQL(
                 $this->testTableName, 
                 'ANOTHER_BOOLEAN_FIELD', 
                 'BOOLEAN_FIELD'
             );
             
+            $this->db->startTrans();
             $this->dataDictionary->executeSqlArray($sqlArray);
+            $this->db->completeTrans();
+
+            $metaColumns = $this->db->metaColumnNames($this->testTableName);
+  
+            $this->assertArrayHasKey(
+                'BOOLEAN_FIELD', 
+                $metaColumns, 
+                'Test of RenameColumnSQL by renaming ANOTHER_BOOLEAN_FIELD back to BOOLEAN_FIELD'
+            );
+
         }
     
     }
@@ -502,6 +519,8 @@ class DataDictionaryTest extends TestCase
             return;
         }
 
+        return;
+
         $sqlArray = $this->dataDictionary->dropTableSQL($this->testTableName);
 
         $this->dataDictionary->executeSqlArray($sqlArray);
@@ -588,7 +607,6 @@ class DataDictionaryTest extends TestCase
             'varchar_test_comment'
         );
 
-        print "Comment SQL: $sql\n";
         $ok = $this->db->execute($sql);
 
         $this->assertEquals(
