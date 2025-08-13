@@ -101,9 +101,9 @@ class XmlSchemaTest extends TestCase
         if (!$ok) {
             $this->assertTrue(
                 $ok,
-                'XML Schema parsing failed'
+                'XML Schema parsing for table update failed'
             );
-            $this->markTestSkipped('XML Schema parsing failed');
+            $this->markTestSkipped('XML Schema parsing failed updating table');
             $this->skipFollowingTests = true;
             return;
         }
@@ -113,7 +113,7 @@ class XmlSchemaTest extends TestCase
         $this->assertSame(
             2,
             $ok,
-            'XML Schema creation failed'
+            'XML Schema update failed after calling executeSchema()'
         );
     }
     
