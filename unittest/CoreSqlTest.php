@@ -248,14 +248,15 @@ class CoreSqlTest extends TestCase
     {
         $this->db->startTrans();
         if ($bind) {
+            $actualValue = (string)$this->db->getOne($sql, $bind);
             $this->assertSame(
                 $expectedValue, 
-                "{$this->db->getOne($sql,$bind)}",
+                $actualValue,
                 'Test of getOne with bind variables'
             );
         } else {
            
-            $actualValue = $this->db->getOne($sql);
+            $actualValue = (string)$this->db->getOne($sql);
 
             $this->assertSame(
                 $expectedValue, 
@@ -368,23 +369,37 @@ class CoreSqlTest extends TestCase
     public function testGetRow(int $expectedValue, string $sql, ?array $bind): void
     {
         
-        $fields = [ '0' => 'ID',
-                    '1' => 'VARCHAR_FIELD',
-                    '2' => 'DATETIME_FIELD',
-                    '3' => 'DATE_FIELD',
-                    '4' => 'INTEGER_FIELD',
-                    '5' => 'DECIMAL_FIELD',
-                    '6' => 'BOOLEAN_FIELD',
-                    '7' => 'EMPTY_FIELD',
-                    '8' => 'NUMBER_RUN_FIELD'
-                  ];
-
+        if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
+            $fields = [ '0' => 'ID',
+                        '1' => 'VARCHAR_FIELD',
+                        '2' => 'DATETIME_FIELD',
+                        '3' => 'DATE_FIELD',
+                        '4' => 'INTEGER_FIELD',
+                        '5' => 'DECIMAL_FIELD',
+                        '6' => 'BOOLEAN_FIELD',
+                        '7' => 'EMPTY_FIELD',
+                        '8' => 'NUMBER_RUN_FIELD'
+                      ];
+        } else {
+            $fields = [ '0' => 'id',
+                        '1' => 'varchar_field',
+                        '2' => 'datetime_field',
+                        '3' => 'date_field',
+                        '4' => 'integer_field',
+                        '5' => 'decimal_field',
+                        '6' => 'boolean_field',
+                        '7' => 'empty_field',
+                        '8' => 'number_run_field'
+                      ];
+        }
+        
+        
         $this->db->startTrans();
         if ($bind) {
             $this->db->setFetchMode(ADODB_FETCH_ASSOC);
-            //$this->db->debug = true;
+       
             $record = $this->db->getRow($sql, $bind);
-            //$this->db->debug = false;
+        
             foreach ($fields as $key => $value) {
                 $this->assertArrayHasKey(
                     $value, 
@@ -447,11 +462,11 @@ class CoreSqlTest extends TestCase
         } else {
             $returnedRows = $this->db->getAll($sql);
         }
-        
+
         $this->assertSame(
             $expectedValue,
             $returnedRows,
-            'getall() should return expected rows'
+            'getall() should return expected rows using casing ' . ADODB_ASSOC_CASE
         );
 
         $this->db->completeTrans();
@@ -469,12 +484,15 @@ class CoreSqlTest extends TestCase
         $bind = array('p1'=>2,
                       'p2'=>6
                     );
-        return [
-            'Unbound, FETCH_ASSOC' => 
+        
+        switch (ADODB_ASSOC_CASE) {
+            case ADODB_ASSOC_CASE_UPPER:
+                return [
+            'Unbound, FETCH_ASSOC,ASSOC_CASE_UPPER' => 
                 [ADODB_FETCH_ASSOC, 
                     array(
                         array('VARCHAR_FIELD'=>'LINE 2'),
-                        array('VARCHAR_FIELD'=>null),
+                        array('VARCHAR_FIELD'=>'LINE 3'),
                         array('VARCHAR_FIELD'=>'LINE 4'),
                         array('VARCHAR_FIELD'=>'LINE 5'),
                         array('VARCHAR_FIELD'=>'LINE 6')
@@ -499,6 +517,42 @@ class CoreSqlTest extends TestCase
 
                 ];
             */
+                break;
+            case ADODB_ASSOC_CASE_LOWER:
+               return [
+            'Unbound, FETCH_ASSOC, ASSOC_CASE_LOWER' => 
+                [ADODB_FETCH_ASSOC, 
+                    array(
+                        array('varchar_field'=>'LINE 2'),
+                        array('varchar_field'=>'LINE 3'),
+                        array('varchar_field'=>'LINE 4'),
+                        array('varchar_field'=>'LINE 5'),
+                        array('varchar_field'=>'LINE 6')
+                    ),
+                     "SELECT testtable_3.varchar_field 
+                        FROM testtable_3 
+                       WHERE number_run_field BETWEEN 2 AND 6
+                    ORDER BY number_run_field", null]];
+            /*
+            'Bound, FETCH_NUM' => 
+                [ADODB_FETCH_NUM, 
+                    array(
+                        array('0'=>'LINE 3'),
+                        array('0'=>'LINE 4'),
+                        array('0'=>'LINE 5'),
+                        array('0'=>'LINE 6')
+                        ),
+                    "SELECT testtable_3.varchar_field 
+                       FROM testtable_3 
+                      WHERE number_run_field BETWEEN $p1 AND $p2
+                   ORDER BY number_run_field", $bind],
+
+                ];
+            */
+                break;
+      
+        }
+       
     }
 
 

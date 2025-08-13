@@ -478,7 +478,7 @@ class CacheSqlTest extends TestCase
      *
      * @dataProvider providerTestCacheGetRow
      */
-    public function testCacheGetRow(int $expectedValue, string $sql, ?array $bind): void
+    public function testCacheGetRow(int $expectedValue, string $emptyColumn, string $sql, ?array $bind): void
     {
         global $ADODB_CACHE_DIR;
 
@@ -492,28 +492,35 @@ class CacheSqlTest extends TestCase
         */
         $this->setEmptyColumn('80111');
     
+        if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
 
-        $fields = [ 
-            '0' => 'id',
-            '1' => 'varchar_field',
-            '2' => 'datetime_field',
-            '3' => 'date_field',
-            '4' => 'integer_field',
-            '5' => 'decimal_field',
-            '6' => 'boolean_field',            
-            '7' => 'empty_field',
-            '8' => 'number_run_field'
-        ];
+            $fields = [ 
+                '0' => 'ID',
+                '1' => 'VARCHAR_FIELD',
+                '2' => 'DATETIME_FIELD',
+                '3' => 'DATE_FIELD',
+                '4' => 'INTEGER_FIELD',
+                '5' => 'DECIMAL_FIELD',
+                '6' => 'BOOLEAN_FIELD',            
+                '7' => 'EMPTY_FIELD',
+                '8' => 'NUMBER_RUN_FIELD'
+            ];
 
-        $fields = array_flip($fields);
+        } else {
+            $fields = [ 
+                'id',
+                'varchar_field',
+                'datetime_field',
+                'date_field',
+                'integer_field',
+                'decimal_field',
+                'boolean_field',            
+                'empty_field',
+                'number_run_field'
+            ];
+        }
 
-        $this->changeKeyCasing($fields);
-
-        $fields = array_flip($fields);
-
-
-        //$this->db->debug = true;
-        
+                
         if ($bind != null) {
 
             $this->db->setFetchMode(ADODB_FETCH_ASSOC);
@@ -563,7 +570,7 @@ class CacheSqlTest extends TestCase
 
             $this->assertSame(
                 '80111', 
-                $record['empty_field'], 
+                $record[$emptyColumn], 
                 'Checking that empty_field column is read from cache as 80111'
             );
         
@@ -579,8 +586,6 @@ class CacheSqlTest extends TestCase
                     'Checking if numeric key exists in fields array'
                 );
             }
-
-            //$this->db->debug = false;
            
             $this->assertSame(
                 '80111', 
@@ -604,9 +609,21 @@ class CacheSqlTest extends TestCase
             'p1'=>'LINE 11'
         );
 
+        switch (ADODB_ASSOC_CASE) {
+            case ADODB_ASSOC_CASE_UPPER:
+                $firstColumn = 'EMPTY_FIELD';
+            
+                break;
+            case ADODB_ASSOC_CASE_LOWER:
+            default:
+                $firstColumn = 'empty_field';
+              
+                break;
+           
+        }
         return [
-                [1, "SELECT * FROM testtable_3 ORDER BY number_run_field DESC", null],
-                [1, "SELECT * FROM testtable_3 WHERE varchar_field=$p1", $bind],
+                [1, $firstColumn, "SELECT * FROM testtable_3 ORDER BY number_run_field DESC", null],
+                [1, $firstColumn, "SELECT * FROM testtable_3 WHERE varchar_field=$p1", $bind],
             ];
     }
 
