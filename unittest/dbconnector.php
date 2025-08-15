@@ -58,7 +58,7 @@ function readSqlIntoDatabase(ADOConnection $db, string $fileName) : void
             continue; // skip comments
         }   
 
-        $executionPoint .= $line . ' ';
+        $executionPoint .= $line;
         if (preg_match('/;$/', $line)) {
             $executionPoint = trim($executionPoint, ';');
             if ($executionPoint) {
@@ -74,7 +74,7 @@ function readSqlIntoDatabase(ADOConnection $db, string $fileName) : void
 }
 
 
-$iniFile = stream_resolve_include_path ('adodb-unittest.ini');
+$iniFile = stream_resolve_include_path('adodb-unittest.ini');
 
 if (!$iniFile) {
     die('could not find adodb-unittest.ini in the PHP include_path');
