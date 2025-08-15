@@ -60,7 +60,6 @@ class CoreSqlTest extends TestCase
         $db->completeTrans();
 
         if ($table3DataExists) {
-            print "$table3DataExists records already exists in testtable_3, skipping data load.\n";
             // Data already exists, no need to reload
             return;
         }
@@ -664,11 +663,13 @@ class CoreSqlTest extends TestCase
     {
 
         $this->db->startTrans();
-        $ok = $this->db->CreateSequence('unittest_seq', 50);
+        $response = $this->db->CreateSequence('unittest_seq', 50);
         
+        $ok = is_object($response) && get_class($response) == 'ADORecordSet_empty';
+
         $this->assertTrue(
             $ok, 
-            'CreateSequence should return true If a sequence is created successfully'
+            'CreateSequence should return an ADORecordset_empty object If a sequence is created successfully'
         );
 
         $this->db->completeTrans();
@@ -709,11 +710,14 @@ class CoreSqlTest extends TestCase
     public function testDropSequence() : void
     {
         $this->db->startTrans();
-        $ok = $this->db->DropSequence('unittest_seq');
+        $response = $this->db->DropSequence('unittest_seq');
+
+        $ok = is_object($response) && get_class($response) == 'ADORecordSet_empty';
+
 
         $this->assertTrue(
             $ok, 
-            'DropSequence should return true If a sequence is dropped successfully'
+            'DropSequence should return an ADORecordset_empty object If a sequence is dropped successfully'
         );
 
         /*
