@@ -93,7 +93,15 @@ class VariablesTest extends TestCase
         /*
         * Fetch a template row from the table
         */
-        $sql = "SELECT * FROM `table_name` WHERE id=-1";
+
+        $quotedTable = sprintf(
+            '%stable_name%s', 
+            $this->db->nameQuote, 
+            $this->db->nameQuote
+        );
+
+        
+        $sql = "SELECT * FROM $quotedTable WHERE id=-1";
         $template = $this->db->execute($sql);
        
         $ar = array(
@@ -105,7 +113,9 @@ class VariablesTest extends TestCase
             $ar
         );
         
-        $success = $this->db->execute($sql);
+        $response = $this->db->execute($sql);
+
+        $success = is_object($response);
 
         $this->assertSame(
             false,
