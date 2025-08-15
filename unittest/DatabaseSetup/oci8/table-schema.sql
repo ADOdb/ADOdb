@@ -1,4 +1,4 @@
-- Standard format for the unit testing
+-- Standard format for the unit testing
 -- All drivers must have the same table and column structure
 -- so that all tests run the same way
 -- but this is native inserts so the column types may differ across databases
