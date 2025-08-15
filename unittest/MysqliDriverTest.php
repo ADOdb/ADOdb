@@ -34,6 +34,10 @@ class MysqliDriverTest extends TestCase
 
     protected bool $skipFollowingTests = false;
 
+    protected string $testTableName = 'insertion_table';
+    protected string $testIndexName1 = 'insertion_index_1';
+    protected string $testIndexName2 = 'insertion_index_2';
+
     /**
      * Set up the test environment
      *
@@ -44,6 +48,8 @@ class MysqliDriverTest extends TestCase
 
         $this->db        = &$GLOBALS['ADOdbConnection'];
         $this->adoDriver = $GLOBALS['ADOdriver'];
+        $this->dataDictionary = $GLOBALS['ADOdataDictionary'];
+
 
         if ($this->adoDriver !== 'mysqli') {
             $this->skipFollowingTests = true;
@@ -62,5 +68,99 @@ class MysqliDriverTest extends TestCase
     public function tearDown(): void
     {
         
+    }
+
+    
+
+
+    /**
+     * Tests setting a comment on a column using {@see ADODConnection::setCommentSQL()}
+     * using the mysql format which includes the column definition.
+     * 
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:setcommentsql
+     *
+     * @return void
+     */
+    public function testSetCommentSql(): void
+    {
+        if ($this->skipFollowingTests) {
+            $this->markTestSkipped(
+                'Skipping tests as the table was not created successfully'
+            );
+            return;
+        }
+
+        $sql = $this->dataDictionary->setCommentSQL(
+            $this->testTableName, 
+            "varchar_field varchar(50) NOT NULL DEFAULT ''",
+            'varchar_test_comment'
+        );
+
+       
+        $response = $this->db->execute($sql);
+
+        $ok = is_object($response);
+       
+        $this->assertEquals(
+            true,
+            $ok, 
+            'Test of setCommentSQL - should return an object if the comment was set successfully'
+        );
+
+        if (!$ok) {
+            return;          
+        }
+
+        $className = get_class($response);
+        $this->assertStringContainsString(
+            'ADORecordSet_',
+            $className,
+            'Test of setCommentSQL - should return an ADORecordset_ object'
+        );     
+    }
+
+    /**
+     * Tests getting a comment on a column
+     * 
+     * @see ADODConnection::getCommentSQL()
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:getcommentsql
+     *
+     * @return void
+     */
+    public function testGetCommentSql(): void
+    {
+        if ($this->skipFollowingTests) {
+            $this->markTestSkipped(
+                'Skipping tests as the table was not created successfully'
+            );
+            return;
+        }
+
+        $sql = $this->dataDictionary->getCommentSQL(
+            $this->testTableName, 
+            'varchar_field'
+        );
+      
+        $response = $this->db->execute($sql);
+
+        $ok = is_object($response);
+       
+        $this->assertEquals(
+            true,
+            $ok, 
+            'Test of getCommentSQL - should return an object if the comment was set successfully'
+        );
+
+        if (!$ok) {
+            return;          
+        }
+
+        $className = get_class($response);
+        $this->assertStringContainsString(
+            'ADORecordSet_',
+            $className,
+            'Test of getCommentSQL - should return an ADORecordset_mysqli object'
+        );     
+
     }
 }
