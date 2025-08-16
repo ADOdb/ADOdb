@@ -146,8 +146,10 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * The default is to use native case-names.
 	 *
+	 * The values of these constants match PHP's CASE_LOWER and CASE_UPPER.
+	 *
 	 * NOTE: This functionality is not implemented everywhere, it currently
-	 * works only with: mssql, odbc, oci8 and ibase derived drivers
+	 * works only with: mssql, odbc, oci8 and ibase derived drivers.
 	 */
 	define('ADODB_ASSOC_CASE_LOWER', 0);
 	define('ADODB_ASSOC_CASE_UPPER', 1);
@@ -2941,11 +2943,11 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Return string with a database specific IFNULL statement 
+	 * Return string with a database specific IFNULL statement
 	 *
 	 * @param string $field
 	 * @param string $ifNull
-	 * 
+	 *
 	 * @return void
 	 */
 	function IfNull( $field, $ifNull ) {
