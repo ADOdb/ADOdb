@@ -57,6 +57,11 @@ class XmlSchemaTest extends TestCase
             return;
         }
         $GLOBALS['ADOxmlSchema']  = new adoSchema($GLOBALS['ADOdbConnection']);
+
+        $GLOBALS['ADOdbConnection']->startTrans();
+        $GLOBALS['ADOdbConnection']->execute("DROP TABLE IF EXISTS testxmltable_1");
+        $GLOBALS['ADOdbConnection']->completeTrans();
+
     }
     
     /**
@@ -81,59 +86,51 @@ class XmlSchemaTest extends TestCase
         
     }
 
+    
     /**
-     * Test the XML Schema update
+     * Test the XML Schema creation
      *
      * @return void
      */
-    public function testXmlSchemaUpdate(): void
+    public function testXmlSchemaCreation(): void
     {
         if ($this->skipFollowingTests) {
             $this->markTestSkipped('Skipping XML Schema tests');
             return;
         }
-        
-        
-        $schemaFile = sprintf('%s/DatabaseSetup/xmlshemafile-update.xml', dirname(__FILE__));
+
+        $schemaFile = sprintf('%s/DatabaseSetup/xmlschemafile-create.xml', dirname(__FILE__));
+  
         
         $ok = $this->xmlSchema->parseSchema($schemaFile); 
         
         if (!$ok) {
             $this->assertTrue(
                 $ok,
-                'XML Schema parsing for table update failed'
+                'XML Schema Creation File parsing failed'
             );
-            $this->markTestSkipped('XML Schema parsing failed updating table');
+            $this->markTestSkipped('XML Schema Creation parsing failed');
             $this->skipFollowingTests = true;
             return;
         }
 
+
         $ok = $this->xmlSchema->executeSchema(); 
         
-        $this->assertSame(
-            2,
+        $this->assertSame
+        (
+            2, // Successful operations
             $ok,
-            'XML Schema update failed after calling executeSchema()'
+            'XML Schema Creation failed'
         );
-    }
-    
-    /**
-     * Test the loaded fields in the table
-     *
-     * @return void
-     */   
-    function testLoadedFields(): void
-    {
-        if ($this->skipFollowingTests) {
-            $this->markTestSkipped('Skipping XML Schema tests');
+        if ($ok !== 2) {
+            $this->markTestSkipped('Schema File Creation failed, skipping XML Schema tests');
             return;
         }
         
         $table = 'testxmltable_1';
         $fields = $this->db->MetaColumns($table);
     
-      
-
         $this->assertNotEmpty(
             $fields,
             'No fields found in the table'
@@ -163,57 +160,41 @@ class XmlSchemaTest extends TestCase
             'Field "decimal_fields" not found in the table'
         );
 
-    }   
+        /**
+         * Test the XML Schema update
+         *
+         */
+     
+        $schemaFile = sprintf('%s/DatabaseSetup/xmlschemafile-update.xml', dirname(__FILE__));
+        $this->assertFileExists(
+            $schemaFile,
+            'Schema file does not exist: ' . $schemaFile
+        );
 
-    /**
-     * Test the XML Schema creation
-     *
-     * @return void
-     */
-    public function testXmlSchemaCreation(): void
-    {
-        if ($this->skipFollowingTests) {
-            $this->markTestSkipped('Skipping XML Schema tests');
-            return;
-        }
 
-        $schemaFile = sprintf('%s/DatabaseSetup/xmlshemafile-create.xml', dirname(__FILE__));
-         
-        
         $ok = $this->xmlSchema->parseSchema($schemaFile); 
         
         if (!$ok) {
             $this->assertTrue(
                 $ok,
-                'XML Schema parsing failed'
+                'XML Schema parsing for table update failed'
             );
-            $this->markTestSkipped('XML Schema parsing failed');
+            $this->markTestSkipped('XML Schema parsing failed updating table');
             $this->skipFollowingTests = true;
             return;
         }
 
         $ok = $this->xmlSchema->executeSchema(); 
         
-        $this->assertSame
-        (
-            true, // Successful operations
+        $this->assertSame(
+            2,
             $ok,
-            'XML Schema update failed'
+            'XML Schema update failed after calling executeSchema()'
         );
-
-    }
- 
-    /**
-     * Test the update fields in the table
-     *
-     * @return void
-     */   
-    function testUpdatedFields(): void
-    {
-        if ($this->skipFollowingTests) {
-            $this->markTestSkipped('Skipping XML Schema tests');
-            return;
-        }
+      
+        /**
+        * Test the update fields in the table
+        */
         
         $table = 'testxmltable_1';
         $fields = $this->db->MetaColumns($table);
