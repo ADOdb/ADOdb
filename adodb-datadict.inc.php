@@ -1066,75 +1066,110 @@ class ADODB_DataDict {
 	 * This function changes/adds new fields to your table.
 	 *
 	 * You don't have to know if the col is new or not. It will check on its own.
-	 *
-	 * @param string   $tablename
-	 * @param string   $flds
-	 * @param string[] $tableoptions
-	 * @param bool     $dropOldFlds
+	 * If the $dropOldFlds parameter is set to true, it will drop the old fields, if
+	 * not set then any column not specified in the $flds parameter will be left as is,
+	 * wich means you can use this as a bulk update function.
+	 * 
+	 * @param string   $tablename    Table to modify
+	 * @param string   $flds         Fields to change/add, either as a string or an array
+	 * @param string[] $tableoptions Table options, see createTableSQL()
+	 *                               for more information, default false
+	 * @param bool     $dropOldFlds  If set to true, it will drop any old fields not specified in $flds,
 	 *
 	 * @return string[] Array of SQL Commands
 	 */
 	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
 	{
-	global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-		if ($this->connection->fetchMode !== false) $savem = $this->connection->setFetchMode(false);
-
+		if ($this->connection->fetchMode !== false) { 
+			$savem = $this->connection->setFetchMode(false);
+		}
 		// check table exists
 		$save_handler = $this->connection->raiseErrorFn;
 		$this->connection->raiseErrorFn = '';
-		$cols = $this->metaColumns($tablename);
-		$this->connection->raiseErrorFn = $save_handler;
 
-		if (isset($savem)) $this->connection->setFetchMode($savem);
-		$ADODB_FETCH_MODE = $save;
-
-		if ( empty($cols)) {
+		$existingTables = $this->connection->MetaTables('TABLE', $tablename);
+		if (!in_array($tablename, $existingTables)) {
+			/*
+			* Use the createTableSQL function to create the table
+			*/
+			$ADODB_FETCH_MODE = $save;
 			return $this->createTableSQL($tablename, $flds, $tableoptions);
 		}
 
-		$sql = [];
+		$metaColumns = $this->metaColumns($tablename);
+		$this->connection->raiseErrorFn = $save_handler;
+
+		if (isset($savem)) {
+			$this->connection->setFetchMode($savem);
+		}
+		
+		$ADODB_FETCH_MODE = $save;
+
 		if (is_array($flds)) {
+			return $this->changeTableFromArray($tablename, $flds, $metaColumns, $dropOldFlds);
+		} else {
+			return $this->changeTableFromString($tablename, $flds, $metaColumns, $dropOldFlds);
+		}
+
+	}
+
+	/**
+	 * This function changes/adds new fields to your table when passed as an array
+	 * called from the XMLschema parser
+	 *
+	 * @param string $tablename
+	 * @param array  $flds
+	 * @param array  $metaColumns
+	 * @param bool   $dropOldFlds
+	 *
+	 * @return string[] Array of SQL Commands
+	 */
+	protected function changeTableFromArray(string $tablename, array $flds, array $cols, bool $dropOldFlds) :array
+	{
+		
+		//if (is_array($flds)) {
 		// Cycle through the update fields, comparing
 		// existing fields to fields to update.
 		// if the Metatype and size is exactly the
 		// same, ignore - by Mark Newham
-			$holdflds = array();
-			$fields_to_add = [];
-			$fields_to_alter = [];
-			foreach($flds as $k=>$v) {
-				if ( isset($cols[$k]) && is_object($cols[$k]) ) {
-					// If already not allowing nulls, then don't change
-					$obj = $cols[$k];
-					if (isset($obj->not_null) && $obj->not_null)
-						$v = str_replace('NOT NULL','',$v);
-					if (isset($obj->auto_increment) && $obj->auto_increment && empty($v['AUTOINCREMENT']))
-					    $v = str_replace('AUTOINCREMENT','',$v);
+		$holdflds = array();
+		$fields_to_add = [];
+		$fields_to_alter = [];
+		foreach($flds as $k=>$v) {
+			if ( isset($cols[$k]) && is_object($cols[$k]) ) {
+				// If already not allowing nulls, then don't change
+				$obj = $cols[$k];
+				if (isset($obj->not_null) && $obj->not_null)
+					$v = str_replace('NOT NULL','',$v);
+				if (isset($obj->auto_increment) && $obj->auto_increment && empty($v['AUTOINCREMENT']))
+					$v = str_replace('AUTOINCREMENT','',$v);
 
-					$c = $cols[$k];
-					$ml = $c->max_length;
-					$mt = $this->metaType($c->type,$ml);
+				$c = $cols[$k];
+				$ml = $c->max_length;
+				$mt = $this->metaType($c->type,$ml);
 
-					if (isset($c->scale)) $sc = $c->scale;
-					else $sc = 99; // always force change if scale not known.
+				if (isset($c->scale)) $sc = $c->scale;
+				else $sc = 99; // always force change if scale not known.
 
-					if ($sc == -1) $sc = false;
-					list($fsize, $fprec) = $this->_getSizePrec($v['SIZE']);
+				if ($sc == -1) $sc = false;
+				list($fsize, $fprec) = $this->_getSizePrec($v['SIZE']);
 
-					if ($ml == -1) $ml = '';
-					if ($mt == 'X') $ml = $v['SIZE'];
-					if (($mt != $v['TYPE']) || ($ml != $fsize || $sc != $fprec) || (isset($v['AUTOINCREMENT']) && $v['AUTOINCREMENT'] != $obj->auto_increment)) {
-						$holdflds[$k] = $v;
-						$fields_to_alter[$k] = $v;
-					}
-				} else {
-					$fields_to_add[$k] = $v;
+				if ($ml == -1) $ml = '';
+				if ($mt == 'X') $ml = $v['SIZE'];
+				if (($mt != $v['TYPE']) || ($ml != $fsize || $sc != $fprec) || (isset($v['AUTOINCREMENT']) && $v['AUTOINCREMENT'] != $obj->auto_increment)) {
 					$holdflds[$k] = $v;
+					$fields_to_alter[$k] = $v;
 				}
+			} else {
+				$fields_to_add[$k] = $v;
+				$holdflds[$k] = $v;
 			}
-			$flds = $holdflds;
 		}
+		$flds = $holdflds;
+		//}
 
 		$sql = array_merge(
 			$this->addColumnSQL($tablename, $fields_to_add),
@@ -1149,5 +1184,227 @@ class ADODB_DataDict {
 			}
 		}
 		return $sql;
+	}
+
+	/**
+	 * This function changes/adds new fields to your table when passed as a string
+	 * Used from the public method changeTableSQL()
+	 *
+	 * You don't have to know if the col is new or not. It will check on its own.
+	 *
+	 * @param string $tablename Table to modify
+	 * @param string $sourceString The source string containing the new fields
+	 * @param array  $cols metaColumns array
+	 * @param bool   $dropOldFlds bool indicating whether to drop old fields or not
+	 *
+	 * @return string[] Array of SQL Commands
+	 */
+	protected function changeTableFromString(
+		string $tablename, 
+		string $sourceString, 
+		array $metaColumns, 
+		bool $dropOldFlds
+		) : array {
+
+		$sqlArray = [];
+
+		/*
+		* Converts the source into an ADOdb standard array
+		*/
+		$sourceArray = lens_ParseArgs($sourceString,',');
+		
+		$sourceArray = array_filter($sourceArray);
+
+		$processedColumns 		= [];
+		$columnsToAdd 			= [];
+		$columnsToAlter 		= [];
+		$notNullDisables    	= [];
+		$autoIncrementDisables 	= [];
+
+		/*
+		* The iteration checks for various conditions and splits the
+		* sourceArray into fields to add/change/delete.
+		*/
+
+		foreach($sourceArray as $k=>$v) {
+
+			$newColumnName   = $v[0];
+			$newMetaType     = $v[1];
+			$newMaxLength    = -1;
+			$newScale        = -1;
+			$newDefaultValue = false;
+
+			$requiresAutoIncrement = false;
+			$requiresDefaultValue  = false;
+
+			if ( isset($metaColumns[$newColumnName]) && is_object($metaColumns[$newColumnName]) ) {
+				
+				/*
+				* If the column already exists, we need to check if it needs to be altered.
+				* We check the meta type, max length, scale, auto_increment and default value
+				* to determine if an alteration is required.
+				*/
+				
+				// If already not allowing nulls, then don't change
+				$obj = $metaColumns[$newColumnName];
+				
+				if (isset($obj->not_null) && $obj->not_null){
+					$notNullIndex = array_search('NOT NULL', $v);
+					if ($notNullIndex !== false) {
+						// Remove NOT NULL from the field definition
+						///unset($v[$notNullIndex]);
+						$notNullDisables[$newColumnName] = true;
+					}
+					
+				}
+				
+				$requiresAutoIncrement = array_search('AUTOINCREMENT', $v);
+				if (isset($obj->auto_increment) && $obj->auto_increment) {
+					// If already auto_increment, then don't reapply
+					
+					if ($requiresAutoIncrement !== false) {
+						// Set flag to remove AUTOINCREMENT from the source field definition
+						$requiresAutoIncrement = false;
+						$autoIncrementDisables[$newColumnName] = true;
+					}
+					
+				}
+
+				$c = $metaColumns[$newColumnName];
+				
+				$currentMaxLength = $c->max_length;
+				
+				$currentMetaType = $this->metaType($c->type,$currentMaxLength);
+
+				/*
+				* Validates if a default value is set and if it is now
+				* or changed from the previous value.
+				*/
+				$defaultsIndex = array_search('DEFAULT', $v);
+				if ($defaultsIndex !== false) {
+					$newDefaultValue = $v[$defaultsIndex + 1];
+
+					if (!$c->has_default || ($c->has_default && $c->default_value != $newDefaultValue)) {
+						// If the default value is different, we need to alter it
+						$requiresDefaultValue = true;
+					}
+				}
+				if (isset($c->scale)) {
+					$currentScale = $c->scale;
+				} else {
+					$currentScale = 99; // always force change if scale not known.
+				}
+
+				if ($currentScale == -1) { 
+					$currentScale = false;
+				}
+
+				if ($currentMetaType == 'N') {
+					list($newMaxLength, $newScale) = $this->_getSizePrec($v[2]);
+				}
+				if ($currentMaxLength == -1) { 
+					$currentMaxLength = '';
+				}
+
+				if (in_array($currentMetaType,array('C','X','X2','XL'))) {
+
+					if (isset($v[2]) && is_numeric($v[2])) {
+						$newMaxLength = $v[2];
+					} 
+				}
+
+				/*
+				* Any of the following conditions will trigger an attemp
+				* to alter the column
+				*/
+				if ($currentMetaType != $newMetaType
+				|| ($currentMaxLength != $newMaxLength && $newMaxLength != -1) 
+				|| ($currentScale != $newScale && $newScale != -1)
+				|| $requiresAutoIncrement
+				|| $requiresDefaultValue
+				) {
+					$columnsToAlter[$newColumnName] = $v;
+				}
+			} else {
+				/*
+				* cannot find in the existing metaColumns
+				*/
+				$columnsToAdd[$newColumnName] = $v;
+			}
+			
+			/*
+			* Lists all of the processes columns, to be compared 
+			* against the existing columns in the table.
+			* This is used to determine which columns to drop.
+			*/
+			$processedColumns[$newColumnName] = $v;
+		}
+		
+
+		/*
+		* now take the source data, clean it and split it into add/change/delete 
+		*/
+		$targetArray = preg_split('/[\r\n]/',$sourceString);
+		$targetArray = array_map('trim', $targetArray);
+		$targetArray = array_filter($targetArray);
+		$targetArray = array_values($targetArray);
+		
+		$addColumnsArray = array();
+		$modColumnsArray = array();
+		
+
+		foreach($targetArray as $columnIndex=>$columnData) {
+
+			$vData = explode(' ',$columnData);
+			$newColumnName = trim($vData[0]);
+
+			/*
+			* we must check to see if we need to adjust the notnull or autoincrement
+			* settings for the column
+			*/
+			if (isset($notNullDisables[$newColumnName])) {
+				$columnData = str_replace('NOT NULL', '', $columnData);
+			}
+			
+			if (isset($autoIncrementDisables[$newColumnName])) {
+				$columnData = str_replace('AUTOINCREMENT', '', $columnData);
+			}
+
+			if (isset($columnsToAlter[$newColumnName])) {
+				$modColumnsArray[] = $columnData;
+			} else if (isset($columnsToAdd[$newColumnName])) {
+				// if the column is not in the table, then add it
+				$addColumnsArray[] = $columnData;
+			}
+		}
+
+		/*
+		* Reassemble the add and modify column strings back
+		* into ADOdb standard format
+		*/
+		$AddColumnsString = rtrim(implode("\r\n", $addColumnsArray),',');
+		$modColumnsString = rtrim(implode("\r\n", $modColumnsArray),',');
+
+		$sqlArray = array_merge(
+			$this->addColumnSQL($tablename, $AddColumnsString),
+			$this->alterColumnSql($tablename, $modColumnsString)
+		);
+
+
+		if ($dropOldFlds) {
+
+			$currentCols = array_keys($metaColumns);
+			$newCols	 = array_keys($processedColumns);
+			/*
+			* unpick the remaining columns that don't appear in the source data
+			* and drop them
+			*/
+			$dropFlds    = array_diff($currentCols, $newCols);
+			if (count($dropFlds) > 0) {
+				$dropSql     = $this->dropColumnSQL($tablename, $dropFlds);
+				$sqlArray = array_merge($sqlArray, $dropSql);
+			}
+		}
+		return $sqlArray;
 	}
 } // class
