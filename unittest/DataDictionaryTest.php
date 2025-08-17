@@ -201,12 +201,12 @@ class DataDictionaryTest extends TestCase
             'BOOLEAN_FIELD', 
             'ANOTHER_BOOLEAN_FIELD'
         );
-       
+
         $this->db->startTrans();
         $this->dataDictionary->executeSqlArray($sqlArray);
         $this->db->completeTrans();
         
-        $metaColumns = $this->db->metaColumnNames($this->testTableName);
+        $metaColumns = $this->db->metaColumns($this->testTableName);
   
         $this->assertArrayHasKey(
             'ANOTHER_BOOLEAN_FIELD', 
@@ -259,14 +259,14 @@ class DataDictionaryTest extends TestCase
             return;
         }
 
-        $this->db->startTrans();
+       
         $sqlArray = $this->dataDictionary->dropColumnSQL(
             $this->testTableName, 
             'DROPPABLE_FIELD'
         );
 
+        $this->db->startTrans();
         $this->dataDictionary->executeSqlArray($sqlArray);
-
         $this->db->completeTrans();
         
         $metaColumns = $this->db->metaColumns($this->testTableName);
@@ -354,7 +354,9 @@ class DataDictionaryTest extends TestCase
             $indexOptions
         );
 
+        $this->db->startTrans();
         $this->dataDictionary->executeSqlArray($sqlArray);
+        $this->db->completeTrans();
 
         $metaIndexes = $this->db->metaIndexes($this->testTableName);
 
@@ -386,7 +388,9 @@ class DataDictionaryTest extends TestCase
             $this->testTableName
         );
 
+        $this->db->startTrans();
         $this->dataDictionary->executeSqlArray($sqlArray);
+        $this->db->completeTrans();
 
         $metaIndexes = $this->db->metaIndexes($this->testTableName);
 
@@ -421,14 +425,17 @@ class DataDictionaryTest extends TestCase
 
         $sqlArray = $this->dataDictionary->changeTableSQL($this->testTableName, $flds);
 
+        $this->db->startTrans();
         $this->dataDictionary->executeSqlArray($sqlArray);
+        $this->db->completeTrans();
+
 
         $metaColumns = $this->db->metaColumns($this->testTableName);
 
-        $this->assertArrayNotHasKey(
+        $this->assertArrayHasKey(
             'INTEGER_FIELD', 
             $metaColumns, 
-            'Test of changeTableSQL - old column removed'
+            'Test of changeTableSQL - old column should be retained even if not in the new definition'
         );
 
         $this->assertArrayHasKey(
@@ -447,6 +454,29 @@ class DataDictionaryTest extends TestCase
         if (!array_key_exists('ANOTHER_VARCHAR_FIELD', $metaColumns)) {
             $this->skipFollowingTests = true;
         }
+
+        /*
+        * Now re-execute wth the drop flag set to true
+        */
+        $sqlArray = $this->dataDictionary->changeTableSQL(
+            $this->testTableName, 
+            $flds, 
+            false, 
+            true
+        );
+
+        $this->db->startTrans();
+        $this->dataDictionary->executeSqlArray($sqlArray);
+        $this->db->completeTrans();
+
+        $metaColumns = $this->db->metaColumns($this->testTableName);
+
+        $this->assertArrayNotHasKey(
+            'INTEGER_FIELD', 
+            $metaColumns, 
+            'Test of changeTableSQL - old column should be dropped as dropOldFlds is true'
+        );
+
     }
 
 
@@ -459,8 +489,7 @@ class DataDictionaryTest extends TestCase
      */
     public function testRenameTable(): void
     {
-        $this->db->startTrans();
-
+        
         if ($this->skipFollowingTests) {
             $this->markTestSkipped(
                 'Skipping tests as the table was not created successfully'
@@ -473,9 +502,9 @@ class DataDictionaryTest extends TestCase
             'insertion_table_renamed'
         );
               
-
+        
+        $this->db->startTrans();
         $this->dataDictionary->executeSqlArray($sqlArray);
-
         $this->db->completeTrans();
 
         $metaTables = $this->db->metaTables();
@@ -492,14 +521,14 @@ class DataDictionaryTest extends TestCase
             'Test of renameTableSQL - old table should not exist'
         );
 
-        $this->db->startTrans();
+       
         $sqlArray = $this->dataDictionary->renameTableSQL(
             'insertion_table_renamed',
             'insertion_table'
         );
-              
+       
+        $this->db->startTrans();
         $this->dataDictionary->executeSqlArray($sqlArray);
-
         $this->db->completeTrans();
        
     }
@@ -520,11 +549,12 @@ class DataDictionaryTest extends TestCase
             return;
         }
 
-        return;
-
+        
         $sqlArray = $this->dataDictionary->dropTableSQL($this->testTableName);
-
+        
+        $this->db->startTrans();
         $this->dataDictionary->executeSqlArray($sqlArray);
+        $this->db->completeTrans();
 
         $metaTables = $this->db->metaTables();
 
@@ -572,7 +602,10 @@ class DataDictionaryTest extends TestCase
         $dbName = 'unittest_database';
         $sqlArray = $this->dataDictionary->createDatabase($dbName);
 
+        $this->db->startTrans();
         $this->dataDictionary->executeSqlArray($sqlArray);
+        $this->db->completeTrans();
+        
 
         // Check if the database was created successfully
         $metaDatabases = $this->db->metaDatabases();
@@ -611,14 +644,7 @@ class DataDictionaryTest extends TestCase
             return;
         }
 
-        $sql = "SELECT 
-    obj_description(format('%s.%s',isc.table_schema,isc.table_name)::regclass::oid, 'pg_class') as table_description,
-    pg_catalog.col_description(format('%s.%s',isc.table_schema,isc.table_name)::regclass::oid,isc.ordinal_position) as column_description
-FROM
-    information_schema.columns isc";
-        print_r($this->db->getAll($sql));
-        return;
-
+        
         $sql = $this->dataDictionary->setColumnCommentSql(
             'testtable_1', 
             'varchar_field',
