@@ -29,7 +29,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 	var $dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
 
 	var $dropIndex = 'DROP INDEX %s ON %s';
-	var $renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';	// needs column-definition!
+	
 
 	public $blobAllowsNotNull = true;
 	
