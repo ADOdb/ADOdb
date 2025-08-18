@@ -323,6 +323,12 @@ class MetaFunctionsTest extends TestCase
             'Checking for foreign key field integer_field in testtable_2 foreign key testtable_1'
         );
 
+        $this->assertArrayHasKey(
+            'date_field', 
+            $executionResult['testtable_1'],
+            'Checking for foreign key field date_field in testtable_2 foreign key testtable_1'
+        );
+
     } 
     
     /**
