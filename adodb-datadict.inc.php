@@ -242,7 +242,16 @@ class ADODB_DataDict {
 		return $this->connection->metaIndexes($this->tableName($table), $primary, $owner);
 	}
 
-	function metaType($t,$len=-1,$fieldobj=false)
+	/**
+	 * Returns the meta type for a given type and length.
+	 *
+	 * @param mixed  $t        The object to test.
+	 * @param int    $len      The length of the field, if applicable.
+	 * @param object $fieldobj The field object, if available.
+	 *
+	 * @return string
+	 */
+	function metaType($t, $len=-1, $fieldobj=false)
 	{
 		static $typeMap = array(
 		'VARCHAR' => 'C',
@@ -414,23 +423,24 @@ class ADODB_DataDict {
 	}
 
 	/**
-	 	Returns the actual type given a character code.
-
-		C:  varchar
-		X:  CLOB (character large object) or largest varchar size if CLOB is not supported
-		C2: Multibyte varchar
-		X2: Multibyte CLOB
-
-		B:  BLOB (binary large object)
-
-		D:  Date
-		T:  Date-time
-		L:  Integer field suitable for storing booleans (0 or 1)
-		I:  Integer
-		F:  Floating point number
-		N:  Numeric or decimal number
-	*/
-
+	 * Returns the actual type for a given meta type.
+	 *
+	 * @param string $meta The meta type to convert:
+	 * - C:  varchar
+	 * - X:  CLOB (character large object) or
+	 *       largest varchar size if CLOB is not supported
+	 * - C2: Multibyte varchar
+	 * - X2: Multibyte CLOB
+	 * - B:  BLOB (binary large object)
+	 * - D:  Date
+	 * - T:  Date-time
+	 * - L:  Integer field suitable for storing booleans (0 or 1)
+	 * - I:  Integer
+	 * - F:  Floating point number
+	 * - N:  Numeric or decimal number
+	 *
+	 * @return string The actual type corresponding to the meta type.
+	 */
 	function actualType($meta)
 	{
 		$meta = strtoupper($meta);
@@ -908,19 +918,19 @@ class ADODB_DataDict {
 
 
 	/**
-	 * Construct an database specific SQL string of constraints for column.
+	 * Construct a database specific SQL string of constraints for column.
 	 *
-	 * @param string $fname         column name
-	 * @param string & $ftype       column type
-	 * @param bool   $fnotnull      NOT NULL flag
-	 * @param string|bool $fdefault DEFAULT value
-	 * @param bool   $fautoinc      AUTOINCREMENT flag
-	 * @param string $fconstraint   CONSTRAINT value
-	 * @param bool   $funsigned     UNSIGNED flag
-	 * @param string|bool $fprimary PRIMARY value
-	 * @param array  & $pkey        array of primary key column names
+	 * @param string $fname         Column name.
+	 * @param string & $ftype       Column type.
+	 * @param bool   $fnotnull      Whether the column is NOT NULL.
+	 * @param string|bool $fdefault The column's default value.
+	 * @param bool   $fautoinc      Whether the column is auto-incrementing.
+	 * @param string $fconstraint   Any additional constraints for the column.
+	 * @param bool   $funsigned     Whether the column is unsigned.
+	 * @param string|bool $fprimary Whether the column is a primary key.
+	 * @param array  & $pkey        The primary key definition (list of column names), if applicable.
 	 *
-	 * @return string Combined constraint string, must start with a space
+	 * @return string Combined constraint string, must start with a space.
 	 */
 	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
@@ -931,6 +941,16 @@ class ADODB_DataDict {
 		return $suffix;
 	}
 
+	/**
+	 * Creates the SQL statements to create or replace an index.
+	 *
+	 * @param string $idxname    The name of the index.
+	 * @param string $tabname    The name of the table.
+	 * @param mixed  $flds       The fields for the index, as a string or array.
+	 * @param array  $idxoptions Options for the index, such as UNIQUE, FULLTEXT, etc.
+	 *
+	 * @return array SQL statements to create or replace the index.
+	 */
 	function _indexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
