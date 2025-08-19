@@ -42,6 +42,46 @@ class DateFunctionsTest extends TestCase
     }
     
     /**
+     * Test for {@see ADOConnection::userDate()}
+     * 
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:userdate
+     *
+     * @return void
+     */
+    public function testUserDate(): void
+    {
+        $expected = date('Y-m-d');
+        $time     = time();
+       
+        
+        $this->assertSame(
+            $expected, 
+            $this->db->userDate($time, 'Y-m-d'), 
+            'userDate should return a date string built from the given timestamp'
+        );
+    }
+
+    /**
+     * Test for {@see ADOConnection::userTime()}
+     * 
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:usertime
+     *
+     * @return void
+     */
+    public function testUserTimeStamp(): void
+    {
+        $expected = date('Y-m-d H:i:s');
+        $time     = time();
+        
+        $this->assertSame(
+            $expected, 
+            $this->db->userTimeStamp($time), 
+            'userTimeStamp should return a time string built from the given timestamp'
+        );
+    }
+    
+    
+    /**
      * Test for {@see ADOConnection::dbDate())
      * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:dbdate
