@@ -346,7 +346,7 @@ class MetaFunctionsTest extends TestCase
      * 
      * @return void
      */
-    public function testMetaTypes(?string $metaType,int $offset): void
+    public function testMetaTypes(mixed $metaType,int $offset): void
     {
         $executionResult = $this->db->execute('SELECT * FROM testtable_1');
 
@@ -392,7 +392,7 @@ class MetaFunctionsTest extends TestCase
             'Field 6 Is BOOLEAN' => ['L',6],
             'Field 7 Is VARCHAR' => ['C',7],
             'Field 8 Is INTEGER' => ['I',8],
-            'Field 9 Does not Exist' => [null,9],
+            'Field 9 Does not Exist' => [false,9],
     
              
         ];
@@ -439,6 +439,69 @@ class MetaFunctionsTest extends TestCase
             $executionResult,
             'Checking for mandatory key "description" in serverInfo'
         );
+    }
+
+    /**
+     * Test for errors when a meta function is called on an invalid table
+     *
+     * @return void
+     */
+    public function testMetaFunctionsForInvalidTable(): void
+    {
+        
+        
+        $response = $this->db->metaColumns('invalid_table');
+
+        $this->assertTrue(
+            $this->db->errorNo() > 0,
+            'Checking for error when querying metaColumns for an invalid table'
+        );
+
+        $this->assetFalse(
+            $response,
+            'Checking that metaColumns returns false for an invalid table'
+        );
+
+        $response = $this->db->metaColumnNames('invalid_table');
+
+        $this->assertTrue(
+            $this->db->errorNo() > 0,
+            'Checking for error when querying metaColumnNames for an invalid table'
+        );
+
+        $this->assetFalse(
+            $response,
+            'Checking that metaColumnNames returns false for an invalid table'
+        );
+
+        $response = $this->db->metaIndexes('invalid_table');
+        $this->assertTrue(
+            $this->db->errorNo() > 0,
+            'Checking for error when querying metaIndexes for an invalid table'
+        );
+        $this->assetFalse(
+            $response,
+            'Checking that metaIndexes returns false for an invalid table'
+        );
+        $response = $this->db->metaPrimaryKeys('invalid_table');
+        $this->assertTrue(
+            $this->db->errorNo() > 0,
+            'Checking for error when querying metaPrimaryKeys for an invalid table'
+        );
+        $this->assetFalse(
+            $response,
+            'Checking that metaPrimaryKeys returns false for an invalid table'
+        );
+        $response = $this->db->metaForeignKeys('invalid_table');
+        $this->assertTrue(
+            $this->db->errorNo() > 0,
+            'Checking for error when querying metaForeignKeys for an invalid table'
+        );
+        $this->assetFalse(
+            $response,
+            'Checking that metaForeignKeys returns false for an invalid table'
+        );
+        
     }
     
 }
