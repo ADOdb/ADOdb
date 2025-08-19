@@ -445,12 +445,11 @@ class ADODB_DataDict {
 	{
 		$meta = strtoupper($meta);
 
-		/*
-		* Add support for custom meta types. We do this
-		* first, that allows us to override existing types
-		*/
-		if (isset($this->connection->customMetaTypes[$meta]))
+		// Add support for custom meta types. We do this
+		// first, that allows us to override existing types
+		if (isset($this->connection->customMetaTypes[$meta])) {
 			return $this->connection->customMetaTypes[$meta]['actual'];
+		}
 
 		return $meta;
 	}
