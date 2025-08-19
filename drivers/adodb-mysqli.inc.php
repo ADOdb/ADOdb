@@ -1565,6 +1565,12 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 */
 	function FetchField($fieldOffset = -1)
 	{
+		if ($fieldOffset < -1 || $fieldOffset >= $this->_numOfFields) {
+			if ($this->connection->debug) {
+				ADOConnection::outp("FetchField: field offset out of range: $fieldOffset");
+			}
+			return false;
+		}
 		$fieldnr = $fieldOffset;
 		if ($fieldOffset != -1) {
 			@mysqli_field_seek($this->_queryID, $fieldnr);
