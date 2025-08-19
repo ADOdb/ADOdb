@@ -543,13 +543,13 @@ class ADODB_DataDict {
 	 * Rename one column.
 	 *
 	 * Some DBs can only do this together with changing the type of the column
-	 * (even if that stays the same, eg. MySQL).
+	 * (even if that stays the same, eg. MySQL < 8.0).
 	 *
 	 * @param string $tabname   Table name.
 	 * @param string $oldcolumn Column to be renamed.
 	 * @param string $newcolumn New column name.
 	 * @param string $flds      Complete column definition string like for {@see addColumnSQL};
-	 *                          This is currently only used by MySQL. Defaults to ''.
+	 *                          This is currently only used by MySQL < 8.0. Defaults to ''.
 	 *
 	 * @return array SQL statements.
 	 */

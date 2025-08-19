@@ -29,7 +29,6 @@ class ADODB2_mysql extends ADODB_DataDict {
 	var $dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
 
 	var $dropIndex = 'DROP INDEX %s ON %s';
-	
 
 	public $blobAllowsNotNull = true;
 	
@@ -212,5 +211,32 @@ class ADODB2_mysql extends ADODB_DataDict {
 		$sql[] = $s;
 
 		return $sql;
+	}
+
+	/**
+	 * Rename one column.
+	 *
+	 * MySQL < 8.0 does not support the standard `RENAME COLUMN` SQL syntax,
+	 * so the $flds parameter must be provided.
+	 *
+	 * @param string $tabname   Table name.
+	 * @param string $oldcolumn Column to be renamed.
+	 * @param string $newcolumn New column name.
+	 * @param string $flds      Complete column definition string like for {@see addColumnSQL};
+	 *                          This is currently only used by MySQL < 8.0. Defaults to ''.
+	 *
+	 * @return array SQL statements.
+	 */
+	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
+	{
+		$version = $this->connection->ServerInfo();
+
+		if (version_compare($version['version'], '8.0', '<')) {
+			$this->renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';
+		} else {
+			$flds = '';
+		}
+
+		return parent::renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds);
 	}
 }
