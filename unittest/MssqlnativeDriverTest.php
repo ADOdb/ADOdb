@@ -63,4 +63,68 @@ class MssqlnativeDriverTest extends TestCase
     {
         
     }
+
+    /**
+     * Test the SQLDate function. Cloned from the original test_mssqlnative.php
+     * 
+     * @param string $dateFormat The date to test
+     * @param string $field      The field to test
+     * @param string $region     The region to test
+     * @param string $result     The expected result
+     * 
+     * @dataProvider providerSqlDate
+     * 
+     * @return void
+     */
+    public function testSqlDate(string $dateFormat, string $field, string $region,string $result) :void {
+        
+        if ($this->skipFollowingTests) {
+            $this->markTestSkipped('Skipping testSqlDate as it is not applicable for the current driver');
+        }
+
+        $sql = "SELECT testdate, {$this->db->sqlDate($dateFormat,$field)} $region, null 
+                  FROM (
+                SELECT CONVERT(DATETIME,'2016-12-17 18:55:30.590' ,121) testdate,
+                       CONVERT(DATETIME,'2016-01-01 18:55:30.590' ,121) testdatesmall,
+                null nulldate
+                ) q ";
+        
+        $res = $this->db->GetRow($sql);
+       
+        $this->assertEquals(
+            $res['region'], 
+            $result, 
+            'SQL Date format for region ' . $region . ' should match expected format'
+        );
+    }   
+
+    /**
+     * Data provider for testSqlDate
+     *
+     * @return array
+     */
+    public function providerSQLDate() : array
+    {
+        return [
+              
+            ["d/m/Y", "testdate" ," FR4","17/12/2016"],
+            ["d/m/y", "testdate" ," FR4b", "17/12/2016",],
+            ["d/m/Y", "NULL", "nullFR4", null],
+            ["m/d/Y", "testdate" , " US4", "12/17/2016"],
+            ["m/d/y", "testdate" , " US4b", "12/17/2016"],
+            ["m-d-Y", "testdate" , " USD4", "17-12-2016"],
+            ["m-d-y", "testdate" , " USD4b", "17-12-2016"],
+            ["Y.m.d", "testdate" , " ANSI4", "2016.12.17"],
+            ["d.m.Y", "testdate" , " GE4", "17.12.2016"],
+            ["d.m.y", "testdate" , " GE4b", "17.12.2016"],
+            ["d-m-Y", "testdate" , " IT4", "17-12-2016"],
+            ["d-m-y", "testdate" , " IT4b", "17-12-2016"],
+            ["Y/m/d", "testdate" , " Japan4", "2016/12/17"],
+            ["y/m/d", "testdate" , " Japan4b", "2016/12/17"],
+            ["H:i:s", "testdate" ,  " timeonly","18:55:30"],
+            ["d m Y",  "testdate" ," Space4","17 12 2016"],  // Is done by former method
+            ["d m Y",  "NULL" ," nullSpace4","null"],
+            ["m-d-Y","testdatesmall"," nowUSdash4","01-01-2016"]
+        ];
+    }
 }
