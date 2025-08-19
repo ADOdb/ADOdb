@@ -17,7 +17,9 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
- */
+*
+* @deprecated Replaced by unittest/MssqlnativeDriverTest.php
+*/
 
 error_reporting(E_ALL|E_STRICT);
 
