@@ -353,9 +353,6 @@ class MetaFunctionsTest extends TestCase
         $metaResult = false;
         $metaFetch = $executionResult->fetchField($offset);
 
-        //print "MetaFetch:   metaFetch\n";
-        //print_r($metaFetch);
-
         if ($metaFetch != false) {
             $metaResult = $executionResult->metaType($metaFetch->type);
         }
