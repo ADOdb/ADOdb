@@ -47,15 +47,19 @@ class MetaFunctionsTest extends TestCase
      *
      * @dataProvider providerTestMetaTables
      * 
-     * @param bool $includesTable1
+     * @param bool   $includesTable1
      * @param string $filterType
      * @param string $mask
      * 
      * @return void
      */
-    public function testMetaTables(bool $includesTable1,string $filterType, string $mask): void
+    public function testMetaTables(bool $includesTable1,string $filterType, string $mask) : void
     {
-        $executionResult = $this->db->metaTables($filterType);
+        $executionResult = $this->db->metaTables(
+            $filterType, 
+            $this->db->database, 
+            $mask
+        );
 
         $this->assertSame(
             $includesTable1, 
@@ -78,7 +82,7 @@ class MetaFunctionsTest extends TestCase
             'Show only [V]iews' => [false,'V',''],
             'Show only tables beginning test%' => [true,'','test%'],
             'Show only tables beginning notest%' => [false,'','notest%'],
-            ];
+           ];
     }
     
     /**
@@ -86,7 +90,7 @@ class MetaFunctionsTest extends TestCase
      *
      * @dataProvider providerTestMetaColumnNames
      * 
-     * @param bool $returnType
+     * @param bool  $returnType
      * @param array $expectedResult
      * 
      * @return void
