@@ -350,11 +350,19 @@ class MetaFunctionsTest extends TestCase
     {
         $executionResult = $this->db->execute('SELECT * FROM testtable_1');
 
-        $actualResult = $executionResult->metaType($executionResult->fetchField($offset)->type);
+        $metaResult = false;
+        $metaFetch = $executionResult->fetchField($offset);
+
+        //print "MetaFetch:   metaFetch\n";
+        //print_r($metaFetch);
+
+        if ($metaFetch != false) {
+            $metaResult = $executionResult->metaType($metaFetch->type);
+        }
 
         $this->assertSame(
             $metaType, 
-            $actualResult,
+            $metaResult,
             'Checking MetaType'
         );
     }
