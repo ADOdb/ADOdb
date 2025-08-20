@@ -457,7 +457,7 @@ class MetaFunctionsTest extends TestCase
             'Checking for error when querying metaColumns for an invalid table'
         );
 
-        $this->assetFalse(
+        $this->assertFalse(
             $response,
             'Checking that metaColumns returns false for an invalid table'
         );
@@ -469,7 +469,7 @@ class MetaFunctionsTest extends TestCase
             'Checking for error when querying metaColumnNames for an invalid table'
         );
 
-        $this->assetFalse(
+        $this->assertFalse(
             $response,
             'Checking that metaColumnNames returns false for an invalid table'
         );
@@ -479,7 +479,7 @@ class MetaFunctionsTest extends TestCase
             $this->db->errorNo() > 0,
             'Checking for error when querying metaIndexes for an invalid table'
         );
-        $this->assetFalse(
+        $this->assertFalse(
             $response,
             'Checking that metaIndexes returns false for an invalid table'
         );
@@ -488,7 +488,7 @@ class MetaFunctionsTest extends TestCase
             $this->db->errorNo() > 0,
             'Checking for error when querying metaPrimaryKeys for an invalid table'
         );
-        $this->assetFalse(
+        $this->assertFalse(
             $response,
             'Checking that metaPrimaryKeys returns false for an invalid table'
         );
@@ -497,7 +497,7 @@ class MetaFunctionsTest extends TestCase
             $this->db->errorNo() > 0,
             'Checking for error when querying metaForeignKeys for an invalid table'
         );
-        $this->assetFalse(
+        $this->assertFalse(
             $response,
             'Checking that metaForeignKeys returns false for an invalid table'
         );
