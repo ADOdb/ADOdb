@@ -406,6 +406,84 @@ class DateFunctionsTest extends TestCase
             $this->db->getOne($sql), 
             'Offset date should return the date 1 week in the past'
         );
+
+        /*
+        * Test using a timestamp basedate to test the effect 
+        * of the time of day and a fractional offset
+        */
+        $offset = 1.5; // 12 hours
+        
+        $nowStamp = date('Y-m-d', strtotime('now + 36 hours'));
+        
+        $sql = "SELECT " . $this->db->offsetDate($offset, date('Y-m-d H:i'));
+    
+        $this->assertSame(
+            "$nowStamp", 
+            $this->db->getOne($sql), 
+            'Offset date using hours should return the date 12 hours from now based on the current time of day'
+        );
+
+        /*
+        * Test using a column as the base date
+        */
+        $SQL = "SELECT date_field 
+                  FROM testtable_3 
+                 WHERE number_run_field=9";
+
+        $dateField = $this->db->getOne($SQL);
+
+        $nowStamp = date('Y-m-d', strtotime($dateField . ' + 7 days'));
+
+        $offset = 7; // 1 week
+        $sql = "SELECT {$this->db->offsetDate($offset, 'date_field')}
+                  FROM testtable_3 
+                 WHERE number_run_field=9";
+
+        $this->assertSame(
+            "$nowStamp",
+            $this->db->getOne($sql),
+            'Offset date using a column as the base date should return the date 1 week in the future based on the date_field column'
+        );
+    }
+
+    /**
+     * Test for {@see ADOConnection::offsetDate())
+     * 
+     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:offsetdate
+     * 
+     * @return void
+     */
+    public function testOffsetDateUsingHours(): void
+    {
+        
+        $offset = 7;
+        $nowStamp = date('Y-m-d', strtotime('today +7 days'));
+        
+        $offsetHours = sprintf('%d/24', $offset * 24); // Convert days to hours
+
+
+        $sql = "SELECT " . $this->db->offsetDate($offsetHours);
+    
+        $this->assertSame(
+            "$nowStamp", 
+            $this->db->getOne($sql), 
+            'Offset date using hours should return the date 1 week in the future'
+        );
+    
+        $offset = -7;
+        $nowStamp = date('Y-m-d', strtotime('today -7 days'));
+
+        $offsetHours = sprintf('%s/24', $offset * 24); // Convert days to hours
+        
+        $sql = "SELECT " . $this->db->offsetDate($offsetHours);
+    
+        $this->assertSame(
+            "$nowStamp", 
+            $this->db->getOne($sql), 
+            'Offset date using hours should return the date 1 week in the past'
+        );
+
+        
     }
 
 }
