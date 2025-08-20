@@ -823,10 +823,72 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function OffsetDate($dayFraction, $date = false)
 	{
-		if (!$date) $date = $this->sysDate;
+		if (!$date) { 
+			/*
+			* If no date is specified, we use the current date
+			*/
+			$date = $this->sysDate;
 
-		$fraction = $dayFraction * 24 * 3600;
-		return $date . ' + INTERVAL ' .	 $fraction.' SECOND';
+		} else if (preg_match('/(\d{4}-\d{2}-\d{2})/', $date)) {
+			/*
+			* An actual ISO date has been passed, so quote it
+			*/
+			$date = $this->qstr($date);
+		} else {
+			/*
+			* A date column has been passed, or a
+			* date generating function like NOW() or CURDATE()
+			* accept it raw
+			*/
+			
+		}
+
+		/*
+		* MySQL interval does not support a construct like
+		* INTERVAL +- 7 seconds, so we need to convert it to an absolute value
+		* and change the sign of the interval.
+		*/
+		$sign = '+';
+
+		if (substr($dayFraction, 0, 1) == '-') {
+			/*
+			* Handle negative day fractions
+			*/
+			$sign = '-';
+			$dayFraction = substr($dayFraction, 1);
+		}
+
+		if (preg_match('/^\d*\/24$/',$dayFraction)) {
+		
+			/*
+			* If the dayFraction is in the form of 'x/24', we convert
+			* it to seconds, e.g. 'x/24' becomes 'x * 3600'
+			*/
+			$fractionArray = explode('/', $dayFraction);
+			$hoursToAdd    = (int)$fractionArray[0];
+			$fraction      = $hoursToAdd * 3600;
+	
+		} else if (preg_match('/^\d*[$|\.\d*$]/',$dayFraction)){
+			/*
+			* The dayFraction is either a whole or a decimal number
+			*/
+			$fraction = $dayFraction * 24 * 3600;
+
+		} else {
+			/*
+			* If the dayFraction is not a valid number
+			*/
+			return false;
+		}
+
+		$sql =  sprintf(
+			"DATE_FORMAT(%s %s INTERVAL %s SECOND ,'%%Y-%%m-%%d')",
+			$date,
+			$sign,
+			$fraction
+		);
+
+		return $sql;
 	}
 
 	/**
