@@ -60,8 +60,8 @@ class BlobHandlingTest extends TestCase
 
         $GLOBALS['ADOdbConnection']->startTrans();
         
-        $sql = "INSERT INTO testtable_2 (integer_field, date_field)
-                     VALUES (9002,'2025-02-01')";
+        $sql = "INSERT INTO testtable_2 (integer_field, date_field,blob_field)
+                     VALUES (9002,'2025-02-01',null)";
        
        
         $GLOBALS['ADOdbConnection']->Execute($sql);
