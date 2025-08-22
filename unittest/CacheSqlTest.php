@@ -674,7 +674,7 @@ class CacheSqlTest extends TestCase
         * but the cache should still return the original value
         */
         $rewriteSql = "UPDATE testtable_3 
-                          SET varchar_field = null 
+                          SET varchar_field = 'SOME OTHER VALUE'
                         WHERE number_run_field = 3";
         $this->db->execute($rewriteSql);
 
@@ -802,7 +802,7 @@ class CacheSqlTest extends TestCase
         );
             
         $rewriteSql = "UPDATE testtable_3 
-                          SET varchar_field = null 
+                          SET varchar_field = 'TCSL TEST VALUE' 
                         WHERE number_run_field = 3
                           AND varchar_field = 'LINE 3'";
         $this->db->execute($rewriteSql);
