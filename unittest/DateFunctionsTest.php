@@ -203,7 +203,6 @@ class DateFunctionsTest extends TestCase
         $expectedResult = date('Y-m-d H:i:s');
         
         $testResult = $this->db->dbDate(
-            $today, 
             $this->db->fmtTimeStamp
         );
 
@@ -283,57 +282,112 @@ class DateFunctionsTest extends TestCase
         */
         $sql = "SELECT {$this->db->day('date_field')} 
                   FROM testtable_3 
-                 WHERE number_run_field=9"; 
+                 WHERE number_run_field=8"; 
                 
 
         $testResult 	= (string)$this->db->getOne($sql);
-        $expectedResult = '29';
+        $expectedResult = '01';
         
         $this->assertSame(
             $testResult, 
             $expectedResult, 
-            'Test of day portion of date_field should be 29'
+            'Test of day portion of date_field should be 01'
         );
     }
     
+
     /**
      * Test for {@see ADOConnection::sqlDate())
      * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:sqldate
      * 
      * @return void
+     * 
+     * * @dataProvider providerTestSqlDate
      */
-    public function testSqlDate(): void
+    public function testSqlDate(int $testMethod,string $format,?int $timestamp): void
     {
-        $today = date('m/d/Y');
-        $fmt   = 'm/d/Y';
+
+        switch ($testMethod) {
+            case 1:
+                $expected = date($format, $timestamp);
+                $timeString = date('Y-m-d H:i:s', $timestamp);
+                $sql = "SELECT " . $this->db->sqlDate($format, $timeString);
+                $actual = $this->db->getOne($sql);
+                $message = 'sqlDate should return the portion of the provided timestamp identified by the format string: ' . $format;
+                break;
+            case 2:
+                $expected = date($format);
+                $sql = "SELECT " . $this->db->sqlDate($format);
+                $actual = $this->db->getOne($sql);
+                $message = 'sqlDate should return the portion of the current timestamp identified by the format string: ' . $format;
+                break;
+            case 3:
+                $sql = "SELECT id,date_field 
+                          FROM testtable_3 
+                          WHERE date_field IS NOT NULL ";
+
+                $baseData = $this->db->getRow($sql);
+
+                $expected = date($format, strtotime($baseData['DATE_FIELD']));
+
+                $sql = sprintf(
+                        "SELECT %s 
+                        FROM testtable_3
+                        WHERE id=%s", 
+                        $this->db->sqlDate($format, 'date_field'),
+                        $baseData['ID']
+                    );
+
+                $actual = $this->db->getOne($sql);
+                $message = 'sqlDate should return the portion of the date field identified by the format string: ' . $format;
+                break;
         
-        $sql = "SELECT " . $this->db->sqlDate($fmt);
+            default:
+                $this->fail("Invalid test method: $testMethod");
+        }
 
         $this->assertSame(
-            $today, 
-            $this->db->getOne($sql), 
-            'sqlDate should return the date in the format set in the first parameter'
+            "$expected", 
+            "$actual", 
+            $message
         );
-        
-        $fmt = 'd/m/Y';
+    }    
 
-        $sql = sprintf(
-            "SELECT %s 
-               FROM testtable_1 
-              WHERE varchar_field='LINE 9'", 
-            $this->db->sqlDate($fmt, 'date_field')
-        );
+    /**
+     * Data provider for testSqlDate
+     *
+     * @return array
+     */
+    public function providerTestSqlDate(): array
+    {
+        $testPastTimestamp = strtotime('2000-01-02 03:04:05');
+        $testNowTimestamp = time();
 
-        $testResult = '29/08/1959';
-
-        $this->assertSame(
-            $testResult, 
-            $this->db->getOne($sql), 
-            'sqlDate should return the date in the format set in the first parameter based on the date_field column'
-        );
-
-        
+        return [
+            [1, 'Y', $testPastTimestamp],
+            [1, 'm', $testPastTimestamp],
+            [1, 'M', $testPastTimestamp],
+            [1, 'd', $testPastTimestamp],
+            [1, 'H', $testPastTimestamp],
+            [1, 'i', $testPastTimestamp],
+            [1, 's', $testPastTimestamp],
+            [2, 'Y', $testNowTimestamp],
+            [2, 'm', $testNowTimestamp],
+            [2, 'M', $testNowTimestamp],
+            [2, 'd', $testNowTimestamp],
+            [2, 'H', $testNowTimestamp],
+            [2, 'i', $testNowTimestamp],
+            [2, 's', $testNowTimestamp],
+            [3, 'Y', null],
+            [3, 'm', null],
+            [3, 'M', null],
+            [3, 'd', null],
+            [3, 'H', null],
+            [3, 'i', null],
+            [3, 's', null],
+        ];
+       
     }
     
     /**
@@ -373,6 +427,14 @@ class DateFunctionsTest extends TestCase
             "$now",
             "{$this->db->getOne($sql)}"
         );
+
+        $sql = sprintf('SELECT %s', $this->db->unixTimestamp($this->db->fmtTimeStamp));
+        $this->assertSame(
+            "$now",
+            "{$this->db->getOne($sql)}"
+        );
+
+
     }
     
     /**
