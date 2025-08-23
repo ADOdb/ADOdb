@@ -579,14 +579,24 @@ class ADODB_db2 extends ADOConnection {
 		return $s;
 	}
 
-	
-	function serverInfo()
+	/**
+	 * Return information about the database server
+	 *
+	 * @return array
+	 */
+	public function serverInfo()
 	{
+		global $ADODB_FETCH_MODE;
+		$savem = $ADODB_FETCH_MODE;
+		
+		$this->setFetchMode(ADODB_FETCH_NUM);
+
 		$sql = "SELECT service_level, fixpack_num
 				  FROM TABLE(sysproc.env_get_inst_info())
 					AS INSTANCEINFO";
 		$row = $this->GetRow($sql);
 
+		$this->setFetchMode($savem);
 
 		if ($row) {
 			$info['version'] = $row[0].':'.$row[1];
