@@ -29,6 +29,7 @@ class MetaFunctionsTest extends TestCase
 {
     protected $db;
     protected $adoDriver;
+    protected $testTableName;
 
     /**
      * Set up the test environment
@@ -40,6 +41,16 @@ class MetaFunctionsTest extends TestCase
         $this->db        = &$GLOBALS['ADOdbConnection'];
         $this->adoDriver = $GLOBALS['ADOdriver'];
 
+        /*
+        * Find the correct test table name
+        */
+        $metaTables = $this->db->metaTables();
+        foreach ($metaTables as $tableName) {
+            if (stripos($tableName, 'testtable_1') !== false) {
+                $this->testTableName = $tableName;
+                break;
+            }
+        }
     }
        
     /**
@@ -53,17 +64,24 @@ class MetaFunctionsTest extends TestCase
      * 
      * @return void
      */
-    public function testMetaTables(bool $includesTable1,string $filterType, string $mask) : void
+    public function testMetaTables(bool $includesTable1,mixed $filterType, mixed $mask) : void
     {
         $executionResult = $this->db->metaTables(
             $filterType, 
-            $this->db->database, 
+            false, //$this->db->database, 
             $mask
         );
 
+        $tableExists = in_array($this->testTableName, $executionResult);
+
+        //print "\n=== metaTables() FT=$filterType| $tableExists\n";
+        //print_r($executionResult);
+
         $this->assertSame(
-            $includesTable1, 
-            in_array('testtable_1', $executionResult)
+            $includesTable1,
+            
+            $tableExists,
+            'Checking for presence of ' . $this->testTableName . ' in metaTables result with filterType ' . $filterType
         );
     }
     
@@ -74,14 +92,15 @@ class MetaFunctionsTest extends TestCase
      */
     public function providerTestMetaTables(): array
     {
+        $match = substr($this->testTableName,0,4) . '%';
         return [
-            'Show both Tables & Views' => [true, '',''],
-            'Show only Tables' => [true,'TABLES',''],
-            'Show only Views' => [false,'VIEWS',''],
-            'Show only [T]ables' => [true,'T',''],
-            'Show only [V]iews' => [false,'V',''],
-            'Show only tables beginning test%' => [true,'','test%'],
-            'Show only tables beginning notest%' => [false,'','notest%'],
+            'Show both Tables & Views' => [true,false,false],
+            'Show only Tables' => [true,'TABLES',false],
+            'Show only Views' => [false,'VIEWS',false],
+            'Show only [T]ables' => [true,'T',false],
+            'Show only [V]iews' => [false,'V',false],
+            'Show only tables beginning test%' => [true,false,$match],
+            'Show only tables beginning notest%' => [false,false,'notest%'],
            ];
     }
     
@@ -97,7 +116,7 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaColumnNames(bool $returnType, array $expectedResult): void
     {
-        $executionResult = $this->db->metaColumnNames('testtable_1', $returnType);
+        $executionResult = $this->db->metaColumnNames($this->testTableName, $returnType);
 
         $this->assertSame(
             $expectedResult, 
@@ -152,7 +171,7 @@ class MetaFunctionsTest extends TestCase
     {
         $expectedResult  = 9;
         
-        $executionResult = $this->db->metaColumns('testtable_1');
+        $executionResult = $this->db->metaColumns($this->testTableName);
         
         $this->assertSame(
             $expectedResult, 
@@ -168,7 +187,7 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaColumnObjects(): void
     {
-        $executionResult = $this->db->metaColumns('testtable_1');
+        $executionResult = $this->db->metaColumns($this->testTableName);
         
         foreach ($executionResult as $o) {
             $oType = get_class($o);
@@ -198,7 +217,7 @@ class MetaFunctionsTest extends TestCase
             '7' => 'EMPTY_FIELD'
         ];
         
-        $executionResult = $this->db->metaColumns('testtable_1');
+        $executionResult = $this->db->metaColumns($this->testTableName);
         
     
         foreach ($expectedResult as $expectedField) {
@@ -237,8 +256,12 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaIndexCount(): void
     {
-        $executionResult = $this->db->metaIndexes('testtable_1');
-        
+        $this->db->debug = true;
+
+        $executionResult = $this->db->metaIndexes($this->testTableName);
+
+        $this->db->debug = false;
+
         $this->assertSame(
             3,
             count($executionResult),
@@ -259,7 +282,7 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaIndexUniqueness($result,$indexName): void
     {
-        $executionResult = $this->db->metaIndexes('testtable_1');
+        $executionResult = $this->db->metaIndexes($this->testTableName);
         $this->assertSame(
             $result, 
             ($executionResult[$indexName]['unique'] == 1),
@@ -291,7 +314,7 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaPrimaryKeys(): void
     {
-        $executionResult = $this->db->metaPrimaryKeys('testtable_1');
+        $executionResult = $this->db->metaPrimaryKeys($this->testTableName);
         
         $this->assertSame(
             'id',
@@ -348,7 +371,7 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaTypes(mixed $metaType,int $offset): void
     {
-        $executionResult = $this->db->execute('SELECT * FROM testtable_1');
+        $executionResult = $this->db->execute('SELECT * FROM ' . $this->testTableName);
 
         $metaResult = false;
         $metaFetch = $executionResult->fetchField($offset);
