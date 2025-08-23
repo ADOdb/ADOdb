@@ -429,14 +429,40 @@ class ADODB_db2 extends ADOConnection {
 	/**
 	* Format date column in sql string given an input format that understands Y M D
 	*
-	* @param	string	$fmt
-	* @param	bool	$col
+	* @param	string	$fmt The format string e.g. 'm/d/Y'
+	* @param	string	$col optionally either a column name,an ISO date string or a
+	*                        ate geerating DB2 function like CURRENT DATE
 	*
 	* @return string
 	*/
-	function sqlDate($fmt, $col=false)
+	public function sqlDate($fmt, $col=false)
 	{
-		if (!$col) $col = $this->sysDate;
+		$usesSysDate = false;
+		$trailer = '';
+		$dCol    = '';
+		$tCol    = '';
+		if (!$col) {
+			/*
+			 * If no column is provided, we use the system date or time
+			 */
+			
+			$dCol = $this->sysDate;
+			$tCol = $this->sysTime;
+			
+			/*
+			* Anything not from a column needs this
+			*/
+			$trailer = 'FROM SYSIBM.SYSDUMMY1';
+		
+		} else if (preg_match('/(\d{4})-(\d{2})-(\d{2})/',$col)) {
+			/*
+			 * If the column is an ISO date string, we use it as is
+			 */
+			$trailer = 'FROM SYSIBM.SYSDUMMY1';
+			if (substr($col,0,1) != "'") {
+				$col = $this->qstr($col);
+			}
+		}
 
 		/* use TO_CHAR() if $fmt is TO_CHAR() allowed fmt */
 		if ($fmt== 'Y-m-d H:i:s')
@@ -446,59 +472,114 @@ class ADODB_db2 extends ADOConnection {
 
 		$len = strlen($fmt);
 		for ($i=0; $i < $len; $i++) {
-			if ($s) $s .= $this->concat_operator;
+			if ($s) {
+				$s .= $this->concat_operator;
+			}
+			
 			$ch = $fmt[$i];
+			
 			switch($ch) {
 			case 'Y':
 			case 'y':
-				if ($len==1) return "year($col)";
-				$s .= "char(year($col))";
+				
+				if ($len==1) {
+					return "YEAR($col$dCol) $trailer";
+				}
+				
+				/*
+				* the CHAR creates a CHAR(20) so trim it
+				*/
+				$s .= "RTRIM(CHAR(YEAR($col$dCol)))";
+				
 				break;
+
 			case 'M':
-				if ($len==1) return "monthname($col)";
-				$s .= "substr(monthname($col),1,3)";
+				
+				/*
+				* Returns "January" we want "Jan"
+				*/
+				$cmd = "SUBSTR(MONTHNAME($col$dCol),1,3)";
+				
+				if ($len==1) {
+					 return "$cmd $trailer";
+				}
+				$s .= $cmd;
+				
 				break;
+
 			case 'm':
-				if ($len==1) return "month($col)";
-				$s .= "right(digits(month($col)),2)";
+				
+				$cmd = "RIGHT(DIGITS(MONTH($col$dCol)),2)";
+				if ($len==1) {
+					return "$cmd $trailer";
+				}
+
+				$s .= $cmd;
 				break;
+
 			case 'D':
 			case 'd':
-				if ($len==1) return "day($col)";
-				$s .= "right(digits(day($col)),2)";
+
+				$cmd = "RIGHT(DIGITS(DAY($col$dCol)),2)";
+
+				if ($len==1) {
+					return "$cmd $trailer";
+				}
+
+				$s .= $cmd;
 				break;
+
 			case 'H':
 			case 'h':
-				if ($len==1) return "hour($col)";
-				if ($col != $this->sysDate) $s .= "right(digits(hour($col)),2)";
-				else $s .= "''";
+				
+				$cmd = "RIGHT(DIGITS(HOUR($col$tCol)),2)";
+				if ($len==1) {
+					return "$cmd $trailer";
+				}
+				
+				$s .= $cmd;
+				
 				break;
+
 			case 'i':
 			case 'I':
-				if ($len==1) return "minute($col)";
-				if ($col != $this->sysDate)
-					$s .= "right(digits(minute($col)),2)";
-					else $s .= "''";
+
+				$cmd = "RIGHT(DIGITS(MINUTE($col$tCol)),2)";
+				if ($len==1) {
+					return "$cmd $trailer";
+				}
+				
+				$s .= $cmd;
+				
 				break;
+			
 			case 'S':
 			case 's':
-				if ($len==1) return "second($col)";
-				if ($col != $this->sysDate)
-					$s .= "right(digits(second($col)),2)";
-				else $s .= "''";
+				$cmd = "RIGHT(DIGITS(SECOND($col$tCol)),2)";
+				if ($len==1) {
+					return "$cmd $trailer";
+				}
+				
+				$s .= $cmd;
 				break;
+
 			default:
+				
 				if ($ch == '\\') {
 					$i++;
 					$ch = substr($fmt,$i,1);
 				}
+				
 				$s .= $this->qstr($ch);
 			}
 		}
+
+		$s .= " $trailer";
+
 		return $s;
 	}
 
-
+	
 	function serverInfo()
 	{
 		$sql = "SELECT service_level, fixpack_num
@@ -1749,7 +1830,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 	*/
 	function updateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
-		return $this->execute("UPDATE $table SET $column=? WHERE $where",array($val)) != false;
+		return $this->execute("UPDATE $table SET $column=? WHERE $where",$val) != false;
 	}
 
 	// returns true or false
