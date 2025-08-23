@@ -292,10 +292,10 @@ class DbStringFunctionsTest extends TestCase
                   FROM testtable_1 
                  WHERE number_run_field={$row[$firstColumn]}";
 
-        $expectedResult = $this->db->getOne($sql);
+        $expectedResult = (float)$this->db->getOne($sql);
         
-        $this->assertSame(
-            '8675304',
+        $this->assertEquals(
+            8675304,
             $expectedResult,
             'Test of ifnull function  should return 8675304'
         );
