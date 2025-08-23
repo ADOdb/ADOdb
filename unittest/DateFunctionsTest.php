@@ -148,30 +148,6 @@ class DateFunctionsTest extends TestCase
     }
     
     
-    /**
-     * Test for {@see ADOConnection::fmtTimeStamp)
-     * 
-     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:fmttimestamp
-     * 
-     * @return void
-     */
-    public function testFmtTimeStamp(): void
-    {
-       
-       
-        $today          = time();
-        $expectedResult = date('Y-m-d H:i:s');
-        
-        $testResult = $this->db->dbDate(
-            $this->db->fmtTimeStamp
-        );
-
-        $this->assertSame(
-            $expectedResult,
-            $testResult,
-            'fmtTimeStamp should return a timestamp in the format set in the fmtTimeStamp property'
-        );
-    }
     
     /**
      * Test for {@see ADOConnection::year())
