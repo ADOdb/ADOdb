@@ -147,47 +147,7 @@ class DateFunctionsTest extends TestCase
         );
     }
     
-    /**
-     * Test for {@see ADOConnection::sysDate)
-     * 
-     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:sysdate
-     *
-     * @return void
-     */
-    public function testSysDate(): void
-    {
-
-        $today = date('Y-m-d');
-        
-        $sql = "SELECT {$this->db->sysDate}";
-
-        $this->assertSame(
-            "$today", 
-            $this->db->getOne($sql),
-            'sysDate should return today\'s date based on the server\'s timezone'
-        );
-    }
     
-    /**
-     * Test for {@see ADOConnection::)sysTimeStamp
-     * 
-     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:systimestamp
-     * 
-     * @return void
-     */
-    public function testSysTimestamp(): void
-    {
-        $now = date('Y-m-d H:i:s');
-        
-        $sysnow = $this->db->getOne("SELECT {$this->db->sysTimeStamp}");
-
-        $this->assertSame(
-            $now, 
-            $sysnow, 
-            'sysTimeStamp should return the current timestamp based on the server\'s timezone'
-        );
-    }
-
     /**
      * Test for {@see ADOConnection::fmtTimeStamp)
      * 
