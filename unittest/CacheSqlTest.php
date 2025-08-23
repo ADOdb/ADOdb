@@ -325,7 +325,7 @@ class CacheSqlTest extends TestCase
         }
 
         $rewriteSql = "UPDATE testtable_3 
-                          SET varchar_field = null 
+                          SET varchar_field = 'NOCACHE VALUE1' 
                         WHERE varchar_field = 'LINE 1'";
 
         $this->db->execute($rewriteSql);
@@ -345,7 +345,9 @@ class CacheSqlTest extends TestCase
                 'Second access of cacheGetOne() reads from cache, not database'
             );
         }
-        $rewriteSql = "UPDATE testtable_3 SET varchar_field = 'LINE 1' WHERE varchar_field IS NULL";
+        $rewriteSql = "UPDATE testtable_3 
+                          SET varchar_field = 'LINE 1' 
+                        WHERE varchar_field = 'NOCACHE VALUE1'";
         $this->db->execute($rewriteSql);
     }
 
@@ -842,10 +844,13 @@ class CacheSqlTest extends TestCase
             'Second read of cacheSelectLimit(), should re-read cache, not database'
         );
 
+        /*
+        * Now rewrite the database back to its original state
+        */
         $rewriteSql = "UPDATE testtable_3 
                           SET varchar_field = 'LINE 3' 
                         WHERE number_run_field = 3
-                          AND varchar_field IS NULL";
+                          AND varchar_field = 'TCSL TEST VALUE'";
 
         $this->db->execute($rewriteSql);
     
