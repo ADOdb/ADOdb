@@ -60,11 +60,24 @@ class ADODB_db2 extends ADOConnection {
 	var $useFetchArray = false;
 	var $_bindInputArray = true;
 	var $_genIDSQL = "VALUES NEXTVAL FOR %s";
+	
+	/**
+	 * SQL to create a new sequence
+	 * 
+	 * @var string
+	 */
 	var $_genSeqSQL = "
 	CREATE SEQUENCE %s START WITH %s
 	NO MAXVALUE NO CYCLE INCREMENT BY 1 NO CACHE
 	";
+
+	/**
+	 * SQL to drop a sequence
+	 * 
+	 * @var string 
+	 */
 	var $_dropSeqSQL = "DROP SEQUENCE %s";
+
 	var $_autocommit = true;
 	var $_lastAffectedRows = 0;
 	var $hasInsertID = true;
@@ -609,23 +622,7 @@ class ADODB_db2 extends ADOConnection {
 		return $info;
 	}
 
-	function createSequence($seqname='adodbseq',$start=1)
-	{
-		if (empty($this->_genSeqSQL))
-			return false;
-
-		$ok = $this->execute(sprintf($this->_genSeqSQL,$seqname,$start));
-		if (!$ok)
-			return false;
-		return true;
-	}
-
-	function dropSequence($seqname='adodbseq')
-	{
-		if (empty($this->_dropSeqSQL)) return false;
-		return $this->execute(sprintf($this->_dropSeqSQL,$seqname));
-	}
-
+	
 	function selectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false,$secs2cache=0)
 	{
 		$nrows = (integer) $nrows;
