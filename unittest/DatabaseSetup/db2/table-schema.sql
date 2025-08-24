@@ -63,6 +63,5 @@ CREATE	UNIQUE INDEX vdx33 ON testtable_3 (number_run_field);
 DROP TABLE IF EXISTS "table_name";
 CREATE TABLE "table_name" (
 	"id" INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1),
-	"column_name" VARCHAR(20),
-	PRIMARY KEY("id")
+	"column_name" VARCHAR(20)
 );
