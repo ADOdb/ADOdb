@@ -218,10 +218,20 @@ class ADODB_DataDict {
 		return false;
 	}
 
-	function metaTables()
+    /**
+     * Returns an array of table names in the database.
+     *
+     * @param string|bool $ttype
+     * @param string|bool $showSchema
+     * @param string}bool $mask
+     * @return void
+     */
+	public function metaTables($ttype=false, $showSchema=false, $mask=false)
 	{
-		if (!$this->connection->isConnected()) return array();
-		return $this->connection->metaTables();
+		if (!$this->connection->isConnected()) {
+            return false;
+        }
+		return $this->connection->metaTables($ttype, $showSchema, $mask);
 	}
 
 	function metaColumns($tab, $upper=true, $schema=false)
