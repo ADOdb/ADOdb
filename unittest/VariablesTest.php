@@ -33,6 +33,9 @@ class VariablesTest extends TestCase
 
     protected bool $skipFollowingTests = false;
 
+    protected string $testTableName = 'table_name';
+    protected string $testIdColumnName = 'ID';
+
     /**
      * Set up the test environment
      *
@@ -43,7 +46,15 @@ class VariablesTest extends TestCase
 
         $this->db        = &$GLOBALS['ADOdbConnection'];
         $this->adoDriver = $GLOBALS['ADOdriver'];
-        
+
+        static $testTableName = false;
+
+        if ($testTableName) {
+            $this->testTableName = $testTableName;
+            return;
+        }
+
+    
     }
     
     /**
@@ -90,18 +101,21 @@ class VariablesTest extends TestCase
        
         global $ADODB_QUOTE_FIELDNAMES;
 
+        $ADODB_QUOTE_FIELDNAMES = false;
         /*
         * Fetch a template row from the table
         */
 
         $quotedTable = sprintf(
-            '%stable_name%s', 
+            '%s%s%s', 
             $this->db->nameQuote, 
+            $this->testTableName,
             $this->db->nameQuote
         );
 
         
-        $sql = "SELECT * FROM $quotedTable WHERE id=-1";
+        $sql = "SELECT * FROM $quotedTable WHERE {$this->testIdColumnName}=-1";
+
         $template = $this->db->execute($sql);
        
         $ar = array(
@@ -123,7 +137,7 @@ class VariablesTest extends TestCase
             'Data insertion should not succeed using Unquoted field and table names'
         );
 
-        $count = $this->db->getOne("SELECT COUNT(*) FROM `table_name`");
+        $count = $this->db->getOne("SELECT COUNT(*) FROM $quotedTable");
 
         $this->assertEquals(
             0, 
@@ -175,14 +189,15 @@ class VariablesTest extends TestCase
         /*
         * Fetch a template row from the table
         */
-        $sql = "SELECT * FROM testtable_1";
+        $sql = "SELECT * FROM {$this->testTableName}";
+        
         $testRow = $this->db->getRow($sql);
 
         $this->assertArrayHasKey(
             $expectedResult,
             $testRow,
             'Row should have an id column'
-        );        
+        );
 
         // Cannot set the fetch mode to ADODB_FETCH_NUM this way
         //$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
