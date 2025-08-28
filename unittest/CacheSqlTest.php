@@ -268,17 +268,17 @@ class CacheSqlTest extends TestCase
         return [
              'Update Unbound' => [
                 true, 
-                "UPDATE testtable_3 SET integer_field=2000 WHERE id=1", 
+                "UPDATE TESTTABLE_3 SET INTEGER_FIELD=2000 WHERE ID=1", 
                 null
             ],
               'Invalid' => [
                 false, 
-                "UPDATE testtable_3 SET xinteger_field=2000 WHERE id=1",
+                "UPDATE TESTTABLE_3 SET XINTEGER_FIELD=2000 WHERE ID=1",
                  null
             ],
               'Select, Bound' =>  [
                 true, 
-                "UPDATE testtable_3 SET integer_field=2000 WHERE varchar_field=$p1",
+                "UPDATE TESTTABLE_3 SET INTEGER_FIELD=2000 WHERE VARCHAR_FIELD=$p1",
                  $bind
             ],
         ];
@@ -324,9 +324,9 @@ class CacheSqlTest extends TestCase
             );
         }
 
-        $rewriteSql = "UPDATE testtable_3 
-                          SET varchar_field = 'NOCACHE VALUE1' 
-                        WHERE varchar_field = 'LINE 1'";
+        $rewriteSql = "UPDATE TESTTABLE_3 
+                          SET VARCHAR_FIELD = 'NOCACHE VALUE1' 
+                        WHERE VARCHAR_FIELD = 'LINE 1'";
 
         $this->db->execute($rewriteSql);
 
@@ -345,9 +345,9 @@ class CacheSqlTest extends TestCase
                 'Second access of cacheGetOne() reads from cache, not database'
             );
         }
-        $rewriteSql = "UPDATE testtable_3 
-                          SET varchar_field = 'LINE 1' 
-                        WHERE varchar_field = 'NOCACHE VALUE1'";
+        $rewriteSql = "UPDATE TESTTABLE_3 
+                          SET VARCHAR_FIELD = 'LINE 1' 
+                        WHERE VARCHAR_FIELD = 'NOCACHE VALUE1'";
         $this->db->execute($rewriteSql);
     }
 
@@ -364,17 +364,17 @@ class CacheSqlTest extends TestCase
         return [
             'Return Last Col, Unbound' => [
                 'LINE 11', 
-                "SELECT varchar_field FROM testtable_3 ORDER BY number_run_field DESC", 
+                "SELECT VARCHAR_FIELD FROM TESTTABLE_3 ORDER BY NUMBER_RUN_FIELD DESC", 
                 null
             ],
             'Return Multiple Cols, take first, Unbound' => [
                 'LINE 11', 
-                "SELECT testtable_3.varchar_field,testtable_3.* FROM testtable_3 ORDER BY number_run_field DESC",
+                "SELECT TESTTABLE_3.VARCHAR_FIELD,TESTTABLE_3.* FROM TESTTABLE_3 ORDER BY NUMBER_RUN_FIELD DESC",
                 null
             ],
             'Return Multiple Cols, take first, Bound' => [
                 'LINE 11', 
-                "SELECT testtable_3.varchar_field,testtable_3.* FROM testtable_3 WHERE varchar_field=$p1", 
+                "SELECT testtable_3.varchar_field,testtable_3.* FROM testtable_3 WHERE VARCHAR_FIELD=$p1", 
                 $bind
             ],
 
