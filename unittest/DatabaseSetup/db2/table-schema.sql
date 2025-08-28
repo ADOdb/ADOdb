@@ -25,7 +25,8 @@ CREATE TABLE testtable_1 (
 	decimal_field DECIMAL(12,2) DEFAULT 0,
 	boolean_field BOOLEAN WITH DEFAULT FALSE,
     empty_field VARCHAR(240) DEFAULT '',
-	number_run_field SMALLINT NOT NULL DEFAULT 0
+	number_run_field SMALLINT NOT NULL DEFAULT 0,
+	PRIMARY KEY (id)
 );
 CREATE	UNIQUE INDEX vdx1 ON testtable_1 (varchar_field);
 CREATE	UNIQUE INDEX vdx2 ON testtable_1 (integer_field,date_field);
@@ -40,8 +41,14 @@ CREATE TABLE testtable_2 (
 	integer_field SMALLINT NOT NULL DEFAULT 0,
 	date_field DATE DEFAULT CURRENT DATE,
 	blob_field BLOB(100M)
-    
+  
 );
+
+ALTER TABLE testtable_2
+FOREIGN KEY (integer_field)
+	REFERENCES testtable_1(integer_field)
+		ON UPDATE NO ACTION
+		ON DELETE CASCADE;
 
 -- Testtable_3 is loaded with data for testing the cache and sql functions
 CREATE TABLE testtable_3 (
