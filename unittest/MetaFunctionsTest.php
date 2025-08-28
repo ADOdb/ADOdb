@@ -29,8 +29,9 @@ class MetaFunctionsTest extends TestCase
 {
     protected $db;
     protected $adoDriver;
-    protected $testTableName;
+    protected $testTableName = 'testtable_1';
 
+    
     /**
      * Set up the test environment
      *
@@ -41,16 +42,6 @@ class MetaFunctionsTest extends TestCase
         $this->db        = &$GLOBALS['ADOdbConnection'];
         $this->adoDriver = $GLOBALS['ADOdriver'];
 
-        /*
-        * Find the correct test table name
-        */
-        $metaTables = $this->db->metaTables();
-        foreach ($metaTables as $tableName) {
-            if (stripos($tableName, 'testtable_1') !== false) {
-                $this->testTableName = $tableName;
-                break;
-            }
-        }
     }
        
     /**
@@ -72,14 +63,10 @@ class MetaFunctionsTest extends TestCase
             $mask
         );
 
-        $tableExists = in_array($this->testTableName, $executionResult);
-
-        //print "\n=== metaTables() FT=$filterType| $tableExists\n";
-        //print_r($executionResult);
+        $tableExists = $executionResult && in_array($this->testTableName, $executionResult);
 
         $this->assertSame(
-            $includesTable1,
-            
+            $includesTable1,            
             $tableExists,
             'Checking for presence of ' . $this->testTableName . ' in metaTables result with filterType ' . $filterType
         );
@@ -100,12 +87,49 @@ class MetaFunctionsTest extends TestCase
             'Show only [T]ables' => [true,'T',false],
             'Show only [V]iews' => [false,'V',false],
             'Show only tables beginning test%' => [true,false,$match],
-            'Show only tables beginning notest%' => [false,false,'notest%'],
+            'Show only tables beginning notest%' => [false,false,'notest%']
            ];
+    }
+
+    /**
+     * Test for {@see ADODConnection::metaTables()]
+     * Checks that an exact table name that exists in the database returns an array with exactly one element
+     * that element being the exact table name
+     * 
+     * @return void
+     */
+    public function testExactMatchMetaTables(): void
+    {
+        
+        $executionResult = $this->db->metaTables(
+            'T', 
+            false, //$this->db->database, 
+            $this->testTableName,
+        );
+        
+        $assertionResult = $this->assertIsArray(
+            $executionResult,
+            'metaTables returns an array when exact table name that exists in the database is provided'
+        );
+
+        if ($assertionResult) {
+            $assertionResult = $this->assertEquals(
+                1,
+                count($executionResult),
+                'metaTables should return an array with exactly one element when exact table name that exists in the database is provided'
+            );
+            if ($assertionResult) {
+                $this->assertSame(
+                    strtoupper($this->testTableName),
+                    strtoupper($executionResult[0]),
+                    'metaTables should return an array with the exact table name when exact table name that exists in the database is provided'
+                );
+            }
+        }
     }
     
     /**
-     * Test for {@see ADODConnection::metaColumn()]
+     * Test for {@see ADODConnection::metaColumnNames()]
      *
      * @dataProvider providerTestMetaColumnNames
      * 
@@ -114,8 +138,11 @@ class MetaFunctionsTest extends TestCase
      * 
      * @return void
      */
-    public function testMetaColumnNames(bool $returnType, array $expectedResult): void
+    public function testMetaColumnNames(bool $returnType, int $fetchMode, array $expectedResult): void
     {
+
+        $this->db->setFetchMode($fetchMode);
+
         $executionResult = $this->db->metaColumnNames($this->testTableName, $returnType);
 
         $this->assertSame(
@@ -131,34 +158,39 @@ class MetaFunctionsTest extends TestCase
      */
     public function providerTestMetaColumnNames(): array
     {
-        return [
-             'Returning Associative Array' => [
-                 false,
-                    [ 'ID' => 'id',
-                      'VARCHAR_FIELD' => 'varchar_field',
-                      'DATETIME_FIELD' => 'datetime_field',
-                      'DATE_FIELD' => 'date_field',
-                      'INTEGER_FIELD' => 'integer_field',
-                      'DECIMAL_FIELD' => 'decimal_field',
-                      'BOOLEAN_FIELD' => 'boolean_field',
-                      'EMPTY_FIELD' => 'empty_field',
-                      'NUMBER_RUN_FIELD' => 'number_run_field']
-                ],
-                'Returning Numeric Array' => [
-                    
-                 true,
-                    [ '0' => 'id',
-                      '1' => 'varchar_field',
-                      '2' => 'datetime_field',
-                      '3' => 'date_field',
-                      '4' => 'integer_field',
-                      '5' => 'decimal_field',
-                      '6' => 'boolean_field',
-                      '7' => 'empty_field',
-                      '8' => 'number_run_field'
-                    ]
-                ]
-            ];
+        return array(
+            'Returning Associative Array' => array(
+                false,
+                ADODB_FETCH_ASSOC,
+                array ( 
+                    'ID' => 'id',
+                    'VARCHAR_FIELD' => 'varchar_field',
+                    'DATETIME_FIELD' => 'datetime_field',
+                    'DATE_FIELD' => 'date_field',
+                    'INTEGER_FIELD' => 'integer_field',
+                    'DECIMAL_FIELD' => 'decimal_field',
+                    'BOOLEAN_FIELD' => 'boolean_field',
+                    'EMPTY_FIELD' => 'empty_field',
+                    'NUMBER_RUN_FIELD' => 'number_run_field'
+                )
+            ),
+            
+            'Returning Numeric Array' => array(
+                true,
+                ADODB_FETCH_NUM,
+                array(
+                    '0' => 'id',
+                    '1' => 'varchar_field',
+                    '2' => 'datetime_field',
+                    '3' => 'date_field',
+                    '4' => 'integer_field',
+                    '5' => 'decimal_field',
+                    '6' => 'boolean_field',
+                    '7' => 'empty_field',
+                    '8' => 'number_run_field'
+                )
+            )
+        );
     }
     
     /**
@@ -170,9 +202,18 @@ class MetaFunctionsTest extends TestCase
     public function testMetaColumnCount(): void
     {
         $expectedResult  = 9;
+
+        $metaTables = $this->db->metaTables('T','',$this->testTableName);
         
-        $executionResult = $this->db->metaColumns($this->testTableName);
+        if ($metaTables === false) {
+            $this->fail('metaTables did not return any table');
+            return;
+        }
         
+        $tableName = $metaTables[0];
+
+        $executionResult = $this->db->metaColumns($tableName);
+
         $this->assertSame(
             $expectedResult, 
             count($executionResult)
@@ -187,8 +228,14 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaColumnObjects(): void
     {
+
         $executionResult = $this->db->metaColumns($this->testTableName);
-        
+  
+        if (empty($executionResult)) {
+            $this->fail('metaColumns returned an empty array');
+            return;
+        }
+
         foreach ($executionResult as $o) {
             $oType = get_class($o);
             $this->assertSame(
@@ -256,11 +303,8 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaIndexCount(): void
     {
-        $this->db->debug = true;
 
         $executionResult = $this->db->metaIndexes($this->testTableName);
-
-        $this->db->debug = false;
 
         $this->assertSame(
             3,
@@ -315,7 +359,7 @@ class MetaFunctionsTest extends TestCase
     public function testMetaPrimaryKeys(): void
     {
         $executionResult = $this->db->metaPrimaryKeys($this->testTableName);
-        
+
         $this->assertSame(
             'id',
             $executionResult[0],
@@ -335,24 +379,33 @@ class MetaFunctionsTest extends TestCase
     public function testMetaForeignKeys(): void
     {
         $this->db->setFetchMode(ADODB_FETCH_ASSOC);
-        $executionResult = $this->db->metaForeignKeys('testtable_2');
-        
+
+        $testTable1 = 'testtable_1';
+        $testTable2 = 'testtable_2';
+
+        $executionResult = $this->db->metaForeignKeys($testTable2);
+  
+        if ($executionResult == false) {
+            $this->fail('metaForeignKeys did not return any foreign keys');
+            return;
+        }
+
 
         $this->assertArrayHasKey(
-            'testtable_1', 
+            $testTable1, 
             $executionResult,
             'Checking for foreign key testtable_1 in testtable_2'
         );
         
         $this->assertArrayHasKey(
             'integer_field', 
-            $executionResult['testtable_1'],
+            $executionResult[$testTable1],
             'Checking for foreign key field integer_field in testtable_2 foreign key testtable_1'
         );
 
         $this->assertArrayHasKey(
             'date_field', 
-            $executionResult['testtable_1'],
+            $executionResult[$testTable1],
             'Checking for foreign key field date_field in testtable_2 foreign key testtable_1'
         );
 
@@ -362,13 +415,13 @@ class MetaFunctionsTest extends TestCase
      * Test for {@see ADODConnection::metaType()]
      * Checks that the correct metatype is returned
      * 
-     * @dataProvider providerTestMetaTypes
-     * 
      * @param ?string $metaType
      * @param int $offset
      * 
      * @return void
-     */
+     *
+     * @dataProvider providerTestMetaTypes 
+    */
     public function testMetaTypes(mixed $metaType,int $offset): void
     {
         $executionResult = $this->db->execute('SELECT * FROM ' . $this->testTableName);
