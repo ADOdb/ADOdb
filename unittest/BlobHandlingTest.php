@@ -35,6 +35,9 @@ class BlobHandlingTest extends TestCase
 
     protected  $testBlobFile;
 
+
+    protected  $testTableName;
+
     /**
      * Set up the test environment
      *
@@ -78,7 +81,7 @@ class BlobHandlingTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
+        $this->db        = $GLOBALS['ADOdbConnection'];
         $this->adoDriver = $GLOBALS['ADOdriver'];
     
         if (!array_key_exists('testBlob', $GLOBALS['TestingControl']['blob'])) {
@@ -102,6 +105,13 @@ class BlobHandlingTest extends TestCase
             $this->markTestSkipped(
                 'The testBlob file does not exist: ' . $this->testBlobFile
             );
+        }
+
+        static $testTableName = false;
+
+        if ($testTableName) {
+            $this->testTableName = $testTableName;
+            return;
         }
         
     }
@@ -163,7 +173,7 @@ class BlobHandlingTest extends TestCase
         $this->db->startTrans();
         
         $result = $this->db->updateBlob(
-            'testtable_2', 
+            $this->testTableName, 
             'blob_field', 
             $blob, 
             'integer_field=1'
@@ -198,12 +208,12 @@ class BlobHandlingTest extends TestCase
         }
    
         $this->db->startTrans();
-        
+
         $result = $this->db->updateBlobFile(
-            'testtable_2', 
+            $this->testTableName, 
             'blob_field', 
             $this->testBlobFile,
-            'integer_field=1'
+            'integer_field=1' 
         );
 
         $this->db->completeTrans();
@@ -235,20 +245,23 @@ class BlobHandlingTest extends TestCase
         $extension = array_pop($newFileArray);
         $newFile = implode('.', $newFileArray) . '-decoded' . $extension;
        
-         $SQL = "SELECT LENGTH(blob_field) 
-                  FROM testtable_2 
-                 WHERE integer_field=1";
+        
+        $SQL = "SELECT LENGTH(BLOB_FIELD) 
+                  FROM  {$this->testTableName} 
+                 WHERE INTEGER_FIELD=1";
 
+        
         $blobLength = $this->db->getOne($SQL);
         $this->assertGreaterThan(
             0,
             $blobLength,
             'The blob field should contain data'
         );
+        
 
-        $SQL = "SELECT blob_field 
-                  FROM testtable_2 
-                 WHERE integer_field=1";
+        $SQL = "SELECT BLOB_FIELD 
+                  FROM {$this->testTableName} 
+                 WHERE INTEGER_FIELD=1";
         
         $blob = $this->db->blobDecode($this->db->getOne($SQL));
         
