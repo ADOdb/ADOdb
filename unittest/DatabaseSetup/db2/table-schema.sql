@@ -26,7 +26,7 @@ CREATE TABLE TESTTABLE_1 (
 	boolean_field BOOLEAN WITH DEFAULT FALSE,
     empty_field VARCHAR(240) DEFAULT '',
 	number_run_field SMALLINT NOT NULL DEFAULT 0,
-	PRIMARY KEY (id)
+	PRIMARY KEY (id,integer_field)
 );
 CREATE	UNIQUE INDEX vdx1 ON testtable_1 (varchar_field);
 CREATE	UNIQUE INDEX vdx2 ON testtable_1 (integer_field,date_field);
@@ -48,8 +48,8 @@ CREATE TABLE TESTTABLE_2 (
 CREATE	UNIQUE INDEX vdx22 ON testtable_2 (integer_field,date_field);
 
 ALTER TABLE TESTTABLE_2
-FOREIGN KEY (tt_id)
-	REFERENCES TESTTABLE_1(id)
+FOREIGN KEY (tt_id,integer_field)
+	REFERENCES TESTTABLE_1(id,integer_field)
 		ON UPDATE NO ACTION
 		ON DELETE CASCADE;
 

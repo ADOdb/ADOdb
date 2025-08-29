@@ -60,8 +60,8 @@ CREATE TABLE testtable_2 (
 CREATE UNIQUE INDEX vdx21 ON testtable_2 (integer_field,date_field);
  
 ALTER TABLE testtable_2 ADD CONSTRAINT vdx21
-    FOREIGN KEY (tt_id)
-    REFERENCES testtable_1 (id);
+    FOREIGN KEY (tt_id,integer_field)
+    REFERENCES testtable_1 (id,integer_field);
 
 CREATE SEQUENCE testtable_2_seq
     INCREMENT BY 1

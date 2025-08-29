@@ -26,7 +26,7 @@ CREATE TABLE testtable_1 (
 	boolean_field BOOLEAN DEFAULT 0,
 	empty_field VARCHAR(240) DEFAULT '',
 	number_run_field INT(4) DEFAULT 0,
-	PRIMARY KEY(id),
+	PRIMARY KEY(id,integer_field),
 	unique INDEX vdx1 (varchar_field),
 	UNIQUE INDEX vdx2 (integer_field,date_field),
 	UNIQUE INDEX vdx3 (number_run_field)
@@ -40,7 +40,7 @@ CREATE TABLE testtable_2 (
 	blob_field LONGTEXT,
 	tt_id INTEGER NOT NULL,
 	PRIMARY KEY(id),
-    FOREIGN KEY (tt_id) REFERENCES testtable_1(id)
+    FOREIGN KEY (tt_id,integer_field) REFERENCES testtable_1(id,integer_field)
 );
 
 -- Testtable_3 is loaded with data for testing the cache and sql functions

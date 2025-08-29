@@ -32,6 +32,7 @@ CREATE TABLE testtable_1 (
 CREATE	unique index vdx1 ON testtable_1 (varchar_field);
 CREATE	unique index vdx2 ON testtable_1 (integer_field,date_field);
 CREATE	unique index vdx3 ON testtable_1 (number_run_field);
+CREATE	unique index tt1pk ON testtable_1 (id,integer_field);
 
 -- testtable_2 is used to test foreign keys
 -- There is no data in this table
@@ -41,7 +42,7 @@ CREATE TABLE testtable_2 (
 	date_field DATE,
 	blob_field TEXT,
 	tt_id INTEGER NOT NULL,
-    FOREIGN KEY (tt_id) REFERENCES testtable_1(id)
+    FOREIGN KEY (tt_id,integer_field) REFERENCES testtable_1(id,integer_field)
 );
 
 CREATE TABLE testtable_3 (
@@ -62,6 +63,6 @@ CREATE	unique index vdx33 ON testtable_3 (number_run_field);
 -- This table is used to test the quoting of table and field names
 DROP TABLE IF EXISTS [table_name];
 CREATE TABLE [table_name] (
-	[id] IINTEGER PRIMARY KEY AUTOINCREMENT,
+	[id] INT IDENTITY(1,1) PRIMARY KEY,
 	[column_name] VARCHAR(20)
 );
