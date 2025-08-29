@@ -32,7 +32,8 @@ CREATE TABLE testtable_1 (
     decimal_field NUMBER(12,2),
     boolean_field NUMBER(1,0),
     empty_field VARCHAR(240) DEFAULT '',
-    number_run_field SMALLINT NOT NULL
+    number_run_field SMALLINT NOT NULL,
+    PRIMARY KEY(id,integer_field)
 );
 CREATE	UNIQUE INDEX vdx1 ON testtable_1 (varchar_field);
 CREATE	UNIQUE INDEX vdx2 ON testtable_1 (integer_field,date_field);
@@ -56,6 +57,7 @@ CREATE TABLE testtable_2 (
 	date_field DATE,
 	blob_field BLOB,
     tt_id INTEGER NOT NULL
+    
 );
 CREATE UNIQUE INDEX vdx21 ON testtable_2 (integer_field,date_field);
  

@@ -30,6 +30,7 @@ CREATE TABLE testtable_1 (
 CREATE	UNIQUE INDEX vdx1 ON testtable_1 (varchar_field);
 CREATE	UNIQUE INDEX vdx2 ON testtable_1 (integer_field,date_field);
 CREATE UNIQUE INDEX vdx3 ON testtable_1 (number_run_field);
+CREATE UNIQUE INDEX tt1pk ON testtable_1 (id,integer_field);
 
 -- testtable_2 is used to test foreign keys
 -- There is no data in this table
@@ -38,7 +39,9 @@ CREATE TABLE testtable_2 (
 	integer_field INT(2) DEFAULT 0,
 	date_field DATE,
 	blob_field BLOB,
-	FOREIGN KEY (integer_field,date_field) REFERENCES testtable_1(integer_field,date_field)
+	tt_id INTEGER NOT NULL,
+
+	FOREIGN KEY (tt_id,integer_field) REFERENCES testtable_1(id,integer_field)
 );
 
 -- Testtable_3 is loaded with data for testing the cache and sql functions
