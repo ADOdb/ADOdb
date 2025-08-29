@@ -16,7 +16,7 @@ DROP TABLE IF EXISTS testxmltable_1;
 
 -- Testtable_1 is used to test the basic functionality of the meta functions
 -- It has a variety of data types but contains no data
-CREATE TABLE testtable_1 (
+CREATE TABLE TESTTABLE_1 (
 	id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1),
 	varchar_field VARCHAR(20),
 	datetime_field DATETIME,
@@ -36,17 +36,20 @@ CREATE	UNIQUE INDEX vdx3 ON testtable_1 (number_run_field);
 -- There is no data in this table
 -- Currently missing support for composite foreign key tests in DB2 driver
 -- This is solely because I don't know how to create a composite foreign key in DB2
-CREATE TABLE testtable_2 (
+CREATE TABLE TESTTABLE_2 (
 	id INTEGER NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1),
 	integer_field SMALLINT NOT NULL DEFAULT 0,
 	date_field DATE DEFAULT CURRENT DATE,
-	blob_field BLOB(100M)
-  
+	blob_field BLOB(100M),
+	tt_id INTEGER NOT NULL,
+	PRIMARY KEY (id)
 );
 
-ALTER TABLE testtable_2
-FOREIGN KEY (integer_field)
-	REFERENCES testtable_1(integer_field)
+CREATE	UNIQUE INDEX vdx22 ON testtable_2 (integer_field,date_field);
+
+ALTER TABLE TESTTABLE_2
+FOREIGN KEY (tt_id)
+	REFERENCES TESTTABLE_1(id)
 		ON UPDATE NO ACTION
 		ON DELETE CASCADE;
 

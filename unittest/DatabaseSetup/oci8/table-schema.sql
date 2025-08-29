@@ -54,13 +54,14 @@ CREATE TABLE testtable_2 (
 	id INTEGER NOT NULL,
 	integer_field SMALLINT NOT NULL,
 	date_field DATE,
-	blob_field BLOB
+	blob_field BLOB,
+    tt_id INTEGER NOT NULL
 );
 CREATE UNIQUE INDEX vdx21 ON testtable_2 (integer_field,date_field);
  
 ALTER TABLE testtable_2 ADD CONSTRAINT vdx21
-    FOREIGN KEY (integer_field,date_field)
-    REFERENCES testtable_1 (integer_field,date_field);
+    FOREIGN KEY (tt_id)
+    REFERENCES testtable_1 (id);
 
 CREATE SEQUENCE testtable_2_seq
     INCREMENT BY 1

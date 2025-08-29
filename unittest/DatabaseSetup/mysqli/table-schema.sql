@@ -38,8 +38,9 @@ CREATE TABLE testtable_2 (
     integer_field INT(2),
 	date_field DATE,
 	blob_field LONGTEXT,
+	tt_id INTEGER NOT NULL,
 	PRIMARY KEY(id),
-    FOREIGN KEY (integer_field,date_field) REFERENCES testtable_1(integer_field,date_field)
+    FOREIGN KEY (tt_id) REFERENCES testtable_1(id)
 );
 
 -- Testtable_3 is loaded with data for testing the cache and sql functions

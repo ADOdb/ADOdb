@@ -14,6 +14,8 @@ DROP TABLE IF EXISTS testtable_1;
 -- This table will be built by XMLschema tests
 DROP TABLE IF EXISTS testxmltable_1;
 
+DROP SEQUENCE IF EXISTS unittest_seq;
+
 -- Testtable_1 is used to test the basic functionality of the meta functions
 -- It has a variety of data types but contains no data
 CREATE TABLE testtable_1 (
@@ -38,7 +40,8 @@ CREATE TABLE testtable_2 (
     integer_field SMALLINT DEFAULT 0,
 	date_field DATE,
 	blob_field TEXT,
-    FOREIGN KEY (integer_field,date_field) REFERENCES testtable_1(integer_field,date_field)
+	tt_id INTEGER NOT NULL,
+    FOREIGN KEY (tt_id) REFERENCES testtable_1(id)
 );
 
 CREATE TABLE testtable_3 (
