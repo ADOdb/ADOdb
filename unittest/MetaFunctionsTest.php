@@ -378,18 +378,26 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaForeignKeys(): void
     {
+        
+        global $ADODB_FETCH_MODE;
+        $originalFetchMode = $ADODB_FETCH_MODE;
+        
         $this->db->setFetchMode(ADODB_FETCH_ASSOC);
+
 
         $testTable1 = 'testtable_1';
         $testTable2 = 'testtable_2';
 
+            
         $executionResult = $this->db->metaForeignKeys($testTable2);
-  
+
+        $this->db->setFetchMode($originalFetchMode);
+        
         if ($executionResult == false) {
-            $this->fail('metaForeignKeys did not return any foreign keys');
+            $this->fail('With fetch mode set to ADODB_FETCH_ASSOC, metaForeignKeys did not return any foreign keys');
             return;
         }
-
+       
         $executionResult = array_change_key_case($executionResult, CASE_UPPER);
 
         $fkTableNames = array_flip(
@@ -408,7 +416,7 @@ class MetaFunctionsTest extends TestCase
         $fkTableExists = $this->assertArrayHasKey(
             strtoupper($testTable1), 
             $fkTableNames,
-            'Checking for foreign key testtable_1 in testtable_2'
+            'fetch mode ADODB_FETCH_ASSOC Checking for foreign key testtable_1 in testtable_2'
         );
 
         if (!$fkTableExists) {
@@ -416,23 +424,45 @@ class MetaFunctionsTest extends TestCase
         }
 
         $fkData = $executionResult[strtoupper($testTable1)];
-
-        if ($this->db->fetchMode == ADODB_FETCH_ASSOC) {
-            /*
-            *  [TESTTABLE_1] => Array
-                (
-                    [TT_ID] => ID
-   
-                )
-            */
                 
-            $this->assertArrayHasKey(
-                'TT_ID', 
-                $fkData,
-                'Checking for foreign key field TT_ID in testtable_2 foreign key testtable_1'
-            );
+        $this->assertArrayHasKey(
+            'TT_ID', 
+            $fkData,
+            'With fetch mode ADODB_FETCH_ASSOC, Checking for foreign key field TT_ID in testtable_2 foreign key testtable_1'
+        );
+            
+        $this->assertArrayHasKey(
+            'INTEGER_FIELD', 
+            $fkData,
+            'With fetch mode ADODB_FETCH_ASSOC, Checking for foreign key field INTEGER_FIELD in testtable_2 foreign key testtable_1'
+        );
 
-        } else {
+
+        $this->db->setFetchMode(ADODB_FETCH_NUM);
+
+        $executionResult = $this->db->metaForeignKeys($testTable2);
+  
+        $this->db->setFetchMode($originalFetchMode);
+        
+        if ($executionResult == false) {
+            $this->fail('With fetch mode set to ADODB_FETCH_NUM, metaForeignKeys did not return any foreign keys');
+            return;
+        }
+
+        $executionResult = array_change_key_case($executionResult, CASE_UPPER);
+
+        $fkTableNames = array_flip(
+            array_change_key_case(
+                array_keys($executionResult), 
+                CASE_UPPER
+            )
+        );
+
+
+       //print_r('Foreign Keys for ' . $testTable2 . PHP_EOL);
+       //print_r($fkTableNames);
+       //print_r($executionResult);
+
             /*
             *  [TESTTABLE_1] => Array
                 (
@@ -440,12 +470,18 @@ class MetaFunctionsTest extends TestCase
                 )
             */
                 
-            $this->assertContains(
-                'TT_ID=ID', 
-                $fkData,
-                'Checking for foreign key field TT_ID in testtable_2 foreign key testtable_1'
-            );
-        }
+        $this->assertContains(
+            'TT_ID=ID', 
+            $fkData,
+            'With fetch mode ADODB_FETCH_NUM, Checking for foreign key field TT_ID in testtable_2 foreign key testtable_1'
+        );
+
+        $this->assertContains(
+            'INTEGER_FIELD=INTEGER_FIELD', 
+            $fkData,
+            'With fetch mode ADODB_FETCH_NUM Checking for foreign key field INTEGER_FIELD in testtable_2 foreign key testtable_1'
+        );
+   
         
     } 
     
