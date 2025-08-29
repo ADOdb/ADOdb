@@ -63,7 +63,7 @@ class MetaFunctionsTest extends TestCase
             $mask
         );
 
-        $tableExists = $executionResult && in_array($this->testTableName, $executionResult);
+        $tableExists = $executionResult && in_array(strtoupper($this->testTableName), $executionResult);
 
         $this->assertSame(
             $includesTable1,            
@@ -390,25 +390,63 @@ class MetaFunctionsTest extends TestCase
             return;
         }
 
+        $executionResult = array_change_key_case($executionResult, CASE_UPPER);
 
-        $this->assertArrayHasKey(
-            $testTable1, 
-            $executionResult,
+        $fkTableNames = array_flip(
+            array_change_key_case(
+                array_keys($executionResult), 
+                CASE_UPPER
+            )
+        );
+
+
+       //print_r('Foreign Keys for ' . $testTable2 . PHP_EOL);
+       //print_r($fkTableNames);
+       //print_r($executionResult);
+
+
+        $fkTableExists = $this->assertArrayHasKey(
+            strtoupper($testTable1), 
+            $fkTableNames,
             'Checking for foreign key testtable_1 in testtable_2'
         );
+
+        if (!$fkTableExists) {
+            return;
+        }
+
+        $fkData = $executionResult[strtoupper($testTable1)];
+
+        if ($this->db->fetchMode == ADODB_FETCH_ASSOC) {
+            /*
+            *  [TESTTABLE_1] => Array
+                (
+                    [TT_ID] => ID
+   
+                )
+            */
+                
+            $this->assertArrayHasKey(
+                'TT_ID', 
+                $fkData,
+                'Checking for foreign key field TT_ID in testtable_2 foreign key testtable_1'
+            );
+
+        } else {
+            /*
+            *  [TESTTABLE_1] => Array
+                (
+                    [0] => TT_ID=ID
+                )
+            */
+                
+            $this->assertContains(
+                'TT_ID=ID', 
+                $fkData,
+                'Checking for foreign key field TT_ID in testtable_2 foreign key testtable_1'
+            );
+        }
         
-        $this->assertArrayHasKey(
-            'integer_field', 
-            $executionResult[$testTable1],
-            'Checking for foreign key field integer_field in testtable_2 foreign key testtable_1'
-        );
-
-        $this->assertArrayHasKey(
-            'date_field', 
-            $executionResult[$testTable1],
-            'Checking for foreign key field date_field in testtable_2 foreign key testtable_1'
-        );
-
     } 
     
     /**
