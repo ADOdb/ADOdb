@@ -31,6 +31,11 @@ class MetaFunctionsTest extends TestCase
     protected $adoDriver;
     protected $testTableName = 'testtable_1';
 
+    protected array $testfetchModes = [
+        ADODB_FETCH_NUM   => 'ADODB_FETCH_NUM',
+        ADODB_FETCH_ASSOC => 'ADODB_FETCH_ASSOC',
+        ADODB_FETCH_BOTH  => 'ADODB_FETCH_BOTH'
+    ];
     
     /**
      * Set up the test environment
@@ -57,19 +62,31 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaTables(bool $includesTable1,mixed $filterType, mixed $mask) : void
     {
-        $executionResult = $this->db->metaTables(
-            $filterType, 
-            false, //$this->db->database, 
-            $mask
-        );
+        
+        foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
+            
+            $this->db->setFetchMode($fetchMode);
+            
+            $executionResult = $this->db->metaTables(
+                $filterType, 
+                false, //$this->db->database, 
+                $mask
+            );
 
-        $tableExists = $executionResult && in_array(strtoupper($this->testTableName), $executionResult);
+            $tableExists = $executionResult && in_array(strtoupper($this->testTableName), $executionResult);
 
-        $this->assertSame(
-            $includesTable1,            
-            $tableExists,
-            'Checking for presence of ' . $this->testTableName . ' in metaTables result with filterType ' . $filterType
-        );
+            $this->assertSame(
+                $includesTable1,            
+                $tableExists,
+                sprintf(
+                    '[FETCH MODE: %s] Table %s should be in metaTables with filterType %s mask %s',
+                    $fetchModeName,
+                    $this->testTableName,
+                    $filterType,
+                    $mask
+                )
+            );
+        }
     }
     
     /**
@@ -93,7 +110,9 @@ class MetaFunctionsTest extends TestCase
 
     /**
      * Test for {@see ADODConnection::metaTables()]
-     * Checks that an exact table name that exists in the database returns an array with exactly one element
+     * 
+     * Checks that an exact table name that exists in the database 
+     * returns an array with exactly one element
      * that element being the exact table name
      * 
      * @return void
@@ -101,29 +120,48 @@ class MetaFunctionsTest extends TestCase
     public function testExactMatchMetaTables(): void
     {
         
-        $executionResult = $this->db->metaTables(
-            'T', 
-            false, //$this->db->database, 
-            $this->testTableName,
-        );
-        
-        $assertionResult = $this->assertIsArray(
-            $executionResult,
-            'metaTables returns an array when exact table name that exists in the database is provided'
-        );
-
-        if ($assertionResult) {
-            $assertionResult = $this->assertEquals(
-                1,
-                count($executionResult),
-                'metaTables should return an array with exactly one element when exact table name that exists in the database is provided'
+        foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
+            
+            $this->db->setFetchMode($fetchMode);
+            
+            $executionResult = $this->db->metaTables(
+                'T', 
+                false, //$this->db->database, 
+                $this->testTableName,
             );
+            
+            $assertionResult = $this->assertIsArray(
+                $executionResult,
+                sprintf(
+                    '[FETCH MODE %s] metaTables returns an array when exact ' . 
+                    'table name that exists in the database is provided',
+                    $fetchModeName
+                )
+            );
+
             if ($assertionResult) {
-                $this->assertSame(
-                    strtoupper($this->testTableName),
-                    strtoupper($executionResult[0]),
-                    'metaTables should return an array with the exact table name when exact table name that exists in the database is provided'
+                $assertionResult = $this->assertEquals(
+                    1,
+                    count($executionResult),
+                    sprintf(
+                        '[FETCH MODE %s] metaTables should return an array ' . 
+                        'with exactly one element when exact table name ' . 
+                        'that exists in the database is provided',
+                        $fetchModeName
+                    )
                 );
+                if ($assertionResult) {
+                    $this->assertSame(
+                        strtoupper($this->testTableName),
+                        strtoupper($executionResult[0]),
+                        sprintf(
+                            '[FETCH MODE %s] metaTables should return an array ' . 
+                            'with the exact table name when exact table name ' . 
+                            'that exists in the database is provided',
+                            $fetchModeName
+                        )
+                    );
+                }
             }
         }
     }
@@ -141,13 +179,19 @@ class MetaFunctionsTest extends TestCase
     public function testMetaColumnNames(bool $returnType, int $fetchMode, array $expectedResult): void
     {
 
+      
         $this->db->setFetchMode($fetchMode);
 
         $executionResult = $this->db->metaColumnNames($this->testTableName, $returnType);
 
         $this->assertSame(
             $expectedResult, 
-            $executionResult
+            $executionResult,
+            sprintf(
+                '[FETCH MODE: %s] Checking metaColumnNames with returnType %s',
+                $this->testfetchModes[$fetchMode],
+                $returnType ? 'true' : 'false'
+            )
         );
     }
     
@@ -203,21 +247,38 @@ class MetaFunctionsTest extends TestCase
     {
         $expectedResult  = 9;
 
-        $metaTables = $this->db->metaTables('T','',$this->testTableName);
+        foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
+            
+            $this->db->setFetchMode($fetchMode);
+     
         
-        if ($metaTables === false) {
-            $this->fail('metaTables did not return any table');
-            return;
+            $metaTables = $this->db->metaTables('T', '', $this->testTableName);
+            
+            if ($metaTables === false) {
+                $this->fail(
+                    sprintf(
+                        '[FETCH MODE %s] metaTables did not return any table',
+                        $fetchModeName
+                    )
+                );
+                return;
+            }
+            
+            $tableName = $metaTables[0];
+
+            $executionResult = $this->db->metaColumns($tableName);
+
+            $this->assertSame(
+                $expectedResult, 
+                count($executionResult),
+                sprintf(
+                    '[FETCH MODE %s] Checking Column Count, expected %d, got %d',
+                    $fetchModeName,
+                    $expectedResult,
+                    count($executionResult)
+                )
+            );
         }
-        
-        $tableName = $metaTables[0];
-
-        $executionResult = $this->db->metaColumns($tableName);
-
-        $this->assertSame(
-            $expectedResult, 
-            count($executionResult)
-        );
     }
     
     /**
@@ -229,21 +290,37 @@ class MetaFunctionsTest extends TestCase
     public function testMetaColumnObjects(): void
     {
 
-        $executionResult = $this->db->metaColumns($this->testTableName);
-  
-        if (empty($executionResult)) {
-            $this->fail('metaColumns returned an empty array');
-            return;
-        }
+        foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
+            
+            $this->db->setFetchMode($fetchMode);
+     
+            $executionResult = $this->db->metaColumns($this->testTableName);
 
-        foreach ($executionResult as $o) {
-            $oType = get_class($o);
-            $this->assertSame(
-                'ADOFieldObject', 
-                $oType,
-                'metaColumns returns an ADOFieldObject object'
-            );
+            if (empty($executionResult)) {
+                $this->fail(
+                    sprintf(
+                        '[FETCH MODE %s] metaColumns returned an empty array',
+                        $fetchModeName
+                    )
+                );
+                return;
+            }
+
+            foreach ($executionResult as $column => $o) {
+                $oType = get_class($o);
+                $this->assertSame(
+                    'ADOFieldObject', 
+                    $oType,
+                    sprintf(
+                        '[FETCH MODE %s] metaColumns should return ' . 
+                        'an ADOFieldObject object for column %s',
+                        $fetchModeName,
+                        $column
+                    )
+                );
+            }
         }
+        
     }
     
     /**
@@ -264,33 +341,31 @@ class MetaFunctionsTest extends TestCase
             '7' => 'EMPTY_FIELD'
         ];
         
-        $executionResult = $this->db->metaColumns($this->testTableName);
+        foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
+            
+            $this->db->setFetchMode($fetchMode);
+                        
+            $executionResult = $this->db->metaColumns($this->testTableName);
         
     
-        foreach ($expectedResult as $expectedField) {
-            
-            $this->assertArrayHasKey(
-                $expectedField, 
-                $executionResult,
-                'Checking for expected field in metaColumns return value'
-            );
-            
-            if (!isset($executionResult[$expectedField])) {
-                continue;
-            }
+            foreach ($expectedResult as $expectedField) {
+                
+                $this->assertArrayHasKey(
+                    $expectedField, 
+                    $executionResult,
+                    sprintf(
+                        '[FETCH MODE %s] ' . 
+                        'Checking for expected field %s in metaColumns return value',
+                        $fetchModeName,
+                        $expectedField
+                    )
+                );
+                
+                if (!isset($executionResult[$expectedField])) {
+                    continue;
+                }
 
-            $typeof = get_class($executionResult[$expectedField]);
-            
-            $this->assertSame(
-                'ADOFieldObject', 
-                $typeof, 
-                'Checking that metaColumns returns an ADOFieldObject object'
-            );
-            
-            if (strcmp($typeof, 'ADOFieldObject') !== 0) {
-                continue;
             }
-
         }
     }
     
@@ -304,13 +379,21 @@ class MetaFunctionsTest extends TestCase
     public function testMetaIndexCount(): void
     {
 
-        $executionResult = $this->db->metaIndexes($this->testTableName);
+        foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
+            
+            $this->db->setFetchMode($fetchMode);
+        
+            $executionResult = $this->db->metaIndexes($this->testTableName);
 
-        $this->assertSame(
-            3,
-            count($executionResult),
-            'Checking Index Count'
-        );
+            $this->assertSame(
+                3,
+                count($executionResult),
+                sprintf(
+                    'FETCH MODE %s] Checking Index Count should be 3', 
+                    $fetchModeName
+                )
+            );
+        }
     }
     
     /**
@@ -326,12 +409,19 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaIndexUniqueness($result,$indexName): void
     {
-        $executionResult = $this->db->metaIndexes($this->testTableName);
-        $this->assertSame(
-            $result, 
-            ($executionResult[$indexName]['unique'] == 1),
-            'Checking Index Uniqueness'
-        );
+        foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
+            
+            $this->db->setFetchMode($fetchMode);
+        
+            $executionResult = $this->db->metaIndexes($this->testTableName);
+            $this->assertSame(
+                $result, 
+                ($executionResult[$indexName]['unique'] == 1),
+                sprintf('[FETCH MODE %s] Checking Index Uniqueness',
+                    $fetchModeName
+                )
+            );
+        };
     }
     
     /**
@@ -358,14 +448,47 @@ class MetaFunctionsTest extends TestCase
      */
     public function testMetaPrimaryKeys(): void
     {
-        $executionResult = $this->db->metaPrimaryKeys($this->testTableName);
+        foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
+            
+            $this->db->setFetchMode($fetchMode);
+        
+            $executionResult = $this->db->metaPrimaryKeys($this->testTableName);
 
-        $this->assertSame(
-            'id',
-            $executionResult[0],
-            'Validating the primary key is on column ID'
-        );
+            $this->assertIsArray(
+                $executionResult,
+                sprintf(
+                    '[FETCH MODE %s] metaPrimaryKeys should return an array',
+                    $fetchModeName
+                )
+            );
 
+            if (!is_array($executionResult)) {
+                return;
+            }
+
+            $this->assertCount(
+                1,
+                $executionResult,
+                sprintf(
+                    '[FETCH MODE %s] Checking Primary Key Count should be 1',
+                    $fetchModeName
+                )
+            );
+
+            if (count($executionResult) != 1) {
+                return;
+            }
+
+            $this->assertSame(
+                'id',
+                $executionResult[0],
+                sprintf(
+                    '[FETCH MODE %s] Validating the primary key is on column ID',
+                    $fetchModeName
+                )
+            );
+        }
+       
     }
 
     /**
@@ -382,6 +505,8 @@ class MetaFunctionsTest extends TestCase
         global $ADODB_FETCH_MODE;
         $originalFetchMode = $ADODB_FETCH_MODE;
         
+        
+
         $this->db->setFetchMode(ADODB_FETCH_ASSOC);
 
 
@@ -408,11 +533,7 @@ class MetaFunctionsTest extends TestCase
         );
 
 
-       //print_r('Foreign Keys for ' . $testTable2 . PHP_EOL);
-       //print_r($fkTableNames);
-       //print_r($executionResult);
-
-
+       
         $fkTableExists = $this->assertArrayHasKey(
             strtoupper($testTable1), 
             $fkTableNames,
@@ -445,7 +566,10 @@ class MetaFunctionsTest extends TestCase
         $this->db->setFetchMode($originalFetchMode);
         
         if ($executionResult == false) {
-            $this->fail('With fetch mode set to ADODB_FETCH_NUM, metaForeignKeys did not return any foreign keys');
+            $this->fail(
+                'With fetch mode set to ADODB_FETCH_NUM, '. 
+                ' metaForeignKeys did not return any foreign keys'
+            );
             return;
         }
 
@@ -458,17 +582,6 @@ class MetaFunctionsTest extends TestCase
             )
         );
 
-
-       //print_r('Foreign Keys for ' . $testTable2 . PHP_EOL);
-       //print_r($fkTableNames);
-       //print_r($executionResult);
-
-            /*
-            *  [TESTTABLE_1] => Array
-                (
-                    [0] => TT_ID=ID
-                )
-            */
                 
         $this->assertContains(
             'TT_ID=ID', 
@@ -559,38 +672,45 @@ class MetaFunctionsTest extends TestCase
     public function testServerInfoVersion(): void
     {
         
-        $this->db->setFetchMode(ADODB_FETCH_ASSOC);
-        
-        $executionResult = $this->db->serverInfo();
-        
-        $this->assertArrayHasKey(
-            'version',
-            $executionResult,
-            'Checking for mandatory key "version" in serverInfo'
-        );
+        foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
+            $this->db->setFetchMode($fetchMode);
+            
+            $executionResult = $this->db->serverInfo();
+            
+            $this->assertIsArray(
+                $executionResult,
+                sprintf(
+                    '[FETCH MODE %s] serverInfo should return an array',
+                    $fetchModeName
+                )
+            );
 
-    }
-    /**
-     * Test for {@see ADODConnection::serverInfo()]
-     * Checks that description is  returned
-     * 
-     * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:serverinfo
-     * 
-     * @return void
-     */
-    public function testServerInfoDescription(): void
-    {
-        $this->db->setFetchMode(ADODB_FETCH_ASSOC);
+            if (!is_array($executionResult)) {
+                return;
+            }
+       
         
-        $executionResult = $this->db->serverInfo();
-        
-        $this->assertArrayHasKey(
-            'description',
-            $executionResult,
-            'Checking for mandatory key "description" in serverInfo'
-        );
+            $this->assertArrayHasKey(
+                'version',
+                $executionResult,
+                sprintf(
+                    '[FETCH MODE %s] Checking for mandatory key ' . 
+                    '"version" in serverInfo',
+                    $fetchModeName
+                )
+            );
+            $this->assertArrayHasKey(
+                'description',
+                $executionResult,
+                sprintf(
+                    '[FETCH MODE %s] Checking for mandatory key ' . 
+                    '"description" in serverInfo',
+                    $fetchModeName
+                )
+            );
+        }
     }
-
+   
     /**
      * Test for errors when a meta function is called on an invalid table
      *
@@ -599,59 +719,94 @@ class MetaFunctionsTest extends TestCase
     public function testMetaFunctionsForInvalidTable(): void
     {
         
+   
+        foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
+            
+            $this->db->setFetchMode($fetchMode);
         
-        $response = $this->db->metaColumns('invalid_table');
 
-        $this->assertTrue(
-            $this->db->errorNo() > 0,
-            'Checking for error when querying metaColumns for an invalid table'
-        );
+            $response = $this->db->metaColumns('invalid_table');
 
-        $this->assertFalse(
-            $response,
-            'Checking that metaColumns returns false for an invalid table'
-        );
+            $this->assertTrue(
+                $this->db->errorNo() > 0,
+                sprintf(
+                    '[FETCH MODE %s] Checking for error when querying metaColumns for an invalid table',
+                    $fetchModeName
+                )
+            );
 
-        $response = $this->db->metaColumnNames('invalid_table');
+            $this->assertFalse(
+                $response,
+                sprintf(
+                    '[FETCH MODE %s] Checking that metaColumns returns false for an invalid table',
+                    $fetchModeName
+                )
+            );
 
-        $this->assertTrue(
-            $this->db->errorNo() > 0,
-            'Checking for error when querying metaColumnNames for an invalid table'
-        );
+            $response = $this->db->metaColumnNames('invalid_table');
 
-        $this->assertFalse(
-            $response,
-            'Checking that metaColumnNames returns false for an invalid table'
-        );
+            $this->assertTrue(
+                $this->db->errorNo() > 0,
+                sprintf(
+                    '[FETCH MODE %s] Checking for error when querying metaColumnNames for an invalid table',
+                    $fetchModeName
+                )
+            );
 
-        $response = $this->db->metaIndexes('invalid_table');
-        $this->assertTrue(
-            $this->db->errorNo() > 0,
-            'Checking for error when querying metaIndexes for an invalid table'
-        );
-        $this->assertFalse(
-            $response,
-            'Checking that metaIndexes returns false for an invalid table'
-        );
-        $response = $this->db->metaPrimaryKeys('invalid_table');
-        $this->assertTrue(
-            $this->db->errorNo() > 0,
-            'Checking for error when querying metaPrimaryKeys for an invalid table'
-        );
-        $this->assertFalse(
-            $response,
-            'Checking that metaPrimaryKeys returns false for an invalid table'
-        );
-        $response = $this->db->metaForeignKeys('invalid_table');
-        $this->assertTrue(
-            $this->db->errorNo() > 0,
-            'Checking for error when querying metaForeignKeys for an invalid table'
-        );
-        $this->assertFalse(
-            $response,
-            'Checking that metaForeignKeys returns false for an invalid table'
-        );
-        
+            $this->assertFalse(
+                $response,
+                sprintf(
+                    '[FETCH MODE %s] Checking that metaColumnNames returns false for an invalid table',
+                    $fetchModeName
+                )
+            );
+
+            $response = $this->db->metaIndexes('invalid_table');
+            $this->assertTrue(
+                $this->db->errorNo() > 0,
+                sprintf(
+                    '[FETCH MODE %s] Checking for error when querying metaIndexes for an invalid table',
+                    $fetchModeName
+                )
+            );
+            $this->assertFalse(
+                $response,
+                sprintf(
+                    '[FETCH MODE %s] Checking that metaIndexes returns false for an invalid table',
+                    $fetchModeName
+                )
+            );
+            $response = $this->db->metaPrimaryKeys('invalid_table');
+            $this->assertTrue(
+                $this->db->errorNo() > 0,
+                sprintf(
+                    '[FETCH MODE %s] Checking for error when querying metaPrimaryKeys for an invalid table',
+                    $fetchModeName
+                )
+            );
+            $this->assertFalse(
+                $response,
+                sprintf(
+                    '[FETCH MODE %s] Checking that metaPrimaryKeys returns false for an invalid table',
+                    $fetchModeName
+                )
+            );
+            $response = $this->db->metaForeignKeys('invalid_table');
+            $this->assertTrue(
+                $this->db->errorNo() > 0,
+                sprintf(
+                    '[FETCH MODE %s] Checking for error when querying metaForeignKeys for an invalid table',
+                    $fetchModeName
+                )
+            );
+            $this->assertFalse(
+                $response,
+                sprintf(
+                    '[FETCH MODE %s] Checking that metaForeignKeys returns false for an invalid table',
+                    $fetchModeName
+                )
+            );
+        }
     }
     
 }
