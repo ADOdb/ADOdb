@@ -218,14 +218,17 @@ class ADODB_DataDict {
 		return false;
 	}
 
-    /**
-     * Returns an array of table names in the database.
-     *
-     * @param string|bool $ttype
-     * @param string|bool $showSchema
-     * @param string}bool $mask
-     * @return void
-     */
+	/**
+	 * Returns an array of table names and/or views in the database.
+	 *
+	 * @param string|bool $ttype      `TABLE`, `VIEW`, or false for both.
+	 * @param string|bool $showSchema Prepends the schema/user to the table name.
+	 * @param string|bool $mask       Input mask
+	 *
+	 * @return array|false
+	 * @see ADOConnection::metaTables()
+	 *
+	 */
 	public function metaTables($ttype=false, $showSchema=false, $mask=false)
 	{
 		if (!$this->connection->isConnected()) {
