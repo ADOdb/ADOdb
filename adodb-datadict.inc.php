@@ -1068,13 +1068,14 @@ class ADODB_DataDict {
 	 * You don't have to know if the col is new or not. It will check on its own.
 	 * If the $dropOldFlds parameter is set to true, it will drop the old fields, if
 	 * not set then any column not specified in the $flds parameter will be left as is,
-	 * wich means you can use this as a bulk update function.
+	 * which means you can use this as a bulk update function. Wjen used as a public
+	 * method then the $flds value is a string, or as an array from XMLSchema
 	 * 
-	 * @param string   $tablename    Table to modify
-	 * @param string   $flds         Fields to change/add, either as a string or an array
-	 * @param string[] $tableoptions Table options, see createTableSQL()
-	 *                               for more information, default false
-	 * @param bool     $dropOldFlds  If set to true, it will drop any old fields not specified in $flds,
+	 * @param string       $tablename    Table to modify
+	 * @param string|array $flds         Fields to change/add, either as a string or an array
+	 * @param string[]     $tableoptions Table options, see createTableSQL()
+	 *                                   for more information, default false
+	 * @param bool         $dropOldFlds  If set to true, it will drop any old fields not specified in $flds,
 	 *
 	 * @return string[] Array of SQL Commands
 	 */
@@ -1118,19 +1119,18 @@ class ADODB_DataDict {
 
 	/**
 	 * This function changes/adds new fields to your table when passed as an array
-	 * called from the XMLschema parser
 	 *
-	 * @param string $tablename
-	 * @param array  $flds
-	 * @param array  $metaColumns
-	 * @param bool   $dropOldFlds
+	 * @param string $tablename   The table name to process
+	 * @param array  $flds        A set of required field changes
+	 * @param array  $metaColumns The metaColumns array for the current table
+	 * @param bool   $dropOldFlds Whether to drop any columns that are not
+	 *                            included in the field definitions
 	 *
 	 * @return string[] Array of SQL Commands
 	 */
 	protected function changeTableFromArray(string $tablename, array $flds, array $cols, bool $dropOldFlds) :array
 	{
-		
-		//if (is_array($flds)) {
+
 		// Cycle through the update fields, comparing
 		// existing fields to fields to update.
 		// if the Metatype and size is exactly the
@@ -1169,7 +1169,6 @@ class ADODB_DataDict {
 			}
 		}
 		$flds = $holdflds;
-		//}
 
 		$sql = array_merge(
 			$this->addColumnSQL($tablename, $fields_to_add),
@@ -1189,9 +1188,7 @@ class ADODB_DataDict {
 	/**
 	 * This function changes/adds new fields to your table when passed as a string
 	 * Used from the public method changeTableSQL()
-	 *
-	 * You don't have to know if the col is new or not. It will check on its own.
-	 *
+	 * 
 	 * @param string $tablename Table to modify
 	 * @param string $sourceString The source string containing the new fields
 	 * @param array  $cols metaColumns array
