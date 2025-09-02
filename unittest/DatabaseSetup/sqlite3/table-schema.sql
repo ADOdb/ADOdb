@@ -14,6 +14,9 @@ DROP TABLE IF EXISTS testtable_1;
 -- This table will be built by XMLschema tests
 DROP TABLE IF EXISTS testxmltable_1;
 
+-- Acting as a sequence
+DROP TABLE IF EXISTS unittest_seq;
+
 -- Testtable_1 is used to test the basic functionality of the meta functions
 -- It has a variety of data types but contains no data
 CREATE TABLE testtable_1 (
