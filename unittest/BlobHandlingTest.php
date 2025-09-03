@@ -33,10 +33,13 @@ class BlobHandlingTest extends TestCase
 
     protected bool $skipFollowingTests = false;
 
-    protected  $testBlobFile;
+    protected  ?string $testBlobFile;
 
 
-    protected  $testTableName;
+    protected  string $testTableName = 'testtable_2';
+
+
+    protected int $integerField = 9002;
 
     /**
      * Set up the test environment
@@ -115,13 +118,7 @@ class BlobHandlingTest extends TestCase
             );
         }
 
-        static $testTableName = false;
-
-        if ($testTableName) {
-            $this->testTableName = $testTableName;
-            return;
-        }
-        
+                
     }
     
   
@@ -167,14 +164,32 @@ class BlobHandlingTest extends TestCase
        
         if ($this->skipFollowingTests) {
             $this->markTestSkipped(
-                'Skipping testUpdateBlob as the testBlob setting is not defined in the adodb-unittest.ini file'
+                'Skipping testUpdateBlob as the testBlob setting ' . 
+                'is not defined in the adodb-unittest.ini file'
             );
             return;
         }
    
-        $saveDebug = $this->db->debug;
+        //$saveDebug = $this->db->debug;
 
-        $this->db->debug = false; // Disable debug output for this test
+        $assertion = $this->assertFileExists(
+            $this->testBlobFile,
+            sprintf(
+                'Test File %s not found',
+                $this->testBlobFile
+            )
+        );
+        
+        if (!$assertion) {
+            $this->markTestSkipped(
+                'Skipping testUpdateBlob as the test ' . 
+                'file was not found'
+            );
+            return;
+        }
+        
+
+        //$this->db->debug = false; // Disable debug output for this test
         $fd = file_get_contents($this->testBlobFile);
         $blob = $this->db->blobEncode($fd);
 
@@ -184,16 +199,29 @@ class BlobHandlingTest extends TestCase
             $this->testTableName, 
             'blob_field', 
             $blob, 
-            'integer_field=1'
+            'integer_field=' . $this->integerField
         );
+
+        $errorNo = $this->db->errorNo();
+        $errorMsg = $this->db->errorMsg();
 
         $this->db->completeTrans();
 
-        $this->db->debug = $saveDebug; // Restore debug setting
+        $this->assertEquals(
+            0,
+            $errorNo,
+            sprintf(
+                'updateBlob() should not return error: %d - %s',
+                $errorNo,
+                $errorMsg
+            )    
+        );
+        
+        $this->db->debug = false; // Restore debug setting
 
         $this->assertTrue(
             $result,
-            'updateBlob should return true on success'
+            'updateBlob() should return true on success'
         );
 
     }
@@ -221,11 +249,23 @@ class BlobHandlingTest extends TestCase
             $this->testTableName, 
             'blob_field', 
             $this->testBlobFile,
-            'integer_field=1' 
+            'integer_field=' . $this->integerField 
         );
+        
+        $errorNo = $this->db->errorNo();
+        $errorMsg = $this->db->errorMsg();
 
         $this->db->completeTrans();
 
+        $this->assertEquals(
+            0,
+            $errorNo,
+            sprintf(
+                'updateBlobFile() should not return error: %d - %s',
+                $errorNo,
+                $errorMsg
+            )    
+        );
         $this->assertTrue(
             $result,
             'updateBlob should return true on success'
@@ -234,9 +274,8 @@ class BlobHandlingTest extends TestCase
     }
 
 
-    
     /**
-     * Test for {@see updateBlob}
+     * Test for {@see blobDecode}
      * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:reference:connection:blobDecode
      * 
@@ -254,12 +293,25 @@ class BlobHandlingTest extends TestCase
         $newFile = implode('.', $newFileArray) . '-decoded' . $extension;
        
         
-        $SQL = "SELECT LENGTH(BLOB_FIELD) 
+        $SQL = "SELECT LENGTH(blob_field) 
                   FROM  {$this->testTableName} 
-                 WHERE INTEGER_FIELD=1";
-
+                 WHERE integer_field={$this->integerField}";
         
         $blobLength = $this->db->getOne($SQL);
+        
+        $errorNo = $this->db->errorNo();
+        $errorMsg = $this->db->errorMsg();
+
+        $this->assertEquals(
+            0,
+            $errorNo,
+            sprintf(
+                'fetching blob file length should not return error: %d - %s',
+                $errorNo,
+                $errorMsg
+            )    
+        );
+
         $this->assertGreaterThan(
             0,
             $blobLength,
@@ -267,17 +319,33 @@ class BlobHandlingTest extends TestCase
         );
         
 
-        $SQL = "SELECT BLOB_FIELD 
+        $SQL = "SELECT blob_field 
                   FROM {$this->testTableName} 
-                 WHERE INTEGER_FIELD=1";
+                 WHERE integer_field={$this->integerField}";
         
         $blob = $this->db->blobDecode($this->db->getOne($SQL));
-        
+        $errorNo = $this->db->errorNo();
+        $errorMsg = $this->db->errorMsg();
+
+        $this->assertEquals(
+            0,
+            $errorNo,
+            sprintf(
+                'blobDecode() should not return error: %d - %s',
+                $errorNo,
+                $errorMsg
+            )    
+        );
 
 
         file_put_contents(
             $newFile, 
             $blob
+        );
+
+        $this->assertFileExists(
+            $newFile,
+            'The blob file should have been written to ' . $newFile
         );
 
         /*
@@ -290,7 +358,7 @@ class BlobHandlingTest extends TestCase
         $this->assertSame(
             $originalFileSize,
             $decodedFileSize,
-            'Decoded file size should match the original file size'
+            'Blob Decoded file size should match the original file size'
         );
     }
 }
