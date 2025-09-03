@@ -37,7 +37,7 @@ CREATE TABLE testtable_2 (
     id INT NOT NULL AUTO_INCREMENT,
     integer_field INT(2),
 	date_field DATE,
-	blob_field LONGTEXT,
+	blob_field LONGBLOB,
 	tt_id INTEGER NOT NULL,
 	PRIMARY KEY(id),
     FOREIGN KEY (tt_id,integer_field) REFERENCES testtable_1(id,integer_field)
