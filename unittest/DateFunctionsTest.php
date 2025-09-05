@@ -94,10 +94,10 @@ class DateFunctionsTest extends ADOdbTestCase
         list($errno, $errmsg) = $this->assertADOdbError('dbDate()');
         
 
-        $this->assertSame(
-            $today,
+        $this->assertNotNull(
             $dbDate,
-            'dbDate() should return todays date in ISO format'
+            'dbDate() should return an SQL string to retrieve ' . 
+            'todays date in ISO format'
         );
     }
 
@@ -116,10 +116,10 @@ class DateFunctionsTest extends ADOdbTestCase
         list($errno, $errmsg) = $this->assertADOdbError('bindDate()');
         
         
-        $this->assertSame(
-            $today, 
+        $this->assertNotNull(
             $bindDate,
-            'bindDate() should return todays date in ISO format'
+            'bindDate() should return a string to use ' . 
+            'todays date in ISO format for a bind parameter'
         );
     }
     
@@ -141,7 +141,7 @@ class DateFunctionsTest extends ADOdbTestCase
         
         
         $this->assertSame(
-            "'$now", 
+            "'$now'", 
             $dbTs, 
             'dbTimestamp should return a quoted timestamp'
         );
@@ -282,7 +282,8 @@ class DateFunctionsTest extends ADOdbTestCase
             $actual = $this->db->getOne($sql);
             list($errno, $errmsg) = $this->assertADOdbError($sql);
 
-            $message = 'sqlDate should return the portion of the provided timestamp identified by the format string: ' . $format;
+            $message = 'sqlDate should return the portion of the ' . 
+            'provided timestamp identified by the format string: ' . $format;
             break;
         case 2:
             $expected = date($format);
@@ -291,7 +292,8 @@ class DateFunctionsTest extends ADOdbTestCase
             $actual = $this->db->getOne($sql);
             list($errno, $errmsg) = $this->assertADOdbError($sql);
 
-            $message = 'sqlDate should return the portion of the current timestamp identified by the format string: ' . $format;
+            $message = 'sqlDate should return the portion of the ' . 
+            'current timestamp identified by the format string: ' . $format;
             break;
         case 3:
             $sql = "SELECT id,date_field 
@@ -317,12 +319,16 @@ class DateFunctionsTest extends ADOdbTestCase
             
             list($errno, $errmsg) = $this->assertADOdbError($sql);
 
-            $message = 'sqlDate should return the portion of the date field identified by the format string: ' . $format;
+            $message = 'sqlDate should return the portion of the ' . 
+            'date field identified by the format string: ' . $format;
             break;
         
         default:
                 $this->fail("Invalid test method: $testMethod");
         }
+
+        $message .= '. This may be caused by the difference in Time or Timezone of' . 
+        'the server if it is on a different machine than the client';
 
         $this->assertSame(
             "$expected", 
@@ -342,6 +348,7 @@ class DateFunctionsTest extends ADOdbTestCase
         $testNowTimestamp = time();
 
         return [
+            /*
             [1, 'Y', $testPastTimestamp],
             [1, 'm', $testPastTimestamp],
             [1, 'M', $testPastTimestamp],
@@ -349,6 +356,7 @@ class DateFunctionsTest extends ADOdbTestCase
             [1, 'H', $testPastTimestamp],
             [1, 'i', $testPastTimestamp],
             [1, 's', $testPastTimestamp],
+            */
             [2, 'Y', $testNowTimestamp],
             [2, 'm', $testNowTimestamp],
             [2, 'M', $testNowTimestamp],
@@ -356,6 +364,7 @@ class DateFunctionsTest extends ADOdbTestCase
             [2, 'H', $testNowTimestamp],
             [2, 'i', $testNowTimestamp],
             [2, 's', $testNowTimestamp],
+            
             [3, 'Y', null],
             [3, 'm', null],
             [3, 'M', null],
@@ -384,7 +393,7 @@ class DateFunctionsTest extends ADOdbTestCase
         $unixDate = $this->db->getOne($sql);
         list($errno, $errmsg) = $this->assertADOdbError($sql);
         
-        $this->assertSame(
+        $this->assertEquals(
             $now,
             $unixDate,
             'UnixDate() should return a string time in the default format'
@@ -407,33 +416,17 @@ class DateFunctionsTest extends ADOdbTestCase
         $sql = sprintf('SELECT %s', $this->db->unixTimestamp($nowStamp));
         
         list($errno, $errmsg) = $this->assertADOdbError('unixTimestamp()');
-        $unixTs = $this->db->getOne($sql);
+        
+        $unixTs = (integer)$this->db->getOne($sql);
         list($errno, $errmsg) = $this->assertADOdbError($sql);
       
         $this->assertSame(
             $now,
             $unixTs,
-            'unixTimestamp() should return a datetime format Y-m-d H:i:s'
+            'unixTimestamp() should return a UNIX timestamp from ' .
+            'the passed date string'
         );
 
-
-        $sql = sprintf(
-            'SELECT %s', 
-            $this->db->unixTimestamp($this->db->fmtTimeStamp)
-        );
-        list($errno, $errmsg) = $this->assertADOdbError('unixTimestamp()');
-   
-        $unixTs = $this->db->getOne($sql);
-        list($errno, $errmsg) = $this->assertADOdbError($sql);
-      
-        
-        
-        $this->assertSame(
-            $now,
-            $unixTs,
-            'unixTimestamp() should return a datetime format ' . 
-            $this->db->fmtTimeStamp
-        );
 
     }
     

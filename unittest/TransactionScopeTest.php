@@ -164,7 +164,7 @@ class TransactionScopeTest extends ADOdbTestCase
             'after completing the transaction'
         );
 
-        if (!$assertion) {
+        if ($this->db->transOff <> 0) {
             $this->fail(
                 sprintf(
                     'Trans Count shoud be 0 but is %d', 

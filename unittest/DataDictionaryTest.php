@@ -34,6 +34,11 @@ class DataDictionaryTest extends ADOdbTestCase
     protected string $testIndexName1 = 'insertion_index_1';
     protected string $testIndexName2 = 'insertion_index_2';
 
+    
+    public static function setupBeforeClass() : void {
+        $GLOBALS['baseTestsComplete'] = 0;
+    }
+
     /**
      * Set up the test environment
      *
@@ -46,7 +51,7 @@ class DataDictionaryTest extends ADOdbTestCase
         /*
         * Find the correct test table name
         */
-              
+         
         $this->buildBasicTable();
          
     }
@@ -66,8 +71,19 @@ class DataDictionaryTest extends ADOdbTestCase
 
         list ($response,$errno,$errmsg) = $this->executeSqlString($sql);
                
+        if ($GLOBALS['baseTestsComplete'] > 0) {
+            $flds = "ID I NOTNULL PRIMARY KEY AUTOINCREMENT,
+                    VARCHAR_FIELD C(50) NOTNULL DEFAULT '',
+                    DATE_FIELD D NOTNULL DEFAULT '2010-01-01',
+                    INTEGER_FIELD I4 NOTNULL DEFAULT 0,
+                    BOOLEAN_FIELD I NOTNULL DEFAULT 0,
+                    DECIMAL_FIELD N(8.4) DEFAULT 0,
+                    DROPPABLE_FIELD N(10.6) DEFAULT 80.111
+            ";
+        } else {
+            $flds = "ID I NOTNULL PRIMARY KEY AUTOINCREMENT";
 
-        $flds = "ID I NOTNULL PRIMARY KEY AUTOINCREMENT";
+        }
 
         $sqlArray = $this->dataDictionary->CreateTableSQL(
             $this->testTableName, 
@@ -80,6 +96,30 @@ class DataDictionaryTest extends ADOdbTestCase
             $this->fail(
                 'Error creating insertion_table'
             );
+        }
+
+        if ($GLOBALS['baseTestsComplete'] > 1) {
+            $flds = array(
+                "DATE_FIELD", 
+                "INTEGER_FIELD",
+                "VARCHAR_FIELD" 
+            );
+            $indexOptions = array(
+                'UNIQUE'
+            );
+
+            $sqlArray = $this->dataDictionary->createIndexSQL(
+                $this->testIndexName1,
+                $this->testTableName,
+                $flds,
+                $indexOptions
+            );
+
+            list(
+                $result, 
+                $errno, 
+                $errmsg
+                ) = $this->executeDictionaryAction($sqlArray);
         }
     }
 
@@ -113,10 +153,20 @@ class DataDictionaryTest extends ADOdbTestCase
         $sqlArray = $this->dataDictionary->AddColumnSQL($this->testTableName, $flds);
 
         list ($response,$errno,$errmsg) = $this->executeDictionaryAction($sqlArray);
+
+        $GLOBALS['baseTestsComplete'] = true;
         
+
         if ($errno > 0) {
+            if ($this->baseTestsComplete == false) {
+                $this->skipFollowingTests(
+                    'Base table buildout failed'
+                );
+            }
             return;
         }
+
+        
 
         $metaColumns = $this->db->metaColumns($this->testTableName);
 
@@ -170,20 +220,14 @@ class DataDictionaryTest extends ADOdbTestCase
             $this->fail(
                 'AlterColumnSql() not supported currently by driver'
             );
-            $this->db->completeTrans();
             return;
         }
         
-        $this->db->startTrans();
-
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        if ($this->db->errorNo()) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
+       
         /*
         * re-read the column definitions
         */
@@ -211,18 +255,10 @@ class DataDictionaryTest extends ADOdbTestCase
             $flds
         );
 
-        $this->db->startTrans();
-
-        $this->dataDictionary->executeSqlArray($sqlArray);
-
-        if ($this->db->errorNo()) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-            $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
         /*
         * re-read the column definitions
         */
@@ -254,19 +290,11 @@ class DataDictionaryTest extends ADOdbTestCase
             $flds
         );
 
-        $this->db->startTrans();
-
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        
-        if ($this->db->errorNo()) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-             $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
 
-        $this->db->completeTrans();
         /*
         * re-read the column definitions
         */
@@ -372,6 +400,8 @@ class DataDictionaryTest extends ADOdbTestCase
      */
     public function testRenameColumnInBasicTable(): void
     {
+        
+        
         if ($this->skipFollowingTests) {
             $this->markTestSkipped(
                 'Skipping tests as the table was not created successfully'
@@ -400,16 +430,10 @@ class DataDictionaryTest extends ADOdbTestCase
             }
         }
 
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        if ($this->db->errorNo()) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-            $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
         
         $metaColumns = $this->db->metaColumns($this->testTableName);
   
@@ -431,16 +455,10 @@ class DataDictionaryTest extends ADOdbTestCase
                 'BOOLEAN_FIELD'
             );
             
-            $this->db->startTrans();
-            $this->dataDictionary->executeSqlArray($sqlArray);
-            if ($this->db->errorNo()) {
-                $this->fail(
-                    $this->db->errorMsg()
-                );
-                $this->db->completeTrans();
+            list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+            if ($errno > 0) {
                 return;
             }
-            $this->db->completeTrans();
 
             $metaColumns = $this->db->metaColumnNames($this->testTableName);
   
@@ -492,16 +510,10 @@ class DataDictionaryTest extends ADOdbTestCase
             );
         }
 
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        if ($this->db->errorNo()) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-            $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
         
         $metaColumns = $this->db->metaColumns($this->testTableName);
 
@@ -543,19 +555,10 @@ class DataDictionaryTest extends ADOdbTestCase
             $indexOptions
         );
 
-        /*
-        * create the SQL statement necessary to add the index
-        */
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        if ($this->db->errorNo()) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-            $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
         
         $metaIndexes = $this->db->metaIndexes($this->testTableName);
 
@@ -601,16 +604,12 @@ class DataDictionaryTest extends ADOdbTestCase
             $indexOptions
         );
 
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        if ($this->db->errorNo()) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-            $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
+
+        $GLOBALS['baseTestsComplete'] = 2;
 
         $metaIndexes = $this->db->metaIndexes($this->testTableName);
 
@@ -644,16 +643,10 @@ class DataDictionaryTest extends ADOdbTestCase
             $this->testTableName
         );
 
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        if ($this->db->errorNo()) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-            $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
 
         $metaIndexes = $this->db->metaIndexes($this->testTableName);
 
@@ -711,19 +704,13 @@ class DataDictionaryTest extends ADOdbTestCase
             return;
         }
 
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        if ($this->db->errorNo()) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-            $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
 
 
-        $metaColumns = $this->db->metaColumns($tableName);
+        $metaColumns = $this->db->metaColumns($this->testTableName);
 
         $this->assertArrayHasKey(
             'INTEGER_FIELD', 
@@ -777,17 +764,10 @@ class DataDictionaryTest extends ADOdbTestCase
             return;
         }
 
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        
-        if ($this->db->errorNo() > 0) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-            $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
 
         $metaColumns = $this->db->metaColumns($this->testTableName);
 
@@ -835,16 +815,10 @@ class DataDictionaryTest extends ADOdbTestCase
             return;
         }
 
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        if ($this->db->errorNo() > 0) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-            $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
 
         /*
         * Depends on the success of the metatables 
@@ -881,14 +855,10 @@ class DataDictionaryTest extends ADOdbTestCase
             'insertion_table'
         );
        
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        if ($this->db->errorNo()) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
+            return;
         }
-        $this->db->completeTrans();
        
     }
 
@@ -911,11 +881,12 @@ class DataDictionaryTest extends ADOdbTestCase
         
         $sqlArray = $this->dataDictionary->dropTableSQL($this->testTableName);
         
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
+            return;
+        }
 
-        $metaTables = $this->db->metaTables('T','',$this->testTableName);
+        $metaTables = $this->db->metaTables('T', '', $this->testTableName);
 
         $this->assertArrayNotHasKey(
             $this->testTableName, 
@@ -961,16 +932,10 @@ class DataDictionaryTest extends ADOdbTestCase
         $dbName = 'unittest_database';
         $sqlArray = $this->dataDictionary->createDatabase($dbName);
 
-        $this->db->startTrans();
-        $this->dataDictionary->executeSqlArray($sqlArray);
-        if ($this->db->errorNo() > 0) {
-            $this->fail(
-                $this->db->errorMsg()
-            );
-            $this->db->completeTrans();
+        list($result, $errno, $errmsg) = $this->executeDictionaryAction($sqlArray);
+        if ($errno > 0) {
             return;
         }
-        $this->db->completeTrans();
         
 
         // Check if the database was created successfully

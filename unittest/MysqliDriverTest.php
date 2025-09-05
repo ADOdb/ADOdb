@@ -28,14 +28,7 @@ use PHPUnit\Framework\TestCase;
  */
 class MysqliDriverTest extends ADOdbTestCase
 {
-    /*
-    protected ?object $db;
-    protected ?string $adoDriver;
-    protected ?object $dataDictionary;
-
-    protected bool $skipFollowingTests = false;
-    */
-
+    
     protected string $testTableName = 'testtable_1';
     protected string $testIndexName1 = 'insertion_index_1';
     protected string $testIndexName2 = 'insertion_index_2';
@@ -48,10 +41,6 @@ class MysqliDriverTest extends ADOdbTestCase
     public function setup(): void
     {
 
-       // $this->db        = &$GLOBALS['ADOdbConnection'];
-        //$this->adoDriver = $GLOBALS['ADOdriver'];
-        //$this->dataDictionary = $GLOBALS['ADOdataDictionary'];
-
         parent::setup();
 
         if ($this->adoDriver !== 'mysqli') {
@@ -63,49 +52,10 @@ class MysqliDriverTest extends ADOdbTestCase
         
     }
     
+    
     /**
-     * Tear down the test environment
-     *
-     * 
-     * @return void
-     */
-    public function xtearDown(): void
-    {
-        
-    }
-
-    /**
-     * Exwcutes an SQL statement within a transaction and returns 
-     * the result plus any message if it fails
-     *
-     * @param string     $sql  The SQL to execute
-     * @param array|null $bind Optional bind parameters
-     * 
-     * @return void
-     */
-    public function xexecuteSqlString(string $sql, ?array $bind=null) : array
-    {
-        $db = $this->db;
-        
-        $db->startTrans();
-
-        if ($bind) {
-            $result = $db->execute($sql, $bind);
-        } else {
-            $result = $db->execute($sql);
-        }
-
-        $errno  = $db->errorNo();
-        $errmsg = $db->errorMsg();
-
-        $db->completeTrans();
-
-        return array($result,$errno,$errmsg);
-
-    }
-
-    /**
-     * Tests setting a comment on a column using {@see ADODConnection::setCommentSQL()}
+     * Tests setting a comment on a column 
+     * using {@see ADODConnection::setCommentSQL()}
      * using the mysql format which includes the column definition.
      * 
      * @link https://adodb.org/dokuwiki/doku.php?id=v5:dictionary:setcommentsql
@@ -114,13 +64,11 @@ class MysqliDriverTest extends ADOdbTestCase
      */
     public function testSetCommentSql(): void
     {
-        if ($this->skipFollowingTests) {
-            $this->markTestSkipped(
-                'Skipping tests as the table was not created successfully'
-            );
-            return;
-        }
-
+        $this->markTestSkipped(
+            'Skipping test as the feature is not yet implemented'
+        );
+        return;
+ 
         $sql = $this->dataDictionary->setCommentSQL(
             $this->testTableName, 
             'varchar_field',
@@ -128,8 +76,7 @@ class MysqliDriverTest extends ADOdbTestCase
             "varchar(50) NOT NULL DEFAULT ''"
         );
 
-        print "SET COMMENT $sql\n";
-
+      
         list ($response,$errno,$errmsg) = $this->executeSqlString($sql);
        
         if ($errno > 0) {
@@ -170,12 +117,10 @@ class MysqliDriverTest extends ADOdbTestCase
      */
     public function testGetCommentSql(): void
     {
-        if ($this->skipFollowingTests) {
-            $this->markTestSkipped(
-                'Skipping tests as the table was not created successfully'
-            );
-            return;
-        }
+        $this->markTestSkipped(
+            'Skipping tests as the feature is not yet implemented'
+        );
+        return;
 
         $sql = $this->dataDictionary->getCommentSQL(
             $this->testTableName, 

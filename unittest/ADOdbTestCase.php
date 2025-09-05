@@ -249,10 +249,13 @@ class ADOdbTestCase extends TestCase
      * @param array      $sqlArray The SQL to execute
      * @param array|null $bind     Optional bind parameters
      * 
-     * @return void
+     * @return array
      */
-    public function executeDictionaryAction(array $sqlArray, ?array $bind=null) : array
-    {
+    public function executeDictionaryAction(
+        array $sqlArray, 
+        ?array $bind=null
+    ) : array {
+    
         $db = $this->db;
         $dictionary = $this->dataDictionary;
         

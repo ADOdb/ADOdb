@@ -50,10 +50,7 @@ class XmlSchemaTest extends ADOdbTestCase
         if (!array_key_exists('xmlschema', $GLOBALS['TestingControl'])) {
             return;
         }
-        if (!array_key_exists('skipXmlTests', $GLOBALS['TestingControl']['xmlschema'])) {
-            $this->skipFollowingTests = true;
-            return;
-        }
+        
        
        // $GLOBALS['ADOdbConnection']->transOff = 0;
 
@@ -71,18 +68,18 @@ class XmlSchemaTest extends ADOdbTestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-        $this->dataDictionary = $GLOBALS['ADOdataDictionary'];
-
+        parent::setup();
+       
         if (!$GLOBALS['ADOxmlSchema']) {
             $this->skipFollowingTests = true;
             $this->markTestSkipped('ADOxmlSchema is not available');
             return;
         }
+      
         
-        $this->xmlSchema = new adoSchema($this->db);
+         $this->xmlSchema = new adoSchema($this->db);
 
+       
         
     }
 
