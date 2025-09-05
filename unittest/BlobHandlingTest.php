@@ -25,14 +25,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class BlobHandlingTest extends TestCase
+class BlobHandlingTest extends ADOdbTestCase
 {
-    protected ?object $db;
-    protected ?string $adoDriver;
-    protected ?object $dataDictionary;
-
-    protected bool $skipFollowingTests = false;
-
+    
     protected  ?string $testBlobFile;
 
 
@@ -51,7 +46,9 @@ class BlobHandlingTest extends TestCase
     public static function setUpBeforeClass(): void
     {
     
-    
+   
+        //parent::setUpBeforeClass();
+
         if (!array_key_exists('testBlob', $GLOBALS['TestingControl']['blob'])) {
             return;
         }
@@ -92,9 +89,8 @@ class BlobHandlingTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = $GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-    
+        parent::setup();
+
         if (!array_key_exists('testBlob', $GLOBALS['TestingControl']['blob'])) {
             $this->skipFollowingTests = true;
             $this->markTestSkipped(
@@ -136,10 +132,14 @@ class BlobHandlingTest extends TestCase
             return;
         }
 
-        $this->db->startTrans();
 
         $fd   = file_get_contents($this->testBlobFile);
+
+        
+        $this->db->startTrans();
         $blob = $this->db->blobEncode($fd);
+        list($errno, $errmsg) = $this->assertADOdbError('blobEncode()');
+        $this->db->completeTrans();
 
         $hasData = strlen($blob) > 0;
 
@@ -149,7 +149,7 @@ class BlobHandlingTest extends TestCase
             'Blob encoding should not return an empty string'
         );
 
-        $this->db->completeTrans();
+       
     }
 
     /**
@@ -192,6 +192,7 @@ class BlobHandlingTest extends TestCase
         //$this->db->debug = false; // Disable debug output for this test
         $fd = file_get_contents($this->testBlobFile);
         $blob = $this->db->blobEncode($fd);
+        list($errno, $errmsg) = $this->assertADOdbError('blobEncode()');
 
         $this->db->startTrans();
         
@@ -201,23 +202,10 @@ class BlobHandlingTest extends TestCase
             $blob, 
             'integer_field=' . $this->integerField
         );
-
-        $errorNo = $this->db->errorNo();
-        $errorMsg = $this->db->errorMsg();
-
-        $this->db->completeTrans();
-
-        $this->assertEquals(
-            0,
-            $errorNo,
-            sprintf(
-                'updateBlob() should not return error: %d - %s',
-                $errorNo,
-                $errorMsg
-            )    
-        );
         
-        $this->db->debug = false; // Restore debug setting
+        list($errno, $errmsg) = $this->assertADOdbError('updateBlob()');
+        
+        $this->db->completeTrans();
 
         $this->assertTrue(
             $result,
@@ -252,20 +240,10 @@ class BlobHandlingTest extends TestCase
             'integer_field=' . $this->integerField 
         );
         
-        $errorNo = $this->db->errorNo();
-        $errorMsg = $this->db->errorMsg();
-
+        list($errno, $errmsg) = $this->assertADOdbError('updateBlobFile()');
+       
         $this->db->completeTrans();
 
-        $this->assertEquals(
-            0,
-            $errorNo,
-            sprintf(
-                'updateBlobFile() should not return error: %d - %s',
-                $errorNo,
-                $errorMsg
-            )    
-        );
         $this->assertTrue(
             $result,
             'updateBlob should return true on success'
@@ -298,20 +276,8 @@ class BlobHandlingTest extends TestCase
                  WHERE integer_field={$this->integerField}";
         
         $blobLength = $this->db->getOne($SQL);
+        list($errno, $errmsg) = $this->assertADOdbError($SQL);
         
-        $errorNo = $this->db->errorNo();
-        $errorMsg = $this->db->errorMsg();
-
-        $this->assertEquals(
-            0,
-            $errorNo,
-            sprintf(
-                'fetching blob file length should not return error: %d - %s',
-                $errorNo,
-                $errorMsg
-            )    
-        );
-
         $this->assertGreaterThan(
             0,
             $blobLength,
@@ -323,20 +289,13 @@ class BlobHandlingTest extends TestCase
                   FROM {$this->testTableName} 
                  WHERE integer_field={$this->integerField}";
         
-        $blob = $this->db->blobDecode($this->db->getOne($SQL));
-        $errorNo = $this->db->errorNo();
-        $errorMsg = $this->db->errorMsg();
 
-        $this->assertEquals(
-            0,
-            $errorNo,
-            sprintf(
-                'blobDecode() should not return error: %d - %s',
-                $errorNo,
-                $errorMsg
-            )    
-        );
+        $blobSelect = $this->db->getOne($SQL);
 
+        list($errno, $errmsg) = $this->assertADOdbError($SQL);
+
+        $blob = $this->db->blobDecode($blobSelect);
+        list($errno, $errmsg) = $this->assertADOdbError('blobDecode()');
 
         file_put_contents(
             $newFile, 

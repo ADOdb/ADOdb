@@ -25,22 +25,14 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for ADOdb date functions
  */
-class DateFunctionsTest extends TestCase
+class DateFunctionsTest extends ADOdbTestCase
 {
 
-    protected $db;
-
-    /**
-     * Set up the test environment
-     *
-     * @return void
-     */
-    public function setup(): void
-    {
-        $this->db = &$GLOBALS['ADOdbConnection'];
         
+    public static function setUpBeforeClass(): void
+    {
+        $GLOBALS['ADOdbConnection']->_errorCode = 0;
     }
-    
     /**
      * Test for {@see ADOConnection::userDate()}
      * 
@@ -53,10 +45,12 @@ class DateFunctionsTest extends TestCase
         $expected = date('Y-m-d');
         $time     = time();
        
+        $userDate = $this->db->userDate($time, 'Y-m-d');
+        list($errno, $errmsg) = $this->assertADOdbError('userDate()');
         
         $this->assertSame(
             $expected, 
-            $this->db->userDate($time, 'Y-m-d'), 
+            $userDate, 
             'userDate should return a date string built from the given timestamp'
         );
     }
@@ -73,9 +67,12 @@ class DateFunctionsTest extends TestCase
         $expected = date('Y-m-d H:i:s');
         $time     = time();
         
+        $userTimeStamp = $this->db->userTimeStamp($time);
+        list($errno, $errmsg) = $this->assertADOdbError('userTimestamp()');
+        
         $this->assertSame(
             $expected, 
-            $this->db->userTimeStamp($time), 
+            $userTimeStamp, 
             'userTimeStamp should return a time string built from the given timestamp'
         );
     }
@@ -93,7 +90,15 @@ class DateFunctionsTest extends TestCase
     {
         $today = date('Y-m-d');
         
-        $this->assertSame("'$today'", $this->db->dbDate($today));
+        $dbDate =  $this->db->dbDate($today);
+        list($errno, $errmsg) = $this->assertADOdbError('dbDate()');
+        
+
+        $this->assertSame(
+            $today,
+            $dbDate,
+            'dbDate() should return todays date in ISO format'
+        );
     }
 
     /**
@@ -106,8 +111,16 @@ class DateFunctionsTest extends TestCase
     public function testBindDate(): void
     {
         $today = date('Y-m-d');
+
+        $bindDate = $this->db->bindDate($today);
+        list($errno, $errmsg) = $this->assertADOdbError('bindDate()');
         
-        $this->assertSame($today, $this->db->bindDate($today));
+        
+        $this->assertSame(
+            $today, 
+            $bindDate,
+            'bindDate() should return todays date in ISO format'
+        );
     }
     
     /**
@@ -122,9 +135,14 @@ class DateFunctionsTest extends TestCase
     {
         $now = date('Y-m-d H:i:s');
         
+        
+        $dbTs = $this->db->dbTimestamp($now);
+        list($errno, $errmsg) = $this->assertADOdbError('dbTimestamp()');
+        
+        
         $this->assertSame(
-            "'$now'", 
-            $this->db->dbTimestamp($now), 
+            "'$now", 
+            $dbTs, 
             'dbTimestamp should return a quoted timestamp'
         );
     }
@@ -140,9 +158,12 @@ class DateFunctionsTest extends TestCase
     {
         $now = date('Y-m-d H:i:s');
         
+        $bts = $this->db->bindTimestamp($now);
+        list($errno, $errmsg) = $this->assertADOdbError('bindTimestamp()');
+
         $this->assertSame(
-            "$now", 
-            $this->db->bindTimestamp($now), 
+            $now,
+            $bts,
             'bindTimestamp should return a timestamp without quotes'
         );
     }
@@ -167,6 +188,8 @@ class DateFunctionsTest extends TestCase
                  WHERE number_run_field=9";
 
         $testResult     = (string)$this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
         $expectedResult = '1959';
         
         $this->assertSame( 
@@ -194,6 +217,9 @@ class DateFunctionsTest extends TestCase
                  WHERE number_run_field=9";
 
         $testResult     = (string)$this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
+
         $expectedResult = '08';
         
         $this->assertSame(
@@ -222,6 +248,8 @@ class DateFunctionsTest extends TestCase
                 
 
         $testResult 	= (string)$this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
         $expectedResult = '01';
         
         $this->assertSame(
@@ -245,41 +273,54 @@ class DateFunctionsTest extends TestCase
     {
 
         switch ($testMethod) {
-            case 1:
-                $expected = date($format, $timestamp);
-                $timeString = date('Y-m-d H:i:s', $timestamp);
-                $sql = "SELECT " . $this->db->sqlDate($format, $timeString);
-                $actual = $this->db->getOne($sql);
-                $message = 'sqlDate should return the portion of the provided timestamp identified by the format string: ' . $format;
-                break;
-            case 2:
-                $expected = date($format);
-                $sql = "SELECT " . $this->db->sqlDate($format);
-                $actual = $this->db->getOne($sql);
-                $message = 'sqlDate should return the portion of the current timestamp identified by the format string: ' . $format;
-                break;
-            case 3:
-                $sql = "SELECT id,date_field 
-                          FROM testtable_3 
-                          WHERE date_field IS NOT NULL ";
+        case 1:
+            $expected = date($format, $timestamp);
+            $timeString = date('Y-m-d H:i:s', $timestamp);
+            $sql = "SELECT " . $this->db->sqlDate($format, $timeString);
+            list($errno, $errmsg) = $this->assertADOdbError('sqlDate()');
 
-                $baseData = $this->db->getRow($sql);
+            $actual = $this->db->getOne($sql);
+            list($errno, $errmsg) = $this->assertADOdbError($sql);
 
-                $expected = date($format, strtotime($baseData['DATE_FIELD']));
+            $message = 'sqlDate should return the portion of the provided timestamp identified by the format string: ' . $format;
+            break;
+        case 2:
+            $expected = date($format);
+            $sql = "SELECT " . $this->db->sqlDate($format);
+            list($errno, $errmsg) = $this->assertADOdbError('sqlDate()');
+            $actual = $this->db->getOne($sql);
+            list($errno, $errmsg) = $this->assertADOdbError($sql);
 
-                $sql = sprintf(
-                        "SELECT %s 
-                        FROM testtable_3
-                        WHERE id=%s", 
-                        $this->db->sqlDate($format, 'date_field'),
-                        $baseData['ID']
-                    );
+            $message = 'sqlDate should return the portion of the current timestamp identified by the format string: ' . $format;
+            break;
+        case 3:
+            $sql = "SELECT id,date_field 
+                        FROM testtable_3 
+                        WHERE date_field IS NOT NULL ";
 
-                $actual = $this->db->getOne($sql);
-                $message = 'sqlDate should return the portion of the date field identified by the format string: ' . $format;
-                break;
+            $baseData = $this->db->getRow($sql);
+            list($errno, $errmsg) = $this->assertADOdbError($sql);
+
+            $expected = date($format, strtotime($baseData['DATE_FIELD']));
+
+            $sql = sprintf(
+                "SELECT %s 
+                   FROM testtable_3
+                    WHERE id=%s", 
+                $this->db->sqlDate($format, 'date_field'),
+                $baseData['ID']
+            );
+
+            list($errno, $errmsg) = $this->assertADOdbError('sqlDate()');
+            
+            $actual = $this->db->getOne($sql);
+            
+            list($errno, $errmsg) = $this->assertADOdbError($sql);
+
+            $message = 'sqlDate should return the portion of the date field identified by the format string: ' . $format;
+            break;
         
-            default:
+        default:
                 $this->fail("Invalid test method: $testMethod");
         }
 
@@ -338,10 +379,15 @@ class DateFunctionsTest extends TestCase
         $now = time();
         
         $sql = "SELECT " . $this->db->unixDate($now);
-    
+        list($errno, $errmsg) = $this->assertADOdbError('unixDate()');
+
+        $unixDate = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+        
         $this->assertSame(
-            "$now",
-            "{$this->db->getOne($sql)}"
+            $now,
+            $unixDate,
+            'UnixDate() should return a string time in the default format'
         );
     }
     
@@ -359,17 +405,35 @@ class DateFunctionsTest extends TestCase
         $nowStamp = date('Y-m-d H:i:s', $now);
         
         $sql = sprintf('SELECT %s', $this->db->unixTimestamp($nowStamp));
+        
+        list($errno, $errmsg) = $this->assertADOdbError('unixTimestamp()');
+        $unixTs = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+      
         $this->assertSame(
-            "$now",
-            "{$this->db->getOne($sql)}"
+            $now,
+            $unixTs,
+            'unixTimestamp() should return a datetime format Y-m-d H:i:s'
         );
 
-        $sql = sprintf('SELECT %s', $this->db->unixTimestamp($this->db->fmtTimeStamp));
-        $this->assertSame(
-            "$now",
-            "{$this->db->getOne($sql)}"
-        );
 
+        $sql = sprintf(
+            'SELECT %s', 
+            $this->db->unixTimestamp($this->db->fmtTimeStamp)
+        );
+        list($errno, $errmsg) = $this->assertADOdbError('unixTimestamp()');
+   
+        $unixTs = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+      
+        
+        
+        $this->assertSame(
+            $now,
+            $unixTs,
+            'unixTimestamp() should return a datetime format ' . 
+            $this->db->fmtTimeStamp
+        );
 
     }
     
@@ -387,10 +451,13 @@ class DateFunctionsTest extends TestCase
         $nowStamp = date('Y-m-d', strtotime('today +7 days'));
         
         $sql = "SELECT " . $this->db->offsetDate($offset);
+        list($errno, $errmsg) = $this->assertADOdbError('offsetDate()');
+        $od = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
     
         $this->assertSame(
-            "$nowStamp", 
-            $this->db->getOne($sql), 
+            $nowStamp, 
+            $od, 
             'Offset date should return the date 1 week in the future'
         );
     
@@ -398,10 +465,13 @@ class DateFunctionsTest extends TestCase
         $nowStamp = date('Y-m-d', strtotime('today -7 days'));
         
         $sql = "SELECT " . $this->db->offsetDate($offset);
-    
+        list($errno, $errmsg) = $this->assertADOdbError('offsetDate()');
+        $od = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
         $this->assertSame(
-            "$nowStamp", 
-            $this->db->getOne($sql), 
+            $nowStamp, 
+            $od, 
             'Offset date should return the date 1 week in the past'
         );
 
@@ -414,33 +484,42 @@ class DateFunctionsTest extends TestCase
         $nowStamp = date('Y-m-d', strtotime('now + 36 hours'));
         
         $sql = "SELECT " . $this->db->offsetDate($offset, date('Y-m-d H:i'));
+        list($errno, $errmsg) = $this->assertADOdbError('offsetDate()');
+        $od = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
     
         $this->assertSame(
-            "$nowStamp", 
-            $this->db->getOne($sql), 
-            'Offset date using hours should return the date 12 hours from now based on the current time of day'
+            $nowStamp, 
+            $od, 
+            'Offset date using hours should return the date 12 hours ' . 
+            'from now based on the current time of day'
         );
 
         /*
         * Test using a column as the base date
         */
-        $SQL = "SELECT date_field 
+        $sql = "SELECT date_field 
                   FROM testtable_3 
                  WHERE number_run_field=9";
 
-        $dateField = $this->db->getOne($SQL);
-
+        $dateField = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+        
         $nowStamp = date('Y-m-d', strtotime($dateField . ' + 7 days'));
 
         $offset = 7; // 1 week
         $sql = "SELECT {$this->db->offsetDate($offset, 'date_field')}
                   FROM testtable_3 
                  WHERE number_run_field=9";
+        list($errno, $errmsg) = $this->assertADOdbError('offsetDate()');
+        $od = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
         $this->assertSame(
-            "$nowStamp",
-            $this->db->getOne($sql),
-            'Offset date using a column as the base date should return the date 1 week in the future based on the date_field column'
+            $nowStamp,
+            $od,
+            'Offset date using a column as the base date should ' . 
+            'return the date 1 week in the future based on the date_field column'
         );
     }
 
@@ -461,10 +540,14 @@ class DateFunctionsTest extends TestCase
 
 
         $sql = "SELECT " . $this->db->offsetDate($offsetHours);
+        list($errno, $errmsg) = $this->assertADOdbError('offsetDate()');
+        $od = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
     
         $this->assertSame(
-            "$nowStamp", 
-            $this->db->getOne($sql), 
+            $nowStamp, 
+            $od, 
             'Offset date using hours should return the date 1 week in the future'
         );
     
@@ -474,10 +557,13 @@ class DateFunctionsTest extends TestCase
         $offsetHours = sprintf('%s/24', $offset * 24); // Convert days to hours
         
         $sql = "SELECT " . $this->db->offsetDate($offsetHours);
-    
+        list($errno, $errmsg) = $this->assertADOdbError('offsetDate()');
+        $od = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
         $this->assertSame(
-            "$nowStamp", 
-            $this->db->getOne($sql), 
+            $nowStamp, 
+            $od, 
             'Offset date using hours should return the date 1 week in the past'
         );
 

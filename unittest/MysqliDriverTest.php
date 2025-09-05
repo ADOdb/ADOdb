@@ -26,15 +26,17 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class MysqliDriverTest extends TestCase
+class MysqliDriverTest extends ADOdbTestCase
 {
+    /*
     protected ?object $db;
     protected ?string $adoDriver;
     protected ?object $dataDictionary;
 
     protected bool $skipFollowingTests = false;
+    */
 
-    protected string $testTableName = 'insertion_table';
+    protected string $testTableName = 'testtable_1';
     protected string $testIndexName1 = 'insertion_index_1';
     protected string $testIndexName2 = 'insertion_index_2';
 
@@ -46,10 +48,11 @@ class MysqliDriverTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-        $this->dataDictionary = $GLOBALS['ADOdataDictionary'];
+       // $this->db        = &$GLOBALS['ADOdbConnection'];
+        //$this->adoDriver = $GLOBALS['ADOdriver'];
+        //$this->dataDictionary = $GLOBALS['ADOdataDictionary'];
 
+        parent::setup();
 
         if ($this->adoDriver !== 'mysqli') {
             $this->skipFollowingTests = true;
@@ -63,15 +66,43 @@ class MysqliDriverTest extends TestCase
     /**
      * Tear down the test environment
      *
+     * 
      * @return void
      */
-    public function tearDown(): void
+    public function xtearDown(): void
     {
         
     }
 
-    
+    /**
+     * Exwcutes an SQL statement within a transaction and returns 
+     * the result plus any message if it fails
+     *
+     * @param string     $sql  The SQL to execute
+     * @param array|null $bind Optional bind parameters
+     * 
+     * @return void
+     */
+    public function xexecuteSqlString(string $sql, ?array $bind=null) : array
+    {
+        $db = $this->db;
+        
+        $db->startTrans();
 
+        if ($bind) {
+            $result = $db->execute($sql, $bind);
+        } else {
+            $result = $db->execute($sql);
+        }
+
+        $errno  = $db->errorNo();
+        $errmsg = $db->errorMsg();
+
+        $db->completeTrans();
+
+        return array($result,$errno,$errmsg);
+
+    }
 
     /**
      * Tests setting a comment on a column using {@see ADODConnection::setCommentSQL()}
@@ -92,19 +123,29 @@ class MysqliDriverTest extends TestCase
 
         $sql = $this->dataDictionary->setCommentSQL(
             $this->testTableName, 
-            "varchar_field varchar(50) NOT NULL DEFAULT ''",
-            'varchar_test_comment'
+            'varchar_field',
+            'varchar_test_comment',
+            "varchar(50) NOT NULL DEFAULT ''"
         );
 
+        print "SET COMMENT $sql\n";
+
+        list ($response,$errno,$errmsg) = $this->executeSqlString($sql);
        
-        $response = $this->db->execute($sql);
+        if ($errno > 0) {
+            $this->fail(
+                'setCommentSql() failed:' . $errmsg
+            );
+            return;
+        }
 
         $ok = is_object($response);
        
         $this->assertEquals(
             true,
             $ok, 
-            'Test of setCommentSQL - should return an object if the comment was set successfully'
+            'setCommentSql() should return an object ' . 
+            'if the comment was set successfully'
         );
 
         if (!$ok) {
@@ -115,8 +156,8 @@ class MysqliDriverTest extends TestCase
         $this->assertStringContainsString(
             'ADORecordSet_',
             $className,
-            'Test of setCommentSQL - should return an ADORecordset_ object'
-        );     
+            'setCommentSQL() should return an ADORecordset_ object'
+        );
     }
 
     /**
@@ -140,27 +181,22 @@ class MysqliDriverTest extends TestCase
             $this->testTableName, 
             'varchar_field'
         );
-      
-        $response = $this->db->execute($sql);
-
-        $ok = is_object($response);
        
-        $this->assertEquals(
-            true,
-            $ok, 
-            'Test of getCommentSQL - should return an object if the comment was set successfully'
-        );
+        list ($response,$errno,$errmsg) = $this->executeSqlString($sql);
 
-        if (!$ok) {
-            return;          
+        if ($errno > 0) {
+            $this->fail(
+                'getCommentSql() failed:' . $errmsg
+            );
+            return;
         }
-
-        $className = get_class($response);
-        $this->assertStringContainsString(
-            'ADORecordSet_',
-            $className,
-            'Test of getCommentSQL - should return an ADORecordset_mysqli object'
-        );     
+               
+        $this->assertEquals(
+            'varchar_test_comment',
+            $response, 
+            'getCommentSQL() should return "varchar_test_comment" if ' . 
+            'retrieved successfully'
+        );
 
     }
 }

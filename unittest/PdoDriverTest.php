@@ -27,14 +27,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class PdoDriverTest extends TestCase
+class PdoDriverTest extends ADOdbTestCase
 {
-    protected ?object $db;
-    protected ?string $adoDriver;
-    protected ?object $dataDictionary;
-
-    protected bool $skipFollowingTests = false;
-
+   
     /**
      * Set up the test environment
      *
@@ -43,9 +38,8 @@ class PdoDriverTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-
+        parent::setup();
+        
         if (substr($this->adoDriver, 0, 3) !== 'pdo') {
             $this->skipFollowingTests = true;
             $this->markTestSkipped(

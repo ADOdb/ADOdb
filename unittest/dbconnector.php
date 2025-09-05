@@ -27,6 +27,9 @@
  *
  */
 
+require __DIR__ . '/ADOdbTestCase.php';
+
+
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -236,8 +239,10 @@ if (!$db->isConnected()) {
 */
 $GLOBALS['ADOdbConnection'] = &$db;
 $GLOBALS['ADOdriver']       = $adoDriver;
+$GLOBALS['loadDriver']      = $loadDriver;
 $GLOBALS['ADOxmlSchema']    = false;
 $GLOBALS['TestingControl']  = $availableCredentials;
+$GLOBALS['globalTransOff']  = 0;
 
 //$db->startTrans();
 
@@ -247,8 +252,12 @@ $tableSchema = sprintf(
     $adoDriver
 );
 
+/*
+* Loads the schema based on the DB type
+*/
+//$db->debug = true;
 readSqlIntoDatabase($db, $tableSchema);
-
+//exit;
 
 /*
 * Reads common format data and nserts it into the database

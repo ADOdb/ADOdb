@@ -26,14 +26,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class Postgres9DriverTest extends TestCase
+class Postgres9DriverTest extends ADOdbTestCase
 {
-    protected ?object $db;
-    protected ?string $adoDriver;
-    protected ?object $dataDictionary;
-
-    protected bool $skipFollowingTests = false;
-
+   
     /**
      * Set up the test environment
      *
@@ -42,8 +37,7 @@ class Postgres9DriverTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
+        parent::setup();
 
         if ($this->adoDriver !== 'postgres9') {
             $this->skipFollowingTests = true;

@@ -26,14 +26,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class Db2DriverTest extends TestCase
+class Db2DriverTest extends ADOdbTestCase
 {
-    protected ?object $db;
-    protected ?string $adoDriver;
-    protected ?object $dataDictionary;
-
-    protected bool $skipFollowingTests = false;
-
+    
     /**
      * Set up the test environment
      *
@@ -42,23 +37,14 @@ class Db2DriverTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-
+        parent::setup();
+        
         if ($this->adoDriver !== 'db2') {
             $this->skipFollowingTests = true;
-            $this->markTestSkipped('This test is only applicable for the IBM db2 driver');
+            $this->markTestSkipped(
+                'This test is only applicable for the IBM db2 driver'
+            );
         }
-        
-    }
-    
-    /**
-     * Tear down the test environment
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
         
     }
 }

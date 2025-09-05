@@ -26,14 +26,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class Oci8DriverTest extends TestCase
+class Oci8DriverTest extends ADOdbTestCase
 {
-    protected ?object $db;
-    protected ?string $adoDriver;
-    protected ?object $dataDictionary;
-
-    protected bool $skipFollowingTests = false;
-
+    
     /**
      * Set up the test environment
      *
@@ -42,9 +37,8 @@ class Oci8DriverTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-
+        parent::setup();
+      
         if ($this->adoDriver !== 'oci8') {
             $this->skipFollowingTests = true;
             $this->markTestSkipped(
@@ -53,14 +47,5 @@ class Oci8DriverTest extends TestCase
         }
         
     }
-    
-    /**
-     * Tear down the test environment
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
-        
-    }
+   
 }

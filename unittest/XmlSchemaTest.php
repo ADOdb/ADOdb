@@ -25,14 +25,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class XmlSchemaTest extends TestCase
+class XmlSchemaTest extends ADOdbTestCase
 {
-    protected ?object $db;
-    protected ?string $adoDriver;
-    protected ?object $dataDictionary;
     protected ?object $xmlSchema;
-
-    protected bool $skipFollowingTests = false;
 
     protected string $testTableName = 'insertion_table';
     protected string $testIndexName1 = 'insertion_index_1';
@@ -45,6 +40,9 @@ class XmlSchemaTest extends TestCase
      */
     public static function setUpBeforeClass(): void
     {
+        
+        //parent::setUpBeforeClass();
+        
         // This method is called once before any test methods in the class
         // It can be used to set up shared resources or configurations
         // For this test, we do not need to set anything up here
@@ -56,7 +54,8 @@ class XmlSchemaTest extends TestCase
             $this->skipFollowingTests = true;
             return;
         }
-        $GLOBALS['ADOxmlSchema']  = new adoSchema($GLOBALS['ADOdbConnection']);
+       
+       // $GLOBALS['ADOdbConnection']->transOff = 0;
 
         $GLOBALS['ADOdbConnection']->startTrans();
         $GLOBALS['ADOdbConnection']->execute("DROP TABLE IF EXISTS testxmltable_1");
@@ -82,7 +81,8 @@ class XmlSchemaTest extends TestCase
             return;
         }
         
-        $this->xmlSchema = $GLOBALS['ADOxmlSchema'];
+        $this->xmlSchema = new adoSchema($this->db);
+
         
     }
 
@@ -116,7 +116,8 @@ class XmlSchemaTest extends TestCase
 
 
         $ok = $this->xmlSchema->executeSchema(); 
-        
+        list($errno, $errmsg) = $this->assertADOdbError('xml->executeSchema()');
+
         $this->assertSame
         (
             2, // Successful operations
@@ -173,7 +174,8 @@ class XmlSchemaTest extends TestCase
 
 
         $ok = $this->xmlSchema->parseSchema($schemaFile); 
-        
+        list($errno, $errmsg) = $this->assertADOdbError('xml->parseSchema()');
+
         if (!$ok) {
             $this->assertTrue(
                 $ok,
@@ -185,7 +187,8 @@ class XmlSchemaTest extends TestCase
         }
 
         $ok = $this->xmlSchema->executeSchema(); 
-        
+        list($errno, $errmsg) = $this->assertADOdbError('xml->executeSchema()');
+
         $this->assertSame(
             2,
             $ok,

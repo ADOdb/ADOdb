@@ -26,14 +26,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class MssqlnativeDriverTest extends TestCase
+class MssqlnativeDriverTest extends ADOdbTestCase
 {
-    protected ?object $db;
-    protected ?string $adoDriver;
-    protected ?object $dataDictionary;
-
-    protected bool $skipFollowingTests = false;
-
+    
     /**
      * Set up the test environment
      *
@@ -42,8 +37,7 @@ class MssqlnativeDriverTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
+        parent::setup();
 
         if ($this->adoDriver !== 'mssqlnative') {
             $this->skipFollowingTests = true;

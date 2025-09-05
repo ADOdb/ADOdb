@@ -26,11 +26,8 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class CacheSqlTest extends TestCase
+class CacheSqlTest extends ADOdbTestCase
 {
-    protected $db;
-    protected $adoDriver;
-    protected $skipAllTests = false;
     protected $cacheMethod = 0;
     protected $timeout = 120;
     
@@ -41,6 +38,9 @@ class CacheSqlTest extends TestCase
      */
     public static function setupBeforeClass(): void
     {
+        
+        //parent::setUpBeforeClass();
+        
         $db        = &$GLOBALS['ADOdbConnection'];
         
         if (!isset($GLOBALS['TestingControl']['caching'])) {
@@ -103,7 +103,14 @@ class CacheSqlTest extends TestCase
             $this->markTestSkipped('Skipping tests as caching not configured');
         }
 
-         $this->db->cacheFlush();
+        $success = $this->db->cacheFlush();
+
+        list($errno, $errmsg) = $this->assertADOdbError('cacheFlush()');
+        if ($errno > 0 || !$success) {
+            $this->skipAllTests = true;
+            $this->skipFollowingTests = true;
+            $this->markTestSkipped('Skipping caching tests as caching offline');
+        }
     }
    
     /**

@@ -25,23 +25,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
 */
-class DbStringFunctionsTest extends TestCase
+class DbStringFunctionsTest extends ADOdbTestCase
 {
-    protected $db;
-    protected $adoDriver;
-
-    /**
-     * Set up the test environment
-     *
-     * @return void
-     */
-    public function setup(): void
-    {
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
         
-    }
-    
     /**
      * Test for {@see ADODConnection::qstr()}
      * 
@@ -64,17 +50,25 @@ class DbStringFunctionsTest extends TestCase
         */
         $SQL = "UPDATE testtable_3 SET empty_field = null";
         
-        $this->db->startTrans();
-        $this->db->Execute($SQL);
-        $this->db->CompleteTrans();
+        list($result, $errno, $errmsg) = $this->executeSqlString($SQL);
+
+        if ($errno > 0) {
+            return;
+        }
+        
         $SQL = "UPDATE testtable_3 SET empty_field = {$this->db->qstr($testString)}";
         
-        $this->db->startTrans();
-        $this->db->Execute($SQL);
-        $this->db->CompleteTrans();
+        list($result, $errno, $errmsg) = $this->executeSqlString($SQL);
 
+        if ($errno > 0) {
+            return;
+        }
+        
         $expectedValue = 11;
         $actualValue = $this->db->Affected_Rows();
+
+        list($errno, $errmsg) = $this->assertADOdbError('Affected_Rows()');
+
 
         // We should have updated 11 rows
         $this->assertSame(
@@ -88,7 +82,14 @@ class DbStringFunctionsTest extends TestCase
 
         $this->db->startTrans();
         $returnValue = $this->db->getOne($sql);
+
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+        
         $this->db->CompleteTrans();
+        if ($errno > 0) {
+            return;
+        }
+   
         
         $testResult = preg_match('/^(Famed author James O)[\\\'](\'Sullivan)$/', $returnValue);
                 
@@ -120,14 +121,23 @@ class DbStringFunctionsTest extends TestCase
             'p1' => $this->db->addQ($testString)
         );
 
-        $SQL = "UPDATE testtable_3 SET empty_field = $p1";
+        $sql = "UPDATE testtable_3 SET empty_field = $p1";
         
-        $this->db->Execute($SQL, $bind);
+        list($result, $errno, $errmsg) = $this->executeSqlString($sql, $bind);
 
+        if ($errno > 0) {
+            return;
+        }
+
+        $affectedRows =  $this->db->Affected_Rows();
+
+        list($errno, $errmsg) = $this->assertADOdbError('Affected_Rows()');
+
+       
         // We should have updated 11 rows
         $this->assertSame(
             11, 
-            $this->db->Affected_Rows(), 
+            $affectedRows,
             'All rows should have been updated with the test string'
         );
 
@@ -135,11 +145,13 @@ class DbStringFunctionsTest extends TestCase
         $sql = "SELECT empty_field FROM testtable_1";
 
         $returnValue = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
         // Now we will check the value in the empty_field column
         $sql = "SELECT empty_field FROM testtable_3";
 
         $returnValue = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
         $testResult = preg_match('/^(Famed author James O)[\\\'](\'Sullivan)$/', $returnValue);
                 
@@ -175,6 +187,7 @@ class DbStringFunctionsTest extends TestCase
 
 
         $row = $this->db->getRow($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
         $expectedValue = sprintf(
             '%s|%s',
@@ -183,6 +196,7 @@ class DbStringFunctionsTest extends TestCase
         );
 
         $field = $this->db->Concat('varchar_field', "'|'", 'varchar_field');
+        list($errno, $errmsg) = $this->assertADOdbError('concat()');
         
         $sql = "SELECT $field 
                   FROM testtable_1 
@@ -190,6 +204,7 @@ class DbStringFunctionsTest extends TestCase
 
 
         $result = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
         $this->assertSame(
             $expectedValue,
@@ -272,6 +287,7 @@ class DbStringFunctionsTest extends TestCase
                  WHERE date_field IS NOT NULL";
 
         $row = $this->db->getRow($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
        
         /*
         * Set up a test record that has a NULL value
@@ -280,10 +296,11 @@ class DbStringFunctionsTest extends TestCase
                    SET decimal_field = null 
                  WHERE number_run_field={$row[$firstColumn]}";
 
-       
-        $this->db->startTrans();
-        $this->db->Execute($sql);
-        $this->db->CompleteTrans();
+        list($result, $errno, $errmsg) = $this->executeSqlString($sql);
+        if ($errno > 0) {
+            return;
+        }
+
         /*
         * Now get a weird value back from the ifnull function
         */
@@ -293,6 +310,8 @@ class DbStringFunctionsTest extends TestCase
                  WHERE number_run_field={$row[$firstColumn]}";
 
         $expectedResult = (float)$this->db->getOne($sql);
+        
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
         
         $this->assertEquals(
             8675304,
@@ -307,11 +326,9 @@ class DbStringFunctionsTest extends TestCase
                    SET decimal_field = {$row[$secondColumn]} 
                  WHERE number_run_field={$row[$firstColumn]}";
 
-        $this->db->startTrans();
-        $this->db->Execute($sql);
-        $this->db->CompleteTrans();
-      
-         $this->db->setFetchMode(ADODB_FETCH_ASSOC);
+        list($result, $errno, $errmsg) = $this->executeSqlString($sql);
+             
+        $this->db->setFetchMode(ADODB_FETCH_ASSOC);
             
     }
 

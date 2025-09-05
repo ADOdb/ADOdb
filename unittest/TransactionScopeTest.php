@@ -26,7 +26,7 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb Tranaction Scope functionality
  */
-class TransactionScopeTest extends TestCase
+class TransactionScopeTest extends ADOdbTestCase
 {
     protected ?object $db;
     protected ?string $adoDriver;
@@ -42,9 +42,7 @@ class TransactionScopeTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-        $this->db->setFetchMode(ADODB_FETCH_ASSOC);
+        parent::setup();
 
         if (!$this->db->hasTransactions) {
             $this->skipFollowingTests = true;
@@ -55,50 +53,68 @@ class TransactionScopeTest extends TestCase
         
     }
     
+   
     /**
-     * Tear down the test environment
+     * Tests the smart transaction handling capabilities
      *
      * @return void
      */
-    public function tearDown(): void
-    {
-        
-    }
-
     public function testStartCompleteTransaction(): void
     {
         if ($this->skipFollowingTests) {
-            $this->markTestSkipped('Skipping testStartCompleteTransaction as it is not applicable for the current driver');
+            $this->markTestSkipped(
+                'Skipping testStartCompleteTransaction as it ' . 
+                'is not applicable for the current driver'
+            );
         }
+
+        if ($this->db->transOff > 0) {
+            $this->db->completeTrans(false);
+        }
+
 
         $this->db->StartTrans();
             
-        if ($this->db->transCnt == 0) {
-            $this->assertTrue(
-                0,
-                'Transaction did not start correctly, transCnt should be greater than 0'
-            );
-            return;
-        }
-
-        $this->assertTrue(
-            $this->db->transCnt == 1,
-            'Transaction count should be equal to 1 after starting a transaction'
+  
+        $assertion = $this->assertEquals(
+            1,
+            $this->db->transOff,
+            'Transaction did not start correctly, ' . 
+            'transOff should be greater than 0'
         );
-
-        $sql = "SELECT id, varchar_field FROM testtable_3 ORDER BY id";
+        
+        
+        $sql = "SELECT id, varchar_field 
+                  FROM testtable_3 
+              ORDER BY id";
 
         $baseData = $this->db->getRow($sql);
-      
-        $sql = "UPDATE testtable_3 SET varchar_field = 'transaction test' WHERE id = 1";
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
-        $this->db->execute($sql);
+        if ($errno > 0) {
+            return;
+        }
+      
+        $sql = "UPDATE testtable_3 
+                   SET varchar_field = 'transaction test' 
+                 WHERE id = 1";
+
+        list($result, $errno, $errmsg) = $this->executeSqlString($sql);
+
+        if ($errno > 0) {
+            return;
+        }
 
         /*
         * Check that the data has been updated in the transaction
         */
         $sql = "SELECT varchar_field FROM testtable_3 WHERE id = {$baseData['ID']}";
         $preCommit = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
+        if ($errno > 0) {
+            return;
+        }
 
         $this->assertEquals(
             'transaction test',
@@ -110,34 +126,70 @@ class TransactionScopeTest extends TestCase
         * Now we will rollback the transaction
         */
         $this->db->rollbackTrans();
-        $this->assertTrue(
-            $this->db->transCnt == 1,
-            'Transaction count remain equal to 1 after rolling back the transaction'
+        if ($this->db->errorNo() > 0) {
+            $this->fail(
+                $this->db->errorMsg()
+            );
+            return;
+        }
+
+        $this->assertEquals(
+            1,
+            $this->db->transOff,
+            'Transaction count still should be 1 after rolling back the ' . 
+            'transaction but before the completeTrans()'
         );
 
         $sql = "SELECT varchar_field FROM testtable_3 WHERE id = {$baseData['ID']}";
         $postRollback = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
+        if ($errno > 0) {
+            return;
+        }
 
         $this->assertEquals(
             'transaction test',
             $postRollback,
-            'Data should still be the updated value after rolling back the transaction'
+            'Data should still be the updated value ' . 
+            'after rolling back the transaction'
         );
 
         $this->db->CompleteTrans();
 
-        $this->assertTrue(
-            $this->db->transCnt == 0,
-            'Transaction count should now equal 0 after completing the transaction'
+        $assertion = $this->assertEquals(
+            0,
+            $this->db->transOff,
+            'Transaction count $transOff should now equal 0 ' . 
+            'after completing the transaction'
         );
 
-        $sql = "SELECT varchar_field FROM testtable_3 WHERE id = {$baseData['ID']}";
+        if (!$assertion) {
+            $this->fail(
+                sprintf(
+                    'Trans Count shoud be 0 but is %d', 
+                    $this->db->transOff
+                )
+            );
+            return;
+        }
+
+        $sql = "SELECT varchar_field 
+                  FROM testtable_3 
+                 WHERE id = {$baseData['ID']}";
+        
         $postCommit = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
+        if ($errno > 0) {
+            return;
+        }
 
         $this->assertEquals(
             $baseData['VARCHAR_FIELD'],
             $postCommit,
-            'Data should still be reverted to the original value after commiting the transaction'
+            'Data should still be reverted to the original ' . 
+            'value after commiting the transaction'
         );
 
     
@@ -154,39 +206,57 @@ class TransactionScopeTest extends TestCase
             $this->markTestSkipped('Skipping testBeginCommitTransaction as it is not applicable for the current driver');
         }
 
-    $this->db->BeginTrans();
+        $this->db->BeginTrans();
             
-        if ($this->db->transCnt == 0) {
-            $this->assertTrue(
-                0,
-                'Transaction did not start correctly, transCnt should be greater than 0'
-            );
+        $assertion = $this->assertEquals(
+            1,
+            $this->db->transCnt,
+            'Transaction did not start correctly,' . 
+            'transCnt should be equal to 1'
+        );
+        
+        $sql = "SELECT id, varchar_field 
+                  FROM testtable_3 
+              ORDER BY id";
+
+        $baseData = $this->db->getRow($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
+        if ($errno > 0) {
             return;
         }
 
-        $this->assertTrue(
-            $this->db->transCnt == 1,
-            'Transaction count should be equal to 1 after starting a transaction'
-        );
 
-        $sql = "SELECT id, varchar_field FROM testtable_3 ORDER BY id";
-
-        $baseData = $this->db->getRow($sql);
-
-        $sql = "UPDATE testtable_3 SET varchar_field = 'transaction test' WHERE id = 1";
+        $sql = "UPDATE testtable_3 
+                   SET varchar_field = 'transaction test' 
+                 WHERE id = 1";
 
         $this->db->execute($sql);
+        list($result, $errno, $errmsg) = $this->executeSqlString($sql);
+
+        if ($errno > 0) {
+            return;
+        }
 
         /*
         * Check that the data has been updated in the transaction
         */
-        $sql = "SELECT varchar_field FROM testtable_3 WHERE id = {$baseData['ID']}";
+        $sql = "SELECT varchar_field 
+                  FROM testtable_3 
+                 WHERE id = {$baseData['ID']}";
         $preCommit = $this->db->getOne($sql);
+        
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
+        if ($errno > 0) {
+            return;
+        }
+        
         $this->assertEquals(
             $baseData['VARCHAR_FIELD'],
             $preCommit,
-            'Data should not yet be updated in the transaction before commit'
+            'VARCHAR_FIELD Data should not yet be updated ' . 
+            'in the transaction before commit'
         );
 
         $this->db->CommitTrans();
@@ -194,13 +264,22 @@ class TransactionScopeTest extends TestCase
         /*
         * Check that the data has been updated in the transaction
         */
-        $sql = "SELECT varchar_field FROM testtable_3 WHERE id = {$baseData['ID']}";
-        $postCommit = $this->db->getOne($sql);
+        $sql = "SELECT varchar_field 
+                  FROM testtable_3 
+                 WHERE id = {$baseData['ID']}";
 
+        $postCommit = $this->db->getOne($sql);
+        
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
+        if ($errno > 0) {
+            return;
+        }
         $this->assertEquals(
             'transaction test',
             $postCommit,
-            'Data should now be updated in the transaction after commit'
+            'VARCHAR_FIELD Data should now be updated ' . 
+            'in the transaction after commit'
         );
 
     }

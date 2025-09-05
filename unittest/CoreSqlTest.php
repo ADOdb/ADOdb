@@ -26,22 +26,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class CoreSqlTest extends TestCase
+class CoreSqlTest extends ADOdbTestCase
 {
-    protected $db;
-    protected $adoDriver;
-
-    /**
-     * Set up the test environment
-     *
-     * @return void
-     */
-    public function setup(): void
-    {
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-    }
-
+    
     /**
      * Set up the test environment first time
      *
@@ -49,15 +36,14 @@ class CoreSqlTest extends TestCase
      */
     public static function setupBeforeClass(): void
     {
+
+       
+           
         $db        = $GLOBALS['ADOdbConnection'];
         $adoDriver = $GLOBALS['ADOdriver'];
 
-        $db->startTrans();
-       
         $SQL = "SELECT COUNT(*) AS core_table3_count FROM testtable_3";
         $table3DataExists = $db->getOne($SQL);
-
-        $db->completeTrans();
 
         if ($table3DataExists) {
             // Data already exists, no need to reload
@@ -120,15 +106,8 @@ class CoreSqlTest extends TestCase
     public function testSelectExecute(bool $expectedValue, string $sql, ?array $bind): void
     {
 
-        $this->db->startTrans();
-        if ($bind) {
-            $result = $this->db->execute($sql, $bind);
-        } else {
-            $result = $this->db->execute($sql);
-        }
-
-        $this->db->completeTrans();
-
+        list($result,$errno,$errmsg) = $this->executeSqlString($sql, $bind);
+        
         $this->assertSame(
             $expectedValue, 
             is_object($result), 
@@ -183,19 +162,13 @@ class CoreSqlTest extends TestCase
     public function testNonSelectExecute(bool $expectedValue, string $sql, ?array $bind): void
     {
 
-        $this->db->startTrans();
-        if ($bind) {
-            $result = $this->db->execute($sql, $bind);
-        } else {
-            $result = $this->db->execute($sql);
-        }
-
-        $this->db->completeTrans();
+        list($result,$errno,$errmsg) = $this->executeSqlString($sql, $bind);
         
         $this->assertSame(
             $expectedValue, 
             is_object($result) && get_class($result) == 'ADORecordSet_empty', 
-            'ADOConnection::execute() in INSERT/UPDATE/DELETE mode returns ADORecordSet_empty'
+            'ADOConnection::execute() in INSERT/UPDATE/DELETE mode ' . 
+            'should return an ADORecordSet_empty object'
         );
             
     }
@@ -248,6 +221,9 @@ class CoreSqlTest extends TestCase
         $this->db->startTrans();
         if ($bind) {
             $actualValue = (string)$this->db->getOne($sql, $bind);
+
+            list($errno,$errmsg) = $this->assertADOdbError($sql, $bind);
+
             $this->assertSame(
                 $expectedValue, 
                 $actualValue,
@@ -256,6 +232,8 @@ class CoreSqlTest extends TestCase
         } else {
            
             $actualValue = (string)$this->db->getOne($sql);
+
+            list($errno,$errmsg) = $this->assertADOdbError($sql);
 
             $this->assertSame(
                 $expectedValue, 
@@ -321,13 +299,21 @@ class CoreSqlTest extends TestCase
         $this->db->startTrans();
         if ($bind) {
             $cols = $this->db->getCol($sql, $bind);
+            
+            list($errno,$errmsg) = $this->assertADOdbError($sql, $bind);
+            
             $this->assertSame(
                 $expectedValue, 
                 count($cols),
                 'Get col with bind variables should return expected number of rows'
             );
+
+           
+
         } else {
             $cols = $this->db->getCol($sql);
+
+            list($errno,$errmsg) = $this->assertADOdbError($sql);
             $this->assertSame(
                 $expectedValue, 
                 count($cols),
@@ -398,6 +384,8 @@ class CoreSqlTest extends TestCase
             $this->db->setFetchMode(ADODB_FETCH_ASSOC);
        
             $record = $this->db->getRow($sql, $bind);
+
+            list($errno,$errmsg) = $this->assertADOdbError($sql, $bind);
         
             foreach ($fields as $key => $value) {
                 $this->assertArrayHasKey(
@@ -409,6 +397,9 @@ class CoreSqlTest extends TestCase
         } else {
             $this->db->setFetchMode(ADODB_FETCH_NUM);
             $record = $this->db->getRow($sql);
+            
+            list($errno,$errmsg) = $this->assertADOdbError($sql);
+            
             foreach ($fields as $key => $value) {
                 $this->assertArrayHasKey(
                     $key,
@@ -461,6 +452,8 @@ class CoreSqlTest extends TestCase
         } else {
             $returnedRows = $this->db->getAll($sql);
         }
+
+        list($errno,$errmsg) = $this->assertADOdbError($sql, $bind);
 
         $this->assertSame(
             $expectedValue,
@@ -583,6 +576,7 @@ class CoreSqlTest extends TestCase
             $result = $this->db->selectLimit($sql, $count, $offset);
         }
    
+        list($errno,$errmsg) = $this->assertADOdbError($sql, $bind);
 
         $this->db->completeTrans();
         $returnedRows = array();
@@ -664,7 +658,10 @@ class CoreSqlTest extends TestCase
 
         $this->db->startTrans();
         $response = $this->db->CreateSequence('unittest_seq', 50);
-        
+        $this->db->completeTrans();
+
+        list($errno, $errmsg) = $this->assertADOdbError('createSequenceSql()');
+
         $ok = is_object($response) && get_class($response) == 'ADORecordSet_empty';
 
         $this->assertTrue(
@@ -672,9 +669,14 @@ class CoreSqlTest extends TestCase
             'CreateSequence should return an ADORecordset_empty object If a sequence is created successfully'
         );
 
-        $this->db->completeTrans();
+      
+        
         $this->db->startTrans();
         $nextId = $this->db->GenID('unittest_seq');
+
+        list($errno,$errmsg) = $this->assertADOdbError('genID()');
+        
+        $this->db->completeTrans();
 
         $this->assertSame(
             50, 
@@ -690,13 +692,15 @@ class CoreSqlTest extends TestCase
 
         $nextId = $this->db->GenID('unittest_seq');
 
+        list($errno, $errmsg) = $this->assertADOdbError('genID()');
+
         $this->assertSame(
             51, 
             $nextId, 
             'GenID should return the next value of 51 in the sequence'
         );
 
-        $this->db->completeTrans();
+       
 
     } 
     
@@ -711,7 +715,11 @@ class CoreSqlTest extends TestCase
     {
         $this->db->startTrans();
         $response = $this->db->DropSequence('unittest_seq');
-
+        
+        list($errno, $errmsg) = $this->assertADOdbError('dropSequence()');
+        
+        $this->db->completeTrans();  
+        
         $ok = is_object($response) && get_class($response) == 'ADORecordSet_empty';
 
 
@@ -725,12 +733,14 @@ class CoreSqlTest extends TestCase
         */
         $nextId = $this->db->GenID('unittest_seq');
         
+        list($errno, $errmsg) = $this->assertADOdbError('genID()');
+
         $this->assertSame(
             1, 
             $nextId, 
             'GenID should return 1 for a non-existing sequence'
         );
-        $this->db->completeTrans();  
+       
     }   
 
 }

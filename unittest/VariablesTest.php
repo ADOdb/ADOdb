@@ -25,7 +25,7 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class VariablesTest extends TestCase
+class VariablesTest extends ADOdbTestCase
 {
     protected ?object $db;
     protected ?string $adoDriver;
@@ -35,59 +35,6 @@ class VariablesTest extends TestCase
 
     protected string $testTableName = 'table_name';
     protected string $testIdColumnName = 'ID';
-
-    /**
-     * Set up the test environment
-     *
-     * @return void
-     */
-    public function setup(): void
-    {
-
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-
-        static $testTableName = false;
-
-        if ($testTableName) {
-            $this->testTableName = $testTableName;
-            return;
-        }
-
-    
-    }
-    
-    /**
-     * Tear down the test environment
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
-        //$this->db->execute("DROP TABLE IF EXISTS {$this->testTableName}");
-    }
-
-    /**
-     * Changes the casing of the keys in an associative array
-     * based on the value of ADODB_ASSOC_CASE
-     *
-     * @param array $input by reference
-     * 
-     * @return void
-     */
-    protected function changeKeyCasing(array &$input) : void
-    {
-        if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
-            $input = array_change_key_case($input, CASE_UPPER);
-        } elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
-            $input = array_change_key_case($input, CASE_LOWER);
-        } elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_NATURAL) {
-            // No change needed
-        } else {
-            throw new InvalidArgumentException('Invalid ADODB_ASSOC_CASE value');
-        }   
-
-    }
 
     /**
      * Test for {@see $ADODB_QUOTE_FIELDNAMES}
@@ -116,7 +63,8 @@ class VariablesTest extends TestCase
         
         $sql = "SELECT * FROM $quotedTable WHERE {$this->testIdColumnName}=-1";
 
-        $template = $this->db->execute($sql);
+        list($template, $errno, $errmsg) = $this->executeSqlString($sql);
+       
        
         $ar = array(
             'column_name' => 'Sample data'
@@ -126,8 +74,9 @@ class VariablesTest extends TestCase
             $template,
             $ar
         );
-        
-        $response = $this->db->execute($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
+
+        list($response, $errno, $errmsg) = $this->executeSqlString($sql);
 
         $success = is_object($response);
 
@@ -138,6 +87,7 @@ class VariablesTest extends TestCase
         );
 
         $count = $this->db->getOne("SELECT COUNT(*) FROM $quotedTable");
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
         $this->assertEquals(
             0, 
@@ -154,14 +104,10 @@ class VariablesTest extends TestCase
             $template,
             $ar
         );
-        
-        $success = $this->db->execute($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
-        $this->assertSame(
-            true,
-            $success, 
-            'Data insertion failed Using Quoted field and table names. The failing SQL was: ' . $sql
-        );
+        list($success, $errno, $errmsg) = $this->executeSqlString($sql);
+
     }
 
     /**
@@ -192,6 +138,7 @@ class VariablesTest extends TestCase
         $sql = "SELECT * FROM {$this->testTableName}";
         
         $testRow = $this->db->getRow($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
         $this->assertArrayHasKey(
             $expectedResult,
@@ -205,6 +152,7 @@ class VariablesTest extends TestCase
         $this->db->setFetchMode(ADODB_FETCH_NUM);
 
         $testRow = $this->db->getRow($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
         $expectedResult = '0'; // Numeric index for the first column
 
@@ -230,6 +178,7 @@ class VariablesTest extends TestCase
      
         $sql = 'select varchar_field from testtable_1 where id=9999';
         $test = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
         $this->assertEquals(
             $test, 
@@ -240,6 +189,7 @@ class VariablesTest extends TestCase
         $ADODB_GETONE_EOF = -1;
 
         $test = $this->db->getOne($sql);
+        list($errno, $errmsg) = $this->assertADOdbError($sql);
 
         $this->assertEquals(
             $test,
@@ -262,7 +212,8 @@ class VariablesTest extends TestCase
 
  
         $sql = "SELECT * FROM testtable_3";
-        $result = $this->db->Execute($sql);
+                
+        list($result, $errno, $errmsg) = $this->executeSqlString($sql);
 
         $this->assertEquals(
             11,
@@ -272,8 +223,8 @@ class VariablesTest extends TestCase
 
         $ADODB_COUNTRECS = false;
 
-        $result = $this->db->Execute($sql);
-        
+        list($result, $errno, $errmsg) = $this->executeSqlString($sql);
+
         $this->assertEquals(
             -1,
             $result->recordCount(), 

@@ -26,14 +26,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class FirebirdDriverTest extends TestCase
+class FirebirdDriverTest extends ADOdbTestCase
 {
-    protected ?object $db;
-    protected ?string $adoDriver;
-    protected ?object $dataDictionary;
-
-    protected bool $skipFollowingTests = false;
-
+    
     /**
      * Set up the test environment
      *
@@ -42,8 +37,7 @@ class FirebirdDriverTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
+        parent::setup();
 
         if ($this->adoDriver !== 'firebird') {
             $this->skipFollowingTests = true;
@@ -51,16 +45,6 @@ class FirebirdDriverTest extends TestCase
                 'This test is only applicable for the firebird driver'
             );
         }
-        
-    }
-    
-    /**
-     * Tear down the test environment
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
         
     }
 }

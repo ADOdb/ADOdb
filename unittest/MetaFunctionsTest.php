@@ -25,11 +25,10 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class MetaFunctionsTest extends TestCase
+class MetaFunctionsTest extends ADOdbTestCase
 {
-    protected $db;
-    protected $adoDriver;
-    protected $testTableName = 'testtable_1';
+   
+    protected string $testTableName = 'testtable_1';
 
     protected array $testfetchModes = [
         ADODB_FETCH_NUM   => 'ADODB_FETCH_NUM',
@@ -37,18 +36,7 @@ class MetaFunctionsTest extends TestCase
         ADODB_FETCH_BOTH  => 'ADODB_FETCH_BOTH'
     ];
     
-    /**
-     * Set up the test environment
-     *
-     * @return void
-     */
-    public function setup(): void
-    {
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-
-    }
-       
+         
     /**
      * Test for {@see ADODConnection::metaTables()]
      *
@@ -72,6 +60,7 @@ class MetaFunctionsTest extends TestCase
                 false, //$this->db->database, 
                 $mask
             );
+            list($errno, $errmsg) = $this->assertADOdbError('metaTables()');
 
             $tableExists = $executionResult && in_array(strtoupper($this->testTableName), $executionResult);
 
@@ -96,7 +85,7 @@ class MetaFunctionsTest extends TestCase
      */
     public function providerTestMetaTables(): array
     {
-        $match = substr($this->testTableName,0,4) . '%';
+        $match = substr($this->testTableName, 0, 4) . '%';
         return [
             'Show both Tables & Views' => [true,false,false],
             'Show only Tables' => [true,'TABLES',false],
@@ -129,6 +118,7 @@ class MetaFunctionsTest extends TestCase
                 false, //$this->db->database, 
                 $this->testTableName,
             );
+            list($errno, $errmsg) = $this->assertADOdbError('metaTables()');
             
             $assertionResult = $this->assertIsArray(
                 $executionResult,
@@ -182,7 +172,11 @@ class MetaFunctionsTest extends TestCase
       
         $this->db->setFetchMode($fetchMode);
 
-        $executionResult = $this->db->metaColumnNames($this->testTableName, $returnType);
+        $executionResult = $this->db->metaColumnNames(
+            $this->testTableName, 
+            $returnType
+        );
+        list($errno, $errmsg) = $this->assertADOdbError('metaColumnNames()');
 
         $this->assertSame(
             $expectedResult, 
@@ -253,6 +247,7 @@ class MetaFunctionsTest extends TestCase
      
         
             $metaTables = $this->db->metaTables('T', '', $this->testTableName);
+            list($errno, $errmsg) = $this->assertADOdbError('metaTables()');
             
             if ($metaTables === false) {
                 $this->fail(
@@ -267,7 +262,7 @@ class MetaFunctionsTest extends TestCase
             $tableName = $metaTables[0];
 
             $executionResult = $this->db->metaColumns($tableName);
-
+            list($errno, $errmsg) = $this->assertADOdbError('metaColumns()');
             $this->assertSame(
                 $expectedResult, 
                 count($executionResult),
@@ -295,7 +290,7 @@ class MetaFunctionsTest extends TestCase
             $this->db->setFetchMode($fetchMode);
      
             $executionResult = $this->db->metaColumns($this->testTableName);
-
+            list($errno, $errmsg) = $this->assertADOdbError('metaColumns()');
             if (empty($executionResult)) {
                 $this->fail(
                     sprintf(
@@ -346,7 +341,7 @@ class MetaFunctionsTest extends TestCase
             $this->db->setFetchMode($fetchMode);
                         
             $executionResult = $this->db->metaColumns($this->testTableName);
-        
+            list($errno, $errmsg) = $this->assertADOdbError('metaColumns()');
     
             foreach ($expectedResult as $expectedField) {
                 
@@ -384,7 +379,8 @@ class MetaFunctionsTest extends TestCase
             $this->db->setFetchMode($fetchMode);
         
             $executionResult = $this->db->metaIndexes($this->testTableName);
-
+            list($errno, $errmsg) = $this->assertADOdbError('metaIndexes()');
+            
             $this->assertSame(
                 3,
                 count($executionResult),
@@ -414,6 +410,8 @@ class MetaFunctionsTest extends TestCase
             $this->db->setFetchMode($fetchMode);
         
             $executionResult = $this->db->metaIndexes($this->testTableName);
+            list($errno, $errmsg) = $this->assertADOdbError('metaIndexes()');
+            
             $this->assertSame(
                 $result, 
                 ($executionResult[$indexName]['unique'] == 1),
@@ -453,6 +451,7 @@ class MetaFunctionsTest extends TestCase
             $this->db->setFetchMode($fetchMode);
         
             $executionResult = $this->db->metaPrimaryKeys($this->testTableName);
+            list($errno, $errmsg) = $this->assertADOdbError('metaPrimaryKeys()');
 
             $this->assertIsArray(
                 $executionResult,
@@ -515,7 +514,8 @@ class MetaFunctionsTest extends TestCase
 
             
         $executionResult = $this->db->metaForeignKeys($testTable2);
-
+        list($errno, $errmsg) = $this->assertADOdbError('metaForeignKeys()');
+        
         $this->db->setFetchMode($originalFetchMode);
         
         if ($executionResult == false) {
@@ -562,7 +562,8 @@ class MetaFunctionsTest extends TestCase
         $this->db->setFetchMode(ADODB_FETCH_NUM);
 
         $executionResult = $this->db->metaForeignKeys($testTable2);
-  
+        list($errno, $errmsg) = $this->assertADOdbError('metaForeignKeys()');
+        
         $this->db->setFetchMode($originalFetchMode);
         
         if ($executionResult == false) {
@@ -611,7 +612,9 @@ class MetaFunctionsTest extends TestCase
     */
     public function testMetaTypes(mixed $metaType,int $offset): void
     {
-        $executionResult = $this->db->execute('SELECT * FROM ' . $this->testTableName);
+        $sql = 'SELECT * FROM ' . $this->testTableName;
+        list ($executionResult, $errno, $errmsg) = $this->executeSqlString($sql);
+
 
         $metaResult = false;
         $metaFetch = $executionResult->fetchField($offset);
@@ -719,13 +722,14 @@ class MetaFunctionsTest extends TestCase
     public function testMetaFunctionsForInvalidTable(): void
     {
         
-   
+      
         foreach ($this->testfetchModes as $fetchMode => $fetchModeName) {
             
             $this->db->setFetchMode($fetchMode);
         
 
             $response = $this->db->metaColumns('invalid_table');
+            list($errno, $errmsg) = $this->assertADOdbError('metaColumns()');
 
             $this->assertTrue(
                 $this->db->errorNo() > 0,
@@ -744,6 +748,7 @@ class MetaFunctionsTest extends TestCase
             );
 
             $response = $this->db->metaColumnNames('invalid_table');
+            list($errno, $errmsg) = $this->assertADOdbError('metaColumnNames()');
 
             $this->assertTrue(
                 $this->db->errorNo() > 0,
@@ -762,6 +767,7 @@ class MetaFunctionsTest extends TestCase
             );
 
             $response = $this->db->metaIndexes('invalid_table');
+            list($errno, $errmsg) = $this->assertADOdbError('metaIndexes()');
             $this->assertTrue(
                 $this->db->errorNo() > 0,
                 sprintf(
@@ -777,6 +783,7 @@ class MetaFunctionsTest extends TestCase
                 )
             );
             $response = $this->db->metaPrimaryKeys('invalid_table');
+            list($errno, $errmsg) = $this->assertADOdbError('metaPrimaryKeys()');
             $this->assertTrue(
                 $this->db->errorNo() > 0,
                 sprintf(
@@ -792,6 +799,7 @@ class MetaFunctionsTest extends TestCase
                 )
             );
             $response = $this->db->metaForeignKeys('invalid_table');
+            list($errno, $errmsg) = $this->assertADOdbError('metaForeignKeys()');
             $this->assertTrue(
                 $this->db->errorNo() > 0,
                 sprintf(
@@ -802,7 +810,8 @@ class MetaFunctionsTest extends TestCase
             $this->assertFalse(
                 $response,
                 sprintf(
-                    '[FETCH MODE %s] Checking that metaForeignKeys returns false for an invalid table',
+                    '[FETCH MODE %s] Checking that metaForeignKeys ' . 
+                    'returns false for an invalid table',
                     $fetchModeName
                 )
             );

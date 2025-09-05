@@ -26,14 +26,9 @@ use PHPUnit\Framework\TestCase;
  *
  * Test cases for for ADOdb MetaFunctions
  */
-class Sqlite3DriverTest extends TestCase
+class Sqlite3DriverTest extends ADOdbTestCase
 {
-    protected ?object $db;
-    protected ?string $adoDriver;
-    protected ?object $dataDictionary;
-
-    protected bool $skipFollowingTests = false;
-
+    
     /**
      * Set up the test environment
      *
@@ -42,9 +37,8 @@ class Sqlite3DriverTest extends TestCase
     public function setup(): void
     {
 
-        $this->db        = &$GLOBALS['ADOdbConnection'];
-        $this->adoDriver = $GLOBALS['ADOdriver'];
-
+        parent::setup();
+        
         if ($this->adoDriver !== 'sqlite3') {
             $this->skipFollowingTests = true;
             $this->markTestSkipped(
@@ -54,13 +48,4 @@ class Sqlite3DriverTest extends TestCase
         
     }
     
-    /**
-     * Tear down the test environment
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
-        
-    }
 }
