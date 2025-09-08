@@ -146,8 +146,10 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * The default is to use native case-names.
 	 *
+	 * The values of these constants match PHP's CASE_LOWER and CASE_UPPER.
+	 *
 	 * NOTE: This functionality is not implemented everywhere, it currently
-	 * works only with: mssql, odbc, oci8 and ibase derived drivers
+	 * works only with: mssql, odbc, oci8 and ibase derived drivers.
 	 */
 	define('ADODB_ASSOC_CASE_LOWER', 0);
 	define('ADODB_ASSOC_CASE_UPPER', 1);
@@ -2941,11 +2943,11 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	/**
-	 * Return string with a database specific IFNULL statement 
+	 * Return string with a database specific IFNULL statement
 	 *
 	 * @param string $field
 	 * @param string $ifNull
-	 * 
+	 *
 	 * @return void
 	 */
 	function IfNull( $field, $ifNull ) {
@@ -3217,14 +3219,17 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	 * @param ttype can either be 'VIEW' or 'TABLE' or false.
-	 *		If false, both views and tables are returned.
-	 *		"VIEW" returns only views
-	 *		"TABLE" returns only tables
-	 * @param showSchema returns the schema/user with the table name, eg. USER.TABLE
-	 * @param mask  is the input mask - only supported by oci8 and postgresql
+	 * Returns an array of table names and/or views in the database.
 	 *
-	 * @return  array of tables for current database.
+	 * @param string|bool $ttype Can be either `TABLE`, `VIEW`, or false.
+	 *                           - If false, both views and tables are returned.
+	 *                           - `TABLE` (or `T`) returns only tables
+	 *                           - `VIEW` (or `V` returns only views
+	 * @param string|bool $showSchema Prepends the schema/user to the table name,
+	 *                                eg. USER.TABLE
+	 * @param string|bool $mask Input mask - not supported by all drivers
+	 *
+	 * @return array|false Tables/Views for current database.
 	 */
 	function MetaTables($ttype=false,$showSchema=false,$mask=false) {
 		global $ADODB_FETCH_MODE;

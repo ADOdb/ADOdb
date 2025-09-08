@@ -29,13 +29,12 @@ class ADODB2_mysql extends ADODB_DataDict {
 	var $dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
 
 	var $dropIndex = 'DROP INDEX %s ON %s';
-	var $renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';	// needs column-definition!
 
 	public $blobAllowsNotNull = true;
-	
-	function metaType($t,$len=-1,$fieldobj=false)
+
+
+	function metaType($t, $len=-1, $fieldobj=false)
 	{
-		
 		if (is_object($t)) {
 			$fieldobj = $t;
 			$t = $fieldobj->type;
@@ -44,113 +43,135 @@ class ADODB2_mysql extends ADODB_DataDict {
 		$is_serial = is_object($fieldobj) && $fieldobj->primary_key && $fieldobj->auto_increment;
 
 		$len = -1; // mysql max_length is not accurate
-			
+
 		$t = strtoupper($t);
-		
-		if (array_key_exists($t,$this->connection->customActualTypes))
-			return  $this->connection->customActualTypes[$t];
-		
+
+		if (array_key_exists($t, $this->connection->customActualTypes)) {
+			return $this->connection->customActualTypes[$t];
+		}
+
 		switch ($t) {
-			
-		case 'STRING':
-		case 'CHAR':
-		case 'VARCHAR':
-		case 'TINYBLOB':
-		case 'TINYTEXT':
-		case 'ENUM':
-		case 'SET':
-			if ($len <= $this->blobSize) return 'C';
+			case 'STRING':
+			case 'CHAR':
+			case 'VARCHAR':
+			case 'TINYBLOB':
+			case 'TINYTEXT':
+			case 'ENUM':
+			/** @noinspection PhpMissingBreakStatementInspection */
+			case 'SET':
+				if ($len <= $this->blobSize) {
+					return 'C';
+				}
+				// Fall through
 
-		case 'TEXT':
-		case 'LONGTEXT':
-		case 'MEDIUMTEXT':
-			return 'X';
+			case 'TEXT':
+			case 'LONGTEXT':
+			case 'MEDIUMTEXT':
+				return 'X';
 
-		// php_mysql extension always returns 'blob' even if 'text'
-		// so we have to check whether binary...
-		case 'IMAGE':
-		case 'LONGBLOB':
-		case 'BLOB':
-		case 'MEDIUMBLOB':
-			return !empty($fieldobj->binary) ? 'B' : 'X';
+			// php_mysql extension always returns 'blob' even if 'text'
+			// so we have to check whether binary...
+			case 'IMAGE':
+			case 'LONGBLOB':
+			case 'BLOB':
+			case 'MEDIUMBLOB':
+				return !empty($fieldobj->binary) ? 'B' : 'X';
 
-		case 'YEAR':
-		case 'DATE': return 'D';
+			case 'YEAR':
+			case 'DATE':
+				return 'D';
 
-		case 'TIME':
-		case 'DATETIME':
-		case 'TIMESTAMP': return 'T';
+			case 'TIME':
+			case 'DATETIME':
+			case 'TIMESTAMP':
+				return 'T';
 
-		case 'FLOAT':
-		case 'DOUBLE':
-			return 'F';
+			case 'FLOAT':
+			case 'DOUBLE':
+				return 'F';
 
-		case 'INT':
-		case 'INTEGER': return $is_serial ? 'R' : 'I';
-		case 'TINYINT': return $is_serial ? 'R' : 'I1';
-		case 'SMALLINT': return $is_serial ? 'R' : 'I2';
-		case 'MEDIUMINT': return $is_serial ? 'R' : 'I4';
-		case 'BIGINT':  return $is_serial ? 'R' : 'I8';
-		default: 
-			
-			return ADODB_DEFAULT_METATYPE;
+			case 'INT':
+			case 'INTEGER':
+				return $is_serial ? 'R' : 'I';
+			case 'TINYINT':
+				return $is_serial ? 'R' : 'I1';
+			case 'SMALLINT':
+				return $is_serial ? 'R' : 'I2';
+			case 'MEDIUMINT':
+				return $is_serial ? 'R' : 'I4';
+			case 'BIGINT':
+				return $is_serial ? 'R' : 'I8';
+			default:
+
+				return ADODB_DEFAULT_METATYPE;
 		}
 	}
 
-	function ActualType($meta)
+	function actualType($meta)
 	{
-		
-		$meta = strtoupper($meta);
-		
-		/*
-		* Add support for custom meta types. We do this
-		* first, that allows us to override existing types
-		*/
-		if (isset($this->connection->customMetaTypes[$meta]))
-			return $this->connection->customMetaTypes[$meta]['actual'];
-				
-		switch($meta) 
-		{
-		
-		case 'C': return 'VARCHAR';
-		case 'XL':return 'LONGTEXT';
-		case 'X': return 'TEXT';
+		$meta = parent::actualType($meta);
 
-		case 'C2': return 'VARCHAR';
-		case 'X2': return 'LONGTEXT';
+		switch ($meta) {
+			case 'C':
+			case 'C2':
+				return 'VARCHAR';
+			case 'XL':
+			case 'X2':
+				return 'LONGTEXT';
+			case 'X':
+				return 'TEXT';
 
-		case 'B': return 'LONGBLOB';
+			case 'B':
+				return 'LONGBLOB';
 
-		case 'D': return 'DATE';
-		case 'TS':
-		case 'T': return 'DATETIME';
-		case 'L': return 'TINYINT';
+			case 'D':
+				return 'DATE';
+			case 'TS':
+			case 'T':
+				return 'DATETIME';
+			case 'L':
+				return 'TINYINT';
 
-		case 'R':
-		case 'I4':
-		case 'I': return 'INTEGER';
-		case 'I1': return 'TINYINT';
-		case 'I2': return 'SMALLINT';
-		case 'I8': return 'BIGINT';
+			case 'R':
+			case 'I4':
+			case 'I':
+				return 'INTEGER';
+			/** @noinspection PhpDuplicateSwitchCaseBodyInspection */
+			case 'I1':
+				return 'TINYINT';
+			case 'I2':
+				return 'SMALLINT';
+			case 'I8':
+				return 'BIGINT';
 
-		case 'F': return 'DOUBLE';
-		case 'N': return 'NUMERIC';
-			
-		default:
-			
-			return $meta;
+			case 'F':
+				return 'DOUBLE';
+			case 'N':
+				return 'NUMERIC';
+
+			default:
+				return $meta;
 		}
 	}
 
-	// return string must begin with space
 	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
-		if ($funsigned) $suffix .= ' UNSIGNED';
-		if ($fnotnull) $suffix .= ' NOT NULL';
-		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
-		if ($fautoinc) $suffix .= ' AUTO_INCREMENT';
-		if ($fconstraint) $suffix .= ' '.$fconstraint;
+		if ($funsigned) {
+			$suffix .= ' UNSIGNED';
+		}
+		if ($fnotnull) {
+			$suffix .= ' NOT NULL';
+		}
+		if (strlen($fdefault)) {
+			$suffix .= " DEFAULT $fdefault";
+		}
+		if ($fautoinc) {
+			$suffix .= ' AUTO_INCREMENT';
+		}
+		if ($fconstraint) {
+			$suffix .= ' ' . $fconstraint;
+		}
 		return $suffix;
 	}
 
@@ -175,19 +196,23 @@ class ADODB2_mysql extends ADODB_DataDict {
 		ON tbl_name (col_name[(length)],... )
 	*/
 
-	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
+	function _indexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
 
-		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
-			if ($this->alterTableAddIndex) $sql[] = "ALTER TABLE $tabname DROP INDEX $idxname";
-			else $sql[] = sprintf($this->dropIndex, $idxname, $tabname);
+		if (isset($idxoptions['REPLACE']) || isset($idxoptions['DROP'])) {
+			if ($this->alterTableAddIndex) {
+				$sql[] = "ALTER TABLE $tabname DROP INDEX $idxname";
+			} else {
+				$sql[] = sprintf($this->dropIndex, $idxname, $tabname);
+			}
 
-			if ( isset($idxoptions['DROP']) )
+			if (isset($idxoptions['DROP'])) {
 				return $sql;
+			}
 		}
 
-		if ( empty ($flds) ) {
+		if (empty($flds)) {
 			return $sql;
 		}
 
@@ -199,18 +224,51 @@ class ADODB2_mysql extends ADODB_DataDict {
 			$unique = '';
 		}
 
-		if ( is_array($flds) ) $flds = implode(', ',$flds);
+		if (is_array($flds)) {
+			$flds = implode(', ', $flds);
+		}
 
-		if ($this->alterTableAddIndex) $s = "ALTER TABLE $tabname ADD $unique INDEX $idxname ";
-		else $s = 'CREATE' . $unique . ' INDEX ' . $idxname . ' ON ' . $tabname;
+		if ($this->alterTableAddIndex) {
+			$s = "ALTER TABLE $tabname ADD $unique INDEX $idxname ";
+		} else {
+			$s = 'CREATE' . $unique . ' INDEX ' . $idxname . ' ON ' . $tabname;
+		}
 
 		$s .= ' (' . $flds . ')';
 
-		if ( isset($idxoptions[$this->upperName]) )
+		if (isset($idxoptions[$this->upperName])) {
 			$s .= $idxoptions[$this->upperName];
+		}
 
 		$sql[] = $s;
 
 		return $sql;
+	}
+
+	/**
+	 * Rename one column.
+	 *
+	 * MySQL < 8.0 does not support the standard `RENAME COLUMN` SQL syntax,
+	 * so the $flds parameter must be provided.
+	 *
+	 * @param string $tabname   Table name.
+	 * @param string $oldcolumn Column to be renamed.
+	 * @param string $newcolumn New column name.
+	 * @param string $flds      Complete column definition string like for {@see addColumnSQL};
+	 *                          This is currently only used by MySQL < 8.0. Defaults to ''.
+	 *
+	 * @return array SQL statements.
+	 */
+	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
+	{
+		$version = $this->connection->ServerInfo();
+
+		if (version_compare($version['version'], '8.0', '<')) {
+			$this->renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';
+		} else {
+			$flds = '';
+		}
+
+		return parent::renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds);
 	}
 }

@@ -60,11 +60,24 @@ class ADODB_db2 extends ADOConnection {
 	var $useFetchArray = false;
 	var $_bindInputArray = true;
 	var $_genIDSQL = "VALUES NEXTVAL FOR %s";
+	
+	/**
+	 * SQL to create a new sequence
+	 * 
+	 * @var string
+	 */
 	var $_genSeqSQL = "
 	CREATE SEQUENCE %s START WITH %s
 	NO MAXVALUE NO CYCLE INCREMENT BY 1 NO CACHE
 	";
+
+	/**
+	 * SQL to drop a sequence
+	 * 
+	 * @var string 
+	 */
 	var $_dropSeqSQL = "DROP SEQUENCE %s";
+
 	var $_autocommit = true;
 	var $_lastAffectedRows = 0;
 	var $hasInsertID = true;
@@ -429,14 +442,40 @@ class ADODB_db2 extends ADOConnection {
 	/**
 	* Format date column in sql string given an input format that understands Y M D
 	*
-	* @param	string	$fmt
-	* @param	bool	$col
+	* @param	string	$fmt The format string e.g. 'm/d/Y'
+	* @param	string	$col optionally either a column name,an ISO date string or a
+	*                        ate geerating DB2 function like CURRENT DATE
 	*
 	* @return string
 	*/
-	function sqlDate($fmt, $col=false)
+	public function sqlDate($fmt, $col=false)
 	{
-		if (!$col) $col = $this->sysDate;
+		$usesSysDate = false;
+		$trailer = '';
+		$dCol    = '';
+		$tCol    = '';
+		if (!$col) {
+			/*
+			 * If no column is provided, we use the system date or time
+			 */
+			
+			$dCol = $this->sysDate;
+			$tCol = $this->sysTime;
+			
+			/*
+			* Anything not from a column needs this
+			*/
+			$trailer = 'FROM SYSIBM.SYSDUMMY1';
+		
+		} else if (preg_match('/(\d{4})-(\d{2})-(\d{2})/',$col)) {
+			/*
+			 * If the column is an ISO date string, we use it as is
+			 */
+			$trailer = 'FROM SYSIBM.SYSDUMMY1';
+			if (substr($col,0,1) != "'") {
+				$col = $this->qstr($col);
+			}
+		}
 
 		/* use TO_CHAR() if $fmt is TO_CHAR() allowed fmt */
 		if ($fmt== 'Y-m-d H:i:s')
@@ -446,66 +485,131 @@ class ADODB_db2 extends ADOConnection {
 
 		$len = strlen($fmt);
 		for ($i=0; $i < $len; $i++) {
-			if ($s) $s .= $this->concat_operator;
+			if ($s) {
+				$s .= $this->concat_operator;
+			}
+			
 			$ch = $fmt[$i];
+			
 			switch($ch) {
 			case 'Y':
 			case 'y':
-				if ($len==1) return "year($col)";
-				$s .= "char(year($col))";
+				
+				if ($len==1) {
+					return "YEAR($col$dCol) $trailer";
+				}
+				
+				/*
+				* the CHAR creates a CHAR(20) so trim it
+				*/
+				$s .= "RTRIM(CHAR(YEAR($col$dCol)))";
+				
 				break;
+
 			case 'M':
-				if ($len==1) return "monthname($col)";
-				$s .= "substr(monthname($col),1,3)";
+				
+				/*
+				* Returns "January" we want "Jan"
+				*/
+				$cmd = "SUBSTR(MONTHNAME($col$dCol),1,3)";
+				
+				if ($len==1) {
+					 return "$cmd $trailer";
+				}
+				$s .= $cmd;
+				
 				break;
+
 			case 'm':
-				if ($len==1) return "month($col)";
-				$s .= "right(digits(month($col)),2)";
+				
+				$cmd = "RIGHT(DIGITS(MONTH($col$dCol)),2)";
+				if ($len==1) {
+					return "$cmd $trailer";
+				}
+
+				$s .= $cmd;
 				break;
+
 			case 'D':
 			case 'd':
-				if ($len==1) return "day($col)";
-				$s .= "right(digits(day($col)),2)";
+
+				$cmd = "RIGHT(DIGITS(DAY($col$dCol)),2)";
+
+				if ($len==1) {
+					return "$cmd $trailer";
+				}
+
+				$s .= $cmd;
 				break;
+
 			case 'H':
 			case 'h':
-				if ($len==1) return "hour($col)";
-				if ($col != $this->sysDate) $s .= "right(digits(hour($col)),2)";
-				else $s .= "''";
+				
+				$cmd = "RIGHT(DIGITS(HOUR($col$tCol)),2)";
+				if ($len==1) {
+					return "$cmd $trailer";
+				}
+				
+				$s .= $cmd;
+				
 				break;
+
 			case 'i':
 			case 'I':
-				if ($len==1) return "minute($col)";
-				if ($col != $this->sysDate)
-					$s .= "right(digits(minute($col)),2)";
-					else $s .= "''";
+
+				$cmd = "RIGHT(DIGITS(MINUTE($col$tCol)),2)";
+				if ($len==1) {
+					return "$cmd $trailer";
+				}
+				
+				$s .= $cmd;
+				
 				break;
+			
 			case 'S':
 			case 's':
-				if ($len==1) return "second($col)";
-				if ($col != $this->sysDate)
-					$s .= "right(digits(second($col)),2)";
-				else $s .= "''";
+				$cmd = "RIGHT(DIGITS(SECOND($col$tCol)),2)";
+				if ($len==1) {
+					return "$cmd $trailer";
+				}
+				
+				$s .= $cmd;
 				break;
+
 			default:
+				
 				if ($ch == '\\') {
 					$i++;
 					$ch = substr($fmt,$i,1);
 				}
+				
 				$s .= $this->qstr($ch);
 			}
 		}
+
+		$s .= " $trailer";
+
 		return $s;
 	}
 
-
-	function serverInfo()
+	/**
+	 * Return information about the database server
+	 *
+	 * @return array
+	 */
+	public function serverInfo()
 	{
+		global $ADODB_FETCH_MODE;
+		$savem = $ADODB_FETCH_MODE;
+		
+		$this->setFetchMode(ADODB_FETCH_NUM);
+
 		$sql = "SELECT service_level, fixpack_num
 				  FROM TABLE(sysproc.env_get_inst_info())
 					AS INSTANCEINFO";
 		$row = $this->GetRow($sql);
 
+		$this->setFetchMode($savem);
 
 		if ($row) {
 			$info['version'] = $row[0].':'.$row[1];
@@ -518,23 +622,7 @@ class ADODB_db2 extends ADOConnection {
 		return $info;
 	}
 
-	function createSequence($seqname='adodbseq',$start=1)
-	{
-		if (empty($this->_genSeqSQL))
-			return false;
-
-		$ok = $this->execute(sprintf($this->_genSeqSQL,$seqname,$start));
-		if (!$ok)
-			return false;
-		return true;
-	}
-
-	function dropSequence($seqname='adodbseq')
-	{
-		if (empty($this->_dropSeqSQL)) return false;
-		return $this->execute(sprintf($this->_dropSeqSQL,$seqname));
-	}
-
+	
 	function selectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false,$secs2cache=0)
 	{
 		$nrows = (integer) $nrows;
@@ -660,7 +748,11 @@ class ADODB_db2 extends ADOConnection {
 		$schema = '';
 		$this->_findschema($table,$schema);
 
-		$table = $this->getTableCasedValue($table);
+		$table = $this->metaTables('T','',$table);
+		if ($table == false)
+			return false;
+
+		$table = $table[0];
 
 		$savem 			  = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
@@ -668,8 +760,8 @@ class ADODB_db2 extends ADOConnection {
 
 
 		$sql = "SELECT *
-				  FROM syscat.indexes
-				 WHERE tabname='$table'";
+				  FROM SYSCAT.INDEXES
+				 WHERE TABNAME='$table'";
 
 		$rows = $this->getAll($sql);
 
@@ -716,24 +808,27 @@ class ADODB_db2 extends ADOConnection {
 		$schema = '';
 		$this->_findschema($table,$schema);
 
-		$savem = $ADODB_FETCH_MODE;
-		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		$metaTables = $this->metaTables('T','',$table);
 
-		$this->setFetchMode(ADODB_FETCH_NUM);
+		if ($metaTables == false) {
+			return false;
+		}
 
-		$sql = "SELECT SUBSTR(tabname,1,20) table_name,
-					   SUBSTR(constname,1,20) fk_name,
-					   SUBSTR(REFTABNAME,1,12) parent_table,
-					   SUBSTR(refkeyname,1,20) pk_orig_table,
-					   fk_colnames
+		$table = $metaTables[0];
+
+		$baseFetchMode = $ADODB_FETCH_MODE;
+	
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+				
+		$this->setFetchMode(ADODB_FETCH_ASSOC);
+		$sql = "SELECT *
 				 FROM syscat.references
 				WHERE tabname = '$table'";
 
 		$results = $this->getAll($sql);
 
-		$ADODB_FETCH_MODE = $savem;
-		$this->setFetchMode($savem);
-
+		$this->setFetchMode($baseFetchMode);
+		
 		if (empty($results))
 			return false;
 
@@ -741,11 +836,47 @@ class ADODB_db2 extends ADOConnection {
 
 		foreach ($results as $r)
 		{
-			$parentTable = trim($this->getMetaCasedValue($r[2]));
-			$keyName     = trim($this->getMetaCasedValue($r[1]));
-			$foreignKeys[$parentTable] = $keyName;
-		}
 
+			/*
+			
+            [CONSTNAME] => SQL250829011849680
+            [TABSCHEMA] => DB2INST1
+            [TABNAME] => TESTTABLE_2
+            [OWNER] => DB2INST1
+            [OWNERTYPE] => U
+            [REFKEYNAME] => SQL250829011847480
+            [REFTABSCHEMA] => DB2INST1
+            [REFTABNAME] => TESTTABLE_1
+            [COLCOUNT] => 1
+            [DELETERULE] => C
+            [UPDATERULE] => A
+            [CREATE_TIME] => 2025-08-29 01:18:49.717630
+            [FK_COLNAMES] =>  TT_ID              
+            [PK_COLNAMES] =>  ID                 
+            [DEFINER] => DB2INST1
+        )
+			*/
+			$referenceTable = trim($r['REFTABNAME']);
+
+			if (!array_key_exists($referenceTable,$foreignKeys)) {
+				$foreignKeys[$referenceTable] = array();
+			}
+			$pkColnames = array_filter(preg_split('/ +/', $r['PK_COLNAMES']));
+			$fkColnames = array_filter(preg_split('/ +/', $r['FK_COLNAMES']));
+
+			foreach ($pkColnames as $i=>$pkColname) {
+
+				$pkColname = trim($pkColname);
+				$fkColname = trim($fkColnames[$i]);
+				if ($baseFetchMode == ADODB_FETCH_ASSOC) {
+					$foreignKeys[$referenceTable][$pkColname] = $fkColname;
+				} else {
+					$foreignKeys[$referenceTable][] = sprintf('%s=%s',$pkColname,$fkColname);
+				}
+	
+			}
+
+		}
 		return $foreignKeys;
 	}
 
@@ -760,12 +891,12 @@ class ADODB_db2 extends ADOConnection {
 	 */
 	public function metaTables($ttype=false,$schema=false,$mask=false)
 	{
-
+		
 		global $ADODB_FETCH_MODE;
 
-		$savem 			  = $ADODB_FETCH_MODE;
-		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-
+		$savem = $ADODB_FETCH_MODE;
+		$this->SetFetchMode(ADODB_FETCH_ASSOC);
+		
 		/*
 		* Values for TABLE_TYPE
 		* ---------------------------
@@ -777,78 +908,78 @@ class ADODB_db2 extends ADOConnection {
 		* If $ttype passed as 'T' it is assumed to be 'TABLE'
 		* if $ttype passed as 'V' it is assumed to be 'VIEW'
 		*/
-		$ttype = strtoupper($ttype);
+
+		$sqlFilters = array();
+		$sqlFilter = '';
+		$returnedColumn = 'TRIM(TABNAME)';
+
 		if ($ttype) {
+
 			/*
-			 * @todo We could do valid type checking or array type
-			 */
-			 if ($ttype == 'V')
-				$ttype = 'VIEW';
-			if ($ttype == 'T')
-				$ttype = 'TABLE';
+			* We only support 'T' for TABLE and 'V' for VIEW
+			* All types are returned if $ttype is passed as ''
+			*/
+			$ttype = strtoupper(substr($ttype,0,1));
+			
+			if ($ttype == 'V') {
+				$sqlFilters[] = "TYPE='V'";
+			} else if ($ttype == 'T') {
+				$sqlFilters[] = "TYPE='T'";
+			}
 		}
 
-		if (!$schema)
-			$schema = '%';
+		if ($schema && $schema != '%') {
+			
+			$schema = strtoupper($schema);
+			$returnedColumn = $this->concat('TRIM(TABSCHEMA)',"'.'",'TRIM(TABNAME)');
 
-		if (!$mask)
-			$mask = '%';
+			if (strpos($schema,'%') !== false) {
+				$sqlFilters[] = "UPPER(TABSCHEMA) LIKE '$schema'";
+			} else {
+				$sqlFilters[] = "UPPER(TABSCHEMA)='" . strtoupper($schema) . "'";
+			}
+		}
 
-		$qid = @db2_tables($this->_connectionID,NULL,$schema,$mask,$ttype);
+		if ($mask) {
+			/*
+			* Mask is SQL LIKE format. We match on upper case
+			* unless the match is quoted in which case we match
+			* exactly
+			*/
+			
+			if (in_array(substr($mask,0,1),array('"','[')))
+			{
+				if (strpos($mask,'%') !== false) 
+				{
+					$sqlFilters[] = "TABNAME LIKE '$mask'";
+				} else {
+					$sqlFilters[] = "TABNAME='$mask'";
+				}
+			} else {
+				$mask = strtoupper($mask);
+			    if (strpos($mask,'%') !== false) {
+					$sqlFilters[] = "UPPER(TABNAME) LIKE '$mask'";
+				} else {
+					$sqlFilters[] = "UPPER(TABNAME)='$mask'";
+				}
+			}
+		}
 
-		$rs = new ADORecordSet_db2($qid);
+		if (count($sqlFilters) > 0) {
+			$sqlFilter = 'WHERE ' . implode(' AND ',$sqlFilters);
+		} 
 
-		$ADODB_FETCH_MODE = $savem;
+		$sql = "SELECT $returnedColumn FROM SYSCAT.TABLES $sqlFilter ORDER BY TABSCHEMA, TABNAME";
 
-		if (!$rs)
+
+		$metaTables = $this->getCol($sql);
+		
+		$this->SetFetchMode($savem);
+		
+		if (count($metaTables) == 0)
 			return false;
 
-		$arr = $rs->getArray();
-
-		$rs->Close();
-
-		$tableList = array();
-
-		/*
-		* Array items
-		* ---------------------------------
-		* 0 TABLE_CAT	The catalog that contains the table.
-		*				The value is NULL if this table does not have catalogs.
-		* 1 TABLE_SCHEM	Name of the schema that contains the table.
-		* 2 TABLE_NAME	Name of the table.
-		* 3 TABLE_TYPE	Table type identifier for the table.
-		* 4 REMARKS		Description of the table.
-		*/
-
-		for ($i=0; $i < sizeof($arr); $i++)
-		{
-
-			$tableRow = $arr[$i];
-			$tableName = $tableRow[2];
-			$tableType = $tableRow[3];
-
-			if (!$tableName)
-				continue;
-
-			if ($ttype == '' && (strcmp($tableType,'TABLE') <> 0 && strcmp($tableType,'VIEW') <> 0))
-				continue;
-
-			/*
-			 * Set metacasing if required
-			 */
-			$tableName = $this->getMetaCasedValue($tableName);
-
-			/*
-			 * If we requested a schema, we prepend the schema
-			   name to the table name
-			 */
-			if (strcmp($schema,'%') <> 0)
-				$tableName = $schema . '.' . $tableName;
-
-			$tableList[] = $tableName;
-
-		}
-		return $tableList;
+		return $metaTables;
 	}
 
 	/**
@@ -1097,15 +1228,29 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 		}
 	}
 
-	public function metaColumns($table, $normalize=true)
+	public function metaColumns($table, $ignored=true)
 	{
 		global $ADODB_FETCH_MODE;
 
-		$savem = $ADODB_FETCH_MODE;
-
 		$schema = '%';
 		$this->_findschema($table,$schema);
-		$table = $this->getTableCasedValue($table);
+
+		$findMatchingTable = $this->metaTables('T','',$table);
+		
+		if ($findMatchingTable === false)
+			return false;
+
+		$table = $findMatchingTable[0];
+
+		$savem = $ADODB_FETCH_MODE;
+		$this->setFetchMode(ADODB_FETCH_NUM);
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+
+		/*
+		* The returned table name has the correct casing
+		*/
+
+		//$table = $this->getTableCasedValue($table);
 		$colname = "%";
 		$qid = db2_columns($this->_connectionID, null, $schema, $table, $colname);
 		if (empty($qid))
@@ -1150,6 +1295,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 		*/
 		while (!$rs->EOF)
 		{
+
 			if ($rs->fields[2] == $table)
 			{
 
@@ -1170,7 +1316,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
 				$fld->not_null         = !empty($rs->fields[10]);
 				$fld->scale            = $rs->fields[8];
-				$fld->primary_key      = false;
+				$fld->primary_key      = 0;
 
 				//$columnName = $this->getMetaCasedValue($fld->name);
 				$columnName = strtoupper($fld->name);
@@ -1184,13 +1330,35 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
 		}
 
+		$this->setFetchMode($savem);
+
 		$rs->Close();
 		if (empty($retarr))
 			$retarr = false;
 
+		
+		$this->setFetchMode(ADODB_FETCH_NUM	);
+		
 		/*
 		 * Now we find out if the column is part of a primary key
 		 */
+		$primaryKeys = $this->metaPrimaryKeys($table);
+		if (!$primaryKeys) {
+			return $retarr;
+		}
+
+
+		foreach ($primaryKeys as $pk)
+		{
+			$pk = strtoupper($pk);
+			if (isset($retarr[$pk])) {
+				$retarr[$pk]->primary_key = true;
+			}
+		}
+
+		return $retarr;
+		
+
 
 		$qid = @db2_primary_keys($this->_connectionID, "", $schema, $table);
 		if (empty($qid))
@@ -1215,6 +1383,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 		5 PK_NAME
 		*/
 		while (!$rs->EOF) {
+
 			if (strtoupper(trim($rs->fields[2])) == $table
 			&& (!$schema || strtoupper($rs->fields[1]) == $schema))
 			{
@@ -1749,7 +1918,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 	*/
 	function updateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
-		return $this->execute("UPDATE $table SET $column=? WHERE $where",array($val)) != false;
+		return $this->execute("UPDATE $table SET $column=? WHERE $where",$val) != false;
 	}
 
 	// returns true or false

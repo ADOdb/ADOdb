@@ -1748,6 +1748,7 @@ class adoSchema {
 			$this->success = 0;
 		} else {
 			$this->success = $this->dict->executeSQLArray( $sqlArray, $continueOnErr );
+			$this->sqlArray = array();
 		}
 
 		return $this->success;

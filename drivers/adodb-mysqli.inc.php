@@ -947,15 +947,27 @@ class ADODB_mysqli extends ADOConnection {
 			$table = "$owner.$table";
 		}
 
-		$a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE `%s`', $table));
+		$a_create_table = array_change_key_case(
+			$this->getRow(
+				sprintf('SHOW CREATE TABLE `%s`', $table)),
+			CASE_UPPER
+		);
 
 		$this->setFetchMode($savem);
 
-		$create_sql = $a_create_table["Create Table"] ?? $a_create_table["Create View"];
+		$create_sql = $a_create_table["CREATE TABLE"] ?? $a_create_table["CREATE VIEW"];
 
 		$matches = array();
 
-		if (!preg_match_all("/FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) return false;
+		if (!preg_match_all(
+			"/FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", 
+			$create_sql, 
+			$matches
+			)
+		) {
+				return false;
+		}
+		
 		$foreign_keys = array();
 		$num_keys = count($matches[0]);
 		for ( $i = 0; $i < $num_keys; $i ++ ) {
@@ -1553,6 +1565,12 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 */
 	function FetchField($fieldOffset = -1)
 	{
+		if ($fieldOffset < -1 || $fieldOffset >= $this->_numOfFields) {
+			if ($this->connection->debug) {
+				ADOConnection::outp("FetchField: field offset out of range: $fieldOffset");
+			}
+			return false;
+		}
 		$fieldnr = $fieldOffset;
 		if ($fieldOffset != -1) {
 			@mysqli_field_seek($this->_queryID, $fieldnr);
