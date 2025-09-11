@@ -59,8 +59,8 @@ class ADODB_mysqli extends ADOConnection {
 	var $hasMoveFirst = true;
 	var $hasGenID = true;
 	var $isoDates = true; // accepts dates in ISO format
-	var $sysDate = 'CURDATE()';
-	var $sysTimeStamp = 'NOW()';
+	var $sysDate = '(CURDATE())';
+	var $sysTimeStamp = '(NOW())';
 	var $hasTransactions = true;
 	var $forceNewConnect = false;
 	var $poorAffectedRows = true;
