@@ -19,7 +19,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-class ADODB_pdo_pgsql extends ADODB_pdo {
+class ADODB_pdo_pgsql extends ADODB_pdo_base {
 	var $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
 	var $metaTablesSQL = "select tablename,'T' from pg_tables where tablename not like 'pg\_%'
 		and tablename not in ('sql_features', 'sql_implementation_info', 'sql_languages',
@@ -64,8 +64,9 @@ class ADODB_pdo_pgsql extends ADODB_pdo {
 	var $random = 'random()';		/// random function
 	var $concat_operator='||';
 
-	function _init($parentDriver)
+	protected function _init(ADODB_pdo $parentDriver)
 	{
+		parent::_init($parentDriver);
 
 		$parentDriver->hasTransactions = false; ## <<< BUG IN PDO pgsql driver
 		$parentDriver->hasInsertID = true;

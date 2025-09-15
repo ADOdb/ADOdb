@@ -19,7 +19,7 @@
  * @copyright 2019 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-class ADODB_pdo_dblib extends ADODB_pdo
+class ADODB_pdo_dblib extends ADODB_pdo_base
 {
 	var $hasTop = 'top';
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
@@ -29,10 +29,11 @@ class ADODB_pdo_dblib extends ADODB_pdo
 
 	var $metaColumnsSQL = "SELECT c.NAME, OBJECT_NAME(c.id) as tbl_name, c.length, c.isnullable, c.status, ( CASE WHEN c.xusertype=61 THEN 0 ELSE c.xprec END), ( CASE WHEN c.xusertype=61 THEN 0 ELSE c.xscale END), ISNULL(i.is_primary_key, 0) as primary_key FROM   syscolumns c INNER JOIN systypes t ON t.xusertype=c.xusertype INNER JOIN sysobjects o ON o.id=c.id LEFT JOIN sys.index_columns ic ON ic.object_id = c.id AND c.colid = ic.column_id LEFT JOIN sys.indexes i ON i.object_id = ic.object_id AND i.index_id = ic.index_id WHERE c.id = OBJECT_ID('%s') ORDER by c.colid";
 
-	function _init(ADODB_pdo $parentDriver)
+	protected function _init(ADODB_pdo $parentDriver)
 	{
+		parent::_init($parentDriver);
+
 		$parentDriver->hasTransactions = true;
-		$parentDriver->_bindInputArray = true;
 		$parentDriver->hasInsertID = true;
 		$parentDriver->fmtTimeStamp = "'Y-m-d H:i:s'";
 		$parentDriver->fmtDate = "'Y-m-d'";

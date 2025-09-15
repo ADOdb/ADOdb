@@ -41,9 +41,10 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
  	var $_initdate = true;
 	var $_hasdual = true;
 
-	function _init($parentDriver)
+	protected function _init(ADODB_pdo $parentDriver)
 	{
-		$parentDriver->_bindInputArray = true;
+		parent::_init($parentDriver);
+
 		$parentDriver->_nestedSQL = true;
 		if ($this->_initdate) {
 			$parentDriver->Execute("ALTER SESSION SET NLS_DATE_FORMAT='".$this->NLS_DATE_FORMAT."'");

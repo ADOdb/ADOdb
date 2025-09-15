@@ -19,7 +19,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-class ADODB_pdo_mysql extends ADODB_pdo {
+class ADODB_pdo_mysql extends ADODB_pdo_base {
 
 	var $metaTablesSQL = "SELECT
 			TABLE_NAME,
@@ -38,10 +38,9 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $nameQuote = '`';
 
-	function _init($parentDriver)
+	protected function _init(ADODB_pdo $parentDriver)
 	{
 		$parentDriver->hasTransactions = false;
-		#$parentDriver->_bindInputArray = false;
 		$parentDriver->hasInsertID = true;
 		$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 	}

@@ -21,7 +21,7 @@
  * @author Sid Dunayer <sdunayer@interserv.com>
  */
 
-class ADODB_pdo_sqlite extends ADODB_pdo {
+class ADODB_pdo_sqlite extends ADODB_pdo_base {
 	var $metaTablesSQL   = "SELECT name FROM sqlite_master WHERE type='table'";
 	var $sysDate         = 'current_date';
 	var $sysTimeStamp    = 'current_timestamp';
@@ -37,11 +37,13 @@ class ADODB_pdo_sqlite extends ADODB_pdo {
 	var $pdoDriver       = false;
 	var $random='abs(random())';
 
-	function _init($parentDriver)
+	protected function _init(ADODB_pdo $parentDriver)
 	{
+		parent::_init($parentDriver);
+
 		$this->pdoDriver = $parentDriver;
-		$parentDriver->_bindInputArray = true;
-		$parentDriver->hasTransactions = false; // // should be set to false because of PDO SQLite driver not supporting changing autocommit mode
+		// PDO SQLite driver does not support changing autocommit mode
+		$parentDriver->hasTransactions = false;
 		$parentDriver->hasInsertID = true;
 	}
 
