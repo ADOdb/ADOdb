@@ -27,14 +27,15 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo_base
 	var $sysTimeStamp = 'GetDate()';
 	var $arrayClass = 'ADORecordSet_array_pdo_sqlsrv';
 
+	var $fmtDate = "'Y-m-d'";
+	var $fmtTimeStamp = "'Y-m-d H:i:s'";
+
 	protected function _init(ADODB_pdo $parentDriver)
 	{
 		parent::_init($parentDriver);
 
 		$parentDriver->hasTransactions = true;
 		$parentDriver->hasInsertID = true;
-		$parentDriver->fmtTimeStamp = "'Y-m-d H:i:s'";
-		$parentDriver->fmtDate = "'Y-m-d'";
 	}
 
 	function setTransactionMode( $transaction_mode )

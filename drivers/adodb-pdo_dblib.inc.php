@@ -29,6 +29,8 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 	var $metaDatabasesSQL =  /** @lang text */ "select name from sysdatabases where name <> 'master'";
 	var $metaTablesSQL= /** @lang text */ "select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
 	var $metaColumnsSQL = /** @lang text */ "SELECT c.NAME, OBJECT_NAME(c.id) as tbl_name, c.length, c.isnullable, c.status, ( CASE WHEN c.xusertype=61 THEN 0 ELSE c.xprec END), ( CASE WHEN c.xusertype=61 THEN 0 ELSE c.xscale END), ISNULL(i.is_primary_key, 0) as primary_key FROM   syscolumns c INNER JOIN systypes t ON t.xusertype=c.xusertype INNER JOIN sysobjects o ON o.id=c.id LEFT JOIN sys.index_columns ic ON ic.object_id = c.id AND c.colid = ic.column_id LEFT JOIN sys.indexes i ON i.object_id = ic.object_id AND i.index_id = ic.index_id WHERE c.id = OBJECT_ID('%s') ORDER by c.colid";
+	var $fmtDate = "'Y-m-d'";
+	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 
 	protected function _init(ADODB_pdo $parentDriver)
 	{
@@ -36,8 +38,6 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 
 		$parentDriver->hasTransactions = true;
 		$parentDriver->hasInsertID = true;
-		$parentDriver->fmtTimeStamp = "'Y-m-d H:i:s'";
-		$parentDriver->fmtDate = "'Y-m-d'";
 	}
 
 	function BeginTrans()
