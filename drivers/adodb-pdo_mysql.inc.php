@@ -17,11 +17,14 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
  */
 
 class ADODB_pdo_mysql extends ADODB_pdo_base {
 
-	var $metaTablesSQL = "SELECT
+	var $metaTablesSQL =  /** @lang text */
+		"SELECT
 			TABLE_NAME,
 			CASE WHEN TABLE_TYPE = 'VIEW' THEN 'V' ELSE 'T' END
 		FROM INFORMATION_SCHEMA.TABLES
@@ -30,6 +33,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 	var $sysDate = 'CURDATE()';
 	var $sysTimeStamp = 'NOW()';
 	var $hasGenID = true;
+	/** @noinspection SqlWithoutWhere */
 	var $_genIDSQL = "UPDATE %s SET id=LAST_INSERT_ID(id+1);";
 	var $_genSeqSQL = "CREATE TABLE  if NOT EXISTS %s (id int not null)";
 	var $_genSeqCountSQL = "SELECT count(*) FROM %s";

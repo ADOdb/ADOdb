@@ -19,6 +19,8 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2019 Damien Regad, Mark Newnham and the ADOdb community
+ *
+ * @noinspection SqlResolve
  */
 
 /**
@@ -28,7 +30,7 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 {
 	public $dialect = 3;
 	public $metaTablesSQL = "select lower(rdb\$relation_name) from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
-	public $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
+	public $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position";
 
 	var $arrayClass = 'ADORecordSet_array_pdo_firebird';
 
@@ -69,9 +71,7 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 	 */
 	public function metaTables($ttype = false, $showSchema = false, $mask = false)
 	{
-		$ret = ADOConnection::MetaTables($ttype, $showSchema);
-
-		return $ret;
+		return ADOConnection::MetaTables($ttype, $showSchema);
 	}
 
 	public function metaColumns($table, $normalize = true)
@@ -184,7 +184,7 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 					'columns' => array()
 				);
 			}
-			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '" . $index . "' ORDER BY RDB\$FIELD_POSITION ASC";
+			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '" . $index . "' ORDER BY RDB\$FIELD_POSITION";
 			$rs1 = $this->Execute($sql);
 			while ($row1 = $rs1->FetchRow()) {
 				$indexes[$index]['columns'][$row1[2]] = $row1[1];
@@ -395,6 +395,7 @@ class ADORecordSet_pdo_firebird extends ADORecordSet_pdo
 
 	public function fetchField($fieldOffset = 0)
 	{
+		return false;
 	}
 }
 
