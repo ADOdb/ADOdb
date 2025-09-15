@@ -4989,7 +4989,7 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * Must be defined by child class.
 	 *
-	 * @param int $fieldOffset
+	 * @param int $fieldOffset Optional field offset
 	 *
 	 * @return ADOFieldObject|false
 	 */

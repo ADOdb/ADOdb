@@ -393,13 +393,6 @@ class ADORecordSet_pdo_firebird extends ADORecordSet_pdo
 
 	public $databaseType = "pdo_firebird";
 
-	/**
-	 * returns the field object
-	 *
-	 * @param int $fieldOffset Optional field offset
-	 *
-	 * @return object The ADOFieldObject describing the field
-	 */
 	public function fetchField($fieldOffset = 0)
 	{
 	}
