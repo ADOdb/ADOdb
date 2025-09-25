@@ -24,7 +24,7 @@
 /**
  * Class ADODB_pdo_firebird
  */
-class ADODB_pdo_firebird extends ADODB_pdo
+class ADODB_pdo_firebird extends ADODB_pdo_base
 {
 	public $dialect = 3;
 	public $metaTablesSQL = "select lower(rdb\$relation_name) from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
