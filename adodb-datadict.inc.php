@@ -668,6 +668,7 @@ class ADODB_DataDict {
 			$txt = $flds.$padding;
 			$flds = array();
 			$flds0 = lens_ParseArgs($txt,',');
+			$flds0 = array_filter($flds0);
 			$hasparam = false;
 			foreach($flds0 as $f0) {
 				$f1 = array();
