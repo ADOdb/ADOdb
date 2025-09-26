@@ -313,10 +313,10 @@ class ADODB_pdo extends ADOConnection {
 		return $this->_driver->MetaColumns($table,$normalize);
 	}
 
-	public function metaIndexes($table,$normalize=true,$owner=false)
+	public function metaIndexes($table, $primary=true, $owner=false)
 	{
 		if (method_exists($this->_driver,'metaIndexes'))
-			return $this->_driver->metaIndexes($table,$normalize,$owner);
+			return $this->_driver->metaIndexes($table, $primary, $owner);
 	}
 
 	/**
@@ -734,14 +734,18 @@ class ADODB_pdo extends ADOConnection {
  */
 class ADODB_pdo_base extends ADODB_pdo {
 
-	var $sysDate = "'?'";
-	var $sysTimeStamp = "'?'";
-
-
-	function _init($parentDriver)
+	/**
+	 * Initialize parent driver properties with driver-specific values.
+	 *
+	 * Called by {@see ADODB_pdo::_UpdatePDO()}.
+	 *
+	 * @param ADODB_pdo $parentDriver
+	 * @return void
+	 * @internal
+	 */
+	protected function _init(ADODB_pdo $parentDriver)
 	{
 		$parentDriver->_bindInputArray = true;
-		#$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY,true);
 	}
 
 	function ServerInfo()

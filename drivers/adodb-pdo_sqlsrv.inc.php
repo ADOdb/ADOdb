@@ -20,20 +20,22 @@
  * @author Ned Andre
  */
 
-class ADODB_pdo_sqlsrv extends ADODB_pdo
+class ADODB_pdo_sqlsrv extends ADODB_pdo_base
 {
 	var $hasTop = 'top';
 	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
 	var $sysTimeStamp = 'GetDate()';
 	var $arrayClass = 'ADORecordSet_array_pdo_sqlsrv';
 
-	function _init(ADODB_pdo $parentDriver)
+	var $fmtDate = "'Y-m-d'";
+	var $fmtTimeStamp = "'Y-m-d H:i:s'";
+
+	protected function _init(ADODB_pdo $parentDriver)
 	{
+		parent::_init($parentDriver);
+
 		$parentDriver->hasTransactions = true;
-		$parentDriver->_bindInputArray = true;
 		$parentDriver->hasInsertID = true;
-		$parentDriver->fmtTimeStamp = "'Y-m-d H:i:s'";
-		$parentDriver->fmtDate = "'Y-m-d'";
 	}
 
 	function setTransactionMode( $transaction_mode )

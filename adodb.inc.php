@@ -236,14 +236,14 @@ if (!defined('_ADODB_LAYER')) {
 		public $name = '';
 
 		/**
-		 * @var int Field size
-		 */
-		public $max_length = 0;
-
-		/**
 		 * @var string Field type.
 		 */
 		public $type = '';
+
+		/**
+		 * @var int Field size
+		 */
+		public $max_length = 0;
 
 		/**
 		 * @var int|null Numeric field scale.
@@ -4989,7 +4989,7 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * Must be defined by child class.
 	 *
-	 * @param int $fieldOffset
+	 * @param int $fieldOffset Optional field offset
 	 *
 	 * @return ADOFieldObject|false
 	 */
@@ -5028,16 +5028,21 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * @param bool $isUpper True to convert field names to uppercase.
 	 *
-	 * @return ADOFetchObj The object with properties set to the current row's fields.
+	 * @return bool|ADOFetchObj The object with properties set to the current row's fields.
 	 */
 	function fetchObject($isUpper = true) {
-		$fields = [];
-		foreach ($this->fieldTypesArray() as $metadata) {
-			$fields[$metadata->name] = $this->fields($metadata->name);
+		
+		if (!$this->fields) {
+			/*
+			* past EOF
+			*/
+			return false;
 		}
-		if ($isUpper) {
-			$fields = array_change_key_case($fields, CASE_UPPER);
-		}
+
+		$casing = $isUpper ? CASE_UPPER : CASE_LOWER;
+
+		$fields = array_change_key_case($this->fields, $casing);
+		
 		return new ADOFetchObj($fields);
 	}
 
