@@ -844,17 +844,15 @@ class ADODB_DataDict {
 			//--------------------
 			// CONSTRUCT FIELD SQL
 			if ($fdefts) {
-				if (substr($this->connection->databaseType,0,5) == 'mysql') {
-					$ftype = 'TIMESTAMP';
-				} else {
-					$fdefault = $this->connection->sysTimeStamp;
-				}
+				
+				$fdefault = $this->connection->sysTimeStamp;
+				$fdetfs   = '';
+				
 			} else if ($fdefdate) {
-				if (substr($this->connection->databaseType,0,5) == 'mysql') {
-					$ftype = 'TIMESTAMP';
-				} else {
-					$fdefault = $this->connection->sysDate;
-				}
+				
+				$fdefault = $this->connection->sysDate;
+				$fdefdate = '';
+
 			} else if ($fdefault !== false && !$fnoquote) {
 				if ($ty == 'C' or $ty == 'X' or
 					( substr($fdefault,0,1) != "'" && !is_numeric($fdefault))) {
