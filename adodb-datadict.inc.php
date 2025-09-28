@@ -844,15 +844,9 @@ class ADODB_DataDict {
 			//--------------------
 			// CONSTRUCT FIELD SQL
 			if ($fdefts) {
-				
 				$fdefault = $this->connection->sysTimeStamp;
-				$fdetfs   = '';
-				
 			} else if ($fdefdate) {
-				
 				$fdefault = $this->connection->sysDate;
-				$fdefdate = '';
-
 			} else if ($fdefault !== false && !$fnoquote) {
 				if ($ty == 'C' or $ty == 'X' or
 					( substr($fdefault,0,1) != "'" && !is_numeric($fdefault))) {
