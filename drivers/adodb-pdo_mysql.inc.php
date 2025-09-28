@@ -27,8 +27,8 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 		FROM INFORMATION_SCHEMA.TABLES
 		WHERE TABLE_SCHEMA=";
 	var $metaColumnsSQL = "SHOW COLUMNS FROM `%s`";
-	var $sysDate = 'CURDATE()';
-	var $sysTimeStamp = 'NOW()';
+	var $sysDate = '(CURDATE())';
+	var $sysTimeStamp = '(NOW())';
 	var $hasGenID = true;
 	
 	/*
