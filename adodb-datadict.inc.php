@@ -1125,9 +1125,10 @@ class ADODB_DataDict {
 
 	/**
 	 * This function changes/adds new fields to your table when passed as an array
+	 * such as when executed by XMLSchema
 	 *
 	 * @param string $tablename   The table name to process
-	 * @param array  $flds        A set of required field changes
+	 * @param array  $sourceArray A set of required field changes as an array
 	 * @param array  $metaColumns The metaColumns array for the current table
 	 * @param bool   $dropOldFlds Whether to drop any columns that are not
 	 *                            included in the field definitions
@@ -1147,10 +1148,10 @@ class ADODB_DataDict {
 		$notNullDisables    	= [];
 		$autoIncrementDisables 	= [];
 
-		foreach($sourceArray as $k=>$v) {
+		foreach($sourceArray as $sourceKey=>$sourceValue) {
 	
-			$newColumnName = $k;
-			$newMetaType   = $v['TYPE'];
+			$newColumnName = $sourceKey;
+			$newMetaType   = $sourceValue['TYPE'];
 			$newMaxLength    = -1;
 			$newScale        = -1;
 			$newDefaultValue = false;
@@ -1170,16 +1171,13 @@ class ADODB_DataDict {
 				$obj = $metaColumns[$newColumnName];
 				
 				if (isset($obj->not_null) && $obj->not_null){
-					$notNullIndex = array_search('NOT NULL', $v);
-					if ($notNullIndex !== false) {
-						// Remove NOT NULL from the field definition
-						///unset($v[$notNullIndex]);
+					if (in_array('NOT NULL', $sourceValue)) {
 						$notNullDisables[$newColumnName] = true;
 					}
 					
 				}
 				
-				$requiresAutoIncrement = array_search('AUTOINCREMENT', $v);
+				$requiresAutoIncrement = array_key_exists('AUTOINCREMENT', $sourceValue);
 				if (isset($obj->auto_increment) && $obj->auto_increment) {
 					// If already auto_increment, then don't reapply
 					
@@ -1210,9 +1208,9 @@ class ADODB_DataDict {
 				* Validates if a default value is set and if it is now
 				* or changed from the previous value.
 				*/
-				$defaultsIndex = array_search('DEFAULT', $v);
+				$defaultsIndex = array_search('DEFAULT', $sourceValue);
 				if ($defaultsIndex !== false) {
-					$newDefaultValue = $v[$defaultsIndex + 1];
+					$newDefaultValue = $sourceValue[$defaultsIndex + 1];
 
 					if (!$c->has_default || ($c->has_default && $c->default_value != $newDefaultValue)) {
 						// If the default value is different, we need to alter it
@@ -1230,7 +1228,7 @@ class ADODB_DataDict {
 				}
 
 				if ($currentMetaType == 'N') {
-					list($newMaxLength, $newScale) = $this->_getSizePrec($v['SIZE']);
+					list($newMaxLength, $newScale) = $this->_getSizePrec($sourceValue['SIZE']);
 				}
 				if ($currentMaxLength == -1) { 
 					$currentMaxLength = '';
@@ -1238,8 +1236,8 @@ class ADODB_DataDict {
 
 				if (in_array($currentMetaType,array('C','X','X2','XL','B'))) {
 
-					if (isset($v['SIZE']) && $v['SIZE'] != null && is_numeric($v['SIZE'])) {
-						$newMaxLength = $v['SIZE'];
+					if (isset($sourceValue['SIZE']) && $sourceValue['SIZE'] != null && is_numeric($sourceValue['SIZE'])) {
+						$newMaxLength = $sourceValue['SIZE'];
 					} else {
 						$newMaxLength = $currentMaxLength;
 					} 
@@ -1255,13 +1253,13 @@ class ADODB_DataDict {
 				|| $requiresAutoIncrement
 				|| $requiresDefaultValue
 				) {
-					$columnsToAlter[$newColumnName] = $v;
+					$columnsToAlter[$newColumnName] = $sourceValue;
 				}
 			} else {
 				/*
 				* cannot find in the existing metaColumns
 				*/
-				$columnsToAdd[$newColumnName] = $v;
+				$columnsToAdd[$newColumnName] = $sourceValue;
 			}
 			
 			/*
@@ -1269,7 +1267,7 @@ class ADODB_DataDict {
 			* against the existing columns in the table.
 			* This is used to determine which columns to drop.
 			*/
-			$processedColumns[$newColumnName] = $v;
+			$processedColumns[$newColumnName] = $sourceValue;
 		}
 
 
@@ -1297,7 +1295,8 @@ class ADODB_DataDict {
 				$columnData = str_replace('NOT NULL', '', $columnData);
 			}
 			
-			if (isset($autoIncrementDisables[$columnIndex])) {
+			if (isset($autoIncrementDisables[$columnIndex
+			])) {
 				$columnData = str_replace('AUTOINCREMENT', '', $columnData);
 			}
 
@@ -1359,10 +1358,10 @@ class ADODB_DataDict {
 		* sourceArray into fields to add/change/delete.
 		*/
 
-		foreach($sourceArray as $k=>$v) {
+		foreach($sourceArray as $sourceKey=>$sourceValue) {
 
-			$newColumnName   = $v[0];
-			$newMetaType     = $v[1];
+			$newColumnName   = $sourceValue[0];
+			$newMetaType     = $sourceValue[1];
 			$newMaxLength    = -1;
 			$newScale        = -1;
 			$newDefaultValue = false;
@@ -1382,8 +1381,7 @@ class ADODB_DataDict {
 				$obj = $metaColumns[$newColumnName];
 				
 				if (isset($obj->not_null) && $obj->not_null){
-					$notNullIndex = array_search('NOT NULL', $v);
-					if ($notNullIndex !== false) {
+					if (in_array('NOT NULL', $sourceValue)) {
 						/*
 						* Remove NOT NULL from the field definition
 						*/
@@ -1392,7 +1390,7 @@ class ADODB_DataDict {
 					
 				}
 				
-				$requiresAutoIncrement = array_search('AUTOINCREMENT', $v);
+				$requiresAutoIncrement = array_search('AUTOINCREMENT', $sourceValue);
 				if (isset($obj->auto_increment) && $obj->auto_increment) {
 					// If already auto_increment, then don't reapply
 					
@@ -1414,9 +1412,9 @@ class ADODB_DataDict {
 				* Validates if a default value is set and if it is now
 				* or changed from the previous value.
 				*/
-				$defaultsIndex = array_search('DEFAULT', $v);
+				$defaultsIndex = array_search('DEFAULT', $sourceValue);
 				if ($defaultsIndex !== false) {
-					$newDefaultValue = $v[$defaultsIndex + 1];
+					$newDefaultValue = $sourceValue[$defaultsIndex + 1];
 
 					if (!$c->has_default || ($c->has_default && $c->default_value != $newDefaultValue)) {
 						// If the default value is different, we need to alter it
@@ -1434,7 +1432,7 @@ class ADODB_DataDict {
 				}
 
 				if ($currentMetaType == 'N') {
-					list($newMaxLength, $newScale) = $this->_getSizePrec($v[2]);
+					list($newMaxLength, $newScale) = $this->_getSizePrec($sourceValue[2]);
 				}
 				if ($currentMaxLength == -1) { 
 					$currentMaxLength = '';
@@ -1442,8 +1440,8 @@ class ADODB_DataDict {
 
 				if (in_array($currentMetaType,array('C','X','X2','XL'))) {
 
-					if (isset($v[2]) && is_numeric($v[2])) {
-						$newMaxLength = $v[2];
+					if (isset($sourceValue[2]) && is_numeric($sourceValue[2])) {
+						$newMaxLength = $sourceValue[2];
 					} 
 				}
 
@@ -1457,13 +1455,13 @@ class ADODB_DataDict {
 				|| $requiresAutoIncrement
 				|| $requiresDefaultValue
 				) {
-					$columnsToAlter[$newColumnName] = $v;
+					$columnsToAlter[$newColumnName] = $sourceValue;
 				}
 			} else {
 				/*
 				* cannot find in the existing metaColumns
 				*/
-				$columnsToAdd[$newColumnName] = $v;
+				$columnsToAdd[$newColumnName] = $sourceValue;
 			}
 			
 			/*
@@ -1472,7 +1470,7 @@ class ADODB_DataDict {
 			* This is used to determine which columns to drop if
 			* the dropFlds flag is set, else they will be ignored
 			*/
-			$processedColumns[$newColumnName] = $v;
+			$processedColumns[$newColumnName] = $sourceValue;
 		}
 		
 
