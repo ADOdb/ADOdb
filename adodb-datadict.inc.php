@@ -588,6 +588,11 @@ class ADODB_DataDict {
 				}
 			}
 
+			// Skip if empty
+			if (!$column) {
+				continue;
+			}
+
 			// Field ID
 			$id = $this->getFieldIdFromName($column[0], $parsed_columns);
 
