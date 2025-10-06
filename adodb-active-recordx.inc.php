@@ -137,6 +137,9 @@ class ADODB_Active_Record
 	{
 		global $_ADODB_ACTIVE_DBS;
 
+		if (!$_ADODB_ACTIVE_DBS) {
+			$_ADODB_ACTIVE_DBS = array();
+		}
 		if ($db == false && is_object($pkeyarr)) {
 			$db = $pkeyarr;
 			$pkeyarr = false;
