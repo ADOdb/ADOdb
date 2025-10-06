@@ -80,7 +80,7 @@ function ADODB_SetDatabaseAdapter($db, $index=false)
 {
 	global $_ADODB_ACTIVE_DBS;
 
-	if (!$_ADODB_ACTIVE_DBS)) {
+	if (!$_ADODB_ACTIVE_DBS) {
 		$_ADODB_ACTIVE_DBS = array();
 	}
 
