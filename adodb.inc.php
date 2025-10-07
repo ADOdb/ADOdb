@@ -3231,54 +3231,52 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 *
 	 * @return array|false Tables/Views for current database.
 	 */
-	function MetaTables($ttype=false,$showSchema=false,$mask=false) {
+	function metaTables($ttype=false, $showSchema=false, $mask=false) {
 		global $ADODB_FETCH_MODE;
+
+		if (!$this->metaTablesSQL) {
+			return false;
+		}
 
 		if ($mask) {
 			return false;
 		}
-		if ($this->metaTablesSQL) {
-			$save = $ADODB_FETCH_MODE;
-			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-			if ($this->fetchMode !== false) {
-				$savem = $this->SetFetchMode(false);
-			}
-
-			$rs = $this->Execute($this->metaTablesSQL);
-			if (isset($savem)) {
-				$this->SetFetchMode($savem);
-			}
-			$ADODB_FETCH_MODE = $save;
-
-			if ($rs === false) {
-				return false;
-			}
-			$arr = $rs->GetArray();
-			$arr2 = array();
-
-			if ($hast = ($ttype && isset($arr[0][1]))) {
-				$showt = strncmp($ttype,'T',1);
-			}
-
-			for ($i=0; $i < sizeof($arr); $i++) {
-				if ($hast) {
-					if ($showt == 0) {
-						if (strncmp($arr[$i][1],'T',1) == 0) {
-							$arr2[] = trim($arr[$i][0]);
-						}
-					} else {
-						if (strncmp($arr[$i][1],'V',1) == 0) {
-							$arr2[] = trim($arr[$i][0]);
-						}
-					}
-				} else
-					$arr2[] = trim($arr[$i][0]);
-			}
-			$rs->Close();
-			return $arr2;
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		if ($this->fetchMode !== false) {
+			$savem = $this->setFetchMode(false);
 		}
-		return false;
+
+		$rs = $this->execute($this->metaTablesSQL);
+
+		if (isset($savem)) {
+			$this->setFetchMode($savem);
+		}
+		$ADODB_FETCH_MODE = $save;
+
+		if ($rs === false) {
+			return false;
+		}
+
+		$res = $rs->getArray();
+
+		// Filter result to keep only the selected type
+		if ($res && $ttype) {
+			$ttype = strtoupper($ttype[0]);
+			$res = array_filter($res,
+				/**
+				 * @param array $table metaTablesSQL query result row.
+				 *
+				 * @return bool true if $ttype matches the table's type.
+				 */
+				function (array $table) use ($ttype): bool {
+					return $table[1][0] == $ttype;
+				}
+			);
+		}
+
+		return array_column($res, 0);
 	}
 
 
