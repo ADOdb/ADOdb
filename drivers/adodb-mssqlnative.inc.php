@@ -95,7 +95,9 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $identitySQL = 'select SCOPE_IDENTITY()'; // 'select SCOPE_IDENTITY'; # for mssql 2000
 	var $uniqueOrderBy = true;
 	var $_bindInputArray = true;
-	var $_dropSeqSQL = "drop table %s";
+
+	/** @var string SQL statement to drop a Sequence. */
+	var $_dropSeqSQL = "DROP SEQUENCE %s";
 
 	var $connectionInfo    = array('ReturnDatesAsStrings'=>true);
 	var $cachedSchemaFlush = false;
@@ -203,7 +205,15 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	/**
 	 * For Server 2005,2008, duplicate a sequence with an identity table
-	 */
+	 * 
+	 * 
+	 * @param string $seq The name of the sequence
+	 * @param int    $start the start number of the sequence
+	 * 
+	 * @return bool|object
+	 * 
+	 * @deprecated  
+	*/
 	function CreateSequence2008($seq='adodbseq',$start=1)
 	{
 		if($this->debug) ADOConnection::outp("<hr>CreateSequence($seq,$start)");
@@ -217,25 +227,42 @@ class ADODB_mssqlnative extends ADOConnection {
 			return false;
 		}
 		sqlsrv_commit($this->_connectionID);
-		return true;
+		return $ok;
 	}
 
 	/**
 	 * Proper Sequences Only available to Server 2012 and up
+	 * 
+	 * @param string $seq The name of the sequence
+	 * @param int    $start the start number of the sequence
+	 * 
+	 * @return bool|object
 	 */
-	function CreateSequence2012($seq='adodbseq',$start=1){
+	function CreateSequence2012($seq='adodbseq',$start=1) {
+		
 		if (!$this->sequences){
 			$sql = "SELECT name FROM sys.sequences";
 			$this->sequences = $this->GetCol($sql);
 		}
-		$ok = $this->Execute("CREATE SEQUENCE $seq START WITH $start INCREMENT BY 1");
-		if (!$ok)
-			die("CANNOT CREATE SEQUENCE" . print_r(sqlsrv_errors(),true));
+
+		$sql = "CREATE SEQUENCE $seq START WITH $start INCREMENT BY 1";
+		$ok = $this->execute($sql);
+		
+		if (!$ok) {
+			$creationErrors = print_r(sqlsrv_errors(), true);
+			ADOConnection::outp("Error creating sequence:" . $creationErrors);
+			return false;
+		}
+		
 		$this->sequences[] = $seq;
+
+		return new ADORecordSet_empty;
 	}
 
 	/**
 	 * For Server 2005,2008, duplicate a sequence with an identity table
+	 * 
+	 * @deprecated
 	 */
 	function GenID2008($seq='adodbseq',$start=1)
 	{
@@ -261,6 +288,11 @@ class ADODB_mssqlnative extends ADOConnection {
 	 * Cannot do this the normal adodb way by trapping an error if the
 	 * sequence does not exist because sql server will auto create a
 	 * sequence with the starting number of -9223372036854775808
+	 * 
+	 * @param string $seq   The sequence name
+	 * @param int    $start The start number for the sequence
+	 * 
+	 * @return int
 	 */
 	function GenID2012($seq='adodbseq',$start=1)
 	{
@@ -272,17 +304,47 @@ class ADODB_mssqlnative extends ADOConnection {
 		 * we need access to at least 1. If we really care about
 		 * performance, we could maybe flag a 'nocheck' class variable
 		 */
-		if (!$this->sequences){
+		if (!$this->sequences) {
 			$sql = "SELECT name FROM sys.sequences";
 			$this->sequences = $this->GetCol($sql);
 		}
 		if (!is_array($this->sequences)
-		|| is_array($this->sequences) && !in_array($seq,$this->sequences)){
+		|| is_array($this->sequences) && !in_array($seq, $this->sequences)){
 			$this->CreateSequence2012($seq, $start);
 
 		}
 		$num = $this->GetOne("SELECT NEXT VALUE FOR $seq");
-		return $num;
+		return (int)$num;
+	}
+
+	/**
+	 * Drops a sequence
+	 * Overrides the default because SQL Server returns
+	 * a resource for the drop which confuses execute()
+	 *
+	 * @param string $seqname
+	 * 
+	 * @return bool|ADORecordset_empty
+	 */
+	public function dropSequence($seqname='adodbseq') {
+		
+		if (!$seqname) {
+			return false;
+		}
+		
+		$success = $this->_query(sprintf($this->_dropSeqSQL,$seqname));
+
+		if ($success) {
+			/*
+			* Remove from the sequence list
+			*/
+			$index = array_search($seqname,$this->sequences);
+			if ($index !== false) {
+				unset($this->sequences[$index]);
+			}
+			return new ADORecordSet_empty;
+		}
+		return false;
 	}
 
 	// Format date column in sql string given an input format that understands Y M D
