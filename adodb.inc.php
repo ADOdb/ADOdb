@@ -2161,7 +2161,8 @@ if (!defined('_ADODB_LAYER')) {
 		$rs2->sql = $rs->sql;
 		$rs2->dataProvider = $this->dataProvider;
 		$rs2->InitArrayFields($arr,$flds);
-		$rs2->fetchMode = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
+
+		$rs2->adodbFetchMode = $rs2->fetchMode = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
 		return $rs2;
 	}
 
@@ -5366,7 +5367,7 @@ class ADORecordSet implements IteratorAggregate {
 		 * @param int|bool     $mode    The ADODB_FETCH_MODE value
 		 */
 		function __construct($queryID, $mode=false) {
-			parent::__construct(self::DUMMY_QUERY_ID);
+			parent::__construct(self::DUMMY_QUERY_ID, $mode);
 
 			// fetch() on EOF does not delete $this->fields
 			global $ADODB_COMPAT_FETCH;
