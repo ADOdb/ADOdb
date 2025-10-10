@@ -2069,11 +2069,12 @@ class ADORecordSet_db2 extends ADORecordSet {
 	function _initrs()
 	{
 		global $ADODB_COUNTRECS;
+		/*
+		* db2_num_rows only works with a scrollable cursor
+		*/
 		$this->_numOfRows = ($ADODB_COUNTRECS) ? @db2_num_rows($this->_queryID) : -1;
 
 		$this->_numOfFields = @db2_num_fields($this->_queryID);
-
-		// some silly drivers such as db2 as/400 and intersystems cache return _numOfRows = 0
 
 		if ($this->_numOfRows == 0)
 			$this->_numOfRows = -1;
