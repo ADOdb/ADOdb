@@ -254,7 +254,10 @@ class dbTable extends dbObject {
 	var $drop_field = array();
 
 	/**
-	 * @var array Platform-specific options
+	 * Does the current platform match the db type of
+	 * platform-specific options
+	 * 
+	 * @var    bool Platform-specific options
 	 * @access private
 	 */
 	var $currentPlatform = true;
@@ -330,6 +333,7 @@ class dbTable extends dbObject {
 			case 'CONSTRAINT':
 				// Accept platform-specific options
 				$this->currentPlatform = ( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) );
+				
 				break;
 			default:
 				// print_r( array( $tag, $attributes ) );
@@ -506,10 +510,20 @@ class dbTable extends dbObject {
 	 * and appends them to the table object.
 	 *
 	 * @param string $opt Table option
+	 * 
 	 * @return array Options
 	 */
 	function addTableOpt( $opt ) {
-		if(isset($this->currentPlatform)) {
+		
+		if($this->currentPlatform) {
+			
+			$this->parent->logMsg(
+				$opt, 
+				'Adding current platform or global table opt',
+				false,
+				$this 
+			);
+			
 			$this->opts[$this->parent->db->dataProvider] = $opt;
 		}
 		return $this->opts;
