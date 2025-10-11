@@ -620,7 +620,7 @@ class dbTable extends dbObject {
 
 		if( empty( $legacy_fields ) ) {
 			// Create the new table
-			$sql[] = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
+			$sql[] = $xmls->dict->createTableSQL( $this->name, $fldarray, $this->opts );
 			$xmls->logMsg($sql, 'Generated createTableSQL' , false, $this );
 		} else {
 			// Upgrade an existing table
