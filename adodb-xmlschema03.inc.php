@@ -550,8 +550,7 @@ class dbTable extends dbObject {
 		if (is_array($tableExists) && count($tableExists) > 0 && $tableExists[0] == $this->name) {
 			if( is_array( $legacy_indexes = $xmls->dict->metaIndexes( $this->name ) ) ) {
 				foreach( $legacy_indexes as $index => $index_details ) {
-					$dropSql = $xmls->dict->dropIndexSQL( $index, $this->name );
-					$sql = array_merge($sql,$dropSql);
+					$sql[] = $xmls->dict->dropIndexSQL( $index, $this->name );
 				}
 			}
 
@@ -572,8 +571,7 @@ class dbTable extends dbObject {
 				// drop any existing fields not in schema
 				foreach( $legacy_fields as $field_id => $field ) {
 					if( !isset( $this->fields[$field_id] ) ) {
-						$dropSql = $xmls->dict->dropColumnSQL( $this->name, $field->name );
-						$sql   = array_merge($sql,$dropSql);
+						$sql[] = $xmls->dict->dropColumnSQL( $this->name, $field->name );
 					}
 				}
 			// if table doesn't exist
@@ -631,9 +629,8 @@ class dbTable extends dbObject {
 				// Use ChangeTableSQL
 				case 'ALTER':
 					
-					$changeSql = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
-					$sql = array_merge($sql,$changeSql);
-
+					$sql[] = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
+	
 					$xmls->logMsg($sql, 'Generated changeTableSQL (ALTERing table)', false, $this );
 					break;
 				case 'REPLACE':
