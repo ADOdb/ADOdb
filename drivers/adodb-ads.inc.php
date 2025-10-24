@@ -371,7 +371,7 @@ class ADODB_ads extends ADOConnection
 	*/
 	function ODBCTypes($t)
 	{
-		switch ((integer)$t) {
+		switch ((int)$t) {
 			case 1:
 			case 12:
 			case 0:

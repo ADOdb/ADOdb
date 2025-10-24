@@ -179,7 +179,7 @@ class ADODB_db2 extends ADOConnection {
 												$db2Options);
 		}
 		else
-		
+
 			$this->_connectionID = $db2Function($argDSN,
 												'',
 												'',
@@ -193,7 +193,7 @@ class ADODB_db2 extends ADOConnection {
 
 		if ($this->_connectionID && $argDatabasename)
 			$this->execute("SET SCHEMA=$argDatabasename");
-		
+
 		return $this->_connectionID != false;
 
 	}
@@ -228,7 +228,7 @@ class ADODB_db2 extends ADOConnection {
 			$connectionParameters['dsn']      = $argDSN;
 			$connectionParameters['database'] = $argDatabasename;
 			$connectionParameters['catalogue'] = false;
-			
+
 			return $connectionParameters;
 		}
 
@@ -537,7 +537,7 @@ class ADODB_db2 extends ADOConnection {
 
 	function selectLimit($sql,$nrows=-1,$offset=-1,$inputArr=false,$secs2cache=0)
 	{
-		$nrows = (integer) $nrows;
+		$nrows = (int) $nrows;
 
 		if ($offset <= 0)
 		{
@@ -1059,7 +1059,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 */
 	function DB2Types($t)
 	{
-		switch ((integer)$t) {
+		switch ((int)$t) {
 		case 1:
 		case 12:
 		case 0:
