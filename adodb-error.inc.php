@@ -107,7 +107,7 @@ function adodb_error($provider,$dbType,$errno)
 
 function adodb_error_pg($errormsg)
 {
-	if (is_numeric($errormsg)) return (integer) $errormsg;
+	if (is_numeric($errormsg)) return (int) $errormsg;
 	// Postgres has no lock-wait timeout.  The best we could do would be to set a statement timeout.
 	static $error_regexps = array(
 			'(Table does not exist\.|Relation [\"\'].*[\"\'] does not exist|sequence does not exist|class ".+" not found)$' => DB_ERROR_NOSUCHTABLE,
