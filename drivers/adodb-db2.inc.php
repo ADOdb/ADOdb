@@ -60,10 +60,10 @@ class ADODB_db2 extends ADOConnection {
     var $useFetchArray = false;
     var $_bindInputArray = true;
     var $_genIDSQL = "VALUES NEXTVAL FOR %s";
-    
+
     /**
      * SQL to create a new sequence
-     * 
+     *
      * @var string
      */
     var $_genSeqSQL = "
@@ -73,8 +73,8 @@ class ADODB_db2 extends ADOConnection {
 
     /**
      * SQL to drop a sequence
-     * 
-     * @var string 
+     *
+     * @var string
      */
     var $_dropSeqSQL = "DROP SEQUENCE %s";
 
@@ -471,15 +471,15 @@ class ADODB_db2 extends ADOConnection {
             /*
              * If no column is provided, we use the system date or time
              */
-            
+
             $dCol = $this->sysDate;
             $tCol = $this->sysTime;
-            
+
             /*
             * Anything not from a column needs this
             */
             $trailer = 'FROM SYSIBM.SYSDUMMY1';
-        
+
         } else if (preg_match('/(\d{4})-(\d{2})-(\d{2})/',$col)) {
             /*
              * If the column is an ISO date string, we use it as is
@@ -501,40 +501,40 @@ class ADODB_db2 extends ADOConnection {
             if ($s) {
                 $s .= $this->concat_operator;
             }
-            
+
             $ch = $fmt[$i];
-            
+
             switch($ch) {
             case 'Y':
             case 'y':
-                
+
                 if ($len==1) {
                     return "YEAR($col$dCol) $trailer";
                 }
-                
+
                 /*
                 * the CHAR creates a CHAR(20) so trim it
                 */
                 $s .= "RTRIM(CHAR(YEAR($col$dCol)))";
-                
+
                 break;
 
             case 'M':
-                
+
                 /*
                 * Returns "January" we want "Jan"
                 */
                 $cmd = "SUBSTR(MONTHNAME($col$dCol),1,3)";
-                
+
                 if ($len==1) {
                      return "$cmd $trailer";
                 }
                 $s .= $cmd;
-                
+
                 break;
 
             case 'm':
-                
+
                 $cmd = "RIGHT(DIGITS(MONTH($col$dCol)),2)";
                 if ($len==1) {
                     return "$cmd $trailer";
@@ -557,14 +557,14 @@ class ADODB_db2 extends ADOConnection {
 
             case 'H':
             case 'h':
-                
+
                 $cmd = "RIGHT(DIGITS(HOUR($col$tCol)),2)";
                 if ($len==1) {
                     return "$cmd $trailer";
                 }
-                
+
                 $s .= $cmd;
-                
+
                 break;
 
             case 'i':
@@ -574,28 +574,28 @@ class ADODB_db2 extends ADOConnection {
                 if ($len==1) {
                     return "$cmd $trailer";
                 }
-                
+
                 $s .= $cmd;
-                
+
                 break;
-            
+
             case 'S':
             case 's':
                 $cmd = "RIGHT(DIGITS(SECOND($col$tCol)),2)";
                 if ($len==1) {
                     return "$cmd $trailer";
                 }
-                
+
                 $s .= $cmd;
                 break;
 
             default:
-                
+
                 if ($ch == '\\') {
                     $i++;
                     $ch = substr($fmt, $i, 1);
                 }
-                
+
                 $s .= $this->qstr($ch);
             }
         }
@@ -614,7 +614,7 @@ class ADODB_db2 extends ADOConnection {
     {
         global $ADODB_FETCH_MODE;
         $savem = $ADODB_FETCH_MODE;
-        
+
         $this->setFetchMode(ADODB_FETCH_NUM);
 
         $sql = "SELECT service_level, fixpack_num
@@ -641,14 +641,14 @@ class ADODB_db2 extends ADOConnection {
      * @param string     $sql        The SQL to execute
      * @param int        $nrows      Number of rows to get
      * @param int        $offset     Row to start calculations from (1-based)
-     * @param array|bool $inputArr   Array of bind variables 
+     * @param array|bool $inputArr   Array of bind variables
      * @param int        $secs2cache Private parameter only used by jlim
      *
      * @return ADORecordSet The recordset ($rs->databaseType == 'array')
      */
     function selectLimit($sql, $nrows=-1, $offset=-1, $inputArr=false, $secs2cache=0)
     {
-        $nrows = (integer) $nrows;
+        $nrows = (int) $nrows;
 
         if ($this->useLegacyRowOffsets) {
             /*
@@ -661,7 +661,7 @@ class ADODB_db2 extends ADOConnection {
                 $rs = $this->execute($sql, $inputArr);
 
             } else {
-                
+
                 if ($offset > 0 && $nrows < 0) {
 
                 } else {
@@ -861,9 +861,9 @@ class ADODB_db2 extends ADOConnection {
         $table = $metaTables[0];
 
         $baseFetchMode = $ADODB_FETCH_MODE;
-    
+
         $ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-                
+
         $this->setFetchMode(ADODB_FETCH_ASSOC);
         $sql = "SELECT *
                  FROM syscat.references
@@ -872,7 +872,7 @@ class ADODB_db2 extends ADOConnection {
         $results = $this->getAll($sql);
 
         $this->setFetchMode($baseFetchMode);
-        
+
         if (empty($results))
             return false;
 
@@ -882,7 +882,7 @@ class ADODB_db2 extends ADOConnection {
         {
 
             /*
-            
+
             [CONSTNAME] => SQL250829011849680
             [TABSCHEMA] => DB2INST1
             [TABNAME] => TESTTABLE_2
@@ -895,8 +895,8 @@ class ADODB_db2 extends ADOConnection {
             [DELETERULE] => C
             [UPDATERULE] => A
             [CREATE_TIME] => 2025-08-29 01:18:49.717630
-            [FK_COLNAMES] =>  TT_ID              
-            [PK_COLNAMES] =>  ID                 
+            [FK_COLNAMES] =>  TT_ID
+            [PK_COLNAMES] =>  ID
             [DEFINER] => DB2INST1
         )
             */
@@ -917,7 +917,7 @@ class ADODB_db2 extends ADOConnection {
                 } else {
                     $foreignKeys[$referenceTable][] = sprintf('%s=%s',$pkColname,$fkColname);
                 }
-    
+
             }
 
         }
@@ -935,12 +935,12 @@ class ADODB_db2 extends ADOConnection {
      */
     public function metaTables($ttype=false,$schema=false,$mask=false)
     {
-        
+
         global $ADODB_FETCH_MODE;
 
         $savem = $ADODB_FETCH_MODE;
         $this->SetFetchMode(ADODB_FETCH_ASSOC);
-        
+
         /*
         * Values for TABLE_TYPE
         * ---------------------------
@@ -964,7 +964,7 @@ class ADODB_db2 extends ADOConnection {
             * All types are returned if $ttype is passed as ''
             */
             $ttype = strtoupper(substr($ttype,0,1));
-            
+
             if ($ttype == 'V') {
                 $sqlFilters[] = "TYPE='V'";
             } else if ($ttype == 'T') {
@@ -973,7 +973,7 @@ class ADODB_db2 extends ADOConnection {
         }
 
         if ($schema && $schema != '%') {
-            
+
             $schema = strtoupper($schema);
             $returnedColumn = $this->concat('TRIM(TABSCHEMA)',"'.'",'TRIM(TABNAME)');
 
@@ -990,10 +990,10 @@ class ADODB_db2 extends ADOConnection {
             * unless the match is quoted in which case we match
             * exactly
             */
-            
+
             if (in_array(substr($mask,0,1),array('"','[')))
             {
-                if (strpos($mask,'%') !== false) 
+                if (strpos($mask,'%') !== false)
                 {
                     $sqlFilters[] = "TABNAME LIKE '$mask'";
                 } else {
@@ -1011,15 +1011,15 @@ class ADODB_db2 extends ADOConnection {
 
         if (count($sqlFilters) > 0) {
             $sqlFilter = 'WHERE ' . implode(' AND ',$sqlFilters);
-        } 
+        }
 
         $sql = "SELECT $returnedColumn FROM SYSCAT.TABLES $sqlFilter ORDER BY TABSCHEMA, TABNAME";
 
 
         $metaTables = $this->getCol($sql);
-        
+
         $this->SetFetchMode($savem);
-        
+
         if (count($metaTables) == 0)
             return false;
 
@@ -1234,7 +1234,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 */
     function DB2Types($t)
     {
-        switch ((integer)$t) {
+        switch ((int)$t) {
         case 1:
         case 12:
         case 0:
@@ -1245,6 +1245,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         case -1: //text
             return 'X';
         case -4: //image
+        case -98: //blob
             return 'B';
 
         case 9:
@@ -1257,18 +1258,25 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         case 93:
             return 'T';
 
-        case 4:
-        case 5:
-        case -6:
+        case 4: //BIGINT
             return 'I';
+        case -6:
+            return 'I8';
 
         case -11: // uniqidentifier
             return 'R';
+        case 5: //Logical I2
         case -7: //bit
             return 'L';
 
+        case 3:
+            return "N";
+        case -5:
+            return "I4";
+
         default:
-            return 'N';
+            
+            return ADODB_DEFAULT_METATYPE;
         }
     }
 
@@ -1277,10 +1285,14 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         global $ADODB_FETCH_MODE;
 
         $schema = '%';
-        $this->_findschema($table,$schema);
+        $this->_findschema($table, $schema);
 
-        $findMatchingTable = $this->metaTables('T','',$table);
-        
+
+        $table = $this->getTableCasedValue($table);
+
+        $findMatchingTable = $this->metaTables('T', '', $table);
+
+
         if ($findMatchingTable === false)
             return false;
 
@@ -1309,9 +1321,12 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
         $rs = new ADORecordSet_db2($qid);
 
-        if (!$rs)
+        if (!$rs) {
+            print "NO RECORDSET\n";
+            $this->setFetchMode($savem);
             return false;
-
+        
+        }
         $rs->_fetch();
 
         $retarr = array();
@@ -1340,6 +1355,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         while (!$rs->EOF)
         {
 
+           
             if ($rs->fields[2] == $table)
             {
 
@@ -1362,6 +1378,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
                 $fld->scale            = $rs->fields[8];
                 $fld->primary_key      = 0;
 
+                $fld->actualType = $rs->fields[4];
                 //$columnName = $this->getMetaCasedValue($fld->name);
                 $columnName = strtoupper($fld->name);
                 $retarr[$columnName] = $fld;
@@ -1374,26 +1391,40 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
         }
 
+        $sql = "SELECT COLNAME
+                  FROM SYSCAT.COLUMNS
+                 WHERE TABNAME='$table'
+                   AND IDENTITY = 'Y'";
+    
+        $identityColumns = $this->getCol($sql);
+
+        foreach ($identityColumns as $identityColumn) {
+            $identityColumn = strtoupper($identityColumn);
+            if (isset($retarr[$identityColumn])) {
+                $retarr[$identityColumn]->auto_increment = true;
+            }
+        }
+
         $this->setFetchMode($savem);
 
         $rs->Close();
         if (empty($retarr))
             $retarr = false;
 
-        
+
         $this->setFetchMode(ADODB_FETCH_NUM	);
-        
+
         /*
          * Now we find out if the column is part of a primary key
          */
+
         $primaryKeys = $this->metaPrimaryKeys($table);
         if (!$primaryKeys) {
             return $retarr;
         }
 
 
-        foreach ($primaryKeys as $pk)
-        {
+        foreach ($primaryKeys as $pk) {
             $pk = strtoupper($pk);
             if (isset($retarr[$pk])) {
                 $retarr[$pk]->primary_key = true;
@@ -1401,7 +1432,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         }
 
         return $retarr;
-        
+
 
 
         $qid = @db2_primary_keys($this->_connectionID, "", $schema, $table);
@@ -2214,6 +2245,12 @@ class ADORecordSet_db2 extends ADORecordSet {
 
     function _close()
     {
+        if (!is_resource($this->_queryID)) {
+            /*
+            * Already closed
+            */
+            return false;
+        }
         $ok = @db2_free_result($this->_queryID);
         if (!$ok)
         {
