@@ -1245,6 +1245,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         case -1: //text
             return 'X';
         case -4: //image
+        case -98: //blob
             return 'B';
 
         case 9:
@@ -1257,18 +1258,25 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         case 93:
             return 'T';
 
-        case 4:
-        case 5:
-        case -6:
+        case 4: //BIGINT
             return 'I';
+        case -6:
+            return 'I8';
 
         case -11: // uniqidentifier
             return 'R';
+        case 5: //Logical I2
         case -7: //bit
             return 'L';
 
+        case 3:
+            return "N";
+        case -5:
+            return "I4";
+
         default:
-            return 'N';
+            
+            return ADODB_DEFAULT_METATYPE;
         }
     }
 
@@ -1277,9 +1285,13 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         global $ADODB_FETCH_MODE;
 
         $schema = '%';
-        $this->_findschema($table,$schema);
+        $this->_findschema($table, $schema);
 
-        $findMatchingTable = $this->metaTables('T','',$table);
+
+        $table = $this->getTableCasedValue($table);
+
+        $findMatchingTable = $this->metaTables('T', '', $table);
+
 
         if ($findMatchingTable === false)
             return false;
@@ -1309,9 +1321,12 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
         $rs = new ADORecordSet_db2($qid);
 
-        if (!$rs)
+        if (!$rs) {
+            print "NO RECORDSET\n";
+            $this->setFetchMode($savem);
             return false;
-
+        
+        }
         $rs->_fetch();
 
         $retarr = array();
@@ -1340,6 +1355,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         while (!$rs->EOF)
         {
 
+           
             if ($rs->fields[2] == $table)
             {
 
@@ -1362,6 +1378,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
                 $fld->scale            = $rs->fields[8];
                 $fld->primary_key      = 0;
 
+                $fld->actualType = $rs->fields[4];
                 //$columnName = $this->getMetaCasedValue($fld->name);
                 $columnName = strtoupper($fld->name);
                 $retarr[$columnName] = $fld;
@@ -1372,6 +1389,20 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
             $rs->MoveNext();
 
+        }
+
+        $sql = "SELECT COLNAME
+                  FROM SYSCAT.COLUMNS
+                 WHERE TABNAME='$table'
+                   AND IDENTITY = 'Y'";
+    
+        $identityColumns = $this->getCol($sql);
+
+        foreach ($identityColumns as $identityColumn) {
+            $identityColumn = strtoupper($identityColumn);
+            if (isset($retarr[$identityColumn])) {
+                $retarr[$identityColumn]->auto_increment = true;
+            }
         }
 
         $this->setFetchMode($savem);
@@ -1386,14 +1417,14 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         /*
          * Now we find out if the column is part of a primary key
          */
+
         $primaryKeys = $this->metaPrimaryKeys($table);
         if (!$primaryKeys) {
             return $retarr;
         }
 
 
-        foreach ($primaryKeys as $pk)
-        {
+        foreach ($primaryKeys as $pk) {
             $pk = strtoupper($pk);
             if (isset($retarr[$pk])) {
                 $retarr[$pk]->primary_key = true;
@@ -2214,6 +2245,12 @@ class ADORecordSet_db2 extends ADORecordSet {
 
     function _close()
     {
+        if (!is_resource($this->_queryID)) {
+            /*
+            * Already closed
+            */
+            return false;
+        }
         $ok = @db2_free_result($this->_queryID);
         if (!$ok)
         {
