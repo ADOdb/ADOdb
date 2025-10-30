@@ -543,11 +543,10 @@ class dbTable extends dbObject {
 	function create( &$xmls ) {
 		$sql 		   = array();
 		$legacy_fields = array();
-		// drop any existing indexes
-
+			
 		$tableExists = $xmls->dict->metaTables('T','',$this->name);
-
-		if (is_array($tableExists) && count($tableExists) > 0 && $tableExists[0] == $this->name) {
+	
+		if (is_array($tableExists) && count($tableExists) > 0 && strcasecmp($tableExists[0],$this->name) == 0) {
 			if( is_array( $legacy_indexes = $xmls->dict->metaIndexes( $this->name ) ) ) {
 				foreach( $legacy_indexes as $index => $index_details ) {
 					$dropSql = $xmls->dict->dropIndexSQL( $index, $this->name );
@@ -560,7 +559,7 @@ class dbTable extends dbObject {
 				unset( $this->fields[$field] );
 			}
 
-			// if table exists
+			
 			if( is_array( $legacy_fields = $xmls->dict->metaColumns( $this->name ) ) ) {
 				// drop table
 				if( $this->drop_table ) {
@@ -632,6 +631,9 @@ class dbTable extends dbObject {
 				case 'ALTER':
 					
 					$changeSql = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
+					
+					print "\n============== out ==================\n";
+					print_r($changeSql);
 					$sql = array_merge($sql,$changeSql);
 
 					$xmls->logMsg($sql, 'Generated changeTableSQL (ALTERing table)', false, $this );
