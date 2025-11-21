@@ -12,11 +12,11 @@ $db->Execute("INSERT INTO users VALUES (2, 'Jane', 1981)");
 $new_value = 2000;
 
 $db->autoExecute(
-    table: "users",
-    fields_values: ["year_of_birth" => $new_value],
-    mode: "UPDATE",
-    where: "id = 2",
-    forceUpdate: false,
+    "users",
+    ["year_of_birth" => $new_value],
+    "UPDATE",
+    "id = 2",
+    false
 );
 
 $updated_value = $db->GetOne("SELECT year_of_birth FROM users WHERE id = 2");
