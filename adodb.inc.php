@@ -2655,11 +2655,26 @@ if (!defined('_ADODB_LAYER')) {
 	 * @noinspection PhpUnusedParameterInspection
 	 */
 	function autoExecute($table, $fields_values, $mode = 'INSERT', $where = '', $forceUpdate = true, $magic_quotes = false) {
+		switch($mode) {
+			case DB_AUTOQUERY_INSERT:
+			case DB_AUTOQUERY_UPDATE:
+				break;
+			case 'UPDATE':
+				$mode = DB_AUTOQUERY_UPDATE;
+				break;
+			case 'INSERT':
+				$mode = DB_AUTOQUERY_INSERT;
+				break;
+			default:
+				$this->outp_throw("AutoExecute: Unknown mode=$mode", 'AutoExecute');
+				return false;
+		}
+
 		if (empty($fields_values)) {
 			$this->outp_throw('AutoExecute: Empty fields array', 'AutoExecute');
 			return false;
 		}
-		if (empty($where) && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */)) {
+		if (empty($where) && $mode == DB_AUTOQUERY_UPDATE) {
 			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause', 'AutoExecute');
 			return false;
 		}
@@ -2677,18 +2692,10 @@ if (!defined('_ADODB_LAYER')) {
 		$rs->tableName = $table;
 		$rs->sql = $sql;
 
-		switch($mode) {
-			case 'UPDATE':
-			case DB_AUTOQUERY_UPDATE:
-				$sql = $this->GetUpdateSQL($rs, $fields_values, $forceUpdate);
-				break;
-			case 'INSERT':
-			case DB_AUTOQUERY_INSERT:
-				$sql = $this->GetInsertSQL($rs, $fields_values);
-				break;
-			default:
-				$this->outp_throw("AutoExecute: Unknown mode=$mode", 'AutoExecute');
-				return false;
+		if ($mode == DB_AUTOQUERY_UPDATE) {
+			$sql = $this->getUpdateSQL($rs, $fields_values, $forceUpdate);
+		} else {
+			$sql = $this->getInsertSQL($rs, $fields_values);
 		}
 		return $sql && $this->Execute($sql);
 	}
