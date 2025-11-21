@@ -2760,15 +2760,16 @@ if (!defined('_ADODB_LAYER')) {
 		}
 
 		$sql = "SELECT * FROM $table";
+		if (!empty($where)) {
+			$sql .= " WHERE $where";
+		}
+
 		$rs = $this->SelectLimit($sql, 1);
 		if (!$rs) {
 			return false; // table does not exist
 		}
 
 		$rs->tableName = $table;
-		if (!empty($where)) {
-			$sql .= " WHERE $where";
-		}
 		$rs->sql = $sql;
 
 		switch($mode) {
