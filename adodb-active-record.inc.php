@@ -740,36 +740,36 @@ class ADODB_Active_Record
 	}
 
 	// quote data in where clause
-	function doquote($db, $val, $t)
+	function doQuote($db, $val, $t)
 	{
-		switch($t) {
-		/** @noinspection PhpMissingBreakStatementInspection */
-		case 'L':
-			if (strpos($db->databaseType,'postgres') !== false) {
-				return $db->qstr($val);
-			}
+		switch ($t) {
+			/** @noinspection PhpMissingBreakStatementInspection */
+			case 'L':
+				if (strpos($db->databaseType, 'postgres') !== false) {
+					return $db->qstr($val);
+				}
 			case 'D':
-		/** @noinspection PhpMissingBreakStatementInspection */
-		case 'T':
-			if (empty($val)) {
-				return 'null';
-			}
-		case 'B':
-		case 'N':
-		case 'C':
-		/** @noinspection PhpMissingBreakStatementInspection */
-		case 'X':
-			if (is_null($val)) {
-				return 'null';
-			}
-
-			if (strlen($val) > 0 &&
-				(strncmp($val, "'", 1) != 0 || substr($val, strlen($val) - 1, 1) != "'")
-			) {
-				return $db->qstr($val);
-			}
-		default:
-			return $val;
+			/** @noinspection PhpMissingBreakStatementInspection */
+			case 'T':
+				if (empty($val)) {
+					return 'null';
+				}
+			case 'B':
+			case 'N':
+			case 'C':
+			/** @noinspection PhpMissingBreakStatementInspection */
+			case 'X':
+				if (is_null($val)) {
+					return 'null';
+				}
+				if ('' === (string)$val) {
+					return "''";
+				}
+				if (substr($val, 0, 1) != "'" || substr($val,-1) != "'") {
+					return $db->qstr($val);
+				}
+			default:
+				return $val;
 		}
 	}
 
@@ -790,25 +790,10 @@ class ADODB_Active_Record
 			$f = $table->flds[$k];
 			if ($f) {
 				$columnName = $this->nameQuoter($db, $k);
-				$parr[] = $columnName . ' = ' . $this->doquote($db, $this->$k, $db->MetaType($f->type));
+				$parr[] = $columnName . ' = ' . $this->doQuote($db, $this->$k, $db->MetaType($f->type));
 			}
 		}
 		return implode(' AND ', $parr);
-	}
-
-
-	function _QName($n, $db = false)
-	{
-		if (!$this->_quoteNames) {
-			return $n;
-		}
-		if (!$db) {
-			$db = $this->DB();
-			if (!$db) {
-				return false;
-			}
-		}
-		return $db->nameQuote . $n . $db->nameQuote;
 	}
 
 	//------------------------------------------------------------ Public functions below
@@ -1018,7 +1003,7 @@ class ADODB_Active_Record
 			}
 
 			$t = $db->MetaType($fld->type);
-			$arr[$name] = $this->doquote($db, $val, $t);
+			$arr[$name] = $this->doQuote($db, $val, $t);
 			$valarr[] = $val;
 		}
 

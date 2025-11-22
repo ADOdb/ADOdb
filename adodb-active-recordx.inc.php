@@ -755,22 +755,32 @@ class ADODB_Active_Record
 	}
 
 	// quote data in where clause
-	function doquote(&$db, $val, $t)
+	function doQuote($db, $val, $t)
 	{
 		switch ($t) {
+			/** @noinspection PhpMissingBreakStatementInspection */
+			case 'L':
+				if (strpos($db->databaseType, 'postgres') !== false) {
+					return $db->qstr($val);
+				}
 			case 'D':
+			/** @noinspection PhpMissingBreakStatementInspection */
 			case 'T':
 				if (empty($val)) {
 					return 'null';
 				}
+			case 'B':
+			case 'N':
 			case 'C':
+			/** @noinspection PhpMissingBreakStatementInspection */
 			case 'X':
 				if (is_null($val)) {
 					return 'null';
 				}
-				if (strlen($val) > 0 &&
-					(strncmp($val, "'", 1) != 0 || substr($val, strlen($val) - 1, 1) != "'")
-				) {
+				if ('' === (string)$val) {
+					return "''";
+				}
+				if (substr($val, 0, 1) != "'" || substr($val,-1) != "'") {
 					return $db->qstr($val);
 				}
 			default:
@@ -787,7 +797,7 @@ class ADODB_Active_Record
 		foreach ($keys as $k) {
 			$f = $table->flds[$k];
 			if ($f) {
-				$parr[] = $k . ' = ' . $this->doquote($db, $this->$k, $db->MetaType($f->type));
+				$parr[] = $k . ' = ' . $this->doQuote($db, $this->$k, $db->MetaType($f->type));
 			}
 		}
 		return implode(' and ', $parr);
@@ -1067,7 +1077,7 @@ class ADODB_Active_Record
 				continue;
 			}
 			$t = $db->MetaType($fld->type);
-			$arr[$name] = $this->doquote($db, $val, $t);
+			$arr[$name] = $this->doQuote($db, $val, $t);
 			$valarr[] = $val;
 		}
 
