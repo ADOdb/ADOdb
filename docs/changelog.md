@@ -60,6 +60,23 @@ Older changelogs:
   [#833](https://github.com/ADOdb/ADOdb/issues/833)
 
 
+## [5.22.11] - 2025-11-22
+
+### Fixed
+
+- core: fix Non-canonical cast deprecations in PHP 8.5
+  [#1143](https://github.com/ADOdb/ADOdb/issues/1143)
+- core: AutoExecute may skip updates when forceUpdate is false
+  [#1146](https://github.com/ADOdb/ADOdb/issues/1146)
+- core: AutoExecute() should return false when no rows are updated
+- mysql: treat query parameter objects with __toString() method as string
+  [#1075](https://github.com/ADOdb/ADOdb/issues/1075)
+- PDO Firebird: undefined method ADODB_pdo_firebird::_init()
+  [#1122](https://github.com/ADOdb/ADOdb/issues/1122)
+- active record: handle empty string in dbquote()
+  [#1073](https://github.com/ADOdb/ADOdb/issues/1073)
+
+
 ## [5.22.10] - 2025-08-03
 
 ### Security
@@ -1553,8 +1570,9 @@ Released together with [v4.95](changelog_v4.x.md#495---17-may-2007)
 - Adodb5 version,more error checking code now will use exceptions if available.
 
 
-[5.23.0]: https://github.com/adodb/adodb/compare/v5.22.10...master
+[5.23.0]: https://github.com/adodb/adodb/compare/v5.22.11...master
 
+[5.22.11]: https://github.com/adodb/adodb/compare/v5.22.10...v5.22.11
 [5.22.10]: https://github.com/adodb/adodb/compare/v5.22.9...v5.22.10
 [5.22.9]: https://github.com/adodb/adodb/compare/v5.22.8...v5.22.9
 [5.22.8]: https://github.com/adodb/adodb/compare/v5.22.7...v5.22.8
