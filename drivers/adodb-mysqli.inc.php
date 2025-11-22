@@ -1256,7 +1256,7 @@ class ADODB_mysqli extends ADOConnection {
 				$typeString .= 'i';
 			} elseif (is_float($v)) {
 				$typeString .= 'd';
-			} elseif (is_object($v)) {
+			} elseif (is_object($v) && !method_exists($v, '__toString')) {
 				// Assume a blob
 				$typeString .= 'b';
 			} else {
