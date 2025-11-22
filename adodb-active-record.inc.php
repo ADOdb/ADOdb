@@ -766,21 +766,6 @@ class ADODB_Active_Record {
 		return implode(' AND ', $parr);
 	}
 
-
-	function _QName($n,$db=false)
-	{
-		if (!ADODB_Active_Record::$_quoteNames) {
-			return $n;
-		}
-		if (!$db) {
-			$db = $this->DB();
-			if (!$db) {
-				return false;
-			}
-		}
-		return $db->nameQuote.$n.$db->nameQuote;
-	}
-
 	//------------------------------------------------------------ Public functions below
 
 	function Load($where=null,$bindarr=false, $lock = false)
