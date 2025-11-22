@@ -780,9 +780,7 @@ class ADODB_Active_Record {
 				if ('' === (string)$val) {
 					return "''";
 				}
-				if (strlen($val) > 0 &&
-					(strncmp($val, "'", 1) != 0 || substr($val, strlen($val) - 1, 1) != "'")
-				) {
+				if (substr($val, 0, 1) != "'" || substr($val,-1) != "'") {
 					return $db->qstr($val);
 				}
 			default:
