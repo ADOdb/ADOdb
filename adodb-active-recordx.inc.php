@@ -762,15 +762,17 @@ class ADODB_Active_Record {
 	}
 
 	// quote data in where clause
-	function doQuote(&$db, $val, $t)
+	function doQuote($db, $val, $t)
 	{
 		switch ($t) {
 			case 'D':
+			/** @noinspection PhpMissingBreakStatementInspection */
 			case 'T':
 				if (empty($val)) {
 					return 'null';
 				}
 			case 'C':
+			/** @noinspection PhpMissingBreakStatementInspection */
 			case 'X':
 				if (is_null($val)) {
 					return 'null';
@@ -782,11 +784,9 @@ class ADODB_Active_Record {
 					(strncmp($val, "'", 1) != 0 || substr($val, strlen($val) - 1, 1) != "'")
 				) {
 					return $db->qstr($val);
-					break;
 				}
 			default:
 				return $val;
-				break;
 		}
 	}
 
