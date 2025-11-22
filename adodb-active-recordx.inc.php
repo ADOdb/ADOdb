@@ -762,31 +762,31 @@ class ADODB_Active_Record {
 	}
 
 	// quote data in where clause
-	function doquote(&$db, $val, $t)
+	function doQuote(&$db, $val, $t)
 	{
-		switch($t) {
-		case 'D':
-		case 'T':
-			if (empty($val)) {
-				return 'null';
-			}
-		case 'C':
-		case 'X':
-			if (is_null($val)) {
-				return 'null';
-			}
-			if ('' === (string) $val) {
-				return "''";
-			}
-			if (strlen($val)>0 &&
-				(strncmp($val,"'",1) != 0 || substr($val,strlen($val)-1,1) != "'")
-			) {
-				return $db->qstr($val);
+		switch ($t) {
+			case 'D':
+			case 'T':
+				if (empty($val)) {
+					return 'null';
+				}
+			case 'C':
+			case 'X':
+				if (is_null($val)) {
+					return 'null';
+				}
+				if ('' === (string)$val) {
+					return "''";
+				}
+				if (strlen($val) > 0 &&
+					(strncmp($val, "'", 1) != 0 || substr($val, strlen($val) - 1, 1) != "'")
+				) {
+					return $db->qstr($val);
+					break;
+				}
+			default:
+				return $val;
 				break;
-			}
-		default:
-			return $val;
-			break;
 		}
 	}
 
@@ -799,7 +799,7 @@ class ADODB_Active_Record {
 		foreach($keys as $k) {
 			$f = $table->flds[$k];
 			if ($f) {
-				$parr[] = $k.' = '.$this->doquote($db,$this->$k,$db->MetaType($f->type));
+				$parr[] = $k . ' = ' . $this->doQuote($db, $this->$k, $db->MetaType($f->type));
 			}
 		}
 		return implode(' and ', $parr);
@@ -1084,7 +1084,7 @@ class ADODB_Active_Record {
 				continue;
 			}
 			$t = $db->MetaType($fld->type);
-			$arr[$name] = $this->doquote($db,$val,$t);
+			$arr[$name] = $this->doQuote($db, $val, $t);
 			$valarr[] = $val;
 		}
 
