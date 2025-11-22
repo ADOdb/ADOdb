@@ -149,9 +149,9 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * Parameter must be one of the constants listed in mysqli_options().
 	 * @see https://www.php.net/manual/en/mysqli.options.php
-	 * 
-	 * OR 
-	 * 
+	 *
+	 * OR
+	 *
 	 * Parameter must be a string matching one of the following special cases.
 	 * 'ssl' - SSL values e.g. ('ssl' => ['ca' => '/path/to/ca.crt.pem'])
 	 * 'clientflags' - Client flags of type 'MYSQLI_CLIENT_'
@@ -159,7 +159,7 @@ class ADODB_mysqli extends ADOConnection {
 	 * @see https://www.php.net/manual/en/mysqli.constants.php
 	 * 'socket' - The socket or named pipe that should be used
 	 * 'port' - The port number to attempt to connect to the MySQL server
-	 * 
+	 *
 	 * @param string|int $parameter The parameter to set
 	 * @param string|int|array $value The value of the parameter
 	 *
