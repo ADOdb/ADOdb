@@ -765,12 +765,19 @@ class ADODB_Active_Record {
 	function doQuote($db, $val, $t)
 	{
 		switch ($t) {
+			/** @noinspection PhpMissingBreakStatementInspection */
+			case 'L':
+				if (strpos($db->databaseType, 'postgres') !== false) {
+					return $db->qstr($val);
+				}
 			case 'D':
 			/** @noinspection PhpMissingBreakStatementInspection */
 			case 'T':
 				if (empty($val)) {
 					return 'null';
 				}
+			case 'B':
+			case 'N':
 			case 'C':
 			/** @noinspection PhpMissingBreakStatementInspection */
 			case 'X':
