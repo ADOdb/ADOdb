@@ -35,7 +35,7 @@ class ADODB_sqlite extends ADOConnection {
 	var $hasLimit = true;
 	var $hasInsertID = true; 		/// supports autoincrement ID?
 	var $hasAffectedRows = true; 	/// supports affected rows for update/delete?
-	var $metaTablesSQL = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
+	var $metaTablesSQL = "SELECT name,CASE WHEN type='table' THEN 'T' ELSE 'V' END FROM sqlite_master WHERE type IN('table','view') AND name NOT LIKE 'sqlite_%'";
 	var $sysDate = "date('Y-m-d')";
 	var $sysTimeStamp = "date('Y-m-d H:i:s')";
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";

@@ -23,7 +23,7 @@
 
 class ADODB_pdo_sqlite extends ADODB_pdo_base {
 	/** @noinspection SqlResolve */
-	var $metaTablesSQL   = "SELECT name FROM sqlite_master WHERE type='table'";
+	var $metaTablesSQL   = "SELECT name,CASE WHEN type='table' THEN 'T' ELSE 'V' END FROM sqlite_master WHERE type IN('table','view') AND name NOT LIKE 'sqlite_%'";
 	var $sysDate         = 'current_date';
 	var $sysTimeStamp    = 'current_timestamp';
 	var $nameQuote       = '`';
