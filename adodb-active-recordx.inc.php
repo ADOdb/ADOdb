@@ -281,7 +281,7 @@ class ADODB_Active_Record
 				return substr($table, 0, $len - 2);
 			case 'I':
 				return substr($table, 0, $len - 3) . 'y';
-			case 'H';
+			case 'H':
 				if ($ut[$len - 4] == 'C' || $ut[$len - 4] == 'S') {
 					return substr($table, 0, $len - 2);
 				}

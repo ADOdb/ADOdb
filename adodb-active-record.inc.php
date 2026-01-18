@@ -240,7 +240,7 @@ class ADODB_Active_Record
 			case 'I':
 				return substr($tables, 0, $len-3) . 'y';
 			/** @noinspection PhpMissingBreakStatementInspection */
-			case 'H';
+			case 'H':
 				if ($ut[$len - 4] == 'C' || $ut[$len - 4] == 'S') {
 					return substr($tables, 0, $len - 2);
 				}
