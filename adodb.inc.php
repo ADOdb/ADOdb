@@ -3965,6 +3965,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		var $fields = false;
 		var $connection = false;
 
+		/**
+		 * The timestamp that the recordset was created
+		 *
+		 * @var integer
+		 */
+		public int $timeCreated = 0;
+
 		function RowCount() {
 			return 0;
 		}
