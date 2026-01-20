@@ -947,11 +947,19 @@ class ADODB_mysqli extends ADOConnection {
 			$table = "$owner.$table";
 		}
 
-		$a_create_table = array_change_key_case(
-			$this->getRow(
-				sprintf('SHOW CREATE TABLE `%s`', $table)),
-			CASE_UPPER
+		$showCreate = $this->getRow(
+				sprintf('SHOW CREATE TABLE `%s`', $table)
 		);
+
+		if ( !$showCreate || !is_array($showCreate) ) {
+			/*
+			* Invalid table or owner provided
+			*/
+			$this->setFetchMode($savem);
+			return false;
+		}
+
+		$a_create_table = array_change_key_case($showCreate, CASE_UPPER);
 
 		$this->setFetchMode($savem);
 
