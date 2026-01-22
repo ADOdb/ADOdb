@@ -756,6 +756,26 @@ if (!defined('_ADODB_LAYER')) {
 	/** @var string a specified locale. */
 	var $locale;
 
+	/*******************************************************
+	* For the logging plugin functionality, these logging
+	* levels are copied from Monolog
+	********************************************************/
+    const ADOLOGGER_DEBUG     = 100;
+    const ADOLOGGER_INFO      = 200;
+    const ADOLOGGER_NOTICE    = 250;
+	const ADOLOGGER_WARNING   = 300;
+	const ADOLOGGER_ERROR     = 400;
+    const ADOLOGGER_CRITICAL  = 500;
+	const ADOLOGGER_ALERT     = 550;
+	const ADOLOGGER_EMERGENCY = 600;
+
+	/*
+	* If the logging object is activated, this value is
+	* populated with available logging levels. This means
+	* we don't need to do a lookup for every query. The
+	* array is populated in connect() 
+	*/
+	protected $loggingPluginLoggedLevels = array();
 
 	/**
 	 * Default Constructor.
@@ -901,9 +921,22 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @param string $msg     Message to print
 	 * @param bool   $newline True to add a newline after printing $msg
+	  * @param int	 $logLevel Logging level of message if available, used by LoggingPlugin
+	 * 						   defaults to DEBUG = 100
 	 */
-	static function outp($msg,$newline=true) {
+	static function outp($msg,$newline=true,$logLevel=100) {
 		global $ADODB_FLUSH,$ADODB_OUTP;
+
+		global $ADODB_LOGGING_OBJECT;
+		
+		if (is_object($ADODB_LOGGING_OBJECT) && $ADODB_LOGGING_OBJECT->isLevelLogged(ADOConnection::ADOLOGGER_DEBUG))
+		{
+			/*
+			* Use of the LoggingPlugin does not affect any custom logging feature
+			*/
+			$outpObject = array($ADODB_LOGGING_OBJECT,$ADODB_LOGGING_OBJECT->outpMethod);
+			call_user_func($outpObject,$msg,$newline,$logLevel);
+		} 
 
 		if (defined('ADODB_OUTP')) {
 			$fn = ADODB_OUTP;
@@ -984,6 +1017,11 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return bool
 	 */
 	function Connect($argHostname = "", $argUsername = "", $argPassword = "", $argDatabaseName = "", $forceNew = false) {
+		
+		global $ADODB_LOGGING_OBJECT;
+		if (is_object ($ADODB_LOGGING_OBJECT))
+			$this->loggingPluginLoggedLevels = $ADODB_LOGGING_OBJECT->getLoggedLevels();
+		
 		if ($argHostname != "") {
 			$this->host = $argHostname;
 		}
@@ -1149,9 +1187,21 @@ if (!defined('_ADODB_LAYER')) {
 	 * @param string $msg Message
 	 * @param string $src the name of the calling function (in uppercase)
 	 * @param string $sql Optional offending SQL statement
+	 * @param int    $logLevel The logging warning level 400 = Error
 	 */
-	function outp_throw($msg, $src='WARN', $sql='') {
+	function outp_throw($msg, $src='WARN', $sql='',$logLevel=400) {
+
 		if (defined('ADODB_ERROR_HANDLER') &&  ADODB_ERROR_HANDLER == 'adodb_throw') {
+			if (array_key_exists($logLevel,$this->loggingPluginLoggedLevels))
+			{
+				global $ADODB_LOGGING_OBJECT;
+				/*
+				* Use of the LoggingPlugin does not affect any custom logging feature
+				*/
+				$outpObject = array($ADODB_LOGGING_OBJECT,$ADODB_LOGGING_OBJECT->outpMethod);
+				call_user_func($outpObject,$msg,false,$logLevel);
+				
+			}
 			adodb_throw($this->databaseType,$src,-9999,$msg,$sql,false,$this);
 			return;
 		}
@@ -1686,6 +1736,7 @@ if (!defined('_ADODB_LAYER')) {
 	}
 
 	function _Execute($sql,$inputarr=false) {
+		
 		// ExecuteCursor() may send non-string queries (such as arrays),
 		// so we need to ignore those.
 		if( is_string($sql) ) {
@@ -1695,7 +1746,8 @@ if (!defined('_ADODB_LAYER')) {
 			$sql = str_replace( '_ADODB_COUNT', '', $sql );
 		}
 
-		if ($this->debug) {
+		if ($this->debug || array_key_exists(self::ADOLOGGER_DEBUG,$this->loggingPluginLoggedLevels))
+		{
 			global $ADODB_INCLUDED_LIB;
 			if (empty($ADODB_INCLUDED_LIB)) {
 				include_once(ADODB_DIR.'/adodb-lib.inc.php');
@@ -1711,11 +1763,26 @@ if (!defined('_ADODB_LAYER')) {
 
 		// error handling if query fails
 		if ($this->_queryID === false) {
-			$fn = $this->raiseErrorFn;
-			if ($fn) {
-				$fn($this->databaseType,'EXECUTE',$this->ErrorNo(),$this->ErrorMsg(),$sql,$inputarr,$this);
+			if (array_key_exists(self::ADOLOGGER_CRITICAL,$this->loggingPluginLoggedLevels))
+			{
+				global $ADODB_LOGGING_OBJECT;
+				$ADODB_LOGGING_OBJECT->logInvalidSql($this,$sql,$inputarr);
+			} else {
+				$fn = $this->raiseErrorFn;
+				if ($fn) {
+					$fn($this->databaseType,'EXECUTE',$this->ErrorNo(),$this->ErrorMsg(),$sql,$inputarr,$this);
+				}
 			}
 			return false;
+		}
+		/*
+		* The logging class is independant of $db->debug. What levels control
+		* the level of debugging. INFO means we log successful query execution
+		*/
+		if (array_key_exists(self::ADOLOGGER_INFO,$this->loggingPluginLoggedLevels))
+		{
+			global $ADODB_LOGGING_OBJECT;
+			$ADODB_LOGGING_OBJECT->logValidSql($this,$sql,$inputarr);
 		}
 
 		// return simplified recordset for inserts/updates/deletes with lower overhead
