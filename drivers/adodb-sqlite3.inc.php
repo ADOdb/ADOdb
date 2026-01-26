@@ -74,12 +74,6 @@ class ADODB_sqlite3 extends ADOConnection
     public $hasAffectedRows = true;
 
     /**
-     * String for retrieving metatable information
-     *
-     * @var string
-     */
-    public $metaTablesSQL = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
-    /**
      * function that returns the current date
      *
      * @var string
