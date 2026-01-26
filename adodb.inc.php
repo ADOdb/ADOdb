@@ -5484,6 +5484,13 @@ class ADORecordSet implements IteratorAggregate {
 		 * @return \ADOFieldObject
 		 */
 		function FetchField($fieldOffset = -1) {
+			if ($fieldOffset < -1 || $fieldOffset >= $this->_numOfFields) {
+				if ($this->connection->debug) {
+					ADOConnection::outp("FetchField: field offset out of range: $fieldOffset");
+				}
+				return false;
+			}
+			
 			if (isset($this->_fieldobjects)) {
 				return $this->_fieldobjects[$fieldOffset];
 			}
