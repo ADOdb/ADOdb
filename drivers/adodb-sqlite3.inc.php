@@ -398,7 +398,6 @@ class ADODB_sqlite3 extends ADOConnection
 
         $arr = array();
         while ($r = $rs->FetchRow()) {
-
             // Metacolumns returns column names in lowercase
             $r = array_change_key_case($r, CASE_LOWER);
 
@@ -441,7 +440,7 @@ class ADODB_sqlite3 extends ADOConnection
     public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
     {
         global $ADODB_FETCH_MODE;
-        
+
         $tableExists = $this->metaTables('T', false, $table);
         if (!$tableExists) {
             return false;
@@ -502,18 +501,22 @@ class ADODB_sqlite3 extends ADOConnection
             $savem = $this->SetFetchMode(false);
         }
 
-        $res = $this->execute('PRAGMA database_list');
+        $res = $this->getAll('PRAGMA database_list');
 
         if (isset($savem)) {
             $this->SetFetchMode($savem);
         }
 
-        if (!$rs) {
-            $ADODB_FETCH_MODE = $save;
+        $ADODB_FETCH_MODE = $save;
+        if (!$res) {
             return false;
         }
 
-        return $res->getArray();
+        if ($this->database == ':memory:') {
+            $res[0][2] = $this->database;
+        }
+
+        return $res[0];
     }
 
     /**
@@ -629,7 +632,24 @@ class ADODB_sqlite3 extends ADOConnection
         if (empty($argHostname) && $argDatabasename) {
             $argHostname = $argDatabasename;
         }
+
+        if (!$argHostname) {
+            if ($this->debug) {
+                ADOConnection::outp('No host or connect passed to connect()');
+            }
+            return false;
+        }
         $this->_connectionID = new SQLite3($argHostname);
+
+        /*
+        * Use the physical file name or ':memory:' as the
+        * database name
+        */
+        $dbArray = preg_split('/[\/\\\\]+/', $argHostname);
+        $dbArray = array_filter($dbArray);
+
+        $this->database = array_pop($dbArray);
+
 
         // Register date conversion function for SQLDate() method
         // Replaces the legacy adodb_date() functions removed in 5.23.0
@@ -843,7 +863,7 @@ class ADODB_sqlite3 extends ADOConnection
         if (!$tableExists) {
             return false;
         }
-        
+
         $save = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
         if ($this->fetchMode !== false) {
@@ -1156,11 +1176,11 @@ class ADORecordset_sqlite3 extends ADORecordSet
     public function fetchField($fieldOffset = -1)
     {
         if ($fieldOffset < -1 || $fieldOffset >= $this->_numOfFields) {
-			if ($this->connection->debug) {
-				ADOConnection::outp("FetchField: field offset out of range: $fieldOffset");
-			}
-			return false;
-		}
+            if ($this->connection->debug) {
+                ADOConnection::outp("FetchField: field offset out of range: $fieldOffset");
+            }
+            return false;
+        }
 
         $fld = new ADOFieldObject();
         $fld->name = $this->_queryID->columnName($fieldOffset);
