@@ -485,6 +485,38 @@ class ADODB_sqlite3 extends ADOConnection
     }
 
     /**
+     * Returns the metadata for a table
+     *
+     * @param string $table     The table name
+     * @param bool   $normalize If true, will return the field names in uppercase
+     *
+     * @return array|false An array of ADOFieldObject objects or false on failure
+     */
+    public function metaDatabases()
+    {
+        global $ADODB_FETCH_MODE;
+
+        $save = $ADODB_FETCH_MODE;
+        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+        if ($this->fetchMode !== false) {
+            $savem = $this->SetFetchMode(false);
+        }
+
+        $res = $this->execute('PRAGMA database_list');
+
+        if (isset($savem)) {
+            $this->SetFetchMode($savem);
+        }
+
+        if (!$rs) {
+            $ADODB_FETCH_MODE = $save;
+            return false;
+        }
+
+        return $res->getArray();
+    }
+
+    /**
      * Initialize the driver
      *
      * @param ADOConnection $parentDriver The parent connection object
