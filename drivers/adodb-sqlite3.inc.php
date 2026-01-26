@@ -373,6 +373,12 @@ class ADODB_sqlite3 extends ADOConnection
     public function metaColumns($table, $normalize = true)
     {
         global $ADODB_FETCH_MODE;
+
+        $tableExists = $this->metaTables('T', false, $table);
+        if (!$tableExists) {
+            return false;
+        }
+
         $save = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
         if ($this->fetchMode !== false) {
@@ -392,6 +398,7 @@ class ADODB_sqlite3 extends ADOConnection
 
         $arr = array();
         while ($r = $rs->FetchRow()) {
+
             // Metacolumns returns column names in lowercase
             $r = array_change_key_case($r, CASE_LOWER);
 
@@ -434,6 +441,12 @@ class ADODB_sqlite3 extends ADOConnection
     public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
     {
         global $ADODB_FETCH_MODE;
+        
+        $tableExists = $this->metaTables('T', false, $table);
+        if (!$tableExists) {
+            return false;
+        }
+
         if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC || $this->fetchMode == ADODB_FETCH_ASSOC) {
             $associative = true;
         }
@@ -793,6 +806,12 @@ class ADODB_sqlite3 extends ADOConnection
     {
         // save old fetch mode
         global $ADODB_FETCH_MODE;
+
+        $tableExists = $this->metaTables('T', false, $table);
+        if (!$tableExists) {
+            return false;
+        }
+        
         $save = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
         if ($this->fetchMode !== false) {
@@ -1104,6 +1123,13 @@ class ADORecordset_sqlite3 extends ADORecordSet
      */
     public function fetchField($fieldOffset = -1)
     {
+        if ($fieldOffset < -1 || $fieldOffset >= $this->_numOfFields) {
+			if ($this->connection->debug) {
+				ADOConnection::outp("FetchField: field offset out of range: $fieldOffset");
+			}
+			return false;
+		}
+
         $fld = new ADOFieldObject();
         $fld->name = $this->_queryID->columnName($fieldOffset);
         $fld->type = 'VARCHAR';
