@@ -285,6 +285,90 @@ class ADODB_sqlite3 extends ADOConnection
     }
 
     /**
+     * Returns an array of table names and/or views in the database.
+     *
+     * @param string|bool $ttype      Can be either `TABLE`, `VIEW`, or false.
+     * @param string|bool $showSchema unused by sqlite3
+     * @param string|bool $mask       Input mask
+     *
+     * @return array|false Tables/Views for current database or false for no match
+     */
+    function metaTables($ttype = false, $showSchema = false, $mask = false)
+    {
+        global $ADODB_FETCH_MODE;
+
+        $save = $ADODB_FETCH_MODE;
+
+        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+        if ($this->fetchMode !== false) {
+            $savem = $this->setFetchMode(false);
+        }
+
+        $sqlFilters = [];
+        $filterSql  = '';
+
+        if ($mask) {
+            if (strpos($mask, '%') === false) {
+                /*
+                * Match an exact name
+                */
+                $sqlFilters[] = "name={$this->qstr($mask)}";
+            } else {
+                /*
+                * Match an SQL Like
+                */
+                $sqlFilters[] = "name LIKE {$this->qstr($mask)}";
+            }
+        }
+
+        /*
+        * Filter result to keep only the selected type by
+        * stripping the first character of the mask
+        */
+        if ($ttype) {
+            $ttype = strtoupper($ttype[0]);
+            if (!in_array($ttype, ['T','V'])) {
+                /*
+                * Not a supported filter
+                */
+                $ttype = '';
+            }
+
+            switch ($ttype) {
+                case 'T':
+                     $sqlFilters[] = "type='table'";
+                    break;
+                case 'V':
+                     $sqlFilters[] = "type='view'";
+            }
+        }
+
+        if (count($sqlFilters) > 0) {
+            $filterList =  implode(' AND ', $sqlFilters);
+            $filterSql = 'WHERE ' . $filterList;
+        }
+
+        $metaTablesSQL = "SELECT name 
+                            FROM sqlite_master
+                            $filterSql
+                            ORDER BY name";
+
+        $matchList = $this->getCol($metaTablesSQL);
+
+        if (isset($savem)) {
+            $this->setFetchMode($savem);
+        }
+
+        $ADODB_FETCH_MODE = $save;
+
+        if ($matchList === false || count($matchList) == 0) {
+            return false;
+        }
+
+        return $matchList;
+    }
+
+    /**
      * Returns the metadata for a table
      *
      * @param string $table     The table name
