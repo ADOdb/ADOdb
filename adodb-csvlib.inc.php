@@ -214,7 +214,7 @@ $ADODB_INCLUDED_CSV = 1;
 				}
 
 				$meta = false;
-				$meta = fgetcsv($fp, 32000, ",", '"');
+				$meta = fgetcsv($fp, 32000, ",", '"', '\\');
 				if (!$meta) {
 					fclose($fp);
 					$err = "Unexpected EOF 1";
