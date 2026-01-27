@@ -51,10 +51,9 @@ $ADODB_INCLUDED_CSV = 1;
 			} else
 				$sql .= ',,';
 
-			$text = "====-1,0,$sql\n";
-			return $text;
+			return "====-1,0,$sql\n";
 		}
-		$tt = ($rs->timeCreated) ? $rs->timeCreated : time();
+		$tt = $rs->timeCreated ?: time();
 
 		## changed format from ====0 to ====1
 		$line = "====1,$tt,$sql\n";
@@ -74,7 +73,7 @@ $ADODB_INCLUDED_CSV = 1;
 			$flds[] = $o;
 		}
 
-		$savefetch = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
+		$savefetch = $rs->adodbFetchMode ?? $rs->fetchMode;
 		$class = $rs->connection->arrayClass;
 		/** @var ADORecordSet $rs2 */
 		$rs2 = new $class(ADORecordSet::DUMMY_QUERY_ID);
@@ -99,12 +98,11 @@ $ADODB_INCLUDED_CSV = 1;
 	 */
 	function csv2rs($url, &$err, $timeout=0, $rsclass='ADORecordSet_array')
 	{
-		$false = false;
 		$err = false;
 		$fp = @fopen($url,'rb');
 		if (!$fp) {
 			$err = $url.' file/URL not found';
-			return $false;
+			return false;
 		}
 		@flock($fp, LOCK_SH);
 		$arr = array();
@@ -115,7 +113,7 @@ $ADODB_INCLUDED_CSV = 1;
 			if (strncmp($meta[0],'****',4) === 0) {
 				$err = trim(substr($meta[0],4,1024));
 				fclose($fp);
-				return $false;
+				return false;
 			}
 			// check for meta data
 			// $meta[0] is -1 means return an empty recordset
@@ -127,13 +125,13 @@ $ADODB_INCLUDED_CSV = 1;
 					if (sizeof($meta) < 5) {
 						$err = "Corrupt first line for format -1";
 						fclose($fp);
-						return $false;
+						return false;
 					}
 					fclose($fp);
 
 					if ($timeout > 0) {
 						$err = " Illegal Timeout $timeout ";
-						return $false;
+						return false;
 					}
 
 					$rs = new $rsclass($val=true);
@@ -157,34 +155,34 @@ $ADODB_INCLUDED_CSV = 1;
 				if (sizeof($meta) > 1) {
 					if($timeout >0){
 						$tdiff = (int)( $meta[1]+$timeout - time());
-						if ($tdiff <= 2) {
+						if ($tdiff <= 4) {
 							switch($tdiff) {
 							case 4:
 							case 3:
 								if ((rand() & 31) == 0) {
 									fclose($fp);
 									$err = "Timeout 3";
-									return $false;
+									return false;
 								}
 								break;
 							case 2:
 								if ((rand() & 15) == 0) {
 									fclose($fp);
 									$err = "Timeout 2";
-									return $false;
+									return false;
 								}
 								break;
 							case 1:
 								if ((rand() & 3) == 0) {
 									fclose($fp);
 									$err = "Timeout 1";
-									return $false;
+									return false;
 								}
 								break;
 							default:
 								fclose($fp);
 								$err = "Timeout 0";
-								return $false;
+								return false;
 							} // switch
 
 						} // if check flush cache
@@ -213,12 +211,11 @@ $ADODB_INCLUDED_CSV = 1;
 					return $rs;
 				}
 
-				$meta = false;
 				$meta = fgetcsv($fp, 32000, ",", '"', '\\');
 				if (!$meta) {
 					fclose($fp);
 					$err = "Unexpected EOF 1";
-					return $false;
+					return false;
 				}
 			}
 
@@ -240,7 +237,7 @@ $ADODB_INCLUDED_CSV = 1;
 		} else {
 			fclose($fp);
 			$err = "Recordset had unexpected EOF 2";
-			return $false;
+			return false;
 		}
 
 		// slurp in the data
@@ -255,7 +252,7 @@ $ADODB_INCLUDED_CSV = 1;
 		@$arr = unserialize($text);
 		if (!is_array($arr)) {
 			$err = "Recordset had unexpected EOF (in serialized recordset)";
-			return $false;
+			return false;
 		}
 		$rs = new $rsclass();
 		$rs->timeCreated = $ttl;
@@ -299,8 +296,8 @@ $ADODB_INCLUDED_CSV = 1;
 					@unlink($tmpname);
 					$ok = 0;
 				}
-				if (!$ok) {
-					if ($debug) ADOConnection::outp( " Rename $tmpname ".($ok? 'ok' : 'failed'));
+				if (!$ok && $debug) {
+					ADOConnection::outp(" Rename $tmpname failed");
 				}
 			}
 			return $ok;
