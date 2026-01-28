@@ -60,23 +60,132 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	var $typeX = 'TEXT';  ## Alternatively, set it to VARCHAR(4000)
 	var $typeXL = 'TEXT';
 
+	/**
+	 * The mapped type of DATE. Older systems used DATETIME
+	 *
+	 * @var string
+	 */
+	public string $typeD = 'DATE';
+
 	//var $alterCol = ' ALTER COLUMN ';
 
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+	/**
+	 * Returns an ADOdb Metatype provided a SQL Server Type
+	 *
+	 * It is important to send the column object rather than
+	 * the string type because the length is important
+	 * for distinguishing type
+	 *
+	 * @param string|object  $t
+	 * @param integer        $len
+	 * @param boolean|object $fieldobj
+	 *
+	 * @return string
+	 */
+	public function metaType($t, $len = -1, $fieldobj = false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
 			$t = $fieldobj->type;
+			$length = $fieldobj->length;
+		} elseif (!$fieldobj && $this->connection->debug) {
+			ADOConnection::outp('metaType provides a more accurate result if passed the column object');
 		}
-		
-	
+
 		$t = strtoupper($t);
 		
-		if (array_key_exists($t,$this->connection->customActualTypes))
-			return  $this->connection->customActualTypes[$t];
+		if (array_key_exists($t, $this->connection->customActualTypes)) {
+			return $this->connection->customActualTypes[$t];
+		}
+
+		/*
+		* Since the introduction of the requirement of the ODBC driver,
+		* types are now string values. The numeric value is in the 
+		* xtype field. Older versions of the native client still send
+		* numbers
+		*/
+
+		if (!preg_match('/^[A-Z2]+$/', $t)) {
+			return $this->legacyMetaType($t);
+		}
+
+		if ($t == 'VARCHAR' && $length == -1) {
+			$t = 'CLOB';
+		}
+		if ($t == 'NVARCHAR' && $length == -1) {
+			$t = 'NCLOB';
+		}
+
+		if ($t == 'VARBINARY' && $length == -1) {
+			$t = 'IMAGE';
+		}
+		if ($t == 'NVARCHAR' && $length == -1) {
+			$t = 'BLOB';
+		}
+		
+		switch ($t) {
+			case 'VARCHAR':
+				return 'C';
+			
+			case 'NVARCHAR':
+				return 'C2';
+
+			case 'CLOB':
+				return 'X';
+
+			case 'NCLOB':
+				return 'X2';
+			
+			case 'BINARY':
+			case 'VARBINARY':
+				return 'B';
+
+			case 'TEXT':
+			case 'IMAGE':
+				return 'XL';
+
+			case 'DATE':
+				return 'D';
+
+			case 'TIME':
+			case 'DATETIME':
+			case 'DATETIME2':
+			case 'SMALLDATETIME':
+			case 'DATETIMEOFFSET':
+				return 'T';
+
+			case 'NUMERIC':
+			case 'DECIMAL':
+			case 'MONEY':
+			case 'SMALLMONEY':
+				return 'F';
+
+			case 'REAL':
+				return 'R';
+
+			case 'BIT':
+				return 'L';
+			
+			case 'SMALLINT':
+				return 'I2';
+
+			case 'INT':
+				return I4;
+
+			case 'BIGINT':
+				return 'I';
+		
+			default:
+
+				return ADODB_DEFAULT_METATYPE;
+		}
+	}
+
+	protected function legacyMetatype(string $actualType): string
+	{
 		
 		$_typeConversion = array(
 			-155 => 'D',
@@ -111,8 +220,8 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 			  -3 => 'X'
 			);
 
-		if (isset($_typeConversion[$t])) {
-			return $_typeConversion[$t];
+		if (isset($_typeConversion[$actualType])) {
+			return $_typeConversion[$actualType];
 		}
 
 		return ADODB_DEFAULT_METATYPE;
