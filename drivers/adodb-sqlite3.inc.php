@@ -390,14 +390,17 @@ class ADODB_sqlite3 extends ADOConnection
         if (isset($savem)) {
             $this->SetFetchMode($savem);
         }
-
+       
         if (!$rs) {
             $ADODB_FETCH_MODE = $save;
             return false;
         }
 
+        
+
         $arr = array();
         while ($r = $rs->FetchRow()) {
+            print_r($r);
             // Metacolumns returns column names in lowercase
             $r = array_change_key_case($r, CASE_LOWER);
 
@@ -1150,7 +1153,8 @@ class ADORecordset_sqlite3 extends ADORecordSet
 
         $this->_inited = true;
         $this->fields = array();
-        if ($queryID) {
+        if (is_resource($queryID)) {
+            $this->_queryID = $queryID;
             $this->_currentRow = 0;
             $this->EOF = !$this->_fetch();
             @$this->_initrs();
