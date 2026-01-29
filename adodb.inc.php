@@ -5188,7 +5188,7 @@ class ADORecordSet implements IteratorAggregate {
 			'I' => 'I',
 			##
 			'LONG' => 'N', // interbase is numeric, oci8 is blob
-			'BIGINT' => 'N', // this is bigger than PHP 32-bit integers
+			'BIGINT' => 'I', // this is bigger than PHP 32-bit integers
 			'DECIMAL' => 'N',
 			'DEC' => 'N',
 			'REAL' => 'N',
