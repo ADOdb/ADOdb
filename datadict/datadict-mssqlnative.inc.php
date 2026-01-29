@@ -57,8 +57,21 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	var $dropIndex = /** @lang text */ 'DROP INDEX %1$s ON %2$s';
 	var $renameTable = "EXEC sp_rename '%s','%s'";
 	var $renameColumn = "EXEC sp_rename '%s.%s','%s'";
-	var $typeX = 'TEXT';  ## Alternatively, set it to VARCHAR(4000)
-	var $typeXL = 'TEXT';
+
+    /**
+     * Type to use for X metaType. TEXT is now deprecated
+     *
+     * @var string
+     */
+	public string $typeX = 'VARCHAR(MAX)';
+
+
+	/**
+     * Type to use for XL MetaType. Image is now deprecated
+     *
+     * @var string
+     */
+    public string $typeXL = 'VARBINARY(MAX)';
 
 	/**
 	 * The mapped type of DATE. Older systems used DATETIME
@@ -67,7 +80,6 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	 */
 	public string $typeD = 'DATE';
 
-	//var $alterCol = ' ALTER COLUMN ';
 
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;
@@ -87,13 +99,18 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	 */
 	public function metaType($t, $len = -1, $fieldobj = false)
 	{
-		if (is_object($t)) {
+		
+        if (is_object($t)) {
 			$fieldobj = $t;
-			$t = $fieldobj->type;
+
+			$t      = $fieldobj->type;
 			$length = $fieldobj->length;
+
 		} elseif (!$fieldobj && $this->connection->debug) {
+
 			ADOConnection::outp('metaType provides a more accurate result if passed the column object');
-		}
+		
+            }
 
 		$t = strtoupper($t);
 		
@@ -113,18 +130,22 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		}
 
 		if ($t == 'VARCHAR' && $length == -1) {
+            /*
+            * varchat(max)
+            */
 			$t = 'CLOB';
-		}
-		if ($t == 'NVARCHAR' && $length == -1) {
+		} elseif ($t == 'NVARCHAR' && $length == -1) {
+            /*
+            * nvarchar(max)
+            */
 			$t = 'NCLOB';
+		} elseif ($t == 'VARBINARY' && $length == -1) {
+			/*
+            * varbinary(max)
+            */
+            $t = 'IMAGE';
 		}
-
-		if ($t == 'VARBINARY' && $length == -1) {
-			$t = 'IMAGE';
-		}
-		if ($t == 'NVARCHAR' && $length == -1) {
-			$t = 'BLOB';
-		}
+		
 		
 		switch ($t) {
 			case 'VARCHAR':
@@ -173,7 +194,8 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 				return 'I2';
 
 			case 'INT':
-				return I4;
+            case 'INTEGER':
+				return 'I4';
 
 			case 'BIGINT':
 				return 'I';
@@ -184,10 +206,17 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		}
 	}
 
+    /**
+     * Access to Server 2012 and lower actual types
+     *
+     * @param string  $actualType
+     * 
+     * @return string
+     */
 	protected function legacyMetatype(string $actualType): string
 	{
 		
-		$_typeConversion = array(
+		$typeConversion = array(
 			-155 => 'D',
 			  93 => 'D',
 			-154 => 'D',
@@ -220,50 +249,84 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 			  -3 => 'X'
 			);
 
-		if (isset($_typeConversion[$actualType])) {
-			return $_typeConversion[$actualType];
+		if (isset($typeConversion[$actualType])) {
+			return $typeConversion[$actualType];
 		}
 
 		return ADODB_DEFAULT_METATYPE;
 	}
 
-	function ActualType($meta)
+    /**
+     * Returns a SQL Server type based on a MetaType
+     *
+     * @param string $meta The metatype
+     * 
+     * @return string The actual type
+     */
+	public function ActualType($meta)
 	{
-		$DATE_TYPE = 'DATETIME';
+		
 		$meta = strtoupper($meta);
 		
 		/*
 		* Add support for custom meta types. We do this
 		* first, that allows us to override existing types
 		*/
-		if (isset($this->connection->customMetaTypes[$meta]))
+		if (isset($this->connection->customMetaTypes[$meta])) {
 			return $this->connection->customMetaTypes[$meta]['actual'];
+        }
+
+		switch (strtoupper($meta)) {
+
+		    case 'C':
+                return 'VARCHAR';
 		
-		switch(strtoupper($meta)) {
+            case 'XL':
+                return  $this->typeXL;
 
-		case 'C': return 'VARCHAR';
-		case 'XL': return (isset($this)) ? $this->typeXL : 'TEXT';
-		case 'X': return (isset($this)) ? $this->typeX : 'TEXT'; ## could be varchar(8000), but we want compat with oracle
-		case 'C2': return 'NVARCHAR';
-		case 'X2': return 'NTEXT';
+		    case 'X':
+                return $this->typeX;
 
-		case 'B': return 'IMAGE';
+		    case 'C2':
+                return 'NVARCHAR';
+        
+            case 'X2': 
+                return 'NVARCHAR(MAX)';
 
-		case 'D': return $DATE_TYPE;
-		case 'T': return 'TIME';
-		case 'L': return 'BIT';
+            case 'B':
+                return 'VARBINARY(MAX)';
 
-		case 'R':
-		case 'I': return 'INT';
-		case 'I1': return 'TINYINT';
-		case 'I2': return 'SMALLINT';
-		case 'I4': return 'INT';
-		case 'I8': return 'BIGINT';
+            case 'D':
+                return $this->typeD;
 
-		case 'F': return 'REAL';
-		case 'N': return 'NUMERIC';
-		default:
-			return $meta;
+		    case 'T':
+            case 'TS':
+                return 'DATETIME';
+		    
+            case 'L':
+                return 'BOOLEAN';
+
+		    case 'R':
+            case 'F':
+                return 'REAL';
+
+            case 'I1':
+                return 'TINYINT';
+            case 'I2':
+                return 'SMALLINT';
+
+            case 'I4':
+                return 'INT';
+
+            case 'I':
+            case 'I8':
+                return 'BIGINT';
+
+		    case 'N':
+                return 'NUMERIC';
+		    
+            default:
+			   return $meta;
 		}
 	}
 
