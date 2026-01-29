@@ -91,9 +91,9 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	 * the string type because the length is important
 	 * for distinguishing type
 	 *
-	 * @param string|object  $t
-	 * @param integer        $len
-	 * @param boolean|object $fieldobj
+	 * @param string|ADOFieldObject $t        Native type or ADOFieldObject
+	 * @param int                   $len      The field's length indicator
+	 * @param ADOFieldObject        $fieldObj Field object
 	 *
 	 * @return string
 	 */
@@ -118,7 +118,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 
 		if (is_object($fieldobj)) {
 			$t      = $fieldobj->type;
-			$length = $fieldobj->length;
+			$length = $fieldobj->max_length;
 
 		} elseif (!$fieldobj && $this->connection->debug) {
 
