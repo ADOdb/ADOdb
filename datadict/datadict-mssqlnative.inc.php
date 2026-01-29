@@ -99,10 +99,24 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	 */
 	public function metaType($t, $len = -1, $fieldobj = false)
 	{
-		
+		$length = -2;
+		if (func_num_args() == 2) {
+			/*
+			* The default for $len is -1. We must keep this
+			* to make it compatible with the parent signature for the
+			* method. SQL Server uses -1 length to indicate a
+			* (max) size which will give us an invalid field type
+			* We only use -1 if it is deliberately passed as
+			* an argument to the method
+			*/
+			$length = $len;
+		}
+
         if (is_object($t)) {
 			$fieldobj = $t;
+		}
 
+		if (is_object($fieldobj)) {
 			$t      = $fieldobj->type;
 			$length = $fieldobj->length;
 
@@ -110,7 +124,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 
 			ADOConnection::outp('metaType provides a more accurate result if passed the column object');
 		
-            }
+        }
 
 		$t = strtoupper($t);
 		
@@ -125,13 +139,13 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		* numbers
 		*/
 
-		if (!preg_match('/^[A-Z2]+$/', $t)) {
+		if (is_numeric($t)) {
 			return $this->legacyMetaType($t);
 		}
 
 		if ($t == 'VARCHAR' && $length == -1) {
             /*
-            * varchat(max)
+            * varchar(max)
             */
 			$t = 'CLOB';
 		} elseif ($t == 'NVARCHAR' && $length == -1) {
@@ -182,7 +196,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 			case 'DECIMAL':
 			case 'MONEY':
 			case 'SMALLMONEY':
-				return 'F';
+				return 'N';
 
 			case 'REAL':
 				return 'R';
@@ -316,7 +330,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
                 return 'SMALLINT';
 
             case 'I4':
-                return 'INT';
+                return 'INTEGER';
 
             case 'I':
             case 'I8':
