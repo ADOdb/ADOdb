@@ -146,10 +146,8 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * The default is to use native case-names.
 	 *
-	 * The values of these constants match PHP's CASE_LOWER and CASE_UPPER.
-	 *
 	 * NOTE: This functionality is not implemented everywhere, it currently
-	 * works only with: mssql, odbc, oci8 and ibase derived drivers.
+	 * works only with: mssql, odbc, oci8 and ibase derived drivers
 	 */
 	define('ADODB_ASSOC_CASE_LOWER', 0);
 	define('ADODB_ASSOC_CASE_UPPER', 1);
@@ -236,14 +234,14 @@ if (!defined('_ADODB_LAYER')) {
 		public $name = '';
 
 		/**
-		 * @var string Field type.
-		 */
-		public $type = '';
-
-		/**
 		 * @var int Field size
 		 */
 		public $max_length = 0;
+
+		/**
+		 * @var string Field type.
+		 */
+		public $type = '';
 
 		/**
 		 * @var int|null Numeric field scale.
@@ -497,6 +495,8 @@ if (!defined('_ADODB_LAYER')) {
 	//
 	var $dataProvider = 'native';
 	var $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
+
+	public string $dictionaryProvider = '';
 
 	/**
 	 * @var string Current database name.
@@ -2161,8 +2161,7 @@ if (!defined('_ADODB_LAYER')) {
 		$rs2->sql = $rs->sql;
 		$rs2->dataProvider = $this->dataProvider;
 		$rs2->InitArrayFields($arr,$flds);
-
-		$rs2->adodbFetchMode = $rs2->fetchMode = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
+		$rs2->fetchMode = isset($rs->adodbFetchMode) ? $rs->adodbFetchMode : $rs->fetchMode;
 		return $rs2;
 	}
 
@@ -2269,7 +2268,7 @@ if (!defined('_ADODB_LAYER')) {
 			return false;
 		}
 
-		$midrow = (int) ($total/2);
+		$midrow = (integer) ($total/2);
 		$rs = $this->SelectLimit("select $field from $table $where order by 1",1,$midrow);
 		if ($rs && !$rs->EOF) {
 			return reset($rs->fields);
@@ -2750,48 +2749,39 @@ if (!defined('_ADODB_LAYER')) {
 	 * @noinspection PhpUnusedParameterInspection
 	 */
 	function autoExecute($table, $fields_values, $mode = 'INSERT', $where = '', $forceUpdate = true, $magic_quotes = false) {
-		switch($mode) {
-			case DB_AUTOQUERY_INSERT:
-			case DB_AUTOQUERY_UPDATE:
-				break;
-			case 'UPDATE':
-				$mode = DB_AUTOQUERY_UPDATE;
-				break;
-			case 'INSERT':
-				$mode = DB_AUTOQUERY_INSERT;
-				break;
-			default:
-				$this->outp_throw("AutoExecute: Unknown mode=$mode", 'AutoExecute');
-				return false;
-		}
-
 		if (empty($fields_values)) {
 			$this->outp_throw('AutoExecute: Empty fields array', 'AutoExecute');
 			return false;
 		}
-		if (empty($where) && $mode == DB_AUTOQUERY_UPDATE) {
+		if (empty($where) && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */)) {
 			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause', 'AutoExecute');
 			return false;
 		}
 
 		$sql = "SELECT * FROM $table";
-		if (!empty($where)) {
-			$sql .= " WHERE $where";
-		}
-
 		$rs = $this->SelectLimit($sql, 1);
-		if (!$rs || $mode == DB_AUTOQUERY_UPDATE && $rs->EOF) {
-			// Table does not exist or udpate where clause matches no rows
-			return false;
+		if (!$rs) {
+			return false; // table does not exist
 		}
 
 		$rs->tableName = $table;
+		if (!empty($where)) {
+			$sql .= " WHERE $where";
+		}
 		$rs->sql = $sql;
 
-		if ($mode == DB_AUTOQUERY_UPDATE) {
-			$sql = $this->getUpdateSQL($rs, $fields_values, $forceUpdate);
-		} else {
-			$sql = $this->getInsertSQL($rs, $fields_values);
+		switch($mode) {
+			case 'UPDATE':
+			case DB_AUTOQUERY_UPDATE:
+				$sql = $this->GetUpdateSQL($rs, $fields_values, $forceUpdate);
+				break;
+			case 'INSERT':
+			case DB_AUTOQUERY_INSERT:
+				$sql = $this->GetInsertSQL($rs, $fields_values);
+				break;
+			default:
+				$this->outp_throw("AutoExecute: Unknown mode=$mode", 'AutoExecute');
+				return false;
 		}
 		return $sql && $this->Execute($sql);
 	}
@@ -2952,14 +2942,6 @@ if (!defined('_ADODB_LAYER')) {
 		return true;
 	}
 
-	/**
-	 * Return string with a database specific IFNULL statement
-	 *
-	 * @param string $field
-	 * @param string $ifNull
-	 *
-	 * @return void
-	 */
 	function IfNull( $field, $ifNull ) {
 		return " CASE WHEN $field is null THEN $ifNull ELSE $field END ";
 	}
@@ -3229,64 +3211,63 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	/**
-	 * Returns an array of table names and/or views in the database.
+	 * @param ttype can either be 'VIEW' or 'TABLE' or false.
+	 *		If false, both views and tables are returned.
+	 *		"VIEW" returns only views
+	 *		"TABLE" returns only tables
+	 * @param showSchema returns the schema/user with the table name, eg. USER.TABLE
+	 * @param mask  is the input mask - only supported by oci8 and postgresql
 	 *
-	 * @param string|bool $ttype Can be either `TABLE`, `VIEW`, or false.
-	 *   - If false, both views and tables are returned.
-	 *   - `TABLE` (or `T`) returns only tables
-	 *   - `VIEW` (or `V` returns only views
-	 * @param string|bool $showSchema Prepends the schema/user to the table name,
-	 *                                eg. USER.TABLE
-	 * @param string|bool $mask Input mask - not supported by all drivers
-	 *
-	 * @return array|false Tables/Views for current database.
+	 * @return  array of tables for current database.
 	 */
-	function metaTables($ttype=false, $showSchema=false, $mask=false) {
+	function MetaTables($ttype=false,$showSchema=false,$mask=false) {
 		global $ADODB_FETCH_MODE;
-
-		if (!$this->metaTablesSQL) {
-			return false;
-		}
 
 		if ($mask) {
 			return false;
 		}
+		if ($this->metaTablesSQL) {
+			$save = $ADODB_FETCH_MODE;
+			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-		$save = $ADODB_FETCH_MODE;
-		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		if ($this->fetchMode !== false) {
-			$savem = $this->setFetchMode(false);
+			if ($this->fetchMode !== false) {
+				$savem = $this->SetFetchMode(false);
+			}
+
+			$rs = $this->Execute($this->metaTablesSQL);
+			if (isset($savem)) {
+				$this->SetFetchMode($savem);
+			}
+			$ADODB_FETCH_MODE = $save;
+
+			if ($rs === false) {
+				return false;
+			}
+			$arr = $rs->GetArray();
+			$arr2 = array();
+
+			if ($hast = ($ttype && isset($arr[0][1]))) {
+				$showt = strncmp($ttype,'T',1);
+			}
+
+			for ($i=0; $i < sizeof($arr); $i++) {
+				if ($hast) {
+					if ($showt == 0) {
+						if (strncmp($arr[$i][1],'T',1) == 0) {
+							$arr2[] = trim($arr[$i][0]);
+						}
+					} else {
+						if (strncmp($arr[$i][1],'V',1) == 0) {
+							$arr2[] = trim($arr[$i][0]);
+						}
+					}
+				} else
+					$arr2[] = trim($arr[$i][0]);
+			}
+			$rs->Close();
+			return $arr2;
 		}
-
-		$rs = $this->execute($this->metaTablesSQL);
-
-		if (isset($savem)) {
-			$this->setFetchMode($savem);
-		}
-		$ADODB_FETCH_MODE = $save;
-
-		if ($rs === false) {
-			return false;
-		}
-
-		$res = $rs->getArray();
-
-		// Filter result to keep only the selected type
-		if ($res && $ttype && isset($res[0][1])) {
-			$ttype = strtoupper($ttype[0]);
-			$res = array_filter($res,
-				/**
-				 * @param array $table metaTablesSQL query result row.
-				 *
-				 * @return bool true if $ttype matches the table's type.
-				 */
-				function (array $table) use ($ttype): bool {
-					return $table[1][0] == $ttype;
-				}
-			);
-		}
-
-		return array_column($res, 0);
+		return false;
 	}
 
 
@@ -3964,13 +3945,6 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		/** @var bool|array  */
 		var $fields = false;
 		var $connection = false;
-
-		/**
-		 * The timestamp that the recordset was created
-		 *
-		 * @var integer
-		 */
-		public int $timeCreated = 0;
 
 		function RowCount() {
 			return 0;
@@ -5009,7 +4983,7 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * Must be defined by child class.
 	 *
-	 * @param int $fieldOffset Optional field offset
+	 * @param int $fieldOffset
 	 *
 	 * @return ADOFieldObject|false
 	 */
@@ -5048,21 +5022,16 @@ class ADORecordSet implements IteratorAggregate {
 	 *
 	 * @param bool $isUpper True to convert field names to uppercase.
 	 *
-	 * @return bool|ADOFetchObj The object with properties set to the current row's fields.
+	 * @return ADOFetchObj The object with properties set to the current row's fields.
 	 */
 	function fetchObject($isUpper = true) {
-
-		if (!$this->fields) {
-			/*
-			* past EOF
-			*/
-			return false;
+		$fields = [];
+		foreach ($this->fieldTypesArray() as $metadata) {
+			$fields[$metadata->name] = $this->fields($metadata->name);
 		}
-
-		$casing = $isUpper ? CASE_UPPER : CASE_LOWER;
-
-		$fields = array_change_key_case($this->fields, $casing);
-
+		if ($isUpper) {
+			$fields = array_change_key_case($fields, CASE_UPPER);
+		}
 		return new ADOFetchObj($fields);
 	}
 
@@ -5391,7 +5360,7 @@ class ADORecordSet implements IteratorAggregate {
 		 * @param int|bool     $mode    The ADODB_FETCH_MODE value
 		 */
 		function __construct($queryID, $mode=false) {
-			parent::__construct(self::DUMMY_QUERY_ID, $mode);
+			parent::__construct(self::DUMMY_QUERY_ID);
 
 			// fetch() on EOF does not delete $this->fields
 			global $ADODB_COMPAT_FETCH;
@@ -5877,10 +5846,10 @@ class ADORecordSet implements IteratorAggregate {
 										$nconnect = true; $persist = true; break;
 					case 'persist':
 					case 'persistent':	$persist = $v; break;
-					case 'debug':		$obj->debug = (int) $v; break;
+					case 'debug':		$obj->debug = (integer) $v; break;
 					#ibase
 					case 'role':		$obj->role = $v; break;
-					case 'dialect':	$obj->dialect = (int) $v; break;
+					case 'dialect':	$obj->dialect = (integer) $v; break;
 					case 'charset':		$obj->charset = $v; $obj->charSet=$v; break;
 					case 'buffers':		$obj->buffers = $v; break;
 					case 'fetchmode':   $obj->SetFetchMode($v); break;
@@ -6013,8 +5982,16 @@ class ADORecordSet implements IteratorAggregate {
 
 		include_once(ADODB_DIR.'/adodb-lib.inc.php');
 		include_once(ADODB_DIR.'/adodb-datadict.inc.php');
+
+		//print "{$conn->dictionaryProvider}\n";
 		
-		if ($conn->dsnType)
+		if ($conn->dictionaryProvider) {
+			$cName = $conn->dictionaryProvider;
+			$dName = sprintf('datadict-%s.inc.php',$conn->dictionaryProvider);
+			$conn->dataProvider = $conn->dictionaryProvider;
+		}
+
+		else if ($conn->dsnType)
 		{
 			$cName = sprintf('%s_%s',$drivername,$conn->dsnType);
 			$dName = sprintf('datadict-%s-%s.inc.php',$drivername,$conn->dsnType);
@@ -6026,6 +6003,8 @@ class ADORecordSet implements IteratorAggregate {
 		}
 		
 		$path = ADODB_DIR."/datadict/" . $dName;
+
+		print "DICT PATH=$path $cName PROVIDER={$conn->dataProvider}\n";
 
 		if (!file_exists($path)) {
 

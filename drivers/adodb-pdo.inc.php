@@ -124,6 +124,9 @@ abstract class ADODB_pdo extends ADOConnection
 	*/
 	public array $pdoParameters = array();
 
+
+	public string $dictionaryProvider = '';
+
 	
 	var $sysDate = "'?'";
 	var $sysTimeStamp = "'?'";
@@ -713,7 +716,7 @@ class ADODB_pdo_base extends ADODB_pdo {
 	 * @return void
 	 * @internal
 	 */
-	protected function _init(ADODB_pdo $parentDriver)
+	public function _init($parentDriver)
 	{
 		$parentDriver->_bindInputArray = true;
 	}

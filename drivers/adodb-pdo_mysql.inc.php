@@ -40,20 +40,13 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 	var $_genSeq2SQL = "INSERT INTO %s VALUES (%s)";
 	var $_dropSeqSQL = "drop table %s";
 	
-	/*
-	* Sequence management statements
-	*/
-	public $_genIDSQL 		 = 'UPDATE %s SET id=LAST_INSERT_ID(id+1);';
-	public $_genSeqSQL 	 	 = 'CREATE TABLE IF NOT EXISTS %s (id int not null)';
-	public $_genSeqCountSQL  = 'SELECT COUNT(*) FROM %s';
-	public $_genSeq2SQL 	 = 'INSERT INTO %s VALUES (%s)';
-	public $_dropSeqSQL 	 = 'DROP TABLE IF EXISTS %s';
-	
 	var $fmtTimeStamp = "'Y-m-d H:i:s'";
 	var $nameQuote = '`';
 
 	public $hasTransactions = true;
 	public $hasInsertID     = true;
+
+	public string $dictionaryProvider = 'mysql';
 
 	function _init($parentDriver)
 	{

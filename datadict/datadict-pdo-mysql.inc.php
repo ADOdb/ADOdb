@@ -31,6 +31,10 @@ final class ADODB2_pdo_mysql extends ADODB_DataDict {
 	var $renameColumn = 'ALTER TABLE %s CHANGE COLUMN %s %s %s';	// needs column-definition!
 
 	public $blobAllowsNotNull = true;
+
+	
+	public string $dictionaryProvider = 'mysql';
+
 	
 	/**
 	 * Returns a database-independent value for a physical type
