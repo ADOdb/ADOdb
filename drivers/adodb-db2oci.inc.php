@@ -101,7 +101,7 @@ function _colonparser($sql,$arr)
 					$ch2 = $at < $lensql ? $sql[$at] : '';
 				} while ('0' <= $ch && $ch <= '9');
 				#echo "$n $arrsize ] ";
-				$n = (integer) $n;
+				$n = (int) $n;
 				if ($n < $arrsize) {
 					$sql2 .= substr($sql,$nprev,$nat-$nprev-1).'?';
 					$nprev = $at-1;

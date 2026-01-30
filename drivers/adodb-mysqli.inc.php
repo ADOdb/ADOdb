@@ -59,8 +59,8 @@ class ADODB_mysqli extends ADOConnection {
 	var $hasMoveFirst = true;
 	var $hasGenID = true;
 	var $isoDates = true; // accepts dates in ISO format
-	var $sysDate = 'CURDATE()';
-	var $sysTimeStamp = 'NOW()';
+	var $sysDate = '(CURDATE())';
+	var $sysTimeStamp = '(NOW())';
 	var $hasTransactions = true;
 	var $forceNewConnect = false;
 	var $poorAffectedRows = true;
@@ -156,9 +156,9 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * Parameter must be one of the constants listed in mysqli_options().
 	 * @see https://www.php.net/manual/en/mysqli.options.php
-	 * 
-	 * OR 
-	 * 
+	 *
+	 * OR
+	 *
 	 * Parameter must be a string matching one of the following special cases.
 	 * 'ssl' - SSL values e.g. ('ssl' => ['ca' => '/path/to/ca.crt.pem'])
 	 * 'clientflags' - Client flags of type 'MYSQLI_CLIENT_'
@@ -166,7 +166,7 @@ class ADODB_mysqli extends ADOConnection {
 	 * @see https://www.php.net/manual/en/mysqli.constants.php
 	 * 'socket' - The socket or named pipe that should be used
 	 * 'port' - The port number to attempt to connect to the MySQL server
-	 * 
+	 *
 	 * @param string|int $parameter The parameter to set
 	 * @param string|int|array $value The value of the parameter
 	 *
@@ -947,15 +947,35 @@ class ADODB_mysqli extends ADOConnection {
 			$table = "$owner.$table";
 		}
 
-		$a_create_table = $this->getRow(sprintf('SHOW CREATE TABLE `%s`', $table));
+		$showCreate = $this->getRow(
+				sprintf('SHOW CREATE TABLE `%s`', $table)
+		);
+
+		if ( !$showCreate || !is_array($showCreate) ) {
+			/*
+			* Invalid table or owner provided
+			*/
+			$this->setFetchMode($savem);
+			return false;
+		}
+
+		$a_create_table = array_change_key_case($showCreate, CASE_UPPER);
 
 		$this->setFetchMode($savem);
 
-		$create_sql = $a_create_table["Create Table"] ?? $a_create_table["Create View"];
+		$create_sql = $a_create_table["CREATE TABLE"] ?? $a_create_table["CREATE VIEW"];
 
 		$matches = array();
 
-		if (!preg_match_all("/FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", $create_sql, $matches)) return false;
+		if (!preg_match_all(
+			"/FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", 
+			$create_sql, 
+			$matches
+			)
+		) {
+				return false;
+		}
+		
 		$foreign_keys = array();
 		$num_keys = count($matches[0]);
 		for ( $i = 0; $i < $num_keys; $i ++ ) {
@@ -1238,7 +1258,7 @@ class ADODB_mysqli extends ADOConnection {
 				$typeString .= 'i';
 			} elseif (is_float($v)) {
 				$typeString .= 'd';
-			} elseif (is_object($v)) {
+			} elseif (is_object($v) && !method_exists($v, '__toString')) {
 				// Assume a blob
 				$typeString .= 'b';
 			} else {
@@ -1553,6 +1573,12 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 */
 	function FetchField($fieldOffset = -1)
 	{
+		if ($fieldOffset < -1 || $fieldOffset >= $this->_numOfFields) {
+			if ($this->connection->debug) {
+				ADOConnection::outp("FetchField: field offset out of range: $fieldOffset");
+			}
+			return false;
+		}
 		$fieldnr = $fieldOffset;
 		if ($fieldOffset != -1) {
 			@mysqli_field_seek($this->_queryID, $fieldnr);

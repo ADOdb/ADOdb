@@ -218,10 +218,23 @@ class ADODB_DataDict {
 		return false;
 	}
 
-	function metaTables()
+	/**
+	 * Returns an array of table names and/or views in the database.
+	 *
+	 * @param string|bool $ttype      `TABLE`, `VIEW`, or false for both.
+	 * @param string|bool $showSchema Prepends the schema/user to the table name.
+	 * @param string|bool $mask       Input mask
+	 *
+	 * @return array|false
+	 * @see ADOConnection::metaTables()
+	 *
+	 */
+	public function metaTables($ttype=false, $showSchema=false, $mask=false)
 	{
-		if (!$this->connection->isConnected()) return array();
-		return $this->connection->metaTables();
+		if (!$this->connection->isConnected()) {
+            return false;
+        }
+		return $this->connection->metaTables($ttype, $showSchema, $mask);
 	}
 
 	function metaColumns($tab, $upper=true, $schema=false)
@@ -242,7 +255,16 @@ class ADODB_DataDict {
 		return $this->connection->metaIndexes($this->tableName($table), $primary, $owner);
 	}
 
-	function metaType($t,$len=-1,$fieldobj=false)
+	/**
+	 * Returns the meta type for a given type and length.
+	 *
+	 * @param mixed  $t        The object to test.
+	 * @param int    $len      The length of the field, if applicable.
+	 * @param object $fieldobj The field object, if available.
+	 *
+	 * @return string
+	 */
+	function metaType($t, $len=-1, $fieldobj=false)
 	{
 		static $typeMap = array(
 		'VARCHAR' => 'C',
@@ -414,33 +436,33 @@ class ADODB_DataDict {
 	}
 
 	/**
-	 	Returns the actual type given a character code.
-
-		C:  varchar
-		X:  CLOB (character large object) or largest varchar size if CLOB is not supported
-		C2: Multibyte varchar
-		X2: Multibyte CLOB
-
-		B:  BLOB (binary large object)
-
-		D:  Date
-		T:  Date-time
-		L:  Integer field suitable for storing booleans (0 or 1)
-		I:  Integer
-		F:  Floating point number
-		N:  Numeric or decimal number
-	*/
-
+	 * Returns the actual type for a given meta type.
+	 *
+	 * @param string $meta The meta type to convert:
+	 * - C:  varchar
+	 * - X:  CLOB (character large object) or
+	 *       largest varchar size if CLOB is not supported
+	 * - C2: Multibyte varchar
+	 * - X2: Multibyte CLOB
+	 * - B:  BLOB (binary large object)
+	 * - D:  Date
+	 * - T:  Date-time
+	 * - L:  Integer field suitable for storing booleans (0 or 1)
+	 * - I:  Integer
+	 * - F:  Floating point number
+	 * - N:  Numeric or decimal number
+	 *
+	 * @return string The actual type corresponding to the meta type.
+	 */
 	function actualType($meta)
 	{
 		$meta = strtoupper($meta);
 
-		/*
-		* Add support for custom meta types. We do this
-		* first, that allows us to override existing types
-		*/
-		if (isset($this->connection->customMetaTypes[$meta]))
+		// Add support for custom meta types. We do this
+		// first, that allows us to override existing types
+		if (isset($this->connection->customMetaTypes[$meta])) {
 			return $this->connection->customMetaTypes[$meta]['actual'];
+		}
 
 		return $meta;
 	}
@@ -543,19 +565,20 @@ class ADODB_DataDict {
 	 * Rename one column.
 	 *
 	 * Some DBs can only do this together with changing the type of the column
-	 * (even if that stays the same, eg. MySQL).
+	 * (even if that stays the same, eg. MySQL < 8.0).
 	 *
 	 * @param string $tabname   Table name.
 	 * @param string $oldcolumn Column to be renamed.
 	 * @param string $newcolumn New column name.
 	 * @param string $flds      Complete column definition string like for {@see addColumnSQL};
-	 *                          This is currently only used by MySQL. Defaults to ''.
+	 *                          This is currently only used by MySQL < 8.0. Defaults to ''.
 	 *
 	 * @return array SQL statements.
 	 */
 	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
 	{
 		$tabname = $this->tableName($tabname);
+		$column_def = '';
 		if ($flds) {
 			list($lines,$pkey,$idxs) = $this->_genFields($flds);
 			// genfields can return FALSE at times
@@ -645,6 +668,7 @@ class ADODB_DataDict {
 			$txt = $flds.$padding;
 			$flds = array();
 			$flds0 = lens_ParseArgs($txt,',');
+			$flds0 = array_filter($flds0);
 			$hasparam = false;
 			foreach($flds0 as $f0) {
 				$f1 = array();
@@ -820,17 +844,9 @@ class ADODB_DataDict {
 			//--------------------
 			// CONSTRUCT FIELD SQL
 			if ($fdefts) {
-				if (substr($this->connection->databaseType,0,5) == 'mysql') {
-					$ftype = 'TIMESTAMP';
-				} else {
-					$fdefault = $this->connection->sysTimeStamp;
-				}
+				$fdefault = $this->connection->sysTimeStamp;
 			} else if ($fdefdate) {
-				if (substr($this->connection->databaseType,0,5) == 'mysql') {
-					$ftype = 'TIMESTAMP';
-				} else {
-					$fdefault = $this->connection->sysDate;
-				}
+				$fdefault = $this->connection->sysDate;
 			} else if ($fdefault !== false && !$fnoquote) {
 				if ($ty == 'C' or $ty == 'X' or
 					( substr($fdefault,0,1) != "'" && !is_numeric($fdefault))) {
@@ -907,19 +923,19 @@ class ADODB_DataDict {
 
 
 	/**
-	 * Construct an database specific SQL string of constraints for column.
+	 * Construct a database specific SQL string of constraints for column.
 	 *
-	 * @param string $fname         column name
-	 * @param string & $ftype       column type
-	 * @param bool   $fnotnull      NOT NULL flag
-	 * @param string|bool $fdefault DEFAULT value
-	 * @param bool   $fautoinc      AUTOINCREMENT flag
-	 * @param string $fconstraint   CONSTRAINT value
-	 * @param bool   $funsigned     UNSIGNED flag
-	 * @param string|bool $fprimary PRIMARY value
-	 * @param array  & $pkey        array of primary key column names
+	 * @param string $fname         Column name.
+	 * @param string & $ftype       Column type.
+	 * @param bool   $fnotnull      Whether the column is NOT NULL.
+	 * @param string|bool $fdefault The column's default value.
+	 * @param bool   $fautoinc      Whether the column is auto-incrementing.
+	 * @param string $fconstraint   Any additional constraints for the column.
+	 * @param bool   $funsigned     Whether the column is unsigned.
+	 * @param string|bool $fprimary Whether the column is a primary key.
+	 * @param array  & $pkey        The primary key definition (list of column names), if applicable.
 	 *
-	 * @return string Combined constraint string, must start with a space
+	 * @return string Combined constraint string, must start with a space.
 	 */
 	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
@@ -930,6 +946,16 @@ class ADODB_DataDict {
 		return $suffix;
 	}
 
+	/**
+	 * Creates the SQL statements to create or replace an index.
+	 *
+	 * @param string $idxname    The name of the index.
+	 * @param string $tabname    The name of the table.
+	 * @param mixed  $flds       The fields for the index, as a string or array.
+	 * @param array  $idxoptions Options for the index, such as UNIQUE, FULLTEXT, etc.
+	 *
+	 * @return array SQL statements to create or replace the index.
+	 */
 	function _indexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
@@ -981,7 +1007,7 @@ class ADODB_DataDict {
 
 		$s = "CREATE TABLE $tabname (\n";
 		$s .= implode(",\n", $lines);
-		if (sizeof($pkey)>0) {
+		if (is_array($pkey) && sizeof($pkey)>0) {
 			$s .= ",\n                 PRIMARY KEY (";
 			$s .= implode(", ",$pkey).")";
 		}

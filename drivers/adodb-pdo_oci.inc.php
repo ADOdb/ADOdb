@@ -17,6 +17,8 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
  */
 
 class ADODB_pdo_oci extends ADODB_pdo {
@@ -26,12 +28,12 @@ class ADODB_pdo_oci extends ADODB_pdo {
 	var $sysTimeStamp = 'SYSDATE';
 	var $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'
 	var $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
-	var $metaTablesSQL = <<<ENDSQL
+	var $metaTablesSQL = /** @lang text */ <<<ENDSQL
 		SELECT table_name, table_type
 		FROM user_catalog
 		WHERE table_type IN ('TABLE', 'VIEW') AND table_name NOT LIKE 'BIN\$%'
 		ENDSQL; // bin$ tables are recycle bin tables
-	var $metaColumnsSQL = <<<ENDSQL
+	var $metaColumnsSQL = /** @lang text */ <<<ENDSQL
 		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
 		FROM user_tab_columns
 		WHERE table_name = '%s'

@@ -254,7 +254,10 @@ class dbTable extends dbObject {
 	var $drop_field = array();
 
 	/**
-	 * @var array Platform-specific options
+	 * Does the current platform match the db type of
+	 * platform-specific options
+	 * 
+	 * @var    bool Platform-specific options
 	 * @access private
 	 */
 	var $currentPlatform = true;
@@ -330,6 +333,7 @@ class dbTable extends dbObject {
 			case 'CONSTRAINT':
 				// Accept platform-specific options
 				$this->currentPlatform = ( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) );
+				
 				break;
 			default:
 				// print_r( array( $tag, $attributes ) );
@@ -506,10 +510,20 @@ class dbTable extends dbObject {
 	 * and appends them to the table object.
 	 *
 	 * @param string $opt Table option
+	 * 
 	 * @return array Options
 	 */
 	function addTableOpt( $opt ) {
-		if(isset($this->currentPlatform)) {
+		
+		if($this->currentPlatform) {
+			
+			$this->parent->logMsg(
+				$opt, 
+				'Adding current platform or global table opt',
+				false,
+				$this 
+			);
+			
 			$this->opts[$this->parent->db->dataProvider] = $opt;
 		}
 		return $this->opts;
@@ -527,44 +541,48 @@ class dbTable extends dbObject {
 	 * @return array Array containing table creation SQL
 	 */
 	function create( &$xmls ) {
-		$sql = array();
-
+		$sql 		   = array();
+		$legacy_fields = array();
 		// drop any existing indexes
-		if( is_array( $legacy_indexes = $xmls->dict->metaIndexes( $this->name ) ) ) {
-			foreach( $legacy_indexes as $index => $index_details ) {
-				$sql[] = $xmls->dict->dropIndexSQL( $index, $this->name );
-			}
-		}
 
-		// remove fields to be dropped from table object
-		foreach( $this->drop_field as $field ) {
-			unset( $this->fields[$field] );
-		}
+		$tableExists = $xmls->dict->metaTables('T','',$this->name);
 
-		// if table exists
-		if( is_array( $legacy_fields = $xmls->dict->metaColumns( $this->name ) ) ) {
-			// drop table
-			if( $this->drop_table ) {
-				$sql[] = $xmls->dict->dropTableSQL( $this->name );
-
-				return $sql;
-			}
-
-			// drop any existing fields not in schema
-			foreach( $legacy_fields as $field_id => $field ) {
-				if( !isset( $this->fields[$field_id] ) ) {
-					$sql[] = $xmls->dict->dropColumnSQL( $this->name, $field->name );
+		if (is_array($tableExists) && count($tableExists) > 0 && $tableExists[0] == $this->name) {
+			if( is_array( $legacy_indexes = $xmls->dict->metaIndexes( $this->name ) ) ) {
+				foreach( $legacy_indexes as $index => $index_details ) {
+					$sql[] = $xmls->dict->dropIndexSQL( $index, $this->name );
 				}
 			}
-		// if table doesn't exist
-		} else {
-			if( $this->drop_table ) {
-				return $sql;
+
+			// remove fields to be dropped from table object
+			foreach( $this->drop_field as $field ) {
+				unset( $this->fields[$field] );
 			}
 
-			$legacy_fields = array();
-		}
+			// if table exists
+			if( is_array( $legacy_fields = $xmls->dict->metaColumns( $this->name ) ) ) {
+				// drop table
+				if( $this->drop_table ) {
+					$sql[] = $xmls->dict->dropTableSQL( $this->name );
 
+					return $sql;
+				}
+
+				// drop any existing fields not in schema
+				foreach( $legacy_fields as $field_id => $field ) {
+					if( !isset( $this->fields[$field_id] ) ) {
+						$sql[] = $xmls->dict->dropColumnSQL( $this->name, $field->name );
+					}
+				}
+			// if table doesn't exist
+			} else {
+				if( $this->drop_table ) {
+					return $sql;
+				}
+
+				$legacy_fields = array();
+			}
+		}
 		// Loop through the field specifier array, building the associative array for the field options
 		$fldarray = array();
 
@@ -603,20 +621,23 @@ class dbTable extends dbObject {
 		if( empty( $legacy_fields ) ) {
 			// Create the new table
 			$sql[] = $xmls->dict->createTableSQL( $this->name, $fldarray, $this->opts );
-			logMsg( end( $sql ), 'Generated createTableSQL' );
+			$xmls->logMsg($sql, 'Generated createTableSQL' , false, $this );
 		} else {
 			// Upgrade an existing table
-			logMsg( "Upgrading {$this->name} using '{$xmls->upgrade}'" );
+			$xmls->logMsg( "Upgrading {$this->name} using '{$xmls->upgrade}'", '', false, $this );
 			switch( $xmls->upgrade ) {
 				// Use ChangeTableSQL
 				case 'ALTER':
-					logMsg( 'Generated changeTableSQL (ALTERing table)' );
+					
 					$sql[] = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
+	
+					$xmls->logMsg($sql, 'Generated changeTableSQL (ALTERing table)', false, $this );
 					break;
 				case 'REPLACE':
-					logMsg( 'Doing upgrade REPLACE (testing)' );
+					
 					$sql[] = $xmls->dict->dropTableSQL( $this->name );
 					$sql[] = $xmls->dict->createTableSQL( $this->name, $fldarray, $this->opts );
+					$xmls->logMsg($sql, 'Doing upgrade REPLACE (testing)', false, $this );
 					break;
 				// ignore table
 				default:
@@ -641,8 +662,8 @@ class dbTable extends dbObject {
 	function drop() {
 		if( isset( $this->current_field ) ) {
 			// Drop the current field
-			logMsg( "Dropping field '{$this->current_field}' from table '{$this->name}'" );
-			// $this->drop_field[$this->current_field] = $xmls->dict->DropColumnSQL( $this->name, $this->current_field );
+			logMsg( "Dropping field '{$this->current_field}' from table '{$this->name}'",);
+						// $this->drop_field[$this->current_field] = $xmls->dict->DropColumnSQL( $this->name, $this->current_field );
 			$this->drop_field[$this->current_field] = $this->current_field;
 		} else {
 			// Drop the current table
@@ -806,7 +827,10 @@ class dbIndex extends dbObject {
 			}
 		}
 
-		return $xmls->dict->createIndexSQL( $this->name, $this->parent->name, $this->columns, $this->opts );
+		$sqlArray = $xmls->dict->createIndexSQL( $this->name, $this->parent->name, $this->columns, $this->opts );
+
+		$xmls->logMsg($sqlArray,'Creating Index',false,$this);
+		return $sqlArray;
 	}
 
 	/**
@@ -1018,10 +1042,10 @@ class dbData extends dbObject {
 
 			if( !in_array( $table, $tables ) or ( $mode = $xmls->existingData() ) == XMLS_MODE_INSERT ) {
 				// Table doesn't yet exist, so it's safe to insert.
-				logMsg( "$table doesn't exist, inserting or mode is INSERT" );
-			$sql[] = 'INSERT INTO '. $table .' ('. implode( ',', array_keys( $fields ) ) .') VALUES ('. implode( ',', $fields ) .')';
+				$sql[] = 'INSERT INTO '. $table .' ('. implode( ',', array_keys( $fields ) ) .') VALUES ('. implode( ',', $fields ) .')';
+				$xmls->logMsg($sql, "$table doesn't exist, inserting or mode is INSERT", false, $this );
 				continue;
-		}
+			}
 
 			// Prepare to test for potential violations. Get primary keys and unique indexes
 			$mfields = array_merge( $fields, $rawfields );
@@ -1029,8 +1053,8 @@ class dbData extends dbObject {
 
 			if( empty( $ukeys ) or count( $keyFields ) == 0 ) {
 				// No unique keys in schema, so safe to insert
-				logMsg( "Either schema or data has no unique keys, so safe to insert" );
 				$sql[] = 'INSERT INTO '. $table .' ('. implode( ',', array_keys( $fields ) ) .') VALUES ('. implode( ',', $fields ) .')';
+				$xmls->logMsg($sql, "Either schema or data has no unique keys, so safe to insert", false, $this );
 				continue;
 			}
 
@@ -1046,20 +1070,22 @@ class dbData extends dbObject {
 			switch( $records->recordCount() ) {
 				case 0:
 					// No matching record, so safe to insert.
-					logMsg( "No matching records. Inserting new row with unique data" );
+					
 					$sql[] = $xmls->db->getInsertSQL( $records, $mfields );
+					$xmls->logMsg($sql, "No matching records. Inserting new row with unique data", false, $this );
 					break;
 				case 1:
 					// Exactly one matching record, so we can update if the mode permits.
-					logMsg( "One matching record..." );
+					$xmls->logMsg( "One matching record...", '', false, $this );
 					if( $mode == XMLS_MODE_UPDATE ) {
-						logMsg( "...Updating existing row from unique data" );
+						
 						$sql[] = $xmls->db->getUpdateSQL( $records, $mfields );
+						$xmls->logMsg($sql, "...Updating existing row from unique data", false, $this );
 					}
 					break;
 				default:
 					// More than one matching record; the result is ambiguous, so we must ignore the row.
-					logMsg( "More than one matching record. Ignoring row." );
+					$xmls->logMsg( "More than one matching record. Ignoring row.", '', false, $this );
 			}
 		}
 		return $sql;
@@ -1602,7 +1628,7 @@ class adoSchema {
 	function parseSchemaFile( $filename, $returnSchema = FALSE ) {
 		// Open the file
 		if( !($fp = fopen( $filename, 'r' )) ) {
-			logMsg( 'Unable to open file' );
+			logMsg( 'Unable to open file: '. $filename, 'Filesystem Error');
 			return FALSE;
 		}
 
@@ -1748,6 +1774,7 @@ class adoSchema {
 			$this->success = 0;
 		} else {
 			$this->success = $this->dict->executeSQLArray( $sqlArray, $continueOnErr );
+			$this->sqlArray = array();
 		}
 
 		return $this->success;
@@ -2286,9 +2313,9 @@ class adoSchema {
 		} else {
 				if( !preg_match ( $regex, $platform ) ) {
 					logMsg( 'Platform ' . $platform . ' is NOT supported' );
-			return FALSE;
-		}
-	}
+					return FALSE;
+				}
+			}
 		}
 
 		logMsg( 'Platform ' . $platform . ' is supported' );
@@ -2382,6 +2409,57 @@ class adoSchema {
 	 */
 	function destroy() {
 	}
+
+	/**
+	 * Message logging function
+	 *
+	 * @param string $msg   	  The logging texy
+	 * @param string $title 	  The logging Title
+	 * @param bool   $force 	  Force a message
+	 * @param object $childObject The object generating the message
+	 * 
+	 * @return  void
+	 */
+	public function logMsg( $msg, $title = NULL, $force = false, $childObject=null) {
+		if( !XMLS_DEBUG && !$force ) {
+			return;
+		}
+
+		$isCli = (php_sapi_name() === 'cli');
+
+		if ($isCli) {
+			if( $title ) {
+				echo "
+==============================================
+$title
+==============================================
+";
+			}
+			
+			if ( is_object( $childObject ) ) {
+				printf("\nClass [%s]", get_class( $childObject ));
+			}
+
+			print "\n";
+			print_r( $msg );
+
+		} else {
+
+			echo '<pre>';
+
+			if( isset( $title ) ) {
+				echo '<h3>' . htmlentities( $title ) . '</h3>';
+			}
+
+			if ( is_object( $childObject ) ) {
+				echo '[' . get_class( $childObject ) . '] ';
+			}
+
+			print_r( $msg );
+
+			echo '</pre>';
+		}
+	}
 }
 
 /**
@@ -2390,19 +2468,33 @@ class adoSchema {
  * @access private
  */
 function logMsg( $msg, $title = NULL, $force = FALSE ) {
-	if( XMLS_DEBUG or $force ) {
+	if( !XMLS_DEBUG && !$force ) {
+		return;
+	}
+
+	$isCli = (php_sapi_name() === 'cli');
+
+	if ($isCli) {
+		if( $title ) {
+			echo "
+==============================================
+$title
+==============================================
+";
+		}
+		print "\n";
+		print_r( $msg );
+
+	} else {
 		echo '<pre>';
 
 		if( isset( $title ) ) {
 			echo '<h3>' . htmlentities( $title ) . '</h3>';
 		}
 
-		if( @is_object( $this ) ) {
-			echo '[' . get_class( $this ) . '] ';
-		}
-
 		print_r( $msg );
 
 		echo '</pre>';
-	}
+	
+	}	
 }

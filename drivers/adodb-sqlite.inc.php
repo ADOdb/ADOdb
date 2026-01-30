@@ -164,12 +164,24 @@ class ADODB_sqlite extends ADOConnection {
 	function SQLDate($fmt, $col=false)
 	{
 		$fmt = $this->qstr($fmt);
-		return ($col) ? "strftime($fmt,$col)" : "strftime($fmt)";
+		return ($col) ? "adodb_date($fmt,$col)" : "adodb_date($fmt)";
 	}
 
 
 	function _createFunctions()
 	{
+		// Register date conversion function for SQLDate() method
+		// Replaces the legacy adodb_date() functions removed in 5.23.0
+		@sqlite_create_function($this->_connectionID, 'adodb_date',
+			function (string $fmt, $date = null) : string {
+				if ($date === null || $date === false) {
+					return date($fmt);
+				}
+
+				// If it's an int then assume a Unix timestamp, otherwise convert it
+				return date($fmt, is_int($date) ? $date : strtotime($date));
+			}
+		);
 	}
 
 

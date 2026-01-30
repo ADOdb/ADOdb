@@ -19,34 +19,18 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2019 Damien Regad, Mark Newnham and the ADOdb community
+ *
+ * @noinspection SqlResolve
  */
 
 /**
  * Class ADODB_pdo_firebird
  */
-class ADODB_pdo_firebird extends ADODB_pdo
+class ADODB_pdo_firebird extends ADODB_pdo_base
 {
 	public $dialect = 3;
-	
-	public $metaTablesSQL = "
-	SELECT LOWER(rdb\$relation_name) 
-	FROM rdb\$relations 
-	WHERE rdb\$relation_name NOT LIKE 'RDB\$%'";
-	
-	public $metaColumnsSQL = "
-	SELECT LOWER(a.rdb\$field_name), a.rdb\$null_flag,
-	a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale,
-    b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type 
-	FROM rdb\$relation_fields a, rdb\$fields b 
-	WHERE a.rdb\$field_source = b.rdb\$field_name 
-	AND a.rdb\$relation_name = '%s' 
-	ORDER BY a.rdb\$field_position ASC";
-	
-	/*
-	* Sequence management statements
-	*/
-	public $_genSeqSQL  = 'CREATE SEQUENCE %s START WITH %s';
-	public $_dropSeqSql = 'DROP SEQUENCE %s';
+	public $metaTablesSQL = "select lower(rdb\$relation_name) from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
+	public $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position";
 
 	var $arrayClass = 'ADORecordSet_array_pdo_firebird';
 
@@ -234,7 +218,7 @@ class ADODB_pdo_firebird extends ADODB_pdo
 					'columns' => array()
 				);
 			}
-			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '" . $index . "' ORDER BY RDB\$FIELD_POSITION ASC";
+			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '" . $index . "' ORDER BY RDB\$FIELD_POSITION";
 			$rs1 = $this->Execute($sql);
 			while ($row1 = $rs1->FetchRow()) {
 				$indexes[$index]['columns'][$row1[2]] = $row1[1];
@@ -320,7 +304,7 @@ class ADODB_pdo_firebird extends ADODB_pdo
 			$rs = $this->execute($getnext);
 		}
 		if ($rs && !$rs->EOF) {
-			$this->genID = (integer)reset($rs->fields);
+			$this->genID = (int)reset($rs->fields);
 		} else {
 			$this->genID = 0; // false
 		}
@@ -345,8 +329,8 @@ class ADODB_pdo_firebird extends ADODB_pdo
 	 */
 	public function selectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs = 0)
 	{
-		$nrows = (integer)$nrows;
-		$offset = (integer)$offset;
+		$nrows = (int)$nrows;
+		$offset = (int)$offset;
 		$str = 'SELECT ';
 		if ($nrows >= 0) {
 			$str .= "FIRST $nrows ";
@@ -468,5 +452,51 @@ class ADODB_pdo_firebird extends ADODB_pdo
 				$fld->max_length = -1;
 				break;
 		} // switch
+	}
+}
+
+/**
+ * Class ADORecordSet_pdo_firebird
+ */
+class ADORecordSet_pdo_firebird extends ADORecordSet_pdo
+{
+
+	public $databaseType = "pdo_firebird";
+
+	public function fetchField($fieldOffset = 0)
+	{
+		return false;
+	}
+}
+
+/**
+ * Class ADORecordSet_array_pdo_firebird
+ */
+class ADORecordSet_array_pdo_firebird extends ADORecordSet_array_pdo
+{
+	public $databaseType = "pdo_firebird";
+	public $canSeek = true;
+
+	/**
+	 * returns the field object
+	 *
+	 * @param int $fieldOffset Optional field offset
+	 *
+	 * @return object The ADOFieldObject describing the field
+	 */
+	public function fetchField($fieldOffset = 0)
+	{
+
+		$fld = new ADOFieldObject;
+		$fld->name = $fieldOffset;
+		$fld->type = 'C';
+		$fld->max_length = 0;
+
+		// This needs to be populated from the metadata
+		$fld->not_null = false;
+		$fld->has_default = false;
+		$fld->default_value = 'null';
+
+		return $fld;
 	}
 }

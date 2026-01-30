@@ -17,11 +17,14 @@
  *
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
+ *
+ * @noinspection PhpComposerExtensionStubsInspection
  */
 
-class ADODB_pdo_mysql extends ADODB_pdo {
+class ADODB_pdo_mysql extends ADODB_pdo_base {
 
-	var $metaTablesSQL = "SELECT
+	var $metaTablesSQL =  /** @lang text */
+		"SELECT
 			TABLE_NAME,
 			CASE WHEN TABLE_TYPE = 'VIEW' THEN 'V' ELSE 'T' END
 		FROM INFORMATION_SCHEMA.TABLES
@@ -30,6 +33,12 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 	var $sysDate = '(CURDATE())';
 	var $sysTimeStamp = '(NOW())';
 	var $hasGenID = true;
+	/** @noinspection SqlWithoutWhere */
+	var $_genIDSQL = "UPDATE %s SET id=LAST_INSERT_ID(id+1);";
+	var $_genSeqSQL = "CREATE TABLE  if NOT EXISTS %s (id int not null)";
+	var $_genSeqCountSQL = "SELECT count(*) FROM %s";
+	var $_genSeq2SQL = "INSERT INTO %s VALUES (%s)";
+	var $_dropSeqSQL = "drop table %s";
 	
 	/*
 	* Sequence management statements
@@ -48,7 +57,9 @@ class ADODB_pdo_mysql extends ADODB_pdo {
 
 	function _init($parentDriver)
 	{
-		$this->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
+		$parentDriver->hasTransactions = false;
+		$parentDriver->hasInsertID = true;
+		$parentDriver->_connectionID->setAttribute(PDO::MYSQL_ATTR_USE_BUFFERED_QUERY, true);
 	}
 
 	/**

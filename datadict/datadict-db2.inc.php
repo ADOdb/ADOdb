@@ -90,7 +90,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 		// genfields can return FALSE at times
 		if ($lines == null) $lines = array();
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
-		
+
 		$dataTypeWords = array('SET','DATA','TYPE');
 		
 		foreach($lines as $v) 
@@ -124,8 +124,13 @@ class ADODB2_db2 extends ADODB_DataDict {
 	{
 		
 		
-		$tabname = $this->connection->getMetaCasedValue($tabname);
-		$flds    = $this->connection->getMetaCasedValue($flds);
+		$metaTables = $this->metaTables('T','',$tabname);
+		if ( $metaTables === false ) {
+			return false;
+		}
+		$tabname = $metaTables[0];
+		//$tabname = $this->connection->getMetaCasedValue($tabname);
+		//$flds    = $this->connection->getMetaCasedValue($flds);
 		
 		if (ADODB_ASSOC_CASE  == ADODB_ASSOC_CASE_NATIVE )
 		{
@@ -135,9 +140,37 @@ class ADODB2_db2 extends ADODB_DataDict {
 			$tabname = $this->connection->nameQuote . $tabname . $this->connection->nameQuote;
 			$flds    = $this->connection->nameQuote . $flds . $this->connection->nameQuote;
 		}
-		$sql = sprintf($this->dropCol,$tabname,$flds);
+		$sql = sprintf($this->dropCol, $tabname, $flds);
 		return (array)$sql;
 
+	}
+
+	/**
+	 * Renames a table
+	 * 
+	 * @param string $tabname Current table name
+	 * @param string $newname New table name
+	 * 
+	 * @return array
+	 */
+	function renameTableSQL($tabname, $newname)
+	{
+		
+		$ttype = 'T';
+		$schema = '';
+		$mask = $tabname;
+		$tabname = $this->metaTables($ttype, $schema, $mask);
+		 /*
+		  * If the table does not exist, return false
+		  */
+
+		if ($tabname === false ) {
+			return false;
+		}
+
+		
+		return parent::renameTableSQL($tabname[0], $newname);
+		
 	}
     
 
