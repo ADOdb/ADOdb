@@ -41,7 +41,7 @@ define('ADODB_DB2OCI',1);
 function _colontrack($p)
 {
 	global $_COLONARR, $_COLONSZ;
-	$v = (integer) substr($p[1], 1);
+	$v = (int) substr($p[1], 1);
 	if ($v > $_COLONSZ) return $p[1];
 	$_COLONARR[] = $v;
 	return '?';

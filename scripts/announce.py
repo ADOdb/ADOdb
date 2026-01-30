@@ -77,6 +77,8 @@ def process_command_line():
 
 
 def github_close_milestone(repo, version):
+    # Milestones do not have the 'v' prefix
+    version = version.lstrip('v')
     print(f"Closing Milestone '{version}'")
 
     # Search Milestone for version

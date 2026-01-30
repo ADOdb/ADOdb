@@ -165,7 +165,7 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		if ($stmt) {
 
 			$arr = $stmt->errorinfo();
-			if ((integer)$arr[1]) {
+			if ((int)$arr[1]) {
 				$this->_errormsg = $arr[2];
 				$this->_errorno = $arr[1];
 			}

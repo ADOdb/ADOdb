@@ -257,7 +257,7 @@ class ADODB_text extends ADOConnection {
 		preg_match("/$eregword/",$orderby,$arr);
 		if (sizeof($arr) < 2) return $this; // actually invalid sql
 		$col = $arr[1];
-		$at = (integer) $col;
+		$at = (int) $col;
 		if ($at == 0) {
 			$i = 0;
 			reset($projnames);

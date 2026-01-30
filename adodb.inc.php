@@ -2269,7 +2269,7 @@ if (!defined('_ADODB_LAYER')) {
 			return false;
 		}
 
-		$midrow = (integer) ($total/2);
+		$midrow = (int) ($total/2);
 		$rs = $this->SelectLimit("select $field from $table $where order by 1",1,$midrow);
 		if ($rs && !$rs->EOF) {
 			return reset($rs->fields);
@@ -2750,39 +2750,48 @@ if (!defined('_ADODB_LAYER')) {
 	 * @noinspection PhpUnusedParameterInspection
 	 */
 	function autoExecute($table, $fields_values, $mode = 'INSERT', $where = '', $forceUpdate = true, $magic_quotes = false) {
+		switch($mode) {
+			case DB_AUTOQUERY_INSERT:
+			case DB_AUTOQUERY_UPDATE:
+				break;
+			case 'UPDATE':
+				$mode = DB_AUTOQUERY_UPDATE;
+				break;
+			case 'INSERT':
+				$mode = DB_AUTOQUERY_INSERT;
+				break;
+			default:
+				$this->outp_throw("AutoExecute: Unknown mode=$mode", 'AutoExecute');
+				return false;
+		}
+
 		if (empty($fields_values)) {
 			$this->outp_throw('AutoExecute: Empty fields array', 'AutoExecute');
 			return false;
 		}
-		if (empty($where) && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */)) {
+		if (empty($where) && $mode == DB_AUTOQUERY_UPDATE) {
 			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause', 'AutoExecute');
 			return false;
 		}
 
 		$sql = "SELECT * FROM $table";
-		$rs = $this->SelectLimit($sql, 1);
-		if (!$rs) {
-			return false; // table does not exist
-		}
-
-		$rs->tableName = $table;
 		if (!empty($where)) {
 			$sql .= " WHERE $where";
 		}
+
+		$rs = $this->SelectLimit($sql, 1);
+		if (!$rs || $mode == DB_AUTOQUERY_UPDATE && $rs->EOF) {
+			// Table does not exist or udpate where clause matches no rows
+			return false;
+		}
+
+		$rs->tableName = $table;
 		$rs->sql = $sql;
 
-		switch($mode) {
-			case 'UPDATE':
-			case DB_AUTOQUERY_UPDATE:
-				$sql = $this->GetUpdateSQL($rs, $fields_values, $forceUpdate);
-				break;
-			case 'INSERT':
-			case DB_AUTOQUERY_INSERT:
-				$sql = $this->GetInsertSQL($rs, $fields_values);
-				break;
-			default:
-				$this->outp_throw("AutoExecute: Unknown mode=$mode", 'AutoExecute');
-				return false;
+		if ($mode == DB_AUTOQUERY_UPDATE) {
+			$sql = $this->getUpdateSQL($rs, $fields_values, $forceUpdate);
+		} else {
+			$sql = $this->getInsertSQL($rs, $fields_values);
 		}
 		return $sql && $this->Execute($sql);
 	}
@@ -3223,9 +3232,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * Returns an array of table names and/or views in the database.
 	 *
 	 * @param string|bool $ttype Can be either `TABLE`, `VIEW`, or false.
-	 *                           - If false, both views and tables are returned.
-	 *                           - `TABLE` (or `T`) returns only tables
-	 *                           - `VIEW` (or `V` returns only views
+	 *   - If false, both views and tables are returned.
+	 *   - `TABLE` (or `T`) returns only tables
+	 *   - `VIEW` (or `V` returns only views
 	 * @param string|bool $showSchema Prepends the schema/user to the table name,
 	 *                                eg. USER.TABLE
 	 * @param string|bool $mask Input mask - not supported by all drivers
@@ -3263,7 +3272,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$res = $rs->getArray();
 
 		// Filter result to keep only the selected type
-		if ($res && $ttype) {
+		if ($res && $ttype && isset($res[0][1])) {
 			$ttype = strtoupper($ttype[0]);
 			$res = array_filter($res,
 				/**
@@ -3955,6 +3964,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		/** @var bool|array  */
 		var $fields = false;
 		var $connection = false;
+
+		/**
+		 * The timestamp that the recordset was created
+		 *
+		 * @var integer
+		 */
+		public int $timeCreated = 0;
 
 		function RowCount() {
 			return 0;
@@ -5096,7 +5112,7 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return bool|ADOFetchObj The object with properties set to the current row's fields.
 	 */
 	function fetchObject($isUpper = true) {
-		
+
 		if (!$this->fields) {
 			/*
 			* past EOF
@@ -5107,7 +5123,7 @@ class ADORecordSet implements IteratorAggregate {
 		$casing = $isUpper ? CASE_UPPER : CASE_LOWER;
 
 		$fields = array_change_key_case($this->fields, $casing);
-		
+
 		return new ADOFetchObj($fields);
 	}
 
@@ -5874,10 +5890,10 @@ class ADORecordSet implements IteratorAggregate {
 										$nconnect = true; $persist = true; break;
 					case 'persist':
 					case 'persistent':	$persist = $v; break;
-					case 'debug':		$obj->debug = (integer) $v; break;
+					case 'debug':		$obj->debug = (int) $v; break;
 					#ibase
 					case 'role':		$obj->role = $v; break;
-					case 'dialect':	$obj->dialect = (integer) $v; break;
+					case 'dialect':	$obj->dialect = (int) $v; break;
 					case 'charset':		$obj->charset = $v; $obj->charSet=$v; break;
 					case 'buffers':		$obj->buffers = $v; break;
 					case 'fetchmode':   $obj->SetFetchMode($v); break;
