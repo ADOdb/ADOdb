@@ -732,6 +732,11 @@ function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $forc
 		return false;
 	}
 
+	
+	if (!is_object($zthis->dataDictionary)) {
+		$zthis->dataDictionary = newDataDictionary($zthis);
+	}
+
 	$fieldUpdatedCount = 0;
 	if (is_array($arrFields))
 		$arrFields = array_change_key_case($arrFields,CASE_UPPER);
@@ -766,8 +771,8 @@ function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $forc
 
 				// Based on the datatype of the field
 				// Format the value properly for the database
-				$type = $rs->metaType($field->type);
-
+				//$type = $rs->metaType($field->type);
+				$type = $zthis->dataDictionary->metaType($field);
 				if ($type == 'null') {
 					$type = 'C';
 				}
@@ -905,6 +910,11 @@ static $cacheCols;
 		$arrFields = array_change_key_case($arrFields,CASE_UPPER);
 	$fieldInsertedCount = 0;
 
+	
+	if (!is_object($zthis->dataDictionary)) {
+		$zthis->dataDictionary = newDataDictionary($zthis);
+	}
+
 	if (is_string($rs)) {
 		//ok we have a table name
 		//try and get the column info ourself.
@@ -920,8 +930,16 @@ static $cacheCols;
 		if (is_string($cacheRS) && $cacheRS == $rs) {
 			$columns = $cacheCols;
 		} else {
-			$columns = $zthis->MetaColumns( $tableName );
-			$cacheRS = $tableName;
+			$resultObject = $zthis->fetchResultByTableName($tableName);
+			//$primaryKey = $zthis->metaPrimaryKeys($tableName);
+			//print_r($primaryKey); 
+			//$columns = $zthis->MetaColumns( $tableName );
+			//print_r($columns); exit;
+			$columns = [];
+			for ($i=0, $max = $resultObject->FieldCount(); $i < $max; $i++)
+				$columns[] = $resultObject->FetchField($i);
+
+			$cacheRS = $resultObject;
 			$cacheCols = $columns;
 		}
 	} else if (is_subclass_of($rs, 'adorecordset')) {
@@ -945,11 +963,13 @@ static $cacheCols;
 	// Loop through all of the fields in the recordset
 	foreach( $columns as $field ) {
 		$upperfname = strtoupper($field->name);
+		
 		if (adodb_key_exists($upperfname, $arrFields, $force)) {
 			$bad = false;
 			$fnameq = _adodb_quote_fieldname($zthis, $field->name);
-			$type = $recordSet->MetaType($field->type);
-
+			
+			//$type = $recordSet->MetaType($field->type);
+			$type = $zthis->dataDictionary->metaType($field);
 			/********************************************************/
 			if (is_null($arrFields[$upperfname])
 				|| (empty($arrFields[$upperfname]) && strlen($arrFields[$upperfname]) == 0)
