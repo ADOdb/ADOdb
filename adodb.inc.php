@@ -538,6 +538,14 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	public $debug = false;
 
+	/**
+	 * A placeholder for a data dictionary object, created at
+	 * first use of newDataDictionary and available as needed.
+	 *
+	 * @var object|null
+	 */
+	public ?object $dataDictionary = null;
+
 	var $maxblobsize = 262144;	/// maximum size of blobs or large text fields (262144 = 256K)-- some db's die otherwise like foxpro
 	var $concat_operator = '+'; /// default concat operator -- change to || for Oracle/Interbase
 	var $substr = 'substr';		/// substring operator
@@ -2877,6 +2885,35 @@ if (!defined('_ADODB_LAYER')) {
 		return _adodb_getinsertsql($this, $rs, $arrFields, $force);
 	}
 
+	/**
+	 * Obtain a recordset object from a string table by querying the primary keys
+	 *
+	 * @param string $tableName The table to interrogate
+	 * 
+	 * @return object|null
+	 */
+	public function fetchResultByTableName(string $tableName): ?object
+	{
+		$result = null;
+
+		$primaryKey = $this->metaPrimaryKeys($tableName);
+				
+		$keys = [];
+		foreach ($primaryKey as $keyName) {
+			$keys[] = sprintf('%s=NULL',$keyName);
+		}
+		$sql = sprintf(
+			"SELECT * FROM %s WHERE %s",
+			$tableName,
+			implode(' AND ',$keys)
+		);
+		
+		$result = $this->execute($sql);
+
+		return $result;
+
+	}
+
 
 	/**
 	 * Update a BLOB column, given a where clause.
@@ -3005,12 +3042,20 @@ if (!defined('_ADODB_LAYER')) {
 	// for best performance, use the actual $rs->MetaType().
 	function MetaType($t,$len=-1,$fieldobj=false) {
 
+		if (!is_object($this->dataDictionary)) {
+			$this->dataDictionary = newDataDictionary($this);
+		}
+		return $this->dataDictionary($t);
+
+		/*
 		if (empty($this->_metars)) {
 			$rsclass = $this->rsPrefix.$this->databaseType;
+			print "\nCLASS=$rsclass";
 			$this->_metars = new $rsclass(false,$this->fetchMode);
 			$this->_metars->connection = $this;
 		}
 		return $this->_metars->MetaType($t,$len,$fieldobj);
+		*/
 	}
 
 
