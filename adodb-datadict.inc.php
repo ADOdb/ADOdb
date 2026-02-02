@@ -1114,7 +1114,8 @@ class ADODB_DataDict {
 
 					$c = $cols[$k];
 					$ml = $c->max_length;
-					$mt = $this->metaType($c->type,$ml);
+					//$mt = $this->metaType($c->type,$ml);
+					$mt = $this->metaType($c);
 
 					if (isset($c->scale)) $sc = $c->scale;
 					else $sc = 99; // always force change if scale not known.
