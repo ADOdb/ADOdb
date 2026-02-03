@@ -3232,9 +3232,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * Returns an array of table names and/or views in the database.
 	 *
 	 * @param string|bool $ttype Can be either `TABLE`, `VIEW`, or false.
-	 *                           - If false, both views and tables are returned.
-	 *                           - `TABLE` (or `T`) returns only tables
-	 *                           - `VIEW` (or `V` returns only views
+	 *   - If false, both views and tables are returned.
+	 *   - `TABLE` (or `T`) returns only tables
+	 *   - `VIEW` (or `V` returns only views
 	 * @param string|bool $showSchema Prepends the schema/user to the table name,
 	 *                                eg. USER.TABLE
 	 * @param string|bool $mask Input mask - not supported by all drivers
@@ -3272,7 +3272,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$res = $rs->getArray();
 
 		// Filter result to keep only the selected type
-		if ($res && $ttype) {
+		if ($res && $ttype && isset($res[0][1])) {
 			$ttype = strtoupper($ttype[0]);
 			$res = array_filter($res,
 				/**
@@ -5046,7 +5046,7 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return bool|ADOFetchObj The object with properties set to the current row's fields.
 	 */
 	function fetchObject($isUpper = true) {
-		
+
 		if (!$this->fields) {
 			/*
 			* past EOF
@@ -5057,7 +5057,7 @@ class ADORecordSet implements IteratorAggregate {
 		$casing = $isUpper ? CASE_UPPER : CASE_LOWER;
 
 		$fields = array_change_key_case($this->fields, $casing);
-		
+
 		return new ADOFetchObj($fields);
 	}
 

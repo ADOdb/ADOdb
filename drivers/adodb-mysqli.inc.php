@@ -634,17 +634,27 @@ class ADODB_mysqli extends ADOConnection {
 	function MetaDatabases()
 	{
 		$query = "SHOW DATABASES";
-		$ret = $this->execute($query);
-		if ($ret && is_object($ret)){
-			$arr = array();
-			while (!$ret->EOF){
-				$db = $ret->fields('Database');
-				if ($db != 'mysql') $arr[] = $db;
-				$ret->moveNext();
-			}
-			return $arr;
+		$result = $this->getAll($query);
+		
+		if (!$result) {
+			return false;
 		}
-		return $ret;
+
+		$systemDatabases = array(
+			'mysql',
+			'information_schema',
+			'performance_schema'
+		);
+	
+		$databaseList = [];
+		foreach ($result as $dbArray) {
+			$databaseName = array_pop($dbArray);
+			if (!in_array($databaseName, $systemDatabases)) {
+				$databaseList[] = $databaseName;
+			}
+		}
+
+		return $databaseList;
 	}
 
 	/**
