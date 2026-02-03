@@ -4770,41 +4770,37 @@ class ADORecordSet implements IteratorAggregate {
 		/*
 		* Is the recordset already in BOF or EOF state?
 		*/
-		$currentEOF = $this->EOF;
-		$currentBOF = $this->BOF;
-		$currentRow = $this->_currentRow;
 
 		//print " PRE SET RN=$rowNumber CS={$this->canSeek} CR={$this->_currentRow} EOF={$this->EOF} BOF={$this->BOF} NOR={$this->_numOfRows}\n";
 
-		$this->EOF = false;
-		$this->BOF = false;
-		
-		if ($currentBOF) {
-			$this->_currentRow = -1;
-		} else if ($currentEOF) {
-			$this->_currentRow = $this->_numOfRows + 1;
+		if ($this->BOF) {
+			$currentRow = -1;
+		} elseif ($this->EOF) {
+			$currentRow = $this->_numOfRows + 1;
+		} else {
+			$currentRow = $this->_currentRow;
 		}
 
 		//print "POST SET RN=$rowNumber CS={$this->canSeek} CR={$this->_currentRow} EOF={$this->EOF} BOF={$this->BOF} NOR={$this->_numOfRows}\n";
 
-
-		if ($rowNumber == $this->_currentRow 
-		|| ($currentEOF && $rowNumber > $this->_currentRow)
-		|| ($currentBOF && $rowNumber < $this->_currentRow)) {
+		if ($rowNumber == $currentRow
+			|| ($this->EOF && $rowNumber > $currentRow)
+			|| ($this->BOF && $rowNumber < $currentRow)
+		) {
 			/*
 			* Ensure the correct EOF state is retained and
 			* return appropriate status
 			*/
-			$this->EOF         = $currentEOF;
-			$this->BOF         = $currentBOF;
-			$this->_currentRow = $currentRow;
-
 			if ($this->EOF || $this->BOF) {
+				$this->_currentRow = false;
 				return false;
 			}
 
 			return true;
 		}
+
+		$this->EOF = false;
+		$this->BOF = false;
 
 		if ($rowNumber >= $this->_numOfRows) {
 			/*
