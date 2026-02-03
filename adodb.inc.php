@@ -4766,7 +4766,7 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return bool true if there still rows available, or false if there are no more rows (EOF).
 	 */
 	function Move($rowNumber = 0) {
-		
+
 		/*
 		* Is the recordset already in BOF or EOF state?
 		*/
@@ -4802,8 +4802,6 @@ class ADORecordSet implements IteratorAggregate {
 			$this->fields      = false;
 			$this->_currentRow = false;
 			return false;
-
-
 		}
 
 		if ($rowNumber < 0) {
