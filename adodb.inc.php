@@ -4129,6 +4129,8 @@ class ADORecordSet implements IteratorAggregate {
 							/// in other words, we use a text area for editing.
 	var $canSeek = false;	/// indicates that seek is supported
 	var $sql;				/// sql text
+
+	var $BOF = false;
 	var $EOF = false;		/// Indicates that the current record position is after the last record in a Recordset object.
 
 	var $emptyTimeStamp = '&nbsp;'; /// what to display when $time==0
@@ -4764,24 +4766,62 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return bool true if there still rows available, or false if there are no more rows (EOF).
 	 */
 	function Move($rowNumber = 0) {
-		$this->EOF = false;
-		if ($rowNumber == $this->_currentRow) {
+
+		/*
+		* Is the recordset already in BOF or EOF state?
+		*/
+		if ($this->BOF) {
+			$currentRow = -1;
+		} elseif ($this->EOF) {
+			$currentRow = $this->_numOfRows + 1;
+		} else {
+			$currentRow = $this->_currentRow;
+		}
+
+		if ($rowNumber == $currentRow
+			|| ($this->EOF && $rowNumber > $currentRow)
+			|| ($this->BOF && $rowNumber < $currentRow)
+		) {
+			/*
+			* Ensure the correct EOF state is retained and
+			* return appropriate status
+			*/
+			if ($this->EOF || $this->BOF) {
+				$this->_currentRow = false;
+				return false;
+			}
+
 			return true;
 		}
+
+		$this->EOF = false;
+		$this->BOF = false;
+
 		if ($rowNumber >= $this->_numOfRows) {
-			if ($this->_numOfRows != -1) {
-				$rowNumber = $this->_numOfRows-2;
-			}
+			$this->EOF         = true;
+			$this->fields      = false;
+			$this->_currentRow = false;
+			return false;
 		}
 
 		if ($rowNumber < 0) {
-			$this->EOF = true;
+			$this->BOF    = true;
+			$this->fields = false;
+			$this->_currentRow = false;
 			return false;
 		}
 
 		if ($this->canSeek) {
+			/*
+			* Database supports cursor movement to arbitrary record
+			* number
+			*/
 			if ($this->_seek($rowNumber)) {
 				$this->_currentRow = $rowNumber;
+				/*
+				* now use a native function to retrieve a record
+				* at that point
+				*/
 				if ($this->_fetch()) {
 					return true;
 				}
@@ -4791,6 +4831,10 @@ class ADORecordSet implements IteratorAggregate {
 			}
 		} else {
 			if ($rowNumber < $this->_currentRow) {
+				/*
+				* If canseek is not supported, then the system
+				* cannot go backwards
+				*/
 				return false;
 			}
 			while (! $this->EOF && $this->_currentRow < $rowNumber) {
