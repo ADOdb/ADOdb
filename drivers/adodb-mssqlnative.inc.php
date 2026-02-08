@@ -1088,6 +1088,19 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	}
 
+	/**
+	 * Returns SQL to obtain the length of data in a column, including
+	 * CHAR fields
+	 *
+	 * @param string $fieldName The field length to measure
+ 	 * 
+	 * @return string
+	 */
+	public function length(string $fieldName): string
+	{
+		return sprintf('LEN(TRIM(%s))', $fieldName);
+	}
+
 }
 
 /*--------------------------------------------------------------------------------------

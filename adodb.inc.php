@@ -2750,39 +2750,48 @@ if (!defined('_ADODB_LAYER')) {
 	 * @noinspection PhpUnusedParameterInspection
 	 */
 	function autoExecute($table, $fields_values, $mode = 'INSERT', $where = '', $forceUpdate = true, $magic_quotes = false) {
+		switch($mode) {
+			case DB_AUTOQUERY_INSERT:
+			case DB_AUTOQUERY_UPDATE:
+				break;
+			case 'UPDATE':
+				$mode = DB_AUTOQUERY_UPDATE;
+				break;
+			case 'INSERT':
+				$mode = DB_AUTOQUERY_INSERT;
+				break;
+			default:
+				$this->outp_throw("AutoExecute: Unknown mode=$mode", 'AutoExecute');
+				return false;
+		}
+
 		if (empty($fields_values)) {
 			$this->outp_throw('AutoExecute: Empty fields array', 'AutoExecute');
 			return false;
 		}
-		if (empty($where) && ($mode == 'UPDATE' || $mode == 2 /* DB_AUTOQUERY_UPDATE */)) {
+		if (empty($where) && $mode == DB_AUTOQUERY_UPDATE) {
 			$this->outp_throw('AutoExecute: Illegal mode=UPDATE with empty WHERE clause', 'AutoExecute');
 			return false;
 		}
 
 		$sql = "SELECT * FROM $table";
-		$rs = $this->SelectLimit($sql, 1);
-		if (!$rs) {
-			return false; // table does not exist
-		}
-
-		$rs->tableName = $table;
 		if (!empty($where)) {
 			$sql .= " WHERE $where";
 		}
+
+		$rs = $this->SelectLimit($sql, 1);
+		if (!$rs || $mode == DB_AUTOQUERY_UPDATE && $rs->EOF) {
+			// Table does not exist or udpate where clause matches no rows
+			return false;
+		}
+
+		$rs->tableName = $table;
 		$rs->sql = $sql;
 
-		switch($mode) {
-			case 'UPDATE':
-			case DB_AUTOQUERY_UPDATE:
-				$sql = $this->GetUpdateSQL($rs, $fields_values, $forceUpdate);
-				break;
-			case 'INSERT':
-			case DB_AUTOQUERY_INSERT:
-				$sql = $this->GetInsertSQL($rs, $fields_values);
-				break;
-			default:
-				$this->outp_throw("AutoExecute: Unknown mode=$mode", 'AutoExecute');
-				return false;
+		if ($mode == DB_AUTOQUERY_UPDATE) {
+			$sql = $this->getUpdateSQL($rs, $fields_values, $forceUpdate);
+		} else {
+			$sql = $this->getInsertSQL($rs, $fields_values);
 		}
 		return $sql && $this->Execute($sql);
 	}
@@ -3223,9 +3232,9 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * Returns an array of table names and/or views in the database.
 	 *
 	 * @param string|bool $ttype Can be either `TABLE`, `VIEW`, or false.
-	 *                           - If false, both views and tables are returned.
-	 *                           - `TABLE` (or `T`) returns only tables
-	 *                           - `VIEW` (or `V` returns only views
+	 *   - If false, both views and tables are returned.
+	 *   - `TABLE` (or `T`) returns only tables
+	 *   - `VIEW` (or `V` returns only views
 	 * @param string|bool $showSchema Prepends the schema/user to the table name,
 	 *                                eg. USER.TABLE
 	 * @param string|bool $mask Input mask - not supported by all drivers
@@ -3263,7 +3272,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		$res = $rs->getArray();
 
 		// Filter result to keep only the selected type
-		if ($res && $ttype) {
+		if ($res && $ttype && isset($res[0][1])) {
 			$ttype = strtoupper($ttype[0]);
 			$res = array_filter($res,
 				/**
@@ -3847,6 +3856,19 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return '';
 	}
 
+	/**
+	 * Returns SQL to obtain the length of data in a column, including
+	 * CHAR fields
+	 *
+	 * @param string $fieldName The field length to measure
+ 	 * 
+	 * @return string
+	 */
+	public function length(string $fieldName): string
+	{
+		return sprintf('LENGTH(TRIM(%s))', $fieldName);
+	}
+
 } // end class ADOConnection
 
 	/**
@@ -3955,6 +3977,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		/** @var bool|array  */
 		var $fields = false;
 		var $connection = false;
+
+		/**
+		 * The timestamp that the recordset was created
+		 *
+		 * @var integer
+		 */
+		public int $timeCreated = 0;
 
 		function RowCount() {
 			return 0;
@@ -4100,6 +4129,8 @@ class ADORecordSet implements IteratorAggregate {
 							/// in other words, we use a text area for editing.
 	var $canSeek = false;	/// indicates that seek is supported
 	var $sql;				/// sql text
+
+	var $BOF = false;
 	var $EOF = false;		/// Indicates that the current record position is after the last record in a Recordset object.
 
 	var $emptyTimeStamp = '&nbsp;'; /// what to display when $time==0
@@ -4735,24 +4766,62 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return bool true if there still rows available, or false if there are no more rows (EOF).
 	 */
 	function Move($rowNumber = 0) {
-		$this->EOF = false;
-		if ($rowNumber == $this->_currentRow) {
+
+		/*
+		* Is the recordset already in BOF or EOF state?
+		*/
+		if ($this->BOF) {
+			$currentRow = -1;
+		} elseif ($this->EOF) {
+			$currentRow = $this->_numOfRows + 1;
+		} else {
+			$currentRow = $this->_currentRow;
+		}
+
+		if ($rowNumber == $currentRow
+			|| ($this->EOF && $rowNumber > $currentRow)
+			|| ($this->BOF && $rowNumber < $currentRow)
+		) {
+			/*
+			* Ensure the correct EOF state is retained and
+			* return appropriate status
+			*/
+			if ($this->EOF || $this->BOF) {
+				$this->_currentRow = false;
+				return false;
+			}
+
 			return true;
 		}
+
+		$this->EOF = false;
+		$this->BOF = false;
+
 		if ($rowNumber >= $this->_numOfRows) {
-			if ($this->_numOfRows != -1) {
-				$rowNumber = $this->_numOfRows-2;
-			}
+			$this->EOF         = true;
+			$this->fields      = false;
+			$this->_currentRow = false;
+			return false;
 		}
 
 		if ($rowNumber < 0) {
-			$this->EOF = true;
+			$this->BOF    = true;
+			$this->fields = false;
+			$this->_currentRow = false;
 			return false;
 		}
 
 		if ($this->canSeek) {
+			/*
+			* Database supports cursor movement to arbitrary record
+			* number
+			*/
 			if ($this->_seek($rowNumber)) {
 				$this->_currentRow = $rowNumber;
+				/*
+				* now use a native function to retrieve a record
+				* at that point
+				*/
 				if ($this->_fetch()) {
 					return true;
 				}
@@ -4762,6 +4831,10 @@ class ADORecordSet implements IteratorAggregate {
 			}
 		} else {
 			if ($rowNumber < $this->_currentRow) {
+				/*
+				* If canseek is not supported, then the system
+				* cannot go backwards
+				*/
 				return false;
 			}
 			while (! $this->EOF && $this->_currentRow < $rowNumber) {
@@ -5030,7 +5103,7 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return bool|ADOFetchObj The object with properties set to the current row's fields.
 	 */
 	function fetchObject($isUpper = true) {
-		
+
 		if (!$this->fields) {
 			/*
 			* past EOF
@@ -5041,7 +5114,7 @@ class ADORecordSet implements IteratorAggregate {
 		$casing = $isUpper ? CASE_UPPER : CASE_LOWER;
 
 		$fields = array_change_key_case($this->fields, $casing);
-		
+
 		return new ADOFetchObj($fields);
 	}
 

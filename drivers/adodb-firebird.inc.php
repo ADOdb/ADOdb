@@ -1004,6 +1004,19 @@ class ADODB_firebird extends ADOConnection {
 		return $rs;
 	}
 
+	/**
+	 * Returns SQL to obtain the length of data in a column, including
+	 * CHAR fields
+	 *
+	 * @param string $fieldName The field length to measure
+ 	 * 
+	 * @return string
+	 */
+	public function length(string $fieldName): string
+	{
+		return sprintf('CHAR_LEN(TRIM(%s))', $fieldName);
+	}
+
 }
 
 /**
