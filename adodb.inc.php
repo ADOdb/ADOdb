@@ -3856,6 +3856,19 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return '';
 	}
 
+	/**
+	 * Returns SQL to obtain the length of data in a column, including
+	 * CHAR fields
+	 *
+	 * @param string $fieldName The field length to measure
+ 	 * 
+	 * @return string
+	 */
+	public function length(string $fieldName): string
+	{
+		return sprintf('LENGTH(TRIM(%s))', $fieldName);
+	}
+
 } // end class ADOConnection
 
 	/**
