@@ -23,6 +23,8 @@
 
 class ADODB_pdo_mysql extends ADODB_pdo_base {
 
+	var $metaDatabasesSQL = "SHOW DATABASES
+		WHERE `database` NOT IN ('mysql', 'information_schema', 'performance_schema')";
 	var $metaTablesSQL =  /** @lang text */
 		"SELECT
 			TABLE_NAME,

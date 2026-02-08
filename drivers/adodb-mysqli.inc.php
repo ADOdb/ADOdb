@@ -47,6 +47,8 @@ class ADODB_mysqli extends ADOConnection {
 	var $dataProvider = 'mysql';
 	var $hasInsertID = true;
 	var $hasAffectedRows = true;
+	var $metaDatabasesSQL = "SHOW DATABASES
+		WHERE `database` NOT IN ('mysql', 'information_schema', 'performance_schema')";
 	var $metaTablesSQL = /** @lang text */
 		"SELECT
 			TABLE_NAME,
@@ -624,37 +626,6 @@ class ADODB_mysqli extends ADOConnection {
 			$this->genID = 0;
 
 		return $this->genID;
-	}
-
-	/**
-	 * Return a list of all visible databases except the 'mysql' database.
-	 *
-	 * @return array|false An array of database names, or false if the query failed.
-	 */
-	function MetaDatabases()
-	{
-		$query = "SHOW DATABASES";
-		$result = $this->getAll($query);
-		
-		if (!$result) {
-			return false;
-		}
-
-		$systemDatabases = array(
-			'mysql',
-			'information_schema',
-			'performance_schema'
-		);
-	
-		$databaseList = [];
-		foreach ($result as $dbArray) {
-			$databaseName = array_pop($dbArray);
-			if (!in_array($databaseName, $systemDatabases)) {
-				$databaseList[] = $databaseName;
-			}
-		}
-
-		return $databaseList;
 	}
 
 	/**
