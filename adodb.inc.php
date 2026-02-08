@@ -5981,10 +5981,10 @@ class ADORecordSet implements IteratorAggregate {
 		}
 
 		include_once(ADODB_DIR.'/adodb-lib.inc.php');
-		include_once(ADODB_DIR.'/adodb-datadict.inc.php');
+		//include_once(ADODB_DIR.'/adodb-datadict.inc.php');
 
 		//print "{$conn->dictionaryProvider}\n";
-		
+		/*
 		if ($conn->dictionaryProvider) {
 			$cName = $conn->dictionaryProvider;
 			$dName = sprintf('datadict-%s.inc.php',$conn->dictionaryProvider);
@@ -6013,10 +6013,20 @@ class ADORecordSet implements IteratorAggregate {
 		
 		}
 
+		
+
 		include_once($path);
 		
 		$class = "ADODB2_$cName";
+		*/
+
+		$path = ADODB_DIR."/DataDictionary/MySQLi/DataDict.php";
+		include_once($path);
+
+		$class = 'ADOdb\DataDictionary\MySQLi\DataDict';
+
 		/** @var ADODB_DataDict $dict */
+		
 		$dict = new $class();
 		$dict->dataProvider = $conn->dataProvider;
 		$dict->connection = $conn;
