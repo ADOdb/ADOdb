@@ -232,7 +232,11 @@ class ADODB2_postgres extends ADODB_DataDict
 					list(,$colname,$default) = $matches;
 					$alter .= $colname;
 					if ($this->connection) {
-						$old_coltype = $this->connection->metaType($existing[strtoupper($colname)]);
+						if (array_key_exists(strtoupper($colname), $existing)) {
+							$old_coltype = $this->connection->metaType($existing[strtoupper($colname)]);
+						} else {
+							$old_coltype = $t;
+						}
 					} else {
 						$old_coltype = $t;
 					}
