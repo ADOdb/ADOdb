@@ -626,18 +626,93 @@ class ADODB_DataDict {
 		return array (sprintf($this->renameTable, $this->tableName($tabname),$this->tableName($newname)));
 	}
 
+	const TABLE_CREATE = 1;
+	const TABLE_CHANGE = 2;
+	const TABLE_DELETE = 3;
+
+	protected function reprocessColumns(string $tableName, array $lines, int $processType) :array
+	{
+		
+		$preProcessLines = [];
+		$postProcessLines = [];
+		/*
+		* See if the SQL needs reprocessing
+		*/
+		$metaColumns = $this->metaColumns($tableName);
+		if ($metaColumns == false) {
+			$metaColumns = true;
+		}
+
+		foreach ($lines as $lineKey => $line) {
+			
+			list(
+				$returnedPreProcessLines,
+				$returnedLines,
+				$returnedPostProcessLines
+				) = $this->lineProcessor($tableName, $lineKey, $line, $metaColumns, $processType);
+			
+			if (count($lines) == 1) {
+				$lines[$lineKey] = $returnedLines[0];
+			} else {
+				foreach ($returnedLines as $key => $value) {
+					$lines[$lineKey . '-' . $key] = $value;
+				}
+			}
+			
+			$preProcessLines  = array_merge(
+				$preProcessLines,
+				$returnedPreProcessLines
+			);
+			
+			$postProcessLines  = array_merge(
+				$postProcessLines,
+				$returnedPostProcessLines
+			);
+		}
+
+		return array($preProcessLines, $lines, $postProcessLines);
+	}
+	
+	
 	/**
-	 Generate the SQL to create table. Returns an array of sql strings.
+	* Generate the SQL to create a new table. Returns an array of sql strings.
+	*
+	* @param string $tabname The table name
+	* @param string $flds
+	* @param array  $tableOptions
+	*
+	* @return array   
 	*/
 	function createTableSQL($tabname, $flds, $tableoptions=array())
 	{
 		list($lines,$pkey,$idxs) = $this->_genFields($flds, true);
 		// genfields can return FALSE at times
-		if ($lines == null) $lines = array();
+		if ($lines == null) { 
+			$lines = array();
+		}
+
+		$sql = [];
+		$preProcessLines  = [];
+		$postProcessLines = [];
+
+		list ($preProcessLines,$lines, $postProcessLines) = 
+			$this->reprocessColumns(
+				$tabname,
+				$lines,
+				self::TABLE_CREATE
+			);
+		
+		/*
+		* Preprocess lines are executed before the table process,
+		* Postprocess lines are executed after
+		*/
+		if (count($preProcessLines) > 0) {
+			$sql = array_merge($sql, $preProcessLines);
+		}
 
 		$taboptions = $this->_options($tableoptions);
 		$tabname = $this->tableName($tabname);
-		$sql = $this->_tableSQL($tabname,$lines,$pkey,$taboptions);
+		$sql = array_merge($sql, $this->_tableSQL($tabname,$lines,$pkey,$taboptions));
 
 		// ggiunta - 2006/10/12 - KLUDGE:
         // if we are on autoincrement, and table options includes REPLACE, the
@@ -654,6 +729,10 @@ class ADODB_DataDict {
 				$sql_idxs = $this->createIndexSql($idx, $tabname,  $idxdef['cols'], $idxdef['opts']);
 				$sql = array_merge($sql, $sql_idxs);
 			}
+		}
+
+		if (count($postProcessLines) > 0) {
+			$sql = array_merge($sql, $postProcessLines);
 		}
 
 		return $sql;
@@ -989,6 +1068,32 @@ class ADODB_DataDict {
 	function _dropAutoIncrement($tabname)
 	{
 		return false;
+	}
+
+	/**
+	 * Rewrite any driver specific SQL and actions to be executed before
+	 * and after the main SQL statement is executed based on the
+	 * type of calling action
+	 *
+	 * @param string $tabName     The table name 
+	 * @param string $lineKey     The line key
+	 * @param string $inboundLine The line to process
+	 * @param array  $metaColumns Existing table columns, if any
+	 * @param int	 $processMode 1=ADD/2=CHANGE/3=DELETE
+	 * 
+	 * @return array
+	 */
+	protected function lineProcessor(string $tabName, string $lineKey, string $inboundLine, array $metaColumns, int $processMode = 1) : array
+	{
+		$outboundLines = [ 
+			$inboundLine 
+		];
+		
+		$preProcessLines  = [];
+		$postProcessLines = [];
+
+		return array($preProcessLines, $outboundLines, $postProcessLines);
+
 	}
 
 	function _tableSQL($tabname,$lines,$pkey,$tableoptions)
