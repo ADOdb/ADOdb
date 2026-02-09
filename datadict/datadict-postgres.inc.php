@@ -227,7 +227,7 @@ class ADODB2_postgres extends ADODB_DataDict
 					$v = preg_replace('/(?<!DEFAULT)\sNULL/i','',$v);
 				}
 
-				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
+				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/', $v, $matches)) {
 					$existing = $this->metaColumns($tabname);
 					list(,$colname,$default) = $matches;
 					$alter .= $colname;
