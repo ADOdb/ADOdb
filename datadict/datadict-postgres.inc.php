@@ -240,6 +240,24 @@ class ADODB2_postgres extends ADODB_DataDict
 					} else {
 						$old_coltype = $t;
 					}
+
+					if (array_key_exists(strtoupper($colname), $existing) && $old_coltype == 'L' && $t == 'BOOLEAN') {
+						/*
+						* Same boolean type, has default changed?
+						*/
+						$metaColumn = $existing[strtoupper($colname)];
+						if ((int)$default == 1 && strtoupper($metaColumn->default_value) == 'TRUE') {
+							continue;
+						} elseif (!$default && strtoupper($metaColumn->default_value) == 'FALSE') {
+							continue;
+						} else {
+							/*
+							* Switch ADOdb default to pgsql type
+							*/
+							$default = ($default == 1) ? 'TRUE' : 'FALSE';
+						}
+					}
+
 					// Type change from bool to int
 					if ( $old_coltype == 'L' && $t == 'INTEGER' ) {
 						$sql[] = $alter . ' DROP DEFAULT';
