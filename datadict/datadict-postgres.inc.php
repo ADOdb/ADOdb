@@ -233,7 +233,7 @@ class ADODB2_postgres extends ADODB_DataDict
 					$alter .= $colname;
 
 					$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
-					$t = trim(str_replace('DEFAULT '.$default,'',$v));
+					$t = trim(str_replace('DEFAULT ' . $default,'',$v));
 
 					if ($this->connection && array_key_exists(strtoupper($colname), $existing)) {
 						$old_coltype = $this->connection->metaType($existing[strtoupper($colname)]);
