@@ -758,6 +758,13 @@ if (!defined('_ADODB_LAYER')) {
 
 
 	/**
+	 * Should metacolumn results be cached
+	 *
+	 * @var boolean
+	 */
+	public $cachedSchemaFlush = false;
+
+	/**
 	 * Default Constructor.
 	 * We define it even though it does not actually do anything. This avoids
 	 * getting a PHP Fatal error:  Cannot call constructor if a subclass tries
