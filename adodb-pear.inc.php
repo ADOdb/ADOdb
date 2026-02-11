@@ -149,7 +149,7 @@ class DB
 			$dsninfo = DB::parseDSN($dsn);
 		}
 		switch ($dsninfo["phptype"]) {
-			case 'pgsql': 	$type = 'postgres7'; break;
+			case 'pgsql': 	$type = 'postgres'; break;
 			case 'ifx':		$type = 'informix9'; break;
 			default: 		$type = $dsninfo["phptype"]; break;
 		}

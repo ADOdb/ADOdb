@@ -347,8 +347,6 @@ FROM `nuke_stories` `t1`, `nuke_authors` `t2`, `nuke_stories_cat` `t3`, `nuke_to
 		}
 		break;
 
-	case 'postgres7':
-	case 'postgres64':
 	case 'postgres':
 	case 'ibase':
 		print "<p>Encode=".$db->BlobEncode("abc\0d\"'
@@ -1364,7 +1362,7 @@ END Adodb;
 	else if ($d != $rs->fields[0]) Err("SQLDate 1 failed expected: <br>act:$d <br>sql:".$rs->fields[0]);
 
 	$dbdate = $db->DBDate("1974-02-25");
-	if (substr($db->dataProvider, 0, 8) == 'postgres') {
+	if ($db->dataProvider == 'postgres') {
 		$dbdate .= "::TIMESTAMP";
 	}
 
