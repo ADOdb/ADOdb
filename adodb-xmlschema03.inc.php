@@ -622,7 +622,8 @@ class dbTable extends dbObject {
 		if( empty( $legacy_fields ) ) {
 			// Create the new table
 			$sql[] = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
-			$xmls->logMsg($sql, 'Generated createTableSQL' , false, $this );
+			$xmls->logMsg($sql, 'Generated createTableSQL in 03 Create()' , false, $this );
+
 		} else {
 			// Upgrade an existing table
 			$xmls->logMsg( "Upgrading {$this->name} using '{$xmls->upgrade}'", '', false, $this );
@@ -631,9 +632,6 @@ class dbTable extends dbObject {
 				case 'ALTER':
 					
 					$changeSql = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
-					
-					print "\n============== out ==================\n";
-					print_r($changeSql);
 					$sql = array_merge($sql,$changeSql);
 
 					$xmls->logMsg($sql, 'Generated changeTableSQL (ALTERing table)', false, $this );
