@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Georgian language strings.
  *
@@ -46,7 +47,7 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_CONNECT_FAILED     => 'დაკავშირება შეუძლებელია',
             0                               => 'შეცდომის გარეშე', // DB_OK
             DB_ERROR_NEED_MORE_DATA     => 'მიწოდებულია არასაკმარისი მონაცემები',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'გაფართოება აღმოჩენილი არაა',
+            DB_ERROR_EXTENSION_NOT_FOUND => 'გაფართოება აღმოჩენილი არაა',
             DB_ERROR_NOSUCHDB           => 'მონაცემთა ბაზა არ არსებობს',
             DB_ERROR_ACCESS_VIOLATION   => 'არასაკმარისი წვდომები'
 );

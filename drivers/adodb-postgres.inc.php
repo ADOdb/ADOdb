@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ADOdb PostgreSQL driver
  *

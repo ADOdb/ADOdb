@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Microsoft SQL Server 2012 driver via ODBC
  *
@@ -19,20 +20,21 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-if (!defined('ADODB_DIR')) 
-	die();
-
-include_once(ADODB_DIR."/drivers/adodb-odbc_mssql.inc.php");
-
-class  ADODB_odbc_mssql2012 extends ADODB_odbc_mssql
-{
-	/**
-	 * Makes behavior similar to prior versions of SQL Server.
-	 * @var string SQL statement executed after successful connection.
-	 */
-	public $connectStmt = 'SET CONCAT_NULL_YIELDS_NULL ON';
+if (!defined('ADODB_DIR')) {
+    die();
 }
 
-class  ADORecordSet_odbc_mssql2012 extends ADORecordSet_odbc_mssql
+include_once(ADODB_DIR . "/drivers/adodb-odbc_mssql.inc.php");
+
+class ADODB_odbc_mssql2012 extends ADODB_odbc_mssql
+{
+    /**
+     * Makes behavior similar to prior versions of SQL Server.
+     * @var string SQL statement executed after successful connection.
+     */
+    public $connectStmt = 'SET CONCAT_NULL_YIELDS_NULL ON';
+}
+
+class ADORecordSet_odbc_mssql2012 extends ADORecordSet_odbc_mssql
 {
 }

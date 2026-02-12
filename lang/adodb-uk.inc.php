@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Ukrainian language strings.
  *
@@ -46,7 +47,7 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_CONNECT_FAILED     => 'з\'єднання неуспішне',
             0                               => 'все гаразд', // DB_OK
             DB_ERROR_NEED_MORE_DATA     => 'надано недостатньо даних',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'розширення не знайдено',
+            DB_ERROR_EXTENSION_NOT_FOUND => 'розширення не знайдено',
             DB_ERROR_NOSUCHDB           => 'не існує БД',
             DB_ERROR_ACCESS_VIOLATION   => 'недостатньо прав доступа'
 );

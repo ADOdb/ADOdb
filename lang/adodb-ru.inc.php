@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Russian language strings.
  *
@@ -46,7 +47,7 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_CONNECT_FAILED     => 'соединение неуспешно',
             0                               => 'нет ошибки', // DB_OK
             DB_ERROR_NEED_MORE_DATA     => 'предоставлено недостаточно данных',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'расширение не найдено',
+            DB_ERROR_EXTENSION_NOT_FOUND => 'расширение не найдено',
             DB_ERROR_NOSUCHDB           => 'не существует БД',
             DB_ERROR_ACCESS_VIOLATION   => 'недостаточно прав доступа'
 );

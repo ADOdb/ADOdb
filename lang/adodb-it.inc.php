@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Italian language strings.
  *
@@ -46,7 +47,7 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_CONNECT_FAILED     => 'connessione fallita',
             0                           => 'nessun errore', // DB_OK
             DB_ERROR_NEED_MORE_DATA     => 'dati inseriti insufficienti',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'estensione non trovata',
+            DB_ERROR_EXTENSION_NOT_FOUND => 'estensione non trovata',
             DB_ERROR_NOSUCHDB           => 'database non trovato',
             DB_ERROR_ACCESS_VIOLATION   => 'permessi insufficienti'
 );

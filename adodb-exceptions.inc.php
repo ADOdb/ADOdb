@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Error handling using Exceptions.
  *
@@ -19,53 +20,58 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-if (!defined('ADODB_ERROR_HANDLER_TYPE')) define('ADODB_ERROR_HANDLER_TYPE',E_USER_ERROR);
-define('ADODB_ERROR_HANDLER','adodb_throw');
+if (!defined('ADODB_ERROR_HANDLER_TYPE')) {
+    define('ADODB_ERROR_HANDLER_TYPE', E_USER_ERROR);
+}
+define('ADODB_ERROR_HANDLER', 'adodb_throw');
 
-class ADODB_Exception extends Exception {
-var $dbms;
-var $fn;
-var $sql = '';
-var $params = '';
-var $host = '';
-var $database = '';
+class ADODB_Exception extends Exception
+{
+    var $dbms;
+    var $fn;
+    var $sql = '';
+    var $params = '';
+    var $host = '';
+    var $database = '';
 
-	/** @var string A message text. */
-	var $msg = '';
+    /** @var string A message text. */
+    var $msg = '';
 
-	function __construct($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
-	{
-		switch($fn) {
-		case 'EXECUTE':
-			$this->sql = is_array($p1) ? $p1[0] : $p1;
-			$this->params = $p2;
-			$s = "$dbms error: [$errno: $errmsg] in $fn(\"$this->sql\")";
-			break;
+    function __construct($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
+    {
+        switch ($fn) {
+            case 'EXECUTE':
+                $this->sql = is_array($p1) ? $p1[0] : $p1;
+                $this->params = $p2;
+                $s = "$dbms error: [$errno: $errmsg] in $fn(\"$this->sql\")";
+                break;
 
-		case 'PCONNECT':
-		case 'CONNECT':
-			$user = $thisConnection->user;
-			$s = "$dbms error: [$errno: $errmsg] in $fn($p1, '$user', '****', $p2)";
-			break;
-		default:
-			//Prevent PHP warning if $p1 or $p2 are arrays.
-			$p1 = ( is_array($p1) ) ? 'Array' : $p1;
-			$p2 = ( is_array($p2) ) ? 'Array' : $p2;
-			$s = "$dbms error: [$errno: $errmsg] in $fn($p1, $p2)";
-			break;
-		}
+            case 'PCONNECT':
+            case 'CONNECT':
+                $user = $thisConnection->user;
+                $s = "$dbms error: [$errno: $errmsg] in $fn($p1, '$user', '****', $p2)";
+                break;
+            default:
+                //Prevent PHP warning if $p1 or $p2 are arrays.
+                $p1 = ( is_array($p1) ) ? 'Array' : $p1;
+                $p2 = ( is_array($p2) ) ? 'Array' : $p2;
+                $s = "$dbms error: [$errno: $errmsg] in $fn($p1, $p2)";
+                break;
+        }
 
-		$this->dbms = $dbms;
-		if ($thisConnection) {
-			$this->host = $thisConnection->host;
-			$this->database = $thisConnection->database;
-		}
-		$this->fn = $fn;
-		$this->msg = $errmsg;
+        $this->dbms = $dbms;
+        if ($thisConnection) {
+            $this->host = $thisConnection->host;
+            $this->database = $thisConnection->database;
+        }
+        $this->fn = $fn;
+        $this->msg = $errmsg;
 
-		if (!is_numeric($errno)) $errno = -1;
-		parent::__construct($s,$errno);
-	}
+        if (!is_numeric($errno)) {
+            $errno = -1;
+        }
+        parent::__construct($s, $errno);
+    }
 }
 
 /**
@@ -81,18 +87,18 @@ var $database = '';
 
 function adodb_throw($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
 {
-	global $ADODB_EXCEPTION;
+    global $ADODB_EXCEPTION;
 
-	// Do not throw if errors are suppressed by @ operator
-	// error_reporting() value for suppressed errors changed in PHP 8.0.0
-	$suppressed = version_compare(PHP_VERSION, '8.0.0', '<')
-		? 0
-		: E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE;
-	if (error_reporting() == $suppressed) {
-		return;
-	}
+    // Do not throw if errors are suppressed by @ operator
+    // error_reporting() value for suppressed errors changed in PHP 8.0.0
+    $suppressed = version_compare(PHP_VERSION, '8.0.0', '<')
+        ? 0
+        : E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE;
+    if (error_reporting() == $suppressed) {
+        return;
+    }
 
-	$errfn = is_string($ADODB_EXCEPTION) ? $ADODB_EXCEPTION : 'ADODB_EXCEPTION';
+    $errfn = is_string($ADODB_EXCEPTION) ? $ADODB_EXCEPTION : 'ADODB_EXCEPTION';
 
-	throw new $errfn($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection);
+    throw new $errfn($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection);
 }

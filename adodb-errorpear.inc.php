@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Error Handler with PEAR support.
  *
@@ -21,7 +22,9 @@
 
 include_once('PEAR.php');
 
-if (!defined('ADODB_ERROR_HANDLER')) define('ADODB_ERROR_HANDLER','ADODB_Error_PEAR');
+if (!defined('ADODB_ERROR_HANDLER')) {
+    define('ADODB_ERROR_HANDLER', 'ADODB_Error_PEAR');
+}
 
 /*
 * Enabled the following if you want to terminate scripts when an error occurs
@@ -31,64 +34,70 @@ if (!defined('ADODB_ERROR_HANDLER')) define('ADODB_ERROR_HANDLER','ADODB_Error_P
 /*
 * Name of the PEAR_Error derived class to call.
 */
-if (!defined('ADODB_PEAR_ERROR_CLASS')) define('ADODB_PEAR_ERROR_CLASS','PEAR_Error');
+if (!defined('ADODB_PEAR_ERROR_CLASS')) {
+    define('ADODB_PEAR_ERROR_CLASS', 'PEAR_Error');
+}
 
 /*
 * Store the last PEAR_Error object here
 */
-global $ADODB_Last_PEAR_Error; $ADODB_Last_PEAR_Error = false;
+global $ADODB_Last_PEAR_Error;
+$ADODB_Last_PEAR_Error = false;
 
   /**
 * Error Handler with PEAR support. This will be called with the following params
 *
-* @param $dbms		the RDBMS you are connecting to
-* @param $fn		the name of the calling function (in uppercase)
-* @param $errno		the native error number from the database
-* @param $errmsg	the native error msg from the database
-* @param $p1		$fn specific parameter - see below
-* @param $P2		$fn specific parameter - see below
-	*/
-function ADODB_Error_PEAR($dbms, $fn, $errno, $errmsg, $p1=false, $p2=false)
+* @param $dbms      the RDBMS you are connecting to
+* @param $fn        the name of the calling function (in uppercase)
+* @param $errno     the native error number from the database
+* @param $errmsg    the native error msg from the database
+* @param $p1        $fn specific parameter - see below
+* @param $P2        $fn specific parameter - see below
+    */
+function ADODB_Error_PEAR($dbms, $fn, $errno, $errmsg, $p1 = false, $p2 = false)
 {
-global $ADODB_Last_PEAR_Error;
+    global $ADODB_Last_PEAR_Error;
 
-	// Do not throw if errors are suppressed by @ operator
-	// error_reporting() value for suppressed errors changed in PHP 8.0.0
-	$suppressed = version_compare(PHP_VERSION, '8.0.0', '<')
-		? 0
-		: E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE;
-	if (error_reporting() == $suppressed) {
-		return;
-	}
+    // Do not throw if errors are suppressed by @ operator
+    // error_reporting() value for suppressed errors changed in PHP 8.0.0
+    $suppressed = version_compare(PHP_VERSION, '8.0.0', '<')
+        ? 0
+        : E_ERROR | E_CORE_ERROR | E_COMPILE_ERROR | E_USER_ERROR | E_RECOVERABLE_ERROR | E_PARSE;
+    if (error_reporting() == $suppressed) {
+        return;
+    }
 
-	switch($fn) {
-	case 'EXECUTE':
-		$sql = $p1;
-		$inputparams = $p2;
+    switch ($fn) {
+        case 'EXECUTE':
+            $sql = $p1;
+            $inputparams = $p2;
 
-		$s = "$dbms error: [$errno: $errmsg] in $fn(\"$sql\")";
-		break;
+            $s = "$dbms error: [$errno: $errmsg] in $fn(\"$sql\")";
+            break;
 
-	case 'PCONNECT':
-	case 'CONNECT':
-		$host = $p1;
-		$database = $p2;
+        case 'PCONNECT':
+        case 'CONNECT':
+            $host = $p1;
+            $database = $p2;
 
-		$s = "$dbms error: [$errno: $errmsg] in $fn('$host', ?, ?, '$database')";
-		break;
+            $s = "$dbms error: [$errno: $errmsg] in $fn('$host', ?, ?, '$database')";
+            break;
 
-	default:
-		$s = "$dbms error: [$errno: $errmsg] in $fn($p1, $p2)";
-		break;
-	}
+        default:
+            $s = "$dbms error: [$errno: $errmsg] in $fn($p1, $p2)";
+            break;
+    }
 
-	$class = ADODB_PEAR_ERROR_CLASS;
-	$ADODB_Last_PEAR_Error = new $class($s, $errno,
-		$GLOBALS['_PEAR_default_error_mode'],
-		$GLOBALS['_PEAR_default_error_options'],
-		$errmsg);
+    $class = ADODB_PEAR_ERROR_CLASS;
+    $ADODB_Last_PEAR_Error = new $class(
+        $s,
+        $errno,
+        $GLOBALS['_PEAR_default_error_mode'],
+        $GLOBALS['_PEAR_default_error_options'],
+        $errmsg
+    );
 
-	//print "<p>!$s</p>";
+    //print "<p>!$s</p>";
 }
 
 /**
@@ -97,7 +106,7 @@ global $ADODB_Last_PEAR_Error;
 */
 function ADODB_PEAR_Error()
 {
-global $ADODB_Last_PEAR_Error;
+    global $ADODB_Last_PEAR_Error;
 
-	return $ADODB_Last_PEAR_Error;
+    return $ADODB_Last_PEAR_Error;
 }

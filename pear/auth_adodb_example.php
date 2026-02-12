@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PEAR Auth example
  *
@@ -20,17 +21,19 @@
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
+
 //
 require_once "Auth/Auth.php";
 
-function loginFunction() {
-?>
+function loginFunction()
+{
+    ?>
     <form method="post" action="<?php echo $_SERVER['PHP_SELF'] ?>">
     <input type="text" name="username">
     <input type="password" name="password">
     <input type="submit">
     </form>
-<?php
+    <?php
 }
 
 $dsn = 'mysql://username:password@hostname/database';

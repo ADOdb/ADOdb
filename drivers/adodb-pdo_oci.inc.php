@@ -1,4 +1,5 @@
 <?php
+
 /**
  * PDO Oracle (oci) driver
  *
@@ -21,115 +22,123 @@
  * @noinspection PhpComposerExtensionStubsInspection
  */
 
-class ADODB_pdo_oci extends ADODB_pdo_base {
-
-	var $concat_operator='||';
-	var $sysDate = "TRUNC(SYSDATE)";
-	var $sysTimeStamp = 'SYSDATE';
-	var $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'
-	var $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
-	var $metaTablesSQL = /** @lang text */ <<<ENDSQL
+class ADODB_pdo_oci extends ADODB_pdo_base
+{
+    var $concat_operator = '||';
+    var $sysDate = "TRUNC(SYSDATE)";
+    var $sysTimeStamp = 'SYSDATE';
+    var $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'
+    var $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
+    var $metaTablesSQL = /** @lang text */ <<<ENDSQL
 		SELECT table_name, table_type
 		FROM user_catalog
 		WHERE table_type IN ('TABLE', 'VIEW') AND table_name NOT LIKE 'BIN\$%'
 		ENDSQL; // bin$ tables are recycle bin tables
-	var $metaColumnsSQL = /** @lang text */ <<<ENDSQL
+    var $metaColumnsSQL = /** @lang text */ <<<ENDSQL
 		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
 		FROM user_tab_columns
 		WHERE table_name = '%s'
 		ORDER BY column_id
 		ENDSQL;
 
- 	var $_initdate = true;
-	var $_hasdual = true;
+    var $_initdate = true;
+    var $_hasdual = true;
 
-	protected function _init(ADODB_pdo $parentDriver)
-	{
-		parent::_init($parentDriver);
+    protected function _init(ADODB_pdo $parentDriver)
+    {
+        parent::_init($parentDriver);
 
-		$parentDriver->_nestedSQL = true;
-		if ($this->_initdate) {
-			$parentDriver->Execute("ALTER SESSION SET NLS_DATE_FORMAT='".$this->NLS_DATE_FORMAT."'");
-		}
-	}
+        $parentDriver->_nestedSQL = true;
+        if ($this->_initdate) {
+            $parentDriver->Execute("ALTER SESSION SET NLS_DATE_FORMAT='" . $this->NLS_DATE_FORMAT . "'");
+        }
+    }
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
-	{
-		if ($mask) {
-			$save = $this->metaTablesSQL;
-			$mask = $this->qstr(strtoupper($mask));
-			$this->metaTablesSQL .= " AND table_name like $mask";
-		}
-		$ret = ADOConnection::MetaTables($ttype,$showSchema);
+    function MetaTables($ttype = false, $showSchema = false, $mask = false)
+    {
+        if ($mask) {
+            $save = $this->metaTablesSQL;
+            $mask = $this->qstr(strtoupper($mask));
+            $this->metaTablesSQL .= " AND table_name like $mask";
+        }
+        $ret = ADOConnection::MetaTables($ttype, $showSchema);
 
-		if ($mask) {
-			$this->metaTablesSQL = $save;
-		}
-		return $ret;
-	}
+        if ($mask) {
+            $this->metaTablesSQL = $save;
+        }
+        return $ret;
+    }
 
-	function MetaColumns($table,$normalize=true)
-	{
-		global $ADODB_FETCH_MODE;
+    function MetaColumns($table, $normalize = true)
+    {
+        global $ADODB_FETCH_MODE;
 
-		$save = $ADODB_FETCH_MODE;
-		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
+        $save = $ADODB_FETCH_MODE;
+        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+        if ($this->fetchMode !== false) {
+            $savem = $this->SetFetchMode(false);
+        }
 
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL,strtoupper($table)));
+        $rs = $this->Execute(sprintf($this->metaColumnsSQL, strtoupper($table)));
 
-		if (isset($savem)) $this->SetFetchMode($savem);
-		$ADODB_FETCH_MODE = $save;
-		if (!$rs) {
-			return false;
-		}
-		$retarr = array();
-		while (!$rs->EOF) {
-			$fld = new ADOFieldObject();
-			$fld->name = $rs->fields[0];
-			$fld->type = $rs->fields[1];
-			$fld->max_length = $rs->fields[2];
-			$fld->scale = $rs->fields[3];
-			if ($rs->fields[1] == 'NUMBER') {
-				if ($rs->fields[3] == 0) {
-					$fld->type = 'INT';
-				}
-				$fld->max_length = $rs->fields[4];
-			}
-			$fld->not_null = $rs->fields[5] == 'N';
-			$fld->binary = (strpos($fld->type,'BLOB') !== false);
-			$fld->default_value = $rs->fields[6];
+        if (isset($savem)) {
+            $this->SetFetchMode($savem);
+        }
+        $ADODB_FETCH_MODE = $save;
+        if (!$rs) {
+            return false;
+        }
+        $retarr = array();
+        while (!$rs->EOF) {
+            $fld = new ADOFieldObject();
+            $fld->name = $rs->fields[0];
+            $fld->type = $rs->fields[1];
+            $fld->max_length = $rs->fields[2];
+            $fld->scale = $rs->fields[3];
+            if ($rs->fields[1] == 'NUMBER') {
+                if ($rs->fields[3] == 0) {
+                    $fld->type = 'INT';
+                }
+                $fld->max_length = $rs->fields[4];
+            }
+            $fld->not_null = $rs->fields[5] == 'N';
+            $fld->binary = (strpos($fld->type, 'BLOB') !== false);
+            $fld->default_value = $rs->fields[6];
 
-			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) $retarr[] = $fld;
-			else $retarr[strtoupper($fld->name)] = $fld;
-			$rs->MoveNext();
-		}
-		$rs->Close();
-		if (empty($retarr))
-			return false;
-		else
-			return $retarr;
-	}
+            if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) {
+                $retarr[] = $fld;
+            } else {
+                $retarr[strtoupper($fld->name)] = $fld;
+            }
+            $rs->MoveNext();
+        }
+        $rs->Close();
+        if (empty($retarr)) {
+            return false;
+        } else {
+            return $retarr;
+        }
+    }
 
-	/**
-	 * @param bool $auto_commit
-	 * @return void
-	 */
-	function SetAutoCommit($auto_commit)
-	{
-		$this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
-	}
+    /**
+     * @param bool $auto_commit
+     * @return void
+     */
+    function SetAutoCommit($auto_commit)
+    {
+        $this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
+    }
 
-	/**
-	 * Returns a driver-specific format for a bind parameter
-	 *
-	 * @param string $name
-	 * @param string $type (ignored in driver)
-	 *
-	 * @return string
-	 */
-	public function param($name,$type='C')
-	{
-		return sprintf(':%s', $name);
-	}
+    /**
+     * Returns a driver-specific format for a bind parameter
+     *
+     * @param string $name
+     * @param string $type (ignored in driver)
+     *
+     * @return string
+     */
+    public function param($name, $type = 'C')
+    {
+        return sprintf(':%s', $name);
+    }
 }

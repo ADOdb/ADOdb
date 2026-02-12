@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Tests cases for adodb-lib.inc.php
  *

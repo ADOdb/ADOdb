@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Test GetUpdateSQL and GetInsertSQL.
  *
@@ -31,18 +32,18 @@ include('../tohtml.inc.php');
 
 
 $conn = ADONewConnection("mssql");  // create a connection
-$conn->Connect('127.0.0.1','adodb','natsoft','northwind') or die('Fail');
+$conn->Connect('127.0.0.1', 'adodb', 'natsoft', 'northwind') or die('Fail');
 
-$conn->debug =1;
+$conn->debug = 1;
 $query = 'select * from products';
 $conn->SetFetchMode(ADODB_FETCH_ASSOC);
 $rs = $conn->Execute($query);
 echo "<pre>";
-while( !$rs->EOF ) {
-	$output[] = $rs->fields;
-	var_dump($rs->fields);
-	$rs->MoveNext();
-	print "<p>";
+while (!$rs->EOF) {
+    $output[] = $rs->fields;
+    var_dump($rs->fields);
+    $rs->MoveNext();
+    print "<p>";
 }
 die();
 
@@ -51,11 +52,11 @@ $p = $conn->Prepare('insert into products (productname,unitprice,dcreated) value
 echo "<pre>";
 print_r($p);
 
-$conn->debug=1;
-$conn->Execute($p,array('John'.rand(),33.3,$conn->DBDate(time())));
+$conn->debug = 1;
+$conn->Execute($p, array('John' . rand(),33.3,$conn->DBDate(time())));
 
 $p = $conn->Prepare('select * from products where productname like ?');
-$arr = $conn->getarray($p,array('V%'));
+$arr = $conn->getarray($p, array('V%'));
 print_r($arr);
 die();
 
@@ -63,15 +64,15 @@ die();
 //$conn->Connect('mangrove','sa','natsoft','ai');
 
 //$conn->Connect('mangrove','sa','natsoft','ai');
-$conn->debug=1;
+$conn->debug = 1;
 $conn->Execute('delete from blobtest');
 
 $conn->Execute('insert into blobtest (id) values(1)');
-$conn->UpdateBlobFile('blobtest','b1','../cute_icons_for_site/adodb.gif','id=1');
+$conn->UpdateBlobFile('blobtest', 'b1', '../cute_icons_for_site/adodb.gif', 'id=1');
 $rs = $conn->Execute('select b1 from blobtest where id=1');
 
-$output = "c:\\temp\\test_out-".date('H-i-s').".gif";
-print "Saving file <b>$output</b>, size=".strlen($rs->fields[0])."<p>";
+$output = "c:\\temp\\test_out-" . date('H-i-s') . ".gif";
+print "Saving file <b>$output</b>, size=" . strlen($rs->fields[0]) . "<p>";
 $fd = fopen($output, "wb");
 fwrite($fd, $rs->fields[0]);
 fclose($fd);

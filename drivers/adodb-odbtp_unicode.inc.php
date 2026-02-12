@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ODBTP Unicode driver.
  *
@@ -29,13 +30,16 @@
  */
 
 // security - hide paths
-if (!defined('ADODB_DIR')) die();
-
-if (!defined('_ADODB_ODBTP_LAYER')) {
-	include_once(ADODB_DIR."/drivers/adodb-odbtp.inc.php");
+if (!defined('ADODB_DIR')) {
+    die();
 }
 
-class ADODB_odbtp_unicode extends ADODB_odbtp {
-	var $databaseType = 'odbtp';
-	var $_useUnicodeSQL = true;
+if (!defined('_ADODB_ODBTP_LAYER')) {
+    include_once(ADODB_DIR . "/drivers/adodb-odbtp.inc.php");
+}
+
+class ADODB_odbtp_unicode extends ADODB_odbtp
+{
+    var $databaseType = 'odbtp';
+    var $_useUnicodeSQL = true;
 }

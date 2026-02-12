@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Romanian language strings.
  *
@@ -21,7 +22,7 @@
  */
 
 $ADODB_LANG_ARRAY = array (
-			'LANG'                      => 'ro',
+            'LANG'                      => 'ro',
             DB_ERROR                    => 'eroare necunoscuta',
             DB_ERROR_ALREADY_EXISTS     => 'deja exista',
             DB_ERROR_CANNOT_CREATE      => 'nu se poate creea',
@@ -44,9 +45,9 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_VALUE_COUNT_ON_ROW => 'valoare prea mare pentru coloana',
             DB_ERROR_INVALID_DSN        => 'DSN invalid',
             DB_ERROR_CONNECT_FAILED     => 'conectare esuata',
-            0	                       => 'fara eroare', // DB_OK
+            0                          => 'fara eroare', // DB_OK
             DB_ERROR_NEED_MORE_DATA     => 'data introduse insuficiente',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'extensie negasita',
+            DB_ERROR_EXTENSION_NOT_FOUND => 'extensie negasita',
             DB_ERROR_NOSUCHDB           => 'nu exista baza de date',
             DB_ERROR_ACCESS_VIOLATION   => 'permisiuni insuficiente'
 );

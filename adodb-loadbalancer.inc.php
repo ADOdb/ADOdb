@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ADOdb Load Balancer
  *
@@ -264,8 +265,9 @@ class ADOdbLoadBalancer
                 // Check to see if a connection test callback was defined, and if so execute it.
                 // This is useful for testing replication lag and such to ensure the connection is suitable to be used.
                 $test_connection_callback = $connection_obj->getConnectionTestCallback();
-                if (is_callable($test_connection_callback)
-                    && $test_connection_callback($connection_obj, $adodb_obj) !== TRUE
+                if (
+                    is_callable($test_connection_callback)
+                    && $test_connection_callback($connection_obj, $adodb_obj) !== true
                 ) {
                     return false;
                 }
@@ -296,7 +298,8 @@ class ADOdbLoadBalancer
      */
     public function getConnection($type = 'write', $pin_connection = null)
     {
-        while (($type == 'write' && $this->total_connections['write'] > 0)
+        while (
+            ($type == 'write' && $this->total_connections['write'] > 0)
             || ($type == 'readonly' && $this->total_connections['all'] > 0)
         ) {
             if ($this->pinned_connection_id !== false) {
@@ -316,7 +319,8 @@ class ADOdbLoadBalancer
                 } catch (Exception $e) {
                     // Connection error, see if there are other connections to try still.
                     $this->removeConnection($connection_id);
-                    if (   ($type == 'write' && $this->total_connections['write'] == 0)
+                    if (
+                        ($type == 'write' && $this->total_connections['write'] == 0)
                         || ($type == 'readonly' && $this->total_connections['all'] == 0)
                     ) {
                         throw $e;
@@ -443,7 +447,8 @@ class ADOdbLoadBalancer
     ) {
         if (is_array($this->connections) && count($this->connections) > 0) {
             foreach ($this->connections as $key => $connection_obj) {
-                if ($existing_connections_only == false
+                if (
+                    $existing_connections_only == false
                     || ($existing_connections_only == true
                         && $connection_obj->getADOdbObject()->_connectionID !== false
                     )
@@ -491,7 +496,8 @@ class ADOdbLoadBalancer
      */
     public function isReadOnlyQuery($sql)
     {
-        if (   stripos($sql, 'SELECT') === 0
+        if (
+            stripos($sql, 'SELECT') === 0
             && stripos($sql, 'FOR UPDATE') === false
             && stripos($sql, ' INTO ') === false
             && stripos($sql, 'LOCK IN') === false
@@ -577,13 +583,13 @@ class ADOdbLoadBalancer
                 $type = 'readonly';
                 break;
                 // case 'ignoreerrors':
-                // 	// When ignoreerrors is called, PIN to the connection until its called again.
-                // 	if (!isset($args[0]) || (isset($args[0]) && $args[0] == FALSE)) {
-                // 		$pin_connection = TRUE;
-                // 	} else {
-                // 		$pin_connection = FALSE;
-                // 	}
-                // 	break;
+                //  // When ignoreerrors is called, PIN to the connection until its called again.
+                //  if (!isset($args[0]) || (isset($args[0]) && $args[0] == FALSE)) {
+                //      $pin_connection = TRUE;
+                //  } else {
+                //      $pin_connection = FALSE;
+                //  }
+                //  break;
 
                 // Manual transactions
             case 'begintrans':
@@ -706,7 +712,7 @@ class ADOdbLoadBalancerConnection
     /**
      * @var callable    Closure
      */
-    protected $connection_test_callback = NULL;
+    protected $connection_test_callback = null;
 
     /**
      * @var string    Type of connection, either 'write' capable or 'readonly'
@@ -790,14 +796,16 @@ class ADOdbLoadBalancerConnection
      * @param callable $callback
      * @return void
      */
-    function setConnectionTestCallback($callback) {
+    function setConnectionTestCallback($callback)
+    {
         $this->connection_test_callback = $callback;
     }
 
     /**
      * @return callable|null
      */
-    function getConnectionTestCallback() {
+    function getConnectionTestCallback()
+    {
         return $this->connection_test_callback;
     }
 

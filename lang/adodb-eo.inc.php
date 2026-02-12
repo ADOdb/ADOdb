@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Esperanto language strings.
  *
@@ -46,7 +47,7 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_CONNECT_FAILED     => 'konekto malsukcesa',
             0                               => 'ĉio bone', // DB_OK
             DB_ERROR_NEED_MORE_DATA     => 'ne sufiĉe da datumo',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'etendo ne trovita',
+            DB_ERROR_EXTENSION_NOT_FOUND => 'etendo ne trovita',
             DB_ERROR_NOSUCHDB           => 'datumbazo ne ekzistas',
             DB_ERROR_ACCESS_VIOLATION   => 'ne sufiĉe da rajto por atingo'
 );

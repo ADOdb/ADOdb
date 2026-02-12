@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ADOdb PostgreSQL 7 driver
  *
@@ -20,18 +21,21 @@
  */
 
 // security - hide paths
-if (!defined('ADODB_DIR')) die();
+if (!defined('ADODB_DIR')) {
+    die();
+}
 
-include_once(ADODB_DIR."/drivers/adodb-postgres64.inc.php");
+include_once(ADODB_DIR . "/drivers/adodb-postgres64.inc.php");
 
-class ADODB_postgres7 extends ADODB_postgres64 {
-	var $databaseType = 'postgres7';
-	var $hasLimit = true;	// set to true for pgsql 6.5+ only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
-	var $ansiOuter = true;
-	var $charSet = true; //set to true for Postgres 7 and above - PG client supports encodings
+class ADODB_postgres7 extends ADODB_postgres64
+{
+    var $databaseType = 'postgres7';
+    var $hasLimit = true;   // set to true for pgsql 6.5+ only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
+    var $ansiOuter = true;
+    var $charSet = true; //set to true for Postgres 7 and above - PG client supports encodings
 
-	// Richard 3/18/2012 - Modified SQL to return SERIAL type correctly AS old driver no longer return SERIAL as data type.
-	var $metaColumnsSQL = "
+    // Richard 3/18/2012 - Modified SQL to return SERIAL type correctly AS old driver no longer return SERIAL as data type.
+    var $metaColumnsSQL = "
 		SELECT
 			a.attname,
 			CASE
@@ -64,8 +68,8 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		ORDER BY
 			a.attnum";
 
-	// used when schema defined
-	var $metaColumnsSQL1 = "
+    // used when schema defined
+    var $metaColumnsSQL1 = "
 		SELECT
 			a.attname,
 			CASE
@@ -101,64 +105,64 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		ORDER BY a.attnum";
 
 
-	function __construct()
-	{
-		parent::__construct();
-		if (ADODB_ASSOC_CASE !== ADODB_ASSOC_CASE_NATIVE) {
-			$this->rsPrefix .= 'assoc_';
-		}
-		$this->_bindInputArray = true;
-	}
+    function __construct()
+    {
+        parent::__construct();
+        if (ADODB_ASSOC_CASE !== ADODB_ASSOC_CASE_NATIVE) {
+            $this->rsPrefix .= 'assoc_';
+        }
+        $this->_bindInputArray = true;
+    }
 
 
-	// the following should be compat with postgresql 7.2,
-	// which makes obsolete the LIMIT limit,offset syntax
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
-	{
-		$nrows = (int) $nrows;
-		$offset = (int) $offset;
-		$offsetStr = ($offset >= 0) ? " OFFSET ".((int)$offset) : '';
-		$limitStr  = ($nrows >= 0)  ? " LIMIT ".((int)$nrows) : '';
-		if ($secs2cache)
-			$rs = $this->CacheExecute($secs2cache,$sql."$limitStr$offsetStr",$inputarr);
-		else
-			$rs = $this->Execute($sql."$limitStr$offsetStr",$inputarr);
+    // the following should be compat with postgresql 7.2,
+    // which makes obsolete the LIMIT limit,offset syntax
+    function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
+    {
+        $nrows = (int) $nrows;
+        $offset = (int) $offset;
+        $offsetStr = ($offset >= 0) ? " OFFSET " . ((int)$offset) : '';
+        $limitStr  = ($nrows >= 0)  ? " LIMIT " . ((int)$nrows) : '';
+        if ($secs2cache) {
+            $rs = $this->CacheExecute($secs2cache, $sql . "$limitStr$offsetStr", $inputarr);
+        } else {
+            $rs = $this->Execute($sql . "$limitStr$offsetStr", $inputarr);
+        }
 
-		return $rs;
-	}
+        return $rs;
+    }
 
-	/*
-	function Prepare($sql)
-	{
-		$info = $this->ServerInfo();
-		if ($info['version']>=7.3) {
-			return array($sql,false);
-		}
-		return $sql;
-	}
-	*/
+    /*
+    function Prepare($sql)
+    {
+        $info = $this->ServerInfo();
+        if ($info['version']>=7.3) {
+            return array($sql,false);
+        }
+        return $sql;
+    }
+    */
 
-	/**
-	 * Generate the SQL to retrieve MetaColumns data
-	 * @param string $table Table name
-	 * @param string $schema Schema name (can be blank)
-	 * @return string SQL statement to execute
-	 */
-	protected function _generateMetaColumnsSQL($table, $schema)
-	{
-		if ($schema) {
-			return sprintf($this->metaColumnsSQL1, $table, $table, $table, $schema);
-		}
-		else {
-			return sprintf($this->metaColumnsSQL, $table, $table, $schema);
-		}
-	}
+    /**
+     * Generate the SQL to retrieve MetaColumns data
+     * @param string $table Table name
+     * @param string $schema Schema name (can be blank)
+     * @return string SQL statement to execute
+     */
+    protected function _generateMetaColumnsSQL($table, $schema)
+    {
+        if ($schema) {
+            return sprintf($this->metaColumnsSQL1, $table, $table, $table, $schema);
+        } else {
+            return sprintf($this->metaColumnsSQL, $table, $table, $schema);
+        }
+    }
 
-	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
-	{
-		# Regex isolates the 2 terms between parenthesis using subexpressions
-		$regex = '^.*\((.*)\).*\((.*)\).*$';
-		$sql="
+    public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
+    {
+        # Regex isolates the 2 terms between parenthesis using subexpressions
+        $regex = '^.*\((.*)\).*\((.*)\).*$';
+        $sql = "
 			SELECT
 				lookup_table,
 				regexp_replace(consrc, '$regex', '\\2') AS lookup_field,
@@ -179,174 +183,177 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 				ORDER BY t.relname, n.nspname, c.conname, c.oid
 				) constraints
 			WHERE
-				dep_table='".strtolower($table)."'
+				dep_table='" . strtolower($table) . "'
 			ORDER BY
 				lookup_table,
 				dep_table,
 				dep_field";
-		$rs = $this->Execute($sql);
+        $rs = $this->Execute($sql);
 
-		if (!$rs || $rs->EOF) return false;
+        if (!$rs || $rs->EOF) {
+            return false;
+        }
 
-		$a = array();
-		while (!$rs->EOF) {
-			$lookup_table = $rs->fields('lookup_table');
-			$fields = $rs->fields('dep_field') . '=' . $rs->fields('lookup_field');
-			if ($upper) {
-				$lookup_table = strtoupper($lookup_table);
-				$fields = strtoupper($fields);
-			}
-			$a[$lookup_table][] = str_replace('"','', $fields);
+        $a = array();
+        while (!$rs->EOF) {
+            $lookup_table = $rs->fields('lookup_table');
+            $fields = $rs->fields('dep_field') . '=' . $rs->fields('lookup_field');
+            if ($upper) {
+                $lookup_table = strtoupper($lookup_table);
+                $fields = strtoupper($fields);
+            }
+            $a[$lookup_table][] = str_replace('"', '', $fields);
 
-			$rs->MoveNext();
-		}
+            $rs->MoveNext();
+        }
 
-		return $a;
-	}
+        return $a;
+    }
 
-	function _query($sql,$inputarr=false)
-	{
-		if (! $this->_bindInputArray) {
-			// We don't have native support for parameterized queries, so let's emulate it at the parent
-			return ADODB_postgres64::_query($sql, $inputarr);
-		}
+    function _query($sql, $inputarr = false)
+    {
+        if (! $this->_bindInputArray) {
+            // We don't have native support for parameterized queries, so let's emulate it at the parent
+            return ADODB_postgres64::_query($sql, $inputarr);
+        }
 
-		$this->_pnum = 0;
-		$this->_errorMsg = false;
-		// -- added Cristiano da Cunha Duarte
-		if ($inputarr) {
-			$sqlarr = explode('?',trim($sql));
-			$sql = '';
-			$i = 1;
-			$last = sizeof($sqlarr)-1;
-			foreach($sqlarr as $v) {
-				if ($last < $i) $sql .= $v;
-				else $sql .= $v.' $'.$i;
-				$i++;
-			}
+        $this->_pnum = 0;
+        $this->_errorMsg = false;
+        // -- added Cristiano da Cunha Duarte
+        if ($inputarr) {
+            $sqlarr = explode('?', trim($sql));
+            $sql = '';
+            $i = 1;
+            $last = sizeof($sqlarr) - 1;
+            foreach ($sqlarr as $v) {
+                if ($last < $i) {
+                    $sql .= $v;
+                } else {
+                    $sql .= $v . ' $' . $i;
+                }
+                $i++;
+            }
 
-			$rez = pg_query_params($this->_connectionID,$sql, $inputarr);
-		} else {
-			$rez = pg_query($this->_connectionID,$sql);
-		}
-		// check if no data returned, then no need to create real recordset
-		if ($rez && pg_num_fields($rez) <= 0) {
-			if ($this->_resultid !== false) {
-				pg_free_result($this->_resultid);
-			}
-			$this->_resultid = $rez;
-			return true;
-		}
-		return $rez;
-	}
+            $rez = pg_query_params($this->_connectionID, $sql, $inputarr);
+        } else {
+            $rez = pg_query($this->_connectionID, $sql);
+        }
+        // check if no data returned, then no need to create real recordset
+        if ($rez && pg_num_fields($rez) <= 0) {
+            if ($this->_resultid !== false) {
+                pg_free_result($this->_resultid);
+            }
+            $this->_resultid = $rez;
+            return true;
+        }
+        return $rez;
+    }
 
-	/**
-	 * Retrieve the client connection's current character set.
+    /**
+     * Retrieve the client connection's current character set.
 
-	 * If no charsets were compiled into the server, the function will always
-	 * return 'SQL_ASCII'.
-	 * @see https://www.php.net/manual/en/function.pg-client-encoding.php
-	 *
-	 * @return string|false The character set, or false if it can't be determined.
-	 */
-	function getCharSet()
-	{
-		if (!$this->_connectionID) {
-			return false;
-		}
-		$this->charSet = pg_client_encoding($this->_connectionID);
-		return $this->charSet ?: false;
-	}
+     * If no charsets were compiled into the server, the function will always
+     * return 'SQL_ASCII'.
+     * @see https://www.php.net/manual/en/function.pg-client-encoding.php
+     *
+     * @return string|false The character set, or false if it can't be determined.
+     */
+    function getCharSet()
+    {
+        if (!$this->_connectionID) {
+            return false;
+        }
+        $this->charSet = pg_client_encoding($this->_connectionID);
+        return $this->charSet ?: false;
+    }
 
-	/**
-	 * Sets the client-side character set (encoding).
-	 *
-	 * Allows managing client encoding - very important if the database and
-	 * the output target (i.e. HTML) don't match; for instance, you may have a
-	 * UNICODE database and server your pages as WIN1251, etc.
-	 *
-	 * Supported on PostgreSQL 7.0 and above. Available charsets depend on
-	 * PostgreSQL version and the distribution's compile flags.
-	 *
-	 * @param string $charset The character set to switch to.
-	 *
-	 * @return bool True if the character set was changed successfully, false otherwise.
-	 */
-	function setCharSet($charset)
-	{
-		if ($this->charSet !== $charset) {
-			if (!$this->_connectionID || pg_set_client_encoding($this->_connectionID, $charset) != 0) {
-				return false;
-			}
-			$this->getCharSet();
-		}
-		return true;
-	}
-
+    /**
+     * Sets the client-side character set (encoding).
+     *
+     * Allows managing client encoding - very important if the database and
+     * the output target (i.e. HTML) don't match; for instance, you may have a
+     * UNICODE database and server your pages as WIN1251, etc.
+     *
+     * Supported on PostgreSQL 7.0 and above. Available charsets depend on
+     * PostgreSQL version and the distribution's compile flags.
+     *
+     * @param string $charset The character set to switch to.
+     *
+     * @return bool True if the character set was changed successfully, false otherwise.
+     */
+    function setCharSet($charset)
+    {
+        if ($this->charSet !== $charset) {
+            if (!$this->_connectionID || pg_set_client_encoding($this->_connectionID, $charset) != 0) {
+                return false;
+            }
+            $this->getCharSet();
+        }
+        return true;
+    }
 }
 
 /*--------------------------------------------------------------------------------------
-	Class Name: Recordset
+    Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
+class ADORecordSet_postgres7 extends ADORecordSet_postgres64
+{
+    var $databaseType = "postgres7";
 
-	var $databaseType = "postgres7";
-
-	// 10% speedup to move MoveNext to child class
-	function MoveNext()
-	{
-		if (!$this->EOF) {
-			$this->_currentRow++;
-			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
-				$this->_prepfields();
-				if ($this->fields !== false) {
-					return true;
-				}
-			}
-			$this->fields = false;
-			$this->EOF = true;
-		}
-		return false;
-	}
-
+    // 10% speedup to move MoveNext to child class
+    function MoveNext()
+    {
+        if (!$this->EOF) {
+            $this->_currentRow++;
+            if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
+                $this->_prepfields();
+                if ($this->fields !== false) {
+                    return true;
+                }
+            }
+            $this->fields = false;
+            $this->EOF = true;
+        }
+        return false;
+    }
 }
 
-class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
+class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64
+{
+    var $databaseType = "postgres7";
 
-	var $databaseType = "postgres7";
 
+    function _fetch()
+    {
+        if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0) {
+            return false;
+        }
 
-	function _fetch()
-	{
-		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0) {
-			return false;
-		}
+        $this->_prepfields();
+        if ($this->fields !== false) {
+            $this->_updatefields();
+            return true;
+        }
 
-		$this->_prepfields();
-		if ($this->fields !== false) {
-			$this->_updatefields();
-			return true;
-		}
+        return false;
+    }
 
-		return false;
-	}
+    function MoveNext()
+    {
+        if (!$this->EOF) {
+            $this->_currentRow++;
+            if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
+                $this->_prepfields();
+                if ($this->fields !== false) {
+                    $this->_updatefields();
+                    return true;
+                }
+            }
 
-	function MoveNext()
-	{
-		if (!$this->EOF) {
-			$this->_currentRow++;
-			if ($this->_numOfRows < 0 || $this->_numOfRows > $this->_currentRow) {
-				$this->_prepfields();
-				if ($this->fields !== false) {
-					$this->_updatefields();
-					return true;
-				}
-			}
-
-			$this->fields = false;
-			$this->EOF = true;
-		}
-		return false;
-	}
+            $this->fields = false;
+            $this->EOF = true;
+        }
+        return false;
+    }
 }

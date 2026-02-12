@@ -1,4 +1,5 @@
 <?php
+
 /**
  * IBM DB2 Native Client driver.
  *
@@ -32,12 +33,15 @@
  */
 
 // security - hide paths
-if (!defined('ADODB_DIR')) die();
+if (!defined('ADODB_DIR')) {
+    die();
+}
 
-define("_ADODB_DB2_LAYER", 2 );
+define("_ADODB_DB2_LAYER", 2);
 
 
-class ADODB_db2 extends ADOConnection {
+class ADODB_db2 extends ADOConnection
+{
     var $databaseType = "db2";
     var $fmtDate = "'Y-m-d'";
     var $concat_operator = '||';
@@ -110,7 +114,9 @@ class ADODB_db2 extends ADOConnection {
      */
     public bool $useLegacyRowOffsets = false;
 
-    function __construct() {}
+    function __construct()
+    {
+    }
 
     protected function _insertID($table = '', $column = '')
     {
@@ -124,10 +130,10 @@ class ADODB_db2 extends ADOConnection {
 
     public function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
     {
-        return $this->doDB2Connect($argDSN, $argUsername, $argPassword, $argDatabasename,true);
+        return $this->doDB2Connect($argDSN, $argUsername, $argPassword, $argDatabasename, true);
     }
 
-    private function doDB2Connect($argDSN, $argUsername, $argPassword, $argDatabasename, $persistent=false)
+    private function doDB2Connect($argDSN, $argUsername, $argPassword, $argDatabasename, $persistent = false)
     {
 
         if (!function_exists('db2_connect')) {
@@ -142,34 +148,28 @@ class ADODB_db2 extends ADOConnection {
             $argDatabasename
         );
 
-        if ($connectionParameters == null)
-        {
+        if ($connectionParameters == null) {
             /*
              * Error thrown
              */
             return null;
         }
 
-        $argDSN 		         = $connectionParameters['dsn'];
-        $argUsername 	         = $connectionParameters['uid'];
-        $argPassword 	         = $connectionParameters['pwd'];
+        $argDSN                  = $connectionParameters['dsn'];
+        $argUsername             = $connectionParameters['uid'];
+        $argPassword             = $connectionParameters['pwd'];
         $argDatabasename         = $connectionParameters['database'];
         $useCataloguedConnection = $connectionParameters['catalogue'];
 
-        if ($this->debug){
-            if (strcmp($argDSN,'*LOCAL') == 0)
-            {
+        if ($this->debug) {
+            if (strcmp($argDSN, '*LOCAL') == 0) {
                 $connectMessage = '*LOCAL connection';
-            }
-            else if ($useCataloguedConnection)
-            {
+            } elseif ($useCataloguedConnection) {
                 $connectMessage = "Catalogued connection using parameters: ";
                 $connectMessage .= "DB=$argDatabasename / ";
                 $connectMessage .= "UID=$argUsername / ";
                 $connectMessage .= "PWD=$argPassword";
-            }
-            else
-            {
+            } else {
                 $connectMessage = "Uncatalogued connection using DSN: $argDSN";
             }
             ADOConnection::outp($connectMessage);
@@ -180,57 +180,62 @@ class ADODB_db2 extends ADOConnection {
          */
         ini_set('ibm_db2.binmode', $this->binmode);
 
-        if ($persistent)
+        if ($persistent) {
             $db2Function = 'db2_pconnect';
-        else
+        } else {
             $db2Function = 'db2_connect';
+        }
 
         /*
         * We need to flatten out the connectionParameters
         */
 
         $db2Options = array();
-        if ($this->connectionParameters)
-        {
-            foreach($this->connectionParameters as $p)
-                foreach($p as $k=>$v)
+        if ($this->connectionParameters) {
+            foreach ($this->connectionParameters as $p) {
+                foreach ($p as $k => $v) {
                     $db2Options[$k] = $v;
+                }
+            }
         }
 
-        if ($useCataloguedConnection)
-        {
-            $this->_connectionID = $db2Function($argDatabasename,
-                                                $argUsername,
-                                                $argPassword,
-                                                $db2Options);
+        if ($useCataloguedConnection) {
+            $this->_connectionID = $db2Function(
+                $argDatabasename,
+                $argUsername,
+                $argPassword,
+                $db2Options
+            );
+        } else {
+            $this->_connectionID = $db2Function(
+                $argDSN,
+                '',
+                '',
+                $db2Options
+            );
         }
-        else
-
-            $this->_connectionID = $db2Function($argDSN,
-                                                '',
-                                                '',
-                                                $db2Options);
 
 
         $this->_errorMsg = @db2_conn_errormsg();
 
-        if ($this->_connectionID && $this->connectStmt)
+        if ($this->_connectionID && $this->connectStmt) {
             $this->execute($this->connectStmt);
+        }
 
-        if ($this->_connectionID && $argDatabasename)
+        if ($this->_connectionID && $argDatabasename) {
             $this->execute("SET SCHEMA=$argDatabasename");
+        }
 
         return $this->_connectionID != false;
-
     }
 
     /**
      * Validates and preprocesses the passed parameters for consistency
      *
-     * @param	string	$argDSN				Either DSN or database
-     * @param	string	$argUsername		User name or null
-     * @param	string	$argPassword		Password or null
-     * @param	string	$argDatabasename	Either DSN or database
+     * @param   string  $argDSN             Either DSN or database
+     * @param   string  $argUsername        User name or null
+     * @param   string  $argPassword        Password or null
+     * @param   string  $argDatabasename    Either DSN or database
      *
      * @return mixed  array if correct, null if not
      */
@@ -239,18 +244,17 @@ class ADODB_db2 extends ADOConnection {
 
 
         $connectionParameters = array(
-            'dsn'=>'',
-            'uid'=>'',
-            'pwd'=>'',
-            'database'=>'',
-            'catalogue'=>true
+            'dsn' => '',
+            'uid' => '',
+            'pwd' => '',
+            'database' => '',
+            'catalogue' => true
         );
 
         /*
         * Shortcut for *LOCAL
         */
-        if (strcmp($argDSN,'*LOCAL') == 0)
-        {
+        if (strcmp($argDSN, '*LOCAL') == 0) {
             $connectionParameters['dsn']      = $argDSN;
             $connectionParameters['database'] = $argDatabasename;
             $connectionParameters['catalogue'] = false;
@@ -265,50 +269,45 @@ class ADODB_db2 extends ADOConnection {
          * DATABASE=database;HOSTNAME=hostname;PORT=port;PROTOCOL=TCPIP;UID=username;PWD=password;
          */
 
-        if (!$argDSN && !$argDatabasename)
-        {
+        if (!$argDSN && !$argDatabasename) {
             $errorMessage = 'Supply either catalogued or uncatalogued connection parameters';
             $this->_errorMsg = $errorMessage;
-            if ($this->debug)
+            if ($this->debug) {
                 ADOConnection::outp($errorMessage);
+            }
             return null;
         }
 
         $useCataloguedConnection = true;
-        $schemaName 			 = '';
+        $schemaName              = '';
 
-        if ($argDSN && $argDatabasename)
-        {
+        if ($argDSN && $argDatabasename) {
             /*
              * If a catalogued connection if provided,
              * as well as user and password
              * that will take priority
              */
-            if ($argUsername && $argPassword && !$this->isDsn($argDatabasename))
-            {
-                if ($this->debug){
+            if ($argUsername && $argPassword && !$this->isDsn($argDatabasename)) {
+                if ($this->debug) {
                     $errorMessage = 'Warning: Because you provided user,';
-                    $errorMessage.= 'password and database, DSN connection ';
-                    $errorMessage.= 'parameters were discarded';
+                    $errorMessage .= 'password and database, DSN connection ';
+                    $errorMessage .= 'parameters were discarded';
                     ADOConnection::outp($errorMessage);
-
                 }
                 $argDSN = '';
-            }
-            else if ($this->isDsn($argDSN) && $this->isDsn($argDatabasename))
-            {
+            } elseif ($this->isDsn($argDSN) && $this->isDsn($argDatabasename)) {
                 $errorMessage = 'Supply uncatalogued connection parameters ';
-                $errorMessage.= 'in either the database or DSN arguments, ';
-                $errorMessage.= 'but not both';
+                $errorMessage .= 'in either the database or DSN arguments, ';
+                $errorMessage .= 'but not both';
 
-                if ($this->debug)
+                if ($this->debug) {
                     ADOConnection::outp($errorMessage);
+                }
                 return null;
             }
         }
 
-        if (!$this->isDsn($argDSN) && $this->isDsn($argDatabasename))
-        {
+        if (!$this->isDsn($argDSN) && $this->isDsn($argDatabasename)) {
             /*
              * Switch them around for next test
              */
@@ -317,106 +316,99 @@ class ADODB_db2 extends ADOConnection {
             $argDatabasenME = $temp;
         }
 
-        if ($this->isDsn($argDSN))
-        {
-
-            if (!preg_match('/uid=/i',$argDSN)
-            ||  !preg_match('/pwd=/i',$argDSN))
-            {
+        if ($this->isDsn($argDSN)) {
+            if (
+                !preg_match('/uid=/i', $argDSN)
+                ||  !preg_match('/pwd=/i', $argDSN)
+            ) {
                 $errorMessage = 'For uncatalogued connections, provide ';
-                $errorMessage.= 'both UID and PWD in the connection string';
+                $errorMessage .= 'both UID and PWD in the connection string';
 
-                if ($this->debug)
+                if ($this->debug) {
                     ADOConnection::outp($errorMessage);
+                }
                 return null;
             }
 
-            if (preg_match('/database=/i',$argDSN))
-            {
-                if ($argDatabasename)
-                {
+            if (preg_match('/database=/i', $argDSN)) {
+                if ($argDatabasename) {
                     $argDatabasename = '';
-                    if ($this->debug)
-                    {
+                    if ($this->debug) {
                         $errorMessage = 'Warning: Because you provided ';
-                        $errorMessage.= 'database information in the DSN ';
-                        $errorMessage.= 'parameters, the supplied database ';
-                        $errorMessage.= 'name was discarded';
+                        $errorMessage .= 'database information in the DSN ';
+                        $errorMessage .= 'parameters, the supplied database ';
+                        $errorMessage .= 'name was discarded';
                         ADOConnection::outp($errorMessage);
                     }
                 }
                 $useCataloguedConnection = false;
-
-            }
-            elseif ($argDatabasename)
-            {
+            } elseif ($argDatabasename) {
                 $this->database = $argDatabasename;
                 $argDSN .= ';database=' . $argDatabasename;
                 $argDatabasename = '';
                 $useCataloguedConnection = false;
-
-            }
-            else
-            {
+            } else {
                 $errorMessage = 'Uncatalogued connection parameters ';
-                $errorMessage.= 'must contain a database= argument';
+                $errorMessage .= 'must contain a database= argument';
 
-                if ($this->debug)
+                if ($this->debug) {
                     ADOConnection::outp($errorMessage);
+                }
                 return null;
             }
         }
 
-        if ($argDSN && !$argDatabasename && $useCataloguedConnection)
-        {
+        if ($argDSN && !$argDatabasename && $useCataloguedConnection) {
             $argDatabasename = $argDSN;
             $argDSN          = '';
         }
 
 
-        if ($useCataloguedConnection
-        && (!$argDatabasename
-        || !$argUsername
-        || !$argPassword))
-        {
-
+        if (
+            $useCataloguedConnection
+            && (!$argDatabasename
+            || !$argUsername
+            || !$argPassword)
+        ) {
             $errorMessage = 'For catalogued connections, provide ';
-            $errorMessage.= 'database, username and password';
+            $errorMessage .= 'database, username and password';
             $this->_errorMsg = $errorMessage;
-            if ($this->debug)
+            if ($this->debug) {
                 ADOConnection::outp($errorMessage);
+            }
             return null;
-
         }
 
-        if ($argDatabasename)
+        if ($argDatabasename) {
             $this->database = $argDatabasename;
-        elseif (!$this->database)
+        } elseif (!$this->database) {
             $this->database = $this->getDatabasenameFromDsn($argDSN);
+        }
 
 
-        $connectionParameters = array('dsn'=>$argDSN,
-                                      'uid'=>$argUsername,
-                                      'pwd'=>$argPassword,
-                                      'database'=>$argDatabasename,
-                                      'catalogue'=>$useCataloguedConnection
+        $connectionParameters = array('dsn' => $argDSN,
+                                      'uid' => $argUsername,
+                                      'pwd' => $argPassword,
+                                      'database' => $argDatabasename,
+                                      'catalogue' => $useCataloguedConnection
                                       );
 
         return $connectionParameters;
-
     }
 
     /**
       * Does the provided string look like a DSN
       *
-      * @param	string	$dsnString
+      * @param  string  $dsnString
       *
       * @return bool
       */
-    private function isDsn($dsnString){
-        $dsnArray = preg_split('/[;=]+/',$dsnString);
-        if (count($dsnArray) > 2)
+    private function isDsn($dsnString)
+    {
+        $dsnArray = preg_split('/[;=]+/', $dsnString);
+        if (count($dsnArray) > 2) {
             return true;
+        }
         return false;
     }
 
@@ -424,14 +416,15 @@ class ADODB_db2 extends ADOConnection {
     /**
       * Gets the database name from the DSN
       *
-      * @param	string	$dsnString
+      * @param  string  $dsnString
       *
       * @return string
       */
-    private function getDatabasenameFromDsn($dsnString){
+    private function getDatabasenameFromDsn($dsnString)
+    {
 
-        $dsnArray = preg_split('/[;=]+/',$dsnString);
-        $dbIndex  = array_search('database',$dsnArray);
+        $dsnArray = preg_split('/[;=]+/', $dsnString);
+        $dbIndex  = array_search('database', $dsnArray);
 
         return $dsnArray[$dbIndex + 1];
     }
@@ -440,28 +433,32 @@ class ADODB_db2 extends ADOConnection {
     /**
     * format and return date string in database timestamp format
     *
-    * @param	mixed	$ts		either a string or a unixtime
-    * @param	bool	$isField	discarded
+    * @param    mixed   $ts     either a string or a unixtime
+    * @param    bool    $isField    discarded
     *
     * @return string
     */
-    function dbTimeStamp($ts,$isField=false)
+    function dbTimeStamp($ts, $isField = false)
     {
-        if (empty($ts) && $ts !== 0) return 'null';
-        if (is_string($ts)) $ts = ADORecordSet::unixTimeStamp($ts);
-        return 'TO_DATE('.date($this->fmtTimeStamp,$ts).",'YYYY-MM-DD HH24:MI:SS')";
+        if (empty($ts) && $ts !== 0) {
+            return 'null';
+        }
+        if (is_string($ts)) {
+            $ts = ADORecordSet::unixTimeStamp($ts);
+        }
+        return 'TO_DATE(' . date($this->fmtTimeStamp, $ts) . ",'YYYY-MM-DD HH24:MI:SS')";
     }
 
     /**
     * Format date column in sql string given an input format that understands Y M D
     *
-    * @param	string	$fmt The format string e.g. 'm/d/Y'
-    * @param	string	$col optionally either a column name,an ISO date string or a
+    * @param    string  $fmt The format string e.g. 'm/d/Y'
+    * @param    string  $col optionally either a column name,an ISO date string or a
     *                        ate geerating DB2 function like CURRENT DATE
     *
     * @return string
     */
-    public function sqlDate($fmt, $col=false)
+    public function sqlDate($fmt, $col = false)
     {
         $usesSysDate = false;
         $trailer = '';
@@ -479,124 +476,117 @@ class ADODB_db2 extends ADOConnection {
             * Anything not from a column needs this
             */
             $trailer = 'FROM SYSIBM.SYSDUMMY1';
-
-        } else if (preg_match('/(\d{4})-(\d{2})-(\d{2})/',$col)) {
+        } elseif (preg_match('/(\d{4})-(\d{2})-(\d{2})/', $col)) {
             /*
              * If the column is an ISO date string, we use it as is
              */
             $trailer = 'FROM SYSIBM.SYSDUMMY1';
-            if (substr($col,0,1) != "'") {
+            if (substr($col, 0, 1) != "'") {
                 $col = $this->qstr($col);
             }
         }
 
         /* use TO_CHAR() if $fmt is TO_CHAR() allowed fmt */
-        if ($fmt== 'Y-m-d H:i:s')
-            return 'TO_CHAR('.$col.", 'YYYY-MM-DD HH24:MI:SS')";
+        if ($fmt == 'Y-m-d H:i:s') {
+            return 'TO_CHAR(' . $col . ", 'YYYY-MM-DD HH24:MI:SS')";
+        }
 
         $s = '';
 
         $len = strlen($fmt);
-        for ($i=0; $i < $len; $i++) {
+        for ($i = 0; $i < $len; $i++) {
             if ($s) {
                 $s .= $this->concat_operator;
             }
 
             $ch = $fmt[$i];
 
-            switch($ch) {
-            case 'Y':
-            case 'y':
+            switch ($ch) {
+                case 'Y':
+                case 'y':
+                    if ($len == 1) {
+                        return "YEAR($col$dCol) $trailer";
+                    }
 
-                if ($len==1) {
-                    return "YEAR($col$dCol) $trailer";
-                }
+                    /*
+                    * the CHAR creates a CHAR(20) so trim it
+                    */
+                    $s .= "RTRIM(CHAR(YEAR($col$dCol)))";
 
-                /*
-                * the CHAR creates a CHAR(20) so trim it
-                */
-                $s .= "RTRIM(CHAR(YEAR($col$dCol)))";
+                    break;
 
-                break;
+                case 'M':
+                    /*
+                    * Returns "January" we want "Jan"
+                    */
+                    $cmd = "SUBSTR(MONTHNAME($col$dCol),1,3)";
 
-            case 'M':
+                    if ($len == 1) {
+                         return "$cmd $trailer";
+                    }
+                    $s .= $cmd;
 
-                /*
-                * Returns "January" we want "Jan"
-                */
-                $cmd = "SUBSTR(MONTHNAME($col$dCol),1,3)";
+                    break;
 
-                if ($len==1) {
-                     return "$cmd $trailer";
-                }
-                $s .= $cmd;
+                case 'm':
+                    $cmd = "RIGHT(DIGITS(MONTH($col$dCol)),2)";
+                    if ($len == 1) {
+                        return "$cmd $trailer";
+                    }
 
-                break;
+                    $s .= $cmd;
+                    break;
 
-            case 'm':
+                case 'D':
+                case 'd':
+                    $cmd = "RIGHT(DIGITS(DAY($col$dCol)),2)";
 
-                $cmd = "RIGHT(DIGITS(MONTH($col$dCol)),2)";
-                if ($len==1) {
-                    return "$cmd $trailer";
-                }
+                    if ($len == 1) {
+                        return "$cmd $trailer";
+                    }
 
-                $s .= $cmd;
-                break;
+                    $s .= $cmd;
+                    break;
 
-            case 'D':
-            case 'd':
+                case 'H':
+                case 'h':
+                    $cmd = "RIGHT(DIGITS(HOUR($col$tCol)),2)";
+                    if ($len == 1) {
+                        return "$cmd $trailer";
+                    }
 
-                $cmd = "RIGHT(DIGITS(DAY($col$dCol)),2)";
+                    $s .= $cmd;
 
-                if ($len==1) {
-                    return "$cmd $trailer";
-                }
+                    break;
 
-                $s .= $cmd;
-                break;
+                case 'i':
+                case 'I':
+                    $cmd = "RIGHT(DIGITS(MINUTE($col$tCol)),2)";
+                    if ($len == 1) {
+                        return "$cmd $trailer";
+                    }
 
-            case 'H':
-            case 'h':
+                    $s .= $cmd;
 
-                $cmd = "RIGHT(DIGITS(HOUR($col$tCol)),2)";
-                if ($len==1) {
-                    return "$cmd $trailer";
-                }
+                    break;
 
-                $s .= $cmd;
+                case 'S':
+                case 's':
+                    $cmd = "RIGHT(DIGITS(SECOND($col$tCol)),2)";
+                    if ($len == 1) {
+                        return "$cmd $trailer";
+                    }
 
-                break;
+                    $s .= $cmd;
+                    break;
 
-            case 'i':
-            case 'I':
+                default:
+                    if ($ch == '\\') {
+                        $i++;
+                        $ch = substr($fmt, $i, 1);
+                    }
 
-                $cmd = "RIGHT(DIGITS(MINUTE($col$tCol)),2)";
-                if ($len==1) {
-                    return "$cmd $trailer";
-                }
-
-                $s .= $cmd;
-
-                break;
-
-            case 'S':
-            case 's':
-                $cmd = "RIGHT(DIGITS(SECOND($col$tCol)),2)";
-                if ($len==1) {
-                    return "$cmd $trailer";
-                }
-
-                $s .= $cmd;
-                break;
-
-            default:
-
-                if ($ch == '\\') {
-                    $i++;
-                    $ch = substr($fmt, $i, 1);
-                }
-
-                $s .= $this->qstr($ch);
+                    $s .= $this->qstr($ch);
             }
         }
 
@@ -625,7 +615,7 @@ class ADODB_db2 extends ADOConnection {
         $this->setFetchMode($savem);
 
         if ($row) {
-            $info['version'] = $row[0].':'.$row[1];
+            $info['version'] = $row[0] . ':' . $row[1];
             $info['fixpack'] = $row[1];
             $info['description'] = '';
         } else {
@@ -646,7 +636,7 @@ class ADODB_db2 extends ADOConnection {
      *
      * @return ADORecordSet The recordset ($rs->databaseType == 'array')
      */
-    function selectLimit($sql, $nrows=-1, $offset=-1, $inputArr=false, $secs2cache=0)
+    function selectLimit($sql, $nrows = -1, $offset = -1, $inputArr = false, $secs2cache = 0)
     {
         $nrows = (int) $nrows;
 
@@ -655,15 +645,13 @@ class ADODB_db2 extends ADOConnection {
             * Disables support for OFFSET
             */
             if ($offset <= 0) {
-                if ($nrows >= 0)
+                if ($nrows >= 0) {
                     $sql .=  " FETCH FIRST $nrows ROWS ONLY ";
+                }
 
                 $rs = $this->execute($sql, $inputArr);
-
             } else {
-
                 if ($offset > 0 && $nrows < 0) {
-
                 } else {
                     $nrows += $offset;
                     $sql .=  " FETCH FIRST $nrows ROWS ONLY ";
@@ -673,10 +661,8 @@ class ADODB_db2 extends ADOConnection {
                 * Disabled DB2 support for mid table offset
                 */
                 $rs = ADOConnection::selectLimit($sql, $nrows, $offset, $inputArr);
-
             }
         } else {
-
             $rowString    = '';
             $offsetString = '';
 
@@ -702,11 +688,13 @@ class ADODB_db2 extends ADOConnection {
 
     function errorMsg()
     {
-        if ($this->_errorMsg !== false)
+        if ($this->_errorMsg !== false) {
             return $this->_errorMsg;
+        }
 
-        if (empty($this->_connectionID))
+        if (empty($this->_connectionID)) {
             return @db2_conn_errormsg();
+        }
 
         return @db2_conn_errormsg($this->_connectionID);
     }
@@ -714,15 +702,16 @@ class ADODB_db2 extends ADOConnection {
     function errorNo()
     {
 
-        if ($this->_errorCode !== false)
+        if ($this->_errorCode !== false) {
             return $this->_errorCode;
+        }
 
 
-        if (empty($this->_connectionID))
+        if (empty($this->_connectionID)) {
             $e = @db2_conn_error();
-
-        else
+        } else {
             $e = @db2_conn_error($this->_connectionID);
+        }
 
         return $e;
     }
@@ -731,42 +720,51 @@ class ADODB_db2 extends ADOConnection {
 
     function beginTrans()
     {
-        if (!$this->hasTransactions)
+        if (!$this->hasTransactions) {
             return false;
-        if ($this->transOff)
+        }
+        if ($this->transOff) {
             return true;
+        }
 
         $this->transCnt += 1;
 
         $this->_autocommit = false;
 
-        return db2_autocommit($this->_connectionID,false);
+        return db2_autocommit($this->_connectionID, false);
     }
 
-    function CommitTrans($ok=true)
+    function CommitTrans($ok = true)
     {
-        if ($this->transOff)
+        if ($this->transOff) {
             return true;
+        }
 
-        if (!$ok)
+        if (!$ok) {
             return $this->RollbackTrans();
+        }
 
-        if ($this->transCnt)
+        if ($this->transCnt) {
             $this->transCnt -= 1;
+        }
 
         $this->_autocommit = true;
         $ret = @db2_commit($this->_connectionID);
-        @db2_autocommit($this->_connectionID,true);
+        @db2_autocommit($this->_connectionID, true);
         return $ret;
     }
 
     function RollbackTrans()
     {
-        if ($this->transOff) return true;
-        if ($this->transCnt) $this->transCnt -= 1;
+        if ($this->transOff) {
+            return true;
+        }
+        if ($this->transCnt) {
+            $this->transCnt -= 1;
+        }
         $this->_autocommit = true;
         $ret = @db2_rollback($this->_connectionID);
-        @db2_autocommit($this->_connectionID,true);
+        @db2_autocommit($this->_connectionID, true);
         return $ret;
     }
 
@@ -782,7 +780,7 @@ class ADODB_db2 extends ADOConnection {
      *
      * @return string[]    Array of indexes
      */
-    public function metaPrimaryKeys($table,$owner=false)
+    public function metaPrimaryKeys($table, $owner = false)
     {
 
         $primaryKeys = array();
@@ -790,15 +788,16 @@ class ADODB_db2 extends ADOConnection {
         global $ADODB_FETCH_MODE;
 
         $schema = '';
-        $this->_findschema($table,$schema);
+        $this->_findschema($table, $schema);
 
-        $table = $this->metaTables('T','',$table);
-        if ($table == false)
+        $table = $this->metaTables('T', '', $table);
+        if ($table == false) {
             return false;
+        }
 
         $table = $table[0];
 
-        $savem 			  = $ADODB_FETCH_MODE;
+        $savem            = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
         $this->setFetchMode(ADODB_FETCH_NUM);
 
@@ -812,19 +811,20 @@ class ADODB_db2 extends ADOConnection {
         $this->setFetchMode($savem);
         $ADODB_FETCH_MODE = $savem;
 
-        if (empty($rows))
+        if (empty($rows)) {
             return false;
+        }
 
-        foreach ($rows as $r)
-        {
-            if ($r[7] != 'P')
+        foreach ($rows as $r) {
+            if ($r[7] != 'P') {
                 continue;
+            }
 
-            $cols = explode('+',$r[6]);
-            foreach ($cols as $colIndex=>$col)
-            {
-                if ($colIndex == 0)
+            $cols = explode('+', $r[6]);
+            foreach ($cols as $colIndex => $col) {
+                if ($colIndex == 0) {
                     continue;
+                }
                 $columnName = $this->getMetaCasedValue($col);
                 $primaryKeys[] = $columnName;
             }
@@ -850,9 +850,9 @@ class ADODB_db2 extends ADOConnection {
         global $ADODB_FETCH_MODE;
 
         $schema = '';
-        $this->_findschema($table,$schema);
+        $this->_findschema($table, $schema);
 
-        $metaTables = $this->metaTables('T','',$table);
+        $metaTables = $this->metaTables('T', '', $table);
 
         if ($metaTables == false) {
             return false;
@@ -873,14 +873,13 @@ class ADODB_db2 extends ADOConnection {
 
         $this->setFetchMode($baseFetchMode);
 
-        if (empty($results))
+        if (empty($results)) {
             return false;
+        }
 
         $foreignKeys = array();
 
-        foreach ($results as $r)
-        {
-
+        foreach ($results as $r) {
             /*
 
             [CONSTNAME] => SQL250829011849680
@@ -902,24 +901,21 @@ class ADODB_db2 extends ADOConnection {
             */
             $referenceTable = trim($r['REFTABNAME']);
 
-            if (!array_key_exists($referenceTable,$foreignKeys)) {
+            if (!array_key_exists($referenceTable, $foreignKeys)) {
                 $foreignKeys[$referenceTable] = array();
             }
             $pkColnames = array_filter(preg_split('/ +/', $r['PK_COLNAMES']));
             $fkColnames = array_filter(preg_split('/ +/', $r['FK_COLNAMES']));
 
-            foreach ($pkColnames as $i=>$pkColname) {
-
+            foreach ($pkColnames as $i => $pkColname) {
                 $pkColname = trim($pkColname);
                 $fkColname = trim($fkColnames[$i]);
                 if ($baseFetchMode == ADODB_FETCH_ASSOC) {
                     $foreignKeys[$referenceTable][$pkColname] = $fkColname;
                 } else {
-                    $foreignKeys[$referenceTable][] = sprintf('%s=%s',$pkColname,$fkColname);
+                    $foreignKeys[$referenceTable][] = sprintf('%s=%s', $pkColname, $fkColname);
                 }
-
             }
-
         }
         return $foreignKeys;
     }
@@ -927,13 +923,13 @@ class ADODB_db2 extends ADOConnection {
     /**
      * Returns a list of tables
      *
-     * @param string	$ttype (optional)
-     * @param	string	$schema	(optional)
-     * @param	string	$mask	(optional)
+     * @param string    $ttype (optional)
+     * @param   string  $schema (optional)
+     * @param   string  $mask   (optional)
      *
      * @return array
      */
-    public function metaTables($ttype=false,$schema=false,$mask=false)
+    public function metaTables($ttype = false, $schema = false, $mask = false)
     {
 
         global $ADODB_FETCH_MODE;
@@ -958,26 +954,24 @@ class ADODB_db2 extends ADOConnection {
         $returnedColumn = 'TRIM(TABNAME)';
 
         if ($ttype) {
-
             /*
             * We only support 'T' for TABLE and 'V' for VIEW
             * All types are returned if $ttype is passed as ''
             */
-            $ttype = strtoupper(substr($ttype,0,1));
+            $ttype = strtoupper(substr($ttype, 0, 1));
 
             if ($ttype == 'V') {
                 $sqlFilters[] = "TYPE='V'";
-            } else if ($ttype == 'T') {
+            } elseif ($ttype == 'T') {
                 $sqlFilters[] = "TYPE='T'";
             }
         }
 
         if ($schema && $schema != '%') {
-
             $schema = strtoupper($schema);
-            $returnedColumn = $this->concat('TRIM(TABSCHEMA)',"'.'",'TRIM(TABNAME)');
+            $returnedColumn = $this->concat('TRIM(TABSCHEMA)', "'.'", 'TRIM(TABNAME)');
 
-            if (strpos($schema,'%') !== false) {
+            if (strpos($schema, '%') !== false) {
                 $sqlFilters[] = "UPPER(TABSCHEMA) LIKE '$schema'";
             } else {
                 $sqlFilters[] = "UPPER(TABSCHEMA)='" . strtoupper($schema) . "'";
@@ -991,17 +985,15 @@ class ADODB_db2 extends ADOConnection {
             * exactly
             */
 
-            if (in_array(substr($mask,0,1),array('"','[')))
-            {
-                if (strpos($mask,'%') !== false)
-                {
+            if (in_array(substr($mask, 0, 1), array('"','['))) {
+                if (strpos($mask, '%') !== false) {
                     $sqlFilters[] = "TABNAME LIKE '$mask'";
                 } else {
                     $sqlFilters[] = "TABNAME='$mask'";
                 }
             } else {
                 $mask = strtoupper($mask);
-                if (strpos($mask,'%') !== false) {
+                if (strpos($mask, '%') !== false) {
                     $sqlFilters[] = "UPPER(TABNAME) LIKE '$mask'";
                 } else {
                     $sqlFilters[] = "UPPER(TABNAME)='$mask'";
@@ -1010,7 +1002,7 @@ class ADODB_db2 extends ADOConnection {
         }
 
         if (count($sqlFilters) > 0) {
-            $sqlFilter = 'WHERE ' . implode(' AND ',$sqlFilters);
+            $sqlFilter = 'WHERE ' . implode(' AND ', $sqlFilters);
         }
 
         $sql = "SELECT $returnedColumn FROM SYSCAT.TABLES $sqlFilter ORDER BY TABSCHEMA, TABNAME";
@@ -1020,8 +1012,9 @@ class ADODB_db2 extends ADOConnection {
 
         $this->SetFetchMode($savem);
 
-        if (count($metaTables) == 0)
+        if (count($metaTables) == 0) {
             return false;
+        }
 
         return $metaTables;
     }
@@ -1038,7 +1031,8 @@ class ADODB_db2 extends ADOConnection {
       *
       * @return string[]    Array of indexes
       */
-    public function metaIndexes($table, $primary = false, $owner = false) {
+    public function metaIndexes($table, $primary = false, $owner = false)
+    {
 
         global $ADODB_FETCH_MODE;
 
@@ -1053,13 +1047,13 @@ class ADODB_db2 extends ADOConnection {
          *   )
          * )
          */
-        $indices 		= array();
+        $indices        = array();
         $primaryKeyName = '';
 
         $table = $this->getTableCasedValue($table);
 
 
-        $savem 			  = $ADODB_FETCH_MODE;
+        $savem            = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
         $this->setFetchMode(ADODB_FETCH_NUM);
 
@@ -1072,42 +1066,40 @@ class ADODB_db2 extends ADOConnection {
         $this->setFetchMode($savem);
         $ADODB_FETCH_MODE = $savem;
 
-        if (empty($rows))
+        if (empty($rows)) {
             return false;
+        }
 
-        foreach ($rows as $r)
-        {
-
-            $primaryIndex = $r[7] == 'P'?1:0;
-            if (!$primary)
+        foreach ($rows as $r) {
+            $primaryIndex = $r[7] == 'P' ? 1 : 0;
+            if (!$primary) {
                 /*
                  * Primary key not requested, ignore that one
                  */
-                if ($r[7] == 'P')
+                if ($r[7] == 'P') {
                     continue;
+                }
+            }
 
             $indexName = $this->getMetaCasedValue($r[1]);
-            if (!isset($indices[$indexName]))
-            {
-                $unique = ($r[7] == 'U')?1:0;
-                $indices[$indexName] = array('unique'=>$unique,
-                                             'primary'=>$primaryIndex,
-                                             'columns'=>array()
+            if (!isset($indices[$indexName])) {
+                $unique = ($r[7] == 'U') ? 1 : 0;
+                $indices[$indexName] = array('unique' => $unique,
+                                             'primary' => $primaryIndex,
+                                             'columns' => array()
                                         );
             }
-            $cols = explode('+',$r[6]);
-            foreach ($cols as $colIndex=>$col)
-            {
-                if ($colIndex == 0)
+            $cols = explode('+', $r[6]);
+            foreach ($cols as $colIndex => $col) {
+                if ($colIndex == 0) {
                     continue;
+                }
                 $columnName = $this->getMetaCasedValue($col);
                 $indices[$indexName]['columns'][] = $columnName;
             }
-
         }
 
         return $indices;
-
     }
 
     /**
@@ -1117,14 +1109,15 @@ class ADODB_db2 extends ADOConnection {
      * function procedures because ADOdb requires the type of procedure
      * this is not available in the php function
      *
-     * @param	string $procedureNamePattern (optional)
-     * @param	string $catalog				 (optional)
-     * @param	string $schemaPattern		 (optional)
+     * @param   string $procedureNamePattern (optional)
+     * @param   string $catalog              (optional)
+     * @param   string $schemaPattern        (optional)
 
      * @return array of procedures on current database.
      *
      */
-    public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null) {
+    public function metaProcedures($procedureNamePattern = null, $catalog = null, $schemaPattern = null)
+    {
 
 
         global $ADODB_FETCH_MODE;
@@ -1134,17 +1127,20 @@ class ADODB_db2 extends ADOConnection {
         $catalogSQL     = '';
         $schemaSQL      = '';
 
-        $savem 			  = $ADODB_FETCH_MODE;
+        $savem            = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-        if ($procedureNamePattern)
+        if ($procedureNamePattern) {
             $procedureSQL = "AND ROUTINENAME LIKE " . strtoupper($this->qstr($procedureNamePattern));
+        }
 
-        if ($catalog)
+        if ($catalog) {
             $catalogSQL = "AND OWNER=" . strtoupper($this->qstr($catalog));
+        }
 
-        if ($schemaPattern)
+        if ($schemaPattern) {
             $schemaSQL = "AND ROUTINESCHEMA LIKE {$this->qstr($schemaPattern)}";
+        }
 
 
         $fields = "
@@ -1170,13 +1166,14 @@ class ADODB_db2 extends ADOConnection {
 
         $ADODB_FETCH_MODE = $savem;
 
-        if (!$result)
+        if (!$result) {
             return false;
+        }
 
-        while ($r = $result->fetchRow()){
+        while ($r = $result->fetchRow()) {
             $procedureName = $this->getMetaCasedValue($r[0]);
             $schemaName    = $this->getMetaCasedValue($r[2]);
-            $metaProcedures[$procedureName] = array('type'=> $r[1],
+            $metaProcedures[$procedureName] = array('type' => $r[1],
                                                    'catalog' => '',
                                                    'schema'  => $schemaName,
                                                    'remarks' => $r[3]
@@ -1184,7 +1181,6 @@ class ADODB_db2 extends ADOConnection {
         }
 
         return $metaProcedures;
-
     }
 
     /**
@@ -1193,12 +1189,12 @@ class ADODB_db2 extends ADOConnection {
       *
       * @return string[]
       */
-    public function metaDatabases(){
+    public function metaDatabases()
+    {
 
         $dbName = $this->getMetaCasedValue($this->database);
 
         return (array)$dbName;
-
     }
 
 
@@ -1207,25 +1203,25 @@ class ADODB_db2 extends ADOConnection {
 /*
 See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2datetime_data_type_changes.asp
 / SQL data type codes /
-#define	SQL_UNKNOWN_TYPE	0
-#define SQL_CHAR			1
-#define SQL_NUMERIC		 2
-#define SQL_DECIMAL		 3
-#define SQL_INTEGER		 4
-#define SQL_SMALLINT		5
-#define SQL_FLOAT		   6
-#define SQL_REAL			7
-#define SQL_DOUBLE		  8
+#define SQL_UNKNOWN_TYPE    0
+#define SQL_CHAR            1
+#define SQL_NUMERIC      2
+#define SQL_DECIMAL      3
+#define SQL_INTEGER      4
+#define SQL_SMALLINT        5
+#define SQL_FLOAT          6
+#define SQL_REAL            7
+#define SQL_DOUBLE        8
 #if (DB2VER >= 0x0300)
-#define SQL_DATETIME		9
+#define SQL_DATETIME        9
 #endif
-#define SQL_VARCHAR		12
+#define SQL_VARCHAR     12
 
 
 / One-parameter shortcuts for date/time data types /
 #if (DB2VER >= 0x0300)
-#define SQL_TYPE_DATE	  91
-#define SQL_TYPE_TIME	  92
+#define SQL_TYPE_DATE     91
+#define SQL_TYPE_TIME     92
 #define SQL_TYPE_TIMESTAMP 93
 
 #define SQL_UNICODE                             (-95)
@@ -1235,52 +1231,51 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
     function DB2Types($t)
     {
         switch ((int)$t) {
-        case 1:
-        case 12:
-        case 0:
-        case -95:
-        case -96:
-            return 'C';
-        case -97:
-        case -1: //text
-            return 'X';
-        case -4: //image
-        case -98: //blob
-            return 'B';
+            case 1:
+            case 12:
+            case 0:
+            case -95:
+            case -96:
+                return 'C';
+            case -97:
+            case -1: //text
+                return 'X';
+            case -4: //image
+            case -98: //blob
+                return 'B';
 
-        case 9:
-        case 91:
-            return 'D';
+            case 9:
+            case 91:
+                return 'D';
 
-        case 10:
-        case 11:
-        case 92:
-        case 93:
-            return 'T';
+            case 10:
+            case 11:
+            case 92:
+            case 93:
+                return 'T';
 
-        case 4: //BIGINT
-            return 'I';
-        case -6:
-            return 'I8';
+            case 4: //BIGINT
+                return 'I';
+            case -6:
+                return 'I8';
 
-        case -11: // uniqidentifier
-            return 'R';
-        case 5: //Logical I2
-        case -7: //bit
-            return 'L';
+            case -11: // uniqidentifier
+                return 'R';
+            case 5: //Logical I2
+            case -7: //bit
+                return 'L';
 
-        case 3:
-            return "N";
-        case -5:
-            return "I4";
+            case 3:
+                return "N";
+            case -5:
+                return "I4";
 
-        default:
-            
-            return ADODB_DEFAULT_METATYPE;
+            default:
+                return ADODB_DEFAULT_METATYPE;
         }
     }
 
-    public function metaColumns($table, $ignored=true)
+    public function metaColumns($table, $ignored = true)
     {
         global $ADODB_FETCH_MODE;
 
@@ -1293,8 +1288,9 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         $findMatchingTable = $this->metaTables('T', '', $table);
 
 
-        if ($findMatchingTable === false)
+        if ($findMatchingTable === false) {
             return false;
+        }
 
         $table = $findMatchingTable[0];
 
@@ -1309,10 +1305,8 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         //$table = $this->getTableCasedValue($table);
         $colname = "%";
         $qid = db2_columns($this->_connectionID, null, $schema, $table, $colname);
-        if (empty($qid))
-        {
-            if ($this->debug)
-            {
+        if (empty($qid)) {
+            if ($this->debug) {
                 $errorMessage = @db2_conn_errormsg($this->_connectionID);
                 ADOConnection::outp($errorMessage);
             }
@@ -1325,7 +1319,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
             print "NO RECORDSET\n";
             $this->setFetchMode($savem);
             return false;
-        
         }
         $rs->_fetch();
 
@@ -1352,13 +1345,8 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         16 Ordinal Position
         17 Is NULLABLE
         */
-        while (!$rs->EOF)
-        {
-
-           
-            if ($rs->fields[2] == $table)
-            {
-
+        while (!$rs->EOF) {
+            if ($rs->fields[2] == $table) {
                 $fld       = new ADOFieldObject();
                 $fld->name = $rs->fields[3];
                 $fld->type = $this->DB2Types($rs->fields[4]);
@@ -1367,12 +1355,14 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
                 // access uses precision to store length for char/varchar
 
                 if ($fld->type == 'C' or $fld->type == 'X') {
-                    if ($rs->fields[4] <= -95) // UNICODE
-                        $fld->max_length = $rs->fields[7]/2;
-                    else
+                    if ($rs->fields[4] <= -95) { // UNICODE
+                        $fld->max_length = $rs->fields[7] / 2;
+                    } else {
                         $fld->max_length = $rs->fields[7];
-                } else
+                    }
+                } else {
                     $fld->max_length = $rs->fields[7];
+                }
 
                 $fld->not_null         = !empty($rs->fields[10]);
                 $fld->scale            = $rs->fields[8];
@@ -1382,20 +1372,18 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
                 //$columnName = $this->getMetaCasedValue($fld->name);
                 $columnName = strtoupper($fld->name);
                 $retarr[$columnName] = $fld;
-
-            }
-            else if (sizeof($retarr)>0)
+            } elseif (sizeof($retarr) > 0) {
                 break;
+            }
 
             $rs->MoveNext();
-
         }
 
         $sql = "SELECT COLNAME
                   FROM SYSCAT.COLUMNS
                  WHERE TABNAME='$table'
                    AND IDENTITY = 'Y'";
-    
+
         $identityColumns = $this->getCol($sql);
 
         foreach ($identityColumns as $identityColumn) {
@@ -1408,11 +1396,12 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         $this->setFetchMode($savem);
 
         $rs->Close();
-        if (empty($retarr))
+        if (empty($retarr)) {
             $retarr = false;
+        }
 
 
-        $this->setFetchMode(ADODB_FETCH_NUM	);
+        $this->setFetchMode(ADODB_FETCH_NUM);
 
         /*
          * Now we find out if the column is part of a primary key
@@ -1436,13 +1425,13 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
 
         $qid = @db2_primary_keys($this->_connectionID, "", $schema, $table);
-        if (empty($qid))
+        if (empty($qid)) {
             return false;
+        }
 
         $rs = new ADORecordSet_db2($qid);
 
-        if (!$rs)
-        {
+        if (!$rs) {
             $ADODB_FETCH_MODE = $savem;
             return $retarr;
         }
@@ -1458,14 +1447,14 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         5 PK_NAME
         */
         while (!$rs->EOF) {
-
-            if (strtoupper(trim($rs->fields[2])) == $table
-            && (!$schema || strtoupper($rs->fields[1]) == $schema))
-            {
+            if (
+                strtoupper(trim($rs->fields[2])) == $table
+                && (!$schema || strtoupper($rs->fields[1]) == $schema)
+            ) {
                 $retarr[strtoupper($rs->fields[3])]->primary_key = true;
-            }
-            else if (sizeof($retarr)>0)
+            } elseif (sizeof($retarr) > 0) {
                 break;
+            }
 
             $rs->MoveNext();
         }
@@ -1473,14 +1462,16 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
         $ADODB_FETCH_MODE = $savem;
 
-        if (empty($retarr))
+        if (empty($retarr)) {
             return false;
+        }
 
         /*
         * If the fetch mode is numeric, return as numeric array
         */
-        if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM)
+        if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) {
             $retarr = array_values($retarr);
+        }
 
         return $retarr;
     }
@@ -1491,20 +1482,21 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
       * If true, we returns an array
       * else false
       *
-      * @param	string	$procedureName
-      * @param	mixed   $parameters (not used in db2 connections)
+      * @param  string  $procedureName
+      * @param  mixed   $parameters (not used in db2 connections)
       * @return mixed[]
       */
-    function prepareSp($procedureName,$parameters=false) {
+    function prepareSp($procedureName, $parameters = false)
+    {
 
         global $ADODB_FETCH_MODE;
 
-        $this->storedProcedureParameters = array('name'=>'',
-                                                 'resource'=>false,
-                                                 'in'=>array(),
-                                                 'out'=>array(),
-                                                 'index'=>array(),
-                                                 'parameters'=>array(),
+        $this->storedProcedureParameters = array('name' => '',
+                                                 'resource' => false,
+                                                 'in' => array(),
+                                                 'out' => array(),
+                                                 'index' => array(),
+                                                 'parameters' => array(),
                                                  'keyvalue' => array());
 
         //$procedureName = strtoupper($procedureName);
@@ -1513,14 +1505,14 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         $savem = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-        $qid = db2_procedures($this->_connectionID, NULL , '%' , $procedureName );
+        $qid = db2_procedures($this->_connectionID, null, '%', $procedureName);
 
         $ADODB_FETCH_MODE = $savem;
 
-        if (!$qid)
-        {
-            if ($this->debug)
-                ADOConnection::outp(sprintf('No Procedure of name %s available',$procedureName));
+        if (!$qid) {
+            if ($this->debug) {
+                ADOConnection::outp(sprintf('No Procedure of name %s available', $procedureName));
+            }
             return false;
         }
 
@@ -1534,76 +1526,71 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         $savem = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-        $qid = db2_procedure_columns($this->_connectionID, NULL , '%' , $procedureName , NULL );
+        $qid = db2_procedure_columns($this->_connectionID, null, '%', $procedureName, null);
 
         $ADODB_FETCH_MODE = $savem;
 
-        if (!$qid)
-        {
-            if ($this->debug)
-                ADOConnection::outp(sprintf('No columns of name %s available',$procedureName));
+        if (!$qid) {
+            if ($this->debug) {
+                ADOConnection::outp(sprintf('No columns of name %s available', $procedureName));
+            }
             return false;
         }
         $rs = new ADORecordSet_db2($qid);
-        if (!$rs)
+        if (!$rs) {
             return false;
+        }
 
         $preparedStatement = 'CALL %s(%s)';
         $parameterMarkers = array();
-        while (!$rs->EOF)
-        {
+        while (!$rs->EOF) {
             $parameterName = $rs->fields[3];
-            if ($parameterName == '')
-            {
+            if ($parameterName == '') {
                 $rs->moveNext();
                 continue;
             }
             $parameterType = $rs->fields[4];
             $ordinalPosition = $rs->fields[17];
-            switch($parameterType)
-            {
-            case DB2_PARAM_IN:
-            case DB2_PARAM_INOUT:
-                $this->storedProcedureParameters['in'][$parameterName] = '';
-                break;
-            case DB2_PARAM_INOUT:
-            case DB2_PARAM_OUT:
-                $this->storedProcedureParameters['out'][$parameterName] = '';
-                break;
+            switch ($parameterType) {
+                case DB2_PARAM_IN:
+                case DB2_PARAM_INOUT:
+                    $this->storedProcedureParameters['in'][$parameterName] = '';
+                    break;
+                case DB2_PARAM_INOUT:
+                case DB2_PARAM_OUT:
+                    $this->storedProcedureParameters['out'][$parameterName] = '';
+                    break;
             }
             $this->storedProcedureParameters['index'][$parameterName] = $ordinalPosition;
             $this->storedProcedureParameters['parameters'][$ordinalPosition] = $rs->fields;
             $rs->moveNext();
-
         }
         $parameterCount = count($this->storedProcedureParameters['index']);
-        $parameterMarkers = array_fill(0,$parameterCount,'?');
+        $parameterMarkers = array_fill(0, $parameterCount, '?');
 
         /*
          * We now know how many parameters to bind to the stored procedure
          */
-        $parameterList = implode(',',$parameterMarkers);
+        $parameterList = implode(',', $parameterMarkers);
 
-        $sql = sprintf($preparedStatement,$procedureName,$parameterList);
+        $sql = sprintf($preparedStatement, $procedureName, $parameterList);
 
-        $spResource = @db2_prepare($this->_connectionID,$sql);
+        $spResource = @db2_prepare($this->_connectionID, $sql);
 
-        if (!$spResource)
-        {
+        if (!$spResource) {
             $errorMessage = @db2_conn_errormsg($this->_connectionID);
             $this->_errorMsg = $errorMessage;
 
-            if ($this->debug)
+            if ($this->debug) {
                 ADOConnection::outp($errorMessage);
+            }
 
             return false;
         }
 
         $this->storedProcedureParameters['resource'] = $spResource;
 
-        if ($this->debug)
-        {
-
+        if ($this->debug) {
             ADOConnection::outp('The following parameters will be used in the SP call');
             ADOConnection::outp(print_r($this->storedProcedureParameters));
         }
@@ -1615,16 +1602,16 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
          * array
          */
         return array($sql,$spResource);
-
     }
 
-    private function storedProcedureParameter(&$stmt,
-                                              &$var,
-                                              $name,
-                                              $isOutput=false,
-                                              $maxLen=4000,
-                                              $type=false)
-    {
+    private function storedProcedureParameter(
+        &$stmt,
+        &$var,
+        $name,
+        $isOutput = false,
+        $maxLen = 4000,
+        $type = false
+    ) {
 
 
         $name = strtoupper($name);
@@ -1632,25 +1619,29 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         /*
          * Must exist in the list of parameter names for the type
          */
-        if ($isOutput
-        && !isset( $this->storedProcedureParameters['out'][$name]))
-        {
-            $errorMessage = sprintf('%s is not a valid OUT parameter name',$name);
+        if (
+            $isOutput
+            && !isset($this->storedProcedureParameters['out'][$name])
+        ) {
+            $errorMessage = sprintf('%s is not a valid OUT parameter name', $name);
 
             $this->_errorMsg = $errorMessage;
-            if ($this->debug)
+            if ($this->debug) {
                 ADOConnection::outp($errorMessage);
+            }
             return false;
         }
 
-        if (!$isOutput
-        && !isset( $this->storedProcedureParameters['in'][$name]))
-        {
-            $errorMessage = sprintf('%s is not a valid IN parameter name',$name);
+        if (
+            !$isOutput
+            && !isset($this->storedProcedureParameters['in'][$name])
+        ) {
+            $errorMessage = sprintf('%s is not a valid IN parameter name', $name);
 
             $this->_errorMsg = $errorMessage;
-            if ($this->debug)
+            if ($this->debug) {
                 ADOConnection::outp($errorMessage);
+            }
             return false;
         }
 
@@ -1661,7 +1652,6 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         $this->storedProcedureParameters['keyvalue'][$name] = &$var;
 
         return true;
-
     }
 
     /**
@@ -1670,7 +1660,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
     * The function uses the previously accumulated information and
     * resources in the $storedProcedureParameters array
     *
-    * @return mixed	The statement id if successful, or false
+    * @return mixed The statement id if successful, or false
     */
     private function executeStoredProcedure()
     {
@@ -1683,8 +1673,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         /*
          * Bind our variables to the DB2 procedure
          */
-        foreach ($this->storedProcedureParameters['keyvalue'] as $spName=>$spValue){
-
+        foreach ($this->storedProcedureParameters['keyvalue'] as $spName => $spValue) {
             /*
              * Get the ordinal position, required for binding
              */
@@ -1697,49 +1686,50 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
             $parameterType    = $columnDictionary[4];
             $dataType         = $columnDictionary[5];
             $precision        = $columnDictionary[10];
-            $scale        	  = $columnDictionary[9];
+            $scale            = $columnDictionary[9];
 
-            $ok = @db2_bind_param ($this->storedProcedureParameters['resource'],
-                                  $ordinalPosition ,
-                                  $spName,
-                                  $parameterType,
-                                  $dataType,
-                                  $precision,
-                                  $scale
-                                  );
+            $ok = @db2_bind_param(
+                $this->storedProcedureParameters['resource'],
+                $ordinalPosition,
+                $spName,
+                $parameterType,
+                $dataType,
+                $precision,
+                $scale
+            );
 
-            if (!$ok)
-            {
+            if (!$ok) {
                 $this->_errorMsg  = @db2_stmt_errormsg();
                 $this->_errorCode = @db2_stmt_error();
 
-                if ($this->debug)
+                if ($this->debug) {
                     ADOConnection::outp($this->_errorMsg);
+                }
                 return false;
             }
 
-            if ($this->debug)
+            if ($this->debug) {
                 ADOConnection::outp("Correctly Bound parameter $spName to procedure");
+            }
 
             /*
              * Build a variable in the current environment that matches
              * the parameter name
              */
             ${$spName} = $spValue;
-
         }
 
         /*
          * All bound, execute
          */
 
-        if (!@db2_execute($stmtid))
-        {
+        if (!@db2_execute($stmtid)) {
             $this->_errorMsg = @db2_stmt_errormsg();
             $this->_errorCode = @db2_stmt_error();
 
-            if ($this->debug)
+            if ($this->debug) {
                 ADOConnection::outp($this->_errorMsg);
+            }
             return false;
         }
 
@@ -1750,8 +1740,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
          * can access the value in the variable that was originally
          * passed to inParameter or outParameter
          */
-        foreach ($this->storedProcedureParameters['keyvalue'] as $spName=>$spValue)
-        {
+        foreach ($this->storedProcedureParameters['keyvalue'] as $spName => $spValue) {
             /*
              * We make it available to the environment
              */
@@ -1768,20 +1757,20 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
      * or prepared statements. For DB2, this should not be called as an
      * API. always wrap with inParameter and outParameter
      *
-     * @param mixed[] $stmt 		Statement returned by Prepare() or PrepareSP().
-     * @param mixed   $var 		PHP variable to bind to. Can set to null (for isNull support).
-     * @param string  $name 		Name of stored procedure variable name to bind to.
-     * @param int	 $isOutput 	optional) Indicates direction of parameter
-     * 							0/false=IN  1=OUT  2= IN/OUT
-     *							This is ignored for Stored Procedures
-     * @param int	$maxLen		(optional)Holds an maximum length of the variable.
-     *							This is ignored for Stored Procedures
-     * @param int	$type 		(optional) The data type of $var.
-     *							This is ignored for Stored Procedures
+     * @param mixed[] $stmt         Statement returned by Prepare() or PrepareSP().
+     * @param mixed   $var      PHP variable to bind to. Can set to null (for isNull support).
+     * @param string  $name         Name of stored procedure variable name to bind to.
+     * @param int    $isOutput  optional) Indicates direction of parameter
+     *                          0/false=IN  1=OUT  2= IN/OUT
+     *                          This is ignored for Stored Procedures
+     * @param int   $maxLen     (optional)Holds an maximum length of the variable.
+     *                          This is ignored for Stored Procedures
+     * @param int   $type       (optional) The data type of $var.
+     *                          This is ignored for Stored Procedures
      *
-     * @return bool				Success of the operation
+     * @return bool             Success of the operation
      */
-    public function parameter(&$stmt, &$var, $name, $isOutput=false, $maxLen=4000, $type=false)
+    public function parameter(&$stmt, &$var, $name, $isOutput = false, $maxLen = 4000, $type = false)
     {
 
         /*
@@ -1789,41 +1778,46 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
          * setting up, we will process it one way, otherwise
          * we assume we are setting up a prepared statement
         */
-        if (is_array($stmt))
-        {
-            if ($this->debug)
+        if (is_array($stmt)) {
+            if ($this->debug) {
                 ADOConnection::outp("Adding parameter to stored procedure");
-            if ($stmt[1] == $this->storedProcedureParameters['resource'])
-                return $this->storedProcedureParameter($stmt[1],
-                                                        $var,
-                                                        $name,
-                                                        $isOutput,
-                                                        $maxLen,
-                                                        $type);
-
+            }
+            if ($stmt[1] == $this->storedProcedureParameters['resource']) {
+                return $this->storedProcedureParameter(
+                    $stmt[1],
+                    $var,
+                    $name,
+                    $isOutput,
+                    $maxLen,
+                    $type
+                );
+            }
         }
 
         /*
          * We are going to add a parameter to a prepared statement
          */
-        if ($this->debug)
+        if ($this->debug) {
             ADOConnection::outp("Adding parameter to prepared statement");
+        }
     }
 
 
     /**
      * Prepares a prepared SQL statement, not used for stored procedures
      *
-     * @param string	$sql
+     * @param string    $sql
      *
      * @return mixed
      */
     function prepare($sql)
     {
 
-        if (! $this->_bindInputArray) return $sql; // no binding
+        if (! $this->_bindInputArray) {
+            return $sql; // no binding
+        }
 
-        $stmt = @db2_prepare($this->_connectionID,$sql);
+        $stmt = @db2_prepare($this->_connectionID, $sql);
         if (!$stmt) {
             // we don't know whether db2 driver is parsing prepared stmts, so just return sql
             return $sql;
@@ -1834,10 +1828,10 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
     /**
      * Executes a query
      *
-     * @param	mixed $sql
-     * @param	mixed $inputarr	An optional array of parameters
+     * @param   mixed $sql
+     * @param   mixed $inputarr An optional array of parameters
      *
-     * @return mixed				either the queryID or false
+     * @return mixed                either the queryID or false
      */
     function _query($sql, $inputarr = false)
     {
@@ -1845,85 +1839,79 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         /*
          * Use DB2 Internal case handling for best speed
          */
-        switch(ADODB_ASSOC_CASE)
-        {
-        case ADODB_ASSOC_CASE_UPPER:
-            $db2Options = array('db2_attr_case'=>DB2_CASE_UPPER);
-            $setOption = @db2_set_option($this->_connectionID,$db2Options,1);
-            break;
+        switch (ADODB_ASSOC_CASE) {
+            case ADODB_ASSOC_CASE_UPPER:
+                $db2Options = array('db2_attr_case' => DB2_CASE_UPPER);
+                $setOption = @db2_set_option($this->_connectionID, $db2Options, 1);
+                break;
 
-         case ADODB_ASSOC_CASE_LOWER:
-            $db2Options = array('db2_attr_case'=>DB2_CASE_LOWER);
-            $setOption = @db2_set_option($this->_connectionID,$db2Options,1);
-            break;
+            case ADODB_ASSOC_CASE_LOWER:
+                $db2Options = array('db2_attr_case' => DB2_CASE_LOWER);
+                $setOption = @db2_set_option($this->_connectionID, $db2Options, 1);
+                break;
 
-        default:
-            $db2Options = array('db2_attr_case'=>DB2_CASE_NATURAL);
-            $setOption = @db2_set_option($this->_connectionID,$db2Options,1);
+            default:
+                $db2Options = array('db2_attr_case' => DB2_CASE_NATURAL);
+                $setOption = @db2_set_option($this->_connectionID, $db2Options, 1);
         }
 
         if (!$this->useLegacyRecordCounting) {
-            $db2Options = array('rowcount'=>DB2_ROWCOUNT_PREFETCH_ON);
-            $setOption = @db2_set_option($this->_connectionID,$db2Options,1);
+            $db2Options = array('rowcount' => DB2_ROWCOUNT_PREFETCH_ON);
+            $setOption = @db2_set_option($this->_connectionID, $db2Options, 1);
         }
 
-        if ($inputarr)
-        {
-            if (is_array($sql))
-            {
+        if ($inputarr) {
+            if (is_array($sql)) {
                 $stmtid = $sql[1];
-            }
-            else
-            {
-                $stmtid = @db2_prepare($this->_connectionID,$sql);
+            } else {
+                $stmtid = @db2_prepare($this->_connectionID, $sql);
 
-                if ($stmtid == false)
-                {
+                if ($stmtid == false) {
                     $this->_errorMsg  = @db2_stmt_errormsg();
                     $this->_errorCode = @db2_stmt_error();
 
-                    if ($this->debug)
+                    if ($this->debug) {
                         ADOConnection::outp($this->_errorMsg);
+                    }
 
                     return false;
                 }
             }
 
-            if (! @db2_execute($stmtid,$inputarr))
-            {
+            if (! @db2_execute($stmtid, $inputarr)) {
                 $this->_errorMsg = @db2_stmt_errormsg();
                 $this->_errorCode = @db2_stmt_error();
-                if ($this->debug)
+                if ($this->debug) {
                     ADOConnection::outp($this->_errorMsg);
+                }
                 return false;
             }
-
-        }
-        else if (is_array($sql))
-        {
-
+        } elseif (is_array($sql)) {
             /*
              * Either a prepared statement or a stored procedure
              */
 
-            if (is_array($this->storedProcedureParameters)
-                && is_resource($this->storedProcedureParameters['resource']
-            ))
+            if (
+                is_array($this->storedProcedureParameters)
+                && is_resource($this->storedProcedureParameters['resource'])
+            ) {
                 /*
                  * This is all handled in the separate method for
                  * readability
                  */
                 return $this->executeStoredProcedure();
+            }
 
             /*
              * First, we prepare the statement
              */
-            $stmtid = @db2_prepare($this->_connectionID,$sql[0]);
-            if (!$stmtid){
+            $stmtid = @db2_prepare($this->_connectionID, $sql[0]);
+            if (!$stmtid) {
                 $this->_errorMsg = @db2_stmt_errormsg();
                 $this->_errorCode = @db2_stmt_error();
-                if ($this->debug)
+                if ($this->debug) {
                     ADOConnection::outp("Prepare failed: " . $this->_errorMsg);
+                }
 
                 return false;
             }
@@ -1931,58 +1919,46 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
              * We next bind some input parameters
              */
             $ordinal = 1;
-            foreach ($sql[1] as $psVar=>$psVal){
+            foreach ($sql[1] as $psVar => $psVal) {
                 ${$psVar} = $psVal;
                 $ok = @db2_bind_param($stmtid, $ordinal, $psVar, DB2_PARAM_IN);
-                if (!$ok)
-                {
+                if (!$ok) {
                     $this->_errorMsg = @db2_stmt_errormsg();
                     $this->_errorCode = @db2_stmt_error();
-                    if ($this->debug)
+                    if ($this->debug) {
                         ADOConnection::outp("Bind failed: " . $this->_errorMsg);
+                    }
                     return false;
                 }
             }
 
-            if (!@db2_execute($stmtid))
-            {
+            if (!@db2_execute($stmtid)) {
                 $this->_errorMsg = @db2_stmt_errormsg();
                 $this->_errorCode = @db2_stmt_error();
-                if ($this->debug)
+                if ($this->debug) {
                     ADOConnection::outp($this->_errorMsg);
+                }
                 return false;
             }
 
             return $stmtid;
-        }
-        else
-        {
-
-            $stmtid = @db2_exec($this->_connectionID,$sql);
+        } else {
+            $stmtid = @db2_exec($this->_connectionID, $sql);
         }
         $this->_lastAffectedRows = 0;
-        if ($stmtid)
-        {
-            if (@db2_num_fields($stmtid) == 0)
-            {
+        if ($stmtid) {
+            if (@db2_num_fields($stmtid) == 0) {
                 $this->_lastAffectedRows = db2_num_rows($stmtid);
                 $stmtid = true;
-            }
-            else
-            {
+            } else {
                 $this->_lastAffectedRows = 0;
             }
 
             $this->_errorMsg = '';
             $this->_errorCode = 0;
-
-        }
-        else
-        {
-
+        } else {
             $this->_errorMsg = @db2_stmt_errormsg();
             $this->_errorCode = @db2_stmt_error();
-
         }
         return $stmtid;
     }
@@ -1996,9 +1972,9 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         $conn->execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');
         $conn->UpdateBlob('blobtable','blobcol',$blob,'id=1');
     */
-    function updateBlob($table,$column,$val,$where,$blobtype='BLOB')
+    function updateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
     {
-        return $this->execute("UPDATE $table SET $column=? WHERE $where",$val) != false;
+        return $this->execute("UPDATE $table SET $column=? WHERE $where", $val) != false;
     }
 
     // returns true or false
@@ -2028,14 +2004,13 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
     {
         global $ADODB_ASSOC_CASE;
 
-        switch($ADODB_ASSOC_CASE)
-        {
-        case ADODB_ASSOC_CASE_LOWER:
-            $value = strtolower($value);
-            break;
-        case ADODB_ASSOC_CASE_UPPER:
-            $value = strtoupper($value);
-            break;
+        switch ($ADODB_ASSOC_CASE) {
+            case ADODB_ASSOC_CASE_LOWER:
+                $value = strtolower($value);
+                break;
+            case ADODB_ASSOC_CASE_UPPER:
+                $value = strtoupper($value);
+                break;
         }
         return $value;
     }
@@ -2083,26 +2058,24 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
      */
     final public function getTableCasedValue($value)
     {
-        switch($this->tableCase)
-        {
-        case self::TABLECASE_LOWER:
-            $value = strtolower($value);
-            break;
-        case self::TABLECASE_UPPER:
-            $value = strtoupper($value);
-            break;
+        switch ($this->tableCase) {
+            case self::TABLECASE_LOWER:
+                $value = strtolower($value);
+                break;
+            case self::TABLECASE_UPPER:
+                $value = strtoupper($value);
+                break;
         }
         return $value;
     }
-
 }
 
 /*--------------------------------------------------------------------------------------
      Class Name: Recordset
 --------------------------------------------------------------------------------------*/
 
-class ADORecordSet_db2 extends ADORecordSet {
-
+class ADORecordSet_db2 extends ADORecordSet
+{
     var $bind = false;
     var $databaseType = "db2";
     var $dataProvider = "db2";
@@ -2112,10 +2085,10 @@ class ADORecordSet_db2 extends ADORecordSet {
     // returns the field object
     function fetchField($offset = 0)
     {
-        $o			   = new ADOFieldObject();
-        $o->name 	   = @db2_field_name($this->_queryID,$offset);
-        $o->type 	   = @db2_field_type($this->_queryID,$offset);
-        $o->max_length = @db2_field_width($this->_queryID,$offset);
+        $o             = new ADOFieldObject();
+        $o->name       = @db2_field_name($this->_queryID, $offset);
+        $o->type       = @db2_field_type($this->_queryID, $offset);
+        $o->max_length = @db2_field_width($this->_queryID, $offset);
 
         /*
         if (ADODB_ASSOC_CASE == 0)
@@ -2136,7 +2109,7 @@ class ADORecordSet_db2 extends ADORecordSet {
 
         if (!$this->bind) {
             $this->bind = array();
-            for ($i=0; $i < $this->_numOfFields; $i++) {
+            for ($i = 0; $i < $this->_numOfFields; $i++) {
                 $o = $this->FetchField($i);
                 $this->bind[strtoupper($o->name)] = $i;
             }
@@ -2156,8 +2129,9 @@ class ADORecordSet_db2 extends ADORecordSet {
 
         $this->_numOfFields = @db2_num_fields($this->_queryID);
 
-        if ($this->_numOfRows == 0)
+        if ($this->_numOfRows == 0) {
             $this->_numOfRows = -1;
+        }
     }
 
     function _seek($row)
@@ -2165,7 +2139,7 @@ class ADORecordSet_db2 extends ADORecordSet {
         return false;
     }
 
-    function getArrayLimit($nrows,$offset=0)
+    function getArrayLimit($nrows, $offset = 0)
     {
         if ($offset <= 0) {
             $rs = $this->GetArray($nrows);
@@ -2187,45 +2161,44 @@ class ADORecordSet_db2 extends ADORecordSet {
 
     function moveNext()
     {
-        if ($this->EOF || $this->_numOfRows == 0)
+        if ($this->EOF || $this->_numOfRows == 0) {
             return false;
+        }
 
         $this->_currentRow++;
 
         $this->processCoreFetch();
         return $this->processMoveRecord();
-
     }
 
     private function processCoreFetch()
     {
-        switch ($this->fetchMode){
-        case ADODB_FETCH_ASSOC:
+        switch ($this->fetchMode) {
+            case ADODB_FETCH_ASSOC:
+                /*
+                 * Associative array
+                 */
+                $this->fields = @db2_fetch_assoc($this->_queryID);
+                break;
 
-            /*
-             * Associative array
-             */
-            $this->fields = @db2_fetch_assoc($this->_queryID);
-            break;
-
-        case ADODB_FETCH_BOTH:
-            /*
-             * Fetch both numeric and Associative array
-             */
-            $this->fields = @db2_fetch_both($this->_queryID);
-            break;
-        default:
-            /*
-             * Numeric array
-             */
-            $this->fields = @db2_fetch_array($this->_queryID);
-            break;
+            case ADODB_FETCH_BOTH:
+                /*
+                 * Fetch both numeric and Associative array
+                 */
+                $this->fields = @db2_fetch_both($this->_queryID);
+                break;
+            default:
+                /*
+                 * Numeric array
+                 */
+                $this->fields = @db2_fetch_array($this->_queryID);
+                break;
         }
     }
 
     private function processMoveRecord()
     {
-        if (!$this->fields){
+        if (!$this->fields) {
             $this->EOF = true;
             return false;
         }
@@ -2236,8 +2209,9 @@ class ADORecordSet_db2 extends ADORecordSet {
     function _fetch()
     {
         $this->processCoreFetch();
-        if ($this->fields)
+        if ($this->fields) {
             return true;
+        }
 
         $this->fields = false;
         return false;
@@ -2252,15 +2226,14 @@ class ADORecordSet_db2 extends ADORecordSet {
             return false;
         }
         $ok = @db2_free_result($this->_queryID);
-        if (!$ok)
-        {
+        if (!$ok) {
             $this->connection->_errorMsg  = @db2_stmt_errormsg($this->_queryID);
             $this->connection->_errorCode = @db2_stmt_error();
 
-            if ($this->debug)
+            if ($this->debug) {
                 ADOConnection::outp($this->connection->_errorMsg);
+            }
             return false;
         }
     }
-
 }

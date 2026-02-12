@@ -1,4 +1,5 @@
 <?php
+
 /**
  * English language strings.
  *
@@ -20,7 +21,7 @@
  */
 
 $ADODB_LANG_ARRAY = array (
-			'LANG'                      => 'en',
+            'LANG'                      => 'en',
             DB_ERROR                    => 'unknown error',
             DB_ERROR_ALREADY_EXISTS     => 'already exists',
             DB_ERROR_CANNOT_CREATE      => 'can not create',
@@ -43,9 +44,9 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_VALUE_COUNT_ON_ROW => 'value count on row',
             DB_ERROR_INVALID_DSN        => 'invalid DSN',
             DB_ERROR_CONNECT_FAILED     => 'connect failed',
-            0	                       => 'no error', // DB_OK
+            0                          => 'no error', // DB_OK
             DB_ERROR_NEED_MORE_DATA     => 'insufficient data supplied',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'extension not found',
+            DB_ERROR_EXTENSION_NOT_FOUND => 'extension not found',
             DB_ERROR_NOSUCHDB           => 'no such database',
             DB_ERROR_ACCESS_VIOLATION   => 'insufficient permissions',
             DB_ERROR_DEADLOCK           => 'deadlock detected',

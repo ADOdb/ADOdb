@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Catalan language strings.
  *
@@ -21,7 +22,7 @@
  */
 
 $ADODB_LANG_ARRAY = array (
-			'LANG'                      => 'ca',
+            'LANG'                      => 'ca',
             DB_ERROR                    => 'error desconegut',
             DB_ERROR_ALREADY_EXISTS     => 'ja existeix',
             DB_ERROR_CANNOT_CREATE      => 'no es pot crear',
@@ -44,9 +45,9 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_VALUE_COUNT_ON_ROW => 'el nombre de columnes no coincideix amb el nombre de valors en la fila',
             DB_ERROR_INVALID_DSN        => 'el DSN no és vàlid',
             DB_ERROR_CONNECT_FAILED     => 'connexió fallida',
-            0	                       => 'cap error', // DB_OK
+            0                          => 'cap error', // DB_OK
             DB_ERROR_NEED_MORE_DATA     => 'les dades subministrades són insuficients',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'extensió no trobada',
+            DB_ERROR_EXTENSION_NOT_FOUND => 'extensió no trobada',
             DB_ERROR_NOSUCHDB           => 'base de dades inexistent',
             DB_ERROR_ACCESS_VIOLATION   => 'permisos insuficients'
 );

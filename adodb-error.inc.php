@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Error handling code and constants.
  *
@@ -22,119 +23,145 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-if (!defined("DB_ERROR")) define("DB_ERROR",-1);
+if (!defined("DB_ERROR")) {
+    define("DB_ERROR", -1);
+}
 
 if (!defined("DB_ERROR_SYNTAX")) {
-	define("DB_ERROR_SYNTAX",              -2);
-	define("DB_ERROR_CONSTRAINT",          -3);
-	define("DB_ERROR_NOT_FOUND",           -4);
-	define("DB_ERROR_ALREADY_EXISTS",      -5);
-	define("DB_ERROR_UNSUPPORTED",         -6);
-	define("DB_ERROR_MISMATCH",            -7);
-	define("DB_ERROR_INVALID",             -8);
-	define("DB_ERROR_NOT_CAPABLE",         -9);
-	define("DB_ERROR_TRUNCATED",          -10);
-	define("DB_ERROR_INVALID_NUMBER",     -11);
-	define("DB_ERROR_INVALID_DATE",       -12);
-	define("DB_ERROR_DIVZERO",            -13);
-	define("DB_ERROR_NODBSELECTED",       -14);
-	define("DB_ERROR_CANNOT_CREATE",      -15);
-	define("DB_ERROR_CANNOT_DELETE",      -16);
-	define("DB_ERROR_CANNOT_DROP",        -17);
-	define("DB_ERROR_NOSUCHTABLE",        -18);
-	define("DB_ERROR_NOSUCHFIELD",        -19);
-	define("DB_ERROR_NEED_MORE_DATA",     -20);
-	define("DB_ERROR_NOT_LOCKED",         -21);
-	define("DB_ERROR_VALUE_COUNT_ON_ROW", -22);
-	define("DB_ERROR_INVALID_DSN",        -23);
-	define("DB_ERROR_CONNECT_FAILED",     -24);
-	define("DB_ERROR_EXTENSION_NOT_FOUND",-25);
-	define("DB_ERROR_NOSUCHDB",           -25);
-	define("DB_ERROR_ACCESS_VIOLATION",   -26);
-	define("DB_ERROR_DEADLOCK",           -27);
-	define("DB_ERROR_STATEMENT_TIMEOUT",  -28);
-	define("DB_ERROR_SERIALIZATION_FAILURE", -29);
+    define("DB_ERROR_SYNTAX", -2);
+    define("DB_ERROR_CONSTRAINT", -3);
+    define("DB_ERROR_NOT_FOUND", -4);
+    define("DB_ERROR_ALREADY_EXISTS", -5);
+    define("DB_ERROR_UNSUPPORTED", -6);
+    define("DB_ERROR_MISMATCH", -7);
+    define("DB_ERROR_INVALID", -8);
+    define("DB_ERROR_NOT_CAPABLE", -9);
+    define("DB_ERROR_TRUNCATED", -10);
+    define("DB_ERROR_INVALID_NUMBER", -11);
+    define("DB_ERROR_INVALID_DATE", -12);
+    define("DB_ERROR_DIVZERO", -13);
+    define("DB_ERROR_NODBSELECTED", -14);
+    define("DB_ERROR_CANNOT_CREATE", -15);
+    define("DB_ERROR_CANNOT_DELETE", -16);
+    define("DB_ERROR_CANNOT_DROP", -17);
+    define("DB_ERROR_NOSUCHTABLE", -18);
+    define("DB_ERROR_NOSUCHFIELD", -19);
+    define("DB_ERROR_NEED_MORE_DATA", -20);
+    define("DB_ERROR_NOT_LOCKED", -21);
+    define("DB_ERROR_VALUE_COUNT_ON_ROW", -22);
+    define("DB_ERROR_INVALID_DSN", -23);
+    define("DB_ERROR_CONNECT_FAILED", -24);
+    define("DB_ERROR_EXTENSION_NOT_FOUND", -25);
+    define("DB_ERROR_NOSUCHDB", -25);
+    define("DB_ERROR_ACCESS_VIOLATION", -26);
+    define("DB_ERROR_DEADLOCK", -27);
+    define("DB_ERROR_STATEMENT_TIMEOUT", -28);
+    define("DB_ERROR_SERIALIZATION_FAILURE", -29);
 }
 
 function adodb_errormsg($value)
 {
-global $ADODB_LANG,$ADODB_LANG_ARRAY;
+    global $ADODB_LANG,$ADODB_LANG_ARRAY;
 
-	if (empty($ADODB_LANG)) $ADODB_LANG = 'en';
-	if (isset($ADODB_LANG_ARRAY['LANG']) && $ADODB_LANG_ARRAY['LANG'] == $ADODB_LANG) ;
-	else {
-		include_once(ADODB_DIR."/lang/adodb-$ADODB_LANG.inc.php");
+    if (empty($ADODB_LANG)) {
+        $ADODB_LANG = 'en';
     }
-	return isset($ADODB_LANG_ARRAY[$value]) ? $ADODB_LANG_ARRAY[$value] : $ADODB_LANG_ARRAY[DB_ERROR];
+    if (isset($ADODB_LANG_ARRAY['LANG']) && $ADODB_LANG_ARRAY['LANG'] == $ADODB_LANG) ;
+    else {
+        include_once(ADODB_DIR . "/lang/adodb-$ADODB_LANG.inc.php");
+    }
+    return isset($ADODB_LANG_ARRAY[$value]) ? $ADODB_LANG_ARRAY[$value] : $ADODB_LANG_ARRAY[DB_ERROR];
 }
 
-function adodb_error($provider,$dbType,$errno)
+function adodb_error($provider, $dbType, $errno)
 {
-	//var_dump($errno);
-	if (is_numeric($errno) && $errno == 0) return 0;
-	switch($provider) {
-	case 'mysql': $map = adodb_error_mysql(); break;
+    //var_dump($errno);
+    if (is_numeric($errno) && $errno == 0) {
+        return 0;
+    }
+    switch ($provider) {
+        case 'mysql':
+            $map = adodb_error_mysql();
+            break;
 
-	case 'oracle':
-	case 'oci8': $map = adodb_error_oci8(); break;
+        case 'oracle':
+        case 'oci8':
+            $map = adodb_error_oci8();
+            break;
 
-	// As discussed in https://github.com/ADOdb/ADOdb/issues/201#issuecomment-188154980
-	// firebird uses the ibase error handler for now. This may change if and
-	// when the PHP driver is updated to use the new SQLSTATE error codes
-	case 'firebird':
-	case 'ibase': $map = adodb_error_ibase(); break;
+    // As discussed in https://github.com/ADOdb/ADOdb/issues/201#issuecomment-188154980
+    // firebird uses the ibase error handler for now. This may change if and
+    // when the PHP driver is updated to use the new SQLSTATE error codes
+        case 'firebird':
+        case 'ibase':
+            $map = adodb_error_ibase();
+            break;
 
-	case 'odbc': $map = adodb_error_odbc(); break;
+        case 'odbc':
+            $map = adodb_error_odbc();
+            break;
 
-	case 'mssql':
-	case 'sybase': $map = adodb_error_mssql(); break;
+        case 'mssql':
+        case 'sybase':
+            $map = adodb_error_mssql();
+            break;
 
-	case 'informix': $map = adodb_error_ifx(); break;
+        case 'informix':
+            $map = adodb_error_ifx();
+            break;
 
-	case 'postgres': return adodb_error_pg($errno); break;
+        case 'postgres':
+            return adodb_error_pg($errno);
+        break;
 
-	case 'sqlite': return $map = adodb_error_sqlite(); break;
-	default:
-		return DB_ERROR;
-	}
-	//print_r($map);
-	//var_dump($errno);
-	if (isset($map[$errno])) return $map[$errno];
-	return DB_ERROR;
+        case 'sqlite':
+            return $map = adodb_error_sqlite();
+        break;
+        default:
+            return DB_ERROR;
+    }
+    //print_r($map);
+    //var_dump($errno);
+    if (isset($map[$errno])) {
+        return $map[$errno];
+    }
+    return DB_ERROR;
 }
 
 //**************************************************************************************
 
 function adodb_error_pg($errormsg)
 {
-	if (is_numeric($errormsg)) return (int) $errormsg;
-	// Postgres has no lock-wait timeout.  The best we could do would be to set a statement timeout.
-	static $error_regexps = array(
-			'(Table does not exist\.|Relation [\"\'].*[\"\'] does not exist|sequence does not exist|class ".+" not found)$' => DB_ERROR_NOSUCHTABLE,
-			'Relation [\"\'].*[\"\'] already exists|Cannot insert a duplicate key into (a )?unique index.*|duplicate key.*violates unique constraint'     => DB_ERROR_ALREADY_EXISTS,
-			'database ".+" does not exist$'       => DB_ERROR_NOSUCHDB,
-			'(divide|division) by zero$'          => DB_ERROR_DIVZERO,
-			'pg_atoi: error in .*: can\'t parse ' => DB_ERROR_INVALID_NUMBER,
-			'ttribute [\"\'].*[\"\'] not found|Relation [\"\'].*[\"\'] does not have attribute [\"\'].*[\"\']' => DB_ERROR_NOSUCHFIELD,
-			'(parser: parse|syntax) error at or near \"'   => DB_ERROR_SYNTAX,
-			'referential integrity violation'     => DB_ERROR_CONSTRAINT,
-			'deadlock detected$'                  => DB_ERROR_DEADLOCK,
-			'canceling statement due to statement timeout$' => DB_ERROR_STATEMENT_TIMEOUT,
-			'could not serialize access due to'   => DB_ERROR_SERIALIZATION_FAILURE
-		);
-	reset($error_regexps);
-	foreach ($error_regexps as $regexp => $code) {
-		if (preg_match("/$regexp/mi", $errormsg)) {
-			return $code;
-		}
-	}
-	// Fall back to DB_ERROR if there was no mapping.
-	return DB_ERROR;
+    if (is_numeric($errormsg)) {
+        return (int) $errormsg;
+    }
+    // Postgres has no lock-wait timeout.  The best we could do would be to set a statement timeout.
+    static $error_regexps = array(
+            '(Table does not exist\.|Relation [\"\'].*[\"\'] does not exist|sequence does not exist|class ".+" not found)$' => DB_ERROR_NOSUCHTABLE,
+            'Relation [\"\'].*[\"\'] already exists|Cannot insert a duplicate key into (a )?unique index.*|duplicate key.*violates unique constraint'     => DB_ERROR_ALREADY_EXISTS,
+            'database ".+" does not exist$'       => DB_ERROR_NOSUCHDB,
+            '(divide|division) by zero$'          => DB_ERROR_DIVZERO,
+            'pg_atoi: error in .*: can\'t parse ' => DB_ERROR_INVALID_NUMBER,
+            'ttribute [\"\'].*[\"\'] not found|Relation [\"\'].*[\"\'] does not have attribute [\"\'].*[\"\']' => DB_ERROR_NOSUCHFIELD,
+            '(parser: parse|syntax) error at or near \"'   => DB_ERROR_SYNTAX,
+            'referential integrity violation'     => DB_ERROR_CONSTRAINT,
+            'deadlock detected$'                  => DB_ERROR_DEADLOCK,
+            'canceling statement due to statement timeout$' => DB_ERROR_STATEMENT_TIMEOUT,
+            'could not serialize access due to'   => DB_ERROR_SERIALIZATION_FAILURE
+        );
+    reset($error_regexps);
+    foreach ($error_regexps as $regexp => $code) {
+        if (preg_match("/$regexp/mi", $errormsg)) {
+            return $code;
+        }
+    }
+    // Fall back to DB_ERROR if there was no mapping.
+    return DB_ERROR;
 }
 
 function adodb_error_odbc()
 {
-static $MAP = array(
+    static $MAP = array(
             '01004' => DB_ERROR_TRUNCATED,
             '07001' => DB_ERROR_MISMATCH,
             '21S01' => DB_ERROR_MISMATCH,
@@ -155,17 +182,17 @@ static $MAP = array(
             'S0012' => DB_ERROR_NOT_FOUND,
             'S0021' => DB_ERROR_ALREADY_EXISTS,
             'S0022' => DB_ERROR_NOT_FOUND,
-			'S1000' => DB_ERROR_NOSUCHTABLE,
+            'S1000' => DB_ERROR_NOSUCHTABLE,
             'S1009' => DB_ERROR_INVALID,
             'S1090' => DB_ERROR_INVALID,
             'S1C00' => DB_ERROR_NOT_CAPABLE
         );
-		return $MAP;
+        return $MAP;
 }
 
 function adodb_error_ibase()
 {
-static $MAP = array(
+    static $MAP = array(
             -104 => DB_ERROR_SYNTAX,
             -150 => DB_ERROR_ACCESS_VIOLATION,
             -151 => DB_ERROR_ACCESS_VIOLATION,
@@ -190,12 +217,12 @@ static $MAP = array(
             -924 => DB_ERROR_CONNECT_FAILED
         );
 
-		return $MAP;
+        return $MAP;
 }
 
 function adodb_error_ifx()
 {
-static $MAP = array(
+    static $MAP = array(
             '-201'    => DB_ERROR_SYNTAX,
             '-206'    => DB_ERROR_NOSUCHTABLE,
             '-217'    => DB_ERROR_NOSUCHFIELD,
@@ -208,13 +235,13 @@ static $MAP = array(
             '-1212'   => DB_ERROR_INVALID_DATE
        );
 
-	   return $MAP;
+       return $MAP;
 }
 
 function adodb_error_oci8()
 {
-static $MAP = array(
-			 1 => DB_ERROR_ALREADY_EXISTS,
+    static $MAP = array(
+             1 => DB_ERROR_ALREADY_EXISTS,
             900 => DB_ERROR_SYNTAX,
             904 => DB_ERROR_NOSUCHFIELD,
             923 => DB_ERROR_SYNTAX,
@@ -227,39 +254,39 @@ static $MAP = array(
             2449 => DB_ERROR_CONSTRAINT
         );
 
-	return $MAP;
+    return $MAP;
 }
 
 function adodb_error_mssql()
 {
-static $MAP = array(
-		  208 => DB_ERROR_NOSUCHTABLE,
+    static $MAP = array(
+          208 => DB_ERROR_NOSUCHTABLE,
           2601 => DB_ERROR_ALREADY_EXISTS
        );
 
-	return $MAP;
+    return $MAP;
 }
 
 function adodb_error_sqlite()
 {
-static $MAP = array(
-		  1 => DB_ERROR_SYNTAX
+    static $MAP = array(
+          1 => DB_ERROR_SYNTAX
        );
 
-	return $MAP;
+    return $MAP;
 }
 
 function adodb_error_mysql()
 {
-static $MAP = array(
+    static $MAP = array(
            1004 => DB_ERROR_CANNOT_CREATE,
            1005 => DB_ERROR_CANNOT_CREATE,
            1006 => DB_ERROR_CANNOT_CREATE,
            1007 => DB_ERROR_ALREADY_EXISTS,
            1008 => DB_ERROR_CANNOT_DROP,
-	   1045 => DB_ERROR_ACCESS_VIOLATION,
+       1045 => DB_ERROR_ACCESS_VIOLATION,
            1046 => DB_ERROR_NODBSELECTED,
-	   1049 => DB_ERROR_NOSUCHDB,
+       1049 => DB_ERROR_NOSUCHDB,
            1050 => DB_ERROR_ALREADY_EXISTS,
            1051 => DB_ERROR_NOSUCHTABLE,
            1054 => DB_ERROR_NOSUCHFIELD,
@@ -269,9 +296,9 @@ static $MAP = array(
            1136 => DB_ERROR_VALUE_COUNT_ON_ROW,
            1146 => DB_ERROR_NOSUCHTABLE,
            1048 => DB_ERROR_CONSTRAINT,
-	   2002 => DB_ERROR_CONNECT_FAILED,
+       2002 => DB_ERROR_CONNECT_FAILED,
            2005 => DB_ERROR_CONNECT_FAILED
        );
 
-	return $MAP;
+    return $MAP;
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Portuguese (Brazilian) language strings.
  *
@@ -21,7 +22,7 @@
  */
 
 $ADODB_LANG_ARRAY = array (
-			'LANG'                      => 'pt-br',
+            'LANG'                      => 'pt-br',
             DB_ERROR                    => 'erro desconhecido',
             DB_ERROR_ALREADY_EXISTS     => 'já existe',
             DB_ERROR_CANNOT_CREATE      => 'impossível criar',
@@ -45,9 +46,9 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_VALUE_COUNT_ON_ROW => 'a quantidade de colunas não corresponde ao de valores',
             DB_ERROR_INVALID_DSN        => 'DSN inválido',
             DB_ERROR_CONNECT_FAILED     => 'falha na conexão',
-            0				=> 'sem erro', // DB_OK
+            0               => 'sem erro', // DB_OK
             DB_ERROR_NEED_MORE_DATA     => 'dados insuficientes',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'extensão não encontrada',
+            DB_ERROR_EXTENSION_NOT_FOUND => 'extensão não encontrada',
             DB_ERROR_NOSUCHDB           => 'banco de dados não encontrado',
             DB_ERROR_ACCESS_VIOLATION   => 'permissão insuficiente'
 );

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Indonesian language strings.
  *
@@ -21,7 +22,7 @@
  */
 
 $ADODB_LANG_ARRAY = array (
-			'LANG'                      => 'id',
+            'LANG'                      => 'id',
             DB_ERROR                    => 'kesalahan tidak diketahui',
             DB_ERROR_ALREADY_EXISTS     => 'sudah ada',
             DB_ERROR_CANNOT_CREATE      => 'tak dapat membuat',
@@ -44,9 +45,9 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_VALUE_COUNT_ON_ROW => 'menghitung isi pada baris',
             DB_ERROR_INVALID_DSN        => 'DSN tidak sah',
             DB_ERROR_CONNECT_FAILED     => 'koneksi gagal',
-            0	                       => 'tak ada kesalahan', // DB_OK
+            0                          => 'tak ada kesalahan', // DB_OK
             DB_ERROR_NEED_MORE_DATA     => 'data yang dimasukan tidak memadai',
-            DB_ERROR_EXTENSION_NOT_FOUND=> 'ekstensi tak ditemukan',
+            DB_ERROR_EXTENSION_NOT_FOUND => 'ekstensi tak ditemukan',
             DB_ERROR_NOSUCHDB           => 'database tak ditemukan',
             DB_ERROR_ACCESS_VIOLATION   => 'izin tidak memadai',
             DB_ERROR_DEADLOCK           => 'kebuntuan terdeteksi',
