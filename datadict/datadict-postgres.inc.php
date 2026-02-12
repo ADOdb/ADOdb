@@ -231,16 +231,12 @@ class ADODB2_postgres extends ADODB_DataDict
 					$existing = $this->metaColumns($tabname);
 					list(,$colname,$default) = $matches;
 					$alter .= $colname;
-					
+
 					$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
-					$t = trim(str_replace('DEFAULT '.$default,'',$v));
-					
-					if ($this->connection) {
-						if (array_key_exists(strtoupper($colname), $existing)) {
-							$old_coltype = $this->connection->metaType($existing[strtoupper($colname)]);
-						} else {
-							$old_coltype = $t;
-						}
+					$t = trim(str_replace('DEFAULT ' . $default,'',$v));
+
+					if ($this->connection && array_key_exists(strtoupper($colname), $existing)) {
+						$old_coltype = $this->connection->metaType($existing[strtoupper($colname)]);
 					} else {
 						$old_coltype = $t;
 					}
