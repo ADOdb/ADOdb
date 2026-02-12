@@ -208,6 +208,19 @@ class ADODB_DataDict {
 	 */
 	public $quote;
 
+	/*
+	* Constants that represent the current activity
+	* passed from a parent process to the lineProcessor
+	* methods
+	* 
+	* @example dropColumnSql passes EWPROCESS_TABLE_DELETE
+	*/
+	const REPROCESS_TABLE_CREATE = 1;
+	const REPROCESS_TABLE_CHANGE = 2;
+	const REPROCESS_TABLE_DELETE = 3;
+
+
+
 	function getCommentSQL($table,$col)
 	{
 		return false;
@@ -544,9 +557,34 @@ class ADODB_DataDict {
 	{
 		$tabname = $this->tableName($tabname);
 		$sql = array();
+		$preProcessLines  = [];
+		$postProcessLines = [];
+
 		list($lines,$pkey,$idxs) = $this->_genFields($flds);
+		
 		// genfields can return FALSE at times
-		if ($lines == null) $lines = array();
+		if ($lines == null) { 
+			$lines = array();
+		}
+
+		/*
+		* Execute any driver-specific line changes
+		*/
+		list ($preProcessLines,$lines, $postProcessLines) = 
+			$this->reprocessColumns(
+				$tabname,
+				$lines,
+				self::REPROCESS_TABLE_CHANGE
+			);
+		
+		/*
+		* Preprocess lines are executed before the table process,
+		* Postprocess lines are executed after
+		*/
+		if (count($preProcessLines) > 0) {
+			$sql = array_merge($sql, $preProcessLines);
+		}
+
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 		foreach($lines as $v) {
 			$sql[] = $alter . $v;
@@ -557,6 +595,13 @@ class ADODB_DataDict {
 				$sql = array_merge($sql, $sql_idxs);
 			}
 
+		}
+
+		/*
+		* Merge any postprocess lines available
+		*/
+		if (count($postProcessLines) > 0) {
+			$sql = array_merge($sql, $postProcessLines);
 		}
 		return $sql;
 	}
@@ -582,7 +627,9 @@ class ADODB_DataDict {
 		if ($flds) {
 			list($lines,$pkey,$idxs) = $this->_genFields($flds);
 			// genfields can return FALSE at times
-			if ($lines == null) $lines = array();
+			if ($lines == null) {
+				$lines = array();
+			}
 			$first  = current($lines);
 			list(,$column_def) = preg_split("/[\t ]+/",$first,2);
 		}
@@ -626,23 +673,38 @@ class ADODB_DataDict {
 		return array (sprintf($this->renameTable, $this->tableName($tabname),$this->tableName($newname)));
 	}
 
-	const TABLE_CREATE = 1;
-	const TABLE_CHANGE = 2;
-	const TABLE_DELETE = 3;
-
+	/**
+	 * Called from createTableSQL, The processes all of the statements to
+	 * change any Database specific SQL statements that require multiple replacments
+	 * This method returns lines that are executed before the table, and those executed
+	 * after
+	 *
+	 * @param string  $tableName
+	 * @param array   $lines
+	 * @param integer $processType
+	 * 
+	 * @example a driver that requires an index drop before changing the attributes of
+	 *          a column
+	 * 
+	 * @return array
+	 */
 	protected function reprocessColumns(string $tableName, array $lines, int $processType) :array
 	{
 		
 		$preProcessLines = [];
 		$postProcessLines = [];
 		/*
-		* See if the SQL needs reprocessing
+		* See if any individual lines of  SQL needs reprocessing,
 		*/
 		$metaColumns = $this->metaColumns($tableName);
 		if ($metaColumns == false) {
-			$metaColumns = true;
+			$metaColumns = [];
 		}
 
+		/*
+		* Send each line individually so that any pre or post processing
+		* can be captured and added to the necessary arrays
+		*/
 		foreach ($lines as $lineKey => $line) {
 			
 			list(
@@ -651,12 +713,27 @@ class ADODB_DataDict {
 				$returnedPostProcessLines
 				) = $this->lineProcessor($tableName, $lineKey, $line, $metaColumns, $processType);
 			
-			if (count($lines) == 1) {
+			if (count($returnedLines) == 1) {
+				/*
+				* Overwrite the existing line with the returned
+				* value
+				*/
 				$lines[$lineKey] = $returnedLines[0];
 			} else {
+				/*
+				* Inject multiple lines as a replacement for
+				* the outbound single value
+				*/
+				$injectedLines = [];
 				foreach ($returnedLines as $key => $value) {
-					$lines[$lineKey . '-' . $key] = $value;
+					$injectedLines[$lineKey . '-' . $key] = $value;
 				}
+
+				/*
+				* Remove the original line and replace
+				*/
+				$lines = array_splice($lines,$lineKey,1,$returnedLines);
+
 			}
 			
 			$preProcessLines  = array_merge(
@@ -672,6 +749,43 @@ class ADODB_DataDict {
 
 		return array($preProcessLines, $lines, $postProcessLines);
 	}
+
+	/**
+	 * Rewrite any driver specific SQL and actions to be executed before
+	 * and after the main SQL statement is executed based on the
+	 * type of calling action
+	 *
+	 * @param string $tableName   The table name 
+	 * @param string $lineKey     The line key
+	 * @param string $inboundLine The line to process
+	 * @param array  $metaColumns Existing table columns, if any
+	 * @param int	 $processMode 1=ADD/2=CHANGE/3=DELETE
+	 * 
+	 * @return array
+	 */
+	protected function lineProcessor(
+		string $tableName, 
+		string $lineKey, 
+		string $inboundLine, 
+		array $metaColumns, 
+		int $processMode = 1
+	) : array {
+		
+		/*
+		* The outbound lines can be returned 
+		* with any count of replacements
+		* @example The DB2 driver
+		*/
+		$outboundLines = [ 
+			$inboundLine 
+		];
+		
+		$preProcessLines  = [];
+		$postProcessLines = [];
+
+		return array($preProcessLines, $outboundLines, $postProcessLines);
+
+	}
 	
 	
 	/**
@@ -679,12 +793,13 @@ class ADODB_DataDict {
 	*
 	* @param string $tabname The table name
 	* @param string $flds
-	* @param array  $tableOptions
+	* @param mixed  $tableOptions
 	*
 	* @return array   
 	*/
 	function createTableSQL($tabname, $flds, $tableoptions=array())
 	{
+		
 		list($lines,$pkey,$idxs) = $this->_genFields($flds, true);
 		// genfields can return FALSE at times
 		if ($lines == null) { 
@@ -695,11 +810,14 @@ class ADODB_DataDict {
 		$preProcessLines  = [];
 		$postProcessLines = [];
 
+		/*
+		* Execute any driver-specific line changes
+		*/
 		list ($preProcessLines,$lines, $postProcessLines) = 
 			$this->reprocessColumns(
 				$tabname,
 				$lines,
-				self::TABLE_CREATE
+				self::REPROCESS_TABLE_CREATE
 			);
 		
 		/*
@@ -1070,31 +1188,7 @@ class ADODB_DataDict {
 		return false;
 	}
 
-	/**
-	 * Rewrite any driver specific SQL and actions to be executed before
-	 * and after the main SQL statement is executed based on the
-	 * type of calling action
-	 *
-	 * @param string $tabName     The table name 
-	 * @param string $lineKey     The line key
-	 * @param string $inboundLine The line to process
-	 * @param array  $metaColumns Existing table columns, if any
-	 * @param int	 $processMode 1=ADD/2=CHANGE/3=DELETE
-	 * 
-	 * @return array
-	 */
-	protected function lineProcessor(string $tabName, string $lineKey, string $inboundLine, array $metaColumns, int $processMode = 1) : array
-	{
-		$outboundLines = [ 
-			$inboundLine 
-		];
-		
-		$preProcessLines  = [];
-		$postProcessLines = [];
-
-		return array($preProcessLines, $outboundLines, $postProcessLines);
-
-	}
+	
 
 	function _tableSQL($tabname,$lines,$pkey,$tableoptions)
 	{
@@ -1221,8 +1315,14 @@ class ADODB_DataDict {
 		$ADODB_FETCH_MODE = $save;
 
 		if (is_array($flds)) {
+			/*
+			* $flds as array comes from the XML schema functions
+			*/
 			return $this->changeTableFromArray($tablename, $flds, $metaColumns, $dropOldFlds);
 		} else {
+			/*
+			* $flds as a string comes from changeTableSql
+			*/
 			return $this->changeTableFromString($tablename, $flds, $metaColumns, $dropOldFlds);
 		}
 
