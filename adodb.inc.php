@@ -756,6 +756,15 @@ if (!defined('_ADODB_LAYER')) {
 	/** @var string a specified locale. */
 	var $locale;
 
+	/**
+	 * Setting true forces metacolumns to be read the db for 
+	 * each access of a table instead of using cached version. 
+	 * Currently only works on mssqlnative
+	 * 
+	 * @var bool
+	 */
+	public bool $cachedSchemaFlush = false;
+	
 
 	/**
 	 * Default Constructor.
