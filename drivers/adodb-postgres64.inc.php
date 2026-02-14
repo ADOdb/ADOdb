@@ -524,10 +524,14 @@ class ADODB_postgres64 extends ADOConnection{
 
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-		if ($this->fetchMode !== false) $savem = $this->SetFetchMode(false);
+		if ($this->fetchMode !== false) {
+			$savem = $this->SetFetchMode(false);
+		}
 
 		$rs = $this->Execute($this->_generateMetaColumnsSQL($table, $schema));
-		if (isset($savem)) $this->SetFetchMode($savem);
+		if (isset($savem)) {
+			$this->SetFetchMode($savem);
+		}	
 		$ADODB_FETCH_MODE = $save;
 
 		if ($rs === false) {
@@ -540,11 +544,15 @@ class ADODB_postgres64 extends ADOConnection{
 			// not support OUTER JOINS. So here is the clumsy way.
 
 			$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-
+			if (isset($savem)) {
+				$this->SetFetchMode(ADODB_FETCH_ASSOC);
+			}
 			$rskey = $this->Execute(sprintf($this->metaKeySQL,($table)));
 			// fetch all result in once for performance.
 			$keys = $rskey->GetArray();
-			if (isset($savem)) $this->SetFetchMode($savem);
+			if (isset($savem)) {
+				$this->SetFetchMode($savem);
+			}
 			$ADODB_FETCH_MODE = $save;
 
 			$rskey->Close();
@@ -556,15 +564,24 @@ class ADODB_postgres64 extends ADOConnection{
 		$rsdefa = array();
 		if (!empty($this->metaDefaultsSQL)) {
 			$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+			if (isset($savem)) {
+				$this->SetFetchMode(ADODB_FETCH_ASSOC);
+			}
 			$sql = sprintf($this->metaDefaultsSQL, ($table));
 			$rsdef = $this->Execute($sql);
-			if (isset($savem)) $this->SetFetchMode($savem);
+			if (isset($savem)) {
+				$this->SetFetchMode($savem);
+			}
 			$ADODB_FETCH_MODE = $save;
 
 			if ($rsdef) {
 				while (!$rsdef->EOF) {
-					$num = $rsdef->fields['num'];
-					$s = $rsdef->fields['def'];
+
+					$fields = array_change_key_case($rsdef->fields, CASE_LOWER);
+	
+					$num = $fields['num'];
+					$s   = $fields['def'];
+					
 					if (strpos($s,'::')===false && substr($s, 0, 1) == "'") { /* quoted strings hack... for now... fixme */
 						$s = substr($s, 1);
 						$s = substr($s, 0, strlen($s) - 1);
@@ -605,7 +622,10 @@ class ADODB_postgres64 extends ADOConnection{
 
 			// Freek
 			if (is_array($keys)) {
-				foreach($keys as $key) {
+
+				foreach($keys as $key) { 
+					$key = array_change_key_case($key, CASE_LOWER);
+					
 					if ($fld->name == $key['column_name'] && $key['primary_key'] == 't') {
 						$fld->primary_key = true;
 					}
