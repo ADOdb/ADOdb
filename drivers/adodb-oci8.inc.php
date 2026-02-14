@@ -1536,20 +1536,22 @@ SELECT /*+ RULE */ distinct b.column_name
 	/**
 	 * Returns a list of Foreign Keys associated with a specific table.
 	 *
-	 * @param string $table
-	 * @param string $owner
-	 * @param bool   $upper       discarded
-	 * @param bool   $associative discarded
+	 * @param string $table	      Name of the table
+	 * @param string $owner		  Owner of the table
+	 * @param bool   $upper       Return keys in uppercase (true)
+	 * @param bool   $associative Force associative mode
 	 *
-	 * @return string[]|false An array where keys are tables, and values are foreign keys;
-	 *                        false if no foreign keys could be found.
+	 * @return array|false An array where keys are tables, and values are foreign keys;
+	 *                     false if no foreign keys could be found.
 	 */
 	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
 		global $ADODB_FETCH_MODE;
-
+		
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		$this->SetFetchMode(ADODB_FETCH_NUM);
+
 		$table = $this->qstr(strtoupper($table));
 		if (!$owner) {
 			$owner = $this->user;
@@ -1557,29 +1559,79 @@ SELECT /*+ RULE */ distinct b.column_name
 		} else
 			$tabp = 'all_';
 
-		$owner = ' and owner='.$this->qstr(strtoupper($owner));
+		$owner = ' AND owner='.$this->qstr(strtoupper($owner));
 
 		$sql =
-"select constraint_name,r_owner,r_constraint_name
-	from {$tabp}constraints
-	where constraint_type = 'R' and table_name = $table $owner";
+"SELECT constraint_name,r_owner,r_constraint_name
+   FROM {$tabp}constraints
+  WHERE constraint_type = 'R' 
+	AND table_name = $table $owner";
 
 		$constraints = $this->GetArray($sql);
 		$arr = false;
 		foreach($constraints as $constr) {
-			$cons = $this->qstr($constr[0]);
+			$cons   = $this->qstr($constr[0]);
 			$rowner = $this->qstr($constr[1]);
-			$rcons = $this->qstr($constr[2]);
-			$cols = $this->GetArray("select column_name from {$tabp}cons_columns where constraint_name=$cons $owner order by position");
-			$tabcol = $this->GetArray("select table_name,column_name from {$tabp}cons_columns where owner=$rowner and constraint_name=$rcons order by position");
+			$rcons  = $this->qstr($constr[2]);
 
-			if ($cols && $tabcol)
-				for ($i=0, $max=sizeof($cols); $i < $max; $i++) {
-					$arr[$tabcol[$i][0]] = $cols[$i][0].'='.$tabcol[$i][1];
+			$sql = "SELECT column_name 
+					  FROM {$tabp}cons_columns 
+					 WHERE constraint_name=$cons $owner 
+					 ORDER BY position";
+			$sourceData = $this->GetCol($sql);
+			
+			$sql = "SELECT table_name,column_name 
+			          FROM {$tabp}cons_columns 
+					  WHERE owner=$rowner 
+					  AND constraint_name=$rcons 
+					  ORDER BY position";
+			$targetData = $this->GetArray($sql);
+
+			if ($sourceData && $targetData) {
+				$arr = [];
+				$max = sizeof($sourceData);
+				foreach ($targetData as $k => $v) {
+					if ($upper) {
+						$tableName = strtoupper($v[0]);
+					} else {
+						$tableName = strtolower($v[0]);
+					}
+					
+					if (!array_key_exists($tableName, $arr)) {
+						$arr[$tableName] = [];
+					}
+					if ($save <> ADODB_FETCH_NUM || ($save == ADODB_FETCH_NUM && $associative)) {
+						/*
+						* Write ADODB_FETCH_ASSOC format
+						*/
+						if ($upper) {
+							$arr[$tableName][strtoupper($sourceData[$k])] = strtoupper($v[1]);
+						} else {
+							$arr[$tableName][strtolower($sourceData[$k])] = strtolower($v[1]);
+						}
+					} else {
+						/*
+						* Write ADODB_FETCH_NUM format
+						*/
+						if ($upper) {
+						$arr[$tableName][] = sprintf(
+							'%s=%s', 		
+							strtoupper($sourceData[$k]),
+							strtoupper($v[1])
+						);
+						} else {
+							$arr[$tableName][] = sprintf(
+							'%s=%s', 
+							strtolower($sourceData[$k]),
+							strtolower($v[1])
+						);
+						}
+					} 
 				}
+			}
 		}
 		$ADODB_FETCH_MODE = $save;
-
+		$this->SetFetchMode($save);
 		return $arr;
 	}
 
