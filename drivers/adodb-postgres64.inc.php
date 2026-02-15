@@ -648,6 +648,46 @@ class ADODB_postgres64 extends ADOConnection{
 		return $retarr ?: false;
 	}
 
+	
+	/**
+	 * List columns names in a table as an array.
+	 * @param string $table	     table name to query
+	 * @param bool   $numIndexes return numeric keys
+	 * @param bool   $useattnum  For postgres, use the attnum
+	 *
+	 * @return false|array of column names for current table.
+	 */
+	public function MetaColumnNames(
+		string $table, 
+		bool $numIndexes=false, 
+		bool $useattnum=false
+	) : mixed {
+		
+		$objarr = $this->MetaColumns($table);
+		if (!is_array($objarr)) {
+			return false;
+		}
+
+		$columnNames = [];
+		foreach($objarr as $v) {
+			if ($useattnum) {
+				/*
+				* overrides associative keys
+				*/
+				$columnNames[$v->attnum] = $v->name;	
+			} else {
+				$columnNames[strtoupper($v->name)] = $v->name;
+			}
+		}
+
+		if ($numIndexes && !$useattnum) {
+			return array_values($columnNames);
+		}
+
+		return $columnNames;
+	
+	}
+	
 	function param($name, $type='C')
 	{
 		if (!$name) {
