@@ -852,7 +852,7 @@ class ADODB_db2 extends ADOConnection {
         $schema = '';
         $this->_findschema($table,$schema);
 
-        $metaTables = $this->metaTables('T','',$table);
+        $metaTables = $this->metaTables('T', $owner, $table);
 
         if ($metaTables == false) {
             return false;
@@ -881,6 +881,9 @@ class ADODB_db2 extends ADOConnection {
         foreach ($results as $r)
         {
 
+            $r = array_change_key_case($r, CASE_UPPER);
+           
+            
             /*
 
             [CONSTNAME] => SQL250829011849680
@@ -900,22 +903,46 @@ class ADODB_db2 extends ADOConnection {
             [DEFINER] => DB2INST1
         )
             */
-            $referenceTable = trim($r['REFTABNAME']);
 
-            if (!array_key_exists($referenceTable,$foreignKeys)) {
+            $casing = $upper ? CASE_UPPER : CASE_LOWER;
+            
+            $referenceTable = trim($r['REFTABNAME']);
+            
+            if ($casing == CASE_UPPER) {
+                $referenceTable = strtoupper($referenceTable);
+            } else {  
+                $referenceTable = strtolower($referenceTable);
+            }
+            
+            if (!array_key_exists($referenceTable, $foreignKeys)) {
                 $foreignKeys[$referenceTable] = array();
             }
-            $pkColnames = array_filter(preg_split('/ +/', $r['PK_COLNAMES']));
+
+            $pkColnames = array_filter(preg_split('/ +/', $r['PK_COLNAMES']) );
             $fkColnames = array_filter(preg_split('/ +/', $r['FK_COLNAMES']));
 
-            foreach ($pkColnames as $i=>$pkColname) {
+            foreach ($pkColnames as $i => $pkColname) {
 
                 $pkColname = trim($pkColname);
                 $fkColname = trim($fkColnames[$i]);
-                if ($baseFetchMode == ADODB_FETCH_ASSOC) {
-                    $foreignKeys[$referenceTable][$pkColname] = $fkColname;
+                
+                if ($casing == CASE_UPPER) {
+                    $pkColname      = strtoupper($pkColname);
+                    $fkColname      = strtoupper($fkColname);           
                 } else {
-                    $foreignKeys[$referenceTable][] = sprintf('%s=%s',$pkColname,$fkColname);
+                    $pkColname      = strtolower($pkColname);
+                    $fkColname      = strtolower($fkColname);
+                }
+                
+                if ($baseFetchMode == ADODB_FETCH_ASSOC || $associative) {
+                    $foreignKeys[$referenceTable][$fkColname] = $pkColname;
+                
+                } else {
+                    $foreignKeys[$referenceTable][] = sprintf(
+                        '%s=%s',
+                        $fkColname,
+                        $pkColname
+                    );
                 }
 
             }
@@ -2037,10 +2064,10 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         switch($ADODB_ASSOC_CASE)
         {
         case ADODB_ASSOC_CASE_LOWER:
-            $value = strtolower($value);
+            $value = strtolower($value ?? '');
             break;
         case ADODB_ASSOC_CASE_UPPER:
-            $value = strtoupper($value);
+            $value = strtoupper($value ?? '');
             break;
         }
         return $value;
