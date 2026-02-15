@@ -1056,9 +1056,14 @@ class ADODB_db2 extends ADOConnection {
         $indices 		= array();
         $primaryKeyName = '';
 
-        $table = $this->getTableCasedValue($table);
+        $table = $this->metaTables('T','',$table);
+        
+        if ($table == false) {
+            return false;
+        }
 
-
+        $table = $table[0];
+        
         $savem 			  = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
         $this->setFetchMode(ADODB_FETCH_NUM);
@@ -1072,23 +1077,24 @@ class ADODB_db2 extends ADOConnection {
         $this->setFetchMode($savem);
         $ADODB_FETCH_MODE = $savem;
 
-        if (empty($rows))
+        if (empty($rows)) {
             return false;
+        }
+        
 
-        foreach ($rows as $r)
-        {
+        foreach ($rows as $r) {
 
-            $primaryIndex = $r[7] == 'P'?1:0;
-            if (!$primary)
+            $primaryIndex = $r[7] == 'P' ? 1 : 0;
+            if (!$primary) {
                 /*
                  * Primary key not requested, ignore that one
                  */
-                if ($r[7] == 'P')
+                if ($r[7] == 'P') {
                     continue;
-
+                }
+            }
             $indexName = $this->getMetaCasedValue($r[1]);
-            if (!isset($indices[$indexName]))
-            {
+            if (!isset($indices[$indexName])) {
                 $unique = ($r[7] == 'U')?1:0;
                 $indices[$indexName] = array('unique'=>$unique,
                                              'primary'=>$primaryIndex,
@@ -1096,10 +1102,10 @@ class ADODB_db2 extends ADOConnection {
                                         );
             }
             $cols = explode('+',$r[6]);
-            foreach ($cols as $colIndex=>$col)
-            {
-                if ($colIndex == 0)
+            foreach ($cols as $colIndex => $col) {
+                if ($colIndex == 0) {
                     continue;
+                }
                 $columnName = $this->getMetaCasedValue($col);
                 $indices[$indexName]['columns'][] = $columnName;
             }
@@ -1308,7 +1314,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
         //$table = $this->getTableCasedValue($table);
         $colname = "%";
-        $qid = db2_columns($this->_connectionID, null, $schema, $table, $colname);
+        $qid = db2_columns($this->_connectionID, '', $schema, $table, $colname);
         if (empty($qid))
         {
             if ($this->debug)
