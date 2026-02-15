@@ -756,6 +756,15 @@ if (!defined('_ADODB_LAYER')) {
 	/** @var string a specified locale. */
 	var $locale;
 
+	/**
+	 * Setting true forces metacolumns to be read the db for 
+	 * each access of a table instead of using cached version. 
+	 * Currently only works on mssqlnative
+	 * 
+	 * @var bool
+	 */
+	public bool $cachedSchemaFlush = false;
+	
 
 	/**
 	 * Default Constructor.
@@ -3380,29 +3389,43 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	 * List columns names in a table as an array.
-	 * @param table	table name to query
+	 * List columns names in a table as an array
+	 * 
+	 * @param string $table	     table name to query
+	 * @param bool   $numIndexes return numeric keys
+	 * @param bool   $useattnum  discarded in base class
 	 *
-	 * @return  array of column names for current table.
+	 * @return false|array of column names for current table.
 	 */
-	function MetaColumnNames($table, $numIndexes=false,$useattnum=false /* only for postgres */) {
+	public function MetaColumnNames(
+		string $table, 
+		bool $numIndexes=false, 
+		bool $useattnum=false
+	) : mixed {
+		
 		$objarr = $this->MetaColumns($table);
 		if (!is_array($objarr)) {
 			return false;
 		}
-		$arr = array();
+
+		if ($useattnum) {
+			/*
+			* Assume we want a numeric array to
+			* match the postgres option
+			*/
+			$numIndexes = true;
+		}
+
+		$columnNames = [];
+		foreach($objarr as $v) {
+			$columnNames[strtoupper($v->name)] = $v->name;
+		}
+
 		if ($numIndexes) {
-			$i = 0;
-			if ($useattnum) {
-				foreach($objarr as $v)
-					$arr[$v->attnum] = $v->name;
+			return array_values($columnNames);
+		}
 
-			} else
-				foreach($objarr as $v) $arr[$i++] = $v->name;
-		} else
-			foreach($objarr as $v) $arr[strtoupper($v->name)] = $v->name;
-
-		return $arr;
+		return $columnNames;
 	}
 
 	/**
@@ -3856,6 +3879,19 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		return '';
 	}
 
+	/**
+	 * Returns SQL to obtain the length of data in a column, including
+	 * CHAR fields
+	 *
+	 * @param string $fieldName The field length to measure
+ 	 * 
+	 * @return string
+	 */
+	public function length(string $fieldName): string
+	{
+		return sprintf('LENGTH(TRIM(%s))', $fieldName);
+	}
+
 } // end class ADOConnection
 
 	/**
@@ -4116,6 +4152,8 @@ class ADORecordSet implements IteratorAggregate {
 							/// in other words, we use a text area for editing.
 	var $canSeek = false;	/// indicates that seek is supported
 	var $sql;				/// sql text
+
+	var $BOF = false;
 	var $EOF = false;		/// Indicates that the current record position is after the last record in a Recordset object.
 
 	var $emptyTimeStamp = '&nbsp;'; /// what to display when $time==0
@@ -4751,24 +4789,62 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return bool true if there still rows available, or false if there are no more rows (EOF).
 	 */
 	function Move($rowNumber = 0) {
-		$this->EOF = false;
-		if ($rowNumber == $this->_currentRow) {
+
+		/*
+		* Is the recordset already in BOF or EOF state?
+		*/
+		if ($this->BOF) {
+			$currentRow = -1;
+		} elseif ($this->EOF) {
+			$currentRow = $this->_numOfRows + 1;
+		} else {
+			$currentRow = $this->_currentRow;
+		}
+
+		if ($rowNumber == $currentRow
+			|| ($this->EOF && $rowNumber > $currentRow)
+			|| ($this->BOF && $rowNumber < $currentRow)
+		) {
+			/*
+			* Ensure the correct EOF state is retained and
+			* return appropriate status
+			*/
+			if ($this->EOF || $this->BOF) {
+				$this->_currentRow = false;
+				return false;
+			}
+
 			return true;
 		}
+
+		$this->EOF = false;
+		$this->BOF = false;
+
 		if ($rowNumber >= $this->_numOfRows) {
-			if ($this->_numOfRows != -1) {
-				$rowNumber = $this->_numOfRows-2;
-			}
+			$this->EOF         = true;
+			$this->fields      = false;
+			$this->_currentRow = false;
+			return false;
 		}
 
 		if ($rowNumber < 0) {
-			$this->EOF = true;
+			$this->BOF    = true;
+			$this->fields = false;
+			$this->_currentRow = false;
 			return false;
 		}
 
 		if ($this->canSeek) {
+			/*
+			* Database supports cursor movement to arbitrary record
+			* number
+			*/
 			if ($this->_seek($rowNumber)) {
 				$this->_currentRow = $rowNumber;
+				/*
+				* now use a native function to retrieve a record
+				* at that point
+				*/
 				if ($this->_fetch()) {
 					return true;
 				}
@@ -4778,6 +4854,10 @@ class ADORecordSet implements IteratorAggregate {
 			}
 		} else {
 			if ($rowNumber < $this->_currentRow) {
+				/*
+				* If canseek is not supported, then the system
+				* cannot go backwards
+				*/
 				return false;
 			}
 			while (! $this->EOF && $this->_currentRow < $rowNumber) {

@@ -100,7 +100,6 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $_dropSeqSQL = "DROP SEQUENCE %s";
 
 	var $connectionInfo    = array('ReturnDatesAsStrings'=>true);
-	var $cachedSchemaFlush = false;
 
 	var $sequences = false;
 	var $mssql_version = '';
@@ -1086,6 +1085,19 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		return sprintf($dateFormat,$fraction,$date);
 
+	}
+
+	/**
+	 * Returns SQL to obtain the length of data in a column, including
+	 * CHAR fields
+	 *
+	 * @param string $fieldName The field length to measure
+ 	 * 
+	 * @return string
+	 */
+	public function length(string $fieldName): string
+	{
+		return sprintf('LEN(TRIM(%s))', $fieldName);
 	}
 
 }
