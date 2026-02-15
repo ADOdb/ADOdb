@@ -3389,29 +3389,43 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	}
 
 	/**
-	 * List columns names in a table as an array.
-	 * @param table	table name to query
+	 * List columns names in a table as an array
+	 * 
+	 * @param string $table	     table name to query
+	 * @param bool   $numIndexes return numeric keys
+	 * @param bool   $useattnum  discarded in base class
 	 *
-	 * @return  array of column names for current table.
+	 * @return false|array of column names for current table.
 	 */
-	function MetaColumnNames($table, $numIndexes=false,$useattnum=false /* only for postgres */) {
+	public function MetaColumnNames(
+		string $table, 
+		bool $numIndexes=false, 
+		bool $useattnum=false
+	) : mixed {
+		
 		$objarr = $this->MetaColumns($table);
 		if (!is_array($objarr)) {
 			return false;
 		}
-		$arr = array();
+
+		if ($useattnum) {
+			/*
+			* Assume we want a numeric array to
+			* match the postgres option
+			*/
+			$numIndexes = true;
+		}
+
+		$columnNames = [];
+		foreach($objarr as $v) {
+			$columnNames[strtoupper($v->name)] = $v->name;
+		}
+
 		if ($numIndexes) {
-			$i = 0;
-			if ($useattnum) {
-				foreach($objarr as $v)
-					$arr[$v->attnum] = $v->name;
+			return array_values($columnNames);
+		}
 
-			} else
-				foreach($objarr as $v) $arr[$i++] = $v->name;
-		} else
-			foreach($objarr as $v) $arr[strtoupper($v->name)] = $v->name;
-
-		return $arr;
+		return $columnNames;
 	}
 
 	/**
