@@ -287,7 +287,7 @@ class ADODB_sqlite3 extends ADOConnection
      *
      * @return array|false Tables/Views for current database or false for no match
      */
-    function metaTables($ttype = false, $showSchema = false, $mask = false)
+    public function metaTables($ttype = false, $showSchema = false, $mask = false)
     {
         global $ADODB_FETCH_MODE;
 
@@ -434,41 +434,82 @@ class ADODB_sqlite3 extends ADOConnection
     public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
     {
         global $ADODB_FETCH_MODE;
+
+        $metaTables = $this->metaTables('T', $owner, $table);
+
+        if (!$metaTables) {
+            return false;
+        }
+
         if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC || $this->fetchMode == ADODB_FETCH_ASSOC) {
             $associative = true;
         }
 
-        // Read sqlite master to find foreign keys
-        $sql = "SELECT sql
-                FROM sqlite_master
-                WHERE sql NOTNULL
-                  AND LOWER(name) = ?";
-        $tableSql = $this->getOne($sql, [strtolower($table)]);
+        $saveModes = [
+            $ADODB_FETCH_MODE,
+            $this->fetchMode
+        ];
 
-        // Regex will identify foreign keys in both column and table constraints
-        // Reference: https://sqlite.org/syntax/foreign-key-clause.html
-        // Subpatterns: 1/2 = source columns; 3 = parent table; 4 = parent columns.
-        preg_match_all(
-            '/[(,]\s*(?:FOREIGN\s+KEY\s*\(([^)]+)\)|(\w+).*?)\s*REFERENCES\s+(\w+|"[^"]+")\(([^)]+)\)/i',
-            $tableSql,
-            $fkeyMatches,
-            PREG_SET_ORDER
-        );
+        $ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+        if ($saveModes[1]) {
+            $this->SetFetchMode(ADODB_FETCH_ASSOC);
+        }
 
-        $fkeyList = array();
-        foreach ($fkeyMatches as $fkey) {
-            $src_col = $fkey[1] ?: $fkey[2];
-            $ref_table = $upper ? strtoupper($fkey[3]) : $fkey[3];
-            $ref_col = $fkey[4];
+        $p1 = $this->param('p1');
+        $bind = [ 'p1' => $table ];
 
-            if ($associative) {
-                $fkeyList[$ref_table][$src_col] = $ref_col;
+        $sql = "PRAGMA foreign_key_list($p1)";
+        $pragmaList = $this->getAll($sql, $bind);
+
+        $ADODB_FETCH_MODE = $saveModes[0];
+        if ($saveModes[1] !== false) {
+            $this->SetFetchMode($saveModes[1]);
+        }
+
+        if (!$pragmaList || count($pragmaList) == 0) {
+            return false;
+        }
+
+        $sortKeys    = [];
+        $foreignKeys = [];
+
+        foreach ($pragmaList as $element) {
+            $element = array_change_key_case($element, CASE_UPPER);
+
+            if ($upper) {
+                $element = array_map('strtoupper', $element);
             } else {
-                $fkeyList[$ref_table][] = $src_col . '=' . $ref_col;
+                $element = array_map('strtolower', $element);
+            }
+
+            $id = $element['ID'];
+
+            if (!array_key_exists($id, $sortKeys)) {
+                $sortKeys[$id] = new \stdClass();
+                $sortKeys[$id]->tableName = $element['TABLE'];
+                $sortKeys[$id]->assocKeys = [];
+                $sortKeys[$id]->numKeys   = [];
+            }
+
+            $sortKeys[$id]->assocKeys[$element['FROM']] = $element['TO'];
+            $sortKeys[$id]->numKeys[] = sprintf(
+                '%s=%s',
+                $element['FROM'],
+                $element['TO']
+            );
+        }
+
+        sort($sortKeys);
+
+        foreach ($sortKeys as $sortObject) {
+            if ($associative) {
+                $foreignKeys[$sortObject->tableName] = $sortObject->assocKeys;
+            } else {
+                $foreignKeys[$sortObject->tableName] = $sortObject->numKeys;
             }
         }
 
-        return $fkeyList;
+        return $foreignKeys;
     }
 
     /**
