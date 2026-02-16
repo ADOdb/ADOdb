@@ -940,6 +940,10 @@ class ADODB_mysqli extends ADOConnection {
 			*/
 			$alternateDb = array_map('strtolower', $this->MetaDatabases());
 			if (!in_array(strtolower($owner), $alternateDb)) {
+				$ADODB_FETCH_MODE = $saveModes[0];
+				if ($saveModes[1] !== false) {
+					$this->SetFetchMode($saveModes[1]);
+				}
 				return false;
 			}
 			$referenceSchema = $owner;
