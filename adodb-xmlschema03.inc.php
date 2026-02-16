@@ -1661,7 +1661,9 @@ class adoSchema {
 			}
 		}
 
-		xml_parser_free( $xmlParser );
+		if( PHP_VERSION_ID < 80000 ) {
+			xml_parser_free( $xmlParser );
+		}
 
 		return $this->sqlArray;
 	}
@@ -1705,7 +1707,9 @@ class adoSchema {
 			) );
 		}
 
-		xml_parser_free( $xmlParser );
+		if( PHP_VERSION_ID < 80000 ) {
+			xml_parser_free( $xmlParser );
+		}
 
 		return $this->sqlArray;
 	}
