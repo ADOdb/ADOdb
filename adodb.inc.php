@@ -757,7 +757,7 @@ if (!defined('_ADODB_LAYER')) {
 	var $locale;
 
 	/**
-	 * Setting true forces metacolumns to be read the db for 
+	 * Setting true forces {@see metaColumns()} to read the db for 
 	 * each access of a table instead of using cached version. 
 	 * Currently only works on mssqlnative
 	 * 
