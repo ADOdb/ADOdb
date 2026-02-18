@@ -64,7 +64,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $hasAffectedRows = true;
 	var $poorAffectedRows = false;
 	var $metaDatabasesSQL = "select name from sys.sysdatabases where name <> 'master'";
-	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
+	
 	var $metaColumnsSQL =
 		"select c.name,
 		t.name as type,
@@ -809,21 +809,41 @@ class ADODB_mssqlnative extends ADOConnection {
 		return $arr2;
 	}
 
-	//From: Fernando Moreira <FMoreira@imediata.pt>
-	function MetaDatabases()
+	/**
+	 * Returns a list of current visible databases
+	 *
+	 * @return array
+	 */
+	public function MetaDatabases()
 	{
+		global $ADODB_FETCH_MODE;
+
+		$saveFetchModes = [
+			$ADODB_FETCH_MODE,
+			$this->fetchMode
+		];
+
+		$saveDatabaseName = $this->database;
+		
+		$this->SetFetchMode(ADODB_FETCH_NUM);
+		
 		$this->SelectDB("master");
+		
 		$rs = $this->Execute($this->metaDatabasesSQL);
 		$rows = $rs->GetRows();
-		$ret = array();
-		for($i=0;$i<count($rows);$i++) {
-			$ret[] = $rows[$i][0];
-		}
-		$this->SelectDB($this->database);
-		if($ret)
-			return $ret;
-		else
-			return false;
+
+		$ADODB_FETCH_MODE = $saveFetchModes[0];
+		$this->fetchMode  = $saveFetchModes[1];
+
+		/*
+		* Flatten and lowercase the array
+		*/
+		$ret = array_map('strtolower',array_merge(...$rows));
+		
+		$this->SelectDB($saveDatabaseName);
+
+		return $ret ? $ret : false;
+	
 	}
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
