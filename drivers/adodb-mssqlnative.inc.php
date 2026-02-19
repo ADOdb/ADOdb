@@ -726,8 +726,26 @@ class ADODB_mssqlnative extends ADOConnection {
 	}
 
 
+	/**
+	 * List indexes on a table as an array
+	 * 
+	 * @param string $table   table name to query
+	 * @param bool   $primary true to only show primary keys. Not actually used for most databases
+	 * @param string $owner   Discarded for this driver
+	 * 
+	 * @return array of indexes on current table
+	 */
 	function MetaIndexes($table,$primary=false, $owner = false)
 	{
+
+		global $ADODB_FETCH_MODE;
+
+		$metaTables = $this->metaTables('T',$owner,$table);
+
+		if (!$metaTables) {
+			return false;
+		}
+
 		$table = $this->qstr($table);
 
 		$sql = "SELECT i.name AS ind_name, C.name AS col_name, USER_NAME(O.uid) AS Owner, c.colid, k.Keyno,
@@ -739,7 +757,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND O.Name LIKE $table
 			ORDER BY O.name, I.Name, K.keyno";
 
-		global $ADODB_FETCH_MODE;
+		
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== FALSE) {
@@ -758,11 +776,18 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		$indexes = array();
 		while ($row = $rs->FetchRow()) {
-			if (!$primary && $row[5]) continue;
+			if (!$primary && $row[5]) {
+				continue;
+			}
 
 			$indexes[$row[0]]['unique'] = $row[6];
 			$indexes[$row[0]]['columns'][] = $row[1];
 		}
+
+		if (count($indexes) == 0) {
+			return false;
+		}
+		
 		return $indexes;
 	}
 
@@ -887,6 +912,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		return $ret;
 	}
+
 	function MetaColumns($table, $upper=true, $schema=false){
 
 		/*
