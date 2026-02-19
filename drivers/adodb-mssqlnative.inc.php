@@ -960,20 +960,75 @@ class ADODB_mssqlnative extends ADOConnection {
 		return $false;
 	}
 
-
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	/**
+	 * Returns an array of table names and/or views in the database.
+	 *
+	 * @param string|bool $ttype      Can be either `TABLE`, `VIEW`, or false.
+	 * @param string|bool $showSchema Prepends the schema/user to the table name,
+	 * @param string|bool $mask       SQL type Input mask
+	 *
+	 * @return array|false Tables/Views for current database.
+	 */
+	public function MetaTables($ttype=false, $showSchema=false, $mask=false)
 	{
-		if ($mask) {
-			$save = $this->metaTablesSQL;
-			$mask = $this->qstr(($mask));
-			$this->metaTablesSQL .= " AND name like $mask";
-		}
-		$ret = ADOConnection::MetaTables($ttype,$showSchema);
 
-		if ($mask) {
-			$this->metaTablesSQL = $save;
+		global $ADODB_FETCH_MODE;
+
+		$baseSql = "SELECT name
+			      FROM sysobjects 
+				 WHERE %s
+			AND name NOT IN (
+			    'SYSALLOCATIONS','SYSCOLUMNS','SYSCOMMENTS','SYSDEPENDS','SYSFILEGROUPS',
+				'SYSFILES','SYSFILES1','SYSFOREIGNKEYS','SYSFULLTEXTCATALOGS','SYSINDEXES',
+				'SYSINDEXKEYS','SYSMEMBERS','SYSOBJECTS','SYSPERMISSIONS','SYSPROTECTS',
+				'SYSREFERENCES','SYSTYPES','SYSUSERS','SYSALTERNATES',
+				'SYSCONSTRAINTS','SYSSEGMENTS','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS',
+				'CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE',
+				'VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS',
+				'TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE',
+				'COLUMN_PRIVILEGES','DOMAINS',
+				'DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE',
+				'DTPROPERTIES')
+				%s";
+				
+		
+		if (!$ttype) {
+			$tSql = "sysobjects.type IN('U','V')";
+		} else if (substr(strtoupper($ttype), 0, 1) == 'T') {
+			$tSql = "sysobjects.type='U'"; 
+		} else {
+			$tSql = "sysobjects.type='V'";
 		}
-		return $ret;
+
+		$mSql = '';
+		if ($mask) {
+				
+			if (strpos($mask,'%') === false) {
+				$mask = $this->qstr(($mask));
+				$mSql = " AND name=$mask";
+			} else {
+				$mask = $this->qstr(($mask));
+				$mSql = " AND name like $mask";
+			}
+		}
+
+		$sql = sprintf($baseSql, $tSql, $mSql);
+
+		$saveFetchModes = [
+			$ADODB_FETCH_MODE,
+			$this->fetchMode
+		];
+		$this->SetFetchMode(ADODB_FETCH_NUM);
+		
+		$columns = $this->getCol($sql);
+
+		$ADODB_FETCH_MODE = $saveFetchModes[0];
+		$this->SetFetchMode($saveFetchModes[1]);
+		
+		if (count($columns) == 0) {
+			return false;
+		}
+		return $columns;
 	}
 
 	function MetaColumns($table, $upper=true, $schema=false){
