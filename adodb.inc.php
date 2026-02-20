@@ -1832,7 +1832,7 @@ if (!defined('_ADODB_LAYER')) {
 			$rs->Close();
 		}
 
-		return $this->genID;
+		return (int)$this->genID;
 	}
 
 	/**
