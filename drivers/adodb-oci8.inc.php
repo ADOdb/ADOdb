@@ -1549,7 +1549,7 @@ SELECT /*+ RULE */ distinct b.column_name
 	 * @param bool   $upper       Return keys in uppercase (true)
 	 * @param bool   $associative Force associative mode
 	 *
-	 * @return array|false An array where keys are tables, and values are foreign keys;
+	 * @return string[]|false An array where keys are tables, and values are foreign keys;
 	 *                     false if no foreign keys could be found.
 	 */
 	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
