@@ -35,7 +35,7 @@ class ADODB_ibase extends ADOConnection {
 	var $fmtTimeStamp = "'Y-m-d, H:i:s'";
 	var $concat_operator='||';
 	var $_transactionID;
-	var $metaTablesSQL = "select rdb\$relation_name from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
+	var $metaTablesSQL = "select rdb\$relation_name, 'T' from rdb\$relations where rdb\$relation_name not like 'RDB\$%' and rdb\$relation_name not like 'MON\$%' and rdb\$relation_name not like 'SEC\$%'";
 	//OPN STUFF start
 	var $metaColumnsSQL = "select a.rdb\$field_name, a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
 	//OPN STUFF end
@@ -359,9 +359,12 @@ class ADODB_ibase extends ADOConnection {
 			if (is_array($inputarr)) {
 				if (sizeof($inputarr) == 0) {
 					$inputarr[0] = ''; // PHP5 compat hack
+					$ret = ibase_query($conn,$sql);
 				}
-				$fnarr = array_merge(array($conn, $sql), $inputarr);
-				$ret = call_user_func_array($fn, $fnarr);
+				else {
+				  $fnarr = array_merge(array($conn, $sql), $inputarr);
+				  $ret = call_user_func_array($fn, $fnarr);
+				}  
 			} else {
 				$ret = $fn($conn, $sql);
 			}
@@ -740,8 +743,7 @@ class ADORecordSet_ibase extends ADORecordSet
 	var $databaseType = "ibase";
 	var $bind=false;
 	var $_cacheType;
-
-
+	
 	/*		Returns: an object containing field information.
 			Get column information in the Recordset object. fetchField() can be used in order to obtain information about
 			fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
@@ -780,7 +782,11 @@ class ADORecordSet_ibase extends ADORecordSet
 	function _initrs()
 	{
 		$this->_numOfRows = -1;
-		$this->_numOfFields = @ibase_num_fields($this->_queryID);
+		
+		if (!is_int($this->_queryID))
+		  $this->_numOfFields = @ibase_num_fields($this->_queryID);
+	    else
+		  $this->_numOfFields = 0;					
 
 		// cache types for blob decode check
 		for ($i=0, $max = $this->_numOfFields; $i < $max; $i++) {
@@ -852,7 +858,8 @@ class ADORecordSet_ibase extends ADORecordSet
 
 	function _close()
 	{
-		return @ibase_free_result($this->_queryID);
+		if (isset($this->rs))
+		  return @ibase_free_result($this->rs);  
 	}
 
 	function MetaType($t,$len=-1,$fieldobj=false)
