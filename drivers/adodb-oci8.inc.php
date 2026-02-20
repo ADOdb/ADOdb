@@ -499,15 +499,15 @@ END;
 	 * List indexes on a table as an array
 	 * 
 	 * @param string $table   table name to query
-	 * @param bool   $primary true to only show primary keys
+	 * @param bool   $primary true to include primary keys
 	 * @param string $owner   Discarded for this driver
 	 * 
-	 * @return array of indexes on current table
+	 * @return false|string[] indexes on current table
 	 */
-	function MetaIndexes ($table, $primary = false, $owner=false)
+	function MetaIndexes ($table, $primary = false, $owner = false)
 	{
 		
-	// save old fetch mode
+		// save old fetch mode
 		global $ADODB_FETCH_MODE;
 
 		$tableName = $this->metaTables('T', $owner, $table);
@@ -529,32 +529,38 @@ END;
 		// get Primary index if required
 		$primary_key = '';
 
-		$sql = "SELECT * FROM ALL_CONSTRAINTS 
-				 WHERE UPPER(TABLE_NAME)='%s' 
-				 AND CONSTRAINT_TYPE='P'";
-		
-		$rs = $this->Execute(sprintf($sql, $table));
-		
-		if (!is_object($rs)) {
+		$p1 = $this->param('p1');
+		$bind = ['p1' => $table];
 
-			$ADODB_FETCH_MODE = $saveModes[0];
-			$this->fetchMode  = $saveModes[1];
+		if ($primary) {
+			$sql = "SELECT * FROM ALL_CONSTRAINTS 
+					WHERE UPPER(TABLE_NAME)=$p1 
+					AND CONSTRAINT_TYPE='P'";
 			
-			return false;
-		}
+			$rs = $this->Execute($sql, $bind);
+			
+			if (!is_object($rs)) {
 
-		if ($row = $rs->FetchRow()) {
-			$primary_key = $row[1]; //constraint_name
+				$ADODB_FETCH_MODE = $saveModes[0];
+				$this->fetchMode  = $saveModes[1];
+				
+				return false;
+			}
+
+			if ($row = $rs->FetchRow()) {
+				$primary_key = $row[1]; //constraint_name
+			}
 		}
+		
 
 		$sql = "SELECT ALL_INDEXES.INDEX_NAME, ALL_INDEXES.UNIQUENESS, ALL_IND_COLUMNS.COLUMN_POSITION, ALL_IND_COLUMNS.COLUMN_NAME 
 		          FROM ALL_INDEXES,ALL_IND_COLUMNS 
-				 WHERE UPPER(ALL_INDEXES.TABLE_NAME)='%s' 
+				 WHERE UPPER(ALL_INDEXES.TABLE_NAME)=$p1 
 				   AND ALL_IND_COLUMNS.INDEX_NAME=ALL_INDEXES.INDEX_NAME
 				ORDER BY ALL_INDEXES.INDEX_NAME,
 				         ALL_IND_COLUMNS.COLUMN_POSITION";
 
-		$rs = $this->Execute(sprintf($sql, $table));
+		$rs = $this->Execute($sql, $bind);
 
 		if (!is_object($rs)) {
 			$ADODB_FETCH_MODE = $saveModes[0];
