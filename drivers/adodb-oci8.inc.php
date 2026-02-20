@@ -495,31 +495,51 @@ END;
 		return $ret;
 	}
 
-	// Mark Newnham
-	function MetaIndexes ($table, $primary = FALSE, $owner=false)
+	/**
+	 * List indexes on a table as an array
+	 * 
+	 * @param string $table   table name to query
+	 * @param bool   $primary true to only show primary keys
+	 * @param string $owner   Discarded for this driver
+	 * 
+	 * @return array of indexes on current table
+	 */
+	function MetaIndexes ($table, $primary = false, $owner=false)
 	{
-		// save old fetch mode
+		
+	// save old fetch mode
 		global $ADODB_FETCH_MODE;
 
-		$save = $ADODB_FETCH_MODE;
-		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-
-		if ($this->fetchMode !== FALSE) {
-			$savem = $this->SetFetchMode(FALSE);
+		$tableName = $this->metaTables('T', $owner, $table);
+		if ($tableName == false) {
+			return false;
 		}
+		
+		$saveModes = [
+			$ADODB_FETCH_MODE,
+			$this->fetchMode
+		];
+
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		$this->SetFetchMode(ADODB_FETCH_NUM);
 
 		// get index details
 		$table = strtoupper($table);
 
-		// get Primary index
+		// get Primary index if required
 		$primary_key = '';
 
-		$rs = $this->Execute(sprintf("SELECT * FROM ALL_CONSTRAINTS WHERE UPPER(TABLE_NAME)='%s' AND CONSTRAINT_TYPE='P'",$table));
+		$sql = "SELECT * FROM ALL_CONSTRAINTS 
+				 WHERE UPPER(TABLE_NAME)='%s' 
+				 AND CONSTRAINT_TYPE='P'";
+		
+		$rs = $this->Execute(sprintf($sql, $table));
+		
 		if (!is_object($rs)) {
-			if (isset($savem)) {
-				$this->SetFetchMode($savem);
-			}
-			$ADODB_FETCH_MODE = $save;
+
+			$ADODB_FETCH_MODE = $saveModes[0];
+			$this->fetchMode  = $saveModes[1];
+			
 			return false;
 		}
 
@@ -527,22 +547,19 @@ END;
 			$primary_key = $row[1]; //constraint_name
 		}
 
-		if ($primary==TRUE && $primary_key=='') {
-			if (isset($savem)) {
-				$this->SetFetchMode($savem);
-			}
-			$ADODB_FETCH_MODE = $save;
-			return false; //There is no primary key
-		}
+		$sql = "SELECT ALL_INDEXES.INDEX_NAME, ALL_INDEXES.UNIQUENESS, ALL_IND_COLUMNS.COLUMN_POSITION, ALL_IND_COLUMNS.COLUMN_NAME 
+		          FROM ALL_INDEXES,ALL_IND_COLUMNS 
+				 WHERE UPPER(ALL_INDEXES.TABLE_NAME)='%s' 
+				   AND ALL_IND_COLUMNS.INDEX_NAME=ALL_INDEXES.INDEX_NAME
+				ORDER BY ALL_INDEXES.INDEX_NAME,
+				         ALL_IND_COLUMNS.COLUMN_POSITION";
 
-		$rs = $this->Execute(sprintf("SELECT ALL_INDEXES.INDEX_NAME, ALL_INDEXES.UNIQUENESS, ALL_IND_COLUMNS.COLUMN_POSITION, ALL_IND_COLUMNS.COLUMN_NAME FROM ALL_INDEXES,ALL_IND_COLUMNS WHERE UPPER(ALL_INDEXES.TABLE_NAME)='%s' AND ALL_IND_COLUMNS.INDEX_NAME=ALL_INDEXES.INDEX_NAME",$table));
-
+		$rs = $this->Execute(sprintf($sql, $table));
 
 		if (!is_object($rs)) {
-			if (isset($savem)) {
-				$this->SetFetchMode($savem);
-			}
-			$ADODB_FETCH_MODE = $save;
+			$ADODB_FETCH_MODE = $saveModes[0];
+			$this->fetchMode  = $saveModes[1];
+
 			return false;
 		}
 
@@ -550,27 +567,28 @@ END;
 		// parse index data into array
 
 		while ($row = $rs->FetchRow()) {
-			if ($primary && $row[0] != $primary_key) {
-				continue;
-			}
+			$primaryFlag = 0;
+			if ($row[0] == $primary_key) {
+				if ($primary) {
+					$primaryFlag = 1;
+				} else {
+					continue;
+				}
+			} 
+			
 			if (!isset($indexes[$row[0]])) {
 				$indexes[$row[0]] = array(
 					'unique' => ($row[1] == 'UNIQUE'),
-					'columns' => array()
+					'columns' => array(),
+					'primary' => $primaryFlag
 				);
 			}
 			$indexes[$row[0]]['columns'][$row[2] - 1] = $row[3];
 		}
 
-		// sort columns by order in the index
-		foreach ( array_keys ($indexes) as $index ) {
-			ksort ($indexes[$index]['columns']);
-		}
-
-		if (isset($savem)) {
-			$this->SetFetchMode($savem);
-			$ADODB_FETCH_MODE = $save;
-		}
+		$ADODB_FETCH_MODE = $saveModes[0];
+		$this->fetchMode  = $saveModes[1];
+		
 		return $indexes;
 	}
 
