@@ -1556,7 +1556,22 @@ SELECT /*+ RULE */ distinct b.column_name
 	{
 		global $ADODB_FETCH_MODE;
 		
-		$save = $ADODB_FETCH_MODE;
+		$tableName = $this->metaTables('T', $owner, $table);
+		if ($tableName == false) {
+			return false;
+		}
+
+		$saveModes = [
+			$ADODB_FETCH_MODE,
+			$this->fetchMode
+		];
+
+		if ($saveModes[1] && $saveModes[1] <> ADODB_FETCH_NUM) {
+			$associative = true;
+		} else if (!$saveModes[1] && $saveModes[0] <> ADODB_FETCH_NUM ) {
+			$associative = true;
+		}
+
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		$this->SetFetchMode(ADODB_FETCH_NUM);
 
@@ -1576,7 +1591,7 @@ SELECT /*+ RULE */ distinct b.column_name
 	AND table_name = $table $owner";
 
 		$constraints = $this->GetArray($sql);
-		$arr = false;
+		$arr = [];
 		foreach($constraints as $constr) {
 			$cons   = $this->qstr($constr[0]);
 			$rowner = $this->qstr($constr[1]);
@@ -1596,7 +1611,7 @@ SELECT /*+ RULE */ distinct b.column_name
 			$targetData = $this->GetArray($sql);
 
 			if ($sourceData && $targetData) {
-				$arr = [];
+
 				$max = sizeof($sourceData);
 				foreach ($targetData as $k => $v) {
 					if ($upper) {
@@ -1608,7 +1623,7 @@ SELECT /*+ RULE */ distinct b.column_name
 					if (!array_key_exists($tableName, $arr)) {
 						$arr[$tableName] = [];
 					}
-					if ($save <> ADODB_FETCH_NUM || ($save == ADODB_FETCH_NUM && $associative)) {
+					if ($associative) {
 						/*
 						* Write ADODB_FETCH_ASSOC format
 						*/
@@ -1638,8 +1653,14 @@ SELECT /*+ RULE */ distinct b.column_name
 				}
 			}
 		}
-		$ADODB_FETCH_MODE = $save;
-		$this->SetFetchMode($save);
+		
+		$ADODB_FETCH_MODE = $saveModes[0];
+		$this->fetchMode  = $saveModes[1];
+		
+		if (!$arr || count($arr) == 0) { 
+			return false;
+		}
+		
 		return $arr;
 	}
 
