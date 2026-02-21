@@ -238,12 +238,13 @@ class ADODB_mysqli extends ADOConnection {
 	 *@todo add: parameter int $port, parameter string $socket
 	 *
 	 */
-	function _connect($argHostname = null,
-					  $argUsername = null,
-					  $argPassword = null,
-					  $argDatabaseName = null,
-					  $persist = false)
-	{
+	function _connect(
+        $argHostname = null,
+        $argUsername = null,
+        $argPassword = null,
+        $argDatabaseName = null,
+        $persist = false
+        ) {
 		if(!extension_loaded("mysqli")) {
 			return null;
 		}
@@ -283,17 +284,24 @@ class ADODB_mysqli extends ADOConnection {
 			$argHostname = 'p:' . $argHostname;
 		}
 
-		// SSL Connections for MySQLI
-		if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
+        /*
+        *  SSL Connections for MySQLi
+        * Clientflags and socket are now set via setConnectionParameter()
+        *
+        * @link https://adodb.org/dokuwiki/doku.php?id=v5:database:mysql
+        *
+        */
+        if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
+            mysqli_ssl_set(
+                $this->_connectionID,
+                $this->ssl_key,
+                $this->ssl_cert,
+                $this->ssl_ca,
+                $this->ssl_capath,
+                $this->ssl_cipher
+            );
 
-			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cert, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
-
-			// Check for any SSL client flag set, NOTE: bitwise operation.
-			if (!($this->clientFlags & MYSQLI_CLIENT_SSL)) {
-        			ADOConnection::outp('When using certificates, set the client flag MYSQLI_CLIENT_SSL_VERIFY_SERVER_CERT or MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT');
-				return false;
-			}
-		}
+        }
 
 		$ok = @mysqli_real_connect($this->_connectionID,
 					$argHostname,
