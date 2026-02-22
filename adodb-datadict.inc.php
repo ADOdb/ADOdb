@@ -1574,7 +1574,7 @@ class ADODB_DataDict {
 			$requiresAutoIncrement = false;
 			$requiresDefaultValue  = false;
 
-			if ( isset($metaColumns[$newColumnName]) && is_object($metaColumns[$newColumnName]) ) {
+			if ( isset($metaColumns[strtoupper($newColumnName)]) && is_object($metaColumns[strtoupper($newColumnName)])) {
 				
 				/*
 				* If the column already exists, we need to check if it needs to be altered.
@@ -1583,7 +1583,7 @@ class ADODB_DataDict {
 				*/
 				
 				// If already not allowing nulls, then don't change
-				$obj = $metaColumns[$newColumnName];
+				$obj = $metaColumns[strtoupper($newColumnName)];
 				
 				if (isset($obj->not_null) && $obj->not_null){
 					if (in_array('NOT NULL', $sourceValue)) {
@@ -1607,11 +1607,10 @@ class ADODB_DataDict {
 					
 				}
 
-				$c = $metaColumns[$newColumnName];
 				
-				$currentMaxLength = $c->max_length;
+				$currentMaxLength = $obj->max_length;
 				
-				$currentMetaType = $this->metaType($c->type,$currentMaxLength);
+				$currentMetaType = $this->metaType($obj->type,$currentMaxLength);
 
 				/*
 				* Validates if a default value is set and if it is now
@@ -1621,13 +1620,13 @@ class ADODB_DataDict {
 				if ($defaultsIndex !== false) {
 					$newDefaultValue = $sourceValue[$defaultsIndex + 1];
 
-					if (!$c->has_default || ($c->has_default && $c->default_value != $newDefaultValue)) {
+					if (!$obj->has_default || ($obj->has_default && $obj->default_value != $newDefaultValue)) {
 						// If the default value is different, we need to alter it
 						$requiresDefaultValue = true;
 					}
 				}
-				if (isset($c->scale)) {
-					$currentScale = $c->scale;
+				if (isset($obj->scale)) {
+					$currentScale = $obj->scale;
 				} else {
 					$currentScale = 99; // always force change if scale not known.
 				}
