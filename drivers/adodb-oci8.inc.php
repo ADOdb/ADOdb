@@ -123,6 +123,8 @@ END;
 	var $datetime = false; // MetaType('DATE') returns 'D' (datetime==false) or 'T' (datetime == true)
 	var $_refLOBs = array();
 
+	public $hasInsertID = true;
+
 	/*
 	 * Legacy compatibility for sequence names for emulated auto-increments
 	 */
@@ -364,6 +366,18 @@ END;
 
 	protected function _insertID($table = '', $column = '')
 	{
+		
+	
+		if (!$table) {
+			$lastInsertId = $this->tableSequenceData['!last-insertid'];
+			$this->tableSequenceData['!last-insertid'] = false; 
+			return $lastInsertId;
+		}
+
+		$tData = $this->locateInsertSequenceFromTrigger($table);
+		return $tData['insertid'];
+	
+	
 		if ($this->schema)
 		{
 			$t = strpos($table,'.');
@@ -391,7 +405,8 @@ END;
 			*/
 			return false;
 
-		return $this->getOne("SELECT $seqname.currval FROM dual");
+		$sql = "SELECT $seqname.currval FROM dual";
+		return $this->getOne($sql);
 	}
 
 	// format and return date string in database date format
@@ -1337,7 +1352,10 @@ END;
 	 */
 	function _query($sql,$inputarr=false)
 	{
+		$sqlIsArray = false;
 		if (is_array($sql)) { // is prepared sql
+			$sqlIsArray = true;
+
 			$stmt = $sql[1];
 
 			// we try to bind to permanent array, so that oci_bind_by_name is persistent
@@ -1364,7 +1382,7 @@ END;
 		$this->_stmt = $stmt;
 		if (!$stmt) {
 			return false;
-		}
+		}	
 
 		if (defined('ADODB_PREFETCH_ROWS')) {
 			@oci_set_prefetch($stmt,ADODB_PREFETCH_ROWS);
@@ -1448,13 +1466,113 @@ END;
 						}
 					}
 					return $stmt;
+				case 'INSERT':
+					if ($sqlIsArray == true) {
+						return true;
+					}
+					$t = array_filter(preg_split('/[ "\'\(]+/', $sql));
+					
+					if (strcasecmp($t[0], 'insert') == 0 && strcasecmp($t[1], 'into') == 0) {
+						$tableName = $t[2];
+						if ($tableName) {
+							$this->locateInsertSequenceFromTrigger($tableName);
+						}
+					}
 				default :
-
+					
 					return true;
 			}
 		}
 		return false;
 	}
+
+	public array $tableSequenceData = [
+		'!last-insertid' => false
+	];
+
+	/**
+	 * When passed a table name, locates the sequence holding the
+	 * aut0-increment value 
+	 *
+	 * @param string $tableName The lookup table
+	 * @return string[]
+	 */
+	protected function locateInsertSequenceFromTrigger(string $tableName) : array {
+		
+		
+		global $ADODB_FETCH_MODE;
+		
+		$tableName = strtoupper($tableName);
+			
+		if (array_key_exists(strtoupper($tableName), $this->tableSequenceData)) {
+			$tData = $this->tableSequenceData[$tableName];
+
+			if ($tData['active'] == 0) {
+				return $tData;
+			};
+			$seqname = $tData['sequence'];
+			$sql = "SELECT $seqname.currval FROM dual";
+			$tData['insertid'] = $this->getOne($sql);
+			$this->tableSequenceData[$tableName] = $tData;
+			$this->tableSequenceData['!last-insertid'] = $tData['insertid'];
+			return $tData;
+		}
+		
+		$tData = [
+			'sequence' => '',
+			'trigger'  => '',
+			'column'   => '',
+			'insertid' => 0,
+			'active'   => 0  
+		];
+
+		$saveModes = [
+			$ADODB_FETCH_MODE,
+			$this->fetchMode
+		];
+
+		$this->SetFetchMode(ADODB_FETCH_ASSOC);
+	
+		$p1 = $this->param('p1');
+		$bind = array('p1' => $tableName);
+
+		$sql = "SELECT trigger_name,trigger_body
+			      FROM all_triggers 
+		         WHERE table_name=$p1
+				   AND triggering_event='INSERT'
+				   AND status='ENABLED'";
+
+		$result = $this->selectLimit($sql,1,-1,$bind);
+		
+		if (!$triggerRecord = $result->fetchRow()) {
+			$ADODB_FETCH_MODE = $saveModes[0];
+			$this->SetFetchMode($saveModes[1]);
+
+			$this->tableSequenceData[$tableName] = $tData;
+			return $tData;
+		}
+
+		$ADODB_FETCH_MODE = $saveModes[0];
+		$this->SetFetchMode($saveModes[1]);
+
+		//BEGIN select SEQ_INSERT_AUTO.nextval into :new.id from dual; END;
+		$triggerData = explode(' ', $triggerRecord['trigger_body']);
+		
+		$tData['sequence']  = str_replace('.nextval', '', $triggerData[2]);
+		$tData['columnn']   = str_replace(':new', '', $triggerData[4]);
+		$tData['trigger']   = $triggerRecord['trigger_name'];
+		$tData['active']    = 1;
+
+		$seqname = $tData['sequence'];
+		$sql = "SELECT $seqname.currval FROM dual";
+		$tData['insertid'] = $this->getOne($sql);
+
+		$this->tableSequenceData[$tableName] = $tData;
+		$this->tableSequenceData['!last-insertid'] = $tData['insertid'];
+		return $tData;
+	}
+		
+	
 
 	// From Oracle Whitepaper: PHP Scalability and High Availability
 	function IsConnectionError($err)
