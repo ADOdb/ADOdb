@@ -140,6 +140,15 @@ END;
 	 */
 	public $seqPrefix = 'SEQ_';
 
+	/**
+	 * Stores information about trigger based auto-increments
+	 *
+	 * @var array
+	 */
+	public array $tableSequenceData = [
+		'!last-insertid' => false
+	];
+
 	/*  function MetaColumns($table, $normalize=true) added by smondino@users.sourceforge.net*/
 	function MetaColumns($table, $normalize=true)
 	{
@@ -1485,10 +1494,6 @@ END;
 		}
 		return false;
 	}
-
-	public array $tableSequenceData = [
-		'!last-insertid' => false
-	];
 
 	/**
 	 * When passed a table name, locates the sequence holding the
