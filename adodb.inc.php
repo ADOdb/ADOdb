@@ -4202,6 +4202,9 @@ class ADORecordSet implements IteratorAggregate {
 	/** @var int Only used in _adodb_getinsertsql() */
 	public $insertSig;
 
+	/** @var int Only used in _adodb_getupdatesql() */
+	public $updateSig;
+
 	/**
 	 * @var ADOFieldObject[] Field metadata cache
 	 * @see fieldTypesArray()
