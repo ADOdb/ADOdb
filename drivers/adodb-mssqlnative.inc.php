@@ -1409,10 +1409,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	function _fetch($ignore_fields=false)
 	{
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
-			if ($this->fetchMode & ADODB_FETCH_NUM)
-				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_BOTH);
-			else
-				$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_ASSOC);
+			$this->fields = sqlsrv_fetch_array($this->_queryID,$this->fetchMode & ADODB_FETCH_NUM ? SQLSRV_FETCH_BOTH : SQLSRV_FETCH_ASSOC);
 
 			if (is_array($this->fields))
 			{
@@ -1425,7 +1422,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			}
 		}
 		else
-			$this->fields = @sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_NUMERIC);
+			$this->fields = sqlsrv_fetch_array($this->_queryID,SQLSRV_FETCH_NUMERIC);
 
 		if (!$this->fields)
 			return false;
