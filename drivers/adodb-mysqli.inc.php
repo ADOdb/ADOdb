@@ -47,6 +47,8 @@ class ADODB_mysqli extends ADOConnection {
 	var $dataProvider = 'mysql';
 	var $hasInsertID = true;
 	var $hasAffectedRows = true;
+	var $metaDatabasesSQL = "SHOW DATABASES
+		WHERE `database` NOT IN ('mysql', 'information_schema', 'performance_schema')";
 	var $metaTablesSQL = /** @lang text */
 		"SELECT
 			TABLE_NAME,
@@ -236,12 +238,13 @@ class ADODB_mysqli extends ADOConnection {
 	 *@todo add: parameter int $port, parameter string $socket
 	 *
 	 */
-	function _connect($argHostname = null,
-					  $argUsername = null,
-					  $argPassword = null,
-					  $argDatabaseName = null,
-					  $persist = false)
-	{
+	function _connect(
+        $argHostname = null,
+        $argUsername = null,
+        $argPassword = null,
+        $argDatabaseName = null,
+        $persist = false
+        ) {
 		if(!extension_loaded("mysqli")) {
 			return null;
 		}
@@ -281,17 +284,24 @@ class ADODB_mysqli extends ADOConnection {
 			$argHostname = 'p:' . $argHostname;
 		}
 
-		// SSL Connections for MySQLI
-		if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
+        /*
+        *  SSL Connections for MySQLi
+        * Clientflags and socket are now set via setConnectionParameter()
+        *
+        * @link https://adodb.org/dokuwiki/doku.php?id=v5:database:mysql
+        *
+        */
+        if ($this->ssl_key || $this->ssl_cert || $this->ssl_ca || $this->ssl_capath || $this->ssl_cipher) {
+            mysqli_ssl_set(
+                $this->_connectionID,
+                $this->ssl_key,
+                $this->ssl_cert,
+                $this->ssl_ca,
+                $this->ssl_capath,
+                $this->ssl_cipher
+            );
 
-			mysqli_ssl_set($this->_connectionID, $this->ssl_key, $this->ssl_cert, $this->ssl_ca, $this->ssl_capath, $this->ssl_cipher);
-
-			// Check for any SSL client flag set, NOTE: bitwise operation.
-			if (!($this->clientFlags & MYSQLI_CLIENT_SSL)) {
-        			ADOConnection::outp('When using certificates, set the client flag MYSQLI_CLIENT_SSL_VERIFY_SERVER_CERT or MYSQLI_CLIENT_SSL_DONT_VERIFY_SERVER_CERT');
-				return false;
-			}
-		}
+        }
 
 		$ok = @mysqli_real_connect($this->_connectionID,
 					$argHostname,
@@ -627,37 +637,6 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	/**
-	 * Return a list of all visible databases except the 'mysql' database.
-	 *
-	 * @return array|false An array of database names, or false if the query failed.
-	 */
-	function MetaDatabases()
-	{
-		$query = "SHOW DATABASES";
-		$result = $this->getAll($query);
-		
-		if (!$result) {
-			return false;
-		}
-
-		$systemDatabases = array(
-			'mysql',
-			'information_schema',
-			'performance_schema'
-		);
-	
-		$databaseList = [];
-		foreach ($result as $dbArray) {
-			$databaseName = array_pop($dbArray);
-			if (!in_array($databaseName, $systemDatabases)) {
-				$databaseList[] = $databaseName;
-			}
-		}
-
-		return $databaseList;
-	}
-
-	/**
 	 * Get a list of indexes on the specified table.
 	 *
 	 * @param string $table The name of the table to get indexes for.
@@ -947,71 +926,114 @@ class ADODB_mysqli extends ADOConnection {
 		global $ADODB_FETCH_MODE;
 
 		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
-		|| $this->fetchMode == ADODB_FETCH_ASSOC)
+		|| $this->fetchMode == ADODB_FETCH_ASSOC) {
 			$associative = true;
+		}
+		$saveModes = [
+			$ADODB_FETCH_MODE,
+			$this->fetchMode
+		];
 
-		$savem = $ADODB_FETCH_MODE;
-		$this->setFetchMode(ADODB_FETCH_ASSOC);
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		if ($this->fetchMode !== false) {
+			$this->setFetchMode(ADODB_FETCH_ASSOC);
+		}
+
+		$referenceSchema = $this->database;
 
 		if ( !empty($owner) ) {
-			$table = "$owner.$table";
-		}
-
-		$showCreate = $this->getRow(
-				sprintf('SHOW CREATE TABLE `%s`', $table)
-		);
-
-		if ( !$showCreate || !is_array($showCreate) ) {
 			/*
-			* Invalid table or owner provided
+			* MySQL is using this for schema, so call metaDatabases to see if
+			* the schema exists
 			*/
-			$this->setFetchMode($savem);
-			return false;
-		}
-
-		$a_create_table = array_change_key_case($showCreate, CASE_UPPER);
-
-		$this->setFetchMode($savem);
-
-		$create_sql = $a_create_table["CREATE TABLE"] ?? $a_create_table["CREATE VIEW"];
-
-		$matches = array();
-
-		if (!preg_match_all(
-			"/FOREIGN KEY \(`(.*?)`\) REFERENCES `(.*?)` \(`(.*?)`\)/", 
-			$create_sql, 
-			$matches
-			)
-		) {
-				return false;
-		}
-		
-		$foreign_keys = array();
-		$num_keys = count($matches[0]);
-		for ( $i = 0; $i < $num_keys; $i ++ ) {
-			$my_field  = explode('`, `', $matches[1][$i]);
-			$ref_table = $matches[2][$i];
-			$ref_field = explode('`, `', $matches[3][$i]);
-
-			if ( $upper ) {
-				$ref_table = strtoupper($ref_table);
-			}
-
-			// see https://sourceforge.net/p/adodb/bugs/100/
-			if (!isset($foreign_keys[$ref_table])) {
-				$foreign_keys[$ref_table] = array();
-			}
-			$num_fields = count($my_field);
-			for ( $j = 0; $j < $num_fields; $j ++ ) {
-				if ( $associative ) {
-					$foreign_keys[$ref_table][$ref_field[$j]] = $my_field[$j];
-				} else {
-					$foreign_keys[$ref_table][] = $my_field[$j] . '=' . $ref_field[$j];
+			$alternateDb = array_map('strtolower', $this->MetaDatabases());
+			if (!in_array(strtolower($owner), $alternateDb)) {
+				$ADODB_FETCH_MODE = $saveModes[0];
+				if ($saveModes[1] !== false) {
+					$this->SetFetchMode($saveModes[1]);
 				}
+				return false;
 			}
+			$referenceSchema = $owner;
 		}
 
-		return $foreign_keys;
+		$p1 = $this->param('p1');
+		$p2 = $this->param('p2');
+
+		$bind = [
+			'p1' => $referenceSchema,
+			'p2' => $table
+		];
+
+		$sql = "
+SELECT *
+  FROM information_schema.key_column_usage
+ WHERE referenced_table_schema=$p1
+   AND referenced_table_name IS NOT NULL
+   AND table_name = $p2
+   ORDER BY referenced_table_name,constraint_name, position_in_unique_constraint";
+
+        $constraintList = $this->getAll($sql, $bind);
+
+		$ADODB_FETCH_MODE = $saveModes[0];
+        if ($saveModes[1] !== false) {
+            $this->SetFetchMode($saveModes[1]);
+        }
+
+        if (!$constraintList || count($constraintList) == 0) {
+            return false;
+        }
+
+        $sortKeys    = [];
+
+        foreach ($constraintList as $element) {
+
+			/*
+			* Standardize the returned data keys
+			*/
+			$element = array_change_key_case($element, CASE_UPPER);
+
+			/*
+			* Change the values to match the requested return type
+			*/
+            if ($upper) {
+                $element = array_map('strtoupper', $element);
+            } else {
+                $element = array_map('strtolower', $element);
+            }
+
+            $id = $element['CONSTRAINT_NAME'];
+
+            if (!array_key_exists($id, $sortKeys)) {
+                $sortKeys[$id] = new \stdClass();
+                $sortKeys[$id]->tableName = $element['REFERENCED_TABLE_NAME'];
+                $sortKeys[$id]->assocKeys = [];
+                $sortKeys[$id]->numKeys   = [];
+            }
+
+            $sortKeys[$id]->assocKeys[$element['COLUMN_NAME']] = $element['REFERENCED_COLUMN_NAME'];
+            $sortKeys[$id]->numKeys[] = sprintf(
+                '%s=%s',
+                $element['COLUMN_NAME'],
+                $element['REFERENCED_COLUMN_NAME']
+            );
+        }
+
+        /*
+		* Now the array is built, pick off the right elements
+		*/
+		$foreignKeys = [];
+        foreach ($sortKeys as $sortObject) {
+            if ($associative) {
+                $foreignKeys[$sortObject->tableName] = $sortObject->assocKeys;
+            } else {
+                $foreignKeys[$sortObject->tableName] = $sortObject->numKeys;
+            }
+        }
+
+
+        return $foreignKeys;
+
 	}
 
 	/**
