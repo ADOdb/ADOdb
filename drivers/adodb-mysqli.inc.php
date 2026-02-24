@@ -72,6 +72,12 @@ class ADODB_mysqli extends ADOConnection {
 	var $socket = ''; //Default to empty string to fix HHVM bug
 	var $_bindInputArray = false;
 	var $nameQuote = '`';		/// string to use to quote identifiers and names
+	
+	protected $quoteStyles = array(
+		array('',''),
+		array("`","`")
+	);
+	
 	var $arrayClass = 'ADORecordSet_array_mysqli';
 	var $multiQuery = false;
 	var $ssl_key = null;
