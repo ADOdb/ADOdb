@@ -107,6 +107,7 @@ if (!defined('_ADODB_LAYER')) {
 		define ('ADODB_DEFAULT_METATYPE','N');
 
 	define('ADODB_BAD_RS','<p>Bad $rs in %s. Connection or SQL invalid. Try using $connection->debug=true;</p>');
+	define('ADODB_BAD_CONNECTION', '<p>Bad $rs in %s. Not Connected. Try using $connection->debug=true;</p>');
 
 	// allow [ ] @ ` " and . in table names
 	define('ADODB_TABLE_REGEX','([]0-9a-z_\:\"\`\.\@\[-]*)');
