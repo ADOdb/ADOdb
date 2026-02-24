@@ -1,0 +1,13 @@
+<phpunit bootstrap="travis/bootstrap.php"> 
+    <testsuites>
+        <testsuite name="main">
+        <file>travis/AllTest.php</file>
+        <file>travis/MySQLiTest.php</file>
+        <file>travis/PDO_MySQLTest.php</file>
+        <file>travis/Postgres9Test.php</file>
+        <file>travis/PDO_PostgresTest.php</file>
+        <file>travis/SQLite3Test.php</file>
+        <file>travis/PDO_SQLiteTest.php</file>
+        </testsuite>
+    </testsuites>
+</phpunit>
