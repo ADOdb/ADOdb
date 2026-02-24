@@ -613,7 +613,11 @@ class ADODB_db2 extends ADOConnection {
     public function serverInfo()
     {
         global $ADODB_FETCH_MODE;
-        $savem = $ADODB_FETCH_MODE;
+        
+        $saveModes = [
+            $ADODB_FETCH_MODE,
+            $this->fetchMode
+        ];
 
         $this->setFetchMode(ADODB_FETCH_NUM);
 
@@ -622,7 +626,8 @@ class ADODB_db2 extends ADOConnection {
                     AS INSTANCEINFO";
         $row = $this->GetRow($sql);
 
-        $this->setFetchMode($savem);
+        $ADODB_FETCH_MODE = $saveModes[0];
+        $this->fetchMode  = $saveModes[1];
 
         if ($row) {
             $info['version'] = $row[0].':'.$row[1];
@@ -789,17 +794,24 @@ class ADODB_db2 extends ADOConnection {
 
         global $ADODB_FETCH_MODE;
 
+        $saveModes = [
+            $ADODB_FETCH_MODE,
+            $this->fetchMode
+        ];
+
+
         $schema = '';
         $this->_findschema($table,$schema);
 
         $table = $this->metaTables('T','',$table);
-        if ($table == false)
+        if ($table == false) {
+            $ADODB_FETCH_MODE = $saveModes[0];
+            $this->fetchMode  = $saveModes[1];
             return false;
+        }
 
         $table = $table[0];
 
-        $savem 			  = $ADODB_FETCH_MODE;
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
         $this->setFetchMode(ADODB_FETCH_NUM);
 
 
@@ -809,12 +821,11 @@ class ADODB_db2 extends ADOConnection {
 
         $rows = $this->getAll($sql);
 
-        $this->setFetchMode($savem);
-        $ADODB_FETCH_MODE = $savem;
-
-        if (empty($rows))
+        if (empty($rows)) {
+            $ADODB_FETCH_MODE = $saveModes[0];
+            $this->fetchMode  = $saveModes[1];
             return false;
-
+        }
         foreach ($rows as $r)
         {
             if ($r[7] != 'P')
@@ -830,6 +841,9 @@ class ADODB_db2 extends ADOConnection {
             }
             break;
         }
+
+        $ADODB_FETCH_MODE = $saveModes[0];
+        $this->fetchMode  = $saveModes[1];
         return $primaryKeys;
     }
 
@@ -860,22 +874,30 @@ class ADODB_db2 extends ADOConnection {
 
         $table = $metaTables[0];
 
-        $baseFetchMode = $ADODB_FETCH_MODE;
+        $saveModes = [
+            $ADODB_FETCH_MODE,
+            $this->fetchMode
+        ];
 
-        $ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+        if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC) {
+            $associative = true;
+        }
 
         $this->setFetchMode(ADODB_FETCH_ASSOC);
+        
         $sql = "SELECT *
                  FROM syscat.references
                 WHERE tabname = '$table'";
 
         $results = $this->getAll($sql);
 
-        $this->setFetchMode($baseFetchMode);
-
-        if (empty($results))
+        
+        if (empty($results)) {
+            $ADODB_FETCH_MODE = $saveModes[0];
+            $this->fetchMode  = $saveModes[1];
+        
             return false;
-
+        }
         $foreignKeys = array();
 
         foreach ($results as $r)
@@ -934,9 +956,8 @@ class ADODB_db2 extends ADOConnection {
                     $fkColname      = strtolower($fkColname);
                 }
                 
-                if ($baseFetchMode == ADODB_FETCH_ASSOC || $associative) {
+                if ($associative) {
                     $foreignKeys[$referenceTable][$fkColname] = $pkColname;
-                
                 } else {
                     $foreignKeys[$referenceTable][] = sprintf(
                         '%s=%s',
@@ -948,6 +969,10 @@ class ADODB_db2 extends ADOConnection {
             }
 
         }
+
+        $ADODB_FETCH_MODE = $saveModes[0];
+        $this->fetchMode  = $saveModes[1];
+        
         return $foreignKeys;
     }
 
@@ -965,7 +990,11 @@ class ADODB_db2 extends ADOConnection {
 
         global $ADODB_FETCH_MODE;
 
-        $savem = $ADODB_FETCH_MODE;
+        $saveModes = [
+            $ADODB_FETCH_MODE,
+            $this->fetchMode
+        ];
+
         $this->SetFetchMode(ADODB_FETCH_ASSOC);
 
         /*
@@ -1045,7 +1074,9 @@ class ADODB_db2 extends ADOConnection {
 
         $metaTables = $this->getCol($sql);
 
-        $this->SetFetchMode($savem);
+        $ADODB_FETCH_MODE = $saveModes[0];
+        $this->fetchMode  = $saveModes[1];
+  
 
         if (count($metaTables) == 0)
             return false;
@@ -1091,8 +1122,13 @@ class ADODB_db2 extends ADOConnection {
 
         $table = $table[0];
         
-        $savem 			  = $ADODB_FETCH_MODE;
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+        $saveModes = [
+            $ADODB_FETCH_MODE,
+            $this->fetchMode
+        ];
+
+        //$savem 			  = $ADODB_FETCH_MODE;
+        //$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
         $this->setFetchMode(ADODB_FETCH_NUM);
 
         $sql = "SELECT *
@@ -1101,10 +1137,9 @@ class ADODB_db2 extends ADOConnection {
 
         $rows = $this->getAll($sql);
 
-        $this->setFetchMode($savem);
-        $ADODB_FETCH_MODE = $savem;
-
         if (empty($rows)) {
+            $ADODB_FETCH_MODE = $saveModes[0];
+            $this->fetchMode  = $saveModes[1];
             return false;
         }
         
@@ -1138,7 +1173,8 @@ class ADODB_db2 extends ADOConnection {
             }
 
         }
-
+        $ADODB_FETCH_MODE = $saveModes[0];
+        $this->fetchMode  = $saveModes[1];
         return $indices;
 
     }
@@ -1167,8 +1203,13 @@ class ADODB_db2 extends ADOConnection {
         $catalogSQL     = '';
         $schemaSQL      = '';
 
-        $savem 			  = $ADODB_FETCH_MODE;
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+
+        $saveModes = [
+            $ADODB_FETCH_MODE,
+            $this->fetchMode
+        ];
+
+        $this->setFetchMode(ADODB_FETCH_NUM);
 
         if ($procedureNamePattern)
             $procedureSQL = "AND ROUTINENAME LIKE " . strtoupper($this->qstr($procedureNamePattern));
@@ -1201,21 +1242,26 @@ class ADODB_db2 extends ADOConnection {
 
         $result = $this->execute($SQL);
 
-        $ADODB_FETCH_MODE = $savem;
-
-        if (!$result)
+        if (!$result){
+            $ADODB_FETCH_MODE = $saveModes[0];
+            $this->fetchMode  = $saveModes[1]; 
             return false;
-
+        }
+        
         while ($r = $result->fetchRow()){
+
             $procedureName = $this->getMetaCasedValue($r[0]);
             $schemaName    = $this->getMetaCasedValue($r[2]);
-            $metaProcedures[$procedureName] = array('type'=> $r[1],
-                                                   'catalog' => '',
-                                                   'schema'  => $schemaName,
-                                                   'remarks' => $r[3]
-                                                    );
+            $metaProcedures[$procedureName] = array(
+                'type'=> $r[1],
+                'catalog' => '',
+                'schema'  => $schemaName,
+                'remarks' => $r[3]
+            );
         }
 
+        $ADODB_FETCH_MODE = $saveModes[0];
+        $this->fetchMode  = $saveModes[1]; 
         return $metaProcedures;
 
     }
@@ -1228,7 +1274,17 @@ class ADODB_db2 extends ADOConnection {
       */
     public function metaDatabases(){
 
+        global $ADODB_FETCH_MODE;
+
+        $saveModes = [
+            $ADODB_FETCH_MODE,
+            $this->fetchMode
+        ];
+
         $dbName = $this->getMetaCasedValue($this->database);
+
+        $ADODB_FETCH_MODE = $saveModes[0];
+        $this->fetchMode  = $saveModes[1];
 
         return (array)$dbName;
 
