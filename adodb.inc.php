@@ -5426,6 +5426,43 @@ class ADORecordSet implements IteratorAggregate {
 		return $this->_atLastPage;
 	}
 
+	/**
+	 * PDO compatibility function: fetch the next row
+	 *
+	 * @param $fetchmode =null ADODB_FETCH_{DEFAULT|ASSOC|NUM|BOTH}, default is to use currently selected fetch-mode
+	 * @return array|boolean false if there's nothing to fetch
+	 */
+	function fetch($fetchmode=null) {
+		if (!is_null($fetchmode)) {
+			$save = $this->fetchMode;
+			$this->fetchMode = $fetchmode;
+		}
+		$row = $this->FetchRow();
+		if (!is_null($fetchmode)) {
+			$this->fetchMode = $save;
+		}
+		return $row;
+	}
+
+	/**
+	 * PDO compatibility function: fetch the n-th column of the next row
+	 *
+	 * @param int $column_number =0
+	 * @return string|boolean false if there's nothing to fetch
+	 */
+	function fetchColumn($column_number=0)
+	{
+		if(!($row = $this->FetchRow())) {
+			return false;
+		}
+		while ($column_number-- >= 0) {
+			$ret = array_shift($row);
+
+			if ($this->fetchMode == ADODB_FETCH_BOTH) array_shift($row);
+		}
+		return $ret;
+	}
+
 } // end class ADORecordSet
 
 	//==============================================================================================
