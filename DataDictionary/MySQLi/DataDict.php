@@ -8,6 +8,7 @@
 namespace ADOdb\DataDictionary\MySQLi;
 
 $path = ADODB_DIR."/DataDictionary/DataDict.php";
+print "\n$path\n";
 include_once($path);
 
 class DataDict extends \ADOdb\DataDictionary\DataDict {
@@ -20,6 +21,11 @@ class DataDict extends \ADOdb\DataDictionary\DataDict {
 	var $dropIndex = 'DROP INDEX %s ON %s';
 
 	public $blobAllowsNotNull = true;
+
+	function __construct()
+	{
+		return parent::__construct();
+	}
 
 
 	function metaType($t, $len=-1, $fieldobj=false)

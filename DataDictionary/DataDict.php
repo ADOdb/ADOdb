@@ -50,6 +50,12 @@ class DataDict {
 	 */
 	public $quote;
 
+	
+	function __construct()
+	{
+		throw new \Exception('Not implemented');
+	}
+	
 	function getCommentSQL($table,$col)
 	{
 		return false;

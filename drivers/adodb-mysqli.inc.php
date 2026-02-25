@@ -45,6 +45,10 @@ if (!defined('MYSQLI_READ_DEFAULT_GROUP')) define('MYSQLI_READ_DEFAULT_GROUP',1)
 class ADODB_mysqli extends ADOConnection {
 	var $databaseType = 'mysqli';
 	var $dataProvider = 'mysql';
+	
+	public string $dictionaryProvider   = 'MySQLi';
+	public string $metaFunctionProvider = 'MySQLi';
+
 	var $hasInsertID = true;
 	var $hasAffectedRows = true;
 	var $metaTablesSQL = /** @lang text */
@@ -915,6 +919,9 @@ class ADODB_mysqli extends ADOConnection {
 	 */
 	function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
+		
+		return $this->metaObject->MetaTables($this, $ttype, $showSchema, $mask);
+		
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
 			$this->metaTablesSQL .= $this->qstr($showSchema);

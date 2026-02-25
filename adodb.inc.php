@@ -19,6 +19,10 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
+use ADOdb\Meta\MetaFunctions;
+
+//include_once ADODB_DIR.'/adodb-lib.inc.php';
+
 if (!defined('_ADODB_LAYER')) {
 	define('_ADODB_LAYER',1);
 
@@ -498,6 +502,8 @@ if (!defined('_ADODB_LAYER')) {
 
 	public string $dictionaryProvider = '';
 
+	public string $metaFunctionProvider = '';
+
 	/**
 	 * @var string Current database name.
 	 *
@@ -756,6 +762,7 @@ if (!defined('_ADODB_LAYER')) {
 	/** @var string a specified locale. */
 	var $locale;
 
+	public ?object $metaObject;
 
 	/**
 	 * Default Constructor.
@@ -1004,10 +1011,41 @@ if (!defined('_ADODB_LAYER')) {
 
 		if ($forceNew) {
 			if ($rez=$this->_nconnect($this->host, $this->user, $argPassword, $this->database)) {
+				$metaClassFile = sprintf(
+					'%s/Meta/%s/MetaFunctions.php',
+					ADODB_DIR,
+					$this->metaFunctionProvider
+				);
+
+				$metaClass = sprintf(
+					'ADOdb\Meta\%s\MetaFunctions',
+					$this->metaFunctionProvider
+				);
+
+				print $metaClassFile;
+				include_once $metaClassFile;
+
+				$this->metaObject = new MetaFunctions;
+
 				return true;
 			}
 		} else {
 			if ($rez=$this->_connect($this->host, $this->user, $argPassword, $this->database)) {
+				$metaClassFile = sprintf(
+					'%s/Meta/%s/MetaFunctions.php',
+					ADODB_DIR,
+					$this->metaFunctionProvider
+				);
+
+				$metaClass = sprintf(
+					'ADOdb\Meta\%s\MetaFunctions',
+					$this->metaFunctionProvider
+				);
+
+				include_once $metaClassFile;
+
+				$this->metaObject = new $metaClass;
+
 				return true;
 			}
 		}
@@ -2268,7 +2306,7 @@ if (!defined('_ADODB_LAYER')) {
 			return false;
 		}
 
-		$midrow = (integer) ($total/2);
+		$midrow = (int) ($total/2);
 		$rs = $this->SelectLimit("select $field from $table $where order by 1",1,$midrow);
 		if ($rs && !$rs->EOF) {
 			return reset($rs->fields);
@@ -3221,7 +3259,10 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @return  array of tables for current database.
 	 */
 	function MetaTables($ttype=false,$showSchema=false,$mask=false) {
-		global $ADODB_FETCH_MODE;
+		
+			return $this->metaObject->MetaTables($this, $ttype, $showSchema, $mask);
+
+	global $ADODB_FETCH_MODE;
 
 		if ($mask) {
 			return false;
@@ -3835,6 +3876,37 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 
 		return '';
+	}
+
+	public function loadDataDictionary() : ?object
+	{
+
+		$path = sprintf(
+			'%s/DataDictionary/%s/DataDict.php',
+			ADODB_DIR,
+			$this->dictionaryProvider
+			);
+
+		include_once $path;
+
+		$class = sprintf(
+			'ADOdb\DataDictionary\%s\DataDict',
+			$this->dictionaryProvider
+		);
+
+		/** @var ADODB_DataDict $dict */
+		
+		$dict = new $class();
+		
+		$dict->dataProvider = $conn->dataProvider;
+		$dict->connection = $conn;
+		$dict->upperName = strtoupper($drivername);
+		$dict->quote = $conn->nameQuote;
+		if (!empty($conn->_connectionID)) {
+			$dict->serverInfo = $conn->ServerInfo();
+		}
+		
+		return $dict;
 	}
 
 } // end class ADOConnection
@@ -5846,10 +5918,10 @@ class ADORecordSet implements IteratorAggregate {
 										$nconnect = true; $persist = true; break;
 					case 'persist':
 					case 'persistent':	$persist = $v; break;
-					case 'debug':		$obj->debug = (integer) $v; break;
+					case 'debug':		$obj->debug = (int) $v; break;
 					#ibase
 					case 'role':		$obj->role = $v; break;
-					case 'dialect':	$obj->dialect = (integer) $v; break;
+					case 'dialect':	$obj->dialect = (int) $v; break;
 					case 'charset':		$obj->charset = $v; $obj->charSet=$v; break;
 					case 'buffers':		$obj->buffers = $v; break;
 					case 'fetchmode':   $obj->SetFetchMode($v); break;
@@ -5981,9 +6053,10 @@ class ADORecordSet implements IteratorAggregate {
 		}
 
 		include_once(ADODB_DIR.'/adodb-lib.inc.php');
-		//include_once(ADODB_DIR.'/adodb-datadict.inc.php');
+		include_once(ADODB_DIR.'/adodb-datadict.inc.php');
 
-		//print "{$conn->dictionaryProvider}\n";
+		print "{$conn->dictionaryProvider}\n";
+		
 		/*
 		if ($conn->dictionaryProvider) {
 			$cName = $conn->dictionaryProvider;
@@ -6020,10 +6093,17 @@ class ADORecordSet implements IteratorAggregate {
 		$class = "ADODB2_$cName";
 		*/
 
-		$path = ADODB_DIR."/DataDictionary/MySQLi/DataDict.php";
+		$path = sprintf(
+			'%s/DataDictionary/%s/DataDict.php',
+			ADODB_DIR,
+			$conn->dictionaryProvider
+			);
+
+		//$path = ADODB_DIR."/DataDictionary/MySQLi/DataDict.php";
+		print $path;
 		include_once($path);
 
-		$class = 'ADOdb\DataDictionary\MySQLi\DataDict';
+		$class = 'DataDict';
 
 		/** @var ADODB_DataDict $dict */
 		
