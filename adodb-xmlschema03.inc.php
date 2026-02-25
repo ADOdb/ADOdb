@@ -543,14 +543,14 @@ class dbTable extends dbObject {
 	function create( &$xmls ) {
 		$sql 		   = array();
 		$legacy_fields = array();
-		// drop any existing indexes
-
+			
 		$tableExists = $xmls->dict->metaTables('T','',$this->name);
-
-		if (is_array($tableExists) && count($tableExists) > 0 && $tableExists[0] == $this->name) {
+	
+		if (is_array($tableExists) && count($tableExists) > 0 && strcasecmp($tableExists[0],$this->name) == 0) {
 			if( is_array( $legacy_indexes = $xmls->dict->metaIndexes( $this->name ) ) ) {
 				foreach( $legacy_indexes as $index => $index_details ) {
-					$sql[] = $xmls->dict->dropIndexSQL( $index, $this->name );
+					$dropSql = $xmls->dict->dropIndexSQL( $index, $this->name );
+					$sql = array_merge($sql,$dropSql);
 				}
 			}
 
@@ -559,7 +559,7 @@ class dbTable extends dbObject {
 				unset( $this->fields[$field] );
 			}
 
-			// if table exists
+			
 			if( is_array( $legacy_fields = $xmls->dict->metaColumns( $this->name ) ) ) {
 				// drop table
 				if( $this->drop_table ) {
@@ -571,7 +571,8 @@ class dbTable extends dbObject {
 				// drop any existing fields not in schema
 				foreach( $legacy_fields as $field_id => $field ) {
 					if( !isset( $this->fields[$field_id] ) ) {
-						$sql[] = $xmls->dict->dropColumnSQL( $this->name, $field->name );
+						$dropSql = $xmls->dict->dropColumnSQL( $this->name, $field->name );
+						$sql   = array_merge($sql,$dropSql);
 					}
 				}
 			// if table doesn't exist
@@ -620,8 +621,9 @@ class dbTable extends dbObject {
 
 		if( empty( $legacy_fields ) ) {
 			// Create the new table
-			$sql[] = $xmls->dict->createTableSQL( $this->name, $fldarray, $this->opts );
-			$xmls->logMsg($sql, 'Generated createTableSQL' , false, $this );
+			$sql[] = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
+			$xmls->logMsg($sql, 'Generated createTableSQL in 03 Create()' , false, $this );
+
 		} else {
 			// Upgrade an existing table
 			$xmls->logMsg( "Upgrading {$this->name} using '{$xmls->upgrade}'", '', false, $this );
@@ -629,8 +631,9 @@ class dbTable extends dbObject {
 				// Use ChangeTableSQL
 				case 'ALTER':
 					
-					$sql[] = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
-	
+					$changeSql = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
+					$sql = array_merge($sql,$changeSql);
+
 					$xmls->logMsg($sql, 'Generated changeTableSQL (ALTERing table)', false, $this );
 					break;
 				case 'REPLACE':

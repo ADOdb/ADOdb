@@ -141,6 +141,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		case 'B': return 'IMAGE';
 
 		case 'D': return $DATE_TYPE;
+		case 'TS':
 		case 'T': return 'TIME';
 		case 'L': return 'BIT';
 
@@ -190,17 +191,55 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 
 	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
-		$tabname = $this->TableName ($tabname);
+		
+		$preProcessSql  = [];
+		$postProcessSql = [];
+		$indexDrops     = [];
+
+		$tabname = $this->tableName($tabname);
 		$sql = array();
 
 		list($lines,,$idxs) = $this->_GenFields($flds);
+
+		$preProcessLines  = [];
+		$postProcessLines = [];
+
+		list ($preProcessLines,$lines, $postProcessLines) = 
+			$this->reprocessColumns(
+				$tabname,
+				$lines,
+				self::TABLE_CHANGE
+			);
+
+        
+		/*
+		* Preprocess lines are executed before the table process,
+		* Postprocess lines are executed after
+		*/
+		if (count($preProcessLines) > 0) {
+			$sql = array_merge($sql, $preProcessLines);
+		}
+
+        $metaColumns = $this->metaColumns($tabname);
+
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
-		foreach($lines as $v) {
+		foreach ($lines as $v) {
+
+            if (strpos($v,' IDENTITY(') != false) {
+                /*
+                * Do not write column
+                */
+                continue;
+            }
+           
 			if ($not_null = preg_match('/NOT NULL/i',$v)) {
 				$v = preg_replace('/NOT NULL/i','',$v);
 			}
 			if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
 				list(,$colname,$default) = $matches;
+                if (array_key_exists(strtoupper($colname), $metaColumns)) {
+                   
+                }
 				$v = preg_replace('/^' . preg_quote($colname) . '\s/', '', $v);
 				$t = trim(str_replace('DEFAULT '.$default,'',$v));
 				if ( $constraintname = $this->defaultConstraintName($tabname,$colname) ) {
@@ -226,6 +265,15 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 				}
 			}
 		}
+
+        /*
+		* Postprocess lines are executed after the table change process,
+		* Postprocess lines are executed after
+		*/
+		if (count($postProcessLines) > 0) {
+			$sql = array_merge($sql, $postProcessLines);
+		}
+
 		if (is_array($idxs)) {
 			foreach($idxs as $idx => $idxdef) {
 				$sql_idxs = $this->CreateIndexSql($idx, $tabname, $idxdef['cols'], $idxdef['opts']);
@@ -273,10 +321,19 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	{
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
-		if ($fautoinc) $suffix .= ' IDENTITY(1,1)';
-		if ($fnotnull) $suffix .= ' NOT NULL';
-		else if ($suffix == '') $suffix .= ' NULL';
-		if ($fconstraint) $suffix .= ' '.$fconstraint;
+		if ($fautoinc) {
+            $suffix .= ' IDENTITY(1,1)';
+        }
+
+		if ($fnotnull && !$fautoinc) {
+            $suffix .= ' NOT NULL';
+
+        } elseif ($suffix == '') {
+            $suffix .= ' NULL';
+        }
+		if ($fconstraint) {
+            $suffix .= ' ' . $fconstraint;
+        }
 		return $suffix;
 	}
 
@@ -325,5 +382,109 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 			return $ftype;
 		}
 		return parent::_GetSize($ftype, $ty, $fsize, $fprec, $options);
+	}
+
+	/**
+	 * Rewrite any driver specific SQL and actions to be executed before
+	 * and after the main SQL statement is executed based on the
+	 * type of calling action
+	 *
+	 * @param string $tabName      The table name 
+	 * @param string $lineKey     The line key
+	 * @param string $inboundLine The line to process
+	 * @param int	 $processMode  1=ADD/2=CHANGE/3=DELETE
+	 * 
+	 * @return array
+	 */
+	protected function lineProcessor(
+        string $tableName,
+        string $lineKey,
+        string $inboundLine,
+        array $metaColumns,
+        int $processMode = 1
+    ): array {
+
+		$outboundLines = [
+			$inboundLine
+		];
+		
+		$preProcessLines  = [];
+		$postProcessLines = [];
+		$indexesToRebuild = [];
+
+		$sourceArray = lens_ParseArgs($inboundLine,',');
+		$sourceArray = array_filter($sourceArray);
+
+		$parsedLine = $sourceArray[0];
+
+		if ($processMode == self::TABLE_CHANGE) {
+			/*
+			* A link between changing the attributes of a column while the column
+			* is part of an index. Solution is to drop the index, change the column
+			* then recreate the index
+			*
+			[0] => VARCHAR_FIELD
+            [1] => VARCHAR
+            [2] => 80
+            [3] => DEFAULT
+            [4] => 
+            [5] => NOT
+            [6] => NULL
+			*/
+			if (array_key_exists($parsedLine[0],$metaColumns)) {
+				$metaColumn = $metaColumns[$parsedLine[0]];
+				/*
+				* Should be done using metatype but currently broken for mssqlnative
+				*
+				* $metaType = $this->MetaType($metaColumn->type);
+				* if ($metaType == 'C') {
+				*/
+				
+				if (strpos($parsedLine[1],'CHAR') !== false && (int)$parsedLine[2] <> (int)$metaColumn->max_length) {
+
+					$indexes = $this->metaIndexes($tableName);
+					foreach ($indexes as $indexName => $indexAttributes) {
+						foreach ($indexAttributes['columns'] as $position => $column) {
+							if (strtoupper($column) == $parsedLine[0]) {
+								$indexesToRebuild[$indexName] = $indexAttributes;
+							}
+						}
+					}
+		
+				}
+                if (strpos($parsedLine[1],'IDENTITY')) {
+                    /*
+                    * If an identity column, ADOdb will prevent modification because the
+                    * contstraint needs to be dropped before any attempt is made
+                    */
+                    if ($this->connection->debug) {
+                        ADOConnection::outp('ADOdb cannot modify SQL Server identity columns. Use an external method to process');
+                        $outboundLines = [];
+                    }
+                }
+                
+			}
+			
+		}
+
+		foreach($indexesToRebuild as $indexName => $indexAttributes) {
+			$options = [];
+			if (array_key_exists('unique', $indexAttributes)) {
+				$options['unique'] = 1;
+			}
+
+			$dropIndexStatement = $this->dropIndexSQL($indexName, $tableName);
+			if (is_array($dropIndexStatement)) {
+				$preProcessLines  = array_merge($preProcessLines, $dropIndexStatement);
+			}
+
+			$createIndexStatement = $this->createIndexSQL($indexName, $tableName, $indexAttributes['columns'], $options);
+			if ($createIndexStatement) {
+				$postProcessLines = array_merge($postProcessLines, $createIndexStatement);
+			}
+		}
+
+		return array($preProcessLines, $outboundLines, $postProcessLines);
+
 	}
 }

@@ -764,7 +764,6 @@ if (!defined('_ADODB_LAYER')) {
 	 * @var bool
 	 */
 	public bool $cachedSchemaFlush = false;
-	
 
 	/**
 	 * Default Constructor.

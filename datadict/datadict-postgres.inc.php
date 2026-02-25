@@ -227,7 +227,7 @@ class ADODB2_postgres extends ADODB_DataDict
 					$v = preg_replace('/(?<!DEFAULT)\sNULL/i','',$v);
 				}
 
-				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/',$v,$matches)) {
+				if (preg_match('/^([^ ]+) .*DEFAULT (\'[^\']+\'|\"[^\"]+\"|[^ ]+)/', $v, $matches)) {
 					$existing = $this->metaColumns($tabname);
 					list(,$colname,$default) = $matches;
 					$alter .= $colname;
@@ -240,6 +240,25 @@ class ADODB2_postgres extends ADODB_DataDict
 					} else {
 						$old_coltype = $t;
 					}
+					
+
+					if (array_key_exists(strtoupper($colname), $existing) && $old_coltype == 'L' && $t == 'BOOLEAN') {
+						/*
+						* Same boolean type, has default changed?
+						*/
+						$metaColumn = $existing[strtoupper($colname)];
+						if ((int)$default == 1 && strtoupper($metaColumn->default_value) == 'TRUE') {
+							continue;
+						} elseif (!$default && strtoupper($metaColumn->default_value) == 'FALSE') {
+							continue;
+						} else {
+							/*
+							* Switch ADOdb default to pgsql type
+							*/
+							$default = ($default == 1) ? 'TRUE' : 'FALSE';
+						}
+					}
+
 					// Type change from bool to int
 					if ( $old_coltype == 'L' && $t == 'INTEGER' ) {
 						$sql[] = $alter . ' DROP DEFAULT';
@@ -426,7 +445,7 @@ class ADODB2_postgres extends ADODB_DataDict
 		if (!$seq || $this->connection->getOne("SELECT relname FROM pg_class JOIN pg_depend ON pg_class.relfilenode=pg_depend.objid WHERE relname='$seq' AND relkind='S' AND deptype='i'")) {
 			return false;
 		}
-		return "DROP SEQUENCE ".$seq;
+		return "DROP SEQUENCE IF EXISTS ".$seq;
 	}
 
 	function renameTableSQL($tabname, $newname)
@@ -582,5 +601,116 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 
 		}
 		return $sqlResult;
+	}
+
+	/**
+     * Process ENUM type for Postgres which does not support ENUM natively
+	 * This needs to be injected into the create statement BEFORE the
+	 * the table SQL is execute
+     *
+     * @param string $lineKey The column name as a key
+     * @param string $line    The SQL column string
+     *
+     * @return array
+     */
+    protected function processEnumType(string $lineKey, string $line): array
+    {
+        if (!$line) {
+            return [[], [], []];
+        }
+		/*
+		 CREATE TYPE mood AS ENUM ('sad', 'ok', 'happy');
+		 CREATE TABLE person (
+		name text,
+		current_mood mood
+		);
+		*/
+		$enumTypeString = '%s_ENUM_TYPE';
+		$enumString     = 'CREATE TYPE %s AS ENUM(%s)';
+		$lineString     = '%s %s %s';
+		
+
+        /*
+        * Extract enum values
+        */
+        preg_match('/ENUM\((.*?)\)/', $line, $matches);
+        if (isset($matches[1])) {
+            $enumValues = preg_split('/[ ,]+/', $matches[1]);
+            $enumValues = array_filter($enumValues);
+        }
+
+        $defaultPart = '';
+        /*
+        * Check for DEFAULT value
+        */
+        $defaultOffset = strpos($line, 'DEFAULT');
+        if ($defaultOffset !== false) {
+            $defaultPart = substr($line, $defaultOffset);
+        }
+
+		$enumType = sprintf($enumTypeString, $lineKey);
+
+        $line = sprintf(
+            $lineString,
+			$lineKey,
+            $enumType,
+            $defaultPart
+        );
+
+		$eValueString = implode(', ', $enumValues);
+		$createEnumType = sprintf($enumString, $enumType, $eValueString);
+
+		$preProcessLines = [
+			$createEnumType
+		];
+
+		$outboundLines = [
+			$lineKey => $line
+		];
+
+		$postProcessLines = [];
+
+        return array($preProcessLines, $outboundLines, $postProcessLines);
+    }
+
+	/**
+	 * Rewrite any driver specific SQL, building any SQL to be executed
+	 *
+	 * @param string $tabName      The table name 
+	 * @param array  $inboundLines The lines to process
+	 * 
+	 * @return array
+	 */
+	protected function linePrePreprocessor(string $tabName, array $inboundLines) : array
+	{
+		$outboundLines    = [];
+		$preProcessLines  = [];
+		$postProcessLines = [];
+
+		foreach ($inboundLines as $lineKey => $line) {
+			 if (preg_match('/(ENUM\()/i', $line)) {
+                list(
+					$linePreprocess,
+					$modifiedLine,
+					$linePostprocess
+				) = $this->processEnumType($lineKey, $line);
+
+				$preProcessLines = array_merge($preProcessLines, $linePreprocess);
+				/*
+				* Rewrite any changes to the original SQL
+				*/
+				foreach ($modifiedLine as $llineKey => $lline) {
+					$outboundLines[$llineKey] = $lline;
+				}
+				$preProcessLines = array_merge($preProcessLines, $linePostprocess);
+            } else {
+				$outboundLines[$lineKey] = $line;
+			}
+
+			
+		}
+
+		return array($preProcessLines, $outboundLines, $postProcessLines);
+
 	}
 } // end class

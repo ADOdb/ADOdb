@@ -208,6 +208,19 @@ class ADODB_DataDict {
 	 */
 	public $quote;
 
+	/*
+	* Constants that represent the current activity
+	* passed from a parent process to the lineProcessor
+	* methods
+	* 
+	* @example dropColumnSql passes EWPROCESS_TABLE_DELETE
+	*/
+	const REPROCESS_TABLE_CREATE = 1;
+	const REPROCESS_TABLE_CHANGE = 2;
+	const REPROCESS_TABLE_DELETE = 3;
+
+
+
 	function getCommentSQL($table,$col)
 	{
 		return false;
@@ -544,9 +557,34 @@ class ADODB_DataDict {
 	{
 		$tabname = $this->tableName($tabname);
 		$sql = array();
+		$preProcessLines  = [];
+		$postProcessLines = [];
+
 		list($lines,$pkey,$idxs) = $this->_genFields($flds);
+		
 		// genfields can return FALSE at times
-		if ($lines == null) $lines = array();
+		if ($lines == null) { 
+			$lines = array();
+		}
+
+		/*
+		* Execute any driver-specific line changes
+		*/
+		list ($preProcessLines,$lines, $postProcessLines) = 
+			$this->reprocessColumns(
+				$tabname,
+				$lines,
+				self::REPROCESS_TABLE_CHANGE
+			);
+		
+		/*
+		* Preprocess lines are executed before the table process,
+		* Postprocess lines are executed after
+		*/
+		if (count($preProcessLines) > 0) {
+			$sql = array_merge($sql, $preProcessLines);
+		}
+
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 		foreach($lines as $v) {
 			$sql[] = $alter . $v;
@@ -557,6 +595,13 @@ class ADODB_DataDict {
 				$sql = array_merge($sql, $sql_idxs);
 			}
 
+		}
+
+		/*
+		* Merge any postprocess lines available
+		*/
+		if (count($postProcessLines) > 0) {
+			$sql = array_merge($sql, $postProcessLines);
 		}
 		return $sql;
 	}
@@ -582,7 +627,9 @@ class ADODB_DataDict {
 		if ($flds) {
 			list($lines,$pkey,$idxs) = $this->_genFields($flds);
 			// genfields can return FALSE at times
-			if ($lines == null) $lines = array();
+			if ($lines == null) {
+				$lines = array();
+			}
 			$first  = current($lines);
 			list(,$column_def) = preg_split("/[\t ]+/",$first,2);
 		}
@@ -627,17 +674,163 @@ class ADODB_DataDict {
 	}
 
 	/**
-	 Generate the SQL to create table. Returns an array of sql strings.
+	 * Called from createTableSQL, The processes all of the statements to
+	 * change any Database specific SQL statements that require multiple replacments
+	 * This method returns lines that are executed before the table, and those executed
+	 * after
+	 *
+	 * @param string  $tableName
+	 * @param array   $lines
+	 * @param integer $processType
+	 * 
+	 * @example a driver that requires an index drop before changing the attributes of
+	 *          a column
+	 * 
+	 * @return array
+	 */
+	protected function reprocessColumns(string $tableName, array $lines, int $processType) :array
+	{
+		
+		$preProcessLines = [];
+		$postProcessLines = [];
+		/*
+		* See if any individual lines of  SQL needs reprocessing,
+		*/
+		$metaColumns = $this->metaColumns($tableName);
+		if ($metaColumns == false) {
+			$metaColumns = [];
+		}
+
+		/*
+		* Send each line individually so that any pre or post processing
+		* can be captured and added to the necessary arrays
+		*/
+		foreach ($lines as $lineKey => $line) {
+			
+			list(
+				$returnedPreProcessLines,
+				$returnedLines,
+				$returnedPostProcessLines
+				) = $this->lineProcessor($tableName, $lineKey, $line, $metaColumns, $processType);
+			
+			if (count($returnedLines) == 1) {
+				/*
+				* Overwrite the existing line with the returned
+				* value
+				*/
+				$lines[$lineKey] = $returnedLines[0];
+			} else {
+				/*
+				* Inject multiple lines as a replacement for
+				* the outbound single value
+				*/
+				$injectedLines = [];
+				foreach ($returnedLines as $key => $value) {
+					$injectedLines[$lineKey . '-' . $key] = $value;
+				}
+
+				/*
+				* Remove the original line and replace
+				*/
+				$lines = array_splice($lines,$lineKey,1,$returnedLines);
+
+			}
+			
+			$preProcessLines  = array_merge(
+				$preProcessLines,
+				$returnedPreProcessLines
+			);
+			
+			$postProcessLines  = array_merge(
+				$postProcessLines,
+				$returnedPostProcessLines
+			);
+		}
+
+		return array($preProcessLines, $lines, $postProcessLines);
+	}
+
+	/**
+	 * Rewrite any driver specific SQL and actions to be executed before
+	 * and after the main SQL statement is executed based on the
+	 * type of calling action
+	 *
+	 * @param string $tableName   The table name 
+	 * @param string $lineKey     The line key
+	 * @param string $inboundLine The line to process
+	 * @param array  $metaColumns Existing table columns, if any
+	 * @param int	 $processMode 1=ADD/2=CHANGE/3=DELETE
+	 * 
+	 * @return array
+	 */
+	protected function lineProcessor(
+		string $tableName, 
+		string $lineKey, 
+		string $inboundLine, 
+		array $metaColumns, 
+		int $processMode = 1
+	) : array {
+		
+		/*
+		* The outbound lines can be returned 
+		* with any count of replacements
+		* @example The DB2 driver
+		*/
+		$outboundLines = [ 
+			$inboundLine 
+		];
+		
+		$preProcessLines  = [];
+		$postProcessLines = [];
+
+		return array($preProcessLines, $outboundLines, $postProcessLines);
+
+	}
+	
+	
+	/**
+	* Generate the SQL to create a new table. Returns an array of sql strings.
+	*
+	* @param string $tabname The table name
+	* @param string $flds
+	* @param mixed  $tableOptions
+	*
+	* @return array   
 	*/
 	function createTableSQL($tabname, $flds, $tableoptions=array())
 	{
+		
 		list($lines,$pkey,$idxs) = $this->_genFields($flds, true);
 		// genfields can return FALSE at times
-		if ($lines == null) $lines = array();
+		if ($lines == null) { 
+			$lines = array();
+		}
+
+		$sql = [];
+		$preProcessLines  = [];
+		$postProcessLines = [];
+
+		/*
+		* Execute any driver-specific line changes
+		*/
+		list ($preProcessLines,$lines, $postProcessLines) = 
+			$this->reprocessColumns(
+				$tabname,
+				$lines,
+				self::REPROCESS_TABLE_CREATE
+			);
+		
+		/*
+		* Preprocess lines are executed before the table process,
+		* Postprocess lines are executed after
+		*/
+		if (count($preProcessLines) > 0) {
+			$sql = array_merge($sql, $preProcessLines);
+		}
 
 		$taboptions = $this->_options($tableoptions);
 		$tabname = $this->tableName($tabname);
-		$sql = $this->_tableSQL($tabname,$lines,$pkey,$taboptions);
+		$sql = array_merge($sql, $this->_tableSQL($tabname,$lines,$pkey,$taboptions));
 
 		// ggiunta - 2006/10/12 - KLUDGE:
         // if we are on autoincrement, and table options includes REPLACE, the
@@ -656,6 +849,10 @@ class ADODB_DataDict {
 			}
 		}
 
+		if (count($postProcessLines) > 0) {
+			$sql = array_merge($sql, $postProcessLines);
+		}
+
 		return $sql;
 	}
 
@@ -669,6 +866,7 @@ class ADODB_DataDict {
 			$flds = array();
 			$flds0 = lens_ParseArgs($txt,',');
 			$flds0 = array_filter($flds0);
+
 			$hasparam = false;
 			foreach($flds0 as $f0) {
 				$f1 = array();
@@ -990,6 +1188,8 @@ class ADODB_DataDict {
 		return false;
 	}
 
+	
+
 	function _tableSQL($tabname,$lines,$pkey,$tableoptions)
 	{
 		$sql = array();
@@ -1066,88 +1266,525 @@ class ADODB_DataDict {
 	 * This function changes/adds new fields to your table.
 	 *
 	 * You don't have to know if the col is new or not. It will check on its own.
-	 *
-	 * @param string   $tablename
-	 * @param string   $flds
-	 * @param string[] $tableoptions
-	 * @param bool     $dropOldFlds
+	 * If the $dropOldFlds parameter is set to true, it will drop the old fields, if
+	 * not set then any column not specified in the $flds parameter will be left as is,
+	 * which means you can use this as a bulk update function. Wjen used as a public
+	 * method then the $flds value is a string, or as an array from XMLSchema
+	 * 
+	 * @param string       $tablename    Table to modify
+	 * @param string|array $flds         Fields to change/add, either as a string or an array
+	 * @param string[]     $tableoptions Table options, see createTableSQL()
+	 *                                   for more information, default false
+	 * @param bool         $dropOldFlds  If set to true, it will drop any old fields not specified in $flds,
 	 *
 	 * @return string[] Array of SQL Commands
 	 */
 	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
 	{
-	global $ADODB_FETCH_MODE;
+		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
-		if ($this->connection->fetchMode !== false) $savem = $this->connection->setFetchMode(false);
-
+		if ($this->connection->fetchMode !== false) { 
+			$savem = $this->connection->setFetchMode(false);
+		}
 		// check table exists
 		$save_handler = $this->connection->raiseErrorFn;
 		$this->connection->raiseErrorFn = '';
-		$cols = $this->metaColumns($tablename);
-		$this->connection->raiseErrorFn = $save_handler;
 
-		if (isset($savem)) $this->connection->setFetchMode($savem);
-		$ADODB_FETCH_MODE = $save;
 
-		if ( empty($cols)) {
+		$existingTables = $this->connection->MetaTables('TABLE', '',$tablename);
+		if (!$existingTables) {
+			$existingTables = array();
+		}
+				
+		if (!in_array($tablename, $existingTables)) {
+			/*
+			* Use the createTableSQL function to create the table
+			*/
+			$ADODB_FETCH_MODE = $save;
 			return $this->createTableSQL($tablename, $flds, $tableoptions);
 		}
 
-		$sql = [];
+		$metaColumns = $this->metaColumns($tablename);
+		$this->connection->raiseErrorFn = $save_handler;
+
+		if (isset($savem)) {
+			$this->connection->setFetchMode($savem);
+		}
+		
+		$ADODB_FETCH_MODE = $save;
+
 		if (is_array($flds)) {
-		// Cycle through the update fields, comparing
-		// existing fields to fields to update.
-		// if the Metatype and size is exactly the
-		// same, ignore - by Mark Newham
-			$holdflds = array();
-			$fields_to_add = [];
-			$fields_to_alter = [];
-			foreach($flds as $k=>$v) {
-				if ( isset($cols[$k]) && is_object($cols[$k]) ) {
-					// If already not allowing nulls, then don't change
-					$obj = $cols[$k];
-					if (isset($obj->not_null) && $obj->not_null)
-						$v = str_replace('NOT NULL','',$v);
-					if (isset($obj->auto_increment) && $obj->auto_increment && empty($v['AUTOINCREMENT']))
-					    $v = str_replace('AUTOINCREMENT','',$v);
-
-					$c = $cols[$k];
-					$ml = $c->max_length;
-					$mt = $this->metaType($c->type,$ml);
-
-					if (isset($c->scale)) $sc = $c->scale;
-					else $sc = 99; // always force change if scale not known.
-
-					if ($sc == -1) $sc = false;
-					list($fsize, $fprec) = $this->_getSizePrec($v['SIZE']);
-
-					if ($ml == -1) $ml = '';
-					if ($mt == 'X') $ml = $v['SIZE'];
-					if (($mt != $v['TYPE']) || ($ml != $fsize || $sc != $fprec) || (isset($v['AUTOINCREMENT']) && $v['AUTOINCREMENT'] != $obj->auto_increment)) {
-						$holdflds[$k] = $v;
-						$fields_to_alter[$k] = $v;
-					}
-				} else {
-					$fields_to_add[$k] = $v;
-					$holdflds[$k] = $v;
-				}
-			}
-			$flds = $holdflds;
+			/*
+			* $flds as array comes from the XML schema functions
+			*/
+			return $this->changeTableFromArray($tablename, $flds, $metaColumns, $dropOldFlds);
+		} else {
+			/*
+			* $flds as a string comes from changeTableSql
+			*/
+			return $this->changeTableFromString($tablename, $flds, $metaColumns, $dropOldFlds);
 		}
 
-		$sql = array_merge(
-			$this->addColumnSQL($tablename, $fields_to_add),
-			$this->alterColumnSql($tablename, $fields_to_alter)
+	}
+
+	/**
+	 * This function changes/adds new fields to your table when passed as an array
+	 * such as when executed by XMLSchema
+	 *
+	 * @param string $tablename   The table name to process
+	 * @param array  $sourceArray A set of required field changes as an array
+	 * @param array  $metaColumns The metaColumns array for the current table
+	 * @param bool   $dropOldFlds Whether to drop any columns that are not
+	 *                            included in the field definitions
+	 *
+	 * @return string[] Array of SQL Commands
+	 */
+	protected function changeTableFromArray(
+		string $tablename, 
+		array $sourceArray, 
+		array $metaColumns, 
+		bool $dropOldFlds
+	) :array {
+
+		$processedColumns       = [];
+		$columnsToAdd   		= [];
+		$columnsToAlter 		= [];
+		$notNullDisables    	= [];
+		$autoIncrementDisables 	= [];
+
+		foreach($sourceArray as $sourceKey=>$sourceValue) {
+	
+			$newColumnName = $sourceKey;
+			$newMetaType   = $sourceValue['TYPE'];
+			$newMaxLength    = -1;
+			$newScale        = -1;
+			$newDefaultValue = false;
+
+			$requiresAutoIncrement = false;
+			$requiresDefaultValue  = false;
+
+			if ( isset($metaColumns[$newColumnName]) && is_object($metaColumns[$newColumnName]) ) {
+				
+				/*
+				* If the column already exists, we need to check if it needs to be altered.
+				* We check the meta type, max length, scale, auto_increment and default value
+				* to determine if an alteration is required.
+				*/
+				
+				// If already not allowing nulls, then don't change
+				$obj = $metaColumns[$newColumnName];
+				
+				if (isset($obj->not_null) && $obj->not_null){
+					if (in_array('NOT NULL', $sourceValue)) {
+						$notNullDisables[$newColumnName] = true;
+					}
+					
+				}
+				
+				$requiresAutoIncrement = array_key_exists('AUTOINCREMENT', $sourceValue);
+				if (isset($obj->auto_increment) && $obj->auto_increment) {
+					// If already auto_increment, then don't reapply
+					
+					if ($requiresAutoIncrement !== false) {
+						// Set flag to remove AUTOINCREMENT from the source field definition
+						$requiresAutoIncrement = false;
+						$autoIncrementDisables[$newColumnName] = true;
+					}
+					
+				}
+
+				/*
+				[NAME] => id
+				[TYPE] => I
+				[SIZE] => 
+				[DESCR] => A unique ID assigned to each record.
+				[KEY] => KEY
+				[AUTOINCREMENT] => AUTOINCREMENT
+				*/
+
+				$c = $metaColumns[$newColumnName];
+				
+				$currentMaxLength = $c->max_length;
+				
+				$currentMetaType = $this->metaType($c->type,$currentMaxLength);
+		
+				/*
+				* Validates if a default value is set and if it is now
+				* or changed from the previous value.
+				*/
+				$defaultsIndex = array_search('DEFAULT', $sourceValue);
+				if ($defaultsIndex !== false) {
+					$newDefaultValue = $sourceValue[$defaultsIndex + 1];
+
+					if (!$c->has_default || ($c->has_default && $c->default_value != $newDefaultValue)) {
+						// If the default value is different, we need to alter it
+						$requiresDefaultValue = true;
+					}
+				}
+				if (isset($c->scale)) {
+					$currentScale = $c->scale;
+				} else {
+					$currentScale = 99; // always force change if scale not known.
+				}
+
+				if ($currentScale == -1) { 
+					$currentScale = false;
+				}
+
+				if ($currentMetaType == 'N') {
+					list($newMaxLength, $newScale) = $this->_getSizePrec($sourceValue['SIZE']);
+				}
+				if ($currentMaxLength == -1) { 
+					$currentMaxLength = '';
+				}
+
+				if (in_array($currentMetaType,array('C','X','X2','XL','B'))) {
+
+					if (isset($sourceValue['SIZE']) && $sourceValue['SIZE'] != null && is_numeric($sourceValue['SIZE'])) {
+						$newMaxLength = $sourceValue['SIZE'];
+					} else {
+						$newMaxLength = $currentMaxLength;
+					} 
+				}
+
+				/*
+				* Any of the following conditions will trigger an attemp
+				* to alter the column
+				*/
+				if ($currentMetaType != $newMetaType
+				|| ($currentMaxLength != $newMaxLength && $newMaxLength != -1) 
+				|| ($currentScale != $newScale && $newScale != -1)
+				|| $requiresAutoIncrement
+				|| $requiresDefaultValue
+				) {
+					$columnsToAlter[$newColumnName] = $sourceValue;
+				}
+			} else {
+				/*
+				* cannot find in the existing metaColumns
+				*/
+				$columnsToAdd[$newColumnName] = $sourceValue;
+			}
+			
+			/*
+			* Lists all of the processes columns, to be compared 
+			* against the existing columns in the table.
+			* This is used to determine which columns to drop.
+			*/
+			$processedColumns[$newColumnName] = $sourceValue;
+		}
+
+
+		$addColumnsArray = array();
+		$modColumnsArray = array();
+
+		foreach($sourceArray as $columnIndex=>$vData) {
+
+			if (array_key_exists('DEFAULT',$vData)) {
+				/*
+				* Wrap it in quotes so that it does not upset genfields()
+				*/
+				$vData['DEFAULT'] = sprintf("DEFAULT '%s'",$vData['DEFAULT']);
+			}
+
+			$columnData    = implode(' ',$vData);
+				
+			$newColumnName = trim($vData['NAME']);
+
+			/*
+			* we must check to see if we need to adjust the notnull or autoincrement
+			* settings for the column
+			*/
+			if (isset($notNullDisables[$columnIndex])) {
+				$columnData = str_replace('NOT NULL', '', $columnData);
+			}
+			
+			if (isset($autoIncrementDisables[$columnIndex
+			])) {
+				$columnData = str_replace('AUTOINCREMENT', '', $columnData);
+			}
+
+			if (isset($columnsToAlter[$columnIndex])) {
+				$modColumnsArray[] = $columnData;
+			} else if (isset($columnsToAdd[$columnIndex])) {
+				// if the column is not in the table, then add it
+				$addColumnsArray[] = $columnData;
+			}
+		}
+
+		return $this->generateChangeTableSqlArray(
+			$tablename,
+			$addColumnsArray,
+			$modColumnsArray,
+			$metaColumns,
+			$processedColumns,
+			$dropOldFlds
 		);
 
-		if ($dropOldFlds) {
-			foreach ($cols as $id => $v) {
-				if (!isset($lines[$id])) {
-					$sql[] = $this->dropColumnSQL($tablename, $flds);
+	}
+
+	
+
+	/**
+	 * This function changes/adds new fields to your table when passed as a string
+	 * Used from the public method changeTableSQL()
+	 * 
+	 * @param string $tablename    Table to modify
+	 * @param string $sourceString The source string containing the new fields
+	 * @param array  $metaColumns  metaColumns array
+	 * @param bool   $dropOldFlds  bool indicating whether to drop old fields or not
+	 *
+	 * @return string[] Array of SQL Commands
+	 */
+	protected function changeTableFromString(
+		string $tablename, 
+		string $sourceString, 
+		array $metaColumns, 
+		bool $dropOldFlds
+		) : array {
+
+		
+		/*
+		* Converts the source into an ADOdb standard array
+		*/
+		$sourceArray = lens_ParseArgs($sourceString,',');
+		
+		$sourceArray = array_filter($sourceArray);
+
+		$processedColumns 		= [];
+		$columnsToAdd 			= [];
+		$columnsToAlter 		= [];
+		$notNullDisables    	= [];
+		$autoIncrementDisables 	= [];
+
+		/*
+		* The iteration checks for various conditions and splits the
+		* sourceArray into fields to add/change/delete.
+		*/
+
+		foreach($sourceArray as $sourceKey=>$sourceValue) {
+
+			$newColumnName   = $sourceValue[0];
+			$newMetaType     = $sourceValue[1];
+			$newMaxLength    = -1;
+			$newScale        = -1;
+			$newDefaultValue = false;
+
+			$requiresAutoIncrement = false;
+			$requiresDefaultValue  = false;
+
+			if ( isset($metaColumns[strtoupper($newColumnName)]) && is_object($metaColumns[strtoupper($newColumnName)])) {
+				
+				/*
+				* If the column already exists, we need to check if it needs to be altered.
+				* We check the meta type, max length, scale, auto_increment and default value
+				* to determine if an alteration is required.
+				*/
+				
+				// If already not allowing nulls, then don't change
+				$obj = $metaColumns[strtoupper($newColumnName)];
+				
+				if (isset($obj->not_null) && $obj->not_null){
+					if (in_array('NOT NULL', $sourceValue)) {
+						/*
+						* Remove NOT NULL from the field definition
+						*/
+						$notNullDisables[$newColumnName] = true;
+					}
+					
 				}
+				
+				$requiresAutoIncrement = array_search('AUTOINCREMENT', $sourceValue);
+				if (isset($obj->auto_increment) && $obj->auto_increment) {
+					// If already auto_increment, then don't reapply
+					
+					if ($requiresAutoIncrement !== false) {
+						// Set flag to remove AUTOINCREMENT from the source field definition
+						$requiresAutoIncrement = false;
+						$autoIncrementDisables[$newColumnName] = true;
+					}
+					
+				}
+
+				
+				$currentMaxLength = $obj->max_length;
+				
+				$currentMetaType = $this->metaType($obj->type,$currentMaxLength);
+
+				/*
+				* Validates if a default value is set and if it is now
+				* or changed from the previous value.
+				*/
+				$defaultsIndex = array_search('DEFAULT', $sourceValue);
+				if ($defaultsIndex !== false) {
+					$newDefaultValue = $sourceValue[$defaultsIndex + 1];
+
+					if (!$obj->has_default || ($obj->has_default && $obj->default_value != $newDefaultValue)) {
+						// If the default value is different, we need to alter it
+						$requiresDefaultValue = true;
+					}
+				}
+				if (isset($obj->scale)) {
+					$currentScale = $obj->scale;
+				} else {
+					$currentScale = 99; // always force change if scale not known.
+				}
+
+				if ($currentScale == -1) { 
+					$currentScale = false;
+				}
+
+				if ($currentMetaType == 'N') {
+					list($newMaxLength, $newScale) = $this->_getSizePrec($sourceValue[2]);
+				}
+				if ($currentMaxLength == -1) { 
+					$currentMaxLength = '';
+				}
+
+				if (in_array($currentMetaType,array('C','X','X2','XL'))) {
+
+					if (isset($sourceValue[2]) && is_numeric($sourceValue[2])) {
+						$newMaxLength = $sourceValue[2];
+					} 
+				}
+
+				/*
+				* Any of the following conditions will trigger an attempt
+				* to alter the column
+				*/
+				if ($currentMetaType != $newMetaType
+				|| ($currentMaxLength != $newMaxLength && $newMaxLength != -1) 
+				|| ($currentScale != $newScale && $newScale != -1)
+				|| $requiresAutoIncrement
+				|| $requiresDefaultValue
+				) {
+					$columnsToAlter[$newColumnName] = $sourceValue;
+				}
+			} else {
+				/*
+				* cannot find in the existing metaColumns
+				*/
+				$columnsToAdd[$newColumnName] = $sourceValue;
+			}
+			
+			/*
+			* Lists all of the processed columns, to be compared 
+			* against the existing columns in the table.
+			* This is used to determine which columns to drop if
+			* the dropFlds flag is set, else they will be ignored
+			*/
+			$processedColumns[$newColumnName] = $sourceValue;
+		}
+		
+
+		/*
+		* now take the source data, clean it and split it into add/change/delete 
+		*/
+		$targetArray = preg_split('/[\r\n]/',$sourceString);
+		$targetArray = array_map('trim', $targetArray);
+		$targetArray = array_filter($targetArray);
+		$targetArray = array_values($targetArray);
+		
+		$addColumnsArray = array();
+		$modColumnsArray = array();
+		
+
+		foreach($targetArray as $columnIndex=>$columnData) {
+
+			$vData = explode(' ',$columnData);
+			$newColumnName = trim($vData[0]);
+
+			/*
+			* we must check to see if we need to adjust the notnull or autoincrement
+			* settings for the column
+			*/
+			if (isset($notNullDisables[$newColumnName])) {
+				$columnData = str_replace('NOT NULL', '', $columnData);
+			}
+			
+			if (isset($autoIncrementDisables[$newColumnName])) {
+				$columnData = str_replace('AUTOINCREMENT', '', $columnData);
+			}
+
+			if (isset($columnsToAlter[$newColumnName])) {
+				$modColumnsArray[] = $columnData;
+			} else if (isset($columnsToAdd[$newColumnName])) {
+				// if the column is not in the table, then add it
+				$addColumnsArray[] = $columnData;
 			}
 		}
-		return $sql;
+
+		return $this->generateChangeTableSqlArray(
+			$tablename,
+			$addColumnsArray,
+			$modColumnsArray,
+			$metaColumns,
+			$processedColumns,
+			$dropOldFlds
+		);
+
 	}
+
+	/**
+	 * Combine the Add/Change/Delete of columns into a single array
+	 *
+	 * @param string  $tablename        The table to process
+	 * @param array   $addColumnsArray  An array of columns to add
+	 * @param array   $modColumnsArray  An array of columns to change
+	 * @param array   $metaColumns      The existing columns in the tables
+	 * @param array   $processedColumns A combined list of all the columns handled
+	 * @param boolean $dropOldFlds      Flag indicating whether to drop old fields
+	 * 
+	 * @return array
+	 */
+	protected function generateChangeTableSqlArray(
+		string $tablename,
+		array $addColumnsArray,
+		array $modColumnsArray,
+		array $metaColumns,
+		array $processedColumns,
+		bool $dropOldFlds
+	) : array {
+
+		$sqlArray = array();
+
+		foreach($modColumnsArray as $mca) {
+			$sqlArray = array_merge(
+				$sqlArray,
+				$this->alterColumnSql($tablename, $mca)
+			);
+		}
+
+		foreach($addColumnsArray as $aca) {
+			$sqlArray = array_merge(
+				$sqlArray,
+				$this->addColumnSql($tablename, $aca)
+			);
+		}
+
+		
+		/*
+		* XML will never drop fields here because it handles it
+		* separately
+		*/
+		if ($dropOldFlds) {
+
+			$currentCols = array_keys($metaColumns);
+			$newCols	 = array_keys($processedColumns);
+			/*
+			* unpick the remaining columns that don't appear in the source data
+			* and drop them
+			*/
+			$dropFlds    = array_diff($currentCols, $newCols);
+			if (count($dropFlds) > 0) {
+				$dropSql  = $this->dropColumnSQL($tablename, $dropFlds);
+				$sqlArray = array_merge($sqlArray, $dropSql);
+			}
+		}
+
+		return $sqlArray;
+
+	}
+
 } // class
