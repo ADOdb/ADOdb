@@ -5,7 +5,7 @@
  *
  */
 
-namespace ADOdb\Meta\MySQLi;
+namespace ADOdb\Meta\MySQL;
 
 $path = ADODB_DIR."/Meta/MetaFunctions.php";
 include_once($path);
