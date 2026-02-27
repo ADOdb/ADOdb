@@ -3300,6 +3300,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 
 	function _findschema(&$table,&$schema) {
+		print "FS $table $schema\n";
 		if (!$schema && ($at = strpos($table,'.')) !== false) {
 			$schema = substr($table,0,$at);
 			$table = substr($table,$at+1);
