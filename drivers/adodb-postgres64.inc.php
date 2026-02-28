@@ -661,7 +661,7 @@ class ADODB_postgres64 extends ADOConnection{
 		string $table, 
 		bool $numIndexes=false, 
 		bool $useattnum=false
-	) : mixed {
+	) {
 		
 		$objarr = $this->MetaColumns($table);
 		if (!is_array($objarr)) {

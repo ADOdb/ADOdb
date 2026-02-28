@@ -3401,7 +3401,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		string $table, 
 		bool $numIndexes=false, 
 		bool $useattnum=false
-	) : mixed {
+	) {
 		
 		$objarr = $this->MetaColumns($table);
 		if (!is_array($objarr)) {
