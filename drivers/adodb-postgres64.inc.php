@@ -531,7 +531,7 @@ class ADODB_postgres64 extends ADOConnection{
 		$rs = $this->Execute($this->_generateMetaColumnsSQL($table, $schema));
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
-		}	
+		}
 		$ADODB_FETCH_MODE = $save;
 
 		if ($rs === false) {
@@ -578,10 +578,10 @@ class ADODB_postgres64 extends ADOConnection{
 				while (!$rsdef->EOF) {
 
 					$fields = array_change_key_case($rsdef->fields, CASE_LOWER);
-	
+
 					$num = $fields['num'];
 					$s   = $fields['def'];
-					
+
 					if (strpos($s,'::')===false && substr($s, 0, 1) == "'") { /* quoted strings hack... for now... fixme */
 						$s = substr($s, 1);
 						$s = substr($s, 0, strlen($s) - 1);
@@ -623,9 +623,9 @@ class ADODB_postgres64 extends ADOConnection{
 			// Freek
 			if (is_array($keys)) {
 
-				foreach($keys as $key) { 
+				foreach($keys as $key) {
 					$key = array_change_key_case($key, CASE_LOWER);
-					
+
 					if ($fld->name == $key['column_name'] && $key['primary_key'] == 't') {
 						$fld->primary_key = true;
 					}
@@ -648,7 +648,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return $retarr ?: false;
 	}
 
-	
+
 	/**
 	 * List columns names in a table as an array.
 	 * @param string $table	     table name to query
@@ -658,11 +658,11 @@ class ADODB_postgres64 extends ADOConnection{
 	 * @return false|array of column names for current table.
 	 */
 	public function MetaColumnNames(
-		string $table, 
-		bool $numIndexes=false, 
+		string $table,
+		bool $numIndexes=false,
 		bool $useattnum=false
 	) {
-		
+
 		$objarr = $this->MetaColumns($table);
 		if (!is_array($objarr)) {
 			return false;
@@ -674,7 +674,7 @@ class ADODB_postgres64 extends ADOConnection{
 				/*
 				* overrides associative keys
 				*/
-				$columnNames[$v->attnum] = $v->name;	
+				$columnNames[$v->attnum] = $v->name;
 			} else {
 				$columnNames[strtoupper($v->name)] = $v->name;
 			}
@@ -685,9 +685,9 @@ class ADODB_postgres64 extends ADOConnection{
 		}
 
 		return $columnNames;
-	
+
 	}
-	
+
 	function param($name, $type='C')
 	{
 		if (!$name) {
