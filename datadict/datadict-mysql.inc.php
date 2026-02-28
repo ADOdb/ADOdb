@@ -33,16 +33,33 @@ class ADODB2_mysql extends ADODB_DataDict {
 	public $blobAllowsNotNull = true;
 
 
-	function metaType($t, $len=-1, $fieldobj=false)
+	/**
+	 * Returns the meta type for a given type and length.
+	 *
+	 * @param mixed  $t        The object to test.
+	 * @param int    $len      The length of the field, if applicable.
+	 * @param object $fieldobj The field object, if available.
+	 *
+	 * @return string
+	 */
+	public function metaType($t, $len = -1, $fieldobj = false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
-			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
+		} else if (is_string($t) && !$fieldobj){
+			if ($this->connection->debug) {
+				ADOConnection::outp('Passing a string to metaType is no longer permitted. Pass the field object instead');
+			}
+			return ADODB_DEFAULT_METATYPE;
 		}
-		$is_serial = is_object($fieldobj) && $fieldobj->primary_key && $fieldobj->auto_increment;
 
-		$len = -1; // mysql max_length is not accurate
+		if (is_object($fieldobj)) {
+			$t = (int)$fieldobj->type;
+			$len = $fieldobj->max_length;
+			
+		}
+
+		$is_serial = is_object($fieldobj) && $fieldobj->primary_key && $fieldobj->auto_increment;
 
 		$t = strtoupper($t);
 
@@ -50,71 +67,131 @@ class ADODB2_mysql extends ADODB_DataDict {
 			return $this->connection->customActualTypes[$t];
 		}
 
-		switch ($t) {
-			case 'STRING':
-			case 'CHAR':
-			case 'VARCHAR':
-			case 'TINYBLOB':
-			case 'TINYTEXT':
-			case 'ENUM':
-			/** @noinspection PhpMissingBreakStatementInspection */
-			case 'SET':
-				if ($len <= $this->blobSize) {
-					return 'C';
+
+		/*
+
+0 = MYSQLI_TYPE_DECIMAL
+1 = MYSQLI_TYPE_CHAR
+1 = MYSQLI_TYPE_TINY
+2 = MYSQLI_TYPE_SHORT
+3 = MYSQLI_TYPE_LONG
+4 = MYSQLI_TYPE_FLOAT
+5 = MYSQLI_TYPE_DOUBLE
+6 = MYSQLI_TYPE_NULL
+7 = MYSQLI_TYPE_TIMESTAMP
+8 = MYSQLI_TYPE_LONGLONG
+9 = MYSQLI_TYPE_INT24
+10 = MYSQLI_TYPE_DATE
+11 = MYSQLI_TYPE_TIME
+12 = MYSQLI_TYPE_DATETIME
+13 = MYSQLI_TYPE_YEAR
+14 = MYSQLI_TYPE_NEWDATE
+245 = MYSQLI_TYPE_JSON
+247 = MYSQLI_TYPE_ENUM
+248 = MYSQLI_TYPE_SET
+249 = MYSQLI_TYPE_TINY_BLOB
+250 = MYSQLI_TYPE_MEDIUM_BLOB
+251 = MYSQLI_TYPE_LONG_BLOB
+252 = MYSQLI_TYPE_BLOB
+253 = MYSQLI_TYPE_VAR_STRING
+254 = MYSQLI_TYPE_STRING
+255 = MYSQLI_TYPE_GEOMETRY
+*/
+
+		if (is_object($fieldobj)) {
+			if ($t == 254) {
+				if (!$fieldobj->binary) {
+					if (in_array($fieldobj->flags, [256, 2048])) {
+						return 'E';
+					} else {
+						return 'C';
+					}
+				} else {
+					return 'C2';
 				}
-				// Fall through
-
-			case 'TEXT':
-			case 'LONGTEXT':
-			case 'MEDIUMTEXT':
-				return 'X';
-
-			// php_mysql extension always returns 'blob' even if 'text'
-			// so we have to check whether binary...
-			case 'IMAGE':
-			case 'LONGBLOB':
-			case 'BLOB':
-			case 'MEDIUMBLOB':
-				return !empty($fieldobj->binary) ? 'B' : 'X';
-
-			case 'YEAR':
-			case 'DATE':
-				return 'D';
-
-			case 'TIME':
-			case 'DATETIME':
-			case 'TIMESTAMP':
+			} elseif ($t == 253) {
+				if (!$fieldobj->binary) {
+					return 'C';
+				} else {
+					return 'C2';
+				}
+			} elseif ($t == 252) {
+				if (!$fieldobj->binary) {
+					if ($fieldobj->flags == 16) {
+						return 'X';
+					} else {
+						return 'C';
+					}
+				} else {
+					return 'B';
+				}
+			} elseif (in_array($t, [MYSQLI_TYPE_CHAR, 16])) {
+				if (!$fieldobj->binary) {
+					return 'L';
+				}
+			} elseif (in_array($t, [MYSQLI_TYPE_SHORT])) {
+				if (!$fieldobj->binary) {
+					return 'I2';
+				}
+			} elseif (in_array($t, [MYSQLI_TYPE_INT24])) {
+				if (!$fieldobj->binary) {
+					return 'I4';
+				}
+			} elseif (in_array($t, [MYSQLI_TYPE_LONG])) {
+				if (!$fieldobj->binary) {
+					return 'I';
+				}
+			} elseif ($t == MYSQLI_TYPE_LONGLONG) {
+				if (!$fieldobj->binary) {
+					return 'I8';
+				}
+			} elseif (in_array($t, [MYSQLI_TYPE_FLOAT, MYSQLI_TYPE_DOUBLE])) {
+				if (!$fieldobj->binary) {
+					return 'F';
+				}
+			} elseif ($t == 246) {
+				if (!$fieldobj->binary) {
+					return 'N';
+				}
+			} elseif (in_array(
+					$t, [
+						MYSQLI_TYPE_TIMESTAMP,
+						MYSQLI_TYPE_TIME,
+						MYSQLI_TYPE_DATETIME,
+						27
+						]
+					)
+				) {
 				return 'T';
-
-			case 'FLOAT':
-			case 'DOUBLE':
-				return 'F';
-
-			case 'INT':
-			case 'INTEGER':
-				return $is_serial ? 'R' : 'I';
-			case 'TINYINT':
-				return $is_serial ? 'R' : 'I1';
-			case 'SMALLINT':
-				return $is_serial ? 'R' : 'I2';
-			case 'MEDIUMINT':
-				return $is_serial ? 'R' : 'I4';
-			case 'BIGINT':
-				return $is_serial ? 'R' : 'I8';
-			default:
-
-				return ADODB_DEFAULT_METATYPE;
+			} elseif (in_array(
+						$t, 
+						[ MYSQLI_TYPE_DATE,	MYSQLI_TYPE_YEAR ]
+						)
+					) {
+				return 'D';
+			}
 		}
+
+		return ADODB_DEFAULT_METATYPE;
 	}
 
-	function actualType($meta)
+	/**
+	 * Returns the actual type for a given meta type.
+	 *
+	 * @param string $meta The meta type to convert:
+	 *
+	 * @param [type] $meta
+	 * @return void
+	 */
+	public function actualType($meta)
 	{
 		$meta = parent::actualType($meta);
 
 		switch ($meta) {
 			case 'C':
-			case 'C2':
 				return 'VARCHAR';
+			case 'C2':
+				return 'NVARCHAR';
 			case 'XL':
 			case 'X2':
 				return 'LONGTEXT';
@@ -130,7 +207,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 			case 'T':
 				return 'DATETIME';
 			case 'L':
-				return 'TINYINT';
+				return 'BOOLEAN';
 
 			case 'R':
 			case 'I4':
@@ -148,6 +225,8 @@ class ADODB2_mysql extends ADODB_DataDict {
 				return 'DOUBLE';
 			case 'N':
 				return 'NUMERIC';
+			case 'E':
+				return 'ENUM';
 
 			default:
 				return $meta;
