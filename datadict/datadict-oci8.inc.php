@@ -30,8 +30,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	var $dropTable = "DROP TABLE %s CASCADE CONSTRAINTS";
 	var $trigPrefix = 'TRIG_';
 	var $alterCol = ' MODIFY ';
-	var $typeX = 'VARCHAR(4000)';
-	var $typeXL = 'CLOB';
+	
 	
 	/**
 	 * Legacy compatibility for sequence names for emulated auto-increments.
@@ -43,99 +42,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	 */
 	public $useCompactAutoIncrements = false;
 
-	function metaType($t, $len=-1, $fieldobj=false)
-	{
-		if (is_object($t)) {
-			$fieldobj = $t;
-			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
-		}
-		
-		$t = strtoupper($t);
-		
-		if (array_key_exists($t,$this->connection->customActualTypes))
-			return  $this->connection->customActualTypes[$t];
-
-		switch ($t) {
-	 	case 'VARCHAR':
-	 	case 'VARCHAR2':
-		case 'CHAR':
-		case 'VARBINARY':
-		case 'BINARY':
-			if (isset($this) && $len <= $this->blobSize) return 'C';
-			return 'X';
-
-		case 'NCHAR':
-		case 'NVARCHAR2':
-		case 'NVARCHAR':
-			if (isset($this) && $len <= $this->blobSize) return 'C2';
-			return 'X2';
-
-		case 'NCLOB':
-		case 'CLOB':
-			return 'XL';
-
-		case 'LONG RAW':
-		case 'LONG VARBINARY':
-		case 'BLOB':
-			return 'B';
-
-		case 'TIMESTAMP':
-			return 'TS';
-
-		case 'DATE':
-			return 'T';
-
-		case 'INT':
-		case 'SMALLINT':
-		case 'INTEGER':
-			return 'I';
-
-		default:
-			return ADODB_DEFAULT_METATYPE;
-		}
-	}
-
- 	function ActualType($meta)
-	{
-		$meta = strtoupper($meta);
-		
-		/*
-		* Add support for custom meta types. We do this
-		* first, that allows us to override existing types
-		*/
-		if (isset($this->connection->customMetaTypes[$meta]))
-			return $this->connection->customMetaTypes[$meta]['actual'];
-		
-		switch($meta) {
-		case 'C': return 'VARCHAR';
-		case 'X': return $this->typeX;
-		case 'XL': return $this->typeXL;
-
-		case 'C2': return 'NVARCHAR2';
-		case 'X2': return 'NVARCHAR2(4000)';
-
-		case 'B': return 'BLOB';
-
-		case 'TS':
-				return 'TIMESTAMP';
-
-		case 'D':
-		case 'T': return 'DATE';
-		case 'L': return 'NUMBER(1)';
-		case 'I1': return 'NUMBER(3)';
-		case 'I2': return 'NUMBER(5)';
-		case 'I':
-		case 'I4': return 'NUMBER(10)';
-
-		case 'I8': return 'NUMBER(20)';
-		case 'F': return 'NUMBER';
-		case 'N': return 'NUMBER';
-		case 'R': return 'NUMBER(20)';
-		default:
-			return $meta;
-		}
-	}
+ 	
 
 	function CreateDatabase($dbname, $options=false)
 	{

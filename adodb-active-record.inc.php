@@ -18,8 +18,11 @@
  * @copyright 2000-2013 John Lim
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
+//
+//$className = sprintf('%s\Resources\ADOHelpers');
+//$cls = new $className;
+//include_once(ADODB_DIR.'/adodb-lib.inc.php');
 
-include_once(ADODB_DIR.'/adodb-lib.inc.php');
 
 /**
  * Array of ADODB_Active_DB's, indexed by ADODB_Active_Record->_dbat.

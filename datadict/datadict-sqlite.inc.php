@@ -33,55 +33,7 @@ class ADODB2_sqlite extends ADODB_DataDict {
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;
 
-	function actualType($meta)
-	{
-		$meta = strtoupper($meta);
-
-		// Add support for custom meta types.
-		// We do this first, that allows us to override existing types
-		if (isset($this->connection->customMetaTypes[$meta])) {
-			return $this->connection->customMetaTypes[$meta]['actual'];
-		}
-
-		switch(strtoupper($meta)) {
-			case 'C':
-			case 'C2':
-				return 'VARCHAR'; //  TEXT , TEXT affinity
-			case 'XL':
-			case 'X2':
-				return 'LONGTEXT'; //  TEXT , TEXT affinity
-			case 'X':
-				return 'TEXT'; //  TEXT , TEXT affinity
-
-			case 'B':
-				return 'LONGBLOB'; //  TEXT , NONE affinity , BLOB
-
-			case 'D':
-				return 'DATE'; // NUMERIC , NUMERIC affinity
-			case 'T':
-				return 'DATETIME'; // NUMERIC , NUMERIC affinity
-
-			case 'I':
-			case 'R':
-			case 'I4':
-				return 'INTEGER'; // NUMERIC , INTEGER affinity
-			case 'L':
-			case 'I1':
-				return 'TINYINT'; // NUMERIC , INTEGER affinity
-			case 'I2':
-				return 'SMALLINT'; // NUMERIC , INTEGER affinity
-			case 'I8':
-				return 'BIGINT'; // NUMERIC , INTEGER affinity
-
-			case 'F':
-				return 'DOUBLE'; // NUMERIC , REAL affinity
-			case 'N':
-				return 'NUMERIC'; // NUMERIC , NUMERIC affinity
-
-			default:
-				return $meta;
-		}
-	}
+	
 
 	// return string must begin with space
 	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)

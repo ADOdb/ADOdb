@@ -32,63 +32,7 @@ class ADODB2_firebird extends ADODB_DataDict
 	var $alterCol = ' ALTER';
 	var $dropCol = ' DROP';
 
-	function actualType($meta)
-	{
-
-		$meta = strtoupper($meta);
-
-		// Add support for custom meta types.
-		// We do this first, that allows us to override existing types
-		if (isset($this->connection->customMetaTypes[$meta])) {
-			return $this->connection->customMetaTypes[$meta]['actual'];
-		}
-
-		switch($meta) {
-			case 'C':
-				return 'VARCHAR';
-			case 'XL':
-				return 'BLOB SUB_TYPE BINARY';
-			case 'X':
-				return 'BLOB SUB_TYPE TEXT';
-
-			case 'C2':
-				return 'VARCHAR(32765)'; // up to 32K
-			case 'X2':
-				return 'VARCHAR(4096)';
-
-			case 'V':
-				return 'CHAR';
-			case 'C1':
-				return 'CHAR(1)';
-
-			case 'B':
-				return 'BLOB';
-
-			case 'D':
-				return 'DATE';
-			case 'TS':
-			case 'T':
-				return 'TIMESTAMP';
-
-			case 'L':
-			case 'I1':
-			case 'I2':
-				return 'SMALLINT';
-			case 'I':
-			case 'I4':
-				return 'INTEGER';
-			case 'I8':
-				return 'BIGINT';
-
-			case 'F':
-				return 'DOUBLE PRECISION';
-			case 'N':
-				return 'DECIMAL';
-			default:
-				return $meta;
-		}
-	}
-
+	
 	function nameQuote($name = null, $allowBrackets = false)
 	{
 		if (!is_string($name)) {

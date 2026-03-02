@@ -104,6 +104,26 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $sequences = false;
 	var $mssql_version = '';
 
+	/**
+	 * The class name that provides meta functions
+	 * to the the driver. PDO drivers use the same
+	 * providers as the native connection for the
+	 * same database
+	 *
+	 * @var string
+	 */
+	protected string $metaFunctionProvider = 'SqlServer';
+
+	/**
+	 * The class name that provides dictionary functions
+	 * to the the driver. PDO drivers use the same
+	 * providers as the native connection for the
+	 * same database
+	 *
+	 * @var string
+	 */
+	protected string $dataDictionaryProvider = 'SqlServer';
+
 	function __construct()
 	{
 		if ($this->debug) {

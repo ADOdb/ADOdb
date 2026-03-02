@@ -1267,51 +1267,5 @@ class ADORecordset_firebird extends ADORecordSet
 	{
 		return @fbird_free_result($this->_queryID);
 	}
-
-	public function metaType($t, $len = -1, $fieldObj = false)
-	{
-		if (is_object($t)) {
-			$fieldObj = $t;
-			$t = $fieldObj->type;
-			$len = $fieldObj->max_length;
-		}
-
-		$t = strtoupper($t);
-
-		if (array_key_exists($t, $this->connection->customActualTypes)) {
-			return $this->connection->customActualTypes[$t];
-		}
-
-		switch ($t) {
-			case 'CHAR':
-				return 'C';
-
-			case 'TEXT':
-			case 'VARCHAR':
-			case 'VARYING':
-				if ($len <= $this->blobSize) {
-					return 'C';
-				}
-				return 'X';
-			case 'BLOB':
-				return 'B';
-
-			case 'TIMESTAMP':
-			case 'DATE':
-				return 'D';
-			case 'TIME':
-				return 'T';
-			//case 'T': return 'T';
-
-			//case 'L': return 'L';
-			case 'INT':
-			case 'SHORT':
-			case 'INTEGER':
-				return 'I';
-			default:
-				return ADODB_DEFAULT_METATYPE;
-		}
-	}
-
 }
 

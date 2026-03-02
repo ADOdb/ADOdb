@@ -32,44 +32,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 	public $blobAllowsNotNull      = true;
 
 	
- 	function ActualType($meta)
-	{
-		$meta = strtoupper($meta);
-		
-		/*
-		* Add support for custom meta types. We do this
-		* first, that allows us to override existing types
-		*/
-		if (isset($this->connection->customMetaTypes[$meta]))
-			return $this->connection->customMetaTypes[$meta]['actual'];
-		
-		switch($meta) {
-		case 'C': return 'VARCHAR';
-		case 'XL': return 'CLOB';
-		case 'X': return 'VARCHAR(3600)';
-
-		case 'C2': return 'VARCHAR'; // up to 32K
-		case 'X2': return 'VARCHAR(3600)'; // up to 32000, but default page size too small
-
-		case 'B': return 'BLOB';
-
-		case 'D': return 'DATE';
-		case 'TS':
-		case 'T': return 'TIMESTAMP';
-
-		case 'L': return 'SMALLINT';
-		case 'I': return 'INTEGER';
-		case 'I1': return 'SMALLINT';
-		case 'I2': return 'SMALLINT';
-		case 'I4': return 'INTEGER';
-		case 'I8': return 'BIGINT';
-
-		case 'F': return 'DOUBLE';
-		case 'N': return 'DECIMAL';
-		default:
-			return $meta;
-		}
-	}
+ 	
 
 	// return string must begin with space
 	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)

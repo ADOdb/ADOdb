@@ -110,6 +110,27 @@ class ADODB_db2 extends ADOConnection {
      */
     public bool $useLegacyRowOffsets = false;
 
+    
+	/**
+	 * The class name that provides meta functions
+	 * to the the driver. PDO drivers use the same
+	 * providers as the native connection for the
+	 * same database
+	 *
+	 * @var string
+	 */
+	protected string $metaFunctionProvider = 'IBMDB2';
+
+	/**
+	 * The class name that provides dictionary functions
+	 * to the the driver. PDO drivers use the same
+	 * providers as the native connection for the
+	 * same database
+	 *
+	 * @var string
+	 */
+	protected string $dataDictionaryProvider = 'IBMDB2';
+
     function __construct() {}
 
     protected function _insertID($table = '', $column = '')

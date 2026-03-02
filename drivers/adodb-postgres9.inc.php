@@ -27,6 +27,26 @@ include_once(ADODB_DIR."/drivers/adodb-postgres8.inc.php");
 class ADODB_postgres9 extends ADODB_postgres8
 {
 	var $databaseType = 'postgres9';
+
+	/**
+	 * The class name that provides meta functions
+	 * to the the driver. PDO drivers use the same
+	 * providers as the native connection for the
+	 * same database
+	 *
+	 * @var string
+	 */
+	protected string $metaFunctionProvider = 'PostgreSQL';
+
+	/**
+	 * The class name that provides dictionary functions
+	 * to the the driver. PDO drivers use the same
+	 * providers as the native connection for the
+	 * same database
+	 *
+	 * @var string
+	 */
+	protected string $dataDictionaryProvider = 'PostgreSQL';
 }
 
 class ADORecordSet_postgres9 extends ADORecordSet_postgres8

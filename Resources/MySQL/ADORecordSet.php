@@ -1,9 +1,15 @@
 <?php
-
 /**
  * Class ADORecordSet_mysqli
  */
-class xADORecordSet_mysqli extends ADORecordSet{
+namespace ADOdb\Resources\MySQL;
+
+use ADOdb\Resources\ADOFieldObject;
+
+require_once ADODB_DIR . '/Resources/ADORecordSet.php';
+
+class ADORecordSet extends \ADOdb\Resources\ADORecordSet
+{
 
 	var $databaseType = "mysqli";
 	var $canSeek = true;
@@ -121,7 +127,7 @@ class xADORecordSet_mysqli extends ADORecordSet{
 		if ($this->fetchMode == MYSQLI_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
 			return $this->fields;
 		}
-		return ADORecordSet::getRowAssoc($upper);
+		return parent::getRowAssoc($upper);
 	}
 
 	/**
@@ -259,9 +265,3 @@ class xADORecordSet_mysqli extends ADORecordSet{
 	}
 
 } // rs class
-
-/**
- * Class ADORecordSet_array_mysqli */
-class ADORecordSet_array_mysqli extends ADORecordSet_array {}
-
-} // if defined _ADODB_MYSQLI_LAYER

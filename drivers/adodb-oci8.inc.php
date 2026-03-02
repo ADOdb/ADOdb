@@ -138,6 +138,28 @@ END;
 	 */
 	public $seqPrefix = 'SEQ_';
 
+    /**
+	 * The class name that provides meta functions
+	 * to the the driver. PDO drivers use the same
+	 * providers as the native connection for the
+	 * same database
+	 *
+	 * @var string
+	 */
+	protected string $metaFunctionProvider = 'Oracle';
+
+	/**
+	 * The class name that provides dictionary functions
+	 * to the the driver. PDO drivers use the same
+	 * providers as the native connection for the
+	 * same database
+	 *
+	 * @var string
+	 */
+	protected string $dataDictionaryProvider = 'Oracle';
+	
+
+
 	/*  function MetaColumns($table, $normalize=true) added by smondino@users.sourceforge.net*/
 	function MetaColumns($table, $normalize=true)
 	{
@@ -1922,65 +1944,4 @@ class ADORecordset_oci8 extends ADORecordSet {
 		$this->_queryID = false;
 	}
 
-	/**
-	 * not the fastest implementation - quick and dirty - jlim
-	 * for best performance, use the actual $rs->MetaType().
-	 *
-	 * @param	mixed	$t
-	 * @param	int		$len		[optional] Length of blobsize
-	 * @param	bool	$fieldobj	[optional][discarded]
-	 * @return	string				The metatype of the field
-	 */
-	function MetaType($t, $len=-1, $fieldobj=false)
-	{
-		if (is_object($t)) {
-			$fieldobj = $t;
-			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
-		}
-
-		$t = strtoupper($t);
-
-		if (array_key_exists($t,$this->connection->customActualTypes))
-			return  $this->connection->customActualTypes[$t];
-
-		switch ($t) {
-		case 'VARCHAR':
-		case 'VARCHAR2':
-		case 'CHAR':
-		case 'VARBINARY':
-		case 'BINARY':
-		case 'NCHAR':
-		case 'NVARCHAR':
-		case 'NVARCHAR2':
-			if ($len <= $this->blobSize) {
-				return 'C';
-			}
-
-		case 'NCLOB':
-		case 'LONG':
-		case 'LONG VARCHAR':
-		case 'CLOB':
-		return 'X';
-
-		case 'LONG RAW':
-		case 'LONG VARBINARY':
-		case 'BLOB':
-			return 'B';
-
-		case 'DATE':
-			return  ($this->connection->datetime) ? 'T' : 'D';
-
-
-		case 'TIMESTAMP': return 'T';
-
-		case 'INT':
-		case 'SMALLINT':
-		case 'INTEGER':
-			return 'I';
-
-		default:
-			return ADODB_DEFAULT_METATYPE;
-		}
-	}
 }
