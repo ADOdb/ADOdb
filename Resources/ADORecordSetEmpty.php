@@ -1,7 +1,7 @@
 <?php
 namespace ADOdb\Resources;
 
-use ADOdb\Resources\ADODB_Iterator_empty;
+use ADOdb\Resources\ADODBIteratorEmpty;
 
 /**
  * Lightweight recordset when there are no records to be returned
@@ -51,7 +51,7 @@ class ADORecordSetEmpty implements \IteratorAggregate
 
     #[\ReturnTypeWillChange]
     function getIterator() {
-        return new ADODB_Iterator_empty($this);
+        return new \ADOdb\Resources\ADODBIteratorEmpty($this);
     }
 
     function GetAssoc() {

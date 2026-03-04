@@ -2,14 +2,23 @@
 
 namespace ADOdb\Resources;
 
+use \ADOdb\Resources\ADOConnection;
+
 class ADOMenuBuilders {
 
-function _adodb_getmenu($zthis, $name,$defstr='',$blank1stItem=true,$multiple=false,
+	protected ?ADOConnection $conn;
+
+	public function __construct(ADOConnection $conn)
+	{
+		$this->conn = $conn;
+	}
+
+	function _adodb_getmenu($zthis, $name,$defstr='',$blank1stItem=true,$multiple=false,
 				$size=0, $selectAttr='',$compareFields0=true)
 	{
 		global $ADODB_FETCH_MODE;
 
-		$s = _adodb_getmenu_select($name, $defstr, $blank1stItem, $multiple, $size, $selectAttr);
+		$s = $this->_adodb_getmenu_select($name, $defstr, $blank1stItem, $multiple, $size, $selectAttr);
 
 		$hasvalue = $zthis->FieldCount() > 1;
 		if (!$hasvalue) {
@@ -38,7 +47,7 @@ function _adodb_getmenu($zthis, $name,$defstr='',$blank1stItem=true,$multiple=fa
 			}
 
 			/** @noinspection PhpUndefinedVariableInspection */
-			$s .= _adodb_getmenu_option($defstr, $compareFields0 ? $zval : $zval2, $value, $zval);
+			$s .= $this->_adodb_getmenu_option($defstr, $compareFields0 ? $zval : $zval2, $value, $zval);
 
 			$zthis->MoveNext();
 		} // while
@@ -51,7 +60,7 @@ function _adodb_getmenu($zthis, $name,$defstr='',$blank1stItem=true,$multiple=fa
 	{
 		global $ADODB_FETCH_MODE;
 
-		$s = _adodb_getmenu_select($name, $defstr, $blank1stItem, $multiple, $size, $selectAttr);
+		$s = $this->_adodb_getmenu_select($name, $defstr, $blank1stItem, $multiple, $size, $selectAttr);
 
 		$hasvalue = $zthis->FieldCount() > 1;
 		$hasgroup = $zthis->FieldCount() > 2;
@@ -101,7 +110,7 @@ function _adodb_getmenu($zthis, $name,$defstr='',$blank1stItem=true,$multiple=fa
 			}
 
 			/** @noinspection PhpUndefinedVariableInspection */
-			$s .= _adodb_getmenu_option($defstr, $compareFields0 ? $zval : $zval2, $value, $zval);
+			$s .= $this->_adodb_getmenu_option($defstr, $compareFields0 ? $zval : $zval2, $value, $zval);
 
 			$zthis->MoveNext();
 		} // while

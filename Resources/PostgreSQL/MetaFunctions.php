@@ -108,7 +108,7 @@ class MetaFunctions extends \ADOdb\Resources\MetaFunctions
     /**
      * Returns the actual type for a given meta type.
      *
-     * @param ADOConnection $db   The database connection
+     * @param object $db   The database connection
      * @param string        $meta The meta type to convert:
      *
      * @return string The actual type corresponding to the meta type.

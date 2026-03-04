@@ -2,10 +2,11 @@
 
 namespace ADOdb\Resources;
 
+
 /**
- * Class ADODB_Iterator
+ * Class ADODB_Iterator_empty
  */
-class ADODB_Iterator implements \Iterator {
+class ADODBIteratorEmpty implements \Iterator {
 
     private $rs;
 
@@ -14,9 +15,7 @@ class ADODB_Iterator implements \Iterator {
     }
 
     #[\ReturnTypeWillChange]
-    function rewind() {
-        $this->rs->MoveFirst();
-    }
+    function rewind() {}
 
     #[\ReturnTypeWillChange]
     function valid() {
@@ -25,25 +24,24 @@ class ADODB_Iterator implements \Iterator {
 
     #[\ReturnTypeWillChange]
     function key() {
-        return $this->rs->_currentRow;
+        return false;
     }
 
     #[\ReturnTypeWillChange]
     function current() {
-        return $this->rs->fields;
+        return false;
     }
 
     #[\ReturnTypeWillChange]
-    function next() {
-        $this->rs->MoveNext();
-    }
+    function next() {}
 
     function __call($func, $params) {
         return call_user_func_array(array($this->rs, $func), $params);
     }
 
+    #[\ReturnTypeWillChange]
     function hasMore() {
-        return !$this->rs->EOF;
+        return false;
     }
 
 }

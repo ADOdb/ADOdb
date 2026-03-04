@@ -101,7 +101,7 @@ class ADOdbCacheMemCache
 	/**
 	 * Class Constructor.
 	 *
-	 * @param ADOConnection $db
+	 * @param object $db
 	 */
 	public function __construct($db)
 	{

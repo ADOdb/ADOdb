@@ -194,19 +194,19 @@ class ADODB_pdo extends ADOConnection {
 		if ($this->_connectionID) {
 			switch(ADODB_ASSOC_CASE){
 				case ADODB_ASSOC_CASE_LOWER:
-					$m = PDO::CASE_LOWER;
+					$m = \PDO::CASE_LOWER;
 					break;
 				case ADODB_ASSOC_CASE_UPPER:
-					$m = PDO::CASE_UPPER;
+					$m = \PDO::CASE_UPPER;
 					break;
 				default:
 				case ADODB_ASSOC_CASE_NATIVE:
-					$m = PDO::CASE_NATURAL;
+					$m = \PDO::CASE_NATURAL;
 					break;
 			}
 
-			//$this->_connectionID->setAttribute(PDO::ATTR_ERRMODE,PDO::ERRMODE_SILENT );
-			$this->_connectionID->setAttribute(PDO::ATTR_CASE,$m);
+			//$this->_connectionID->setAttribute(\PDO::ATTR_ERRMODE,\PDO::ERRMODE_SILENT );
+			$this->_connectionID->setAttribute(\PDO::ATTR_CASE,$m);
 
 			// Now merge in any provided attributes for PDO
 			foreach ($this->connectionParameters as $options) {
@@ -863,14 +863,14 @@ class ADORecordSet_pdo extends ADORecordSet {
 
 		switch($this->adodbFetchMode) {
 			case ADODB_FETCH_NUM:
-				$mode = PDO::FETCH_NUM;
+				$mode = \PDO::FETCH_NUM;
 				break;
 			case ADODB_FETCH_ASSOC:
-				$mode = PDO::FETCH_ASSOC;
+				$mode = \PDO::FETCH_ASSOC;
 				break;
 			case ADODB_FETCH_BOTH:
 			default:
-				$mode = PDO::FETCH_BOTH;
+				$mode = \PDO::FETCH_BOTH;
 				break;
 		}
 		$this->fetchMode = $mode;

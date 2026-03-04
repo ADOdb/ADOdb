@@ -5,6 +5,8 @@
  * @see ADORecordSet::fetchObj(), ADORecordSet::fetchObject(),
  * @see ADORecordSet::fetchNextObj(), ADORecordSet::fetchNextObject()
  */
+namespace ADOdb\Resources;
+
 class ADOFetchObj {
     /** @var array The RecordSet's fields */
     protected $data;

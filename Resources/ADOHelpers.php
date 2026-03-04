@@ -22,6 +22,8 @@
  */
 namespace ADOdb\Resources;
 
+use ReflectionClass;
+
 class ADOHelpers {
 
 	
@@ -238,7 +240,7 @@ class ADOHelpers {
 			|| preg_match('/\s+GROUP\s+BY\s+/is',$sql)
 			|| preg_match('/\s+UNION\s+/is',$sql)
 		) {
-			$rewritesql = adodb_strip_order_by($sql);
+			$rewritesql = $this->adodb_strip_order_by($sql);
 
 			// ok, has SELECT DISTINCT or GROUP BY so see if we can use a table alias
 			// but this is only supported by oracle and postgresql...
@@ -282,7 +284,7 @@ class ADOHelpers {
 			// fix by alexander zhukov, alex#unipack.ru, because count(*) and 'order by' fails
 			// with mssql, access and postgresql. Also a good speedup optimization - skips sorting!
 			// also see PHPLens Issue No: 12752
-			$rewritesql = adodb_strip_order_by($rewritesql);
+			$rewritesql = $this->adodb_strip_order_by($rewritesql);
 		}
 
 		if (isset($rewritesql) && $rewritesql != $sql) {
@@ -308,7 +310,7 @@ class ADOHelpers {
 		if (preg_match('/\s*UNION\s*/is', $sql)) {
 			$rewritesql = $sql;
 		} else {
-			$rewritesql = adodb_strip_order_by($sql);
+			$rewritesql = $this->adodb_strip_order_by($sql);
 		}
 
 		if (preg_match('/\sLIMIT\s+[0-9]+/i',$sql,$limitarr)) {
@@ -364,7 +366,7 @@ class ADOHelpers {
 		// If an invalid nrows is supplied, assume a default value of 10 rows per page
 		if (!isset($nrows) || $nrows <= 0) $nrows = 10;
 
-		$qryRecs = _adodb_getcount($zthis,$sql,$inputarr,$secs2cache);
+		$qryRecs = $this->_adodb_getcount($zthis,$sql,$inputarr,$secs2cache);
 		$lastpageno = (int) ceil($qryRecs / $nrows);
 
 		// Check whether $page is the last page or if we are trying to retrieve
@@ -572,7 +574,7 @@ class ADOHelpers {
 			// If the recordset field is one
 			// of the fields passed in then process.
 			$upperfname = strtoupper($field->name);
-			if (adodb_key_exists($upperfname, $arrFields, $force)) {
+			if ($this->adodb_key_exists($upperfname, $arrFields, $force)) {
 
 				// If the existing field value in the recordset
 				// is different from the value passed in then
@@ -730,6 +732,11 @@ class ADOHelpers {
 			$arrFields = array_change_key_case($arrFields,CASE_UPPER);
 		$fieldInsertedCount = 0;
 
+		if (!is_string($rs)) {
+			$reflection = new \ReflectionClass($rs);
+			$rsShortName = $reflection->getShortName();
+		}
+
 		if (is_string($rs)) {
 			//ok we have a table name
 			//try and get the column info ourself.
@@ -738,19 +745,20 @@ class ADOHelpers {
 			//we need an object for the recordSet
 			//because we have to call MetaType.
 			//php can't do a $rsclass::MetaType()
-			$rsclass = $zthis->rsPrefix.$zthis->databaseType;
+			//$rsclass = $zthis->rsPrefix.$zthis->databaseType;
 
+			/*
 			$recordsetClassFile = sprintf(
 				'%s/Resources/%s/ADORecordSet.php',
 				ADODB_DIR,
-				$this->conn->getDataDictionaryProvider()
+				$this->conn->getRecordsetProvider()
 			);
+			*/
 
 			$rsclass = sprintf(
 				'\ADOdb\Resources\%s\ADORecordSet',
-				$this->conn->getDataDictionaryProvider()
+				$this->conn->getRecordsetProvider()
 			);
-
 
 			$recordSet = new $rsclass(ADORecordSet::DUMMY_QUERY_ID, $zthis->fetchMode);
 			$recordSet->connection = $zthis;
@@ -758,12 +766,9 @@ class ADOHelpers {
 			if (is_string($cacheRS) && $cacheRS == $rs) {
 				$columns = $cacheCols;
 			} else {
-				$this->conn->debug = true;
+				//$this->conn->debug = true;
 				$resultObject = $this->conn->fetchResultByTableName($tableName);
-				//$primaryKey = $zthis->metaPrimaryKeys($tableName);
-				//print_r($primaryKey); 
-				//$columns = $zthis->MetaColumns( $tableName );
-				//print_r($columns); exit;
+		
 				$columns = [];
 				for ($i=0, $max = $resultObject->FieldCount(); $i < $max; $i++)
 					$columns[] = $resultObject->FetchField($i);
@@ -771,7 +776,7 @@ class ADOHelpers {
 				$cacheRS = $resultObject;
 				$cacheCols = $columns;
 			}
-		} else if (is_subclass_of($rs, 'adorecordset')) {
+		} else if (is_subclass_of($rs, 'adorecordset') || $rsShortName == 'ADORecordSet') {
 			if (isset($rs->insertSig) && is_integer($cacheRS) && $cacheRS == $rs->insertSig) {
 				$columns = $cacheCols;
 			} else {
@@ -785,7 +790,7 @@ class ADOHelpers {
 			$recordSet = $rs;
 
 		} else {
-			printf(ADODB_BAD_RS,'GetInsertSQL via ' . $SQL);
+			printf(ADODB_BAD_RS,'GetInsertSQL');
 			return false;
 		}
 
@@ -793,12 +798,12 @@ class ADOHelpers {
 		foreach( $columns as $field ) {
 			$upperfname = strtoupper($field->name);
 			
-			if (adodb_key_exists($upperfname, $arrFields, $force)) {
+			if ($this->adodb_key_exists($upperfname, $arrFields, $force)) {
 				$bad = false;
-				$fnameq = _adodb_quote_fieldname($zthis, $field->name);
+				$fnameq = $this->_adodb_quote_fieldname($zthis, $field->name);
 				
 				//$type = $recordSet->MetaType($field->type);
-				$type = $this->conn->metaObject->metaType($field);
+				$type = $this->conn->metaObject->metaType($this->conn, $field);
 				/********************************************************/
 				if (is_null($arrFields[$upperfname])
 					|| (empty($arrFields[$upperfname]) && strlen($arrFields[$upperfname]) == 0)
@@ -817,7 +822,7 @@ class ADOHelpers {
 						case ADODB_FORCE_EMPTY:
 							//Set empty
 							$arrFields[$upperfname] = "";
-							$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields);
+							$values .= $this->_adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields);
 							break;
 
 						default:
@@ -826,7 +831,7 @@ class ADOHelpers {
 							if (is_null($arrFields[$upperfname]) || $arrFields[$upperfname] === $zthis->null2null) {
 								$values .= "null, ";
 							} else {
-								$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields);
+								$values .= $this->_adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields);
 							}
 							break;
 
@@ -851,7 +856,7 @@ class ADOHelpers {
 					//DB specific column types.
 					//Oracle needs BLOB types to be handled with a returning clause
 					//postgres has special needs as well
-					$values .= _adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields);
+					$values .= $this->_adodb_column_sql($zthis, 'I', $type, $upperfname, $fnameq, $arrFields);
 				}
 
 				if ($bad) {
@@ -934,7 +939,7 @@ class ADOHelpers {
 					} else {
 						//this is to maintain compatibility
 						//with older adodb versions.
-						$sql = _adodb_column_sql($zthis, $action, $type, $fname, $fnameq, $arrFields, false);
+						$sql = $this->_adodb_column_sql($zthis, $action, $type, $fname, $fnameq, $arrFields, false);
 					}
 				}
 				break;
@@ -958,12 +963,12 @@ class ADOHelpers {
 				} else {
 					//this is to maintain compatibility
 					//with older adodb versions.
-					$sql = _adodb_column_sql($zthis, $action, $type, $fname, $fnameq, $arrFields, false);
+					$sql = $this->_adodb_column_sql($zthis, $action, $type, $fname, $fnameq, $arrFields, false);
 				}
 				break;
 
 			default:
-				$sql = _adodb_column_sql($zthis, $action, $type, $fname, $fnameq, $arrFields, false);
+				$sql = $this->_adodb_column_sql($zthis, $action, $type, $fname, $fnameq, $arrFields, false);
 				break;
 		}
 
@@ -979,7 +984,7 @@ class ADOHelpers {
 				if ($type == 'L') $type = 'C';
 				break;
 			case 'oci8':
-				return _adodb_column_sql_oci8($zthis, $action, $type, $fname, $fnameq, $arrFields);
+				return $this->_adodb_column_sql_oci8($zthis, $action, $type, $fname, $fnameq, $arrFields);
 
 			}
 		}

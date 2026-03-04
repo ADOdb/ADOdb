@@ -211,7 +211,7 @@ abstract class ADOConnection {
 	var $_oldRaiseFn =  false;
 	var $_transOK = null;
 	/** @var resource Identifier for the native database connection */
-	var $_connectionID = false;
+	public mixed $_connectionID;
 
 	/**
 	 * Stores the last returned error message.
@@ -308,6 +308,16 @@ abstract class ADOConnection {
 	 * @var string
 	 */
 	protected string $dataDictionaryProvider = '';
+
+	/**
+	 * Where the ADORecordSetClass is loaded From
+	 *
+	 * @var string
+	 */
+	protected string $recordSetProvider      = '';
+
+
+	public ?object $cacheProvider;
 	
 
     /**
@@ -510,6 +520,12 @@ abstract class ADOConnection {
 	{
 		return $this->dataDictionaryProvider;
 	}
+
+	public function getRecordsetProvider() : string
+	{
+		return $this->recordSetProvider;
+	}
+
 
 	/**
 	 * Adds a parameter to the connection string.
@@ -927,17 +943,11 @@ abstract class ADOConnection {
 	 * Code is backwards-compatible with old memcache implementation.
 	 */
 	function _CreateCache() {
-		global $ADODB_CACHE, $ADODB_CACHE_CLASS;
-
+		
 		if ($this->memCache) {
-			global $ADODB_INCLUDED_MEMCACHE;
-
-			if (empty($ADODB_INCLUDED_MEMCACHE)) {
-				include_once(ADODB_DIR.'/adodb-memcache.lib.inc.php');
-			}
-			$ADODB_CACHE = new ADODB_Cache_MemCache($this);
+			$this->cacheProvider = new \ADOdb\Resources\ADODBCacheMemCache($this);
 		} else {
-			$ADODB_CACHE = new $ADODB_CACHE_CLASS($this);
+			$this->cacheProvider = new \ADOdb\Resources\ADOdbCacheFile($this);
 		}
 	}
 
@@ -1466,6 +1476,7 @@ abstract class ADOConnection {
 			$this->_queryID = @$this->_query($sql,$inputarr);
 		}
 
+		//print "\QUERY EX RETURNS {$this->_queryID}";
 		// ************************
 		// OK, query executed
 		// ************************
@@ -1479,14 +1490,38 @@ abstract class ADOConnection {
 			return false;
 		}
 
+		
+
 		// return simplified recordset for inserts/updates/deletes with lower overhead
 		if ($this->_queryID === true) {
-			$rsclass = $this->rsPrefix.'empty';
-			$rs = (class_exists($rsclass)) ? new $rsclass():  new \ADOdb\Resources\ADORecordSetEmpty();
+			//$rsclass = $this->rsPrefix.'empty';
+
+			$metaClassFile = sprintf(
+				'%s/Resources/%s/ADORecordSetEmpty.php',
+				ADODB_DIR,
+				$this->recordSetProvider
+			);
+
+			if (file_exists($metaClassFile)) {
+				$rsclass = sprintf(
+					'ADOdb\Resources\%s\ADORecordSetEmpty',
+					$this->recordSetProvider
+				);
+			} else {
+				$rsclass = 'ADOdb\Resources\ADORecordSetEmpty';
+			}
+
+			
+
+			return new $rsclass;
+
+			//$rs = (class_exists($rsclass)) ? new $rsclass():  new \ADOdb\Resources\ADORecordSetEmpty();
 
 			return $rs;
 		}
 
+
+		/*
 		if ($this->dataProvider == 'pdo' && $this->databaseType != 'pdo') {
 			// PDO uses a slightly different naming convention for the
 			// recordset class if the database type is changed, so we must
@@ -1500,16 +1535,17 @@ abstract class ADOConnection {
 		$metaClassFile = sprintf(
 			'%s/Resources/%s/ADORecordSet.php',
 			ADODB_DIR,
-			$this->metaFunctionProvider
+			$this->recordSetProvider
 		);
-
+		*/
 		$rsclass = sprintf(
 			'ADOdb\Resources\%s\ADORecordSet',
-			$this->metaFunctionProvider
+			$this->recordSetProvider
 		);
 
 		// return real recordset from select statement
 		$rs = new $rsclass($this->_queryID,$this->fetchMode);
+		
 		$rs->connection = $this; // Pablo suggestion
 		$rs->Init();
 		if (is_array($sql)) {
@@ -1723,8 +1759,7 @@ abstract class ADOConnection {
 	// owner not used in base class - see oci8
 		$p = array();
 		$objs = $this->MetaColumns($table);
-		print "\n=========\n";
-		print_r($objs);
+
 		if ($objs) {
 			foreach($objs as $v) {
 				if (!empty($v->primary_key)) {
@@ -1871,7 +1906,7 @@ abstract class ADOConnection {
 		if ($rs && !$rs->EOF) {
 			$rs = $this->_rs2rs($rs,$nrows,$offset);
 		}
-		//print_r($rs);
+
 		return $rs;
 	}
 
@@ -1923,14 +1958,16 @@ abstract class ADOConnection {
 		}
 
 		$arr = $rs->GetArrayLimit($nrows,$offset);
-		//print_r($arr);
+
 		if ($close) {
 			$rs->Close();
 		}
 
-		$arrayClass = $this->arrayClass;
+		$rs2 = new \ADOdb\Resources\ADORecordSetArray($fakeQueryId=1);
 
-		$rs2 = new $arrayClass($fakeQueryId=1);
+		//$arrayClass = $this->arrayClass;
+
+		//$rs2 = new $arrayClass($fakeQueryId=1);
 		$rs2->connection = $this;
 		$rs2->sql = $rs->sql;
 		$rs2->dataProvider = $this->dataProvider;
@@ -2333,20 +2370,20 @@ abstract class ADOConnection {
 	 * If $sql == false, then we purge all files in the cache.
 	 */
 	function CacheFlush($sql=false,$inputarr=false) {
-		global $ADODB_CACHE_DIR, $ADODB_CACHE;
+		global $ADODB_CACHE_DIR;
 
 		# Create cache if it does not exist
-		if (empty($ADODB_CACHE)) {
+		if (empty($this->cacheProvider)) {
 			$this->_CreateCache();
 		}
 
 		if (!$sql) {
-			$ADODB_CACHE->flushall($this->debug);
+			$this->cacheProvider->flushall($this->debug);
 			return;
 		}
 
 		$f = $this->_gencachename($sql.serialize($inputarr),false);
-		return $ADODB_CACHE->flushcache($f, $this->debug);
+		return $this->cacheProvider->flushcache($f, $this->debug);
 	}
 
 
@@ -2365,7 +2402,7 @@ abstract class ADOConnection {
 	 * then we can scale to 12.8 million unique cached recordsets. Wow!
 	 */
 	function _gencachename($sql,$createdir) {
-		global $ADODB_CACHE, $ADODB_CACHE_DIR;
+		global $ADODB_CACHE_DIR;
 
 		if ($this->fetchMode === false) {
 			global $ADODB_FETCH_MODE;
@@ -2374,13 +2411,13 @@ abstract class ADOConnection {
 			$mode = $this->fetchMode;
 		}
 		$m = md5($sql.$this->databaseType.$this->database.$this->user.$mode);
-		if (!$ADODB_CACHE->createdir) {
+		if (!$this->cacheProvider->createdir) {
 			return $m;
 		}
 		if (!$createdir) {
-			$dir = $ADODB_CACHE->getdirname($m);
+			$dir = $this->cacheProvider->getdirname($m);
 		} else {
-			$dir = $ADODB_CACHE->createdir($m, $this->debug);
+			$dir = $this->cacheProvider->createdir($m, $this->debug);
 		}
 
 		return $dir.'/adodb_'.$m.'.cache';
@@ -2398,9 +2435,9 @@ abstract class ADOConnection {
 	 * @return ADORecordSet RecordSet or false
 	 */
 	function CacheExecute($secs2cache,$sql=false,$inputarr=false) {
-		global $ADODB_CACHE;
+		
 
-		if (empty($ADODB_CACHE)) {
+		if (empty($this->cacheProvider)) {
 			$this->_CreateCache();
 		}
 
@@ -2421,7 +2458,7 @@ abstract class ADOConnection {
 		$err = '';
 
 		if ($secs2cache > 0){
-			$rs = $ADODB_CACHE->readcache($md5file,$err,$secs2cache,$this->arrayClass);
+			$rs = $this->cacheProvider->readcache($md5file,$err,$secs2cache,$this->arrayClass);
 			$this->numCacheHits += 1;
 		} else {
 			$err='Timeout 1';
@@ -2443,9 +2480,9 @@ abstract class ADOConnection {
 				$eof = $rs->EOF;
 				$rs = $this->_rs2rs($rs); // read entire recordset into memory immediately
 				$rs->timeCreated = time(); // used by caching
-				$txt = _rs2serialize($rs,false,$sql); // serialize
+				$txt = $this->cacheProvider->_rs2serialize($rs,false,$sql); // serialize
 
-				$ok = $ADODB_CACHE->writecache($md5file,$txt,$this->debug, $secs2cache);
+				$ok = $this->cacheProvider->writecache($md5file,$txt,$this->debug, $secs2cache);
 				if (!$ok) {
 					if ($ok === false) {
 						$em = 'Cache write error';
@@ -2471,7 +2508,7 @@ abstract class ADOConnection {
 				}
 
 			} else if (!$this->memCache) {
-				$ADODB_CACHE->flushcache($md5file);
+				$this->cacheProvider->flushcache($md5file);
 			}
 		} else {
 			$this->_errorMsg = '';
@@ -2649,9 +2686,6 @@ abstract class ADOConnection {
 		$result = null;
 
 		$primaryKey = $this->metaPrimaryKeys($tableName);
-		
-		print "PK------------>";
-		print_r($primaryKey);
 
 		$keys = [];
 		foreach ($primaryKey as $keyName) {

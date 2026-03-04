@@ -9,8 +9,9 @@
 namespace ADOdb\Resources;
 
 use ADOConnection;
-use ADOdb\Resources\ADOdb_Iterator;
+use ADOdb\Resources\ADOdbIterator;
 use ADOdb\Resources\ADOFieldObject;
+use ADOdb\Resources\ADOFetchObj;
 
 class ADORecordSet implements \IteratorAggregate {
 	/**
@@ -43,10 +44,10 @@ class ADORecordSet implements \IteratorAggregate {
 	var $debug = false;
 	var $timeCreated=0;		/// datetime in Unix format rs created -- for cached recordsets
 
-	var $bind = false;		/// used by Fields() to hold array - should be private?
+	protected ?array $bind;		/// used by Fields() to hold array - should be private?
 
 	/** @var ADOConnection The parent connection */
-	var $connection = false;
+	public ?object $connection;
 	/**
 	 *	private variables
 	 */
@@ -135,7 +136,7 @@ class ADORecordSet implements \IteratorAggregate {
 
 	#[\ReturnTypeWillChange]
 	function getIterator() {
-		return new ADODB_Iterator($this);
+		return new \ADOdb\Resources\ADODBIterator($this);
 	}
 
 	/* this is experimental - i don't really know what to return... */
@@ -199,11 +200,10 @@ class ADORecordSet implements \IteratorAggregate {
 	function getMenu($name, $defstr = '', $blank1stItem = true, $multiple = false,
 					 $size = 0, $selectAttr = '', $compareFirstCol = true)
 	{
-		global $ADODB_INCLUDED_LIB;
-		if (empty($ADODB_INCLUDED_LIB)) {
-			include_once(ADODB_DIR.'/adodb-lib.inc.php');
-		}
-		return _adodb_getmenu($this, $name, $defstr, $blank1stItem, $multiple,
+		
+		$menuBuilder = new \ADOdb\Resources\ADOMenuBuilders($this->conn);
+
+		return $menuBuilder->_adodb_getmenu($this, $name, $defstr, $blank1stItem, $multiple,
 			$size, $selectAttr, $compareFirstCol);
 	}
 
@@ -597,7 +597,7 @@ class ADORecordSet implements \IteratorAggregate {
 	 */
 	function FetchInto(&$arr) {
 		if ($this->EOF) {
-			return (defined('PEAR_ERROR_RETURN')) ? new PEAR_Error('EOF',-1): false;
+			return (defined('PEAR_ERROR_RETURN')) ? new \PEAR_Error('EOF',-1): false;
 		}
 		$arr = $this->fields;
 		$this->MoveNext();
@@ -1022,7 +1022,7 @@ class ADORecordSet implements \IteratorAggregate {
 
 		$fields = array_change_key_case($this->fields, $casing);
 
-		return new ADOFetchObj($fields);
+		return new \ADOdb\Resources\ADOFetchObj($fields);
 	}
 
 	/**

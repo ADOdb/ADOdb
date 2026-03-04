@@ -90,9 +90,6 @@ class ADOConnection extends \ADOdb\Resources\ADOConnection {
 	 */
 	var $doNotUseBoundVariables = false;
 
-	/** @var mysqli Identifier for the native database connection */
-	var $_connectionID = false;
-
 	/**
 	 * Tells the insert_id method how to obtain the last value, depending on whether
 	 * we are using a stored procedure or not
@@ -114,6 +111,13 @@ class ADOConnection extends \ADOdb\Resources\ADOConnection {
 	protected string $metaFunctionProvider = 'MySQL';
 
 	protected string $dataDictionaryProvider = 'MySQL';
+
+	/**
+	 * Where the ADORecordSetClass is loaded From
+	 *
+	 * @var string
+	 */
+	protected string $recordSetProvider      = 'MySQL';
 
 	
 	/**

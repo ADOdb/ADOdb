@@ -197,7 +197,7 @@ class MetaFunctions
     /**
      * Returns the actual type for a given meta type.
      *
-     * @param ADOConnection $db   The database connection
+     * @param object $db   The database connection
      * @param string        $meta The meta type to convert:
      *
      * - C:  varchar
@@ -475,7 +475,7 @@ class MetaFunctions
 	 *
 	 * @return array|false an array of database names.
 	 */
-	function MetaDatabases(ADOConnection $db) {
+	function MetaDatabases(object $db) {
 		
         global $ADODB_FETCH_MODE;
 

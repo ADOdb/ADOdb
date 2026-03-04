@@ -15,7 +15,7 @@ class ADORecordSet extends \ADOdb\Resources\ADORecordSet
 	var $canSeek = true;
 
 	/** @var ADODB_mysqli The parent connection */
-	var $connection = false;
+	public ?object $connection;
 
 	/** @var mysqli_result result link identifier */
 	var $_queryID;
