@@ -112,6 +112,17 @@ class ADODB_db2 extends ADOConnection {
 
     function __construct() {}
 
+    /**
+	 * Return the id of the last row that has been inserted in a table
+     * DB2 retains this value over all subsequent non-insert executions
+     * even an execution of an insert on a table without an auto-increment
+     * column will not change it
+	 *
+	 * @param string $table  Not used in DB2
+	 * @param string $column Not userd in DB2
+	 *
+	 * @return int|false
+	 */
     protected function _insertID($table = '', $column = '')
     {
         return ADOConnection::GetOne('VALUES IDENTITY_VAL_LOCAL()');
