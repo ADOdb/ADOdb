@@ -69,7 +69,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	 *
 	 * @var bool|int
 	 */
-	public mixed $affectedRowCount = false;
+	public $affectedRowCount = false;
 
 	/**
 	 * Flag that indicates if an affected_rows value
