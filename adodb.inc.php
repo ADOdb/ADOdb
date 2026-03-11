@@ -2802,7 +2802,13 @@ if (!defined('_ADODB_LAYER')) {
 		} else {
 			$sql = $this->getInsertSQL($rs, $fields_values);
 		}
-		return $sql && $this->Execute($sql);
+
+		if (!$sql) {
+			return false;
+		}
+
+		$response = $this->Execute($sql);
+		return $response;
 	}
 
 
