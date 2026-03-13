@@ -127,7 +127,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 				}
 			} elseif (in_array($t, [MYSQLI_TYPE_CHAR, 16])) {
 				if (!$fieldobj->binary) {
-					return 'L';
+					return 'I1';
 				}
 			} elseif (in_array($t, [MYSQLI_TYPE_SHORT])) {
 				if (!$fieldobj->binary) {
