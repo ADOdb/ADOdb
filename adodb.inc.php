@@ -757,14 +757,14 @@ if (!defined('_ADODB_LAYER')) {
 	var $locale;
 
 	/**
-	 * Setting true forces {@see metaColumns()} to read the db for 
-	 * each access of a table instead of using cached version. 
+	 * Setting true forces {@see metaColumns()} to read the db for
+	 * each access of a table instead of using cached version.
 	 * Currently only works on mssqlnative
-	 * 
+	 *
 	 * @var bool
 	 */
 	public bool $cachedSchemaFlush = false;
-	
+
 
 	/**
 	 * Default Constructor.
@@ -2802,7 +2802,13 @@ if (!defined('_ADODB_LAYER')) {
 		} else {
 			$sql = $this->getInsertSQL($rs, $fields_values);
 		}
-		return $sql && $this->Execute($sql);
+
+		if (!$sql) {
+			return false;
+		}
+
+		$response = $this->Execute($sql);
+		return $response;
 	}
 
 
@@ -3390,7 +3396,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 
 	/**
 	 * List columns names in a table as an array
-	 * 
+	 *
 	 * @param string $table	     table name to query
 	 * @param bool   $numIndexes return numeric keys
 	 * @param bool   $useattnum  discarded in base class
@@ -3398,11 +3404,11 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @return false|array of column names for current table.
 	 */
 	public function MetaColumnNames(
-		string $table, 
-		bool $numIndexes=false, 
+		string $table,
+		bool $numIndexes=false,
 		bool $useattnum=false
-	) : mixed {
-		
+	) {
+
 		$objarr = $this->MetaColumns($table);
 		if (!is_array($objarr)) {
 			return false;
@@ -3884,7 +3890,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * CHAR fields
 	 *
 	 * @param string $fieldName The field length to measure
- 	 * 
+ 	 *
 	 * @return string
 	 */
 	public function length(string $fieldName): string

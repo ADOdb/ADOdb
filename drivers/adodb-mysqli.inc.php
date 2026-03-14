@@ -1065,9 +1065,11 @@ SELECT *
 				   AND table_name='$table'";
 
 		$schemaArray = $this->getAssoc($SQL);
-		if (is_array($schemaArray)) {
+		if ($schemaArray) {
 			$schemaArray = array_change_key_case($schemaArray,CASE_LOWER);
 			$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
+		} else {
+			$rs = false;
 		}
 
 		if (isset($savem)) $this->SetFetchMode($savem);

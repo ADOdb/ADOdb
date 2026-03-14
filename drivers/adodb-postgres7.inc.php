@@ -154,8 +154,41 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		}
 	}
 
+	/**
+	 * Return information about a table's foreign keys.
+	 *
+	 * @param string $table The name of the table to get the foreign keys for.
+	 * @param string|bool $owner (Optional) The database the table belongs to, or false to assume the current db.
+	 * @param string|bool $upper (Optional) Force uppercase table name on returned array keys.
+	 * @param bool $associative (Optional) Whether to return an associate or numeric array.
+	 *
+	 * @return string[]|bool An array of foreign keys, or false no foreign keys could be found.
+	 */
 	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
+		
+		global $ADODB_FETCH_MODE;
+
+		$tableName = $this->MetaTables('T', $owner, $table);
+		if ($tableName === false) {
+			return false;
+		}
+
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC
+		|| $this->fetchMode == ADODB_FETCH_ASSOC) {
+			$associative = true;
+		}
+
+		$saveModes = [
+			$ADODB_FETCH_MODE,
+			$this->fetchMode
+		];
+
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		if ($this->fetchMode !== false) {
+			$this->setFetchMode(ADODB_FETCH_ASSOC);
+		}
+
 		# Regex isolates the 2 terms between parenthesis using subexpressions
 		$regex = '^.*\((.*)\).*\((.*)\).*$';
 		$sql="
@@ -186,22 +219,66 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 				dep_field";
 		$rs = $this->Execute($sql);
 
-		if (!$rs || $rs->EOF) return false;
-
-		$a = array();
-		while (!$rs->EOF) {
-			$lookup_table = $rs->fields('lookup_table');
-			$fields = $rs->fields('dep_field') . '=' . $rs->fields('lookup_field');
-			if ($upper) {
-				$lookup_table = strtoupper($lookup_table);
-				$fields = strtoupper($fields);
+		if (!$rs || $rs->EOF) {
+			$ADODB_FETCH_MODE = $saveModes[0];
+			if ($saveModes[1] !== false) {
+				$this->SetFetchMode($saveModes[1]);
 			}
-			$a[$lookup_table][] = str_replace('"','', $fields);
+			return false;
+		}
 
+		$sortKeys    = [];
+		$id = 1;
+
+		while (!$rs->EOF) {
+			
+			$lookup_table = $rs->fields('lookup_table');
+	
+            if (!array_key_exists($id, $sortKeys)) {
+
+				$sourceColumns = array_map('trim', explode(',', $rs->fields('dep_field')));
+				$targetColumns = array_map('trim', explode(',', $rs->fields('lookup_field')));
+
+				if ($upper) {
+					$lookup_table = strtoupper($lookup_table);
+					$sourceColumns = array_map('strtoupper', $sourceColumns); 
+					$targetColumns = array_map('strtoupper', $targetColumns); 
+				}
+                
+				
+				$sortKeys[$id] = new \stdClass();
+                $sortKeys[$id]->tableName = $lookup_table;
+                $sortKeys[$id]->assocKeys = [];
+                $sortKeys[$id]->numKeys   = [];
+
+				foreach ($sourceColumns as $scKey => $scValue) {
+					$sortKeys[$id]->assocKeys[$scValue] = $targetColumns[$scKey];
+					$sortKeys[$id]->numKeys[] = sprintf(
+						'%s=%s',
+						$scValue,
+						$targetColumns[$scKey]
+					);
+
+				}
+            }
+
+			$id++;
 			$rs->MoveNext();
 		}
 
-		return $a;
+		/*
+		* Now the array is built, pick off the right elements
+		*/
+		$foreignKeys = [];
+        foreach ($sortKeys as $sortObject) {
+            if ($associative) {
+                $foreignKeys[$sortObject->tableName] = $sortObject->assocKeys;
+            } else {
+                $foreignKeys[$sortObject->tableName] = $sortObject->numKeys;
+            }
+        }
+
+        return $foreignKeys;
 	}
 
 	function _query($sql,$inputarr=false)
