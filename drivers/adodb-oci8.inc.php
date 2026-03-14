@@ -142,6 +142,9 @@ END;
 
 	/**
 	 * Stores information about trigger based auto-increments
+	 * The !last-insertid element holds the last known insert
+	 * id across all tables similar to the MySQL connection
+	 * based instancess
 	 *
 	 * @var array
 	 */
@@ -1501,7 +1504,7 @@ END;
 
 	/**
 	 * When passed a table name, locates the sequence holding the
-	 * aut0-increment value 
+	 * auto-increment value 
 	 *
 	 * @param string $tableName The lookup table
 	 * @return string[]
