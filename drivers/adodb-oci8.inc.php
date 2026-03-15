@@ -181,7 +181,7 @@ END;
 			}
 			$fld->not_null = $rs->fields[5] == 'N';
 			$fld->binary = (strpos($fld->type,'BLOB') !== false);
-			$fld->default_value = $rs->fields[6];
+			$fld->default_value = trim($rs->fields[6] ?? '');
 
 			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) {
 				$retarr[] = $fld;
