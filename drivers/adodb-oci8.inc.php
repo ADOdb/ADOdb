@@ -489,6 +489,10 @@ END;
 		}
 		$ret = ADOConnection::MetaTables($ttype,$showSchema);
 
+		if (!$ret || is_array($ret) && count($ret) == 0) {
+			$ret = false;
+		}
+
 		if ($mask) {
 			$this->metaTablesSQL = $save;
 		}
