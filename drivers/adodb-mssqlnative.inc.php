@@ -1350,6 +1350,9 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	*/
 	private function _fetchField($fieldOffset = -1)
 	{
+		if ($fieldOffset < -1 || $fieldOffset > $this->_numOfFields) {
+			return false;
+		}
 		if ($this->fieldObjectsRetrieved) {
 			if ($this->fieldObjectsCache) {
 				// Already got the information
