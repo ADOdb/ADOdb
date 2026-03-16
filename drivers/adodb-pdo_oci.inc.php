@@ -21,7 +21,7 @@
  * @noinspection PhpComposerExtensionStubsInspection
  */
 
-class ADODB_pdo_oci extends ADODB_pdo_base {
+class ADODB_pdo_oci extends ADODB_pdo {
 
 	var $concat_operator='||';
 	var $sysDate = "TRUNC(SYSDATE)";
@@ -39,21 +39,57 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		WHERE table_name = '%s'
 		ORDER BY column_id
 		ENDSQL;
+	var $metaDatabasesSQL = "SELECT USERNAME FROM ALL_USERS WHERE USERNAME NOT IN ('SYS','SYSTEM','DBSNMP','OUTLN') ORDER BY 1";
+
+	/*
+	* Sequence management statements
+	*/
+	public $_genIDSQL 		 = 'SELECT (%s.nextval) FROM DUAL';
+	public $_genSeqSQL 	 	 = 'DECLARE	PRAGMA AUTONOMOUS_TRANSACTION;
+BEGIN
+	execute immediate \'CREATE SEQUENCE %s START WITH %s\';
+END;';
+	public $_dropSeqSQL 	 = 'DROP SEQUENCE %s';
 
  	var $_initdate = true;
-	var $_hasdual = true;
+	public $_bindInputArray = true;
+	public $_nestedSQL = true;
 
-	protected function _init(ADODB_pdo $parentDriver)
+	public function _init($parentDriver)
 	{
-		parent::_init($parentDriver);
-
-		$parentDriver->_nestedSQL = true;
+		
 		if ($this->_initdate) {
-			$parentDriver->Execute("ALTER SESSION SET NLS_DATE_FORMAT='".$this->NLS_DATE_FORMAT."'");
+			$this->Execute("ALTER SESSION SET NLS_DATE_FORMAT='".$this->NLS_DATE_FORMAT."'");
 		}
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	/**
+	 * Return the database server's current date and time.
+	 * @return int|false
+	 */
+	public function time()
+	{
+		$sql = "select $this->sysTimeStamp from dual";
+		
+		$rs = $this->_Execute($sql);
+		if ($rs && !$rs->EOF) 
+		{
+			return $this->UnixTimeStamp(reset($rs->fields));
+		}
+
+		return false;
+	}
+
+	/**
+	 * Retrieves a list of tables based on given criteria
+	 *
+	 * @param string|bool $ttype (Optional) Table type = 'TABLE', 'VIEW' or false=both (default)
+	 * @param string|bool $showSchema (Optional) schema name, false = current schema (default)
+	 * @param string|bool $mask (Optional) filters the table by name
+	 *
+	 * @return array list of tables
+	 */
+	public function metaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;
@@ -67,8 +103,69 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		}
 		return $ret;
 	}
+	
+	/**
+	 * Returns a list of Foreign Keys associated with a specific table.
+	 *
+	 * @param string $table
+	 * @param string $owner
+	 * @param bool   $upper       discarded
+	 * @param bool   $associative discarded
+	 *
+	 * @return string[]|false An array where keys are tables, and values are foreign keys;
+	 *                        false if no foreign keys could be found.
+	 */
+	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
+	{
+		global $ADODB_FETCH_MODE;
 
-	function MetaColumns($table,$normalize=true)
+		$save = $ADODB_FETCH_MODE;
+		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		$table = $this->qstr(strtoupper($table));
+		if (!$owner) {
+			$owner = $this->user;
+			$tabp = 'user_';
+		} else
+			$tabp = 'all_';
+
+		$owner = ' and owner='.$this->qstr(strtoupper($owner));
+
+		$sql =
+"select constraint_name,r_owner,r_constraint_name
+	from {$tabp}constraints
+	where constraint_type = 'R' and table_name = $table $owner";
+
+		$constraints = $this->GetArray($sql);
+		$arr = false;
+		foreach($constraints as $constr) {
+			$cons = $this->qstr($constr[0]);
+			$rowner = $this->qstr($constr[1]);
+			$rcons = $this->qstr($constr[2]);
+			$cols = $this->GetArray("select column_name from {$tabp}cons_columns where constraint_name=$cons $owner order by position");
+			$tabcol = $this->GetArray("select table_name,column_name from {$tabp}cons_columns where owner=$rowner and constraint_name=$rcons order by position");
+
+			if ($cols && $tabcol)
+				for ($i=0, $max=sizeof($cols); $i < $max; $i++) {
+					$arr[$tabcol[$i][0]] = $cols[$i][0].'='.$tabcol[$i][1];
+				}
+		}
+		$ADODB_FETCH_MODE = $save;
+
+		return $arr;
+	}
+
+
+	/**
+	 * List columns in a database as an array of ADOFieldObjects.
+	 * See top of file for definition of object.
+	 *
+	 * @param $table	table name to query
+	 * @param $normalize	makes table name case-insensitive (required by some databases)
+	 * @schema is optional database schema to use - not supported by all databases.
+	 *
+	 * @return  array of ADOFieldObjects for current table.
+	 */
+	public function metaColumns($table,$normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -115,7 +212,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 	 * @param bool $auto_commit
 	 * @return void
 	 */
-	function SetAutoCommit($auto_commit)
+	public function setAutoCommit($auto_commit)
 	{
 		$this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
 	}
@@ -131,5 +228,33 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 	public function param($name,$type='C')
 	{
 		return sprintf(':%s', $name);
+	}
+
+	/**
+	 * Returns the server information
+	 * 
+	 * @return array()
+	 */
+	public function serverInfo() 
+	{
+
+		global $ADODB_FETCH_MODE;
+		static $arr = false;
+		if (is_array($arr))
+			return $arr;
+		if ($this->fetchMode === false) {
+			$savem = $ADODB_FETCH_MODE;
+			$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		} elseif ($this->fetchMode >=0 && $this->fetchMode <=2) {
+			$savem = $this->fetchMode;
+		} else
+			$savem = $this->SetFetchMode(ADODB_FETCH_NUM);
+
+		$arr = array();
+		$arr['version'] 	=  $this->_connectionID->getAttribute(constant("PDO::ATTR_SERVER_VERSION"));
+		$arr['description'] = $this->_connectionID->getAttribute(constant("PDO::ATTR_SERVER_INFO"));
+
+		$ADODB_FETCH_MODE = $savem;
+		return $arr;
 	}
 }
