@@ -376,11 +376,22 @@ END;
 		return " NVL($field, $ifNull) "; // if Oracle
 	}
 
+	/**
+	 * Return the id of the last row that has been inserted in a table.
+	 *
+	 * @param string $table  Optional table. Otherwise returns last 
+	 *                       value from any table
+	 * @param string $column Not used by Oracle driver 
+	 *
+	 * @return int|false
+	 */
 	protected function _insertID($table = '', $column = '')
 	{
-		
 	
 		if (!$table) {
+			/*
+			* Global is only retrievable once
+			*/
 			$lastInsertId = $this->tableSequenceData['!last-insertid'];
 			$this->tableSequenceData['!last-insertid'] = false; 
 			return $lastInsertId;
@@ -388,37 +399,6 @@ END;
 
 		$tData = $this->locateInsertSequenceFromTrigger($table);
 		return $tData['insertid'];
-	
-	
-		if ($this->schema)
-		{
-			$t = strpos($table,'.');
-			if ($t !== false)
-				$tab = substr($table,$t+1);
-			else
-				$tab = $table;
-
-			if ($this->useCompactAutoIncrements)
-				$tab = sprintf('%u',crc32(strtolower($tab)));
-
-			$seqname = $this->schema.'.'.$this->seqPrefix.$tab;
-		}
-		else
-		{
-			if ($this->useCompactAutoIncrements)
-				$table = sprintf('%u',crc32(strtolower($table)));
-
-			$seqname = $this->seqPrefix.$table;
-		}
-
-		if (strlen($seqname) > 30)
-			/*
-			* We cannot successfully identify the sequence
-			*/
-			return false;
-
-		$sql = "SELECT $seqname.currval FROM dual";
-		return $this->getOne($sql);
 	}
 
 	// format and return date string in database date format
@@ -1504,13 +1484,14 @@ END;
 
 	/**
 	 * When passed a table name, locates the sequence holding the
-	 * auto-increment value 
+	 * auto-increment value by identifying an on-insert trigger
+	 * associated with the column being used as the auto-increment
 	 *
 	 * @param string $tableName The lookup table
+	 * 
 	 * @return string[]
 	 */
 	protected function locateInsertSequenceFromTrigger(string $tableName) : array {
-		
 		
 		global $ADODB_FETCH_MODE;
 		
@@ -1520,10 +1501,14 @@ END;
 			$tData = $this->tableSequenceData[$tableName];
 
 			if ($tData['active'] == 0) {
+				/*
+				* Found an inactive trigger before, no point continuing
+				*/
 				return $tData;
 			};
+			
 			$seqname = $tData['sequence'];
-			$sql = "SELECT $seqname.currval FROM dual";
+			$sql     = "SELECT $seqname.currval FROM dual";
 			$tData['insertid'] = $this->getOne($sql);
 			$this->tableSequenceData[$tableName] = $tData;
 			$this->tableSequenceData['!last-insertid'] = $tData['insertid'];
@@ -1548,26 +1533,42 @@ END;
 		$p1 = $this->param('p1');
 		$bind = array('p1' => $tableName);
 
-		$sql = "SELECT trigger_name,trigger_body
+		$sql = "SELECT *
 			      FROM all_triggers 
 		         WHERE table_name=$p1
 				   AND triggering_event='INSERT'
+				   AND trigger_type='BEFORE EACH ROW'
 				   AND status='ENABLED'";
 
-		$result = $this->selectLimit($sql,1,-1,$bind);
-		
-		if (!$triggerRecord = $result->fetchRow()) {
+		$result = $this->execute($sql,$bind);
+		$triggerCount = $result->recordCount();
+
+		if ($triggerCount == 0) {
+			/*
+			* No triggers set on column
+			*/
 			$ADODB_FETCH_MODE = $saveModes[0];
 			$this->SetFetchMode($saveModes[1]);
 
 			$this->tableSequenceData[$tableName] = $tData;
 			return $tData;
+		} else while ($triggerRecord = $result->fetchRow()) {
+			if (stripos($triggerRecord['trigger_body'], '.nextval') === false) {
+				continue;
+			}
+			break;
 		}
-
 		$ADODB_FETCH_MODE = $saveModes[0];
 		$this->SetFetchMode($saveModes[1]);
 
-		//BEGIN select SEQ_INSERT_AUTO.nextval into :new.id from dual; END;
+		if (!$triggerRecord) {
+			/*
+			* There are triggers, but none that meet our needs
+			*/
+			$this->tableSequenceData[$tableName] = $tData;
+			return $tData;
+		}
+
 		$triggerData = explode(' ', $triggerRecord['trigger_body']);
 		
 		$tData['sequence']  = str_replace('.nextval', '', $triggerData[2]);
