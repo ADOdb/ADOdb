@@ -4512,6 +4512,11 @@ class ADORecordSet implements IteratorAggregate {
 	{
 		global $ADODB_FETCH_MODE;
 
+		/*
+		* Filters mode to single value
+		*/
+		$selfFetchMode = $this->connection->fetchMode === false ? $ADODB_FETCH_MODE : $this->connection->fetchMode;
+		
 		// Insufficient rows to show data
 		if ($this->_numOfFields < 2) {
 			return false;
@@ -4522,79 +4527,84 @@ class ADORecordSet implements IteratorAggregate {
 			return array();
 		}
 
-		// The number of fields is half the actual returned in BOTH mode
-		$numberOfFields = $this->_numOfFields;
-
-		// Get the fetch mode when the call was executed, this may be
-		// different from ADODB_FETCH_MODE
-		$fetchMode = $this->adodbFetchMode;
-		if ($fetchMode == ADODB_FETCH_BOTH || $fetchMode == ADODB_FETCH_DEFAULT) {
-			// If we are using BOTH, we present the data as if it were in ASSOC mode.
-			// This could be enhanced by adding a BOTH_ASSOC_MODE class property.
-			// We build a template of numeric keys. you could improve the speed
-			// by caching this, indexed by number of keys.
-			$testKeys = array_fill(0, $numberOfFields, 0);
-		}
-
-		$showArrayMethod = 0;
-
-		if ($numberOfFields == 2) {
-			// Key is always the value of first element
-			// Value is always value of second element
-			$showArrayMethod = 1;
-		}
-
-		if ($force_array) {
-			$showArrayMethod = 0;
-		}
-
-		if ($first2cols) {
-			$showArrayMethod = 1;
-		}
-
-		$results = array();
+		$results = [];
 
 		while (!$this->EOF) {
-			$myFields = $this->fields;
 
-			if ($fetchMode == ADODB_FETCH_BOTH || $fetchMode == ADODB_FETCH_DEFAULT) {
-				// extract the associative keys
-				/** @noinspection PhpUndefinedVariableInspection */
-				$myFields = array_diff_key($myFields, $testKeys);
+			if ($this->_numOfFields == 2) {
+				/*
+				* Fetch both returns half fields fetched
+				*/
+				$first2cols = true;
 			}
 
-			// Key is value of the first element, the rest is data.
-			// The key is not case processed.
-			$key = array_shift($myFields);
+			/*
+			* Allows easier cross-referencing keys to values
+			* when we don't know the name of the column
+			*/
+			$pairKeys   = array_keys($this->fields);
+			$pairValues = array_values($this->fields);	
+			
+			switch($selfFetchMode) {
 
-			switch ($showArrayMethod) {
-				case 0:
-					if ($fetchMode != ADODB_FETCH_NUM) {
-						// The driver should have already handled the key casing, but in case it did not.
-						// We will check and force this in later versions of ADOdb
-						if (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_UPPER) {
-							$myFields = array_change_key_case($myFields, CASE_UPPER);
-						}
-						elseif (ADODB_ASSOC_CASE == ADODB_ASSOC_CASE_LOWER) {
-							$myFields = array_change_key_case($myFields, CASE_LOWER);
-						}
+			case ADODB_FETCH_ASSOC:
+				
+				$key        = $pairValues[0];
+				$flatValue  = $pairValues[1];
+				
+				$forceArrayValue = [ 
+					$pairKeys[0] => $pairValues[0],
+					$pairKeys[1] => $pairValues[1]
+				];
+				break;
+			
+			case ADODB_FETCH_NUM:
+				
+				$key 	   = $this->fields[0];
+				$flatValue = $this->fields[1];
+				
+				$forceArrayValue = [ 
+					0 => $pairValues[0],
+					1 => $pairValues[1]
+				];
+				break;
+			
+			case ADODB_FETCH_BOTH:
 
-						// We have already shifted the key off the front, so the rest is the value
-						$results[$key] = $myFields;
-					} else
-						// I want the values in a numeric array, nicely re-indexed from zero
-						$results[$key] = array_values($myFields);
-					break;
+				$key 	   = $this->fields[0];
+				$flatValue = $this->fields[1];
 
-				/** @noinspection PhpConditionAlreadyCheckedInspection */
-				case 1:
-					// Don't care how long the array is, I just want value of second column,
-					// and it doesn't matter whether the array is associative or numeric
-					$results[$key] = array_shift($myFields);
-					break;
+				$forceArrayValue = [
+					$pairKeys[0] => $pairValues[0],
+					$pairKeys[1] => $pairValues[1],
+					$pairKeys[2] => $pairValues[2],
+					$pairKeys[3] => $pairValues[3]
+				];
+
+				break;
+			} 
+
+			if (!$force_array && $first2cols) {
+				/*
+				* Default behavior key/value pair
+				*/
+				$results[$key] = $flatValue;
+
+			} else if ($force_array && $first2cols) {
+				
+				/*
+				* Pair 1 array has 2 key value pairs(4 in both)
+				*/
+				$results[$key] = $forceArrayValue;
+			
+			} else {
+				/*
+				* >2 Columns, no constrints
+				*/
+				$results[$key] = $this->fields;
 			}
 
-			$this->MoveNext();
+			$this->moveNext();
 		}
 
 		return $results;
