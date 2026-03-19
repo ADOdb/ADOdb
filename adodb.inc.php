@@ -538,7 +538,8 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	public $debug = false;
 
-	var $maxblobsize = 262144;	/// maximum size of blobs or large text fields (262144 = 256K)-- some db's die otherwise like foxpro
+	//var $maxblobsize = 262144;	/// maximum size of blobs or large text fields (262144 = 256K)-- some db's die otherwise like foxpro
+	var $maxblobsize = 409600000;	/// maximum size of blobs or large text fields (262144 = 256K)-- some db's die otherwise like foxpro
 	var $concat_operator = '+'; /// default concat operator -- change to || for Oracle/Interbase
 	var $substr = 'substr';		/// substring operator
 	var $length = 'length';		/// string length ofperator
