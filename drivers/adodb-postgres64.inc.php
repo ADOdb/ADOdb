@@ -91,6 +91,8 @@ class ADODB_postgres64 extends ADOConnection{
 	var $version;
 	var $_nestedSQL = true;
 
+	protected int $lastOid = 0;
+
 	// The last (fmtTimeStamp is not entirely correct:
 	// PostgreSQL also has support for time zones,
 	// and writes these time in this format: "2001-03-01 18:59:26+02".
@@ -425,9 +427,15 @@ class ADODB_postgres64 extends ADOConnection{
 
 			$blob = $oid;
 
+			$this->lastOid = $oid;
+
 		}
 
 		pg_query($this->_connectionID, 'commit');
+
+		if (in_array('NOUPDATE', $blobTypes)) {
+			return true;
+		}
 			
 		$sql = sprintf(
 			"UPDATE %s SET %s=%s WHERE %s",
@@ -439,11 +447,11 @@ class ADODB_postgres64 extends ADOConnection{
 		
 		return $this->Execute($sql) ? true : false;
 
-		//if ($blobtype == 'CLOB') {
-		//	return $this->Execute("UPDATE $table SET $column=" . $this->qstr($val) . " WHERE $where");
-		//}
-		//$rs = ADOConnection::UpdateBlob($table,$column,$oid,$where,$blobtype);
-		//return !empty($rs);
+	}
+
+	public function getLastOid(): int
+	{
+		return $this->lastOid;
 	}
 
 	/**
@@ -557,18 +565,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return pg_escape_bytea($this->_connectionID, $blob);
 	}
 
-	// assumes bytea for blob, and varchar for clob
-	function xUpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
-	{
-		if ($blobtype == 'CLOB') {
-			$result = $this->Execute("UPDATE $table SET $column=" . $this->qstr($val) . " WHERE $where");
-		} else {
-		// do not use bind params which uses qstr(), as blobencode() already quotes data
-			$result = $this->Execute("UPDATE $table SET $column='".$this->BlobEncode($val)."' WHERE $where");
-		}
 
-		return $result ? true : false;
-	}
 
 	function OffsetDate($dayFraction,$date=false)
 	{
