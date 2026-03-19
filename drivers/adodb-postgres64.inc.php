@@ -163,9 +163,9 @@ class ADODB_postgres64 extends ADOConnection{
 
 	/**
 	 * Warning from http://www.php.net/manual/function.pg-getlastoid.php:
-	 * Using a OID as a unique identifier is not generally wise.
+	 * Using a LOB as a unique identifier is not generally wise.
 	 * Unless you are very careful, you might end up with a tuple having
-	 * a different OID if a database must be reloaded.
+	 * a different LOB if a database must be reloaded.
 	 *
 	 * @inheritDoc
 	 */
@@ -379,21 +379,71 @@ class ADODB_postgres64 extends ADOConnection{
 	 */
 	function updateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
 	{
+
+		if (!file_exists($path)) {
+			return false;
+		}
+
+		$contents = file_get_contents($path);
+	
+		if ($contents === false) {
+			return false;
+		}
+
+		return $this->updateBlob($table,$column,$contents,$where,$blobtype);
+	}
+
+	function UpdateBlob($table,$column,$contents,$where,$blobtype='BLOB') {
+
+		if (!$blobtype) {
+			$blobtype = 'BLOB';
+		}
+
+		$blobTypes = array_filter(preg_split('/[, ]+/',$blobtype));
+
+		if (in_array('BLOB', $blobTypes)) {
+			$blobtype = 'BLOB';
+		} else {
+			$blobtype = 'CLOB';
+		}
+		
+
 		pg_query($this->_connectionID, 'begin');
+		
+		if (in_array('OID', $blobTypes)) {
+			$oid    = pg_lo_create($this->_connectionID);
+			$handle = pg_lo_open($this->_connectionID, $oid, 'w');
+		}
+		if (in_array('BLOB', $blobTypes)) {
+			$blob   = pg_escape_bytea($this->_connectionID, $contents);
+		} else {
+			$blob = $contents;
+		}
+		if (in_array('OID', $blobTypes)) {
+			pg_lo_write($handle, $blob);
+			pg_lo_close($handle);
 
-		$fd = fopen($path,'r');
-		$contents = fread($fd,filesize($path));
-		fclose($fd);
+			$blob = $oid;
 
-		$oid = pg_lo_create($this->_connectionID);
-		$handle = pg_lo_open($this->_connectionID, $oid, 'w');
-		pg_lo_write($handle, $contents);
-		pg_lo_close($handle);
+		}
 
-		// $oid = pg_lo_import ($path);
 		pg_query($this->_connectionID, 'commit');
-		$rs = ADOConnection::UpdateBlob($table,$column,$oid,$where,$blobtype);
-		return !empty($rs);
+			
+		$sql = sprintf(
+			"UPDATE %s SET %s=%s WHERE %s",
+			$table,
+			$column,
+			$this->qstr($blob),
+			$where
+		);
+		
+		return $this->Execute($sql) ? true : false;
+
+		//if ($blobtype == 'CLOB') {
+		//	return $this->Execute("UPDATE $table SET $column=" . $this->qstr($val) . " WHERE $where");
+		//}
+		//$rs = ADOConnection::UpdateBlob($table,$column,$oid,$where,$blobtype);
+		//return !empty($rs);
 	}
 
 	/**
@@ -424,7 +474,7 @@ class ADODB_postgres64 extends ADOConnection{
 	}
 
 	/**
-	 * If an OID is detected, then we use pg_lo_* to open the oid file and read the
+	 * If an LOB is detected, then we use pg_lo_* to open the oid file and read the
 	 * real blob from the db using the oid supplied as a parameter. If you are storing
 	 * blobs using bytea, we autodetect and process it so this function is not needed.
 	 *
@@ -437,20 +487,57 @@ class ADODB_postgres64 extends ADOConnection{
 	 * @param bool $hastrans
 	 * @return string|false The blob
 	 */
-	function BlobDecode($blob, $maxsize=false, $hastrans=true)
+	function BlobDecode($blob, $maxsize=false, $hastrans=true, $blobtype='')
 	{
-		if (!$this->GuessOID($blob)) return $blob;
-
-		if ($hastrans) pg_query($this->_connectionID,'begin');
-		$fd = @pg_lo_open($this->_connectionID,$blob,'r');
-		if ($fd === false) {
-			if ($hastrans) pg_query($this->_connectionID,'commit');
+		if (!$this->GuessOID($blob) || in_array($blobtype,['BLOB','CLOB'])) {
+			/*
+			* A value that retrieved from the database,
+			* not large object storage
+			*/
 			return $blob;
 		}
-		if (!$maxsize) $maxsize = $this->maxblobsize;
+
+		if (!$blobtype) {
+			$blobtype = 'BLOB';
+		}
+
+		$blobTypes = array_filter(preg_split('/[, ]+/',$blobtype));
+
+		if (in_array('BLOB', $blobTypes)) {
+			$blobtype = 'BLOB';
+		} else {
+			$blobtype = 'CLOB';
+		}
+
+		
+		if ($hastrans) {
+			pg_query($this->_connectionID,'begin');
+		}
+		
+		$fd = @pg_lo_open($this->_connectionID,$blob,'r');
+		if ($fd === false) {
+			if ($hastrans) {
+				pg_query($this->_connectionID,'commit');
+			}
+			
+			return $blob;
+		}
+		
+		if (!$maxsize) {
+			$maxsize = $this->maxblobsize;
+		}
+		
 		$realblob = @pg_lo_read($fd,$maxsize);
+		
 		@pg_lo_close($fd);
-		if ($hastrans) pg_query($this->_connectionID,'commit');
+
+		if ($blobtype == 'BLOB') {
+			$realblob = pg_unescape_bytea($realblob);
+		}
+		
+		if ($hastrans) {
+			pg_query($this->_connectionID,'commit');
+		}
 		return $realblob;
 	}
 
@@ -471,13 +558,16 @@ class ADODB_postgres64 extends ADOConnection{
 	}
 
 	// assumes bytea for blob, and varchar for clob
-	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
+	function xUpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
 		if ($blobtype == 'CLOB') {
-			return $this->Execute("UPDATE $table SET $column=" . $this->qstr($val) . " WHERE $where");
-		}
+			$result = $this->Execute("UPDATE $table SET $column=" . $this->qstr($val) . " WHERE $where");
+		} else {
 		// do not use bind params which uses qstr(), as blobencode() already quotes data
-		return $this->Execute("UPDATE $table SET $column='".$this->BlobEncode($val)."'::bytea WHERE $where");
+			$result = $this->Execute("UPDATE $table SET $column='".$this->BlobEncode($val)."' WHERE $where");
+		}
+
+		return $result ? true : false;
 	}
 
 	function OffsetDate($dayFraction,$date=false)
