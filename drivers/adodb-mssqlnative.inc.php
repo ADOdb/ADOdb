@@ -795,8 +795,37 @@ class ADODB_mssqlnative extends ADOConnection {
 	{
 		global $ADODB_FETCH_MODE;
 
-		$save = $ADODB_FETCH_MODE;
-		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
+		$tableName = $this->MetaTables('T','',$table);
+		if (!$tableName) {
+			return false;
+		}
+
+		$referenceSchema = $this->database;
+
+		if ( !empty($owner) ) {
+			/*
+			* SQL Server is using this for schema, so call metaDatabases to see if
+			* the schema exists
+			*/
+			$alternateDb = array_map('strtolower', $this->MetaDatabases());
+			if (!in_array(strtolower($owner), $alternateDb)) {
+				return false;
+			}
+			$referenceSchema = $owner;
+		}
+
+		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC) {
+			$associative = true;
+		}
+		
+		$saveFetchModes = [
+			$ADODB_FETCH_MODE,
+			$this->fetchMode
+		];
+		
+		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
+		$this->SetFetchMode(ADODB_FETCH_ASSOC);
+
 		$table = $this->qstr(strtoupper($table));
 
 		$sql =
@@ -808,30 +837,64 @@ class ADODB_mssqlnative extends ADOConnection {
 			where upper(object_name(fkeyid)) = $table
 			order by constraint_name, referenced_table_name, keyno";
 
-		$constraints = $this->GetArray($sql);
+		$constraintList = $this->GetArray($sql);
 
-		$ADODB_FETCH_MODE = $save;
+		$ADODB_FETCH_MODE = $saveFetchModes[0];
+		$this->SetFetchMode($saveFetchModes[1]);
 
-		$arr = false;
-		foreach($constraints as $constr) {
-			//print_r($constr);
-			$arr[$constr[0]][$constr[2]][] = $constr[1].'='.$constr[3];
-		}
-		if (!$arr) return false;
+		if (!$constraintList || count($constraintList) == 0) {
+            return false;
+        }
 
-		$arr2 = false;
+        $sortKeys    = [];
 
-		foreach($arr as $k => $v) {
-			foreach($v as $a => $b) {
-				if ($upper) $a = strtoupper($a);
-				if (is_array($arr2[$a])) {	// a previous foreign key was define for this reference table, we merge the new one
-					$arr2[$a] = array_merge($arr2[$a], $b);
-				} else {
-					$arr2[$a] = $b;
-				}
-			}
-		}
-		return $arr2;
+        foreach ($constraintList as $element) {
+
+			/*
+			* Standardize the returned data keys
+			*/
+			$element = array_change_key_case($element, CASE_UPPER);
+
+			/*
+			* Change the values to match the requested return type
+			*/
+            if ($upper) {
+                $element = array_map('strtoupper', $element);
+            } else {
+                $element = array_map('strtolower', $element);
+            }
+
+            $id = $element['CONSTRAINT_NAME'];
+
+            if (!array_key_exists($id, $sortKeys)) {
+                $sortKeys[$id] = new \stdClass();
+                $sortKeys[$id]->tableName = $element['REFERENCED_TABLE_NAME'];
+                $sortKeys[$id]->assocKeys = [];
+                $sortKeys[$id]->numKeys   = [];
+            }
+
+            $sortKeys[$id]->assocKeys[$element['COLUMN_NAME']] = $element['REFERENCED_COLUMN_NAME'];
+            $sortKeys[$id]->numKeys[] = sprintf(
+                '%s=%s',
+                $element['COLUMN_NAME'],
+                $element['REFERENCED_COLUMN_NAME']
+            );
+        }
+
+        /*
+		* Now the array is built, pick off the right elements
+		*/
+		$foreignKeys = [];
+        foreach ($sortKeys as $sortObject) {
+            if ($associative) {
+                $foreignKeys[$sortObject->tableName] = $sortObject->assocKeys;
+            } else {
+                $foreignKeys[$sortObject->tableName] = $sortObject->numKeys;
+            }
+        }
+
+        return $foreignKeys;
+
 	}
 
 	/**

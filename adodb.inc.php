@@ -1832,7 +1832,7 @@ if (!defined('_ADODB_LAYER')) {
 			$rs->Close();
 		}
 
-		return $this->genID;
+		return (int)$this->genID;
 	}
 
 	/**
@@ -5560,13 +5560,21 @@ class ADORecordSet implements IteratorAggregate {
 		}
 
 		/**
-		 * @param int [$fieldOffset]
+		 * @param int $fieldOffset The required offset
 		 *
-		 * @return \ADOFieldObject
+		 * @return false|\ADOFieldObject
 		 */
 		function FetchField($fieldOffset = -1) {
 			if (isset($this->_fieldobjects)) {
-				return $this->_fieldobjects[$fieldOffset];
+				if (array_key_exists($fieldOffset, $this->_fieldobjects)) {
+					return $this->_fieldobjects[$fieldOffset];
+				} else {
+					return false;
+				}
+			}
+
+			if (!array_key_exists($fieldOffset, $this->_colnames)) {
+				return false;
 			}
 			$o =  new ADOFieldObject();
 			$o->name = $this->_colnames[$fieldOffset];
