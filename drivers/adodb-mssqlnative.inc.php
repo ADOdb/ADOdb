@@ -80,7 +80,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	public bool $needsAffectedRowCount = false;
 
 	var $metaDatabasesSQL = "select name from sys.sysdatabases where name <> 'master'";
-	
+	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
 	var $metaColumnsSQL =
 		"select c.name,
 		t.name as type,
@@ -994,6 +994,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			$mask = $this->qstr(($mask));
 			$this->metaTablesSQL .= " AND name like $mask";
 		}
+		
 		$ret = ADOConnection::MetaTables($ttype,$showSchema);
 
 		if ($mask) {
