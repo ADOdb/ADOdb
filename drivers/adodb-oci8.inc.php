@@ -178,10 +178,14 @@ END;
 					$fld->type = 'INT';
 				}
 				$fld->max_length = $rs->fields[4];
+				$fld->default_value = trim($rs->fields[6] ?? '');
+			} else {
+				$fld->default_value = $rs->fields[6];
 			}
 			$fld->not_null = $rs->fields[5] == 'N';
 			$fld->binary = (strpos($fld->type,'BLOB') !== false);
-			$fld->default_value = $rs->fields[6];
+			
+			
 
 			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) {
 				$retarr[] = $fld;
@@ -488,6 +492,10 @@ END;
 			$this->metaTablesSQL .= " AND upper(table_name) like $mask";
 		}
 		$ret = ADOConnection::MetaTables($ttype,$showSchema);
+
+		if (!$ret || is_array($ret) && count($ret) == 0) {
+			$ret = false;
+		}
 
 		if ($mask) {
 			$this->metaTablesSQL = $save;

@@ -63,8 +63,24 @@ class ADODB_mssqlnative extends ADOConnection {
 	var $length = 'len';
 	var $hasAffectedRows = true;
 	var $poorAffectedRows = false;
+
+	/**
+	 * Holds the affected rows if triggered by close
+	 *
+	 * @var bool|int
+	 */
+	public $affectedRowCount = false;
+
+	/**
+	 * Flag that indicates if an affected_rows value
+	 * is required
+	 *
+	 * @var bool
+	 */
+	public bool $needsAffectedRowCount = false;
+
 	var $metaDatabasesSQL = "select name from sys.sysdatabases where name <> 'master'";
-	
+	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
 	var $metaColumnsSQL =
 		"select c.name,
 		t.name as type,
@@ -171,8 +187,11 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function _affectedrows()
 	{
+
 		if ($this->_queryID && is_resource($this->_queryID)) {
 			return sqlsrv_rows_affected($this->_queryID);
+		} else if ($this->affectedRowCount !== false) {
+			return $this->affectedRowCount;
 		}
 		return false;
 	}
@@ -667,6 +686,9 @@ class ADODB_mssqlnative extends ADOConnection {
 			$sql = $sql[1];
 		}
 
+		$this->affectedRowCount      = false;
+		$this->needsAffectedRowCount = false;
+
 		// Handle native driver flaw for retrieving the last insert ID
 		if ($this->hasInsertID) {
 			// Check if it's an INSERT statement
@@ -681,6 +703,10 @@ class ADODB_mssqlnative extends ADOConnection {
 			}
 		} else {
 			$retrieveLastInsertID = false;
+		}
+
+		if ($sql && preg_match('/^\W*(update|delete)/i',$sql)){
+			$this->needsAffectedRowCount = true;
 		}
 
 		if ($inputarr) {
@@ -1504,6 +1530,12 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 		*/
 		$this->connection->errorMsg();
 		if(is_resource($this->_queryID)) {
+			if ($this->connection->needsAffectedRowCount) {
+				$this->connection->affectedRowCount = sqlsrv_rows_affected($this->_queryID);
+			} else {
+				$this->connection->affectedRowCount = false;
+			}
+				
 			$rez = sqlsrv_free_stmt($this->_queryID);
 			$this->_queryID = false;
 			return $rez;
