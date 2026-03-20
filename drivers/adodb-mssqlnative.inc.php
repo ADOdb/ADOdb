@@ -994,7 +994,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		
 		if (!$ttype) {
 			$tSql = "sysobjects.type IN('U','V')";
-		} else if (substr(strtoupper($ttype), 0, 1) == 'T') {
+		} else if (strtoupper($ttype[0]) == 'T') {
 			$tSql = "sysobjects.type='U'"; 
 		} else {
 			$tSql = "sysobjects.type='V'";
