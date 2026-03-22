@@ -32,6 +32,27 @@ class ADODB2_mysql extends ADODB_DataDict {
 
 	public $blobAllowsNotNull = true;
 
+	/**
+	 * Indicates if the DB supports Table Comments via CreateTableSql
+	 *
+	 * @var boolean
+	 */
+	public bool $hasTableComments = true;
+
+	/**
+	 * Indicates if the DB supports Column Comments via AddColumnSql
+	 *
+	 * @var boolean
+	 */
+	public bool $hasColumnComments = true;
+
+	/**
+	 * Indicates if the DB supports Index Comments via CreateIndexSql
+	 *
+	 * @var boolean
+	 */
+	public bool $hasIndexComments = true;
+
 
 	function metaType($t, $len=-1, $fieldobj=false)
 	{
@@ -240,6 +261,13 @@ class ADODB2_mysql extends ADODB_DataDict {
 			$s .= $idxoptions[$this->upperName];
 		}
 
+		if ($this->hasIndexComments && array_key_exists('COMMENT',$idxoptions)) {
+			$s .= sprintf(
+					" COMMENT '%s'", 
+					$this->connection->addQ($idxoptions['COMMENT'])
+				);
+		}
+
 		$sql[] = $s;
 
 		return $sql;
@@ -271,4 +299,144 @@ class ADODB2_mysql extends ADODB_DataDict {
 
 		return parent::renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds);
 	}
+
+	/**
+     * Gets a SQL statement to retrieve the comment for a column.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName  The table name
+     * @param string $columnName The column name
+     * 
+     * @return string|null
+     */
+    public function getColumnCommentSql(string $tableName, string $columnName) : ?string
+    {
+
+        $schema = $this->connection->qstr($this->connection->database);
+        $table  = $this->connection->qstr($tableName);
+        $col    = $this->connection->qstr($columnName);
+
+        return sprintf(
+            "SELECT column_comment
+               FROM information_schema.columns
+                WHERE table_schema = %s
+                  AND table_name = %s
+                AND column_name = %s",
+            $schema,
+            $table,
+            $col
+        );
+
+    }
+
+    /**
+     * Returns and SQL statement to Set a comment on a column.
+     * returns null if not supported by the driver.
+     * Mysql requires the column definition to be included in the SQL
+     *
+     * @param string      $tableName       The table name
+     * @param string      $columnName      The column name
+     * @param string|null $comment         The comment to set
+     * @param string|null $fieldDefinition Field definition
+     * 
+     * @return string|null
+     */
+    public function setColumnCommentSql(
+        string $tableName, 
+        string $columnName, 
+        ?string $comment, 
+        ?string $fieldDefinition=null
+    ) : ?string {
+
+        $cmt = $this->connection->qstr($comment);
+
+        $commentSql = sprintf(
+            "ALTER TABLE %s MODIFY COLUMN %s %s COMMENT %s",
+            $tableName,
+            $columnName,
+            $fieldDefinition,
+            $cmt
+        );
+
+        return $commentSql;
+
+    }
+
+    /**
+     * Gets a SQL statement to retrieve the comment for a table
+     *
+     * @param string $tableName The table name
+     * 
+     * @return string|null
+     */
+    public function getTableCommentSql(string $tableName) : ?string
+    {
+        $table = $this->connection->qstr($tableName);
+
+        $commentSql = sprintf(
+            "SELECT table_comment 
+               FROM INFORMATION_SCHEMA.TABLES 
+              WHERE table_schema='%s' 
+                AND table_name=%s",
+            $this->connection->database,
+            $table
+        );
+
+        return $commentSql;
+    }
+    
+    /**
+     * Returns an SQL statement that sets a comment on a table.
+     *
+     * @param string      $tableName       The table name
+     * @param string|null $comment         The comment to set
+     * @param string|null $fieldDefinition not required by the driver
+     * 
+     * @return string|null
+     */
+    public function setTableCommentSql(
+        string $tableName, 
+        ?string $comment, 
+        ?string $fieldDefinition=null
+    ) : ?string {
+
+        $cmt = $this->connection->qstr($comment);
+        
+        $commentSql = sprintf(
+            "ALTER TABLE %s COMMENT %s",
+            $tableName,
+            $cmt
+        );
+
+        return $commentSql;
+    }
+
+	/**
+     * Gets a SQL statement to retrieve the comment on an index.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+     * @param string $indexName The index name
+     * 
+     * @return string|null The index comment
+     */
+    public function getIndexCommentSql(
+		string $tableName,
+		string $indexName
+		) : ?string
+    {
+
+		$commentSql = sprintf(
+			"SELECT index_comment
+		       FROM information_schema.statistics
+              WHERE index_schema='%s'
+                AND table_name='%s'
+				AND index_name='%s'",
+			$this->connection->database,
+			$tableName,
+			$indexName
+		);
+        return $commentSql;
+    }
+
 }
