@@ -208,17 +208,187 @@ class ADODB_DataDict {
 	 */
 	public $quote;
 
-	function getCommentSQL($table,$col)
-	{
-		return false;
-	}
-
-	function setCommentSQL($table,$col,$cmt)
-	{
-		return false;
-	}
+	/**
+	 * Indicates if the DB supports Table Comments via CreateTableSql
+	 *
+	 * @var boolean
+	 */
+	public bool $hasTableComments = false;
 
 	/**
+	 * Indicates if the DB supports Column Comments via AddColumnSql
+	 *
+	 * @var boolean
+	 */
+	public bool $hasColumnComments = false;
+
+	/**
+	 * Indicates if the DB supports Index Comments via CreateIndexSql
+	 *
+	 * @var boolean
+	 */
+	public bool $hasIndexComments = false;
+
+	/**
+     * Gets a SQL statement to retrieve the comment for a column.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName  The table name
+     * @param string $columnName The column name
+     * 
+     * @return string|null
+     * 
+     * @deprecated Use getColumnCommentSql instead.
+     */
+    public function getCommentSql(string $tableName, string $columnName) : ?string
+    {
+        if ($this->debug) {
+            $message = 'getCommentSql is deprecated, use getColumnCommentSql()';
+            ADOConnection::outp($message);
+        }
+
+        return $this->getColumnCommentSql($tableName, $columnName);
+    }
+
+    /**
+     * Returns an SQL statement that sets a comment on a column.
+     * returns null if not supported by the driver.
+     *
+     * @param string      $tableName       The table name
+     * @param string      $columnName      The column name
+     * @param string|null $comment         The comment to set
+     * @param string|null $fieldDefinition Optional field definition, 
+     *                                     if required by the driver
+     * 
+     * @return string|null
+     * 
+     * @deprecated Use setColumnCommentSql instead.
+     */
+    public function setCommentSql(
+        string $tableName, 
+        string $columnName, 
+        ?string $comment, 
+        ?string $fieldDefinition=null
+    ) : ?string {
+
+        if ($this->debug) {
+            $message = 'setCommentSql is deprecated, use setColumnCommentSql()';
+            ADOConnection::outp($message);
+        }
+
+        return $this->setColumnCommentSql(
+            $tableName, 
+            $columnName, 
+            $comment, 
+            $fieldDefinition
+        );
+    
+    }
+
+    /**
+     * Returns an SQL statement to retrieve the comment for a column.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName  The table name
+     * @param string $columnName The column name
+     * 
+     * @return string|null
+     */
+    public function getColumnCommentSql(string $tableName, string $columnName) : ?string
+    {
+        return null;
+    }
+
+    /**
+     * Returns an SQL statement that sets a comment on a column.
+     * returns null if not supported by the driver.
+     *
+     * @param string      $tableName       The table name
+     * @param string      $columnName      The column name
+     * @param string|null $comment         The comment to set
+     * @param string|null $fieldDefinition Optional field definition, 
+     *                                     if required by the driver
+     * 
+     * @return string|null The SQL if supported
+     */
+    public function setColumnCommentSql(
+        string $tableName, 
+        string $columnName, 
+        ?string $comment, 
+        ?string $fieldDefinition=null
+    ) : ?string {
+   
+        return null;
+    }
+
+    
+    /**
+     * Gets a SQL statement to retrieve the comment for a table.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+     * 
+     * @return string|null The SQL if supported
+     */
+    public function getTableCommentSql(string $tableName) : ?string
+    {
+        return null;
+    }
+
+	 /**
+     * Returns an SQL statement that sets a comment on a table.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+     * @param string $comment   The comment to set
+     * 
+     * @return string|null The SQL if supported
+     */
+    public function setTableCommentSql(
+        string $tableName, 
+        string $comment, 
+    ) : ?string {
+   
+        return null;
+    }
+
+    /**
+     * Returns an SQL statement that sets a comment on an index.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+	 * @param string $indexName The Index Name
+     * @param string $comment   The comment to set
+     * 
+     * @return string|null The SQL if supported
+     */
+    public function setIndexCommentSql(
+		string $tableName,
+		string $indexName,
+        string $comment, 
+    ) : ?string {
+   
+        return null;
+    }
+
+	/**
+     * Gets a SQL statement to retrieve the comment on an index.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+     * @param string $indexName The index name
+     * 
+     * @return string|null The index comment
+     */
+    public function getIndexCommentSql(
+		string $tableName,
+		string $indexName
+		) : ?string
+    {
+        return null;
+    }
+
+   	/**
 	 * Returns an array of table names and/or views in the database.
 	 *
 	 * @param string|bool $ttype      `TABLE`, `VIEW`, or false for both.
@@ -679,6 +849,7 @@ class ADODB_DataDict {
 						// fall through intentionally
 					case 'CONSTRAINT':
 					case 'DEFAULT':
+					case 'COMMENT':
 						$hasparam = $token;
 						break;
 					default:
@@ -781,6 +952,8 @@ class ADODB_DataDict {
 				case 'UNIQUE': $funiqueindex = true; break;
 				case 'ENUM':
 					$fOptions['ENUM'] = $v; break;
+				case 'COMMENT':
+					$fOptions['COMMENT'] = $v; break;
 				} //switch
 			} // foreach $fld
 
@@ -870,6 +1043,10 @@ class ADODB_DataDict {
 				}
 			}
 			$suffix = $this->_createSuffix($fname, $ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, $pkey);
+
+			if ($this->hasColumnComments && array_key_exists('COMMENT', $fOptions)){ 
+				$suffix .= sprintf(" COMMENT '%s'",$fOptions['COMMENT']);
+			}
 
 			// add index creation
 			if ($widespacing) $fname = str_pad($fname,24);
@@ -980,6 +1157,14 @@ class ADODB_DataDict {
 		if ( is_array($flds) )
 			$flds = implode(', ',$flds);
 		$s .= '(' . $flds . ')';
+		
+		if ($this->hasIndexComments && array_key_exists('COMMENT',$idxoptions)) {
+			$s .= sprintf(
+					" COMMENT '%s'", 
+					$this->connection->addQ($idxoptions['COMMENT'])
+				);
+		}
+
 		$sql[] = $s;
 
 		return $sql;
@@ -1018,7 +1203,16 @@ class ADODB_DataDict {
 			$s .= "\n".$tableoptions[$this->upperName.'_CONSTRAINTS'];
 
 		$s .= "\n)";
-		if (isset($tableoptions[$this->upperName])) $s .= $tableoptions[$this->upperName];
+		if (isset($tableoptions[$this->upperName])) {
+			$s .= $tableoptions[$this->upperName];
+		}
+
+		if ($this->hasTableComments && array_key_exists('COMMENT', $tableoptions)) {
+			$s .= sprintf(
+					" COMMENT '%s'",
+					$this->connection->addQ($tableoptions['COMMENT'])
+				);
+		}
 		$sql[] = $s;
 
 		return $sql;
