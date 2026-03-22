@@ -326,4 +326,177 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		}
 		return parent::_GetSize($ftype, $ty, $fsize, $fprec, $options);
 	}
+
+	/**
+     * Returns a SQL statement to retrieve the comment for a column.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName  The table name
+     * @param string $columnName The column name
+     * 
+     * @return string|null
+     */
+    public function getColumnCommentSql(string $tableName, string $columnName) : ?string
+	{
+		$commentSql = sprintf(
+			"SELECT ep.value AS ColumnComment
+			   FROM sys.objects obj
+		 INNER JOIN	sys.columns col 
+		         ON obj.object_id = col.object_id 
+			    AND col.name = '%s'
+		  LEFT JOIN	sys.extended_properties ep 
+				 ON ep.major_id = col.object_id 
+				AND ep.minor_id = col.column_id 
+				AND ep.name = 'MS_Description'
+		 	  WHERE obj.type = 'U'
+			    AND obj.name = '%s'",
+				$columnName,
+				$tableName
+		);
+
+		return $commentSql;
+	}
+
+	/**
+     * Returns an SQL statement that sets a comment on a column.
+     *
+     * @param string      $tableName       The table name
+     * @param string      $columnName      The column name
+     * @param string|null $comment         The comment to set
+     * @param string|null $fieldDefinition not required by the driver
+     * 
+     * @return string|null
+     */
+    public function setColumnCommentSql(
+        string $tableName, 
+        string $columnName, 
+        ?string $comment, 
+        ?string $fieldDefinition=null
+    ) : ?string {
+
+		$commentSql = sprintf(
+            "EXEC sp_addextendedproperty
+			@name = N'MS_Description',
+			@value = N'%s',
+			@level0type = N'SCHEMA', @level0name = 'dbo',
+			@level1type = N'TABLE',  @level1name = '%s',
+			@level2type = N'COLUMN', @level2name = '%s'",
+			$this->connection->addQ($comment),
+			strtolower($tableName),
+			strtolower($columnName)
+        );
+
+        return $commentSql;
+	}
+
+	/**
+     * Returns an SQL statement that sets a comment on an index.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+	 * @param string $indexName The Index Name
+     * @param string $comment   The comment to set
+     * 
+     * @return string|null The SQL if supported
+     */
+    public function setIndexCommentSql(
+		string $tableName,
+		string $indexName,
+        string $comment, 
+    ) : ?string {
+   
+        $commentSql = sprintf(
+            "EXEC sp_addextendedproperty
+			@name = N'MS_Description',
+			@value = N'%s',
+			@level0type = N'SCHEMA', @level0name = 'dbo',
+			@level1type = N'TABLE',  @level1name = '%s',
+			@level2type = N'INDEX', @level2name = '%s'",
+			$this->connection->addQ($comment),
+			$tableName,
+			$indexName
+        );
+
+        return $commentSql;
+    }
+
+	/**
+     * Gets a SQL statement to retrieve the comment on an index.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+     * @param string $indexName The index name
+     * 
+     * @return string|null The index comment
+     */
+    public function getIndexCommentSql(
+		string $tableName,
+		string $indexName
+		) : ?string
+    {
+        $commentSql = sprintf(
+			"SELECT ep.value
+			   FROM sys.extended_properties ep
+			   JOIN sys.indexes i 
+			 	 ON ep.major_id = i.object_id 
+				AND ep.minor_id = i.index_id
+			  WHERE i.name = '%s'",
+			$indexName
+			);
+
+		return $commentSql;
+    }
+	
+
+	/**
+     * Retuns an SQL statement to retrieve the comment for a table
+     *
+     * @param string $tableName The table name
+     * 
+     * @return string|null
+     */
+    public function getTableCommentSql(string $tableName) : ?string
+    {
+		$commentSql = sprintf(
+			"SELECT ep.value AS TableComment
+			  FROM sys.extended_properties ep
+			  JOIN sys.tables t ON ep.major_id = t.object_id
+			  JOIN sys.schemas s ON t.schema_id = s.schema_id
+			 WHERE ep.name = 'MS_Description'
+			   AND ep.minor_id=0
+			   AND s.name = 'dbo'
+			   AND t.name = '%s'",
+			$this->connection->addQ($tableName)
+	   	);
+
+        return $commentSql;
+		
+    }
+    
+    /**
+     * Returns an SQL statement that sets a comment on a table.
+     *
+     * @param string      $tableName The table name
+     * @param string|null $comment   The comment to set
+     * 
+     * @return string|null
+     */
+    public function setTableCommentSql(
+        string $tableName, 
+        ?string $comment, 
+    ) : ?string {
+
+        $commentSql = sprintf(
+            "EXEC sp_addextendedproperty
+			@name = N'MS_Description',
+			@value = N'%s',
+			@level0type = N'SCHEMA', @level0name = 'dbo',
+			@level1type = N'TABLE',  @level1name = '%s'",
+			$this->connection->addQ($comment),
+			$tableName
+        );
+
+        return $commentSql;
+    }
+
 }
