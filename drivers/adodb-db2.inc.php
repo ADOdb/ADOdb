@@ -1478,6 +1478,8 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
                 $fld->scale            = $rs->fields[8];
                 $fld->primary_key      = 0;
 
+                $fld->default_value = $rs->fields[12];
+
                 $fld->actualType = $rs->fields[4];
                 //$columnName = $this->getMetaCasedValue($fld->name);
                 $columnName = strtoupper($fld->name);
