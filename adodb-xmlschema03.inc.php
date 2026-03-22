@@ -348,7 +348,7 @@ class dbTable extends dbObject {
 	function _tag_cdata( $parser, $cdata ) {
 		switch( $this->currentElement ) {
 			// Table or field comment
-			case 'DESCR':
+			case 'COMMENT':
 				if( isset( $this->current_field ) ) {
 					$this->addFieldOpt( $this->current_field, $this->currentElement, $cdata );
 				} else {
@@ -763,6 +763,8 @@ class dbIndex extends dbObject {
 			case 'COL':
 				$this->addField( $cdata );
 				break;
+			case 'COMMENT':
+				$this->addIndexComment( $cdata );
 			default:
 
 		}
@@ -781,6 +783,11 @@ class dbIndex extends dbObject {
 				xml_set_object( $parser, $this->parent );
 				break;
 		}
+	}
+
+	function addIndexComment( $opt ) {
+		$this->opts['comment'] = $opt;
+		return $this->opts;
 	}
 
 	/**
