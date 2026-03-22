@@ -527,6 +527,7 @@ END;
 		$table = strtoupper($table);
 
 		// get Primary index if required
+		// get Primary index if required
 		$primary_key = '';
 
 		$p1 = $this->param('p1');
