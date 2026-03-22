@@ -583,4 +583,169 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 		}
 		return $sqlResult;
 	}
+
+	/**
+     * Gets a SQL statement to retrieve the comment for a column.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName  The table name
+     * @param string $columnName The column name
+     * 
+     * @return string|null
+     */
+    public function getColumnCommentSQL(
+		string $tableName, 
+		string $columnName
+		) : ?string {
+
+		$schemaSql = '';
+		if (!empty($this->schema)) {
+			$schemaSql = sprintf(
+				"AND c.table_schema='%s'",
+				$this->schema
+			);
+		}
+
+        $commentSql = sprintf(
+            "SELECT pgd.description
+			   FROM pg_catalog.pg_statio_all_tables AS st
+              INNER JOIN pg_catalog.pg_description pgd ON (pgd.objoid=st.relid)
+			  INNER JOIN information_schema.columns c ON (
+				    pgd.objsubid=c.ordinal_position
+			    AND	c.table_schema=st.schemaname
+				AND	c.table_name=st.relname) 
+			  WHERE c.table_name='%s' 
+			    AND c.column_name='%s'
+			      %s",
+            $tableName,
+            $columnName,
+			$schemaSql
+        );
+		
+        return $commentSql;
+    }
+    
+    /**
+     * Returns an SQL statement that sets a comment on a column.
+     *
+     * @param string      $tableName       The table name
+     * @param string      $columnName      The column name
+     * @param string|null $comment         The comment to set
+     * @param string|null $fieldDefinition not required by the driver
+     * 
+     * @return string|null
+     */
+    public function setColumnCommentSQL(
+        string $tableName, 
+        string $columnName, 
+        ?string $comment, 
+        ?string $fieldDefinition=null
+    ) : ?string {
+
+        $cmt = $this->connection->qstr($comment);
+        
+        $commentSql = sprintf(
+            "COMMENT ON COLUMN %s.%s IS %s",
+            strtoupper($tableName),
+            strtoupper($columnName),
+            $cmt
+        );
+        return $commentSql;
+    }
+
+	/**
+     * Gets a SQL statement to retrieve the comment for a table
+     *
+     * @param string $tableName The table name
+     * 
+     * @return string|null
+     */
+    public function getTableCommentSql(string $tableName) : ?string
+    {
+        
+		$commentSql = sprintf(
+			"SELECT obj_description('public.%s'::regclass, 'pg_class')",
+			$tableName
+		);
+       
+        return $commentSql;
+    }
+    
+    /**
+     * Returns an SQL statement that sets a comment on a table.
+     *
+     * @param string      $tableName       The table name
+     * @param string|null $comment         The comment to set
+     * @param string|null $fieldDefinition not required by the driver
+     * 
+     * @return string|null
+     */
+    public function setTableCommentSql(
+        string $tableName, 
+        ?string $comment, 
+        ?string $fieldDefinition=null
+    ) : ?string {
+
+        $cmt = $this->connection->qstr($comment);
+        
+        $commentSql = sprintf(
+            "COMMENT ON TABLE %s IS %s",
+            strtoupper($tableName),
+            $cmt
+        );
+        return $commentSql;
+    }
+
+	/**
+     * Returns an SQL statement that sets a comment on an index.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+	 * @param string $indexName The Index Name
+     * @param string $comment   The comment to set
+     * 
+     * @return string|null The SQL if supported
+     */
+    public function setIndexCommentSql(
+		string $tableName,
+		string $indexName,
+        string $comment, 
+    ) : ?string {
+   
+		$commentSql = sprintf(
+			"COMMENT ON INDEX %s IS '%s'",
+			$indexName,
+			$this->connection->addQ($comment)
+		);
+		return $commentSql;
+    }
+
+	/**
+     * Gets a SQL statement to retrieve the comment on an index.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+     * @param string $indexName The index name
+     * 
+     * @return string|null The index comment
+     */
+    public function getIndexCommentSql(
+		string $tableName,
+		string $indexName
+		) : ?string
+    {
+         
+		$commentSql = sprintf(
+			"SELECT obj_description(c.oid, 'pg_class')
+			   FROM pg_class c
+			   JOIN pg_index i 
+			     ON i.indexrelid=c.oid
+			  WHERE c.relkind='i'
+				AND c.relname='%s'",
+			$indexName
+		);
+
+		return $commentSql;
+    }
+
 } // end class
