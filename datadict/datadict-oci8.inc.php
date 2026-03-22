@@ -331,22 +331,134 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		if (isset($idxoptions['oci8']))
 			$s .= $idxoptions['oci8'];
 
+		if ($this->hasIndexComments && array_key_exists('COMMENT',$idxoptions)) {
+			$s .= sprintf(
+					" COMMENT '%s'", 
+					$this->connection->addQ($idxoptions['COMMENT'])
+				);
+		}
 
 		$sql[] = $s;
 
 		return $sql;
 	}
 
-	function GetCommentSQL($table,$col)
+	/**
+     * Returns a SQL statement to retrieve the comment for a column.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName  The table name
+     * @param string $columnName The column name
+     * 
+     * @return string|null
+     */
+    public function getColumnCommentSql(string $tableName, string $columnName) : ?string
 	{
-		$table = $this->connection->qstr($table);
-		$col = $this->connection->qstr($col);
-		return "select comments from USER_COL_COMMENTS where TABLE_NAME=$table and COLUMN_NAME=$col";
+		//print_r($this->connection->getAll("SELECT * FROM USER_COL_COMMENTS WHERE comments IS NOT NULL"));
+		$commentSql = sprintf(
+			"SELECT COMMENTS 
+			   FROM USER_COL_COMMENTS 
+			  WHERE TABLE_NAME='%s'
+			    AND COLUMN_NAME='%s'",
+				strtoupper($tableName),
+				strtoupper($columnName)
+		);
+
+		return $commentSql;
 	}
 
-	function SetCommentSQL($table,$col,$cmt)
-	{
-		$cmt = $this->connection->qstr($cmt);
-		return  "COMMENT ON COLUMN $table.$col IS $cmt";
+	/**
+     * Returns an SQL statement that sets a comment on a column.
+     *
+     * @param string      $tableName       The table name
+     * @param string      $columnName      The column name
+     * @param string|null $comment         The comment to set
+     * @param string|null $fieldDefinition not required by the driver
+     * 
+     * @return string|null
+     */
+    public function setColumnCommentSql(
+        string $tableName, 
+        string $columnName, 
+        ?string $comment, 
+        ?string $fieldDefinition=null
+    ) : ?string {
+		
+		$commentSql = sprintf(
+			"COMMENT ON COLUMN %s.%s IS '%s'",
+			$tableName,
+			$columnName,
+			$this->connection->addQ($comment)
+		);
+
+		return $commentSql;
 	}
+
+	/**
+     * Retuns an SQL statement to retrieve the comment for a table
+     *
+     * @param string $tableName The table name
+     * 
+     * @return string|null
+     */
+    public function getTableCommentSql(string $tableName) : ?string
+    {
+		$table = strtoupper($this->connection->qstr($tableName));
+
+       $commentSql = sprintf(
+				"SELECT COMMENTS FROM USER_TAB_COMMENTS WHERE TABLE_NAME='%s'",
+				strtoupper($tableName)
+		);
+
+        return $commentSql;
+    }
+    
+    /**
+     * Returns an SQL statement that sets a comment on a table.
+     *
+     * @param string      $tableName       The table name
+     * @param string|null $comment         The comment to set
+     * 
+     * @return string|null
+     */
+    public function setTableCommentSql(
+        string $tableName, 
+        ?string $comment, 
+    ) : ?string {
+
+        $cmt = $this->connection->addQ($comment);
+        
+        $commentSql = sprintf(
+            "COMMENT ON TABLE %s IS '%s'",
+            $tableName,
+            $cmt
+        );
+        return $commentSql;
+    }
+
+	
+	/**
+     * Returns an SQL statement that sets a comment on an index.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+	 * @param string $indexName The Index Name
+     * @param string $comment   The comment to set
+     * 
+     * @return string|null The SQL if supported
+     */
+    public function setIndexCommentSql(
+		string $tableName,
+		string $indexName,
+        string $comment, 
+    ) : ?string {
+   
+		$commentSql = sprintf(
+			"COMMENT ON INDEX %s IS '%s'",
+			$indexName,
+			$this->connection->addQ($comment)
+		);
+		return $commentSql;
+    }
+
 }
