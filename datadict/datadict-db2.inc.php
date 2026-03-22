@@ -248,4 +248,150 @@ class ADODB2_db2 extends ADODB_DataDict {
 		return $sql;
 	}
 
+	/**
+     * Gets a SQL statement to retrieve the comment for a column.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName  The table name
+     * @param string $columnName The column name
+     * 
+     * @return string|null
+     */
+    public function getColumnCommentSql(string $tableName, string $columnName) : ?string
+    {
+        $table = strtoupper($this->connection->qstr($tableName));
+        $col   = strtoupper($this->connection->qstr($columnName));
+
+        $commentSql = sprintf(
+            "SELECT REMARKS 
+               FROM SYSCAT.COLUMNS 
+              WHERE TABNAME=%s 
+                AND COLNAME=%s",
+            $table,
+            $col
+        );
+
+        return $commentSql;
+    }
+    
+    /**
+     * Returns an SQL statement that sets a comment on a column.
+     *
+     * @param string      $tableName       The table name
+     * @param string      $columnName      The column name
+     * @param string|null $comment         The comment to set
+     * @param string|null $fieldDefinition not required by the driver
+     * 
+     * @return string|null
+     */
+    public function setColumnCommentSql(
+        string $tableName, 
+        string $columnName, 
+        ?string $comment, 
+        ?string $fieldDefinition=null
+    ) : ?string {
+
+        $commentSql = sprintf(
+            "COMMENT ON COLUMN %s.%s IS '%s'",
+            $tableName,
+            $columnName,
+            $this->connection->addQ($comment)
+        );
+        return $commentSql;
+    }
+
+    
+    /**
+     * Gets a SQL statement to retrieve the comment for a table
+     *
+     * @param string $tableName The table name
+     * 
+     * @return string|null
+     */
+    public function getTableCommentSql(string $tableName) : ?string
+    {
+        $table = strtoupper($this->connection->qstr($tableName));
+
+        $commentSql = sprintf(
+            "SELECT REMARKS FROM SYSCAT.TABLES WHERE TABNAME=%s",
+            $table
+        );
+
+        return $commentSql;
+    }
+    
+    /**
+     * Returns an SQL statement that sets a comment on a table.
+     *
+     * @param string      $tableName       The table name
+     * @param string|null $comment         The comment to set
+     * @param string|null $fieldDefinition not required by the driver
+     * 
+     * @return string|null
+     */
+    public function setTableCommentSql(
+        string $tableName, 
+        ?string $comment, 
+        ?string $fieldDefinition=null
+    ) : ?string {
+
+        $cmt = $this->connection->qstr($comment);
+        
+        $commentSql = sprintf(
+            "COMMENT ON TABLE %s IS '%s'",
+            $tableName,
+            $this->connection->addQ($comment)
+        );
+        return $commentSql;
+    }
+
+	/**
+     * Returns an SQL statement that sets a comment on an index.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+	 * @param string $indexName The Index Name
+     * @param string $comment   The comment to set
+     * 
+     * @return string|null The SQL if supported
+     */
+    public function setIndexCommentSql(
+		string $tableName,
+		string $indexName,
+        string $comment, 
+    ) : ?string {
+   
+		$commentSql = sprintf(
+			"COMMENT ON INDEX %s IS '%s'",
+			$indexName,
+			$this->connection->addQ($comment)
+		);
+		return $commentSql;
+    }
+
+	/**
+     * Gets a SQL statement to retrieve the comment on an index.
+     * returns null if not supported by the driver.
+     *
+     * @param string $tableName The table name
+     * @param string $indexName The index name
+     * 
+     * @return string|null The index comment
+     */
+    public function getIndexCommentSql(
+		string $tableName,
+		string $indexName
+	) : ?string {
+
+		$commentSql = sprintf(
+			"SELECT REMARKS
+               FROM SYSCAT.INDEXES
+              WHERE TABNAME='%s'
+			    AND INDNAME='%s'",
+				strtoupper($tableName),
+				strtoupper($indexName)
+   		);
+
+		return $commentSql;
+    }
 }
