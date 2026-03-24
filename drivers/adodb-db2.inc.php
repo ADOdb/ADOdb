@@ -1599,7 +1599,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
       */
     function prepareSp($procedureName,$parameters=false) {
 
-        global $ADODB_FETCH_MODE;
+        //global $ADODB_FETCH_MODE;
 
         $this->storedProcedureParameters = array('name'=>'',
                                                  'resource'=>false,
@@ -1609,74 +1609,60 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
                                                  'parameters'=>array(),
                                                  'keyvalue' => array());
 
-        //$procedureName = strtoupper($procedureName);
-        //$procedureName = $this->getTableCasedValue($procedureName);
+        $qid = db2_procedures($this->_connectionID, '' , '%' , $procedureName );
 
-        $savem = $ADODB_FETCH_MODE;
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
-
-        $qid = db2_procedures($this->_connectionID, NULL , '%' , $procedureName );
-
-        $ADODB_FETCH_MODE = $savem;
-
-        if (!$qid)
+         if (!$qid)
         {
             if ($this->debug)
                 ADOConnection::outp(sprintf('No Procedure of name %s available',$procedureName));
             return false;
         }
 
-
-
         $this->storedProcedureParameters['name'] = $procedureName;
         /*
          * Now we know we have a valid procedure name, lets see if it requires
          * parameters
          */
-        $savem = $ADODB_FETCH_MODE;
-        $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-        $qid = db2_procedure_columns($this->_connectionID, NULL , '%' , $procedureName , NULL );
+        $procedureName = strtoupper($procedureName);
 
-        $ADODB_FETCH_MODE = $savem;
-
+        $qid = db2_procedure_columns($this->_connectionID, '', '%' , $procedureName , '' );    
         if (!$qid)
         {
             if ($this->debug)
                 ADOConnection::outp(sprintf('No columns of name %s available',$procedureName));
             return false;
         }
-        $rs = new ADORecordSet_db2($qid);
-        if (!$rs)
-            return false;
-
+        
         $preparedStatement = 'CALL %s(%s)';
         $parameterMarkers = array();
-        while (!$rs->EOF)
-        {
-            $parameterName = $rs->fields[3];
+        
+        while ($rs = db2_fetch_assoc($qid)) {
+
+            $parameterName = $rs['column_name'];
             if ($parameterName == '')
             {
                 $rs->moveNext();
                 continue;
             }
-            $parameterType = $rs->fields[4];
-            $ordinalPosition = $rs->fields[17];
+            $parameterType   = $rs['column_type'];
+            $ordinalPosition = $rs['ordinal_position'];
             switch($parameterType)
             {
             case DB2_PARAM_IN:
             case DB2_PARAM_INOUT:
                 $this->storedProcedureParameters['in'][$parameterName] = '';
+            if ($parameterType == DB2_PARAM_IN) {
                 break;
+            }
             case DB2_PARAM_INOUT:
             case DB2_PARAM_OUT:
                 $this->storedProcedureParameters['out'][$parameterName] = '';
                 break;
             }
             $this->storedProcedureParameters['index'][$parameterName] = $ordinalPosition;
-            $this->storedProcedureParameters['parameters'][$ordinalPosition] = $rs->fields;
-            $rs->moveNext();
-
+            $this->storedProcedureParameters['parameters'][$ordinalPosition] = array_values($rs);
+           
         }
         $parameterCount = count($this->storedProcedureParameters['index']);
         $parameterMarkers = array_fill(0,$parameterCount,'?');
@@ -1895,6 +1881,9 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         {
             if ($this->debug)
                 ADOConnection::outp("Adding parameter to stored procedure");
+
+            $name = strtoupper($name);
+
             if ($stmt[1] == $this->storedProcedureParameters['resource'])
                 return $this->storedProcedureParameter($stmt[1],
                                                         $var,
