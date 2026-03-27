@@ -1834,6 +1834,16 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 */
 	function metaType($t, $len = -1, $fieldObj = false)
 	{
+		
+		if (!$this->connection->dataDictionary) {
+			$this->connection->dataDictionary = newDataDictionary($this->connection);
+		}
+
+		/*
+		* Hand off to the data dictionary
+		*/
+		return $this->connection->dataDictionary->metaTables($t, $len, $fieldObj);
+
 		if (is_object($t)) {
 			$fieldObj = $t;
 			$t = $fieldObj->type;
@@ -1954,6 +1964,12 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 	 */
 	function MetaType($t, $len = -1, $fieldObj = false)
 	{
+		
+		if (!$this->connection->dataDictionary) {
+			$this->connection->dataDictionary = newDataDictionary($this->connection);
+		}
+		return $this->connection->dataDictionary->metaTables($t, $len, $fieldObj);
+		
 		if (is_object($t)) {
 			$fieldObj = $t;
 			$t = $fieldObj->type;

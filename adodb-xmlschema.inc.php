@@ -1979,7 +1979,8 @@ class adoSchema {
 						// this stops the creation of 'R' columns,
 						// AUTOINCREMENT is used to create auto columns
 						$details->primary_key = 0;
-						$type = $rs->MetaType( $details );
+						//$type = $rs->MetaType( $details );
+						$type = $this->dict->MetaType( $details );
 
 						$schema .= '		<field name="' . $details->name . '" type="' . $type . '"' . $extra . '>';
 
