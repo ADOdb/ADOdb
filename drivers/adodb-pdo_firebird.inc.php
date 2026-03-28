@@ -2,7 +2,7 @@
 /**
  * PDO Firebird driver
  *
- * This version has only been tested on Firebird 3.0 and PHP 7
+ * This version has been tested on Firebird 3.0 and 4.0 and PHP 7
  *
  * This file is part of ADOdb, a Database Abstraction Layer library for PHP.
  *
@@ -33,6 +33,10 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 	public $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position";
 
 	var $arrayClass = 'ADORecordSet_array_pdo_firebird';
+
+
+
+	function _init($parentDriver){}
 
 	/**
 	 * Gets the version information from the server
@@ -71,9 +75,21 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 	 */
 	public function metaTables($ttype = false, $showSchema = false, $mask = false)
 	{
-		return ADOConnection::MetaTables($ttype, $showSchema);
+		$ret = ADOConnection::MetaTables($ttype, $showSchema);
+
+		return $ret;
 	}
 
+	/**
+	 * List columns in a database as an array of ADOFieldObjects.
+	 * See top of file for definition of object.
+	 *
+	 * @param $table	table name to query
+	 * @param $normalize	makes table name case-insensitive (required by some databases)
+	 * @schema is optional database schema to use - not supported by all databases.
+	 *
+	 * @return  array of ADOFieldObjects for current table.
+	 */
 	public function metaColumns($table, $normalize = true)
 	{
 		global $ADODB_FETCH_MODE;
@@ -81,10 +97,11 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 
-		$rs = $this->Execute(sprintf($this->metaColumnsSQL, strtoupper($table)));
+		$this->setFetchMode(ADODB_FETCH_NUM);
+		$rs = $this->execute(sprintf($this->metaColumnsSQL, strtoupper($table)));
 
 		$ADODB_FETCH_MODE = $save;
-
+		$this->setFetchMode($save);
 		if ($rs === false) {
 			return false;
 		}
@@ -144,6 +161,23 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 		}
 	}
 
+	/**
+	 * List indexes on a table as an array.
+	 * @param table  table name to query
+	 * @param primary true to only show primary keys. Not actually used for most databases
+	 *
+	 * @return array of indexes on current table. Each element represents an index, and is itself an associative array.
+	 *
+	 * Array(
+	 *   [name_of_index] => Array(
+	 *     [unique] => true or false
+	 *     [columns] => Array(
+	 *       [0] => firstname
+	 *       [1] => lastname
+	 *     )
+	 *   )
+	 * )
+	 */
 	public function metaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
@@ -199,6 +233,18 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 		return $indexes;
 	}
 
+	/**
+	 * Return a list of Primary Keys for a specified table
+	 *
+	 * We don't use db2_statistics as the function does not seem to play
+	 * well with mixed case table names
+	 *
+	 * @param string   $table
+	 * @param bool     $primary    (optional) only return primary keys
+	 * @param bool     $owner      (optional) not used in this driver
+	 *
+	 * @return string[]    Array of indexes
+	 */
 	public function metaPrimaryKeys($table, $owner_notused = false, $internalKey = false)
 	{
 		if ($internalKey) {
@@ -219,6 +265,14 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 		return false;
 	}
 
+	/**
+	 * Creates a sequence starting at the required number
+	 * 
+	 * @param	string	$seqname
+	 * @param	int		$startID
+	 * 
+	 * @return bool success
+	 */
 	public function createSequence($seqname = 'adodbseq', $startID = 1)
 	{
 		$ok = $this->execute("CREATE SEQUENCE $seqname");
@@ -229,12 +283,17 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 		return $this->execute("ALTER SEQUENCE $seqname RESTART WITH " . ($startID - 1));
 	}
 
-	public function dropSequence($seqname = 'adodbseq')
-	{
-		$seqname = strtoupper($seqname);
-		return $this->Execute("DROP SEQUENCE $seqname");
-	}
-
+	
+	/**
+	 * Generates a sequence id and stores it in $this->genID.
+	 *
+	 * GenID is only available if $this->hasGenID = true;
+	 *
+	 * @param string $seqname Name of sequence to use
+	 * @param int    $startID If sequence does not exist, start at this ID
+	 *
+	 * @return int Sequence id, 0 if not supported
+	 */
 	public function genId($seqname = 'adodbseq', $startID = 1)
 	{
 		$getnext = ("SELECT Gen_ID($seqname,1) FROM RDB\$DATABASE");
@@ -257,6 +316,17 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 		return $this->genID;
 	}
 
+	/**
+	 * Select a limited number of rows.
+	 *
+	 * @param string     $sql
+	 * @param int        $offset     Row to start calculations from (1-based)
+	 * @param int        $nrows      Number of rows to get
+	 * @param array|bool $inputarr   Array of bind variables
+	 * @param int        $secs2cache Private parameter only used by jlim
+	 *
+	 * @return ADORecordSet The recordset ($rs->databaseType == 'array')
+	 */
 	public function selectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs = 0)
 	{
 		$nrows = (int)$nrows;
