@@ -3671,11 +3671,15 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @param bool   $magic_quotes This param is not used since 5.21.0.
 	 *                             It remains for backwards compatibility.
 	 *
-	 * @return string Quoted string
+	 * @return null|string Quoted string
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
 	function addQ($s, $magic_quotes=false) {
+		
+		if (!$s) {
+			return $s;
+		}
 		if ($this->replaceQuote[0] == '\\') {
 			$s = str_replace(
 				array('\\', "\0"),
