@@ -665,10 +665,13 @@ class ADODB_pdo extends ADOConnection {
 	 * @param bool   $magic_quotes This param is not used since 5.21.0.
 	 *                             It remains for backwards compatibility.
 	 *
-	 * @return string Quoted string
+	 * @return null|string Quoted string
 	 */
 	function qStr($s, $magic_quotes = false)
 	{
+		if (!$s) {
+			return $s;
+		}
 		if ($this->_connectionID) {
 			return $this->_connectionID->quote($s);
 		}
