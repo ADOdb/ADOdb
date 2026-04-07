@@ -142,7 +142,7 @@ class ADODB_Active_Record
 
 	public function __set($name, $value)
 	{
-		$name = str_replace(' ', '_', $name);
+		$name = strtolower(str_replace(' ', '_', $name));
 		$this->$name = $value;
 	}
 
@@ -886,7 +886,8 @@ class ADODB_Active_Record
 		$valstr = array();
 
 		foreach ($table->flds as $name => $fld) {
-			$val = $this->$name;
+			$propname = strtolower($name);
+			$val = $this->$propname;
 			if(!is_array($val) || !array_key_exists($name, $table->keys)) {
 				$valarr[] = $val;
 				$names[] = $this->nameQuoter($db, $name);
@@ -981,7 +982,8 @@ class ADODB_Active_Record
 		$pkey = $table->keys;
 
 		foreach ($table->flds as $name => $fld) {
-			$val = $this->$name;
+			$propname = strtolower($name);
+			$val = $this->$propname;
 			/*
 			if (is_null($val)) {
 				if (isset($fld->not_null) && $fld->not_null) {
@@ -1082,7 +1084,8 @@ class ADODB_Active_Record
 		$cnt = 0;
 		foreach ($table->flds as $name => $fld) {
 			$orig = $this->_original[$i++] ?? null;
-			$val = $this->$name;
+			$propname = strtolower($name);
+			$val = $this->$propname;
 			$neworig[] = $val;
 
 			if (isset($table->keys[$name]) || is_array($val)) {
