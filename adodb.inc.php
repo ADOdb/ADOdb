@@ -2685,9 +2685,12 @@ if (!defined('_ADODB_LAYER')) {
 		}
 
 		$rs = $this->SelectLimit($sql, 1);
-		if (!$rs || $mode == DB_AUTOQUERY_UPDATE && $rs->EOF) {
-			// Table does not exist or udpate where clause matches no rows
+		if (!$rs) {
+			// Table does not exist
 			return false;
+		} elseif ($mode == DB_AUTOQUERY_UPDATE && $rs->EOF) {
+			// where clause for update matches no rows, we can abort early
+			return true;
 		}
 
 		$rs->tableName = $table;
