@@ -549,9 +549,44 @@ if (!defined('_ADODB_LAYER')) {
 	var $true = '1';			/// string that represents TRUE for a database
 	var $false = '0';			/// string that represents FALSE for a database
 	var $replaceQuote = "\\'";	/// string to use to replace quotes
+	
+	// Items to remove after implementation of new field quoting
+	
 	var $nameQuote = '"';		/// string to use to quote identifiers and names
 	var $leftBracket = '[';		/// left square bracked for t-sql styled column names
 	var $rightBracket = ']';	/// right square bracked for t-sql styled column names
+	
+	const QUOTE_NONE     = 0; /// some_field
+	const QUOTE_SINGLE   = 1; /// 'some_field'
+    const QUOTE_BRACKETS = 2; /// [some_field]
+	
+	protected $elementQuotes     = array('',''); /// default empty style for quoting elements
+	protected $fallbackQuotes    = array('',''); /// fallback style for items is mapped quoteStyles[1]
+	
+	// Used if we need to **force** quoting around a field even though quotes are not used
+	protected $defaultQuoteStyle = 1;
+	
+	/*
+	* Creates a sane representation of quoting. 
+	* Array [0] is the unquoted value
+	* Array [1] is the normal quoting method for the database,
+	* So this changes from one DB to another.
+	* Any index higher than that means that the database has multiple
+	* methods of quoting elements
+	*/
+	protected $quoteStyles = array(
+		array('',''),
+		array('"','"')
+		);
+	
+    // Default casing for columns, tables etc is nativee unchanged 	
+	protected $elementCase = 0;
+	
+	const ELEMENTCASE_DEFAULT  =  0;
+	const ELEMENTCASE_LOWER    =  1;
+	const ELEMENTCASE_UPPER    =  2;
+	
+	
 	var $charSet=false;			/// character set to use - only for interbase, postgres and oci8
 
 	/** @var string SQL statement to get databases */
@@ -800,7 +835,90 @@ if (!defined('_ADODB_LAYER')) {
 		$this->connectionParameters[] = array($parameter=>$value);
 		return true;
 	}
+	
+	/**
+	* Sets the style that surrounds the column and table names
+	*
+	* @param int	The quote style
+	*
+	* @return bool whether the set succeeded
+	*/
+	public function setQuoteStyle($styleNumber=0){
+		
+		if (!is_integer($styleNumber))
+			return false;
 
+		if (!array_key_exists($styleNumber,$this->quoteStyles))
+		{
+			// Sets any invalid number to the default quoted value
+			$styleNumber = 1;
+		}
+		
+		$this->elementQuotes = $this->quoteStyles[$styleNumber];
+		
+		/// @todo Set this separately
+		if ($styleNumber == 0)
+			// If we reset the quoting, we need to reset the fallback
+			$this->fallbackQuotes = $this->quoteStyles[$this->defaultQuoteStyle];
+		else
+			
+			$this->fallbackQuotes = $this->quoteStyles[$styleNumber];
+		return true;
+		
+	}
+	
+	/**
+	* Returns the elementQuotes and fallbackQuotes
+	*
+	* @return list
+	*/
+	public function getElementQuotes()
+	{
+		return array($this->elementQuotes,$this->fallbackQuotes);
+	}
+	
+	/**
+	* Returns the available quoting styles
+	*
+	* @return string
+	*/
+	public function getQuoteStyles()
+	{
+		return $this->quoteStyles;
+	}
+	
+	/**
+	* Sets the casing of the columns and tables for getUpdateSql
+	*
+	* @param int	The quote style
+	*
+	* @return bool whether the set succeeded
+	*/
+	public function setElementCase($styleNumber=0){
+		
+		if (!is_integer($styleNumber))
+			return false;
+
+		if ($styleNumber < 0 || $styleNumber > 2)
+			return false;
+		
+		$this->elementCase = $styleNumber;
+		
+		return true;
+		
+	}
+	
+	/**
+	* Returns the casing of the columns and tables for getUpdateSql 
+	*
+	* @return int The quote style
+	*/
+	public function getElementCase(){
+	
+		return $this->elementCase;
+
+	}
+	
 	/**
 	 * ADOdb version.
 	 *
