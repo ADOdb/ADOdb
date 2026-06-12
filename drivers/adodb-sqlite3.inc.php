@@ -116,6 +116,13 @@ class ADODB_sqlite3 extends ADOConnection
     public $_dropSeqSQL = 'DROP TABLE %s';
 
     /**
+     * Does the driver support bound queries
+     *
+     * @var boolean
+     */
+    public $_bindInputArray = true;
+
+    /**
      * The SQLite3 connection resource
      *
      * @var SQLite3
@@ -301,7 +308,7 @@ class ADODB_sqlite3 extends ADOConnection
             $savem = $this->SetFetchMode(false);
         }
 
-        $rs = $this->execute("PRAGMA table_info(?)", array($table));
+        $rs = $this->execute("PRAGMA table_info($table)");
 
         if (isset($savem)) {
             $this->SetFetchMode($savem);
@@ -547,12 +554,41 @@ class ADODB_sqlite3 extends ADOConnection
      * Executes a query on the SQLite database
      *
      * @param string $sql      The SQL query to execute
-     * @param mixed  $inputarr An array of input parameters (not used)
+     * @param mixed  $inputarr An optional array of input parameters
      *
      * @return SQLite3Result|bool The result set or true on success, false on failure
      */
     public function _query($sql, $inputarr = false)
     {
+        /*
+        * Build parameterized query if input array is provided
+        */
+        if (is_array($inputarr) && count($inputarr) > 0) {
+            $stmt = $this->_connectionID->prepare($sql);
+            if ($stmt === false) {
+                $this->lastError();
+                return false;
+            }
+
+            $paramIndex = 1;
+            foreach ($inputarr as $param) {
+                $stmt->bindValue($paramIndex, $param);
+                $paramIndex++;
+            }
+
+            $rez = $stmt->execute();
+            if ($rez === false) {
+                $this->lastError();
+                return false;
+            } elseif ($rez->numColumns() == 0) {
+                // If no data was returned, we don't need to create a real recordset
+                $rez->finalize();
+                $rez = true;
+            }
+
+            return $rez;
+        }
+
         $rez = $this->_connectionID->query($sql);
         if ($rez === false) {
             $this->lastError();
@@ -697,6 +733,20 @@ class ADODB_sqlite3 extends ADOConnection
     public function _close()
     {
         return $this->_connectionID->close();
+    }
+
+    /**
+     * Returns a parameter for a bound query. SQLite uses an OCI
+     * style placeholder
+     *
+     * @param string $name The name for the placeholder
+     * @param string $type unused for driver
+     *
+     * @return void
+     */
+    function param($name, $type = 'C')
+    {
+        return ':' . $name;
     }
 
     /**
