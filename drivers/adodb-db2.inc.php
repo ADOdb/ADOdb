@@ -852,7 +852,7 @@ class ADODB_db2 extends ADOConnection {
         $schema = '';
         $this->_findschema($table,$schema);
 
-        $metaTables = $this->metaTables('T','',$table);
+        $metaTables = $this->metaTables('T', $owner, $table);
 
         if ($metaTables == false) {
             return false;
@@ -881,6 +881,9 @@ class ADODB_db2 extends ADOConnection {
         foreach ($results as $r)
         {
 
+            $r = array_change_key_case($r, CASE_UPPER);
+           
+            
             /*
 
             [CONSTNAME] => SQL250829011849680
@@ -900,22 +903,46 @@ class ADODB_db2 extends ADOConnection {
             [DEFINER] => DB2INST1
         )
             */
-            $referenceTable = trim($r['REFTABNAME']);
 
-            if (!array_key_exists($referenceTable,$foreignKeys)) {
+            $casing = $upper ? CASE_UPPER : CASE_LOWER;
+            
+            $referenceTable = trim($r['REFTABNAME']);
+            
+            if ($casing == CASE_UPPER) {
+                $referenceTable = strtoupper($referenceTable);
+            } else {  
+                $referenceTable = strtolower($referenceTable);
+            }
+            
+            if (!array_key_exists($referenceTable, $foreignKeys)) {
                 $foreignKeys[$referenceTable] = array();
             }
-            $pkColnames = array_filter(preg_split('/ +/', $r['PK_COLNAMES']));
+
+            $pkColnames = array_filter(preg_split('/ +/', $r['PK_COLNAMES']) );
             $fkColnames = array_filter(preg_split('/ +/', $r['FK_COLNAMES']));
 
-            foreach ($pkColnames as $i=>$pkColname) {
+            foreach ($pkColnames as $i => $pkColname) {
 
                 $pkColname = trim($pkColname);
                 $fkColname = trim($fkColnames[$i]);
-                if ($baseFetchMode == ADODB_FETCH_ASSOC) {
-                    $foreignKeys[$referenceTable][$pkColname] = $fkColname;
+                
+                if ($casing == CASE_UPPER) {
+                    $pkColname      = strtoupper($pkColname);
+                    $fkColname      = strtoupper($fkColname);           
                 } else {
-                    $foreignKeys[$referenceTable][] = sprintf('%s=%s',$pkColname,$fkColname);
+                    $pkColname      = strtolower($pkColname);
+                    $fkColname      = strtolower($fkColname);
+                }
+                
+                if ($baseFetchMode == ADODB_FETCH_ASSOC || $associative) {
+                    $foreignKeys[$referenceTable][$fkColname] = $pkColname;
+                
+                } else {
+                    $foreignKeys[$referenceTable][] = sprintf(
+                        '%s=%s',
+                        $fkColname,
+                        $pkColname
+                    );
                 }
 
             }
@@ -1056,9 +1083,14 @@ class ADODB_db2 extends ADOConnection {
         $indices 		= array();
         $primaryKeyName = '';
 
-        $table = $this->getTableCasedValue($table);
+        $table = $this->metaTables('T','',$table);
+        
+        if ($table == false) {
+            return false;
+        }
 
-
+        $table = $table[0];
+        
         $savem 			  = $ADODB_FETCH_MODE;
         $ADODB_FETCH_MODE = ADODB_FETCH_NUM;
         $this->setFetchMode(ADODB_FETCH_NUM);
@@ -1072,23 +1104,24 @@ class ADODB_db2 extends ADOConnection {
         $this->setFetchMode($savem);
         $ADODB_FETCH_MODE = $savem;
 
-        if (empty($rows))
+        if (empty($rows)) {
             return false;
+        }
+        
 
-        foreach ($rows as $r)
-        {
+        foreach ($rows as $r) {
 
-            $primaryIndex = $r[7] == 'P'?1:0;
-            if (!$primary)
+            $primaryIndex = $r[7] == 'P' ? 1 : 0;
+            if (!$primary) {
                 /*
                  * Primary key not requested, ignore that one
                  */
-                if ($r[7] == 'P')
+                if ($r[7] == 'P') {
                     continue;
-
+                }
+            }
             $indexName = $this->getMetaCasedValue($r[1]);
-            if (!isset($indices[$indexName]))
-            {
+            if (!isset($indices[$indexName])) {
                 $unique = ($r[7] == 'U')?1:0;
                 $indices[$indexName] = array('unique'=>$unique,
                                              'primary'=>$primaryIndex,
@@ -1096,10 +1129,10 @@ class ADODB_db2 extends ADOConnection {
                                         );
             }
             $cols = explode('+',$r[6]);
-            foreach ($cols as $colIndex=>$col)
-            {
-                if ($colIndex == 0)
+            foreach ($cols as $colIndex => $col) {
+                if ($colIndex == 0) {
                     continue;
+                }
                 $columnName = $this->getMetaCasedValue($col);
                 $indices[$indexName]['columns'][] = $columnName;
             }
@@ -1308,7 +1341,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
         //$table = $this->getTableCasedValue($table);
         $colname = "%";
-        $qid = db2_columns($this->_connectionID, null, $schema, $table, $colname);
+        $qid = db2_columns($this->_connectionID, '', $schema, $table, $colname);
         if (empty($qid))
         {
             if ($this->debug)
@@ -2031,10 +2064,10 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         switch($ADODB_ASSOC_CASE)
         {
         case ADODB_ASSOC_CASE_LOWER:
-            $value = strtolower($value);
+            $value = strtolower($value ?? '');
             break;
         case ADODB_ASSOC_CASE_UPPER:
-            $value = strtoupper($value);
+            $value = strtoupper($value ?? '');
             break;
         }
         return $value;
