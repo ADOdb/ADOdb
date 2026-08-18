@@ -1248,7 +1248,7 @@ class ADODB_mysqli extends ADOConnection {
 	{
 		$typeString = '';
 		foreach ($inputArr as $v) {
-			if (is_integer($v) || is_bool($v)) {
+			if (is_int($v) || is_bool($v)) {
 				$typeString .= 'i';
 			} elseif (is_float($v)) {
 				$typeString .= 'd';
@@ -1301,7 +1301,7 @@ class ADODB_mysqli extends ADOConnection {
 			$a = '';
 			foreach($inputarr as $v) {
 				if (is_string($v)) $a .= 's';
-				else if (is_integer($v)) $a .= 'i';
+				else if (is_int($v)) $a .= 'i';
 				else $a .= 'd';
 			}
 
