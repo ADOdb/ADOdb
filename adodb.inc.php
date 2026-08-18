@@ -5379,7 +5379,7 @@ class ADORecordSet implements IteratorAggregate {
 
 		// Change the case
 		foreach($this->fields as $k => $v) {
-			if (!is_integer($k)) {
+			if (!is_int($k)) {
 				$k = $fn_change_case($k);
 			}
 			$arr[$k] = $v;
