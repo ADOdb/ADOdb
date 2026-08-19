@@ -123,6 +123,8 @@ END;
 	var $datetime = false; // MetaType('DATE') returns 'D' (datetime==false) or 'T' (datetime == true)
 	var $_refLOBs = array();
 
+	public $hasInsertID = true;
+
 	/*
 	 * Legacy compatibility for sequence names for emulated auto-increments
 	 */
@@ -137,6 +139,18 @@ END;
 	 * Defines the prefix for emulated auto-increment columns
 	 */
 	public $seqPrefix = 'SEQ_';
+
+	/**
+	 * Stores information about trigger based auto-increments
+	 * The !last-insertid element holds the last known insert
+	 * id across all tables similar to the MySQL connection
+	 * based instancess
+	 *
+	 * @var array
+	 */
+	public array $tableSequenceData = [
+		'!last-insertid' => false
+	];
 
 	/*  function MetaColumns($table, $normalize=true) added by smondino@users.sourceforge.net*/
 	function MetaColumns($table, $normalize=true)
@@ -366,36 +380,29 @@ END;
 		return " NVL($field, $ifNull) "; // if Oracle
 	}
 
+	/**
+	 * Return the id of the last row that has been inserted in a table.
+	 *
+	 * @param string $table  Optional table. Otherwise returns last 
+	 *                       value from any table
+	 * @param string $column Not used by Oracle driver 
+	 *
+	 * @return int|false
+	 */
 	protected function _insertID($table = '', $column = '')
 	{
-		if ($this->schema)
-		{
-			$t = strpos($table,'.');
-			if ($t !== false)
-				$tab = substr($table,$t+1);
-			else
-				$tab = $table;
-
-			if ($this->useCompactAutoIncrements)
-				$tab = sprintf('%u',crc32(strtolower($tab)));
-
-			$seqname = $this->schema.'.'.$this->seqPrefix.$tab;
-		}
-		else
-		{
-			if ($this->useCompactAutoIncrements)
-				$table = sprintf('%u',crc32(strtolower($table)));
-
-			$seqname = $this->seqPrefix.$table;
-		}
-
-		if (strlen($seqname) > 30)
+	
+		if (!$table) {
 			/*
-			* We cannot successfully identify the sequence
+			* Global is only retrievable once
 			*/
-			return false;
+			$lastInsertId = $this->tableSequenceData['!last-insertid'];
+			$this->tableSequenceData['!last-insertid'] = false; 
+			return $lastInsertId;
+		}
 
-		return $this->getOne("SELECT $seqname.currval FROM dual");
+		$tData = $this->locateInsertSequenceFromTrigger($table);
+		return $tData['insertid'];
 	}
 
 	// format and return date string in database date format
@@ -1353,7 +1360,10 @@ END;
 	 */
 	function _query($sql,$inputarr=false)
 	{
+		$sqlIsArray = false;
 		if (is_array($sql)) { // is prepared sql
+			$sqlIsArray = true;
+
 			$stmt = $sql[1];
 
 			// we try to bind to permanent array, so that oci_bind_by_name is persistent
@@ -1380,7 +1390,7 @@ END;
 		$this->_stmt = $stmt;
 		if (!$stmt) {
 			return false;
-		}
+		}	
 
 		if (defined('ADODB_PREFETCH_ROWS')) {
 			@oci_set_prefetch($stmt,ADODB_PREFETCH_ROWS);
@@ -1464,13 +1474,130 @@ END;
 						}
 					}
 					return $stmt;
+				case 'INSERT':
+					if ($sqlIsArray == true) {
+						return true;
+					}
+					$t = array_filter(preg_split('/[ "\'\(]+/', $sql));
+					
+					if (strcasecmp($t[0], 'insert') == 0 && strcasecmp($t[1], 'into') == 0) {
+						$tableName = $t[2];
+						if ($tableName) {
+							$this->locateInsertSequenceFromTrigger($tableName);
+						}
+					}
 				default :
-
+					
 					return true;
 			}
 		}
 		return false;
 	}
+
+	/**
+	 * When passed a table name, locates the sequence holding the
+	 * auto-increment value by identifying an on-insert trigger
+	 * associated with the column being used as the auto-increment
+	 *
+	 * @param string $tableName The lookup table
+	 * 
+	 * @return string[]
+	 */
+	protected function locateInsertSequenceFromTrigger(string $tableName) : array {
+		
+		global $ADODB_FETCH_MODE;
+		
+		$tableName = strtoupper($tableName);
+			
+		if (array_key_exists(strtoupper($tableName), $this->tableSequenceData)) {
+			$tData = $this->tableSequenceData[$tableName];
+
+			if ($tData['active'] == 0) {
+				/*
+				* Found an inactive trigger before, no point continuing
+				*/
+				return $tData;
+			};
+			
+			$seqname = $tData['sequence'];
+			$sql     = "SELECT $seqname.currval FROM dual";
+			$tData['insertid'] = $this->getOne($sql);
+			$this->tableSequenceData[$tableName] = $tData;
+			$this->tableSequenceData['!last-insertid'] = $tData['insertid'];
+			return $tData;
+		}
+		
+		$tData = [
+			'sequence' => '',
+			'trigger'  => '',
+			'column'   => '',
+			'insertid' => 0,
+			'active'   => 0  
+		];
+
+		$saveModes = [
+			$ADODB_FETCH_MODE,
+			$this->fetchMode
+		];
+
+		$this->SetFetchMode(ADODB_FETCH_ASSOC);
+	
+		$p1 = $this->param('p1');
+		$bind = array('p1' => $tableName);
+
+		$sql = "SELECT *
+			      FROM all_triggers 
+		         WHERE table_name=$p1
+				   AND triggering_event='INSERT'
+				   AND trigger_type='BEFORE EACH ROW'
+				   AND status='ENABLED'";
+
+		$result = $this->execute($sql,$bind);
+		$triggerCount = $result->recordCount();
+
+		if ($triggerCount == 0) {
+			/*
+			* No triggers set on column
+			*/
+			$ADODB_FETCH_MODE = $saveModes[0];
+			$this->SetFetchMode($saveModes[1]);
+
+			$this->tableSequenceData[$tableName] = $tData;
+			return $tData;
+		} else while ($triggerRecord = $result->fetchRow()) {
+			if (stripos($triggerRecord['trigger_body'], '.nextval') === false) {
+				continue;
+			}
+			break;
+		}
+		$ADODB_FETCH_MODE = $saveModes[0];
+		$this->SetFetchMode($saveModes[1]);
+
+		if (!$triggerRecord) {
+			/*
+			* There are triggers, but none that meet our needs
+			*/
+			$this->tableSequenceData[$tableName] = $tData;
+			return $tData;
+		}
+
+		$triggerData = explode(' ', $triggerRecord['trigger_body']);
+		
+		$tData['sequence']  = str_replace('.nextval', '', $triggerData[2]);
+		$tData['columnn']   = str_replace(':new', '', $triggerData[4]);
+		$tData['trigger']   = $triggerRecord['trigger_name'];
+		$tData['active']    = 1;
+
+		$seqname = $tData['sequence'];
+		$sql = "SELECT $seqname.currval FROM dual";
+		$tData['insertid'] = $this->getOne($sql);
+
+		$this->tableSequenceData[$tableName] = $tData;
+		$this->tableSequenceData['!last-insertid'] = $tData['insertid'];
+		return $tData;
+	}
+		
+	
 
 	// From Oracle Whitepaper: PHP Scalability and High Availability
 	function IsConnectionError($err)
