@@ -466,18 +466,8 @@ class ADODB_Active_Record
 			$this->Error("Invalid table name: $table", 'UpdateActiveTable');
 			return false;
 		}
-		$fld = reset($cols);
 		if (!$pkeys) {
-			if (isset($fld->primary_key)) {
-				$pkeys = array();
-				foreach ($cols as $name => $fld) {
-					if (!empty($fld->primary_key)) {
-						$pkeys[] = $name;
-					}
-				}
-			} else {
-				$pkeys = $this->GetPrimaryKeys($db, $table);
-			}
+			$pkeys = $db->metaPrimaryKeys($table);
 		}
 		if (empty($pkeys)) {
 			$this->Error("No primary key found for table $table", 'UpdateActiveTable');
