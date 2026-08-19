@@ -790,7 +790,8 @@ class ADODB_Active_Record
 			$f = $table->flds[$k];
 			if ($f) {
 				$columnName = $this->nameQuoter($db, $k);
-				$parr[] = $columnName . ' = ' . $this->doQuote($db, $this->$k, $db->MetaType($f->type));
+				//$parr[] = $columnName . ' = ' . $this->doQuote($db, $this->$k, $db->MetaType($f->type));
+				$parr[] = $columnName . ' = ' . $this->doQuote($db, $this->$k, $db->MetaType($f));
 			}
 		}
 		return implode(' AND ', $parr);

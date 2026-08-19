@@ -45,16 +45,23 @@ class ADODB2_oci8 extends ADODB_DataDict {
 
 	function metaType($t, $len=-1, $fieldobj=false)
 	{
+		$scale = false;
 		if (is_object($t)) {
 			$fieldobj = $t;
-			$t = $fieldobj->type;
-			$len = $fieldobj->max_length;
 		}
-		
+		if (is_object($fieldobj)) {
+			$t     = $fieldobj->type;
+			$len   = $fieldobj->max_length;
+			$scale = $fieldobj->scale;
+		}
+
 		$t = strtoupper($t);
 		
-		if (array_key_exists($t,$this->connection->customActualTypes))
+		if (array_key_exists($t,$this->connection->customActualTypes)) {
 			return  $this->connection->customActualTypes[$t];
+		}
+
+
 
 		switch ($t) {
 	 	case 'VARCHAR':
@@ -63,7 +70,12 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		case 'VARBINARY':
 		case 'BINARY':
 			if (isset($this) && $len <= $this->blobSize) return 'C';
+		
 			return 'X';
+		case 'LONG':
+			return $this->typeX;
+		case 'RAW':
+			return $this->typeXL;
 
 		case 'NCHAR':
 		case 'NVARCHAR2':
@@ -73,6 +85,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 
 		case 'NCLOB':
 		case 'CLOB':
+		case 'BFILE':
 			return 'XL';
 
 		case 'LONG RAW':
@@ -87,10 +100,31 @@ class ADODB2_oci8 extends ADODB_DataDict {
 			return 'T';
 
 		case 'INT':
+			if ($scale == 1) {
+				return 'L';
+			} else if ($scale == 3) {
+				return 'I1';
+			} else if ($scale == 5) {
+				return 'I2';
+			} else if ($scale == 10) {
+				return 'I4';
+			} else if ($scale == 20) {
+				return 'I';
+			} else if ($scale == 38) {
+				return 'I8';
+			}
 		case 'SMALLINT':
 		case 'INTEGER':
 			return 'I';
 
+		case 'NUMBER':
+			if ($scale == 63) {
+				return 'R';
+			}
+			if ($scale == 126) {
+				return 'F';
+			}
+			return 'N';
 		default:
 			return ADODB_DEFAULT_METATYPE;
 		}
@@ -104,9 +138,10 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		* Add support for custom meta types. We do this
 		* first, that allows us to override existing types
 		*/
-		if (isset($this->connection->customMetaTypes[$meta]))
+		if (isset($this->connection->customMetaTypes[$meta])){
 			return $this->connection->customMetaTypes[$meta]['actual'];
-		
+		}
+
 		switch($meta) {
 		case 'C': return 'VARCHAR';
 		case 'X': return $this->typeX;
@@ -125,13 +160,13 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		case 'L': return 'NUMBER(1)';
 		case 'I1': return 'NUMBER(3)';
 		case 'I2': return 'NUMBER(5)';
-		case 'I':
+		case 'I': return  'NUMBER(20)';
 		case 'I4': return 'NUMBER(10)';
 
-		case 'I8': return 'NUMBER(20)';
-		case 'F': return 'NUMBER';
+		case 'I8': return 'NUMBER(38)';
+		case 'F': return 'FLOAT(126)';
 		case 'N': return 'NUMBER';
-		case 'R': return 'NUMBER(20)';
+		case 'R': return 'FLOAT(63)';
 		default:
 			return $meta;
 		}

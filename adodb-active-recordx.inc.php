@@ -797,7 +797,8 @@ class ADODB_Active_Record
 		foreach ($keys as $k) {
 			$f = $table->flds[$k];
 			if ($f) {
-				$parr[] = $k . ' = ' . $this->doQuote($db, $this->$k, $db->MetaType($f->type));
+				//$parr[] = $k . ' = ' . $this->doQuote($db, $this->$k, $db->MetaType($f->type));
+				$parr[] = $k . ' = ' . $this->doQuote($db, $this->$k, $db->MetaType($f));
 			}
 		}
 		return implode(' and ', $parr);
