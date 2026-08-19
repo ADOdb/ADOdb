@@ -1139,8 +1139,9 @@ class ADODB_Active_Record
 	/**
 	 * Quotes the table, column and field names.
 	 *
-	 * This honours the internal {@see $_quoteNames} property, which overrides
-	 * the global $ADODB_QUOTE_FIELDNAMES directive.
+	 * This uses the standard _adodb_quote_fieldname() settings, and ignores 
+	 * the internal {@see $_quoteNames} property, and the global 
+	 * $ADODB_QUOTE_FIELDNAMES directive.
 	 *
 	 * @param ADOConnection $db The database connection
 	 * @param string $name The table or column name to quote
@@ -1149,16 +1150,21 @@ class ADODB_Active_Record
 	 */
 	private function nameQuoter($db, $name)
 	{
-		global $ADODB_QUOTE_FIELDNAMES;
-
-		$save = $ADODB_QUOTE_FIELDNAMES;
-		$ADODB_QUOTE_FIELDNAMES = $this->_quoteNames;
-
-		$string = _adodb_quote_fieldname($db, $name);
-
-		$ADODB_QUOTE_FIELDNAMES = $save;
-
-		return $string;
+		if (isset($this->_quoteNames) && $this->_quoteNames && $db->debug)
+		{
+			$msg = "
+Warning: The class variable '_quoteNames' has been deprecated and will be
+removed in the next release. Control field casing and quoting using 
+ADOConnection::setQuoteStyle() and ADOConnection::setElementCase()
+To match your setting, both quoteStyle and elementCase were set to 1
+To control this manually, remove your _quoteNames setting";
+			ADOConnection::outp($msg);
+			$db->setElementCase(1);
+			$db->setQuoteStyle(1);
+			
+		}
+		
+		return _adodb_quote_fieldname($db, $name);
 	}
 
 }
