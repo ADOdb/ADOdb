@@ -248,7 +248,9 @@ class dbTable extends dbObject {
 	var $drop_table;
 
 	/**
-	 * @var boolean Mark field for destruction (not yet implemented)
+	 * Mark field for destruction
+	 * 
+	 * @var array
 	 * @access private
 	 */
 	var $drop_field = array();
@@ -272,6 +274,7 @@ class dbTable extends dbObject {
 	 * @param array $attributes Array of table attributes.
 	 */
 	function __construct( $parent, $attributes = NULL ) {
+
 		$this->parent = $parent;
 		$this->name = $this->prefix($attributes['NAME']);
 	}
@@ -284,18 +287,18 @@ class dbTable extends dbObject {
 	 */
 	function _tag_open( $parser, $tag, $attributes ) {
 		$this->currentElement = strtoupper( $tag );
-
+		
 		switch( $this->currentElement ) {
 			case 'INDEX':
 				if( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) ) {
 					$index = $this->addIndex( $attributes );
-					xml_set_object( $parser,  $index );
+
 				}
 				break;
 			case 'DATA':
 				if( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) ) {
 					$data = $this->addData( $attributes );
-					xml_set_object( $parser, $data );
+
 				}
 				break;
 			case 'DROP':
@@ -346,6 +349,7 @@ class dbTable extends dbObject {
 	 * @access private
 	 */
 	function _tag_cdata( $parser, $cdata ) {
+
 		switch( $this->currentElement ) {
 			// Table or field comment
 			case 'DESCR':
@@ -386,9 +390,18 @@ class dbTable extends dbObject {
 
 		switch( strtoupper( $tag ) ) {
 			case 'TABLE':
-				$this->parent->addSQL( $this->create( $this->parent ) );
-				xml_set_object( $parser, $this->parent );
-				$this->destroy();
+				$makeTable = $this->create( $this->parent);
+				$this->parent->addSQL( $makeTable);
+	
+				/*
+				* This is the closing tag for the parent /TABLE operation,
+				* so revert the handlers back there
+				*/
+				$this->parent->setParserHandlingTarget(
+					$this->parent->xmlParser, 
+					$this->parent
+				);
+				
 				break;
 			case 'FIELD':
 				unset($this->current_field);
@@ -410,7 +423,18 @@ class dbTable extends dbObject {
 	 */
 	function addIndex( $attributes ) {
 		$name = strtoupper( $attributes['NAME'] );
-		$this->indexes[$name] = new dbIndex( $this, $attributes );
+		
+		$dbIndex = new dbIndex( $this, $attributes );
+		$this->indexes[$name] = $dbIndex;
+		/*
+		* Switch the parser handing into the new target
+		* until we see a susbsequent /INDEX tag
+		*/
+		$this->parent->setParserHandlingTarget(
+			$this->parent->xmlParser, 
+			$dbIndex
+		);
+
 		return $this->indexes[$name];
 	}
 
@@ -717,6 +741,7 @@ class dbIndex extends dbObject {
 	 * @internal
 	 */
 	function __construct( $parent, $attributes = NULL ) {
+		
 		$this->parent = $parent;
 
 		$this->name = $this->prefix ($attributes['NAME']);
@@ -778,7 +803,14 @@ class dbIndex extends dbObject {
 
 		switch( strtoupper( $tag ) ) {
 			case 'INDEX':
-				xml_set_object( $parser, $this->parent );
+				/*
+				* This is the closing tag for the parent /INDEX operation,
+				* so revert the handlers back there
+				*/
+				$this->parent->parent->setParserHandlingTarget(
+					$this->parent->parent->xmlParser, 
+					$this->parent
+				);
 				break;
 		}
 	}
@@ -922,7 +954,14 @@ class dbData extends dbObject {
 
 		switch( strtoupper( $tag ) ) {
 			case 'DATA':
-				xml_set_object( $parser, $this->parent );
+				/*
+				* This is the closing tag for the parent /DATA operation,
+				* so revert the handlers back there
+				*/
+				$this->parent->setParserHandlingTarget(
+					$this->parent->xmlParser, 
+					$this->parent
+				);
 				break;
 		}
 	}
@@ -1204,9 +1243,14 @@ class dbQuerySet extends dbObject {
 				break;
 			case 'SQL':
 				$this->parent->addSQL( $this->create( $this->parent ) );
-				xml_set_object( $parser, $this->parent );
-				$this->destroy();
-				break;
+				/*
+				* This is the closing tag for the parent /SQL operation,
+				* so revert the handlers back there
+				*/
+				$this->parent->setParserHandlingTarget(
+					$this->parent->xmlParser, 
+					$this->parent
+				);
 			default:
 
 		}
@@ -1436,6 +1480,27 @@ class adoSchema {
 	var $obj;
 
 	/**
+     * Resource handle for the XML Parser
+     *
+     * @var    \XMLParser
+     */
+    public ?\XMLParser $xmlParser;
+
+	/**
+	 * Object for the instantiated dbTable class
+	 *
+	 * @var dbTable|null
+	 */
+	public ?dbTable $dbTable;
+
+	/**
+	 * Object for the instantiated dvQuerySet class
+	 *
+	 * @var dbQuerySet|null
+	 */
+	public ?dbQuerySet $dbQuerySet;
+
+	/**
 	 * Creates an adoSchema object
 	 *
 	 * Creating an adoSchema object is the first step in processing an XML schema.
@@ -1604,71 +1669,6 @@ class adoSchema {
 	}
 
 	/**
-	 * Loads an XML schema from a file and converts it to SQL.
-	 *
-	 * Call this method to load the specified schema directly from a file (see
-	 * the DTD for the proper format) and generate the SQL necessary to create
-	 * the database described by the schema. Use this method when you are dealing
-	 * with large schema files. Otherwise, parseSchema() is faster.
-	 * This method does not automatically convert the schema to the latest axmls
-	 * schema version. You must convert the schema manually using either the
-	 * convertSchemaFile() or convertSchemaString() method.
-	 * @see parseSchema()
-	 * @see convertSchemaFile()
-	 * @see convertSchemaString()
-	 *
-	 * @param string $file Name of XML schema file.
-	 * @param bool $returnSchema Return schema rather than parsing.
-	 * @return array Array of SQL queries, ready to execute.
-	 *
-	 * @deprecated Replaced by adoSchema::parseSchema() and adoSchema::parseSchemaString()
-	 * @see parseSchema()
-	 * @see parseSchemaString()
-	 */
-	function parseSchemaFile( $filename, $returnSchema = FALSE ) {
-		// Open the file
-		if( !($fp = fopen( $filename, 'r' )) ) {
-			logMsg( 'Unable to open file: '. $filename, 'Filesystem Error');
-			return FALSE;
-		}
-
-		// do version detection here
-		if( $this->schemaFileVersion( $filename ) != $this->schemaVersion ) {
-			logMsg( 'Invalid Schema Version' );
-			return FALSE;
-		}
-
-		if( $returnSchema ) {
-			$xmlstring = '';
-			while( $data = fread( $fp, 4096 ) ) {
-				$xmlstring .= $data . "\n";
-			}
-			return $xmlstring;
-		}
-
-		$this->success = 2;
-
-		$xmlParser = $this->create_parser();
-
-		// Process the file
-		while( $data = fread( $fp, 4096 ) ) {
-			if( !xml_parse( $xmlParser, $data, feof( $fp ) ) ) {
-				die( sprintf(
-					"XML error: %s at line %d",
-					xml_error_string( xml_get_error_code( $xmlParser) ),
-					xml_get_current_line_number( $xmlParser)
-				) );
-			}
-		}
-
-		if( PHP_VERSION_ID < 80000 ) {
-			xml_parser_free( $xmlParser );
-		}
-
-		return $this->sqlArray;
-	}
-
-	/**
 	 * Converts an XML schema string to SQL.
 	 *
 	 * Call this method to parse a string containing an XML schema (see the DTD for the proper format)
@@ -1697,20 +1697,21 @@ class adoSchema {
 
 		$this->success = 2;
 
-		$xmlParser = $this->create_parser();
+		$this->xmlParser = xml_parser_create('');
+		
+		/*
+		* Sets the default handlers for the tags
+		*/
+		$this->setParserHandlingTarget($this->xmlParser, $this);
 
-		if( !xml_parse( $xmlParser, $xmlstring, TRUE ) ) {
+		if( !xml_parse( $this->xmlParser, $xmlstring, TRUE ) ) {
 			die( sprintf(
 				"XML error: %s at line %d",
-				xml_error_string( xml_get_error_code( $xmlParser) ),
-				xml_get_current_line_number( $xmlParser)
+				xml_error_string( xml_get_error_code( $this->xmlParser) ),
+				xml_get_current_line_number( $this->xmlParser)
 			) );
 		}
-
-		if( PHP_VERSION_ID < 80000 ) {
-			xml_parser_free( $xmlParser );
-		}
-
+		
 		return $this->sqlArray;
 	}
 
@@ -1825,22 +1826,26 @@ class adoSchema {
 	}
 
 	/**
-	 * Create an xml parser
+	 * Sets the object that controls the XML Persers
+	 * tag and data handling functions. 
+	 * 
+	 * @param XMLParser $parser PHP XML parser object
+	 * @param object    $handler a class that has handler
 	 *
-	 * @return object PHP XML parser object
-	 *
-	 * @access private
+	 * @return void
 	 */
-	function create_parser() {
-		// Create the parser
-		$xmlParser = xml_parser_create();
-		xml_set_object( $xmlParser, $this );
+	public function setParserHandlingTarget(\XMLParser $parser, object $handler): void {
+		xml_set_element_handler( 
+			$parser, 
+			[$handler, '_tag_open'], 
+			[$handler, '_tag_close']
+		);
 
-		// Initialize the XML callback functions
-		xml_set_element_handler( $xmlParser, '_tag_open', '_tag_close' );
-		xml_set_character_data_handler( $xmlParser, '_tag_cdata' );
-
-		return $xmlParser;
+		xml_set_character_data_handler(
+			$parser, 
+			[$handler, '_tag_cdata']
+		);
+	
 	}
 
 	/**
@@ -1849,17 +1854,33 @@ class adoSchema {
 	 * @access private
 	 */
 	function _tag_open( $parser, $tag, $attributes ) {
+		
 		switch( strtoupper( $tag ) ) {
 			case 'TABLE':
 				if( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) ) {
-				$this->obj = new dbTable( $this, $attributes );
-				xml_set_object( $parser, $this->obj );
+					$this->dbTable = new dbTable( $this, $attributes );
+					/*
+					* Switch into the table handling. This will never return automatically, it
+					* is forced back by the child class
+					*/
+					$this->setParserHandlingTarget(
+						$this->xmlParser, 
+						$this->dbTable
+					);
+
 				}
 				break;
 			case 'SQL':
 				if( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) ) {
-					$this->obj = new dbQuerySet( $this, $attributes );
-					xml_set_object( $parser, $this->obj );
+					$this->dbQuerySet = new dbQuerySet( $this, $attributes );
+					/*
+					* Switch into the SQL handling. This will never return automatically, it
+					* is forced back by the child class
+					*/
+					$this->setParserHandlingTarget(
+						$this->xmlParser, 
+						$this->dbQuerySet
+					);
 				}
 				break;
 			default:
