@@ -1105,6 +1105,11 @@ class ADODB_DataDict {
 				$this->addColumnSQL($tablename, $fields_to_add),
 				$this->alterColumnSql($tablename, $fields_to_alter)
 			);
+		} else {
+			// A string field definition cannot be compared against the existing
+			// columns, so pass it on to alterColumnSql() unchanged, as this
+			// method did until 5.22.7.
+			$sql = $this->alterColumnSql($tablename, $flds);
 		}
 
 		if ($dropOldFlds) {
