@@ -1,6 +1,6 @@
 # ADOdb Python helper scripts required packages
 
-GitPython==3.1.44
+GitPython==3.1.50
 markdown-it-py==3.0.0
 PyGithub==2.5.0
 PyYAML==6.0.2
