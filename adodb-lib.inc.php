@@ -727,6 +727,14 @@ function _adodb_quote_fieldname($zthis, $fieldName)
 
 function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $force=2)
 {
+
+	if (!$zthis->isConnected()) {
+		if ($zthis->debug) {
+			ADOConnection::outp(sprintf(ADODB_BAD_CONNECTION, $zthis->dataProvider, 'Unknown', 'GetUpdateSQL'));
+		}
+		return false;
+	}
+
 	if (!$rs) {
 		printf(ADODB_BAD_RS,'GetUpdateSQL');
 		return false;
@@ -897,6 +905,13 @@ function _adodb_getinsertsql(&$zthis, $rs, $arrFields, $force=2)
 static $cacheRS = false;
 static $cacheSig = 0;
 static $cacheCols;
+
+	if (!$zthis->isConnected()) {
+		if ($zthis->debug) {
+			ADOConnection::outp(sprintf(ADODB_BAD_CONNECTION, $zthis->dataProvider, 'Unknown', 'GetInsertSQL'));
+		}
+		return false;
+	}
 
 	$tableName = '';
 	$values = '';
