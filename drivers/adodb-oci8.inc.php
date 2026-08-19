@@ -504,24 +504,21 @@ END;
 	}
 
 	/**
-      * Return a list of indexes for a specified table
-      *
-      * We don't use db2_statistics as the function does not seem to play
-      * well with mixed case table names
-      *
-      * @param string   $table
-      * @param bool     $primary    (optional) return primary key
-      * @param bool     $owner      (optional) not used in this driver
-      *
-      * @return string[]    Array of indexes
-      */
-
-	function MetaIndexes ($table, $primary = FALSE, $owner=false)
+	 * List indexes on a table as an array
+	 * 
+	 * @param string $table   table name to query
+	 * @param bool   $primary true to include the primary key
+	 * @param string $owner   Discarded for this driver
+	 * 
+	 * @return false|string[] indexes on current table
+	 */
+	function MetaIndexes ($table, $primary = false, $owner = false)
 	{
+		
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
 
-		$tableName = $this->metatables('T', false, $table);
+		$tableName = $this->metaTables('T', $owner, $table);
 		if ($tableName == false) {
 			return false;
 		}
@@ -536,7 +533,7 @@ END;
 		// get index details
 		$table = strtoupper($table);
 
-		// get Primary index
+		// get Primary index if required
 		$primary_key = '';
 		
 		$p1 = $this->param('p1');
@@ -571,7 +568,7 @@ END;
 			}
 			if (!isset($indexes[$row[0]])) {
 				$indexes[$row[0]] = array(
-					'unique' => ($row[1] == 'UNIQUE'),
+					'unique' => ($row[1] == 'UNIQUE') ? 1 : 0,
 					'columns' => [],
 					'primary' => ($primary_key == $row[0] ? 1 : 0)
 				);
