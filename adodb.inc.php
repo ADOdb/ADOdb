@@ -198,7 +198,7 @@ if (!defined('_ADODB_LAYER')) {
 		/**
 		 * ADODB version as a string.
 		 */
-		$ADODB_vers = 'v5.22.11  2025-11-22';
+		$ADODB_vers = 'v5.22.12  2026-08-19';
 
 		/**
 		 * Determines whether recordset->RecordCount() is used.
@@ -697,14 +697,14 @@ if (!defined('_ADODB_LAYER')) {
 	var $locale;
 
 	/**
-	 * Setting true forces metacolumns to be read the db for 
-	 * each access of a table instead of using cached version. 
+	 * Setting true forces metacolumns to be read the db for
+	 * each access of a table instead of using cached version.
 	 * Currently only works on mssqlnative
-	 * 
+	 *
 	 * @var bool
 	 */
 	public bool $cachedSchemaFlush = false;
-	
+
 
 	/**
 	 * Default Constructor.
