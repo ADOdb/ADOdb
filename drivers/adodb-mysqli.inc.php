@@ -1398,8 +1398,17 @@ SELECT *
 				return true;
 			}
 
-			// Turn the statement into a result set and return it
-			return $stmt->get_result();
+			// Turn the statement into a result set and return it.
+			// For a statement with a RETURNING clause, a constraint
+			// violation is not reported by mysqli_stmt_execute() above -
+			// it only surfaces here, when the result set is materialized.
+			// Re-capture the error state so ErrorNo()/ErrorMsg() reflect it.
+			$rs = $stmt->get_result();
+			if ($rs === false) {
+				$this->_errorCode = $stmt->errno;
+				$this->_errorMsg = $stmt->error;
+			}
+			return $rs;
 		} else {
 			// Reset prepared statement flags, in case we set them previously and didn't use them
 			$this->usePreparedStatement = false;
