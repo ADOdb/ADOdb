@@ -54,6 +54,9 @@ Older changelogs:
 
 ### Fixed
 
+- mysqli: ErrorNo()/ErrorMsg() report nothing on a failed bound
+  INSERT ... RETURNING
+  [#1251](https://github.com/ADOdb/ADOdb/issues/1251)
 - oci8: silence deprecation warnings on PHP 8
   [#883](https://github.com/ADOdb/ADOdb/issues/883)
 - pgsql: affected_rows() always returns false on PHP 8.1
