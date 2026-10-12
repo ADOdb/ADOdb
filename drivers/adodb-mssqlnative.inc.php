@@ -450,8 +450,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
 		if ($this->debug) ADOConnection::outp('<hr>begin transaction');
-		sqlsrv_begin_transaction($this->_connectionID);
-		return true;
+		return sqlsrv_begin_transaction($this->_connectionID);
 	}
 
 	function CommitTrans($ok=true)
@@ -460,8 +459,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		if ($this->debug) ADOConnection::outp('<hr>commit transaction');
 		if (!$ok) return $this->RollbackTrans();
 		if ($this->transCnt) $this->transCnt -= 1;
-		sqlsrv_commit($this->_connectionID);
-		return true;
+		return sqlsrv_commit($this->_connectionID);
 	}
 
 	function RollbackTrans()
@@ -469,8 +467,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		if ($this->transOff) return true;
 		if ($this->debug) ADOConnection::outp('<hr>rollback transaction');
 		if ($this->transCnt) $this->transCnt -= 1;
-		sqlsrv_rollback($this->_connectionID);
-		return true;
+		return sqlsrv_rollback($this->_connectionID);
 	}
 
 	function SetTransactionMode( $transaction_mode )
