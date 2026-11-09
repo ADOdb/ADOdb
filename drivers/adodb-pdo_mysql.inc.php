@@ -23,26 +23,26 @@
 
 class ADODB_pdo_mysql extends ADODB_pdo_base {
 
-	var $metaDatabasesSQL = "SHOW DATABASES
+	public $metaDatabasesSQL = "SHOW DATABASES
 		WHERE `database` NOT IN ('mysql', 'information_schema', 'performance_schema')";
-	var $metaTablesSQL =  /** @lang text */
+	public $metaTablesSQL =  /** @lang text */
 		"SELECT
 			TABLE_NAME,
 			CASE WHEN TABLE_TYPE = 'VIEW' THEN 'V' ELSE 'T' END
 		FROM INFORMATION_SCHEMA.TABLES
 		WHERE TABLE_SCHEMA=";
-	var $metaColumnsSQL = "SHOW COLUMNS FROM `%s`";
-	var $sysDate = '(CURDATE())';
-	var $sysTimeStamp = '(NOW())';
-	var $hasGenID = true;
+	public $metaColumnsSQL = "SHOW COLUMNS FROM `%s`";
+	public $sysDate = '(CURDATE())';
+	public $sysTimeStamp = '(NOW())';
+	public $hasGenID = true;
 	/** @noinspection SqlWithoutWhere */
-	var $_genIDSQL = "UPDATE %s SET id=LAST_INSERT_ID(id+1);";
-	var $_genSeqSQL = "CREATE TABLE  if NOT EXISTS %s (id int not null)";
-	var $_genSeqCountSQL = "SELECT count(*) FROM %s";
-	var $_genSeq2SQL = "INSERT INTO %s VALUES (%s)";
-	var $_dropSeqSQL = "drop table %s";
-	var $fmtTimeStamp = "'Y-m-d H:i:s'";
-	var $nameQuote = '`';
+	public $_genIDSQL = "UPDATE %s SET id=LAST_INSERT_ID(id+1);";
+	public $_genSeqSQL = "CREATE TABLE  if NOT EXISTS %s (id int not null)";
+	public $_genSeqCountSQL = "SELECT count(*) FROM %s";
+	public $_genSeq2SQL = "INSERT INTO %s VALUES (%s)";
+	public $_dropSeqSQL = "drop table %s";
+	public $fmtTimeStamp = "'Y-m-d H:i:s'";
+	public $nameQuote = '`';
 
 	protected function _init(ADODB_pdo $parentDriver)
 	{

@@ -25,14 +25,14 @@ if (!defined('ADODB_DIR')) die();
 
 class perf_oci8 extends adodb_perf{
 
-	var $noShowIxora = 15; // if the sql for suspicious sql is taking too long, then disable ixora
+	public $noShowIxora = 15; // if the sql for suspicious sql is taking too long, then disable ixora
 
-	var $tablesSQL = "select segment_name as \"tablename\", sum(bytes)/1024 as \"size_in_k\",tablespace_name as \"tablespace\",count(*) \"extents\" from sys.user_extents
+	public $tablesSQL = "select segment_name as \"tablename\", sum(bytes)/1024 as \"size_in_k\",tablespace_name as \"tablespace\",count(*) \"extents\" from sys.user_extents
 	   group by segment_name,tablespace_name";
 
-	var $version;
+	public $version;
 
-	var $createTableSQL = "CREATE TABLE adodb_logsql (
+	public $createTableSQL = "CREATE TABLE adodb_logsql (
 		  created date NOT NULL,
 		  sql0 varchar(250) NOT NULL,
 		  sql1 varchar(4000) NOT NULL,
@@ -41,7 +41,7 @@ class perf_oci8 extends adodb_perf{
 		  timer decimal(16,6) NOT NULL
 		)";
 
-	var $settings = array(
+	public $settings = array(
 	'Ratios',
 		'data cache hit ratio' => array('RATIOH',
 			"select round((1-(phy.value / (cur.value + con.value)))*100,2)

@@ -20,29 +20,29 @@
  */
 
 class ADODB_Pager {
-	var $id; 	// unique id for pager (defaults to 'adodb')
-	var $db; 	// ADODB connection object
-	var $sql; 	// sql used
-	var $rs;	// recordset generated
-	var $curr_page;	// current page number before Render() called, calculated in constructor
-	var $rows;		// number of rows per page
-    var $linksPerPage=10; // number of links per page in navigation bar
-    var $showPageLinks;
+	public $id; 	// unique id for pager (defaults to 'adodb')
+	public $db; 	// ADODB connection object
+	public $sql; 	// sql used
+	public $rs;	// recordset generated
+	public $curr_page;	// current page number before Render() called, calculated in constructor
+	public $rows;		// number of rows per page
+    public $linksPerPage=10; // number of links per page in navigation bar
+    public $showPageLinks;
 
-	var $gridAttributes = 'width=100% border=1 bgcolor=white';
+	public $gridAttributes = 'width=100% border=1 bgcolor=white';
 
 	// Localize text strings here
-	var $first = '<code>|&lt;</code>';
-	var $prev = '<code>&lt;&lt;</code>';
-	var $next = '<code>>></code>';
-	var $last = '<code>>|</code>';
-	var $moreLinks = '...';
-	var $startLinks = '...';
-	var $gridHeader = false;
-	var $htmlSpecialChars = true;
-	var $page = 'Page';
-	var $linkSelectedColor = 'red';
-	var $cache = 0;  #secs to cache with CachePageExecute()
+	public $first = '<code>|&lt;</code>';
+	public $prev = '<code>&lt;&lt;</code>';
+	public $next = '<code>>></code>';
+	public $last = '<code>>|</code>';
+	public $moreLinks = '...';
+	public $startLinks = '...';
+	public $gridHeader = false;
+	public $htmlSpecialChars = true;
+	public $page = 'Page';
+	public $linkSelectedColor = 'red';
+	public $cache = 0;  #secs to cache with CachePageExecute()
 
 	//----------------------------------------------
 	// constructor

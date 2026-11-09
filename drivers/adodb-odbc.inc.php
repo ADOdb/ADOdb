@@ -41,22 +41,22 @@ DEFINE('METACOLUMNS_RETURNS_META', 1);
 
 
 class ADODB_odbc extends ADOConnection {
-	var $databaseType = "odbc";
-	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d, h:i:sA'";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $dataProvider = "odbc";
-	var $hasAffectedRows = true;
-	var $binmode = ODBC_BINMODE_RETURN;
-	var $useFetchArray = false; // setting this to true will make array elements in FETCH_ASSOC mode case-sensitive
+	public $databaseType = "odbc";
+	public $fmtDate = "'Y-m-d'";
+	public $fmtTimeStamp = "'Y-m-d, h:i:sA'";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $dataProvider = "odbc";
+	public $hasAffectedRows = true;
+	public $binmode = ODBC_BINMODE_RETURN;
+	public $useFetchArray = false; // setting this to true will make array elements in FETCH_ASSOC mode case-sensitive
 								// breaking backward-compat
 	//var $longreadlen = 8000; // default number of chars to return for a Blob/Long field
-	var $_bindInputArray = false;
-	var $curmode = SQL_CUR_USE_DRIVER; // See sqlext.h, SQL_CUR_DEFAULT == SQL_CUR_USE_DRIVER == 2L
-	var $_genSeqSQL = "create table %s (id integer)";
-	var $_autocommit = true;
-	var $_lastAffectedRows = 0;
-	var $uCaseTables = true; // for meta* functions, uppercase table names
+	public $_bindInputArray = false;
+	public $curmode = SQL_CUR_USE_DRIVER; // See sqlext.h, SQL_CUR_DEFAULT == SQL_CUR_USE_DRIVER == 2L
+	public $_genSeqSQL = "create table %s (id integer)";
+	public $_autocommit = true;
+	public $_lastAffectedRows = 0;
+	public $uCaseTables = true; // for meta* functions, uppercase table names
 
 	/*
 	 * Tells the metaColumns feature whether to return actual or meta type
@@ -151,7 +151,7 @@ class ADODB_odbc extends ADOConnection {
 		return $this->Execute("insert into $seqname values($start)");
 	}
 
-	var $_dropSeqSQL = 'drop table %s';
+	public $_dropSeqSQL = 'drop table %s';
 	public function DropSequence($seqname = 'adodbseq')
 	{
 		if (empty($this->_dropSeqSQL)) return false;
@@ -608,10 +608,10 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 
 class ADORecordSet_odbc extends ADORecordSet {
 
-	var $bind = false;
-	var $databaseType = "odbc";
-	var $dataProvider = "odbc";
-	var $useFetchArray;
+	public $bind = false;
+	public $databaseType = "odbc";
+	public $dataProvider = "odbc";
+	public $useFetchArray;
 
 	public function __construct($queryID, $mode=false)
 	{

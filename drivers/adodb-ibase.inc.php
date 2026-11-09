@@ -25,32 +25,32 @@
 if (!defined('ADODB_DIR')) die();
 
 class ADODB_ibase extends ADOConnection {
-	var $databaseType = "ibase";
-	var $dataProvider = "ibase";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $ibase_datefmt = '%Y-%m-%d'; // For hours,mins,secs change to '%Y-%m-%d %H:%M:%S';
-	var $fmtDate = "'Y-m-d'";
-	var $ibase_timestampfmt = "%Y-%m-%d %H:%M:%S";
-	var $ibase_timefmt = "%H:%M:%S";
-	var $fmtTimeStamp = "'Y-m-d, H:i:s'";
-	var $concat_operator='||';
-	var $_transactionID;
-	var $metaTablesSQL = "select rdb\$relation_name from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
+	public $databaseType = "ibase";
+	public $dataProvider = "ibase";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $ibase_datefmt = '%Y-%m-%d'; // For hours,mins,secs change to '%Y-%m-%d %H:%M:%S';
+	public $fmtDate = "'Y-m-d'";
+	public $ibase_timestampfmt = "%Y-%m-%d %H:%M:%S";
+	public $ibase_timefmt = "%H:%M:%S";
+	public $fmtTimeStamp = "'Y-m-d, H:i:s'";
+	public $concat_operator='||';
+	public $_transactionID;
+	public $metaTablesSQL = "select rdb\$relation_name from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
 	//OPN STUFF start
-	var $metaColumnsSQL = "select a.rdb\$field_name, a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
+	public $metaColumnsSQL = "select a.rdb\$field_name, a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
 	//OPN STUFF end
-	var $ibasetrans;
-	var $hasGenID = true;
-	var $_bindInputArray = true;
-	var $buffers = 0;
-	var $dialect = 1;
-	var $sysDate = "cast('TODAY' as timestamp)";
-	var $sysTimeStamp = "CURRENT_TIMESTAMP"; //"cast('NOW' as timestamp)";
-	var $ansiOuter = true;
-	var $hasAffectedRows = false;
-	var $poorAffectedRows = true;
-	var $blobEncodeType = 'C';
-	var $role = false;
+	public $ibasetrans;
+	public $hasGenID = true;
+	public $_bindInputArray = true;
+	public $buffers = 0;
+	public $dialect = 1;
+	public $sysDate = "cast('TODAY' as timestamp)";
+	public $sysTimeStamp = "CURRENT_TIMESTAMP"; //"cast('NOW' as timestamp)";
+	public $ansiOuter = true;
+	public $hasAffectedRows = false;
+	public $poorAffectedRows = true;
+	public $blobEncodeType = 'C';
+	public $role = false;
 
 	public function __construct()
 	{
@@ -737,9 +737,9 @@ class ADODB_ibase extends ADOConnection {
 class ADORecordSet_ibase extends ADORecordSet
 {
 
-	var $databaseType = "ibase";
-	var $bind=false;
-	var $_cacheType;
+	public $databaseType = "ibase";
+	public $bind=false;
+	public $_cacheType;
 
 
 	/*		Returns: an object containing field information.

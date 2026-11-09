@@ -43,42 +43,42 @@ if (!defined('MYSQLI_READ_DEFAULT_GROUP')) define('MYSQLI_READ_DEFAULT_GROUP',1)
  * Class ADODB_mysqli
  */
 class ADODB_mysqli extends ADOConnection {
-	var $databaseType = 'mysqli';
-	var $dataProvider = 'mysql';
-	var $hasInsertID = true;
-	var $hasAffectedRows = true;
-	var $metaDatabasesSQL = "SHOW DATABASES
+	public $databaseType = 'mysqli';
+	public $dataProvider = 'mysql';
+	public $hasInsertID = true;
+	public $hasAffectedRows = true;
+	public $metaDatabasesSQL = "SHOW DATABASES
 		WHERE `database` NOT IN ('mysql', 'information_schema', 'performance_schema')";
-	var $metaTablesSQL = /** @lang text */
+	public $metaTablesSQL = /** @lang text */
 		"SELECT
 			TABLE_NAME,
 			CASE WHEN TABLE_TYPE = 'VIEW' THEN 'V' ELSE 'T' END
 		FROM INFORMATION_SCHEMA.TABLES
 		WHERE TABLE_SCHEMA=";
-	var $metaColumnsSQL = "SHOW COLUMNS FROM `%s`";
-	var $fmtTimeStamp = "'Y-m-d H:i:s'";
-	var $hasLimit = true;
-	var $hasMoveFirst = true;
-	var $hasGenID = true;
-	var $isoDates = true; // accepts dates in ISO format
-	var $sysDate = '(CURDATE())';
-	var $sysTimeStamp = '(NOW())';
-	var $hasTransactions = true;
-	var $forceNewConnect = false;
-	var $poorAffectedRows = true;
-	var $clientFlags = 0;
-	var $substr = "substring";
-	var $port = 3306; //Default to 3306 to fix HHVM bug
-	var $socket = ''; //Default to empty string to fix HHVM bug
-	var $_bindInputArray = false;
-	var $nameQuote = '`';		/// string to use to quote identifiers and names
-	var $arrayClass = 'ADORecordSet_array_mysqli';
-	var $multiQuery = false;
-	var $ssl_key = null;
-	var $ssl_cert = null;
-	var $ssl_ca = null;
-	var $ssl_capath = null;
-	var $ssl_cipher = null;
+	public $metaColumnsSQL = "SHOW COLUMNS FROM `%s`";
+	public $fmtTimeStamp = "'Y-m-d H:i:s'";
+	public $hasLimit = true;
+	public $hasMoveFirst = true;
+	public $hasGenID = true;
+	public $isoDates = true; // accepts dates in ISO format
+	public $sysDate = '(CURDATE())';
+	public $sysTimeStamp = '(NOW())';
+	public $hasTransactions = true;
+	public $forceNewConnect = false;
+	public $poorAffectedRows = true;
+	public $clientFlags = 0;
+	public $substr = "substring";
+	public $port = 3306; //Default to 3306 to fix HHVM bug
+	public $socket = ''; //Default to empty string to fix HHVM bug
+	public $_bindInputArray = false;
+	public $nameQuote = '`';		/// string to use to quote identifiers and names
+	public $arrayClass = 'ADORecordSet_array_mysqli';
+	public $multiQuery = false;
+	public $ssl_key = null;
+	public $ssl_cert = null;
+	public $ssl_ca = null;
+	public $ssl_capath = null;
+	public $ssl_cipher = null;
 
 	/**
 	 * Forcing emulated prepared statements.
@@ -97,10 +97,10 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @var bool $doNotUseBoundVariables
 	 */
-	var $doNotUseBoundVariables = false;
+	public $doNotUseBoundVariables = false;
 
 	/** @var mysqli Identifier for the native database connection */
-	var $_connectionID = false;
+	public $_connectionID = false;
 
 	/**
 	 * Tells the insert_id method how to obtain the last value, depending on whether
@@ -571,11 +571,11 @@ class ADODB_mysqli extends ADOConnection {
 	}
 
 	// Reference on Last_Insert_ID on the recommended way to simulate sequences
-	var $_genIDSQL = /** @lang text */ "update %s set id=LAST_INSERT_ID(id+1);";
-	var $_genSeqSQL = "create table if not exists %s (id int not null)";
-	var $_genSeqCountSQL = "select count(*) from %s";
-	var $_genSeq2SQL = "insert into %s values (%s)";
-	var $_dropSeqSQL = "drop table if exists %s";
+	public $_genIDSQL = /** @lang text */ "update %s set id=LAST_INSERT_ID(id+1);";
+	public $_genSeqSQL = "create table if not exists %s (id int not null)";
+	public $_genSeqCountSQL = "select count(*) from %s";
+	public $_genSeq2SQL = "insert into %s values (%s)";
+	public $_dropSeqSQL = "drop table if exists %s";
 
 	/**
 	 * Creates a sequence in the database.
@@ -1540,14 +1540,14 @@ SELECT *
  */
 class ADORecordSet_mysqli extends ADORecordSet{
 
-	var $databaseType = "mysqli";
-	var $canSeek = true;
+	public $databaseType = "mysqli";
+	public $canSeek = true;
 
 	/** @var ADODB_mysqli The parent connection */
-	var $connection = false;
+	public $connection = false;
 
 	/** @var mysqli_result result link identifier */
-	var $_queryID;
+	public $_queryID;
 
 	public function __construct($queryID, $mode = false)
 	{

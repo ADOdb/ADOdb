@@ -70,32 +70,32 @@ class ADODB_pdo extends ADOConnection {
 	const BIND_USE_NAMED_PARAMETERS = 1;
 	const BIND_USE_BOTH = 2;
 
-	var $databaseType = "pdo";
-	var $dataProvider = "pdo";
-	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d, h:i:sA'";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $hasAffectedRows = true;
-	var $_bindInputArray = true;
-	var $_genIDSQL;
-	var $_genSeqSQL = "create table %s (id integer)";
-	var $_dropSeqSQL;
-	var $_autocommit = true;
-	var $_lastAffectedRows = 0;
+	public $databaseType = "pdo";
+	public $dataProvider = "pdo";
+	public $fmtDate = "'Y-m-d'";
+	public $fmtTimeStamp = "'Y-m-d, h:i:sA'";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $hasAffectedRows = true;
+	public $_bindInputArray = true;
+	public $_genIDSQL;
+	public $_genSeqSQL = "create table %s (id integer)";
+	public $_dropSeqSQL;
+	public $_autocommit = true;
+	public $_lastAffectedRows = 0;
 
-	var $_errormsg = false;
-	var $_errorno = false;
+	public $_errormsg = false;
+	public $_errorno = false;
 
-	var $_stmt = false;
+	public $_stmt = false;
 
 	/** @var ADODB_pdo_base */
-	var $_driver;
+	public $_driver;
 
 	/** @var PDO */
-	var $_connectionID;
+	public $_connectionID;
 
 	/** @var PDOStatement */
-	var $_queryID;
+	public $_queryID;
 
 	/*
 	* Describe parameters passed directly to the PDO driver
@@ -775,10 +775,10 @@ class ADODB_pdo_base extends ADODB_pdo {
 
 class ADOPDOStatement {
 
-	var $databaseType = "pdo";
-	var $dataProvider = "pdo";
-	var $_stmt;
-	var $_connectionID;
+	public $databaseType = "pdo";
+	public $dataProvider = "pdo";
+	public $_stmt;
+	public $_connectionID;
 
 	public function __construct($stmt,$connection)
 	{
@@ -853,12 +853,12 @@ class ADOPDOStatement {
 
 class ADORecordSet_pdo extends ADORecordSet {
 
-	var $bind = false;
-	var $databaseType = "pdo";
-	var $dataProvider = "pdo";
+	public $bind = false;
+	public $databaseType = "pdo";
+	public $dataProvider = "pdo";
 
 	/** @var PDOStatement */
-	var $_queryID;
+	public $_queryID;
 
 	public function __construct($queryID, $mode=false)
 	{
@@ -1000,5 +1000,5 @@ class ADORecordSet_pdo extends ADORecordSet {
 
 class ADORecordSet_array_pdo extends ADORecordSet_array {
 	/** @var PDOStatement */
-	var $_queryID;
+	public $_queryID;
 }

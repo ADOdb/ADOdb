@@ -29,19 +29,19 @@ if (!defined('ADODB_ODBC_DB2')){
 define('ADODB_ODBC_DB2',1);
 
 class ADODB_ODBC_DB2 extends ADODB_odbc {
-	var $databaseType = "db2";
-	var $concat_operator = '||';
-	var $sysTime = 'CURRENT TIME';
-	var $sysDate = 'CURRENT DATE';
-	var $sysTimeStamp = 'CURRENT TIMESTAMP';
+	public $databaseType = "db2";
+	public $concat_operator = '||';
+	public $sysTime = 'CURRENT TIME';
+	public $sysDate = 'CURRENT DATE';
+	public $sysTimeStamp = 'CURRENT TIMESTAMP';
 	// The complete string representation of a timestamp has the form
 	// yyyy-mm-dd-hh.mm.ss.nnnnnn.
-	var $fmtTimeStamp = "'Y-m-d-H.i.s'";
-	var $ansiOuter = true;
-	var $identitySQL = 'values IDENTITY_VAL_LOCAL()';
-	var $_bindInputArray = true;
-	 var $hasInsertID = true;
-	var $rsPrefix = 'ADORecordset_odbc_';
+	public $fmtTimeStamp = "'Y-m-d-H.i.s'";
+	public $ansiOuter = true;
+	public $identitySQL = 'values IDENTITY_VAL_LOCAL()';
+	public $_bindInputArray = true;
+	 public $hasInsertID = true;
+	public $rsPrefix = 'ADORecordset_odbc_';
 
 	public function __construct()
 	{
@@ -234,7 +234,7 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 
 class  ADORecordSet_odbc_db2 extends ADORecordSet_odbc {
 
-	var $databaseType = "db2";
+	public $databaseType = "db2";
 
 	public function MetaType($t,$len=-1,$fieldobj=false)
 	{

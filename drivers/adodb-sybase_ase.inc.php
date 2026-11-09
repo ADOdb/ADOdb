@@ -23,11 +23,11 @@
 require_once ADODB_DIR."/drivers/adodb-sybase.inc.php";
 
 class ADODB_sybase_ase extends ADODB_sybase {
- 	var $databaseType = "sybase_ase";
+ 	public $databaseType = "sybase_ase";
 
-	 var $metaTablesSQL="SELECT sysobjects.name FROM sysobjects, sysusers WHERE sysobjects.type='U' AND sysobjects.uid = sysusers.uid";
-	 var $metaColumnsSQL = "SELECT syscolumns.name AS field_name, systypes.name AS type, systypes.length AS width FROM sysobjects, syscolumns, systypes WHERE sysobjects.name='%s' AND syscolumns.id = sysobjects.id AND systypes.type=syscolumns.type";
-	 var $metaDatabasesSQL ="SELECT a.name FROM master.dbo.sysdatabases a, master.dbo.syslogins b WHERE a.suid = b.suid and a.name like '%' and a.name != 'tempdb' and a.status3 != 256  order by 1";
+	 public $metaTablesSQL="SELECT sysobjects.name FROM sysobjects, sysusers WHERE sysobjects.type='U' AND sysobjects.uid = sysusers.uid";
+	 public $metaColumnsSQL = "SELECT syscolumns.name AS field_name, systypes.name AS type, systypes.length AS width FROM sysobjects, syscolumns, systypes WHERE sysobjects.name='%s' AND syscolumns.id = sysobjects.id AND systypes.type=syscolumns.type";
+	 public $metaDatabasesSQL ="SELECT a.name FROM master.dbo.sysdatabases a, master.dbo.syslogins b WHERE a.suid = b.suid and a.name like '%' and a.name != 'tempdb' and a.status3 != 256  order by 1";
 
 	// split the Views, Tables and procedures.
 	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
@@ -114,5 +114,5 @@ class ADODB_sybase_ase extends ADODB_sybase {
 }
 
 class adorecordset_sybase_ase extends ADORecordset_sybase {
-	var $databaseType = "sybase_ase";
+	public $databaseType = "sybase_ase";
 }

@@ -23,20 +23,20 @@
 
 class ADODB_pdo_sqlite extends ADODB_pdo_base {
 	/** @noinspection SqlResolve */
-	var $metaTablesSQL   = "SELECT name FROM sqlite_master WHERE type='table'";
-	var $sysDate         = 'current_date';
-	var $sysTimeStamp    = 'current_timestamp';
-	var $nameQuote       = '`';
-	var $replaceQuote    = "''";
-	var $hasGenID        = true;
-	var $_genIDSQL       = "UPDATE %s SET id=id+1 WHERE id=%s";
-	var $_genSeqSQL      = "CREATE TABLE %s (id integer)";
-	var $_genSeqCountSQL = 'SELECT COUNT(*) FROM %s';
-	var $_genSeq2SQL     = 'INSERT INTO %s VALUES(%s)';
-	var $_dropSeqSQL     = 'DROP TABLE %s';
-	var $concat_operator = '||';
-	var $pdoDriver       = false;
-	var $random='abs(random())';
+	public $metaTablesSQL   = "SELECT name FROM sqlite_master WHERE type='table'";
+	public $sysDate         = 'current_date';
+	public $sysTimeStamp    = 'current_timestamp';
+	public $nameQuote       = '`';
+	public $replaceQuote    = "''";
+	public $hasGenID        = true;
+	public $_genIDSQL       = "UPDATE %s SET id=id+1 WHERE id=%s";
+	public $_genSeqSQL      = "CREATE TABLE %s (id integer)";
+	public $_genSeqCountSQL = 'SELECT COUNT(*) FROM %s';
+	public $_genSeq2SQL     = 'INSERT INTO %s VALUES(%s)';
+	public $_dropSeqSQL     = 'DROP TABLE %s';
+	public $concat_operator = '||';
+	public $pdoDriver       = false;
+	public $random='abs(random())';
 
 	protected function _init(ADODB_pdo $parentDriver)
 	{

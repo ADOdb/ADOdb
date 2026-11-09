@@ -23,9 +23,9 @@
 if (!defined('ADODB_DIR')) die();
 
 class ADODB2_sybase extends ADODB_DataDict {
-	var $databaseType = 'sybase';
+	public $databaseType = 'sybase';
 
-	var $dropIndex = 'DROP INDEX %2$s.%1$s';
+	public $dropIndex = 'DROP INDEX %2$s.%1$s';
 
 	public function MetaType($t,$len=-1,$fieldobj=false)
 	{

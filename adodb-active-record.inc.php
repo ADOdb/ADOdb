@@ -50,23 +50,23 @@ $ADODB_ACTIVE_DEFVALS = false;
 
 class ADODB_Active_DB {
 	/** @var ADOConnection */
-	var $db;
+	public $db;
 
 	/**
 	 * assoc array of ADODB_Active_Table objects, indexed by tablename
 	 * @var ADODB_Active_Table[]
 	 */
-	var $tables;
+	public $tables;
 }
 
 class ADODB_Active_Table
 {
-	var $name; // table name
-	var $flds; // assoc array of adofieldobjs, indexed by fieldname
-	var $keys; // assoc array of primary keys, indexed by fieldname
-	var $_created; // only used when stored as a cached file
-	var $_belongsTo = array();
-	var $_hasMany = array();
+	public $name; // table name
+	public $flds; // assoc array of adofieldobjs, indexed by fieldname
+	public $keys; // assoc array of primary keys, indexed by fieldname
+	public $_created; // only used when stored as a cached file
+	public $_belongsTo = array();
+	public $_hasMany = array();
 }
 
 /**
@@ -113,17 +113,17 @@ class ADODB_Active_Record
 	public $_quoteNames;
 
 	static $_foreignSuffix = '_id'; //
-	var $_dbat; // associative index pointing to ADODB_Active_DB eg. $ADODB_Active_DBS[_dbat]
-	var $_table; // tablename, if set in class definition then use it as table name
-	var $_tableat; // associative index pointing to ADODB_Active_Table, eg $ADODB_Active_DBS[_dbat]->tables[$this->_tableat]
-	var $_where; // where clause set in Load()
-	var $_saved = false; // indicates whether data is already inserted.
-	var $_lasterr = false; // last error message
-	var $_original = false; // the original values loaded or inserted, refreshed on update
+	public $_dbat; // associative index pointing to ADODB_Active_DB eg. $ADODB_Active_DBS[_dbat]
+	public $_table; // tablename, if set in class definition then use it as table name
+	public $_tableat; // associative index pointing to ADODB_Active_Table, eg $ADODB_Active_DBS[_dbat]->tables[$this->_tableat]
+	public $_where; // where clause set in Load()
+	public $_saved = false; // indicates whether data is already inserted.
+	public $_lasterr = false; // last error message
+	public $_original = false; // the original values loaded or inserted, refreshed on update
 
-	var $foreignName; // CFR: class name when in a relationship
+	public $foreignName; // CFR: class name when in a relationship
 
-	var $lockMode = ' for update '; // you might want to change to
+	public $lockMode = ' for update '; // you might want to change to
 
 	public static function UseDefaultValues($bool = null)
 	{

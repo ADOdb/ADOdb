@@ -38,19 +38,19 @@ function adodb_cmpr($a, $b) {
 	return ($a[0] > $b[0]) ? -1 : 1;
 }
 class ADODB_text extends ADOConnection {
-	var $databaseType = 'text';
+	public $databaseType = 'text';
 
-	var $_origarray; // original data
-	var $_types;
-	var $_proberows = 8;
-	var $_colnames;
-	var $_skiprow1=false;
-	var $readOnly = true;
-	var $hasTransactions = false;
+	public $_origarray; // original data
+	public $_types;
+	public $_proberows = 8;
+	public $_colnames;
+	public $_skiprow1=false;
+	public $readOnly = true;
+	public $hasTransactions = false;
 
-	var $_rezarray;
-	var $_reznames;
-	var $_reztypes;
+	public $_rezarray;
+	public $_reznames;
+	public $_reztypes;
 
 	public function RSRecordCount()
 	{
@@ -333,7 +333,7 @@ class ADODB_text extends ADOConnection {
 class ADORecordSet_text extends ADORecordSet_array
 {
 
-	var $databaseType = "text";
+	public $databaseType = "text";
 
 	public function __construct( $conn,$mode=false)
 	{

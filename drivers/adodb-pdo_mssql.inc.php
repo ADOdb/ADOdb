@@ -21,9 +21,9 @@
 
 class ADODB_pdo_mssql extends ADODB_pdo_base {
 
-	var $hasTop = 'top';
-	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
-	var $sysTimeStamp = 'GetDate()';
+	public $hasTop = 'top';
+	public $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
+	public $sysTimeStamp = 'GetDate()';
 
 
 	protected function _init(ADODB_pdo $parentDriver)

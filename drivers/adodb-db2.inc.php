@@ -38,35 +38,35 @@ define("_ADODB_DB2_LAYER", 2 );
 
 
 class ADODB_db2 extends ADOConnection {
-    var $databaseType = "db2";
-    var $fmtDate = "'Y-m-d'";
-    var $concat_operator = '||';
+    public $databaseType = "db2";
+    public $fmtDate = "'Y-m-d'";
+    public $concat_operator = '||';
 
-    var $sysTime = 'CURRENT TIME';
-    var $sysDate = 'CURRENT DATE';
-    var $sysTimeStamp = 'CURRENT TIMESTAMP';
+    public $sysTime = 'CURRENT TIME';
+    public $sysDate = 'CURRENT DATE';
+    public $sysTimeStamp = 'CURRENT TIMESTAMP';
 
-    var $fmtTimeStamp = "'Y-m-d H:i:s'";
-    var $replaceQuote = "''"; // string to use to replace quotes
-    var $dataProvider = "db2";
-    var $hasAffectedRows = true;
+    public $fmtTimeStamp = "'Y-m-d H:i:s'";
+    public $replaceQuote = "''"; // string to use to replace quotes
+    public $dataProvider = "db2";
+    public $hasAffectedRows = true;
 
-    var $binmode = DB2_BINARY;
+    public $binmode = DB2_BINARY;
 
     /*
     * setting this to true will make array elements in FETCH_ASSOC
     * mode case-sensitive breaking backward-compat
     */
-    var $useFetchArray = false;
-    var $_bindInputArray = true;
-    var $_genIDSQL = "VALUES NEXTVAL FOR %s";
+    public $useFetchArray = false;
+    public $_bindInputArray = true;
+    public $_genIDSQL = "VALUES NEXTVAL FOR %s";
 
     /**
      * SQL to create a new sequence
      *
      * @var string
      */
-    var $_genSeqSQL = "
+    public $_genSeqSQL = "
     CREATE SEQUENCE %s START WITH %s
     NO MAXVALUE NO CYCLE INCREMENT BY 1 NO CACHE
     ";
@@ -76,12 +76,12 @@ class ADODB_db2 extends ADOConnection {
      *
      * @var string
      */
-    var $_dropSeqSQL = "DROP SEQUENCE %s";
+    public $_dropSeqSQL = "DROP SEQUENCE %s";
 
-    var $_autocommit = true;
-    var $_lastAffectedRows = 0;
-    var $hasInsertID = true;
-    var $hasGenID    = true;
+    public $_autocommit = true;
+    public $_lastAffectedRows = 0;
+    public $hasInsertID = true;
+    public $hasGenID    = true;
     /*
      * Character used to wrap column and table names for escaping special
      * characters in column and table names as well as forcing upper and
@@ -2194,10 +2194,10 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
 class ADORecordSet_db2 extends ADORecordSet {
 
-    var $bind = false;
-    var $databaseType = "db2";
-    var $dataProvider = "db2";
-    var $useFetchArray;
+    public $bind = false;
+    public $databaseType = "db2";
+    public $dataProvider = "db2";
+    public $useFetchArray;
 
 
     // returns the field object

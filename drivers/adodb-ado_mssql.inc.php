@@ -30,17 +30,17 @@ if (!defined('_ADODB_ADO_LAYER')) {
 
 
 class  ADODB_ado_mssql extends ADODB_ado {
-	var $databaseType = 'ado_mssql';
-	var $hasTop = 'top';
-	var $hasInsertID = true;
-	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
-	var $sysTimeStamp = 'GetDate()';
-	var $leftOuter = '*=';
-	var $rightOuter = '=*';
-	var $ansiOuter = true; // for mssql7 or later
-	var $substr = "substring";
-	var $length = 'len';
-	var $_dropSeqSQL = "drop table %s";
+	public $databaseType = 'ado_mssql';
+	public $hasTop = 'top';
+	public $hasInsertID = true;
+	public $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
+	public $sysTimeStamp = 'GetDate()';
+	public $leftOuter = '*=';
+	public $rightOuter = '=*';
+	public $ansiOuter = true; // for mssql7 or later
+	public $substr = "substring";
+	public $length = 'len';
+	public $_dropSeqSQL = "drop table %s";
 
 	//var $_inTransaction = 1; // always open recordsets, so no transaction problems.
 
@@ -144,6 +144,6 @@ class  ADODB_ado_mssql extends ADODB_ado {
 
 class ADORecordSet_ado_mssql extends ADORecordSet_ado {
 
-	var $databaseType = 'ado_mssql';
+	public $databaseType = 'ado_mssql';
 
 }

@@ -23,12 +23,12 @@
 if (!defined('ADODB_DIR')) die();
 
 class ADODB2_sqlite extends ADODB_DataDict {
-	var $databaseType = 'sqlite';
-	var $seqField = false;
-	var $addCol=' ADD COLUMN';
-	var $dropTable = 'DROP TABLE IF EXISTS %s';
-	var $dropIndex = 'DROP INDEX IF EXISTS %s';
-	var $renameTable = 'ALTER TABLE %s RENAME TO %s';
+	public $databaseType = 'sqlite';
+	public $seqField = false;
+	public $addCol=' ADD COLUMN';
+	public $dropTable = 'DROP TABLE IF EXISTS %s';
+	public $dropIndex = 'DROP INDEX IF EXISTS %s';
+	public $renameTable = 'ALTER TABLE %s RENAME TO %s';
 
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;

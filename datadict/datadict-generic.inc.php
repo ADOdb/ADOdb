@@ -24,8 +24,8 @@ if (!defined('ADODB_DIR')) die();
 
 class ADODB2_generic extends ADODB_DataDict {
 
-	var $databaseType = 'generic';
-	var $seqField = false;
+	public $databaseType = 'generic';
+	public $seqField = false;
 
 
 

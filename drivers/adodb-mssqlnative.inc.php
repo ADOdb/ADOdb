@@ -46,11 +46,11 @@ if (!function_exists('sqlsrv_log_set_subsystems')) {
 }
 
 class ADODB_mssqlnative extends ADOConnection {
-	var $databaseType = "mssqlnative";
-	var $dataProvider = "mssqlnative";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d\TH:i:s'";
+	public $databaseType = "mssqlnative";
+	public $dataProvider = "mssqlnative";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $fmtDate = "'Y-m-d'";
+	public $fmtTimeStamp = "'Y-m-d\TH:i:s'";
 	/**
 	 * Enabling InsertID capability will cause execution of an extra query
 	 * {@see $identitySQL} after each INSERT statement. To improve performance
@@ -58,11 +58,11 @@ class ADODB_mssqlnative extends ADOConnection {
 	 * calling {@see enableLastInsertID enableLastInsertID(false)}.
 	 * @var bool $hasInsertID
 	 */
-	var $hasInsertID = true;
-	var $substr = "substring";
-	var $length = 'len';
-	var $hasAffectedRows = true;
-	var $poorAffectedRows = false;
+	public $hasInsertID = true;
+	public $substr = "substring";
+	public $length = 'len';
+	public $hasAffectedRows = true;
+	public $poorAffectedRows = false;
 
 	/**
 	 * Holds the affected rows if triggered by close
@@ -79,9 +79,9 @@ class ADODB_mssqlnative extends ADOConnection {
 	 */
 	public bool $needsAffectedRowCount = false;
 
-	var $metaDatabasesSQL = "select name from sys.sysdatabases where name <> 'master'";
-	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
-	var $metaColumnsSQL =
+	public $metaDatabasesSQL = "select name from sys.sysdatabases where name <> 'master'";
+	public $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
+	public $metaColumnsSQL =
 		"select c.name,
 		t.name as type,
 		c.length,
@@ -98,27 +98,27 @@ class ADODB_mssqlnative extends ADOConnection {
 		join sys.tables st on st.name=o.name
 		join sys.columns sc on sc.object_id = st.object_id and sc.name=c.name
 		where o.name='%s'";
-	var $hasTop = 'top';		// support mssql SELECT TOP 10 * FROM TABLE
-	var $hasGenID = true;
-	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
-	var $sysTimeStamp = 'GetDate()';
-	var $maxParameterLen = 4000;
-	var $arrayClass = 'ADORecordSet_array_mssqlnative';
-	var $uniqueSort = true;
-	var $leftOuter = '*=';
-	var $rightOuter = '=*';
-	var $ansiOuter = true; // for mssql7 or later
-	var $identitySQL = 'select SCOPE_IDENTITY()'; // 'select SCOPE_IDENTITY'; # for mssql 2000
-	var $uniqueOrderBy = true;
-	var $_bindInputArray = true;
+	public $hasTop = 'top';		// support mssql SELECT TOP 10 * FROM TABLE
+	public $hasGenID = true;
+	public $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
+	public $sysTimeStamp = 'GetDate()';
+	public $maxParameterLen = 4000;
+	public $arrayClass = 'ADORecordSet_array_mssqlnative';
+	public $uniqueSort = true;
+	public $leftOuter = '*=';
+	public $rightOuter = '=*';
+	public $ansiOuter = true; // for mssql7 or later
+	public $identitySQL = 'select SCOPE_IDENTITY()'; // 'select SCOPE_IDENTITY'; # for mssql 2000
+	public $uniqueOrderBy = true;
+	public $_bindInputArray = true;
 
 	/** @var string SQL statement to drop a Sequence. */
-	var $_dropSeqSQL = "DROP SEQUENCE %s";
+	public $_dropSeqSQL = "DROP SEQUENCE %s";
 
-	var $connectionInfo    = array('ReturnDatesAsStrings'=>true);
+	public $connectionInfo    = array('ReturnDatesAsStrings'=>true);
 
-	var $sequences = false;
-	var $mssql_version = '';
+	public $sequences = false;
+	public $mssql_version = '';
 
 	public function __construct()
 	{
@@ -1244,9 +1244,9 @@ class ADODB_mssqlnative extends ADOConnection {
 
 class ADORecordset_mssqlnative extends ADORecordSet {
 
-	var $databaseType = "mssqlnative";
-	var $canSeek = false;
-	var $fieldOffset = 0;
+	public $databaseType = "mssqlnative";
+	public $canSeek = false;
+	public $fieldOffset = 0;
 	// _mths works only in non-localised system
 
 

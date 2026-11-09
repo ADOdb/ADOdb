@@ -28,32 +28,32 @@ if (!defined('ADODB_DIR')) die();
 define("_ADODB_ODBTP_LAYER", 2 );
 
 class ADODB_odbtp extends ADOConnection{
-	var $databaseType = "odbtp";
-	var $dataProvider = "odbtp";
-	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d, h:i:sA'";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $odbc_driver = 0;
-	var $hasAffectedRows = true;
-	var $hasInsertID = false;
-	var $hasGenID = true;
-	var $hasMoveFirst = true;
+	public $databaseType = "odbtp";
+	public $dataProvider = "odbtp";
+	public $fmtDate = "'Y-m-d'";
+	public $fmtTimeStamp = "'Y-m-d, h:i:sA'";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $odbc_driver = 0;
+	public $hasAffectedRows = true;
+	public $hasInsertID = false;
+	public $hasGenID = true;
+	public $hasMoveFirst = true;
 
-	var $_genSeqSQL = "create table %s (seq_name char(30) not null unique , seq_value integer not null)";
-	var $_dropSeqSQL = "delete from adodb_seq where seq_name = '%s'";
-	var $_bindInputArray = false;
-	var $_useUnicodeSQL = false;
-	var $_canPrepareSP = false;
-	var $_dontPoolDBC = true;
+	public $_genSeqSQL = "create table %s (seq_name char(30) not null unique , seq_value integer not null)";
+	public $_dropSeqSQL = "delete from adodb_seq where seq_name = '%s'";
+	public $_bindInputArray = false;
+	public $_useUnicodeSQL = false;
+	public $_canPrepareSP = false;
+	public $_dontPoolDBC = true;
 
 	/** @var string DBMS name. */
-	var $odbc_name;
+	public $odbc_name;
 
 	/** @var bool */
-	var $_canSelectDb = false;
+	public $_canSelectDb = false;
 
 	/** @var mixed */
-	var $_lastAffectedRows;
+	public $_lastAffectedRows;
 
 	public function ServerInfo()
 	{
@@ -681,8 +681,8 @@ class ADODB_odbtp extends ADOConnection{
 
 class ADORecordSet_odbtp extends ADORecordSet {
 
-	var $databaseType = 'odbtp';
-	var $canSeek = true;
+	public $databaseType = 'odbtp';
+	public $canSeek = true;
 
 
 	public function _initrs()
@@ -796,30 +796,30 @@ class ADORecordSet_odbtp extends ADORecordSet {
 
 class ADORecordSet_odbtp_mssql extends ADORecordSet_odbtp {
 
-	var $databaseType = 'odbtp_mssql';
+	public $databaseType = 'odbtp_mssql';
 
 }
 
 class ADORecordSet_odbtp_access extends ADORecordSet_odbtp {
 
-	var $databaseType = 'odbtp_access';
+	public $databaseType = 'odbtp_access';
 
 }
 
 class ADORecordSet_odbtp_vfp extends ADORecordSet_odbtp {
 
-	var $databaseType = 'odbtp_vfp';
+	public $databaseType = 'odbtp_vfp';
 
 }
 
 class ADORecordSet_odbtp_oci8 extends ADORecordSet_odbtp {
 
-	var $databaseType = 'odbtp_oci8';
+	public $databaseType = 'odbtp_oci8';
 
 }
 
 class ADORecordSet_odbtp_sybase extends ADORecordSet_odbtp {
 
-	var $databaseType = 'odbtp_sybase';
+	public $databaseType = 'odbtp_sybase';
 
 }

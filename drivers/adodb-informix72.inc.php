@@ -29,39 +29,39 @@ if (!defined('ADODB_DIR')) die();
 if (!defined('IFX_SCROLL')) define('IFX_SCROLL',1);
 
 class ADODB_informix72 extends ADOConnection {
-	var $databaseType = "informix72";
-	var $dataProvider = "informix";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d H:i:s'";
-	var $hasInsertID = true;
-	var $hasAffectedRows = true;
-    var $substr = 'substr';
-	var $metaTablesSQL="select tabname,tabtype from systables where tabtype in ('T','V') and owner!='informix'"; //Don't get informix tables and pseudo-tables
+	public $databaseType = "informix72";
+	public $dataProvider = "informix";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $fmtDate = "'Y-m-d'";
+	public $fmtTimeStamp = "'Y-m-d H:i:s'";
+	public $hasInsertID = true;
+	public $hasAffectedRows = true;
+    public $substr = 'substr';
+	public $metaTablesSQL="select tabname,tabtype from systables where tabtype in ('T','V') and owner!='informix'"; //Don't get informix tables and pseudo-tables
 
 
-	var $metaColumnsSQL =
+	public $metaColumnsSQL =
 		"select c.colname, c.coltype, c.collength, d.default,c.colno
 		from syscolumns c, systables t,outer sysdefaults d
 		where c.tabid=t.tabid and d.tabid=t.tabid and d.colno=c.colno
 		and tabname='%s' order by c.colno";
 
-	var $metaPrimaryKeySQL =
+	public $metaPrimaryKeySQL =
 		"select part1,part2,part3,part4,part5,part6,part7,part8 from
 		systables t,sysconstraints s,sysindexes i where t.tabname='%s'
 		and s.tabid=t.tabid and s.constrtype='P'
 		and i.idxname=s.idxname";
 
-	var $concat_operator = '||';
+	public $concat_operator = '||';
 
-	var $lastQuery = false;
-	var $has_insertid = true;
+	public $lastQuery = false;
+	public $has_insertid = true;
 
-	var $_autocommit = true;
-	var $_bindInputArray = true;  // set to true if ADOConnection.Execute() permits binding of array parameters.
-	var $sysDate = 'TODAY';
-	var $sysTimeStamp = 'CURRENT';
-	var $cursorType = IFX_SCROLL; // IFX_SCROLL or IFX_HOLD or 0
+	public $_autocommit = true;
+	public $_bindInputArray = true;  // set to true if ADOConnection.Execute() permits binding of array parameters.
+	public $sysDate = 'TODAY';
+	public $sysTimeStamp = 'CURRENT';
+	public $cursorType = IFX_SCROLL; // IFX_SCROLL or IFX_HOLD or 0
 
 	public function __construct()
 	{
@@ -395,9 +395,9 @@ class ADODB_informix72 extends ADOConnection {
 
 class ADORecordset_informix72 extends ADORecordSet {
 
-	var $databaseType = "informix72";
-	var $canSeek = true;
-	var $_fieldprops = false;
+	public $databaseType = "informix72";
+	public $canSeek = true;
+	public $_fieldprops = false;
 
 
 	/*	Returns: an object containing field information.

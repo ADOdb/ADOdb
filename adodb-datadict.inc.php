@@ -168,26 +168,26 @@ function lens_ParseArgs($args,$endstmtchar=',',$tokenchars='_.-')
 
 class ADODB_DataDict {
 	/** @var ADOConnection */
-	var $connection;
-	var $debug = false;
-	var $dropTable = 'DROP TABLE %s';
-	var $renameTable = 'RENAME TABLE %s TO %s';
-	var $dropIndex = 'DROP INDEX %s';
-	var $addCol = ' ADD';
-	var $alterCol = ' ALTER COLUMN';
-	var $dropCol = ' DROP COLUMN';
-	var $renameColumn = 'ALTER TABLE %s RENAME COLUMN %s TO %s';	// table, old-column, new-column, column-definitions (not used by default)
-	var $nameRegex = '\w';
-	var $nameRegexBrackets = 'a-zA-Z0-9_\(\)';
-	var $schema = false;
-	var $serverInfo = array();
-	var $autoIncrement = false;
-	var $dataProvider;
-	var $invalidResizeTypes4 = array('CLOB','BLOB','TEXT','DATE','TIME'); // for changeTableSQL
-	var $blobSize = 100; 	/// any varchar/char field this size or greater is treated as a blob
+	public $connection;
+	public $debug = false;
+	public $dropTable = 'DROP TABLE %s';
+	public $renameTable = 'RENAME TABLE %s TO %s';
+	public $dropIndex = 'DROP INDEX %s';
+	public $addCol = ' ADD';
+	public $alterCol = ' ALTER COLUMN';
+	public $dropCol = ' DROP COLUMN';
+	public $renameColumn = 'ALTER TABLE %s RENAME COLUMN %s TO %s';	// table, old-column, new-column, column-definitions (not used by default)
+	public $nameRegex = '\w';
+	public $nameRegexBrackets = 'a-zA-Z0-9_\(\)';
+	public $schema = false;
+	public $serverInfo = array();
+	public $autoIncrement = false;
+	public $dataProvider;
+	public $invalidResizeTypes4 = array('CLOB','BLOB','TEXT','DATE','TIME'); // for changeTableSQL
+	public $blobSize = 100; 	/// any varchar/char field this size or greater is treated as a blob
 							/// in other words, we use a text area for editing.
 	/** @var string Uppercase driver name */
-	var $upperName;
+	public $upperName;
 
 	/*
 	* Indicates whether a BLOB/CLOB field will allow a NOT NULL setting

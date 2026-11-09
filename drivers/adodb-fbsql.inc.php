@@ -27,13 +27,13 @@ if (! defined("_ADODB_FBSQL_LAYER")) {
  define("_ADODB_FBSQL_LAYER", 1 );
 
 class ADODB_fbsql extends ADOConnection {
-	var $databaseType = 'fbsql';
-	var $hasInsertID = true;
-	var $hasAffectedRows = true;
-	var $metaTablesSQL = "SHOW TABLES";
-	var $metaColumnsSQL = "SHOW COLUMNS FROM %s";
-	var $fmtTimeStamp = "'Y-m-d H:i:s'";
-	var $hasLimit = false;
+	public $databaseType = 'fbsql';
+	public $hasInsertID = true;
+	public $hasAffectedRows = true;
+	public $metaTablesSQL = "SHOW TABLES";
+	public $metaColumnsSQL = "SHOW COLUMNS FROM %s";
+	public $fmtTimeStamp = "'Y-m-d H:i:s'";
+	public $hasLimit = false;
 
 	protected function _insertID($table = '', $column = '')
 	{
@@ -166,8 +166,8 @@ class ADODB_fbsql extends ADOConnection {
 
 class ADORecordSet_fbsql extends ADORecordSet{
 
-	var $databaseType = "fbsql";
-	var $canSeek = true;
+	public $databaseType = "fbsql";
+	public $canSeek = true;
 
 	public function __construct($queryID, $mode=false)
 	{

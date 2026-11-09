@@ -59,13 +59,13 @@ function oci_lob_desc($type) {
 }
 
 class ADODB_oci8 extends ADOConnection {
-	var $databaseType = 'oci8';
-	var $dataProvider = 'oci8';
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $concat_operator='||';
-	var $sysDate = "TRUNC(SYSDATE)";
-	var $sysTimeStamp = 'SYSDATE'; // requires oracle 9 or later, otherwise use SYSDATE
-	var $metaDatabasesSQL = "
+	public $databaseType = 'oci8';
+	public $dataProvider = 'oci8';
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $concat_operator='||';
+	public $sysDate = "TRUNC(SYSDATE)";
+	public $sysTimeStamp = 'SYSDATE'; // requires oracle 9 or later, otherwise use SYSDATE
+	public $metaDatabasesSQL = "
 SELECT LOWER(USERNAME) FROM ALL_USERS 
  WHERE USERNAME NOT IN ('SYS','SYSTEM','OUTLN','DBSNMP',
 'APPQOSSYS','AUDSYS','CTXSYS','DVSYS','GSMADMIN_INTERNAL',
@@ -74,30 +74,30 @@ SELECT LOWER(USERNAME) FROM ALL_USERS
 ,'DBSFWUSER','DGPDB_INT','DIP','DVF','GGSHAREDCAP','GGSYS','GSMCATUSER'
 ,'GSMUSER','MDDATA','OLAPSYS','PDBADMIN','REMOTE_SCHEDULER_AGENT','SYS\$UMF','SYSBACKUP'
 ,'SYSDG','SYSKM','SYSRAC','VECSYS') ORDER BY 1";
-	var $_stmt;
-	var $_commit = OCI_COMMIT_ON_SUCCESS;
-	var $_initdate = true; // init date to YYYY-MM-DD
-	var $metaTablesSQL = <<<ENDSQL
+	public $_stmt;
+	public $_commit = OCI_COMMIT_ON_SUCCESS;
+	public $_initdate = true; // init date to YYYY-MM-DD
+	public $metaTablesSQL = <<<ENDSQL
 		SELECT table_name, table_type
 		FROM user_catalog
 		WHERE table_type IN ('TABLE', 'VIEW') AND table_name NOT LIKE 'BIN\$%'
 		ENDSQL; // bin$ tables are recycle bin tables
-	var $metaColumnsSQL = <<<ENDSQL
+	public $metaColumnsSQL = <<<ENDSQL
 		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
 		FROM user_tab_columns
 		WHERE table_name = '%s'
 		ORDER BY column_id
 		ENDSQL;
-	var $metaColumnsSQL2 = <<<ENDSQL
+	public $metaColumnsSQL2 = <<<ENDSQL
 		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
 		FROM all_tab_columns
 		WHERE owner = '%s' AND table_name = '%s'
 		ORDER BY column_id
 		ENDSQL; // When there is a schema
-	var $_bindInputArray = true;
-	var $hasGenID = true;
-	var $_genIDSQL = "SELECT (%s.nextval) FROM DUAL";
-	var $_genSeqSQL = "
+	public $_bindInputArray = true;
+	public $hasGenID = true;
+	public $_genIDSQL = "SELECT (%s.nextval) FROM DUAL";
+	public $_genSeqSQL = "
 DECLARE
 	PRAGMA AUTONOMOUS_TRANSACTION;
 BEGIN
@@ -105,23 +105,23 @@ BEGIN
 END;
 ";
 
-	var $_dropSeqSQL = "DROP SEQUENCE %s";
-	var $hasAffectedRows = true;
-	var $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
-	var $noNullStrings = false;
-	var $connectSID = false;
-	var $_bind = array();
-	var $_nestedSQL = true;
-	var $_getarray = false; // currently not working
-	var $leftOuter = '';  // oracle weirdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
-	var $session_sharing_force_blob = false; // alter session on updateblob if set to true
-	var $firstrows = true; // enable first rows optimization on SelectLimit()
-	var $selectOffsetAlg1 = 1000; // when to use 1st algorithm of selectlimit.
-	var $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'
-	var $dateformat = 'YYYY-MM-DD'; // DBDate format
-	var $useDBDateFormatForTextInput=false;
-	var $datetime = false; // MetaType('DATE') returns 'D' (datetime==false) or 'T' (datetime == true)
-	var $_refLOBs = array();
+	public $_dropSeqSQL = "DROP SEQUENCE %s";
+	public $hasAffectedRows = true;
+	public $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
+	public $noNullStrings = false;
+	public $connectSID = false;
+	public $_bind = array();
+	public $_nestedSQL = true;
+	public $_getarray = false; // currently not working
+	public $leftOuter = '';  // oracle weirdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
+	public $session_sharing_force_blob = false; // alter session on updateblob if set to true
+	public $firstrows = true; // enable first rows optimization on SelectLimit()
+	public $selectOffsetAlg1 = 1000; // when to use 1st algorithm of selectlimit.
+	public $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'
+	public $dateformat = 'YYYY-MM-DD'; // DBDate format
+	public $useDBDateFormatForTextInput=false;
+	public $datetime = false; // MetaType('DATE') returns 'D' (datetime==false) or 'T' (datetime == true)
+	public $_refLOBs = array();
 
 	/*
 	 * Legacy compatibility for sequence names for emulated auto-increments
@@ -1721,12 +1721,12 @@ SELECT /*+ RULE */ distinct b.column_name
 
 class ADORecordset_oci8 extends ADORecordSet {
 
-	var $databaseType = 'oci8';
-	var $bind=false;
-	var $_fieldobjs;
+	public $databaseType = 'oci8';
+	public $bind=false;
+	public $_fieldobjs;
 
 	/** @var resource Cursor reference */
-	var $_refcursor;
+	public $_refcursor;
 
 	public function __construct($queryID, $mode=false)
 	{

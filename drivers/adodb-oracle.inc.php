@@ -25,16 +25,16 @@
 if (!defined('ADODB_DIR')) die();
 
 class ADODB_oracle extends ADOConnection {
-	var $databaseType = "oracle";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $concat_operator='||';
-	var $_curs;
-	var $_initdate = true; // init date to YYYY-MM-DD
-	var $metaTablesSQL = 'select table_name from cat';
-	var $metaColumnsSQL = "select cname,coltype,width from col where tname='%s' order by colno";
-	var $sysDate = "TO_DATE(TO_CHAR(SYSDATE,'YYYY-MM-DD'),'YYYY-MM-DD')";
-	var $sysTimeStamp = 'SYSDATE';
-	var $connectSID = true;
+	public $databaseType = "oracle";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $concat_operator='||';
+	public $_curs;
+	public $_initdate = true; // init date to YYYY-MM-DD
+	public $metaTablesSQL = 'select table_name from cat';
+	public $metaColumnsSQL = "select cname,coltype,width from col where tname='%s' order by colno";
+	public $sysDate = "TO_DATE(TO_CHAR(SYSDATE,'YYYY-MM-DD'),'YYYY-MM-DD')";
+	public $sysTimeStamp = 'SYSDATE';
+	public $connectSID = true;
 
 	// format and return date string in database date format
 	public function DBDate($d, $isfld = false)
@@ -220,8 +220,8 @@ class ADODB_oracle extends ADOConnection {
 
 class ADORecordset_oracle extends ADORecordSet {
 
-	var $databaseType = "oracle";
-	var $bind = false;
+	public $databaseType = "oracle";
+	public $bind = false;
 
 	public function __construct($queryID, $mode=false)
 	{

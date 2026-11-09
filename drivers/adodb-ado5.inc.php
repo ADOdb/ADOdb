@@ -30,22 +30,22 @@ define("_ADODB_ADO_LAYER", 1 );
 
 
 class ADODB_ado extends ADOConnection {
-	var $databaseType = "ado";
-	var $_bindInputArray = false;
-	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d, h:i:sA'";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $dataProvider = "ado";
-	var $hasAffectedRows = true;
-	var $adoParameterType = 201; // 201 = long varchar, 203=long wide varchar, 205 = long varbinary
-	var $_affectedRows = false;
-	var $_thisTransactions;
-	var $_cursor_type = 3; // 3=adOpenStatic,0=adOpenForwardOnly,1=adOpenKeyset,2=adOpenDynamic
-	var $_cursor_location = 3; // 2=adUseServer, 3 = adUseClient;
-	var $_lock_type = -1;
-	var $_execute_option = -1;
-	var $poorAffectedRows = true;
-	var $charPage;
+	public $databaseType = "ado";
+	public $_bindInputArray = false;
+	public $fmtDate = "'Y-m-d'";
+	public $fmtTimeStamp = "'Y-m-d, h:i:sA'";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $dataProvider = "ado";
+	public $hasAffectedRows = true;
+	public $adoParameterType = 201; // 201 = long varchar, 203=long wide varchar, 205 = long varbinary
+	public $_affectedRows = false;
+	public $_thisTransactions;
+	public $_cursor_type = 3; // 3=adOpenStatic,0=adOpenForwardOnly,1=adOpenKeyset,2=adOpenDynamic
+	public $_cursor_location = 3; // 2=adUseServer, 3 = adUseClient;
+	public $_lock_type = -1;
+	public $_execute_option = -1;
+	public $poorAffectedRows = true;
+	public $charPage;
 
 	public function __construct()
 	{
@@ -374,13 +374,13 @@ class ADODB_ado extends ADOConnection {
 
 class ADORecordSet_ado extends ADORecordSet {
 
-	var $bind = false;
-	var $databaseType = "ado";
-	var $dataProvider = "ado";
-	var $_tarr = false; // caches the types
-	var $_flds; // and field objects
-	var $canSeek = true;
-  	var $hideErrors = true;
+	public $bind = false;
+	public $databaseType = "ado";
+	public $dataProvider = "ado";
+	public $_tarr = false; // caches the types
+	public $_flds; // and field objects
+	public $canSeek = true;
+  	public $hideErrors = true;
 
 
 	// returns the field object

@@ -53,12 +53,12 @@ In ADOdb, named quotes for MS SQL Server use ". From the MSSQL Docs:
 if (!defined('ADODB_DIR')) die();
 
 class ADODB2_mssqlnative extends ADODB_DataDict {
-	var $databaseType = 'mssqlnative';
-	var $dropIndex = /** @lang text */ 'DROP INDEX %1$s ON %2$s';
-	var $renameTable = "EXEC sp_rename '%s','%s'";
-	var $renameColumn = "EXEC sp_rename '%s.%s','%s'";
-	var $typeX = 'TEXT';  ## Alternatively, set it to VARCHAR(4000)
-	var $typeXL = 'TEXT';
+	public $databaseType = 'mssqlnative';
+	public $dropIndex = /** @lang text */ 'DROP INDEX %1$s ON %2$s';
+	public $renameTable = "EXEC sp_rename '%s','%s'";
+	public $renameColumn = "EXEC sp_rename '%s.%s','%s'";
+	public $typeX = 'TEXT';  ## Alternatively, set it to VARCHAR(4000)
+	public $typeXL = 'TEXT';
 
 	//var $alterCol = ' ALTER COLUMN ';
 

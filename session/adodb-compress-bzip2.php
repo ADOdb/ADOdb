@@ -30,15 +30,15 @@ if (!function_exists('bzcompress')) {
 class ADODB_Compress_Bzip2 {
 	/**
 	 */
-	var $_block_size = null;
+	public $_block_size = null;
 
 	/**
 	 */
-	var $_work_level = null;
+	public $_work_level = null;
 
 	/**
 	 */
-	var $_min_length = 1;
+	public $_min_length = 1;
 
 	/**
 	 */

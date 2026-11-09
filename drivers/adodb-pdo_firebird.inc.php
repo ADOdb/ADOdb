@@ -32,7 +32,7 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 	public $metaTablesSQL = "select lower(rdb\$relation_name) from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
 	public $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position";
 
-	var $arrayClass = 'ADORecordSet_array_pdo_firebird';
+	public $arrayClass = 'ADORecordSet_array_pdo_firebird';
 
 	/**
 	 * Gets the version information from the server

@@ -31,26 +31,26 @@ if (!defined('ADODB_DIR')) die();
  * Class ADODB_sqlite3
  */
 class ADODB_sqlite3 extends ADOConnection {
-	var $databaseType = "sqlite3";
-	var $dataProvider = "sqlite";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $concat_operator='||';
-	var $hasLimit = true;
-	var $hasInsertID = true; 		/// supports autoincrement ID?
-	var $hasAffectedRows = true; 	/// supports affected rows for update/delete?
-	var $metaTablesSQL = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
-	var $sysDate = "DATE('now','localtime')";
-	var $sysTimeStamp = "DATETIME('now','localtime')";
-	var $fmtTimeStamp = "'Y-m-d H:i:s'";
-	var $_genSeqSQL = "create table %s (id integer)";
-	var $_dropSeqSQL = 'drop table %s';
+	public $databaseType = "sqlite3";
+	public $dataProvider = "sqlite";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $concat_operator='||';
+	public $hasLimit = true;
+	public $hasInsertID = true; 		/// supports autoincrement ID?
+	public $hasAffectedRows = true; 	/// supports affected rows for update/delete?
+	public $metaTablesSQL = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
+	public $sysDate = "DATE('now','localtime')";
+	public $sysTimeStamp = "DATETIME('now','localtime')";
+	public $fmtTimeStamp = "'Y-m-d H:i:s'";
+	public $_genSeqSQL = "create table %s (id integer)";
+	public $_dropSeqSQL = 'drop table %s';
 
 	/**
 	 * The SQLite3 connection object
 	 *
 	 * @var SQLite3
 	 */
-	var $_connectionID;
+	public $_connectionID;
 
 	/**
 	 * Returns an array with the server information
@@ -881,15 +881,15 @@ class ADODB_sqlite3 extends ADOConnection {
  */
 class ADORecordset_sqlite3 extends ADORecordSet {
 
-	var $databaseType = "sqlite3";
-	var $bind = false;
+	public $databaseType = "sqlite3";
+	public $bind = false;
 
 	/**
 	 * The SQLite3Result object
 	 *
 	 * @var SQLite3Result
 	 */
-	var $_queryID;
+	public $_queryID;
 
 
 	/**

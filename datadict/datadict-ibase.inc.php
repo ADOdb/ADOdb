@@ -24,8 +24,8 @@ if (!defined('ADODB_DIR')) die();
 
 class ADODB2_ibase extends ADODB_DataDict {
 
-	var $databaseType = 'ibase';
-	var $seqField = false;
+	public $databaseType = 'ibase';
+	public $seqField = false;
 
 
  	public function ActualType($meta)

@@ -32,7 +32,7 @@ if (!defined('SINGLEQUOTE')) define('SINGLEQUOTE', "'");
 include_once(ADODB_DIR.'/drivers/adodb-mssql.inc.php');
 
 class ADODB_mssql_n extends ADODB_mssql {
-	var $databaseType = "mssql_n";
+	public $databaseType = "mssql_n";
 
 	public function _query($sql,$inputarr=false)
 	{
@@ -222,5 +222,5 @@ class ADODB_mssql_n extends ADODB_mssql {
 }
 
 class ADORecordset_mssql_n extends ADORecordset_mssql {
-	var $databaseType = "mssql_n";
+	public $databaseType = "mssql_n";
 }

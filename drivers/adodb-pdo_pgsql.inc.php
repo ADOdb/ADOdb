@@ -23,24 +23,24 @@
  * @noinspection SqlResolve
  */
 class ADODB_pdo_pgsql extends ADODB_pdo_base {
-	var $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
-	var $metaTablesSQL = "select tablename,'T' from pg_tables where tablename not like 'pg\_%'
+	public $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
+	public $metaTablesSQL = "select tablename,'T' from pg_tables where tablename not like 'pg\_%'
 		and tablename not in ('sql_features', 'sql_implementation_info', 'sql_languages',
 			'sql_packages', 'sql_sizing', 'sql_sizing_profiles')
 		union
 		select viewname,'V' from pg_views where viewname not like 'pg\_%'";
 	//"select tablename from pg_tables where tablename not like 'pg_%' order by 1";
-	var $isoDates = true; // accepts dates in ISO format
-	var $sysDate = "CURRENT_DATE";
-	var $sysTimeStamp = "CURRENT_TIMESTAMP";
-	var $blobEncodeType = 'C';
-	var $metaColumnsSQL = "SELECT a.attname,t.typname,a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum
+	public $isoDates = true; // accepts dates in ISO format
+	public $sysDate = "CURRENT_DATE";
+	public $sysTimeStamp = "CURRENT_TIMESTAMP";
+	public $blobEncodeType = 'C';
+	public $metaColumnsSQL = "SELECT a.attname,t.typname,a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum
 		FROM pg_class c, pg_attribute a,pg_type t
 		WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s')) and a.attname not like '....%%'
 		AND a.attnum > 0 AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
 
 	// used when schema defined
-	var $metaColumnsSQL1 = "SELECT a.attname, t.typname, a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
+	public $metaColumnsSQL1 = "SELECT a.attname, t.typname, a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
 		FROM pg_class c, pg_attribute a, pg_type t, pg_namespace n
 		WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 		and c.relnamespace=n.oid and n.nspname='%s'
@@ -48,24 +48,24 @@ class ADODB_pdo_pgsql extends ADODB_pdo_base {
 		AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
 
 	// get primary key etc -- from Freek Dijkstra
-	var $metaKeySQL = "SELECT ic.relname AS index_name, a.attname AS column_name,i.indisunique AS unique_key, i.indisprimary AS primary_key
+	public $metaKeySQL = "SELECT ic.relname AS index_name, a.attname AS column_name,i.indisunique AS unique_key, i.indisprimary AS primary_key
 	FROM pg_class bc, pg_class ic, pg_index i, pg_attribute a WHERE bc.oid = i.indrelid AND ic.oid = i.indexrelid AND (i.indkey[0] = a.attnum OR i.indkey[1] = a.attnum OR i.indkey[2] = a.attnum OR i.indkey[3] = a.attnum OR i.indkey[4] = a.attnum OR i.indkey[5] = a.attnum OR i.indkey[6] = a.attnum OR i.indkey[7] = a.attnum) AND a.attrelid = bc.oid AND bc.relname = '%s'";
 
-	var $hasAffectedRows = true;
-	var $hasLimit = false;	// set to true for pgsql 7 only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
+	public $hasAffectedRows = true;
+	public $hasLimit = false;	// set to true for pgsql 7 only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
 	// below suggested by Freek Dijkstra
-	var $true = 't';		// string that represents TRUE for a database
-	var $false = 'f';		// string that represents FALSE for a database
-	var $fmtDate = "'Y-m-d'";	// used by DBDate() as the default date format used by the database
-	var $fmtTimeStamp = "'Y-m-d G:i:s'"; // used by DBTimeStamp as the default timestamp fmt.
-	var $hasMoveFirst = true;
-	var $hasGenID = true;
-	var $_genIDSQL = "SELECT NEXTVAL('%s')";
-	var $_genSeqSQL = "CREATE SEQUENCE %s START %s";
-	var $_dropSeqSQL = "DROP SEQUENCE %s";
-	var $metaDefaultsSQL = "SELECT d.adnum as num, d.adsrc as def from pg_attrdef d, pg_class c where d.adrelid=c.oid and c.relname='%s' order by d.adnum";
-	var $random = 'random()';		/// random function
-	var $concat_operator='||';
+	public $true = 't';		// string that represents TRUE for a database
+	public $false = 'f';		// string that represents FALSE for a database
+	public $fmtDate = "'Y-m-d'";	// used by DBDate() as the default date format used by the database
+	public $fmtTimeStamp = "'Y-m-d G:i:s'"; // used by DBTimeStamp as the default timestamp fmt.
+	public $hasMoveFirst = true;
+	public $hasGenID = true;
+	public $_genIDSQL = "SELECT NEXTVAL('%s')";
+	public $_genSeqSQL = "CREATE SEQUENCE %s START %s";
+	public $_dropSeqSQL = "DROP SEQUENCE %s";
+	public $metaDefaultsSQL = "SELECT d.adnum as num, d.adsrc as def from pg_attrdef d, pg_class c where d.adrelid=c.oid and c.relname='%s' order by d.adnum";
+	public $random = 'random()';		/// random function
+	public $concat_operator='||';
 
 	protected function _init(ADODB_pdo $parentDriver)
 	{

@@ -24,9 +24,9 @@ if (!defined('ADODB_DIR')) die();
 
 class ADODB2_sapdb extends ADODB_DataDict {
 
-	var $databaseType = 'sapdb';
-	var $seqField = false;
-	var $renameColumn = 'RENAME COLUMN %s.%s TO %s';
+	public $databaseType = 'sapdb';
+	public $seqField = false;
+	public $renameColumn = 'RENAME COLUMN %s.%s TO %s';
 
  	public function ActualType($meta)
 	{

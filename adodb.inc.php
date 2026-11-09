@@ -349,7 +349,7 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	class ADODB_Cache_File {
 
-		var $createdir = true; // requires creation of temp dirs
+		public $createdir = true; // requires creation of temp dirs
 
 		public function __construct() {
 			global $ADODB_INCLUDED_CSV;
@@ -495,8 +495,8 @@ if (!defined('_ADODB_LAYER')) {
 	//
 	// PUBLIC VARS
 	//
-	var $dataProvider = 'native';
-	var $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
+	public $dataProvider = 'native';
+	public $databaseType = '';		/// RDBMS currently in use, eg. odbc, mysql, mssql
 
 	/**
 	 * @var string Current database name.
@@ -511,10 +511,10 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	public $dsnType = '';
 
-	var $host = '';				/// The hostname of the database server
-	var $port = '';				/// The port of the database server
-	var $user = '';				/// The username which is used to connect to the database server.
-	var $password = '';			/// Password for the username. For security, we no longer store it.
+	public $host = '';				/// The hostname of the database server
+	public $port = '';				/// The port of the database server
+	public $user = '';				/// The username which is used to connect to the database server.
+	public $password = '';			/// Password for the username. For security, we no longer store it.
 
 	/**
 	 * Debug Mode.
@@ -538,30 +538,30 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	public $debug = false;
 
-	var $maxblobsize = 262144;	/// maximum size of blobs or large text fields (262144 = 256K)-- some db's die otherwise like foxpro
-	var $concat_operator = '+'; /// default concat operator -- change to || for Oracle/Interbase
-	var $substr = 'substr';		/// substring operator
-	var $length = 'length';		/// string length ofperator
-	var $random = 'rand()';		/// random function
-	var $upperCase = 'upper';		/// uppercase function
-	var $fmtDate = "'Y-m-d'";	/// used by DBDate() as the default date format used by the database
-	var $fmtTimeStamp = "'Y-m-d, h:i:s A'"; /// used by DBTimeStamp as the default timestamp fmt.
-	var $true = '1';			/// string that represents TRUE for a database
-	var $false = '0';			/// string that represents FALSE for a database
-	var $replaceQuote = "\\'";	/// string to use to replace quotes
-	var $nameQuote = '"';		/// string to use to quote identifiers and names
-	var $leftBracket = '[';		/// left square bracked for t-sql styled column names
-	var $rightBracket = ']';	/// right square bracked for t-sql styled column names
-	var $charSet=false;			/// character set to use - only for interbase, postgres and oci8
+	public $maxblobsize = 262144;	/// maximum size of blobs or large text fields (262144 = 256K)-- some db's die otherwise like foxpro
+	public $concat_operator = '+'; /// default concat operator -- change to || for Oracle/Interbase
+	public $substr = 'substr';		/// substring operator
+	public $length = 'length';		/// string length ofperator
+	public $random = 'rand()';		/// random function
+	public $upperCase = 'upper';		/// uppercase function
+	public $fmtDate = "'Y-m-d'";	/// used by DBDate() as the default date format used by the database
+	public $fmtTimeStamp = "'Y-m-d, h:i:s A'"; /// used by DBTimeStamp as the default timestamp fmt.
+	public $true = '1';			/// string that represents TRUE for a database
+	public $false = '0';			/// string that represents FALSE for a database
+	public $replaceQuote = "\\'";	/// string to use to replace quotes
+	public $nameQuote = '"';		/// string to use to quote identifiers and names
+	public $leftBracket = '[';		/// left square bracked for t-sql styled column names
+	public $rightBracket = ']';	/// right square bracked for t-sql styled column names
+	public $charSet=false;			/// character set to use - only for interbase, postgres and oci8
 
 	/** @var string SQL statement to get databases */
-	var $metaDatabasesSQL = '';
+	public $metaDatabasesSQL = '';
 
 	/** @var string SQL statement to get database tables */
-	var $metaTablesSQL = '';
+	public $metaTablesSQL = '';
 
 	/** @var string SQL statement to get table columns. */
-	var $metaColumnsSQL;
+	public $metaColumnsSQL;
 
 	/**
 	 * SQL statement to get the last IDENTITY value inserted into an IDENTITY
@@ -569,38 +569,38 @@ if (!defined('_ADODB_LAYER')) {
 	 * @see https://learn.microsoft.com/en-us/sql/t-sql/functions/scope-identity-transact-sql
 	 * @var string
 	 */
-	var $identitySQL;
+	public $identitySQL;
 
 	/** @var string SQL statement to create a Sequence . */
-	var $_genSeqSQL;
+	public $_genSeqSQL;
 
 	/** @var string SQL statement to drop a Sequence. */
-	var $_dropSeqSQL;
+	public $_dropSeqSQL;
 
 	/** @var string SQL statement to generate a Sequence ID. */
-	var $_genIDSQL;
+	public $_genIDSQL;
 
-	var $uniqueOrderBy = false; /// All order by columns have to be unique
-	var $emptyDate = '&nbsp;';
-	var $emptyTimeStamp = '&nbsp;';
-	var $lastInsID = false;
+	public $uniqueOrderBy = false; /// All order by columns have to be unique
+	public $emptyDate = '&nbsp;';
+	public $emptyTimeStamp = '&nbsp;';
+	public $lastInsID = false;
 	//--
-	var $hasInsertID = false;		/// supports autoincrement ID?
-	var $hasAffectedRows = false;	/// supports affected rows for update/delete?
-	var $hasTop = false;			/// support mssql/access SELECT TOP 10 * FROM TABLE
-	var $hasLimit = false;			/// support pgsql/mysql SELECT * FROM TABLE LIMIT 10
-	var $readOnly = false;			/// this is a readonly database - used by phpLens
-	var $hasMoveFirst = false;		/// has ability to run MoveFirst(), scrolling backwards
-	var $hasGenID = false;			/// can generate sequences using GenID();
-	var $hasTransactions = true;	/// has transactions
+	public $hasInsertID = false;		/// supports autoincrement ID?
+	public $hasAffectedRows = false;	/// supports affected rows for update/delete?
+	public $hasTop = false;			/// support mssql/access SELECT TOP 10 * FROM TABLE
+	public $hasLimit = false;			/// support pgsql/mysql SELECT * FROM TABLE LIMIT 10
+	public $readOnly = false;			/// this is a readonly database - used by phpLens
+	public $hasMoveFirst = false;		/// has ability to run MoveFirst(), scrolling backwards
+	public $hasGenID = false;			/// can generate sequences using GenID();
+	public $hasTransactions = true;	/// has transactions
 	//--
-	var $genID = 0;					/// sequence id used by GenID();
+	public $genID = 0;					/// sequence id used by GenID();
 
 	/** @var bool|callable Error function to call */
-	var $raiseErrorFn = false;
+	public $raiseErrorFn = false;
 
-	var $isoDates = false;			/// accepts dates in ISO format
-	var $cacheSecs = 3600;			/// cache for 1 hour
+	public $isoDates = false;			/// accepts dates in ISO format
+	public $cacheSecs = 3600;			/// cache for 1 hour
 
 	/*****************************************
 	* memcached server options
@@ -644,39 +644,39 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	public $memCacheOptions = array();
 
-	var $sysDate = false; /// name of function that returns the current date
-	var $sysTimeStamp = false; /// name of function that returns the current timestamp
-	var $sysUTimeStamp = false; // name of function that returns the current timestamp accurate to the microsecond or nearest fraction
-	var $arrayClass = 'ADORecordSet_array'; /// name of class used to generate array recordsets, which are pre-downloaded recordsets
+	public $sysDate = false; /// name of function that returns the current date
+	public $sysTimeStamp = false; /// name of function that returns the current timestamp
+	public $sysUTimeStamp = false; // name of function that returns the current timestamp accurate to the microsecond or nearest fraction
+	public $arrayClass = 'ADORecordSet_array'; /// name of class used to generate array recordsets, which are pre-downloaded recordsets
 
-	var $noNullStrings = false; /// oracle specific stuff - if true ensures that '' is converted to ' '
-	var $numCacheHits = 0;
-	var $numCacheMisses = 0;
-	var $pageExecuteCountRows = true;
-	var $uniqueSort = false; /// indicates that all fields in order by must be unique
-	var $leftOuter = false; /// operator to use for left outer join in WHERE clause
-	var $rightOuter = false; /// operator to use for right outer join in WHERE clause
-	var $ansiOuter = false; /// whether ansi outer join syntax supported
-	var $autoRollback = false; // autoRollback on PConnect().
-	var $poorAffectedRows = false; // affectedRows not working or unreliable
+	public $noNullStrings = false; /// oracle specific stuff - if true ensures that '' is converted to ' '
+	public $numCacheHits = 0;
+	public $numCacheMisses = 0;
+	public $pageExecuteCountRows = true;
+	public $uniqueSort = false; /// indicates that all fields in order by must be unique
+	public $leftOuter = false; /// operator to use for left outer join in WHERE clause
+	public $rightOuter = false; /// operator to use for right outer join in WHERE clause
+	public $ansiOuter = false; /// whether ansi outer join syntax supported
+	public $autoRollback = false; // autoRollback on PConnect().
+	public $poorAffectedRows = false; // affectedRows not working or unreliable
 
 	/** @var bool|callable Execute function to call */
-	var $fnExecute = false;
+	public $fnExecute = false;
 
 	/** @var bool|callable Cache execution function to call */
-	var $fnCacheExecute = false;
+	public $fnCacheExecute = false;
 
-	var $blobEncodeType = false; // false=not required, 'I'=encode to integer, 'C'=encode to char
-	var $rsPrefix = "ADORecordSet_";
+	public $blobEncodeType = false; // false=not required, 'I'=encode to integer, 'C'=encode to char
+	public $rsPrefix = "ADORecordSet_";
 
-	var $autoCommit = true;		/// do not modify this yourself - actually private
-	var $transOff = 0;			/// temporarily disable transactions
-	var $transCnt = 0;			/// count of nested transactions
+	public $autoCommit = true;		/// do not modify this yourself - actually private
+	public $transOff = 0;			/// temporarily disable transactions
+	public $transCnt = 0;			/// count of nested transactions
 
-	var $fetchMode=false;
+	public $fetchMode=false;
 
-	var $null2null = 'null'; // in autoexecute/getinsertsql/getupdatesql, this value will be converted to a null
-	var $bulkBind = false; // enable 2D Execute array
+	public $null2null = 'null'; // in autoexecute/getinsertsql/getupdatesql, this value will be converted to a null
+	public $bulkBind = false; // enable 2D Execute array
 
 	/** @var string SQL statement executed by some drivers after successful connection. */
 	public $connectStmt = '';
@@ -684,29 +684,29 @@ if (!defined('_ADODB_LAYER')) {
 	//
 	// PRIVATE VARS
 	//
-	var $_oldRaiseFn =  false;
-	var $_transOK = null;
+	public $_oldRaiseFn =  false;
+	public $_transOK = null;
 	/** @var resource Identifier for the native database connection */
-	var $_connectionID = false;
+	public $_connectionID = false;
 
 	/**
 	 * Stores the last returned error message.
 	 * @see ADOConnection::errorMsg()
 	 * @var string|false
 	 */
-	var $_errorMsg = false;
+	public $_errorMsg = false;
 
 	/**
 	 * Stores the last returned error code.
 	 * Not guaranteed to be used. Only some drivers actually populate it.
 	 * @var int|false
 	 */
-	var $_errorCode = false;
+	public $_errorCode = false;
 
-	var $_queryID = false;		/// This variable keeps the last created result link identifier
+	public $_queryID = false;		/// This variable keeps the last created result link identifier
 
-	var $_isPersistentConnection = false;	/// A boolean variable to state whether its a persistent connection or normal connection.	*/
-	var $_bindInputArray = false; /// set to true if ADOConnection.Execute() permits binding of array parameters.
+	public $_isPersistentConnection = false;	/// A boolean variable to state whether its a persistent connection or normal connection.	*/
+	public $_bindInputArray = false; /// set to true if ADOConnection.Execute() permits binding of array parameters.
 
 	/**
 	 * Eval string used to filter data.
@@ -714,11 +714,11 @@ if (!defined('_ADODB_LAYER')) {
 	 * @see https://adodb.org/dokuwiki/doku.php?id=v5:database:text#workaround
 	 * @var string
 	 */
-	var $evalAll = false;
+	public $evalAll = false;
 
-	var $_affected = false;
-	var $_logsql = false;
-	var $_transmode = ''; // transaction mode
+	public $_affected = false;
+	public $_logsql = false;
+	public $_transmode = ''; // transaction mode
 
 	/**
 	 * Additional parameters that may be passed to drivers in the connect string.
@@ -751,10 +751,10 @@ if (!defined('_ADODB_LAYER')) {
 	public $customMetaTypes = array();
 
 	/** @var ADORecordSet Recordset used to retrieve MetaType information */
-	var $_metars;
+	public $_metars;
 
 	/** @var string a specified locale. */
-	var $locale;
+	public $locale;
 
 	/**
 	 * Setting true forces {@see metaColumns()} to read the db for
@@ -4003,13 +4003,13 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 */
 	class ADORecordSet_empty implements IteratorAggregate
 	{
-		var $dataProvider = 'empty';
-		var $databaseType = false;
-		var $EOF = true;
-		var $_numOfRows = 0;
+		public $dataProvider = 'empty';
+		public $databaseType = false;
+		public $EOF = true;
+		public $_numOfRows = 0;
 		/** @var bool|array  */
-		var $fields = false;
-		var $connection = false;
+		public $fields = false;
+		public $connection = false;
 
 		/**
 		 * The timestamp that the recordset was created
@@ -4149,7 +4149,7 @@ class ADORecordSet implements IteratorAggregate {
 	/**
 	 * public variables
 	 */
-	var $dataProvider = "native";
+	public $dataProvider = "native";
 
 	/**
 	 * @var string Table name (used in _adodb_getupdatesql() and _adodb_getinsertsql())-
@@ -4157,54 +4157,54 @@ class ADORecordSet implements IteratorAggregate {
 	public $tableName = '';
 
 	/** @var bool|array  */
-	var $fields = false;	/// holds the current row data
-	var $blobSize = 100;	/// any varchar/char field this size or greater is treated as a blob
+	public $fields = false;	/// holds the current row data
+	public $blobSize = 100;	/// any varchar/char field this size or greater is treated as a blob
 							/// in other words, we use a text area for editing.
-	var $canSeek = false;	/// indicates that seek is supported
-	var $sql;				/// sql text
+	public $canSeek = false;	/// indicates that seek is supported
+	public $sql;				/// sql text
 
-	var $BOF = false;
-	var $EOF = false;		/// Indicates that the current record position is after the last record in a Recordset object.
+	public $BOF = false;
+	public $EOF = false;		/// Indicates that the current record position is after the last record in a Recordset object.
 
-	var $emptyTimeStamp = '&nbsp;'; /// what to display when $time==0
-	var $emptyDate = '&nbsp;'; /// what to display when $time==0
-	var $debug = false;
-	var $timeCreated=0;		/// datetime in Unix format rs created -- for cached recordsets
+	public $emptyTimeStamp = '&nbsp;'; /// what to display when $time==0
+	public $emptyDate = '&nbsp;'; /// what to display when $time==0
+	public $debug = false;
+	public $timeCreated=0;		/// datetime in Unix format rs created -- for cached recordsets
 
-	var $bind = false;		/// used by Fields() to hold array - should be private?
+	public $bind = false;		/// used by Fields() to hold array - should be private?
 
 	/** @var ADOConnection The parent connection */
-	var $connection = false;
+	public $connection = false;
 	/**
 	 *	private variables
 	 */
-	var $_numOfRows = -1;	/** number of rows, or -1 */
-	var $_numOfFields = -1;	/** number of fields in recordset */
+	public $_numOfRows = -1;	/** number of rows, or -1 */
+	public $_numOfFields = -1;	/** number of fields in recordset */
 
 	/**
 	 * @var resource|int|false result link identifier
 	 */
-	var $_queryID = self::DUMMY_QUERY_ID;
+	public $_queryID = self::DUMMY_QUERY_ID;
 
-	var $_currentRow = -1;	/** This variable keeps the current row in the Recordset.	*/
-	var $_closed = false;	/** has recordset been closed */
-	var $_inited = false;	/** Init() should only be called once */
+	public $_currentRow = -1;	/** This variable keeps the current row in the Recordset.	*/
+	public $_closed = false;	/** has recordset been closed */
+	public $_inited = false;	/** Init() should only be called once */
 
 	// Recordset pagination
 	/** @var int Number of rows per page */
-	var $rowsPerPage;
+	public $rowsPerPage;
 	/** @var int Current page number */
-	var $_currentPage = -1;
+	public $_currentPage = -1;
 	/** @var bool True if current page is the first page */
-	var $_atFirstPage = false;
+	public $_atFirstPage = false;
 	/** @var bool True if current page is the last page */
-	var $_atLastPage = false;
+	public $_atLastPage = false;
 	/** @var int Last page number */
-	var $_lastPageNo = -1;
+	public $_lastPageNo = -1;
 	/** @var int Total number of rows in recordset */
-	var $_maxRecordCount = 0;
+	public $_maxRecordCount = 0;
 
-	var $datetime = false;
+	public $datetime = false;
 
 	public $customActualTypes;
 	public $customMetaTypes;
@@ -4231,7 +4231,7 @@ class ADORecordSet implements IteratorAggregate {
 	/**
 	 * @var bool|int Driver-specific fetch mode
 	 */
-	var $fetchMode;
+	public $fetchMode;
 
 	/**
 	 * @var int Defines the Fetch Mode for a recordset
@@ -5450,18 +5450,18 @@ class ADORecordSet implements IteratorAggregate {
 	 */
 	class ADORecordSet_array extends ADORecordSet
 	{
-		var $databaseType = 'array';
+		public $databaseType = 'array';
 
-		var $_array;	// holds the 2-dimensional data array
-		var $_types;	// the array of types of each column (C B I L M)
-		var $_colnames;	// names of each column in array
-		var $_skiprow1;	// skip 1st row because it holds column names
-		var $_fieldobjects; // holds array of field objects
-		var $canSeek = true;
-		var $affectedrows = false;
-		var $insertid = false;
-		var $sql = '';
-		var $compat = false;
+		public $_array;	// holds the 2-dimensional data array
+		public $_types;	// the array of types of each column (C B I L M)
+		public $_colnames;	// names of each column in array
+		public $_skiprow1;	// skip 1st row because it holds column names
+		public $_fieldobjects; // holds array of field objects
+		public $canSeek = true;
+		public $affectedrows = false;
+		public $insertid = false;
+		public $sql = '';
+		public $compat = false;
 
 		/**
 		 * Constructor

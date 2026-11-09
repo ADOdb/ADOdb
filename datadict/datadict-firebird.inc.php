@@ -24,13 +24,13 @@ if (!defined('ADODB_DIR')) die();
 
 class ADODB2_firebird extends ADODB_DataDict
 {
-	var $databaseType = 'firebird';
-	var $seqField = false;
-	var $seqPrefix = 's_';
-	var $blobSize = 40000;
-	var $renameColumn = 'ALTER TABLE %s ALTER %s TO %s';
-	var $alterCol = ' ALTER';
-	var $dropCol = ' DROP';
+	public $databaseType = 'firebird';
+	public $seqField = false;
+	public $seqPrefix = 's_';
+	public $blobSize = 40000;
+	public $renameColumn = 'ALTER TABLE %s ALTER %s TO %s';
+	public $alterCol = ' ALTER';
+	public $dropCol = ' DROP';
 
 	public function actualType($meta)
 	{

@@ -135,10 +135,10 @@ function _colonparser($sql,$arr)
 }
 
 class ADODB_db2oci extends ADODB_db2 {
-	var $databaseType = "db2oci";
-	var $sysTimeStamp = 'sysdate';
-	var $sysDate = 'trunc(sysdate)';
-	var $_bindInputArray = true;
+	public $databaseType = "db2oci";
+	public $sysTimeStamp = 'sysdate';
+	public $sysDate = 'trunc(sysdate)';
+	public $_bindInputArray = true;
 
 	public function Param($name,$type='C')
 	{
@@ -195,7 +195,7 @@ class ADODB_db2oci extends ADODB_db2 {
 
 class  ADORecordSet_db2oci extends ADORecordSet_db2 {
 
-	var $databaseType = "db2oci";
+	public $databaseType = "db2oci";
 
 }
 

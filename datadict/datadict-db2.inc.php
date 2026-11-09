@@ -24,9 +24,9 @@ if (!defined('ADODB_DIR')) die();
 
 class ADODB2_db2 extends ADODB_DataDict {
 
-	var $databaseType = 'db2';
-	var $seqField = false;
-	var $dropCol = 'ALTER TABLE %s DROP COLUMN %s';
+	public $databaseType = 'db2';
+	public $seqField = false;
+	public $dropCol = 'ALTER TABLE %s DROP COLUMN %s';
 
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;

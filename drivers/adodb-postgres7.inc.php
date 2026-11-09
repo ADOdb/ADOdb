@@ -25,13 +25,13 @@ if (!defined('ADODB_DIR')) die();
 include_once(ADODB_DIR."/drivers/adodb-postgres64.inc.php");
 
 class ADODB_postgres7 extends ADODB_postgres64 {
-	var $databaseType = 'postgres7';
-	var $hasLimit = true;	// set to true for pgsql 6.5+ only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
-	var $ansiOuter = true;
-	var $charSet = true; //set to true for Postgres 7 and above - PG client supports encodings
+	public $databaseType = 'postgres7';
+	public $hasLimit = true;	// set to true for pgsql 6.5+ only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
+	public $ansiOuter = true;
+	public $charSet = true; //set to true for Postgres 7 and above - PG client supports encodings
 
 	// Richard 3/18/2012 - Modified SQL to return SERIAL type correctly AS old driver no longer return SERIAL as data type.
-	var $metaColumnsSQL = "
+	public $metaColumnsSQL = "
 		SELECT
 			a.attname,
 			CASE
@@ -65,7 +65,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			a.attnum";
 
 	// used when schema defined
-	var $metaColumnsSQL1 = "
+	public $metaColumnsSQL1 = "
 		SELECT
 			a.attname,
 			CASE
@@ -368,7 +368,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 
 class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 
-	var $databaseType = "postgres7";
+	public $databaseType = "postgres7";
 
 	// 10% speedup to move MoveNext to child class
 	public function MoveNext()
@@ -391,7 +391,7 @@ class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 
 class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 
-	var $databaseType = "postgres7";
+	public $databaseType = "postgres7";
 
 
 	public function _fetch()

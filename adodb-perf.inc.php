@@ -224,21 +224,21 @@ Each database parameter element in the array is itself an array consisting of:
 */
 
 class adodb_perf {
-	var $conn;
-	var $color = '#F0F0F0';
-	var $table = '<table border=1 bgcolor=white>';
-	var $titles = '<tr><td><b>Parameter</b></td><td><b>Value</b></td><td><b>Description</b></td></tr>';
-	var $warnRatio = 90;
-	var $tablesSQL = false;
-	var $cliFormat = "%32s => %s \r\n";
-	var $sql1 = 'sql1';  // used for casting sql1 to text for mssql
-	var $explain = true;
-	var $helpurl = '<a href="https://adodb.org/dokuwiki/doku.php?id=v5:performance:logsql">LogSQL help</a>';
-	var $createTableSQL = false;
-	var $maxLength = 2000;
+	public $conn;
+	public $color = '#F0F0F0';
+	public $table = '<table border=1 bgcolor=white>';
+	public $titles = '<tr><td><b>Parameter</b></td><td><b>Value</b></td><td><b>Description</b></td></tr>';
+	public $warnRatio = 90;
+	public $tablesSQL = false;
+	public $cliFormat = "%32s => %s \r\n";
+	public $sql1 = 'sql1';  // used for casting sql1 to text for mssql
+	public $explain = true;
+	public $helpurl = '<a href="https://adodb.org/dokuwiki/doku.php?id=v5:performance:logsql">LogSQL help</a>';
+	public $createTableSQL = false;
+	public $maxLength = 2000;
 
 	/** @var array Settings data. */
-	var $settings = [];
+	public $settings = [];
 
     // Sets the tablename to be used
     public static function table($newtable = false)
@@ -354,7 +354,7 @@ Committed_AS:   348732 kB
 	/*
 		Remember that this is client load, not db server load!
 	*/
-	var $_lastLoad;
+	public $_lastLoad;
 	public function CPULoad()
 	{
 		$info = $this->_CPULoad();

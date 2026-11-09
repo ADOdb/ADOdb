@@ -72,9 +72,9 @@ global $_COLONARR,$_COLONSZ;
 }
 
 class ADODB_db2oci extends ADODB_db2 {
-	var $databaseType = "db2oci";
-	var $sysTimeStamp = 'sysdate';
-	var $sysDate = 'trunc(sysdate)';
+	public $databaseType = "db2oci";
+	public $sysTimeStamp = 'sysdate';
+	public $sysDate = 'trunc(sysdate)';
 
 	public function _Execute($sql, $inputarr = false)
 	{
@@ -86,7 +86,7 @@ class ADODB_db2oci extends ADODB_db2 {
 
 class  ADORecordSet_db2oci extends ADORecordSet_odbc {
 
-	var $databaseType = "db2oci";
+	public $databaseType = "db2oci";
 
 }
 

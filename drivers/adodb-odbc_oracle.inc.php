@@ -28,24 +28,24 @@ if (!defined('_ADODB_ODBC_LAYER')) {
 
 
 class  ADODB_odbc_oracle extends ADODB_odbc {
-	var $databaseType = 'odbc_oracle';
- 	var $replaceQuote = "''"; // string to use to replace quotes
-	var $concat_operator='||';
-	var $fmtDate = "'Y-m-d 00:00:00'";
-	var $fmtTimeStamp = "'Y-m-d h:i:sA'";
-	var $metaTablesSQL = <<<ENDSQL
+	public $databaseType = 'odbc_oracle';
+ 	public $replaceQuote = "''"; // string to use to replace quotes
+	public $concat_operator='||';
+	public $fmtDate = "'Y-m-d 00:00:00'";
+	public $fmtTimeStamp = "'Y-m-d h:i:sA'";
+	public $metaTablesSQL = <<<ENDSQL
 		SELECT table_name, table_type
 		FROM user_catalog
 		WHERE table_type IN ('TABLE', 'VIEW') AND table_name NOT LIKE 'BIN\$%'
 		ENDSQL; // bin$ tables are recycle bin tables
-	var $metaColumnsSQL = <<<ENDSQL
+	public $metaColumnsSQL = <<<ENDSQL
 		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
 		FROM user_tab_columns
 		WHERE table_name = '%s'
 		ORDER BY column_id
 		ENDSQL;
-	var $sysDate = "TRUNC(SYSDATE)";
-	var $sysTimeStamp = 'SYSDATE';
+	public $sysDate = "TRUNC(SYSDATE)";
+	public $sysTimeStamp = 'SYSDATE';
 
 	//var $_bindInputArray = false;
 
@@ -115,6 +115,6 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 
 class  ADORecordSet_odbc_oracle extends ADORecordSet_odbc {
 
-	var $databaseType = 'odbc_oracle';
+	public $databaseType = 'odbc_oracle';
 
 }

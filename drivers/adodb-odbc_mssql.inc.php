@@ -28,27 +28,27 @@ if (!defined('_ADODB_ODBC_LAYER')) {
 
 
 class  ADODB_odbc_mssql extends ADODB_odbc {
-	var $databaseType = 'odbc_mssql';
-	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d\TH:i:s'";
-	var $_bindInputArray = true;
-	var $metaDatabasesSQL = "select name from sysdatabases where name <> 'master'";
-	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE'))";
-	var $metaColumnsSQL = # xtype==61 is datetime
+	public $databaseType = 'odbc_mssql';
+	public $fmtDate = "'Y-m-d'";
+	public $fmtTimeStamp = "'Y-m-d\TH:i:s'";
+	public $_bindInputArray = true;
+	public $metaDatabasesSQL = "select name from sysdatabases where name <> 'master'";
+	public $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE'))";
+	public $metaColumnsSQL = # xtype==61 is datetime
 	"select c.name,t.name,c.length,c.isnullable, c.status,
 		(case when c.xusertype=61 then 0 else c.xprec end),
 		(case when c.xusertype=61 then 0 else c.xscale end)
 		from syscolumns c join systypes t on t.xusertype=c.xusertype join sysobjects o on o.id=c.id where o.name='%s'";
-	var $hasTop = 'top';		// support mssql/interbase SELECT TOP 10 * FROM TABLE
-	var $sysDate = 'GetDate()';
-	var $sysTimeStamp = 'GetDate()';
-	var $leftOuter = '*=';
-	var $rightOuter = '=*';
-	var $substr = 'substring';
-	var $length = 'len';
-	var $ansiOuter = true; // for mssql7 or later
-	var $identitySQL = 'select SCOPE_IDENTITY()'; // 'select SCOPE_IDENTITY'; # for mssql 2000
-	var $hasInsertID = true;
+	public $hasTop = 'top';		// support mssql/interbase SELECT TOP 10 * FROM TABLE
+	public $sysDate = 'GetDate()';
+	public $sysTimeStamp = 'GetDate()';
+	public $leftOuter = '*=';
+	public $rightOuter = '=*';
+	public $substr = 'substring';
+	public $length = 'len';
+	public $ansiOuter = true; // for mssql7 or later
+	public $identitySQL = 'select SCOPE_IDENTITY()'; // 'select SCOPE_IDENTITY'; # for mssql 2000
+	public $hasInsertID = true;
 	/**
 	 * When SET CONCAT_NULL_YIELDS_NULL is ON, concatenating a null value with
 	 * a string yields a NULL result.
@@ -437,6 +437,6 @@ order by constraint_name, referenced_table_name, keyno";
 
 class  ADORecordSet_odbc_mssql extends ADORecordSet_odbc {
 
-	var $databaseType = 'odbc_mssql';
+	public $databaseType = 'odbc_mssql';
 
 }

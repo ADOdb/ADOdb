@@ -29,15 +29,15 @@ if (!function_exists('mcrypt_encrypt')) {
 class ADODB_Encrypt_MCrypt {
 	/**
 	 */
-	var $_cipher;
+	public $_cipher;
 
 	/**
 	 */
-	var $_mode;
+	public $_mode;
 
 	/**
 	 */
-	var $_source;
+	public $_source;
 
 	/**
 	 */

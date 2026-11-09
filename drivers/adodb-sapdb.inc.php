@@ -29,14 +29,14 @@ if (!defined('ADODB_SAPDB')){
 define('ADODB_SAPDB',1);
 
 class ADODB_SAPDB extends ADODB_odbc {
-	var $databaseType = "sapdb";
-	var $concat_operator = '||';
-	var $sysDate = 'DATE';
-	var $sysTimeStamp = 'TIMESTAMP';
-	var $fmtDate = "'Y-m-d'";	/// used by DBDate() as the default date format used by the database
-	var $fmtTimeStamp = "'Y-m-d H:i:s'"; /// used by DBTimeStamp as the default timestamp fmt.
-	var $hasInsertId = true;
-	var $_bindInputArray = true;
+	public $databaseType = "sapdb";
+	public $concat_operator = '||';
+	public $sysDate = 'DATE';
+	public $sysTimeStamp = 'TIMESTAMP';
+	public $fmtDate = "'Y-m-d'";	/// used by DBDate() as the default date format used by the database
+	public $fmtTimeStamp = "'Y-m-d H:i:s'"; /// used by DBTimeStamp as the default timestamp fmt.
+	public $hasInsertId = true;
+	public $_bindInputArray = true;
 
 	public function ServerInfo()
 	{
@@ -173,7 +173,7 @@ class ADODB_SAPDB extends ADODB_odbc {
 
 class ADORecordSet_sapdb extends ADORecordSet_odbc {
 
-	var $databaseType = "sapdb";
+	public $databaseType = "sapdb";
 
 }
 
