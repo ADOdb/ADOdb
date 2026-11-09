@@ -64,7 +64,7 @@ if (isset($nocountrecs)) $ADODB_COUNTRECS = false;
 // cannot test databases below, but we include them anyway to check
 // if they parse ok...
 
-if (sizeof($_GET) || !isset($_SERVER['HTTP_HOST'])) {
+if (count($_GET) || !isset($_SERVER['HTTP_HOST'])) {
 	echo "<BR>";
 	ADOLoadCode2("sybase");
 	ADOLoadCode2("postgres");

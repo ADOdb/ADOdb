@@ -223,14 +223,14 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	/**
 	 * For Server 2005,2008, duplicate a sequence with an identity table
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $seq The name of the sequence
 	 * @param int    $start the start number of the sequence
-	 * 
+	 *
 	 * @return bool|object
-	 * 
-	 * @deprecated  
+	 *
+	 * @deprecated
 	*/
 	function CreateSequence2008($seq='adodbseq',$start=1)
 	{
@@ -250,14 +250,14 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	/**
 	 * Proper Sequences Only available to Server 2012 and up
-	 * 
+	 *
 	 * @param string $seq The name of the sequence
 	 * @param int    $start the start number of the sequence
-	 * 
+	 *
 	 * @return bool|object
 	 */
 	function CreateSequence2012($seq='adodbseq',$start=1) {
-		
+
 		if (!$this->sequences){
 			$sql = "SELECT name FROM sys.sequences";
 			$this->sequences = $this->GetCol($sql);
@@ -265,13 +265,13 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		$sql = "CREATE SEQUENCE $seq START WITH $start INCREMENT BY 1";
 		$ok = $this->execute($sql);
-		
+
 		if (!$ok) {
 			$creationErrors = print_r(sqlsrv_errors(), true);
 			ADOConnection::outp("Error creating sequence:" . $creationErrors);
 			return false;
 		}
-		
+
 		$this->sequences[] = $seq;
 
 		return new ADORecordSet_empty;
@@ -279,7 +279,7 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	/**
 	 * For Server 2005,2008, duplicate a sequence with an identity table
-	 * 
+	 *
 	 * @deprecated
 	 */
 	function GenID2008($seq='adodbseq',$start=1)
@@ -306,10 +306,10 @@ class ADODB_mssqlnative extends ADOConnection {
 	 * Cannot do this the normal adodb way by trapping an error if the
 	 * sequence does not exist because sql server will auto create a
 	 * sequence with the starting number of -9223372036854775808
-	 * 
+	 *
 	 * @param string $seq   The sequence name
 	 * @param int    $start The start number for the sequence
-	 * 
+	 *
 	 * @return int
 	 */
 	function GenID2012($seq='adodbseq',$start=1)
@@ -341,15 +341,15 @@ class ADODB_mssqlnative extends ADOConnection {
 	 * a resource for the drop which confuses execute()
 	 *
 	 * @param string $seqname
-	 * 
+	 *
 	 * @return bool|ADORecordset_empty
 	 */
 	public function dropSequence($seqname='adodbseq') {
-		
+
 		if (!$seqname) {
 			return false;
 		}
-		
+
 		$success = $this->_query(sprintf($this->_dropSeqSQL,$seqname));
 
 		if ($success) {
@@ -626,7 +626,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		$arr = func_get_args();
 
 		// Split single record on commas, if possible
-		if (sizeof($arr) == 1) {
+		if (count($arr) == 1) {
 			foreach ($arr as $arg) {
 				$args = explode(',', $arg);
 			}
@@ -640,7 +640,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			}
 		);
 		$s = implode('+',$arr);
-		if (sizeof($arr) > 0) return "$s";
+		if (count($arr) > 0) return "$s";
 
 		return '';
 	}
@@ -754,11 +754,11 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	/**
 	 * List indexes on a table as an array
-	 * 
+	 *
 	 * @param string $table   table name to query
 	 * @param bool   $primary true to only show primary keys. Not actually used for most databases
 	 * @param string $owner   Discarded for this driver
-	 * 
+	 *
 	 * @return array of indexes on current table
 	 */
 	function MetaIndexes($table,$primary=false, $owner = false)
@@ -783,7 +783,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND O.Name LIKE $table
 			ORDER BY O.name, I.Name, K.keyno";
 
-		
+
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== FALSE) {
@@ -813,7 +813,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		if (count($indexes) == 0) {
 			return false;
 		}
-		
+
 		return $indexes;
 	}
 
@@ -843,12 +843,12 @@ class ADODB_mssqlnative extends ADOConnection {
 		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC) {
 			$associative = true;
 		}
-		
+
 		$saveFetchModes = [
 			$ADODB_FETCH_MODE,
 			$this->fetchMode
 		];
-		
+
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 		$this->SetFetchMode(ADODB_FETCH_ASSOC);
 
@@ -938,11 +938,11 @@ class ADODB_mssqlnative extends ADOConnection {
 		];
 
 		$saveDatabaseName = $this->database;
-		
+
 		$this->SetFetchMode(ADODB_FETCH_NUM);
-		
+
 		$this->SelectDB("master");
-		
+
 		$rs = $this->Execute($this->metaDatabasesSQL);
 		$rows = $rs->GetRows();
 
@@ -953,11 +953,11 @@ class ADODB_mssqlnative extends ADOConnection {
 		* Flatten and lowercase the array
 		*/
 		$ret = array_map('strtolower',array_merge(...$rows));
-		
+
 		$this->SelectDB($saveDatabaseName);
 
 		return $ret ? $ret : false;
-	
+
 	}
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
@@ -981,7 +981,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		$a = $this->GetCol($sql);
 		$ADODB_FETCH_MODE = $savem;
 
-		if ($a && sizeof($a)>0) return $a;
+		if ($a && count($a)>0) return $a;
 		$false = false;
 		return $false;
 	}
@@ -994,7 +994,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			$mask = $this->qstr(($mask));
 			$this->metaTablesSQL .= " AND name like $mask";
 		}
-		
+
 		$ret = ADOConnection::MetaTables($ttype,$showSchema);
 
 		if ($mask) {
@@ -1228,7 +1228,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	 * CHAR fields
 	 *
 	 * @param string $fieldName The field length to measure
- 	 * 
+ 	 *
 	 * @return string
 	 */
 	public function length(string $fieldName): string
@@ -1481,7 +1481,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			} else {
 				$this->connection->affectedRowCount = false;
 			}
-				
+
 			$rez = sqlsrv_free_stmt($this->_queryID);
 			$this->_queryID = false;
 			return $rez;

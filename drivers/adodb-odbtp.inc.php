@@ -330,7 +330,7 @@ class ADODB_odbtp extends ADOConnection{
 		$ADODB_FETCH_MODE = $savem;
 
 		$arr2 = array();
-		for ($i=0; $i < sizeof($arr); $i++) {
+		for ($i=0; $i < count($arr); $i++) {
 			if ($arr[$i][3] == 'SYSTEM TABLE' )	continue;
 			if ($arr[$i][2])
 				$arr2[] = $showSchema && $arr[$i][1]? $arr[$i][1].'.'.$arr[$i][2] : $arr[$i][2];
@@ -395,7 +395,7 @@ class ADODB_odbtp extends ADOConnection{
 
 		//print_r($arr);
 		$arr2 = array();
-		for ($i=0; $i < sizeof($arr); $i++) {
+		for ($i=0; $i < count($arr); $i++) {
 			if ($arr[$i][3]) $arr2[] = $arr[$i][3];
 		}
 		return $arr2;

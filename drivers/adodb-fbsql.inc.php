@@ -66,7 +66,7 @@ class ADODB_fbsql extends ADOConnection {
 		$first = true;
 
 		$s = implode(',',$arr);
-		if (sizeof($arr) > 0) return "CONCAT($s)";
+		if (count($arr) > 0) return "CONCAT($s)";
 		else return '';
 	}
 

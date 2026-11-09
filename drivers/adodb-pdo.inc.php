@@ -414,7 +414,7 @@ class ADODB_pdo extends ADOConnection {
 		}
 
 		if ($arr) {
-			if (sizeof($arr)<2) {
+			if (count($arr)<2) {
 				return '';
 			}
 			if ((int)$arr[0]) {

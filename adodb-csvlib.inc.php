@@ -122,7 +122,7 @@ $ADODB_INCLUDED_CSV = 1;
 			if (strncmp($meta[0], '====',4) === 0) {
 
 				if ($meta[0] == "====-1") {
-					if (sizeof($meta) < 5) {
+					if (count($meta) < 5) {
 						$err = "Corrupt first line for format -1";
 						fclose($fp);
 						return false;
@@ -152,7 +152,7 @@ $ADODB_INCLUDED_CSV = 1;
 			# -2 sec before timeout, give processes 1/16 chance of timing out
 			# -1 sec after timeout give processes 1/4 chance of timing out
 			# +0 sec after timeout, give processes 100% chance of timing out
-				if (sizeof($meta) > 1) {
+				if (count($meta) > 1) {
 					if($timeout >0){
 						$tdiff = (int)( $meta[1]+$timeout - time());
 						if ($tdiff <= 4) {
@@ -223,7 +223,7 @@ $ADODB_INCLUDED_CSV = 1;
 			$flds = array();
 			foreach($meta as $o) {
 				$o2 = explode(':',$o);
-				if (sizeof($o2)!=3) {
+				if (count($o2)!=3) {
 					$arr[] = $meta;
 					$flds = false;
 					break;

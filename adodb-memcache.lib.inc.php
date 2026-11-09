@@ -221,7 +221,7 @@ class ADODB_Cache_MemCache
 				}
 			}
 		}
-		if ($failcnt == sizeof($this->serverControllers)) {
+		if ($failcnt == count($this->serverControllers)) {
 			$err = 'Can\'t connect to any memcache server';
 			return false;
 		}

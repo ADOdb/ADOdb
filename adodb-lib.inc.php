@@ -54,7 +54,7 @@ function adodb_probetypes($array,&$types,$probe=8)
 {
 // probe and guess the type
 	$types = array();
-	if ($probe > sizeof($array)) $max = sizeof($array);
+	if ($probe > count($array)) $max = count($array);
 	else $max = $probe;
 
 
@@ -95,8 +95,8 @@ function adodb_probetypes($array,&$types,$probe=8)
 
 function adodb_transpose(&$arr, &$newarr, &$hdr, $fobjs)
 {
-	$oldX = sizeof(reset($arr));
-	$oldY = sizeof($arr);
+	$oldX = count(reset($arr));
+	$oldY = count($arr);
 
 	if ($hdr) {
 		$startx = 1;
@@ -339,7 +339,7 @@ function _adodb_getmenu_select($name, $defstr = '', $blank1stItem = true,
 	if ($blank1stItem) {
 		if (is_string($blank1stItem)) {
 			$barr = explode(':',$blank1stItem);
-			if (sizeof($barr) == 1) {
+			if (count($barr) == 1) {
 				$barr[] = '';
 			}
 			$html .= "\n<option value=\"" . $barr[0] . "\">" . $barr[1] . "</option>";
@@ -1331,7 +1331,7 @@ function _adodb_backtrace($printOrArr=true, $maximumDepth=0, $elementsToIgnore=0
 	for ($elementsToIgnore += 2; $elementsToIgnore > 0; $elementsToIgnore--) {
 		array_shift($traceArr);
 	}
-	$elements = sizeof($traceArr);
+	$elements = count($traceArr);
 
 	foreach ($traceArr as $element) {
 		// Function name with class prefix
@@ -1347,7 +1347,7 @@ function _adodb_backtrace($printOrArr=true, $maximumDepth=0, $elementsToIgnore=0
 				if (is_null($v)) {
 					$args[] = 'null';
 				} elseif (is_array($v)) {
-					$args[] = 'Array[' . sizeof($v) . ']';
+					$args[] = 'Array[' . count($v) . ']';
 				} elseif (is_object($v)) {
 					$args[] = 'Object:' . get_class($v);
 				} elseif (is_bool($v)) {

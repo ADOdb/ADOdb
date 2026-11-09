@@ -55,7 +55,7 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 		if ($rs === false) return false;
 		$arr = $rs->GetArray();
 		$arr2 = array();
-		for ($i=0; $i < sizeof($arr); $i++) {
+		for ($i=0; $i < count($arr); $i++) {
 			$arr2[] = $arr[$i][0];
 		}
 		$rs->Close();

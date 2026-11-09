@@ -213,7 +213,7 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 	ORDER BY I.RDB$INDEX_NAME,S.RDB$FIELD_POSITION';
 
 		$a = $this->GetCol($sql, false, true);
-		if ($a && sizeof($a) > 0) {
+		if ($a && count($a) > 0) {
 			return $a;
 		}
 		return false;

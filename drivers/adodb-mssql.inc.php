@@ -483,7 +483,7 @@ order by constraint_name, referenced_table_name, keyno";
 					$ar[]=$tmpAr[0];
 				}
 				@mssql_select_db($this->database);
-				if(sizeof($ar)) {
+				if(count($ar)) {
 					return($ar);
 				} else {
 					return(false);
@@ -517,7 +517,7 @@ order by constraint_name, referenced_table_name, keyno";
 		$a = $this->GetCol($sql);
 		$ADODB_FETCH_MODE = $savem;
 
-		if ($a && sizeof($a)>0) return $a;
+		if ($a && count($a)>0) return $a;
 		$false = false;
 		return $false;
 	}
@@ -609,9 +609,9 @@ order by constraint_name, referenced_table_name, keyno";
 	function Prepare($sql)
 	{
 		$sqlarr = explode('?',$sql);
-		if (sizeof($sqlarr) <= 1) return $sql;
+		if (count($sqlarr) <= 1) return $sql;
 		$sql2 = $sqlarr[0];
-		for ($i = 1, $max = sizeof($sqlarr); $i < $max; $i++) {
+		for ($i = 1, $max = count($sqlarr); $i < $max; $i++) {
 			$sql2 .=  '@P'.($i-1) . $sqlarr[$i];
 		}
 		return array($sql,$this->qstr($sql2),$max,$sql2);
@@ -634,7 +634,7 @@ order by constraint_name, referenced_table_name, keyno";
 			$arr = func_get_args();
 
 			// Split single record on commas, if possible
-			if (sizeof($arr) == 1) {
+			if (count($arr) == 1) {
 				foreach ($arr as $arg) {
 					$args = explode(',', $arg);
 				}
@@ -648,7 +648,7 @@ order by constraint_name, referenced_table_name, keyno";
 				}
 			);
 			$s = implode('+',$arr);
-			if (sizeof($arr) > 0) return "$s";
+			if (count($arr) > 0) return "$s";
 
 			return '';
 	}

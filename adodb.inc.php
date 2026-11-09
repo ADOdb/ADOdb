@@ -1592,7 +1592,7 @@ if (!defined('_ADODB_LAYER')) {
 			if (!is_array($sql) && !$this->_bindInputArray) {
 				// @TODO this would consider a '?' within a string as a parameter...
 				$sqlarr = explode('?',$sql);
-				$nparams = sizeof($sqlarr)-1;
+				$nparams = count($sqlarr)-1;
 
 				if (!$array_2d) {
 					// When not Bind Bulk - convert to array of arguments list
@@ -1657,10 +1657,10 @@ if (!defined('_ADODB_LAYER')) {
 					} // while
 					if (isset($sqlarr[$i])) {
 						$sql .= $sqlarr[$i];
-						if ($i+1 != sizeof($sqlarr)) {
+						if ($i+1 != count($sqlarr)) {
 							$this->outp_throw( "Input Array does not match ?: ".htmlspecialchars($sql),'Execute');
 						}
-					} else if ($i != sizeof($sqlarr)) {
+					} else if ($i != count($sqlarr)) {
 						$this->outp_throw( "Input array does not match ?: ".htmlspecialchars($sql),'Execute');
 					}
 
@@ -1967,7 +1967,7 @@ if (!defined('_ADODB_LAYER')) {
 				}
 			}
 		}
-		if (sizeof($p)) {
+		if (count($p)) {
 			return $p;
 		}
 		if (function_exists('ADODB_VIEW_PRIMARYKEYS')) {
@@ -2437,7 +2437,7 @@ if (!defined('_ADODB_LAYER')) {
 
 	function GetRandRow($sql, $arr= false) {
 		$rezarr = $this->GetAll($sql, $arr);
-		$sz = sizeof($rezarr);
+		$sz = count($rezarr);
 		return $rezarr[abs(rand()) % $sz];
 	}
 
@@ -5533,14 +5533,14 @@ class ADORecordSet implements IteratorAggregate {
 		}
 
 		function _initrs() {
-			$this->_numOfRows =  sizeof($this->_array);
+			$this->_numOfRows =  count($this->_array);
 			if ($this->_skiprow1) {
 				$this->_numOfRows -= 1;
 			}
 
 			$this->_numOfFields = (isset($this->_fieldobjects))
-				? sizeof($this->_fieldobjects)
-				: sizeof($this->_types);
+				? count($this->_fieldobjects)
+				: count($this->_types);
 		}
 
 		/**
@@ -5598,7 +5598,7 @@ class ADORecordSet implements IteratorAggregate {
 		 * @return bool
 		 */
 		function _seek($row) {
-			if (sizeof($this->_array) && 0 <= $row && $row < $this->_numOfRows) {
+			if (count($this->_array) && 0 <= $row && $row < $this->_numOfRows) {
 				$this->_currentRow = $row;
 				if ($this->_skiprow1) {
 					$row += 1;
@@ -5816,7 +5816,7 @@ class ADORecordSet implements IteratorAggregate {
 
 			if (strncmp($origdsn,'pdo',3) == 0) {
 				$sch = explode('_',$dsna['scheme']);
-				if (sizeof($sch)>1) {
+				if (count($sch)>1) {
 					$dsna['host'] = isset($dsna['host']) ? rawurldecode($dsna['host']) : '';
 					if ($sch[1] == 'sqlite') {
 						$dsna['host'] = rawurlencode($sch[1].':'.rawurldecode($dsna['host']));
@@ -5942,7 +5942,7 @@ class ADORecordSet implements IteratorAggregate {
 					case 'cachesecs': $obj->cacheSecs = $v; break;
 					case 'memcache':
 						$varr = explode(':',$v);
-						$vlen = sizeof($varr);
+						$vlen = count($varr);
 						if ($vlen == 0) {
 							break;
 						}
