@@ -384,7 +384,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			,"Ymd"=>112,   "ymd"=>112   // ISO
 			,"H:i:s"=>108 // Time
 		);
-		if (key_exists($fmt,$ConvertableFmt)) {
+		if (array_key_exists($fmt,$ConvertableFmt)) {
 			return "convert (varchar ,$col," . $ConvertableFmt[$fmt] . ")";
 		}
 
