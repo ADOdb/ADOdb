@@ -1930,7 +1930,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 			$this->connection->_stmt = false;
 		}
 		if (!empty($this->_refcursor)) {
-			oci_free_cursor($this->_refcursor);
+			oci_free_statement($this->_refcursor);
 			$this->_refcursor = false;
 		}
 		if (is_resource($this->_queryID))
