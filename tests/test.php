@@ -19,8 +19,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-//if (!defined('E_STRICT')) define('E_STRICT',0);
-error_reporting(E_ALL|E_STRICT);
+error_reporting(E_ALL);
 
 $ADODB_FLUSH = true;
 
@@ -138,8 +137,8 @@ FROM `nuke_stories` `t1`, `nuke_authors` `t2`, `nuke_stories_cat` `t3`, `nuke_to
 
 	$arr = $db->ServerInfo();
 	print_r($arr);
-	echo E_ALL,' ',E_STRICT, "<br>";
-	$e = error_reporting(E_ALL | E_STRICT);
+	echo E_ALL, "<br>";
+	$e = error_reporting(E_ALL);
 	echo error_reporting(),'<p>';
 	flush();
 	#$db->debug=1;
