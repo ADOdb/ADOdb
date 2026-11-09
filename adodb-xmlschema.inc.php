@@ -1786,7 +1786,7 @@ class adoSchema {
 			return FALSE;
 		}
 
-		$xsl_file = dirname( __FILE__ ) . '/xsl/' . $xsl . '.xsl';
+		$xsl_file = __DIR__ . '/xsl/' . $xsl . '.xsl';
 
 		// look for xsl
 		if( !is_readable( $xsl_file ) ) {
