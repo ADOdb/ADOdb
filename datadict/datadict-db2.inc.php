@@ -85,13 +85,13 @@ class ADODB2_db2 extends ADODB_DataDict {
 	function alterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
-		$sql = array();
+		$sql = [];
 		list($lines,$pkey,$idxs) = $this->_GenFields($flds);
 		// genfields can return FALSE at times
-		if ($lines == null) $lines = array();
+		if ($lines == null) $lines = [];
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 
-		$dataTypeWords = array('SET','DATA','TYPE');
+		$dataTypeWords = ['SET','DATA','TYPE'];
 		
 		foreach($lines as $v) 
 		{
@@ -183,8 +183,8 @@ class ADODB2_db2 extends ADODB_DataDict {
 
 		*/
 
-		$validTypes = array("CHAR","VARC");
-		$invalidTypes = array("BIGI","BLOB","CLOB","DATE", "DECI","DOUB", "INTE", "REAL","SMAL", "TIME");
+		$validTypes = ["CHAR","VARC"];
+		$invalidTypes = ["BIGI","BLOB","CLOB","DATE", "DECI","DOUB", "INTE", "REAL","SMAL", "TIME"];
 		// check table exists
 		
 		
@@ -196,7 +196,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 		// already exists, alter table instead
 		list($lines,$pkey) = $this->_GenFields($flds);
 		$alter = 'ALTER TABLE ' . $this->tableName($tablename);
-		$sql = array();
+		$sql = [];
 
 		foreach ( $lines as $id => $v ) {
 			/*
@@ -227,7 +227,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 					continue;
 				// insert the appropriate DB2 syntax
 				if (in_array(substr($vargs[$i],0,4),$validTypes)) {
-					array_splice($vargs,$i,0,array('SET','DATA','TYPE'));
+					array_splice($vargs,$i,0,['SET','DATA','TYPE']);
 				}
 
 				// Now Look for the NOT NULL statement as this is not allowed in

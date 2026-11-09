@@ -20,7 +20,7 @@
  * @author Bogdan Stefan <sbogdan@rsb.ro>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
 			'LANG'                      => 'ro',
             DB_ERROR                    => 'eroare necunoscuta',
             DB_ERROR_ALREADY_EXISTS     => 'deja exista',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_EXTENSION_NOT_FOUND=> 'extensie negasita',
             DB_ERROR_NOSUCHDB           => 'nu exista baza de date',
             DB_ERROR_ACCESS_VIOLATION   => 'permisiuni insuficiente'
-);
+];

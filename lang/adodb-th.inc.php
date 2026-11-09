@@ -20,7 +20,7 @@
  * @author Trirat Petchsingh <rosskouk@gmail.com>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
 			'LANG'						=> 'th',
 			DB_ERROR					=> 'error ไม่รู้สาเหตุ',
 			DB_ERROR_ALREADY_EXISTS		=> 'มี�?ล้ว',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
 			DB_ERROR_EXTENSION_NOT_FOUND=> 'ไม่พบ extension',
 			DB_ERROR_NOSUCHDB			=> 'ไม่มีข้อมูลนี้',
 			DB_ERROR_ACCESS_VIOLATION	=> 'permissions ไม่พอ'
-);
+];

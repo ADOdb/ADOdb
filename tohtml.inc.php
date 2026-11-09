@@ -59,7 +59,7 @@ GLOBAL $gSQLMaxRows,$gSQLBlockRows,$ADODB_ROUND;
 
 	if (! $ztabhtml) $ztabhtml = "BORDER='1' WIDTH='98%'";
 	//else $docnt = true;
-	$typearr = array();
+	$typearr = [];
 	$ncols = $rs->FieldCount();
 	$hdr = "<TABLE COLS=$ncols $ztabhtml><tr>\n\n";
 	for ($i=0; $i < $ncols; $i++) {

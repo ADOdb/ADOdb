@@ -52,10 +52,10 @@ echo "<pre>";
 print_r($p);
 
 $conn->debug=1;
-$conn->Execute($p,array('John'.rand(),33.3,$conn->DBDate(time())));
+$conn->Execute($p,['John'.rand(),33.3,$conn->DBDate(time())]);
 
 $p = $conn->Prepare('select * from products where productname like ?');
-$arr = $conn->getarray($p,array('V%'));
+$arr = $conn->getarray($p,['V%']);
 print_r($arr);
 die();
 

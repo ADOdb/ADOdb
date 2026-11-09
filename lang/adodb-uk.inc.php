@@ -20,7 +20,7 @@
  * @author Alex Rootoff <rootoff@pisem.net>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
              'LANG'                      => 'uk',
             DB_ERROR                    => 'невідома помилка',
             DB_ERROR_ALREADY_EXISTS     => 'вже існує',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_EXTENSION_NOT_FOUND=> 'розширення не знайдено',
             DB_ERROR_NOSUCHDB           => 'не існує БД',
             DB_ERROR_ACCESS_VIOLATION   => 'недостатньо прав доступа'
-);
+];

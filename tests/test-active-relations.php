@@ -75,7 +75,7 @@
 
 	class child extends ADOdb_Active_Record{};
 	ADODB_Active_Record::TableBelongsTo('children','person','person_id','id');
-	$ch = new Child('children',array('id'));
+	$ch = new Child('children',['id']);
 
 	$ch->Load('id=1');
 	if ($ch->name_first !== 'Jill') echo "error in Loading Child<br>";

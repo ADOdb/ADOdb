@@ -20,7 +20,7 @@
  * @author Tiraboschi Massimiliano <timax@maxdev.com>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
             'LANG'                      => 'it',
             DB_ERROR                    => 'errore sconosciuto',
             DB_ERROR_ALREADY_EXISTS     => 'esiste già',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_EXTENSION_NOT_FOUND=> 'estensione non trovata',
             DB_ERROR_NOSUCHDB           => 'database non trovato',
             DB_ERROR_ACCESS_VIOLATION   => 'permessi insufficienti'
-);
+];

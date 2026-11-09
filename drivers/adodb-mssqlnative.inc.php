@@ -115,7 +115,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	/** @var string SQL statement to drop a Sequence. */
 	var $_dropSeqSQL = "DROP SEQUENCE %s";
 
-	var $connectionInfo    = array('ReturnDatesAsStrings'=>true);
+	var $connectionInfo    = ['ReturnDatesAsStrings'=>true];
 
 	var $sequences = false;
 	var $mssql_version = '';
@@ -155,10 +155,10 @@ class ADODB_mssqlnative extends ADOConnection {
 
 	function serverInfo() {
 		$info = sqlsrv_server_info($this->_connectionID);
-		return array(
+		return [
 			'description' => $info['SQLServerName'] . ' connected to ' . $info['CurrentDatabase'],
 			'version' => $info['SQLServerVersion'],
-		);
+		];
 	}
 
 	function IfNull( $field, $ifNull )
@@ -257,7 +257,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	 * @return bool|object
 	 */
 	function CreateSequence2012($seq='adodbseq',$start=1) {
-		
+
 		if (!$this->sequences){
 			$sql = "SELECT name FROM sys.sequences";
 			$this->sequences = $this->GetCol($sql);
@@ -265,13 +265,13 @@ class ADODB_mssqlnative extends ADOConnection {
 
 		$sql = "CREATE SEQUENCE $seq START WITH $start INCREMENT BY 1";
 		$ok = $this->execute($sql);
-		
+
 		if (!$ok) {
 			$creationErrors = print_r(sqlsrv_errors(), true);
 			ADOConnection::outp("Error creating sequence:" . $creationErrors);
 			return false;
 		}
-		
+
 		$this->sequences[] = $seq;
 
 		return new ADORecordSet_empty;
@@ -345,11 +345,11 @@ class ADODB_mssqlnative extends ADOConnection {
 	 * @return bool|ADORecordset_empty
 	 */
 	public function dropSequence($seqname='adodbseq') {
-		
+
 		if (!$seqname) {
 			return false;
 		}
-		
+
 		$success = $this->_query(sprintf($this->_dropSeqSQL,$seqname));
 
 		if ($success) {
@@ -373,7 +373,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		}
 		$s = '';
 
-		$ConvertableFmt=array(
+		$ConvertableFmt=[
 			"m/d/Y"=>101,  "m/d/y"=>101 // US
 			,"Y.m.d"=>102, "y.m.d"=>102 // ANSI
 			,"d/m/Y"=>103, "d/m/y"=>103 // French /english
@@ -383,7 +383,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			,"Y/m/d"=>111, "y/m/d"=>111 // Japan
 			,"Ymd"=>112,   "ymd"=>112   // ISO
 			,"H:i:s"=>108 // Time
-		);
+		];
 		if (key_exists($fmt,$ConvertableFmt)) {
 			return "convert (varchar ,$col," . $ConvertableFmt[$fmt] . ")";
 		}
@@ -783,7 +783,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			WHERE LEFT(i.name, 8) <> '_WA_Sys_' AND o.status >= 0 AND O.Name LIKE $table
 			ORDER BY O.name, I.Name, K.keyno";
 
-		
+
 		$save = $ADODB_FETCH_MODE;
 		$ADODB_FETCH_MODE = ADODB_FETCH_NUM;
 		if ($this->fetchMode !== FALSE) {
@@ -800,7 +800,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			return FALSE;
 		}
 
-		$indexes = array();
+		$indexes = [];
 		while ($row = $rs->FetchRow()) {
 			if (!$primary && $row[5]) {
 				continue;
@@ -813,7 +813,7 @@ class ADODB_mssqlnative extends ADOConnection {
 		if (count($indexes) == 0) {
 			return false;
 		}
-		
+
 		return $indexes;
 	}
 
@@ -843,12 +843,12 @@ class ADODB_mssqlnative extends ADOConnection {
 		if ($ADODB_FETCH_MODE == ADODB_FETCH_ASSOC) {
 			$associative = true;
 		}
-		
+
 		$saveFetchModes = [
 			$ADODB_FETCH_MODE,
 			$this->fetchMode
 		];
-		
+
 		$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 		$this->SetFetchMode(ADODB_FETCH_ASSOC);
 
@@ -938,11 +938,11 @@ class ADODB_mssqlnative extends ADOConnection {
 		];
 
 		$saveDatabaseName = $this->database;
-		
+
 		$this->SetFetchMode(ADODB_FETCH_NUM);
-		
+
 		$this->SelectDB("master");
-		
+
 		$rs = $this->Execute($this->metaDatabasesSQL);
 		$rows = $rs->GetRows();
 
@@ -953,11 +953,11 @@ class ADODB_mssqlnative extends ADOConnection {
 		* Flatten and lowercase the array
 		*/
 		$ret = array_map('strtolower',array_merge(...$rows));
-		
+
 		$this->SelectDB($saveDatabaseName);
 
 		return $ret ? $ret : false;
-	
+
 	}
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
@@ -994,7 +994,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			$mask = $this->qstr(($mask));
 			$this->metaTablesSQL .= " AND name like $mask";
 		}
-		
+
 		$ret = ADOConnection::MetaTables($ttype,$showSchema);
 
 		if ($mask) {
@@ -1008,9 +1008,9 @@ class ADODB_mssqlnative extends ADOConnection {
 		/*
 		* A simple caching mechanism, to be replaced in ADOdb V6
 		*/
-		static $cached_columns = array();
+		static $cached_columns = [];
 		if ($this->cachedSchemaFlush)
-			$cached_columns = array();
+			$cached_columns = [];
 
 		if (array_key_exists($table,$cached_columns)){
 			return $cached_columns[$table];
@@ -1040,7 +1040,7 @@ class ADODB_mssqlnative extends ADOConnection {
 			return $false;
 		}
 
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF){
 
 			$fld = new ADOFieldObject();
@@ -1143,7 +1143,7 @@ class ADODB_mssqlnative extends ADOConnection {
 	 */
 	public function metaProcedures($procedureNamePattern = null, $catalog  = null, $schemaPattern  = null)
 	{
-		$metaProcedures = array();
+		$metaProcedures = [];
 		$procedureSQL   = '';
 		$catalogSQL     = '';
 		$schemaSQL      = '';
@@ -1182,11 +1182,11 @@ class ADODB_mssqlnative extends ADOConnection {
 			$procedureName = $r[0];
 			$schemaName    = $r[2];
 			$routineCatalog= $r[3];
-			$metaProcedures[$procedureName] = array('type'=> $r[1],
+			$metaProcedures[$procedureName] = ['type'=> $r[1],
 												   'catalog' => $routineCatalog,
 												   'schema'  => $schemaName,
 												   'remarks' => '',
-												    );
+												    ];
 		}
 
 		return $metaProcedures;
@@ -1253,7 +1253,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	/*
 	 * Cross references the dateTime objects for faster decoding
 	 */
-	private $dateTimeObjects = array();
+	private $dateTimeObjects = [];
 
 	/*
 	 * flags that we have dateTimeObjects to handle
@@ -1265,7 +1265,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 	 * in SQL Server and their english-language description
 	 * -154 is a time field, see #432
 	 */
-	private $_typeConversion = array(
+	private $_typeConversion = [
 			-155 => 'datetimeoffset',
 			-154 => 'char',
 			-152 => 'xml',
@@ -1291,7 +1291,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			 12  => 'varchar',
 			 91  => 'date',
 			 93  => 'datetime'
-			);
+			];
 
 
 	function _initrs()
@@ -1327,7 +1327,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			return $this->fields[$colname];
 
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;
@@ -1481,7 +1481,7 @@ class ADORecordset_mssqlnative extends ADORecordSet {
 			} else {
 				$this->connection->affectedRowCount = false;
 			}
-				
+
 			$rez = sqlsrv_free_stmt($this->_queryID);
 			$this->_queryID = false;
 			return $rez;

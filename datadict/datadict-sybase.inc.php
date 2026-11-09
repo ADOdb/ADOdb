@@ -101,7 +101,7 @@ class ADODB2_sybase extends ADODB_DataDict {
 	function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName ($tabname);
-		$f = array();
+		$f = [];
 		list($lines,$pkey) = $this->_GenFields($flds);
 		$s = "ALTER TABLE $tabname $this->addCol";
 		foreach($lines as $v) {
@@ -115,7 +115,7 @@ class ADODB2_sybase extends ADODB_DataDict {
 	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
-		$sql = array();
+		$sql = [];
 		list($lines,$pkey) = $this->_GenFields($flds);
 		foreach($lines as $v) {
 			$sql[] = "ALTER TABLE $tabname $this->alterCol $v";
@@ -128,7 +128,7 @@ class ADODB2_sybase extends ADODB_DataDict {
 	{
 		$tabname = $this->TableName($tabname);
 		if (!is_array($flds)) $flds = explode(',',$flds);
-		$f = array();
+		$f = [];
 		$s = "ALTER TABLE $tabname";
 		foreach($flds as $v) {
 			$f[] = "\n$this->dropCol ".$this->NameQuote($v);
@@ -224,7 +224,7 @@ CREATE TABLE
 */
 	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
-		$sql = array();
+		$sql = [];
 
 		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
 			$sql[] = sprintf ($this->dropIndex, $idxname, $tabname);

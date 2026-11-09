@@ -20,7 +20,7 @@
  * @author Bambang Riswanto <bamz3r@gmail.com>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
 			'LANG'                      => 'id',
             DB_ERROR                    => 'kesalahan tidak diketahui',
             DB_ERROR_ALREADY_EXISTS     => 'sudah ada',
@@ -52,4 +52,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_DEADLOCK           => 'kebuntuan terdeteksi',
             DB_ERROR_STATEMENT_TIMEOUT  => 'perintah kehabisan waktu',
             DB_ERROR_SERIALIZATION_FAILURE => 'tak dapat melanjutkan akses'
-);
+];

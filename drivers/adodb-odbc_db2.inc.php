@@ -59,7 +59,7 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 		//odbc_setoption($this->_connectionID,1,101 /*SQL_ATTR_ACCESS_MODE*/, 1 /*SQL_MODE_READ_ONLY*/);
 		$vers = $this->GetOne('select versionnumber from sysibm.sysversions');
 		//odbc_setoption($this->_connectionID,1,101, 0 /*SQL_MODE_READ_WRITE*/);
-		return array('description'=>'DB2 ODBC driver', 'version'=>$vers);
+		return ['description'=>'DB2 ODBC driver', 'version'=>$vers];
 	}
 
 	protected function _insertID($table = '', $column = '')
@@ -93,7 +93,7 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 		//print_r($arr);
 
 		$rs->Close();
-		$arr2 = array();
+		$arr2 = [];
 
 		if ($ttype) {
 			$isview = strncmp($ttype,'V',1) === 0;
@@ -138,13 +138,13 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 			$ADODB_FETCH_MODE = $save;
             return $false;
         }
-		$indexes = array ();
+		$indexes =  [];
         // parse index data into array
         while ($row = $rs->FetchRow()) {
-			$indexes[$row[0]] = array(
+			$indexes[$row[0]] = [
 			   'unique' => ($row[1] == 'U' || $row[1] == 'P'),
-			   'columns' => array()
-			);
+			   'columns' => []
+			];
 			$cols = ltrim($row[2],'+');
 			$indexes[$row[0]]['columns'] = explode('+', $cols);
         }

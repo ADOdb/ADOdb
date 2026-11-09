@@ -84,7 +84,7 @@ class ADODB_netezza extends ADODB_postgres64 {
 
 		if ($rs === false) return false;
 
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];

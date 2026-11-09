@@ -38,7 +38,7 @@ define('ADODB_SESSION2', ADODB_SESSION);
  */
 function adodb_unserialize( $serialized_string )
 {
-	$variables = array( );
+	$variables = [ ];
 	$a = preg_split( "/(\w+)\|/", $serialized_string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
 	for( $i = 0; $i < count( $a ); $i = $i+2 ) {
 		$variables[$a[$i]] = unserialize( $a[$i+1] );
@@ -439,11 +439,11 @@ class ADODB_Session {
 	 * @return array
 	 */
 	static function filter($filter = null) {
-		static $_filter = array();
+		static $_filter = [];
 
 		if (!is_null($filter)) {
 			if (!is_array($filter)) {
-				$filter = array($filter);
+				$filter = [$filter];
 			}
 			$_filter = $filter;
 		}
@@ -499,12 +499,12 @@ class ADODB_Session {
 	 */
 	static function _init() {
 		session_set_save_handler(
-			array('ADODB_Session', 'open'),
-			array('ADODB_Session', 'close'),
-			array('ADODB_Session', 'read'),
-			array('ADODB_Session', 'write'),
-			array('ADODB_Session', 'destroy'),
-			array('ADODB_Session', 'gc')
+			['ADODB_Session', 'open'],
+			['ADODB_Session', 'close'],
+			['ADODB_Session', 'read'],
+			['ADODB_Session', 'write'],
+			['ADODB_Session', 'destroy'],
+			['ADODB_Session', 'gc']
 		);
 	}
 
@@ -740,7 +740,7 @@ class ADODB_Session {
 		#if (ADODB_Session::Lock())
 		#	$rs = $conn->RowLock($table, "sesskey = " . self::castBinary($qkey). " AND expiry >= " . time(), sessdata);
 		#else
-			$rs = $conn->Execute($sql, array($key));
+			$rs = $conn->Execute($sql, [$key]);
 		//ADODB_Session::_dumprs($rs);
 		if ($rs) {
 			if ($rs->EOF) {
@@ -811,7 +811,7 @@ class ADODB_Session {
 			$sql = "UPDATE $table SET expiry = $expiry, expireref=" . $conn->Param('0')
 				. ", modified = $sysTimeStamp WHERE sesskey = " . self::castBinary($conn->Param('1'))
 				. " AND expiry >= $sysTimeStamp";
-			$rs = $conn->execute($sql,array($expireref, $key));
+			$rs = $conn->execute($sql,[$expireref, $key]);
 			return true;
 		}
 		$val = rawurlencode($oval);
@@ -825,7 +825,7 @@ class ADODB_Session {
 			// no lobs, simply use replace()
 			$rs = $conn->execute(
 				"SELECT COUNT(*) AS cnt FROM $table WHERE sesskey = " . self::castBinary($conn->Param(0)),
-				array($key)
+				[$key]
 			);
 			if ($rs) $rs->Close();
 
@@ -837,7 +837,7 @@ class ADODB_Session {
 					VALUES ($expiry,".$conn->Param('0').", ". $conn->Param('1').", ".$conn->Param('2').", $sysTimeStamp, $sysTimeStamp)";
 			}
 
-			$rs = $conn->Execute($sql,array($val,$expireref,$key));
+			$rs = $conn->Execute($sql,[$val,$expireref,$key]);
 
 		} else {
 			// what value shall we insert/update for lob row?
@@ -848,7 +848,7 @@ class ADODB_Session {
 
 			$rs = $conn->execute(
 				"SELECT COUNT(*) AS cnt FROM $table WHERE sesskey = " . self::castBinary($conn->Param(0)),
-				array($key)
+				[$key]
 			);
 
 			if ($rs && reset($rs->fields) > 0) {
@@ -859,7 +859,7 @@ class ADODB_Session {
 					VALUES ($expiry,$lob_value, ". $conn->Param('0').", ".$conn->Param('1').", $sysTimeStamp, $sysTimeStamp)";
 			}
 
-			$conn->Execute($sql,array($expireref,$key));
+			$conn->Execute($sql,[$expireref,$key]);
 
 			$qkey = $conn->qstr($key);
 			$conn->UpdateBlob($table, 'sessdata', $val, " sesskey=$qkey", strtoupper($clob));
@@ -978,7 +978,7 @@ class ADODB_Session {
 				if ($fn) $fn($ref, $key);
 				$conn->execute(
 					"DELETE FROM $table WHERE sesskey = " . self::castBinary($conn->Param('0') ),
-					array($key)
+					[$key]
 				);
 				$rs->MoveNext();
 				$ccnt += 1;

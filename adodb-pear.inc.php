@@ -278,7 +278,7 @@ class DB
 			return $dsn;
 		}
 
-		$parsed = array(
+		$parsed = [
 			'phptype'  => false,
 			'dbsyntax' => false,
 			'protocol' => false,
@@ -286,7 +286,7 @@ class DB
 			'database' => false,
 			'username' => false,
 			'password' => false
-		);
+		];
 
 		// Find phptype and dbsyntax
 		if (($pos = strpos($dsn, '://')) !== false) {

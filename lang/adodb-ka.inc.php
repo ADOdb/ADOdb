@@ -20,7 +20,7 @@
  * @author Temuri Doghonadze <temuri.doghonadze@gmail.com>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
              'LANG'                      => 'ka',
             DB_ERROR                    => 'უცნობი შეცდომა',
             DB_ERROR_ALREADY_EXISTS     => 'უკვე არსებობს',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_EXTENSION_NOT_FOUND=> 'გაფართოება აღმოჩენილი არაა',
             DB_ERROR_NOSUCHDB           => 'მონაცემთა ბაზა არ არსებობს',
             DB_ERROR_ACCESS_VIOLATION   => 'არასაკმარისი წვდომები'
-);
+];

@@ -53,12 +53,12 @@ class ADOdbLoadBalancer
     /**
      * @var array    Counts of all connections and their types.
      */
-    protected $total_connections = array('all' => 0, 'write' => 0, 'readonly' => 0);
+    protected $total_connections = ['all' => 0, 'write' => 0, 'readonly' => 0];
 
     /**
      * @var array    Weights of all connections for each type.
      */
-    protected $total_connection_weights = array('all' => 0, 'write' => 0, 'readonly' => 0);
+    protected $total_connection_weights = ['all' => 0, 'write' => 0, 'readonly' => 0];
 
     /**
      * @var bool    When in transactions, always use this connection.
@@ -68,7 +68,7 @@ class ADOdbLoadBalancer
     /**
      * @var array    Last connection_id for each database type.
      */
-    protected $last_connection_id = array('write' => false, 'readonly' => false, 'all' => false);
+    protected $last_connection_id = ['write' => false, 'readonly' => false, 'all' => false];
 
     /**
      * @var bool    Session variables that must be maintained across all connections, ie: SET TIME ZONE.
@@ -359,7 +359,7 @@ class ADOdbLoadBalancer
      */
     private function makeValuesReferenced($arr)
     {
-        $refs = array();
+        $refs = [];
 
         foreach ($arr as $key => $value) {
             $refs[$key] = &$arr[$key];
@@ -624,13 +624,13 @@ class ADOdbLoadBalancer
             if (is_array($this->connections) && count($this->connections) > 0) {
                 foreach ($this->connections as $key => $connection_obj) {
                     $adodb_obj = $connection_obj->getADOdbObject();
-                    return call_user_func_array(array($adodb_obj, $method), $this->makeValuesReferenced($args)); // Just makes the function call on the first object.
+                    return call_user_func_array([$adodb_obj, $method], $this->makeValuesReferenced($args)); // Just makes the function call on the first object.
                 }
             }
         } else {
                $adodb_obj = $this->getConnection($type, $pin_connection);
             if (is_object($adodb_obj)) {
-                $result = call_user_func_array(array($adodb_obj, $method), $this->makeValuesReferenced($args));
+                $result = call_user_func_array([$adodb_obj, $method], $this->makeValuesReferenced($args));
 
                 return $result;
             }

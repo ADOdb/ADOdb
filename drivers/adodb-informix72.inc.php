@@ -165,7 +165,7 @@ class ADODB_informix72 extends ADOConnection {
                $savem = $this->SetFetchMode(FALSE);
 
         }
-        $procedures = array ();
+        $procedures =  [];
 
         // get index details
 
@@ -180,12 +180,12 @@ class ADODB_informix72 extends ADOConnection {
             // parse index data into array
 
             while ($row = $rs->FetchRow()) {
-                $procedures[$row[0]] = array(
+                $procedures[$row[0]] = [
                         'type' => ($row[1] == 'f' ? 'FUNCTION' : 'PROCEDURE'),
                         'catalog' => '',
                         'schema' => '',
                         'remarks' => ''
-                    );
+                    ];
             }
 	    }
 
@@ -213,7 +213,7 @@ class ADODB_informix72 extends ADOConnection {
 			if ($rs === false) return $false;
 			$rspkey = $this->Execute(sprintf($this->metaPrimaryKeySQL,$table)); //Added to get primary key colno items
 
-			$retarr = array();
+			$retarr = [];
 			while (!$rs->EOF) { //print_r($rs->fields);
 				$fld = new ADOFieldObject();
 				$fld->name = $rs->fields[0];
@@ -271,11 +271,11 @@ class ADODB_informix72 extends ADOConnection {
 		$rs = $this->Execute($sql);
 		if (!$rs || $rs->EOF)  return false;
 		$arr = $rs->GetArray();
-		$a = array();
+		$a = [];
 		foreach($arr as $v) {
 			$coldest=$this->metaColumnNames($v["tabname"]);
 			$colorig=$this->metaColumnNames($table);
-			$colnames=array();
+			$colnames=[];
 			for($i=1;$i<=8 && $v["o$i"] ;$i++) {
 				$colnames[]=$coldest[$v["d$i"]-1]."=".$colorig[$v["o$i"]-1];
 			}
@@ -291,7 +291,7 @@ class ADODB_informix72 extends ADOConnection {
    {
    		$type = ($blobtype == 'TEXT') ? 1 : 0;
 		$blobid = ifx_create_blob($type,0,$val);
-		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blobid));
+		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",[$blobid]);
    }
 
    function BlobDecode($blobid)
@@ -513,5 +513,5 @@ function ifx_props($coltype,$collength){
 			$precision=0;
 			$length=$collength;
 	}
-	return array($mtype,$length,$precision,$nullable);
+	return [$mtype,$length,$precision,$nullable];
 }

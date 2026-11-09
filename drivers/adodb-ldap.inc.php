@@ -46,10 +46,10 @@ class ADODB_ldap extends ADOConnection
 	 */
 	protected $_bind_errmsg = "Binding: %s";
 
-	protected $connectionParameters = array(
+	protected $connectionParameters = [
 		LDAP_OPT_PROTOCOL_VERSION => 3,
 		LDAP_OPT_REFERRALS => 0
-	);
+	];
 
 
 	/**
@@ -270,7 +270,7 @@ class ADODB_ldap extends ADOConnection
 			return false;
 		}
 
-		$version = array();
+		$version = [];
 		/*
 		Determines how aliases are handled during search.
 		LDAP_DEREF_NEVER (0x00)
@@ -379,7 +379,7 @@ class ADORecordSet_ldap extends ADORecordSet
 
 	protected $_entryID; /* keeps track of the entry resource identifier */
 
-	protected $seekData = array();
+	protected $seekData = [];
 
 	/**
 	 * Constructor
@@ -484,7 +484,7 @@ class ADORecordSet_ldap extends ADORecordSet
 			unset($objectClass['count']);
 		}
 
-		$rowData = array();
+		$rowData = [];
 		$rowIndex = 0;
 		for ($rowentry = 0; $rowentry < $rowentries; $rowentry++) {
 			if (!array_key_exists($rowentry, $r)) /*

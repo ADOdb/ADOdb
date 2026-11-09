@@ -78,7 +78,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 		
-		$_typeConversion = array(
+		$_typeConversion = [
 			-155 => 'D',
 			  93 => 'D',
 			-154 => 'D',
@@ -109,7 +109,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 			-151 => 'X',
 			  -4 => 'X',
 			  -3 => 'X'
-			);
+			];
 
 		if (isset($_typeConversion[$t])) {
 			return $_typeConversion[$t];
@@ -162,7 +162,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName ($tabname);
-		$f = array();
+		$f = [];
 		list($lines,) = $this->_GenFields($flds);
 		$s = "ALTER TABLE $tabname $this->addCol";
 		foreach($lines as $v) {
@@ -191,7 +191,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
-		$sql = array();
+		$sql = [];
 
 		list($lines,,$idxs) = $this->_GenFields($flds);
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
@@ -253,7 +253,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 			/** @noinspection PhpParamsInspection */
 			$flds = explode(',', $flds);
 		}
-		$f = array();
+		$f = [];
 		$s = 'ALTER TABLE ' . $tabname;
 		foreach($flds as $v) {
 			if ( $constraintname = $this->defaultConstraintName($tabname,$v) ) {
@@ -283,7 +283,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	/** @noinspection DuplicatedCode */
 	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
-		$sql = array();
+		$sql = [];
 
 		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
 			$sql[] = sprintf ($this->dropIndex, $idxname, $tabname);

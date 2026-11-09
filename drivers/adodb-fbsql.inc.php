@@ -48,7 +48,7 @@ class ADODB_fbsql extends ADOConnection {
   	function MetaDatabases()
 	{
 		$qid = fbsql_list_dbs($this->_connectionID);
-		$arr = array();
+		$arr = [];
 		$i = 0;
 		$max = fbsql_num_rows($qid);
 		while ($i < $max) {
@@ -96,7 +96,7 @@ class ADODB_fbsql extends ADOConnection {
 
 			if ($rs === false) return false;
 
-			$retarr = array();
+			$retarr = [];
 			while (!$rs->EOF){
 				$fld = new ADOFieldObject();
 				$fld->name = $rs->fields[0];

@@ -57,8 +57,8 @@ class ADODB_odbtp extends ADOConnection{
 
 	function ServerInfo()
 	{
-		return array('description' => @odbtp_get_attr( ODB_ATTR_DBMSNAME, $this->_connectionID),
-		             'version' => @odbtp_get_attr( ODB_ATTR_DBMSVER, $this->_connectionID));
+		return ['description' => @odbtp_get_attr( ODB_ATTR_DBMSNAME, $this->_connectionID),
+		             'version' => @odbtp_get_attr( ODB_ATTR_DBMSVER, $this->_connectionID)];
 	}
 
 	function ErrorMsg()
@@ -329,7 +329,7 @@ class ADODB_odbtp extends ADOConnection{
 		if (isset($savefm)) $this->SetFetchMode($savefm);
 		$ADODB_FETCH_MODE = $savem;
 
-		$arr2 = array();
+		$arr2 = [];
 		for ($i=0; $i < sizeof($arr); $i++) {
 			if ($arr[$i][3] == 'SYSTEM TABLE' )	continue;
 			if ($arr[$i][2])
@@ -359,7 +359,7 @@ class ADODB_odbtp extends ADOConnection{
 			$false = false;
 			return $false;
 		}
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF) {
 			//print_r($rs->fields);
 			if (strtoupper($rs->fields[2]) == $table) {
@@ -394,7 +394,7 @@ class ADODB_odbtp extends ADOConnection{
 		$ADODB_FETCH_MODE = $savem;
 
 		//print_r($arr);
-		$arr2 = array();
+		$arr2 = [];
 		for ($i=0; $i < sizeof($arr); $i++) {
 			if ($arr[$i][3]) $arr2[] = $arr[$i][3];
 		}
@@ -420,7 +420,7 @@ class ADODB_odbtp extends ADOConnection{
 			return $false;
 		}
 
-		$arr2 = array();
+		$arr2 = [];
 
 		foreach($arr as $k => $v) {
 			foreach($v as $a => $b) {
@@ -489,7 +489,7 @@ class ADODB_odbtp extends ADOConnection{
 		//	print "Prepare Error for ($sql) ".$this->ErrorMsg()."<br>";
 			return $sql;
 		}
-		return array($sql,$stmt,false);
+		return [$sql,$stmt,false];
 	}
 
 	function PrepareSP($sql, $param = true)
@@ -501,7 +501,7 @@ class ADODB_odbtp extends ADOConnection{
 
 		$stmt = @odbtp_prepare_proc($sql,$this->_connectionID);
 		if (!$stmt) return false;
-		return array($sql,$stmt);
+		return [$sql,$stmt];
 	}
 
 	/*
@@ -567,7 +567,7 @@ class ADODB_odbtp extends ADOConnection{
 			case ODB_DRIVER_MSSQL:
 				return $this->MetaIndexes_mssql($table, $primary);
 			default:
-				return array();
+				return [];
 		}
 	}
 
@@ -601,7 +601,7 @@ class ADODB_odbtp extends ADOConnection{
         	return FALSE;
         }
 
-		$indexes = array();
+		$indexes = [];
 		while ($row = $rs->FetchRow()) {
 			if ($primary && !$row[5]) continue;
 
@@ -727,7 +727,7 @@ class ADORecordSet_odbtp extends ADORecordSet {
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) return $this->fields[$colname];
 
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$name = @odbtp_field_name( $this->_queryID, $i );
 				$this->bind[strtoupper($name)] = $i;

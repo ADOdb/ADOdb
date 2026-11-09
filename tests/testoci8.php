@@ -46,7 +46,7 @@ if (0) {
 	for ($i = 1; $i <= 10; $i++) {
 	$rs = $db->Execute(
 		$stmt,
-		array($i));
+		[$i]);
 
 		if (!$rs) die("Empty RS");
 		if ($rs->EOF) die("EOF RS");
@@ -60,7 +60,7 @@ if (1) {
 	$db->Execute("delete from emp where ename='John'");
 	print $db->Affected_Rows().'<BR>';
 	$stmt = $db->Prepare('insert into emp (empno, ename) values (:empno, :ename)');
-	$rs = $db->Execute($stmt,array('empno'=>4321,'ename'=>'John'));
+	$rs = $db->Execute($stmt,['empno'=>4321,'ename'=>'John']);
 	// prepare not quite ready for prime time
 	//$rs = $db->Execute($stmt,array('empno'=>3775,'ename'=>'John'));
 	if (!$rs) die("Empty RS");
@@ -86,7 +86,7 @@ if (0) {
 	$db->debug = true;
 	$rs = $db->Execute(
 		'select * from adoxyz where firstname=? and trim(lastname)=?',
-		array('first'=>'Caroline','last'=>'Miranda'));
+		['first'=>'Caroline','last'=>'Miranda']);
 	if (!$rs) die("Empty RS");
 	if ($rs->EOF) die("EOF RS");
 	rs2html($rs);

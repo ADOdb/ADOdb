@@ -16,7 +16,7 @@ class perf_sqlite3 extends adodb_perf{
 		timer decimal(16,6) NOT NULL
 		)";
 
-	var $settings = array();
+	var $settings = [];
 
 	function __construct(&$conn)
 	{

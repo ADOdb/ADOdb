@@ -47,7 +47,7 @@ function _colonparser($sql,$arr)
 	$ch = $sql[0];
 	$ch2 = @$sql[1];
 	$sql2 = '';
-	$arr2 = array();
+	$arr2 = [];
 	$nprev = 0;
 
 
@@ -131,7 +131,7 @@ function _colonparser($sql,$arr)
 		$sql2 .= substr($sql,$nprev);
 	}
 
-	return array($sql2,$arr2);
+	return [$sql2,$arr2];
 }
 
 class ADODB_db2oci extends ADODB_db2 {
@@ -164,7 +164,7 @@ class ADODB_db2oci extends ADODB_db2 {
 
 		$arr = $rs->GetArray();
 		$rs->Close();
-		$arr2 = array();
+		$arr2 = [];
 	//	adodb_pr($arr);
 		if ($ttype) {
 			$isview = strncmp($ttype,'V',1) === 0;

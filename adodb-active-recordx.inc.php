@@ -33,7 +33,7 @@ global $ACTIVE_RECORD_SAFETY; // set to false to disable safety checks
 global $ADODB_ACTIVE_DEFVALS; // use default values of table definition when creating new active record.
 
 // array of ADODB_Active_DB's, indexed by ADODB_Active_Record->_dbat
-$_ADODB_ACTIVE_DBS = array();
+$_ADODB_ACTIVE_DBS = [];
 $ACTIVE_RECORD_SAFETY = true; // CFR: disabled while playing with relations
 $ADODB_ACTIVE_DEFVALS = false;
 
@@ -49,8 +49,8 @@ class ADODB_Active_Table
 	var $flds; // assoc array of adofieldobjs, indexed by fieldname
 	var $keys; // assoc array of primary keys, indexed by fieldname
 	var $_created; // only used when stored as a cached file
-	var $_belongsTo = array();
-	var $_hasMany = array();
+	var $_belongsTo = [];
+	var $_hasMany = [];
 	var $_colsCount; // total columns count, including relations
 
 	function updateColsCount()
@@ -76,7 +76,7 @@ function ADODB_SetDatabaseAdapter(&$db)
 
 	$obj = new ADODB_Active_DB();
 	$obj->db = $db;
-	$obj->tables = array();
+	$obj->tables = [];
 
 	$_ADODB_ACTIVE_DBS[] = $obj;
 
@@ -133,12 +133,12 @@ class ADODB_Active_Record
 	// $options is an array that allows us to tweak the constructor's behaviour
 	// if $options['refresh'] is true, we re-scan our metadata information
 	// if $options['new'] is true, we forget all relations
-	function __construct($table = false, $pkeyarr = false, $db = false, $options = array())
+	function __construct($table = false, $pkeyarr = false, $db = false, $options = [])
 	{
 		global $_ADODB_ACTIVE_DBS;
 
 		if (!$_ADODB_ACTIVE_DBS) {
-			$_ADODB_ACTIVE_DBS = array();
+			$_ADODB_ACTIVE_DBS = [];
 		}
 		if ($db == false && is_object($pkeyarr)) {
 			$db = $pkeyarr;
@@ -183,8 +183,8 @@ class ADODB_Active_Record
 			$table =& $this->TableInfo();
 			unset($table->_hasMany);
 			unset($table->_belongsTo);
-			$table->_hasMany = array();
-			$table->_belongsTo = array();
+			$table->_hasMany = [];
+			$table->_belongsTo = [];
 		}
 	}
 
@@ -195,23 +195,23 @@ class ADODB_Active_Record
 	}
 
 	// CFR: Constants found in Rails
-	static $IrregularP = array(
+	static $IrregularP = [
 		'PERSON' => 'people',
 		'MAN' => 'men',
 		'WOMAN' => 'women',
 		'CHILD' => 'children',
 		'COW' => 'kine',
-	);
+	];
 
-	static $IrregularS = array(
+	static $IrregularS = [
 		'PEOPLE' => 'PERSON',
 		'MEN' => 'man',
 		'WOMEN' => 'woman',
 		'CHILDREN' => 'child',
 		'KINE' => 'cow',
-	);
+	];
 
-	static $WeIsI = array(
+	static $WeIsI = [
 		'EQUIPMENT' => true,
 		'INFORMATION' => true,
 		'RICE' => true,
@@ -220,7 +220,7 @@ class ADODB_Active_Record
 		'SERIES' => true,
 		'FISH' => true,
 		'SHEEP' => true,
-	);
+	];
 
 	function _pluralize($table)
 	{
@@ -352,7 +352,7 @@ class ADODB_Active_Record
 
 	function LoadRelations($name, $whereOrderBy, $offset = -1, $limit = -1)
 	{
-		$extras = array();
+		$extras = [];
 		if ($offset >= 0) {
 			$extras['offset'] = $offset;
 		}
@@ -469,7 +469,7 @@ class ADODB_Active_Record
 		$fld = reset($cols);
 		if (!$pkeys) {
 			if (isset($fld->primary_key)) {
-				$pkeys = array();
+				$pkeys = [];
 				foreach ($cols as $name => $fld) {
 					if (!empty($fld->primary_key)) {
 						$pkeys[] = $name;
@@ -484,8 +484,8 @@ class ADODB_Active_Record
 			return false;
 		}
 
-		$attr = array();
-		$keys = array();
+		$attr = [];
+		$keys = [];
 
 		switch (ADODB_ASSOC_CASE) {
 			case ADODB_ASSOC_CASE_LOWER:
@@ -700,7 +700,7 @@ class ADODB_Active_Record
 
 		# <AP>
 		reset($keys);
-		$this->_original = array();
+		$this->_original = [];
 		foreach ($table->flds as $name => $fld) {
 			$value = $row[current($keys)];
 			$this->$name = $value;
@@ -792,7 +792,7 @@ class ADODB_Active_Record
 	function GenWhere(&$db, &$table)
 	{
 		$keys = $table->keys;
-		$parr = array();
+		$parr = [];
 
 		foreach ($keys as $k) {
 			$f = $table->flds[$k];
@@ -904,7 +904,7 @@ class ADODB_Active_Record
 						if (!empty($obj->$foreignName)) {
 							if (!is_array($this->$foreignName)) {
 								$foreignObj = $this->$foreignName;
-								$this->$foreignName = array(clone($foreignObj));
+								$this->$foreignName = [clone($foreignObj)];
 							} else {
 								$foreignObj = $obj->$foreignName;
 								array_push($this->$foreignName, clone($foreignObj));
@@ -918,7 +918,7 @@ class ADODB_Active_Record
 						if (!empty($obj->$foreignName)) {
 							if (!is_array($this->$foreignName)) {
 								$foreignObj = $this->$foreignName;
-								$this->$foreignName = array(clone($foreignObj));
+								$this->$foreignName = [clone($foreignObj)];
 							} else {
 								$foreignObj = $obj->$foreignName;
 								array_push($this->$foreignName, clone($foreignObj));
@@ -960,9 +960,9 @@ class ADODB_Active_Record
 		$cnt = 0;
 		$table = $this->TableInfo();
 
-		$valarr = array();
-		$names = array();
-		$valstr = array();
+		$valarr = [];
+		$names = [];
+		$valstr = [];
 
 		foreach ($table->flds as $name => $fld) {
 			$val = $this->$name;
@@ -1020,7 +1020,7 @@ class ADODB_Active_Record
 	}
 
 	// returns an array of active record objects
-	function Find($whereOrderBy, $bindarr = false, $pkeysArr = false, $extra = array())
+	function Find($whereOrderBy, $bindarr = false, $pkeysArr = false, $extra = [])
 	{
 		$db = $this->DB();
 		if (!$db || empty($this->_table)) {
@@ -1028,7 +1028,7 @@ class ADODB_Active_Record
 		}
 		$table =& $this->TableInfo();
 		$arr = $db->GetActiveRecordsClass(get_class($this), $this, $whereOrderBy, $bindarr, $pkeysArr, $extra,
-			array('foreignName' => $this->foreignName, 'belongsTo' => $table->_belongsTo, 'hasMany' => $table->_hasMany));
+			['foreignName' => $this->foreignName, 'belongsTo' => $table->_belongsTo, 'hasMany' => $table->_hasMany]);
 		return $arr;
 	}
 
@@ -1036,7 +1036,7 @@ class ADODB_Active_Record
 	// subclasses...for instance when GetActiveRecordsClass invokes Find()
 	// Why am I not invoking parent::Find?
 	// Shockingly because I want to preserve PHP4 compatibility.
-	function packageFind($whereOrderBy, $bindarr = false, $pkeysArr = false, $extra = array())
+	function packageFind($whereOrderBy, $bindarr = false, $pkeysArr = false, $extra = [])
 	{
 		$db = $this->DB();
 		if (!$db || empty($this->_table)) {
@@ -1044,7 +1044,7 @@ class ADODB_Active_Record
 		}
 		$table =& $this->TableInfo();
 		$arr = $db->GetActiveRecordsClass(get_class($this), $this, $whereOrderBy, $bindarr, $pkeysArr, $extra,
-			array('foreignName' => $this->foreignName, 'belongsTo' => $table->_belongsTo, 'hasMany' => $table->_hasMany));
+			['foreignName' => $this->foreignName, 'belongsTo' => $table->_belongsTo, 'hasMany' => $table->_hasMany]);
 		return $arr;
 	}
 
@@ -1082,7 +1082,7 @@ class ADODB_Active_Record
 		}
 
 		if (!is_array($pkey)) {
-			$pkey = array($pkey);
+			$pkey = [$pkey];
 		}
 
 
@@ -1136,9 +1136,9 @@ class ADODB_Active_Record
 			$this->error("Where missing for table $table", "Update");
 			return false;
 		}
-		$valarr = array();
-		$neworig = array();
-		$pairs = array();
+		$valarr = [];
+		$neworig = [];
+		$pairs = [];
 		$i = 0;
 		$cnt = 0;
 		foreach ($table->flds as $name => $fld) {
@@ -1300,14 +1300,14 @@ function adodb_GetActiveRecordsClass(&$db, $class, $tableObj,$whereOrderBy,$bind
 			$db->outp_throw("Unknown class $class in GetActiveRecordsClass()",'GetActiveRecordsClass');
 			return $false;
 		}
-		$uniqArr = array(); // CFR Keep track of records for relations
-		$arr = array();
+		$uniqArr = []; // CFR Keep track of records for relations
+		$arr = [];
 		// arrRef will be the structure that knows about our objects.
 		// It is an associative array.
 		// We will, however, return arr, preserving regular 0.. order so that
 		// obj[0] can be used by app developers.
-		$arrRef = array();
-		$bTos = array(); // Will store belongTo's indices if any
+		$arrRef = [];
+		$bTos = []; // Will store belongTo's indices if any
 		foreach($rows as $row) {
 
 			$obj = new $class($table,$primkeyArr,$db);
@@ -1342,14 +1342,14 @@ function adodb_GetActiveRecordsClass(&$db, $class, $tableObj,$whereOrderBy,$bind
 						$foreignTableRef = $foreignTable->foreignKey;
 						// First array: list of foreign ids we are looking for
 						if(empty($bTos[$foreignTableRef])) {
-							$bTos[$foreignTableRef] = array();
+							$bTos[$foreignTableRef] = [];
 						}
 						// Second array: list of ids found
 						if(empty($obj->$foreignTableRef)) {
 							continue;
 						}
 						if(empty($bTos[$foreignTableRef][$obj->$foreignTableRef])) {
-							$bTos[$foreignTableRef][$obj->$foreignTableRef] = array();
+							$bTos[$foreignTableRef][$obj->$foreignTableRef] = [];
 						}
 						$bTos[$foreignTableRef][$obj->$foreignTableRef][] = $obj;
 					}
@@ -1374,7 +1374,7 @@ function adodb_GetActiveRecordsClass(&$db, $class, $tableObj,$whereOrderBy,$bind
 								if(!is_array($masterObj->$foreignName)) {
 									// Pluck!
 									$foreignObj = $masterObj->$foreignName;
-									$masterObj->$foreignName = array(clone($foreignObj));
+									$masterObj->$foreignName = [clone($foreignObj)];
 								}
 								else {
 									// Pluck pluck!
@@ -1393,7 +1393,7 @@ function adodb_GetActiveRecordsClass(&$db, $class, $tableObj,$whereOrderBy,$bind
 								if(!is_array($masterObj->$foreignName)) {
 									// Pluck!
 									$foreignObj = $masterObj->$foreignName;
-									$masterObj->$foreignName = array(clone($foreignObj));
+									$masterObj->$foreignName = [clone($foreignObj)];
 								}
 								else {
 									// Pluck pluck!
@@ -1451,7 +1451,7 @@ function adodb_GetActiveRecordsClass(&$db, $class, $tableObj,$whereOrderBy,$bind
 					$objs = $obj->packageFind($dbClassRef.' IN ('.$indices.')');
 					foreach($objs as $obj) {
 						if(!is_array($arrRef[$obj->$dbClassRef]->$foreignName)) {
-							$arrRef[$obj->$dbClassRef]->$foreignName = array();
+							$arrRef[$obj->$dbClassRef]->$foreignName = [];
 						}
 						array_push($arrRef[$obj->$dbClassRef]->$foreignName, $obj);
 					}

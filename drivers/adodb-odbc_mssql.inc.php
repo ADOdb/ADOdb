@@ -165,7 +165,7 @@ order by constraint_name, referenced_table_name, keyno";
 			return $false;
 		}
 
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF){
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
@@ -227,7 +227,7 @@ order by constraint_name, referenced_table_name, keyno";
         	return FALSE;
         }
 
-		$indexes = array();
+		$indexes = [];
 		while ($row = $rs->FetchRow()) {
 			if (!$primary && $row[5]) continue;
 

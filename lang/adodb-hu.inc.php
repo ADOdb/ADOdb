@@ -20,7 +20,7 @@
  * @author Halászvári Gábor <g.halaszvari@portmax.hu>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
 			'LANG'                      => 'hu',
             DB_ERROR                    => 'ismeretlen hiba',
             DB_ERROR_ALREADY_EXISTS     => 'már létezik',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_EXTENSION_NOT_FOUND=> 'bővítmény nem található',
             DB_ERROR_NOSUCHDB           => 'nincs ilyen adatbázis',
             DB_ERROR_ACCESS_VIOLATION   => 'nincs jogosultság'
-);
+];

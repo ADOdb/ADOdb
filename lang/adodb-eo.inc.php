@@ -20,7 +20,7 @@
  * @author Antono Vasiljev <anders@brainactive.org>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
              'LANG'                      => 'eo',
             DB_ERROR                    => 'nekonata eraro',
             DB_ERROR_ALREADY_EXISTS     => 'jam ekzistas',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_EXTENSION_NOT_FOUND=> 'etendo ne trovita',
             DB_ERROR_NOSUCHDB           => 'datumbazo ne ekzistas',
             DB_ERROR_ACCESS_VIOLATION   => 'ne sufiĉe da rajto por atingo'
-);
+];

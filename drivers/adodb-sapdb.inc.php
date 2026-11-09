@@ -79,16 +79,16 @@ class ADODB_SAPDB extends ADODB_odbc {
 			return FALSE;
 		}
 
-		$indexes = array();
+		$indexes = [];
 		while ($row = $rs->FetchRow()) {
 			$indexes[$row[0]]['unique'] = $row[1] == 'UNIQUE';
 			$indexes[$row[0]]['columns'][] = $row[2];
 		}
 		if ($primary) {
-			$indexes['SYSPRIMARYKEYINDEX'] = array(
+			$indexes['SYSPRIMARYKEYINDEX'] = [
 					'unique' => True,	// by definition
 					'columns' => $this->GetCol("SELECT columnname FROM COLUMNS WHERE tablename=$table AND mode='KEY' ORDER BY pos"),
-				);
+				];
 		}
 		return $indexes;
 	}
@@ -103,7 +103,7 @@ class ADODB_SAPDB extends ADODB_odbc {
 		}
 		$table = $this->Quote(strtoupper($table));
 
-		$retarr = array();
+		$retarr = [];
 		foreach($this->GetAll("SELECT COLUMNNAME,DATATYPE,LEN,DEC,NULLABLE,MODE,\"DEFAULT\",CASE WHEN \"DEFAULT\" IS NULL THEN 0 ELSE 1 END AS HAS_DEFAULT FROM COLUMNS WHERE tablename=$table ORDER BY pos") as $column)
 		{
 			$fld = new ADOFieldObject();

@@ -290,7 +290,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return string
 	 */
 	function _adodb_safedate($s) {
-		return str_replace(array("'", '\\'), '', $s);
+		return str_replace(["'", '\\'], '', $s);
 	}
 
 	/**
@@ -642,7 +642,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @link https://www.php.net/manual/en/memcached.constants.php
 	 * @var array $memCacheOptions
 	 */
-	public $memCacheOptions = array();
+	public $memCacheOptions = [];
 
 	var $sysDate = false; /// name of function that returns the current date
 	var $sysTimeStamp = false; /// name of function that returns the current timestamp
@@ -732,12 +732,12 @@ if (!defined('_ADODB_LAYER')) {
 	 *
 	 * @var array $connectionParameters Set of ParameterName => Value pairs
 	 */
-	protected $connectionParameters = array();
+	protected $connectionParameters = [];
 
 	/*
 	 * A simple associative array of user-defined custom actual/meta types
 	 */
-	public $customActualTypes = array();
+	public $customActualTypes = [];
 
 	/*
 	 * An array of user-defined custom meta/actual types.
@@ -748,7 +748,7 @@ if (!defined('_ADODB_LAYER')) {
 	 *     'callback'=>''
 	 * );
 	 */
-	public $customMetaTypes = array();
+	public $customMetaTypes = [];
 
 	/** @var ADORecordSet Recordset used to retrieve MetaType information */
 	var $_metars;
@@ -797,7 +797,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return bool True if success, false otherwise (e.g. parameter is not valid)
 	 */
 	public function setConnectionParameter($parameter, $value) {
-		$this->connectionParameters[] = array($parameter=>$value);
+		$this->connectionParameters[] = [$parameter=>$value];
 		return true;
 	}
 
@@ -844,12 +844,12 @@ if (!defined('_ADODB_LAYER')) {
 		$handleAsType=false,
 		$callback=false){
 
-		$this->customMetaTypes[strtoupper($metaType)] = array(
+		$this->customMetaTypes[strtoupper($metaType)] = [
 			'actual'=>$actualType,
 			'dictionary'=>strtoupper($dictionaryType),
 			'handler'=>$handleAsType,
 			'callback'=>$callback
-			);
+			];
 
 		/*
 		* Create a reverse lookup for the actualType
@@ -876,7 +876,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return string[] Array with 2 string elements: version and description
 	 */
 	function ServerInfo() {
-		return array('description' => '', 'version' => '');
+		return ['description' => '', 'version' => ''];
 	}
 
 	/**
@@ -1456,7 +1456,7 @@ if (!defined('_ADODB_LAYER')) {
 
 	function IgnoreErrors($saveErrs=false) {
 		if (!$saveErrs) {
-			$saveErrs = array($this->raiseErrorFn,$this->_transOK);
+			$saveErrs = [$this->raiseErrorFn,$this->_transOK];
 			$this->raiseErrorFn = false;
 			return $saveErrs;
 		} else {
@@ -1579,7 +1579,7 @@ if (!defined('_ADODB_LAYER')) {
 		}
 		if ($inputarr !== false) {
 			if (!is_array($inputarr)) {
-				$inputarr = array($inputarr);
+				$inputarr = [$inputarr];
 			}
 
 			$element0 = reset($inputarr);
@@ -1596,7 +1596,7 @@ if (!defined('_ADODB_LAYER')) {
 
 				if (!$array_2d) {
 					// When not Bind Bulk - convert to array of arguments list
-					$inputarr = array($inputarr);
+					$inputarr = [$inputarr];
 				} else {
 					// Bulk bind - Make sure all list of params have the same number of elements
 					$countElements = array_map('count', $inputarr);
@@ -1958,7 +1958,7 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function MetaPrimaryKeys($table, $owner=false) {
 	// owner not used in base class - see oci8
-		$p = array();
+		$p = [];
 		$objs = $this->MetaColumns($table);
 		if ($objs) {
 			foreach($objs as $v) {
@@ -2152,7 +2152,7 @@ if (!defined('_ADODB_LAYER')) {
 			$rs = $rs; // required to prevent crashing in 4.2.1, but does not happen in 4.3.1-- why ?
 			return $rs;
 		}
-		$flds = array();
+		$flds = [];
 		for ($i=0, $max=$rs->FieldCount(); $i < $max; $i++) {
 			$flds[] = $rs->FetchField($i);
 		}
@@ -2319,7 +2319,7 @@ if (!defined('_ADODB_LAYER')) {
 	function GetCol($sql, $inputarr = false, $trim = false) {
 		$rs = $this->Execute($sql, $inputarr);
 		if ($rs) {
-			$rv = array();
+			$rv = [];
 			if ($trim) {
 				while (!$rs->EOF) {
 					$rv[] = trim(reset($rs->fields));
@@ -2341,7 +2341,7 @@ if (!defined('_ADODB_LAYER')) {
 	function CacheGetCol($secs, $sql = false, $inputarr = false,$trim=false) {
 		$rs = $this->CacheExecute($secs, $sql, $inputarr);
 		if ($rs) {
-			$rv = array();
+			$rv = [];
 			if ($trim) {
 				while (!$rs->EOF) {
 					$rv[] = trim(reset($rs->fields));
@@ -2465,7 +2465,7 @@ if (!defined('_ADODB_LAYER')) {
 			if (!$rs->EOF) {
 				$arr = $rs->fields;
 			} else {
-				$arr = array();
+				$arr = [];
 			}
 			$rs->Close();
 			return $arr;
@@ -2486,7 +2486,7 @@ if (!defined('_ADODB_LAYER')) {
 			if (!$rs->EOF) {
 				$arr = $rs->fields;
 			} else {
-				$arr = array();
+				$arr = [];
 			}
 
 			$rs->Close();
@@ -2908,7 +2908,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * @return bool success
 	 */
 	function updateBlob($table, $column, $val, $where, $blobtype='BLOB') {
-		return $this->Execute("UPDATE $table SET $column=? WHERE $where",array($val)) != false;
+		return $this->Execute("UPDATE $table SET $column=? WHERE $where",[$val]) != false;
 	}
 
 	/**
@@ -3074,8 +3074,8 @@ if (!defined('_ADODB_LAYER')) {
 	 */
 	function GetActiveRecordsClass(
 			$class, $table,$whereOrderBy=false,$bindarr=false, $primkeyArr=false,
-			$extra=array(),
-			$relations=array())
+			$extra=[],
+			$relations=[])
 	{
 		global $_ADODB_ACTIVE_DBS;
 		## reduce overhead of adodb.inc.php -- moved to adodb-active-record.inc.php
@@ -3343,7 +3343,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 				return false;
 			}
 
-			$retarr = array();
+			$retarr = [];
 			while (!$rs->EOF) { //print_r($rs->fields);
 				$fld = new ADOFieldObject();
 				$fld->name = $rs->fields[0];
@@ -3682,8 +3682,8 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 		if ($this->replaceQuote[0] == '\\') {
 			$s = str_replace(
-				array('\\', "\0"),
-				array('\\\\', "\\\0"),
+				['\\', "\0"],
+				['\\\\', "\\\0"],
 				$s
 			);
 		}
@@ -3987,7 +3987,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		function next() {}
 
 		function __call($func, $params) {
-			return call_user_func_array(array($this->rs, $func), $params);
+			return call_user_func_array([$this->rs, $func], $params);
 		}
 
 		#[\ReturnTypeWillChange]
@@ -4050,27 +4050,27 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 
 		function GetAssoc() {
-			return array();
+			return [];
 		}
 
 		function GetArray() {
-			return array();
+			return [];
 		}
 
 		function GetAll() {
-			return array();
+			return [];
 		}
 
 		function GetArrayLimit() {
-			return array();
+			return [];
 		}
 
 		function GetRows() {
-			return array();
+			return [];
 		}
 
 		function GetRowAssoc() {
-			return array();
+			return [];
 		}
 
 		function MaxRecordCount() {
@@ -4123,7 +4123,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 		}
 
 		function __call($func, $params) {
-			return call_user_func_array(array($this->rs, $func), $params);
+			return call_user_func_array([$this->rs, $func], $params);
 		}
 
 		function hasMore() {
@@ -4226,7 +4226,7 @@ class ADORecordSet implements IteratorAggregate {
 	/**
 	 * @var array Cross-reference the objects by name for easy access
 	 */
-	protected $fieldObjectsIndex = array();
+	protected $fieldObjectsIndex = [];
 
 	/**
 	 * @var bool|int Driver-specific fetch mode
@@ -4425,7 +4425,7 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return array indexed by the rows (0-based) from the recordset
 	 */
 	function GetArray($nRows = -1) {
-		$results = array();
+		$results = [];
 		$cnt = 0;
 		while (!$this->EOF && $nRows != $cnt) {
 			$results[] = $this->fields;
@@ -4467,7 +4467,7 @@ class ADORecordSet implements IteratorAggregate {
 
 		$this->Move($offset);
 
-		$results = array();
+		$results = [];
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
 			$results[$cnt++] = $this->fields;
@@ -4523,7 +4523,7 @@ class ADORecordSet implements IteratorAggregate {
 
 		// Empty recordset
 		if (!$this->fields) {
-			return array();
+			return [];
 		}
 
 		// The number of fields is half the actual returned in BOTH mode
@@ -4556,7 +4556,7 @@ class ADORecordSet implements IteratorAggregate {
 			$showArrayMethod = 1;
 		}
 
-		$results = array();
+		$results = [];
 
 		while (!$this->EOF) {
 			$myFields = $this->fields;
@@ -4936,7 +4936,7 @@ class ADORecordSet implements IteratorAggregate {
 		if ($this->bind) {
 			return;
 		}
-		$this->bind = array();
+		$this->bind = [];
 
 		// Define case conversion function for ASSOC fetch mode
 		$fn_change_case = $this->AssocCaseConvertFunction($upper);
@@ -4971,7 +4971,7 @@ class ADORecordSet implements IteratorAggregate {
 	 * @return array
 	 */
 	function GetRowAssoc($upper = ADODB_ASSOC_CASE) {
-		$record = array();
+		$record = [];
 		$this->GetAssocKeys($upper);
 
 		foreach($this->bind as $k => $v) {
@@ -5210,7 +5210,7 @@ class ADORecordSet implements IteratorAggregate {
 		}
 
 		// changed in 2.32 to hashing instead of switch stmt for speed...
-		static $typeMap = array(
+		static $typeMap = [
 			'VARCHAR' => 'C',
 			'VARCHAR2' => 'C',
 			'CHAR' => 'C',
@@ -5313,7 +5313,7 @@ class ADORecordSet implements IteratorAggregate {
 			"SQLNVCHAR" => 'C',
 			"SQLLVARCHAR" => 'X',
 			"SQLBOOL" => 'L'
-		);
+		];
 
 		$t = strtoupper($t);
 		$tmap = (isset($typeMap[$t])) ? $typeMap[$t] : ADODB_DEFAULT_METATYPE;
@@ -5375,7 +5375,7 @@ class ADORecordSet implements IteratorAggregate {
 			return;
 		}
 
-		$arr = array();
+		$arr = [];
 
 		// Change the case
 		foreach($this->fields as $k => $v) {
@@ -5559,7 +5559,7 @@ class ADORecordSet implements IteratorAggregate {
 				return $this->fields[$colname];
 			}
 			if (!$this->bind) {
-				$this->bind = array();
+				$this->bind = [];
 				for ($i=0; $i < $this->_numOfFields; $i++) {
 					$o = $this->FetchField($i);
 					$this->bind[strtoupper($o->name)] = $i;
@@ -5852,7 +5852,7 @@ class ADORecordSet implements IteratorAggregate {
 					$opt[$arr[0]] = isset($arr[1]) ? rawurldecode($arr[1]) : 1;
 				}
 			} else {
-				$opt = array();
+				$opt = [];
 			}
 
 		}

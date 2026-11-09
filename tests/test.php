@@ -636,11 +636,11 @@ END Adodb;
 	default:
 		break;
 	}
-	$arr = array(
-		array(1,'Caroline','Miranda'),
-		array(2,'John','Lim'),
-		array(3,'Wai Hun','See')
-	);
+	$arr = [
+		[1,'Caroline','Miranda'],
+		[2,'John','Lim'],
+		[3,'Wai Hun','See']
+	];
 	//$db->debug=1;
 	print "<p>Testing Bulk Insert of 3 rows</p>";
 
@@ -686,7 +686,7 @@ END Adodb;
 		$ins_id2 = $db->GetOne("select row1 from mytable");
 		if ($ins_id != $ins_id2) Err("Bad Insert_ID() 2");
 
-		$arr = array(0=>'Caroline',1=>'Miranda');
+		$arr = [0=>'Caroline',1=>'Miranda'];
 		$sql = "insert into ADOXYZ (id,firstname,lastname,created) values ($i*10+0,?,?,$time)";
 		break;
 	case 'mysqli':
@@ -709,13 +709,13 @@ END Adodb;
 		if ($ins_id != $ins_id2) Err("Bad Insert_ID() 2");
 
 	default:
-		$arr = array(0=>'Caroline',1=>'Miranda');
+		$arr = [0=>'Caroline',1=>'Miranda'];
 		$sql = "insert into ADOXYZ (id,firstname,lastname,created) values ($i*10+0,?,?,$time)";
 		break;
 
 	case 'oci8':
 	case 'oci805':
-		$arr = array('first'=>'Caroline','last'=>'Miranda');
+		$arr = ['first'=>'Caroline','last'=>'Miranda'];
 		$amt = rand() % 100;
 		$sql = "insert into ADOXYZ (id,firstname,lastname,created) values ($i*10+0,:first,:last,$time)";
 		break;
@@ -758,8 +758,8 @@ END Adodb;
 	else print "<p>Affected_Rows() passed</p>";
 	}
 
-	if ($db->dataProvider == 'oci8')  $array = array('zid'=>1,'zdate'=>date('Y-m-d',time()));
-	else $array=array(1,date('Y-m-d',time()));
+	if ($db->dataProvider == 'oci8')  $array = ['zid'=>1,'zdate'=>date('Y-m-d',time())];
+	else $array=[1,date('Y-m-d',time())];
 
 
 	#$array = array(1,date('Y-m-d',time()));
@@ -769,7 +769,7 @@ END Adodb;
 	if ($id != 1) Err("Bad bind; id=$id");
 	else echo "<br>Bind date/integer 1 passed";
 
-	$array =array(1,$db->BindDate(time()));
+	$array =[1,$db->BindDate(time())];
 	$id = $db->GetOne("select id from ADOXYZ
 		where id=".$db->Param('0')." and created>=".$db->Param('1')."",
 		$array);
@@ -1172,7 +1172,7 @@ END Adodb;
 
 	$rs = $db->CacheExecute(4,"select distinct firstname,lastname from ADOXYZ");
 	if ($rs) {
-		print ' Multiple, Alan and George selected: '. $rs->GetMenu('menu',array('Alan','George'),false,true);
+		print ' Multiple, Alan and George selected: '. $rs->GetMenu('menu',['Alan','George'],false,true);
 		if (empty($rs->connection)) print "<b>Connection object missing from recordset</b></br>";
 	} else print " Fail<BR>";
 	print '</p><hr />';
@@ -1402,8 +1402,8 @@ END Adodb;
 	print "<p>Test Replace</p>";
 
 	$ret = $db->Replace('ADOXYZ',
-		array('id'=>1,'firstname'=>'Caroline','lastname'=>'Miranda'),
-		array('id'),
+		['id'=>1,'firstname'=>'Caroline','lastname'=>'Miranda'],
+		['id'],
 		$autoq = true);
 	if (!$ret) echo "<p>Error in replacing existing record</p>";
 	else {
@@ -1421,14 +1421,14 @@ END Adodb;
 		$ADODB_COUNTRECS = $savec;
 	}
 	$ret = $db->Replace('ADOXYZ',
-		array('id'=>1000,'firstname'=>'Harun','lastname'=>'Al-Rashid'),
-		array('id','firstname'),
+		['id'=>1000,'firstname'=>'Harun','lastname'=>'Al-Rashid'],
+		['id','firstname'],
 		$autoq = true);
 	if ($ret != 2) print "<b>Replace failed: </b>";
 	print "test A return value=$ret (2 expected) <p>";
 
 	$ret = $db->Replace('ADOXYZ',
-		array('id'=>1000,'firstname'=>'Sherazade','lastname'=>'Al-Rashid'),
+		['id'=>1000,'firstname'=>'Sherazade','lastname'=>'Al-Rashid'],
 		'id',
 		$autoq = true);
 	if ($ret != 1)

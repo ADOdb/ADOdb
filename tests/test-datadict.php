@@ -22,7 +22,7 @@
 error_reporting(E_ALL);
 include_once('../adodb.inc.php');
 
-foreach(array('sapdb','sybase','mysql','access','oci8po','odbc_mssql','odbc','db2','firebird','postgres','informix') as $dbType) {
+foreach(['sapdb','sybase','mysql','access','oci8po','odbc_mssql','odbc','db2','firebird','postgres','informix'] as $dbType) {
 	echo "<h3>$dbType</h3><p>";
 	$db = NewADOConnection($dbType);
 	$dict = newDataDictionary($db);
@@ -30,7 +30,7 @@ foreach(array('sapdb','sybase','mysql','access','oci8po','odbc_mssql','odbc','db
 	if (!$dict) continue;
 	$dict->debug = 1;
 
-	$opts = array('REPLACE','mysql' => 'ENGINE=INNODB', 'oci8' => 'TABLESPACE USERS');
+	$opts = ['REPLACE','mysql' => 'ENGINE=INNODB', 'oci8' => 'TABLESPACE USERS'];
 
 /*	$flds = array(
 		array('id',	'I',
@@ -67,21 +67,21 @@ TS_SUBSEC   TS DEFTIMESTAMP
 ";
 
 
-	$sqla = $dict->CreateDatabase('KUTU',array('postgres'=>"LOCATION='/u01/postdata'"));
+	$sqla = $dict->CreateDatabase('KUTU',['postgres'=>"LOCATION='/u01/postdata'"]);
 	$dict->SetSchema('KUTU');
 
 	$sqli = ($dict->CreateTableSQL('testtable',$flds, $opts));
 	$sqla = array_merge($sqla,$sqli);
 
-	$sqli = $dict->CreateIndexSQL('idx','testtable','price,firstname,lastname',array('BITMAP','FULLTEXT','CLUSTERED','HASH'));
+	$sqli = $dict->CreateIndexSQL('idx','testtable','price,firstname,lastname',['BITMAP','FULLTEXT','CLUSTERED','HASH']);
 	$sqla = array_merge($sqla,$sqli);
 	$sqli = $dict->CreateIndexSQL('idx2','testtable','price,lastname');//,array('BITMAP','FULLTEXT','CLUSTERED'));
 	$sqla = array_merge($sqla,$sqli);
 
-	$addflds = array(array('height', 'F'),array('weight','F'));
+	$addflds = [['height', 'F'],['weight','F']];
 	$sqli = $dict->AddColumnSQL('testtable',$addflds);
 	$sqla = array_merge($sqla,$sqli);
-	$addflds = array(array('height', 'F','NOTNULL'),array('weight','F','NOTNULL'));
+	$addflds = [['height', 'F','NOTNULL'],['weight','F','NOTNULL']];
 	$sqli = $dict->AlterColumnSQL('testtable',$addflds);
 	$sqla = array_merge($sqla,$sqli);
 
@@ -113,7 +113,7 @@ TS_SUBSEC   TS DEFTIMESTAMP
 
 
 	adodb_pr($dict->databaseType);
-	printsqla($dbType, $dict->DropColumnSQL('table',array('my col','`col2_with_Quotes`','A_col3','col3(10)')));
+	printsqla($dbType, $dict->DropColumnSQL('table',['my col','`col2_with_Quotes`','A_col3','col3(10)']));
 	printsqla($dbType, $dict->ChangeTableSQL('adoxyz','LASTNAME varchar(32)'));
 
 }

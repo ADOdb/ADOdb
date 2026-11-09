@@ -118,7 +118,7 @@ class ADODB2_firebird extends ADODB_DataDict
 
 	function createDatabase($dbname, $options = false)
 	{
-		$sql = array();
+		$sql = [];
 
 		$sql[] = "DECLARE EXTERNAL FUNCTION LOWER CSTRING(80) RETURNS CSTRING(80) FREE_IT ENTRY_POINT 'IB_UDF_lower' MODULE_NAME 'ib_udf'";
 
@@ -159,12 +159,12 @@ class ADODB2_firebird extends ADODB_DataDict
 	/**
 	 * Generate the SQL to create table. Returns an array of sql strings.
 	 */
-	function createTableSQL($tabname, $flds, $tableoptions = array())
+	function createTableSQL($tabname, $flds, $tableoptions = [])
 	{
 		list($lines, $pkey, $idxs) = $this->_GenFields($flds, true);
 		// genfields can return FALSE at times
 		if ($lines == null) {
-			$lines = array();
+			$lines = [];
 		}
 
 		$taboptions = $this->_Options($tableoptions);
@@ -201,7 +201,7 @@ class ADODB2_firebird extends ADODB_DataDict
 	function _triggers($tabname, $taboptions)
 	{
 		if (!$this->seqField) {
-			return array();
+			return [];
 		}
 
 		$tab1 = preg_replace('/"/', '', $tabname);
@@ -249,12 +249,12 @@ class ADODB2_firebird extends ADODB_DataDict
 	public function alterColumnSQL($tabname, $flds, $tableflds = '', $tableoptions = '')
 	{
 		$tabname = $this->TableName($tabname);
-		$sql = array();
+		$sql = [];
 		list($lines, , $idxs) = $this->_GenFields($flds);
 		// genfields can return FALSE at times
 
 		if ($lines == null) {
-			$lines = array();
+			$lines = [];
 		}
 
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
@@ -265,7 +265,7 @@ class ADODB2_firebird extends ADODB_DataDict
 			*/
 			$vExplode = explode(' ', $v);
 			$vExplode = array_filter($vExplode);
-			array_splice($vExplode, 1, 0, array('TYPE'));
+			array_splice($vExplode, 1, 0, ['TYPE']);
 			$v = implode(' ', $vExplode);
 			$sql[] = $alter . $v;
 		}

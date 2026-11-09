@@ -198,7 +198,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 
 	function _indexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
-		$sql = array();
+		$sql = [];
 
 		if (isset($idxoptions['REPLACE']) || isset($idxoptions['DROP'])) {
 			if ($this->alterTableAddIndex) {

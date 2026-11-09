@@ -102,7 +102,7 @@ class ADODB_pdo extends ADOConnection {
 	*
 	* @example $db->pdoOptions = [\PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION];
 	*/
-	public $pdoParameters = array();
+	public $pdoParameters = [];
 
 	/*
 	* Set which style is used to bind parameters
@@ -252,7 +252,7 @@ class ADODB_pdo extends ADOConnection {
 	{
 		$args = func_get_args();
 		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'Concat')) {
-			return call_user_func_array(array($this->_driver, 'Concat'), $args);
+			return call_user_func_array([$this->_driver, 'Concat'], $args);
 		}
 
 		return call_user_func_array(parent::class . '::Concat', $args);
@@ -271,7 +271,7 @@ class ADODB_pdo extends ADOConnection {
 		$args = func_get_args();
 		if($this->_driver instanceof ADODB_pdo && method_exists($this->_driver, 'param')) {
 			// Return the driver specific entry, that mimics the native driver
-			return call_user_func_array(array($this->_driver, 'param'), $args);
+			return call_user_func_array([$this->_driver, 'param'], $args);
 		}
 
 		// No driver specific method defined, use mysql format '?'
@@ -547,7 +547,7 @@ class ADODB_pdo extends ADOConnection {
 	{
 		$this->_stmt = $this->_connectionID->prepare($sql);
 		if ($this->_stmt) {
-			return array($sql,$this->_stmt);
+			return [$sql,$this->_stmt];
 		}
 
 		return false;
@@ -789,7 +789,7 @@ class ADOPDOStatement {
 	function Execute($inputArr=false)
 	{
 		$savestmt = $this->_connectionID->_stmt;
-		$rs = $this->_connectionID->Execute(array(false,$this->_stmt),$inputArr);
+		$rs = $this->_connectionID->Execute([false,$this->_stmt],$inputArr);
 		$this->_connectionID->_stmt = $savestmt;
 		return $rs;
 	}
@@ -987,7 +987,7 @@ class ADORecordSet_pdo extends ADORecordSet {
 		}
 
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;

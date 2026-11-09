@@ -176,7 +176,7 @@ class ADODB_pdo_sqlite extends ADODB_pdo_base {
 			$ADODB_FETCH_MODE = $save;
 			return $false;
 		}
-		$arr = array();
+		$arr = [];
 		while ($r = $rs->FetchRow()) {
 			$type = explode('(', $r['type']);
 			$size = '';

@@ -36,39 +36,39 @@ class perf_mssql extends adodb_perf{
 		  timer decimal(16,6) NOT NULL
 		)";
 
-	var $settings = array(
+	var $settings = [
 	'Ratios',
-		'data cache hit ratio' => array('RATIO',
+		'data cache hit ratio' => ['RATIO',
 			"select round((a.cntr_value*100.0)/b.cntr_value,2) from master.dbo.sysperfinfo a, master.dbo.sysperfinfo b where a.counter_name = 'Buffer cache hit ratio' and b.counter_name='Buffer cache hit ratio base'",
-			'=WarnCacheRatio'),
-		'prepared sql hit ratio' => array('RATIO',
-			array('dbcc cachestats','Prepared',1,100),
-			''),
-		'adhoc sql hit ratio' => array('RATIO',
-			array('dbcc cachestats','Adhoc',1,100),
-			''),
+			'=WarnCacheRatio'],
+		'prepared sql hit ratio' => ['RATIO',
+			['dbcc cachestats','Prepared',1,100],
+			''],
+		'adhoc sql hit ratio' => ['RATIO',
+			['dbcc cachestats','Adhoc',1,100],
+			''],
 	'IO',
-		'data reads' => array('IO',
-		"select cntr_value from master.dbo.sysperfinfo where counter_name = 'Page reads/sec'"),
-		'data writes' => array('IO',
-		"select cntr_value from master.dbo.sysperfinfo where counter_name = 'Page writes/sec'"),
+		'data reads' => ['IO',
+		"select cntr_value from master.dbo.sysperfinfo where counter_name = 'Page reads/sec'"],
+		'data writes' => ['IO',
+		"select cntr_value from master.dbo.sysperfinfo where counter_name = 'Page writes/sec'"],
 
 	'Data Cache',
-		'data cache size' => array('DATAC',
+		'data cache size' => ['DATAC',
 		"select cntr_value*8192 from master.dbo.sysperfinfo where counter_name = 'Total Pages' and object_name='SQLServer:Buffer Manager'",
-			'' ),
-		'data cache blocksize' => array('DATAC',
-			"select 8192",'page size'),
+			'' ],
+		'data cache blocksize' => ['DATAC',
+			"select 8192",'page size'],
 	'Connections',
-		'current connections' => array('SESS',
+		'current connections' => ['SESS',
 			'=sp_who',
-			''),
-		'max connections' => array('SESS',
+			''],
+		'max connections' => ['SESS',
 			"SELECT @@MAX_CONNECTIONS",
-			''),
+			''],
 
 		false
-	);
+	];
 
 
 	function __construct(&$conn)

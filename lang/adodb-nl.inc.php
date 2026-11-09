@@ -20,7 +20,7 @@
  * @author Pim Koeman <pim@wittenborg-university.com>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
 			'LANG'                      => 'nl',
             DB_ERROR                    => 'onbekende fout',
             DB_ERROR_ALREADY_EXISTS     => 'bestaat al',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_EXTENSION_NOT_FOUND=> 'extensie niet gevonden',
             DB_ERROR_NOSUCHDB           => 'onbekende database',
             DB_ERROR_ACCESS_VIOLATION   => 'onvoldoende rechten'
-);
+];

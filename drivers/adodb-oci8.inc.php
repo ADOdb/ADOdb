@@ -110,7 +110,7 @@ END;
 	var $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
 	var $noNullStrings = false;
 	var $connectSID = false;
-	var $_bind = array();
+	var $_bind = [];
 	var $_nestedSQL = true;
 	var $_getarray = false; // currently not working
 	var $leftOuter = '';  // oracle weirdness, $col = $value (+) for LEFT OUTER, $col (+)= $value for RIGHT OUTER
@@ -121,7 +121,7 @@ END;
 	var $dateformat = 'YYYY-MM-DD'; // DBDate format
 	var $useDBDateFormatForTextInput=false;
 	var $datetime = false; // MetaType('DATE') returns 'D' (datetime==false) or 'T' (datetime == true)
-	var $_refLOBs = array();
+	var $_refLOBs = [];
 
 	/*
 	 * Legacy compatibility for sequence names for emulated auto-increments
@@ -166,7 +166,7 @@ END;
 		if (!$rs) {
 			return false;
 		}
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
@@ -562,7 +562,7 @@ END;
 			return false;
 		}
 
-		$indexes = array ();
+		$indexes =  [];
 		// parse index data into array
 
 		while ($row = $rs->FetchRow()) {
@@ -570,11 +570,11 @@ END;
 				continue;
 			}
 			if (!isset($indexes[$row[0]])) {
-				$indexes[$row[0]] = array(
+				$indexes[$row[0]] = [
 					'unique' => ($row[1] == 'UNIQUE'),
 					'columns' => [],
 					'primary' => ($primary_key == $row[0] ? 1 : 0)
-				);
+				];
 			}
 			$indexes[$row[0]]['columns'][$row[2] - 1] = $row[3];
 		}
@@ -842,7 +842,7 @@ END;
 
 		// If non-bound statement, $inputarr is false
 		if (!$inputarr) {
-			$inputarr = array();
+			$inputarr = [];
 		}
 
 		if ($offset == -1 || ($offset < $this->selectOffsetAlg1 && 0 < $nrows && $nrows < 1000)) {
@@ -971,7 +971,7 @@ END;
 			$sql = "UPDATE $table set $column=EMPTY_{$blobtype}() WHERE $where RETURNING $column INTO :blob";
 
 		$desc = oci_new_descriptor($this->_connectionID, OCI_D_LOB);
-		$arr['blob'] = array($desc,-1,$type);
+		$arr['blob'] = [$desc,-1,$type];
 		if ($this->session_sharing_force_blob) {
 			$this->Execute('ALTER SESSION SET CURSOR_SHARING=EXACT');
 		}
@@ -1014,7 +1014,7 @@ END;
 			$sql = "UPDATE $table set $column=EMPTY_{$blobtype}() WHERE $where RETURNING $column INTO :blob";
 
 		$desc = oci_new_descriptor($this->_connectionID, OCI_D_LOB);
-		$arr['blob'] = array($desc,-1,$type);
+		$arr['blob'] = [$desc,-1,$type];
 
 		$this->BeginTrans();
 		$rs = ADODB_oci8::Execute($sql,$arr);
@@ -1041,7 +1041,7 @@ END;
 		}
 		if ($inputarr !== false) {
 			if (!is_array($inputarr)) {
-				$inputarr = array($inputarr);
+				$inputarr = [$inputarr];
 			}
 
 			$element0 = reset($inputarr);
@@ -1142,9 +1142,9 @@ END;
 
 		$sttype = @oci_statement_type($stmt);
 		if ($sttype == 'BEGIN' || $sttype == 'DECLARE') {
-			return array($sql,$stmt,0,$BINDNUM, ($cursor) ? oci_new_cursor($this->_connectionID) : false);
+			return [$sql,$stmt,0,$BINDNUM, ($cursor) ? oci_new_cursor($this->_connectionID) : false];
 		}
-		return array($sql,$stmt,0,$BINDNUM);
+		return [$sql,$stmt,0,$BINDNUM];
 	}
 
 	function releaseStatement(&$stmt)
@@ -1365,7 +1365,7 @@ END;
 					$bindarr = $this->_bind[$bindpos];
 				} else {
 				// one statement to bind them all
-					$bindarr = array();
+					$bindarr = [];
 					foreach($inputarr as $k => $v) {
 						$bindarr[$k] = $v;
 						oci_bind_by_name($stmt,":$k",$bindarr[$k],is_string($v) && strlen($v)>4000 ? -1 : 4000);
@@ -1524,7 +1524,7 @@ END;
 	function MetaPrimaryKeys($table, $owner=false,$internalKey=false)
 	{
 		if ($internalKey) {
-			return array('ROWID');
+			return ['ROWID'];
 		}
 
 		// tested with oracle 8.1.7
@@ -1548,7 +1548,7 @@ SELECT /*+ RULE */ distinct b.column_name
 		$rs = $this->Execute($sql);
 		if ($rs && !$rs->EOF) {
 			$arr = $rs->GetArray();
-			$a = array();
+			$a = [];
 			foreach($arr as $v) {
 				$a[] = reset($v);
 			}
@@ -1782,10 +1782,10 @@ class ADORecordset_oci8 extends ADORecordSet {
 
 			if (!is_array($this->fields)) {
 				$this->_numOfRows = 0;
-				$this->fields = array();
+				$this->fields = [];
 			}
 		} else {
-			$this->fields = array();
+			$this->fields = [];
 			$this->_numOfRows = 0;
 			$this->_numOfFields = 0;
 			$this->EOF = true;
@@ -1797,7 +1797,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 		$this->_numOfRows = -1;
 		$this->_numOfFields = oci_num_fields($this->_queryID);
 		if ($this->_numOfFields>0) {
-			$this->_fieldobjs = array();
+			$this->_fieldobjs = [];
 			$max = $this->_numOfFields;
 			for ($i=0;$i<$max; $i++) $this->_fieldobjs[] = $this->_FetchField($i);
 		}
@@ -1869,7 +1869,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 			$arr = $this->GetArray($nrows);
 			return $arr;
 		}
-		$arr = array();
+		$arr = [];
 		for ($i=1; $i < $offset; $i++) {
 			if (!@oci_fetch($this->_queryID)) {
 				return $arr;
@@ -1880,7 +1880,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 			return $arr;
 		}
 		$this->_updatefields();
-		$results = array();
+		$results = [];
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
 			$results[$cnt++] = $this->fields;
@@ -1895,7 +1895,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 	function Fields($colname)
 	{
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;

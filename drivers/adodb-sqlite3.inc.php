@@ -157,7 +157,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		* We are using the Sqlite affinity method here
 		* @link https://www.sqlite.org/datatype3.html
 		*/
-		$affinity = array(
+		$affinity = [
 		'INT'=>'INTEGER',
 		'INTEGER'=>'INTEGER',
 		'TINYINT'=>'INTEGER',
@@ -189,7 +189,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		'BOOLEAN'=>'NUMERIC',
 		'DATE'=>'NUMERIC',
 		'DATETIME'=>'NUMERIC'
-		);
+		];
 
 		if (!isset($affinity[$t]))
 			return ADODB_DEFAULT_METATYPE;
@@ -200,11 +200,11 @@ class ADODB_sqlite3 extends ADOConnection {
 		* the sqlite 'affinity', we convert to ADOdb metatype
 		*/
 
-		$subclass = array('INTEGER'=>'I',
+		$subclass = ['INTEGER'=>'I',
 						  'TEXT'=>'X',
 						  'BLOB'=>'B',
 						  'REAL'=>'N',
-						  'NUMERIC'=>'N');
+						  'NUMERIC'=>'N'];
 
 		return $subclass[$subt];
 	}
@@ -226,7 +226,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			$savem = $this->SetFetchMode(false);
 		}
 
-		$rs = $this->execute("PRAGMA table_info(?)", array($table));
+		$rs = $this->execute("PRAGMA table_info(?)", [$table]);
 
 		if (isset($savem)) {
 			$this->SetFetchMode($savem);
@@ -237,7 +237,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			return false;
 		}
 
-		$arr = array();
+		$arr = [];
 		while ($r = $rs->FetchRow()) {
 			// Metacolumns returns column names in lowercase
 			$r = array_change_key_case($r, CASE_LOWER);
@@ -302,7 +302,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			PREG_SET_ORDER
 		);
 
-		$fkeyList = array();
+		$fkeyList = [];
 		foreach ($fkeyMatches as $fkey) {
 			$src_col = $fkey[1] ?: $fkey[2];
 			$ref_table = $upper ? strtoupper($fkey[3]) : $fkey[3];
@@ -406,8 +406,8 @@ class ADODB_sqlite3 extends ADOConnection {
 		// - d must be LC, because D is 3 char day
 		// - A must be UC  because a is non-portable am
 		// - Q must be UC  because q means nothing
-		$fromChars = array('y', 'D', 'a', 'q');
-		$toChars = array('Y', 'd', 'A', 'Q');
+		$fromChars = ['y', 'D', 'a', 'q'];
+		$toChars = ['Y', 'd', 'A', 'Q'];
 		$fmt = str_replace($fromChars, $toChars, $fmt);
 
 		$fmt = $this->qstr($fmt);
@@ -656,13 +656,13 @@ class ADODB_sqlite3 extends ADOConnection {
 			return false;
 		}
 
-		$indexes = array();
+		$indexes = [];
 
 		while ($row = $rs->FetchRow()) {
 			if (!isset($indexes[$row[0]])) {
-				$indexes[$row[0]] = array(
+				$indexes[$row[0]] = [
 					'unique' => preg_match("/unique/i", $row[1]),
-				);
+				];
 			}
 			// Index elements appear in the SQL statement in cols[1] between parentheses
 			// e.g CREATE UNIQUE INDEX ware_0 ON warehouse (org,warehouse)
@@ -673,7 +673,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		// If we want the primary key, we must extract it from the pragma
 		if ($primary){
 			$pragmaData = $this->getAll('PRAGMA table_info(?);', [$table]);
-			$pkIndexData = array('unique'=>1,'columns'=>array());
+			$pkIndexData = ['unique'=>1,'columns'=>[]];
 
 			$pkCallBack = function ($value, $key) use (&$pkIndexData) {
 				// As we iterate the elements check for pk index
@@ -784,7 +784,7 @@ class ADODB_sqlite3 extends ADOConnection {
 		} else {
 			// Given a where clause string, we have to disassemble the
 			// statements into keys and values
-			$params = array();
+			$params = [];
 			$temp = preg_split('/(where|and)/i', $where);
 			$where = array_filter($temp);
 
@@ -796,7 +796,7 @@ class ADODB_sqlite3 extends ADOConnection {
 			}
 		}
 
-		$paramWhere = array();
+		$paramWhere = [];
 		foreach ($params as $bindKey => $bindValue) {
 			$paramWhere[] = $bindKey . '=?';
 		}
@@ -916,7 +916,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 		}
 
 		$this->_inited = true;
-		$this->fields = array();
+		$this->fields = [];
 		if ($queryID) {
 			$this->_currentRow = 0;
 			$this->EOF = !$this->_fetch();
@@ -980,7 +980,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 			return $this->fields[$colname];
 		}
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;

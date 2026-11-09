@@ -35,32 +35,32 @@ class perf_db2 extends adodb_perf{
 		  timer decimal(16,6) NOT NULL
 		)";
 
-	var $settings = array(
+	var $settings = [
 	'Ratios',
-		'data cache hit ratio' => array('RATIO',
+		'data cache hit ratio' => ['RATIO',
 			"SELECT
 				case when sum(POOL_DATA_L_READS+POOL_INDEX_L_READS)=0 then 0
 				else 100*(1-sum(POOL_DATA_P_READS+POOL_INDEX_P_READS)/sum(POOL_DATA_L_READS+POOL_INDEX_L_READS)) end
 				FROM TABLE(SNAPSHOT_APPL('',-2)) as t",
-			'=WarnCacheRatio'),
+			'=WarnCacheRatio'],
 
 	'Data Cache',
-		'data cache buffers' => array('DATAC',
+		'data cache buffers' => ['DATAC',
 		'select sum(npages) from SYSCAT.BUFFERPOOLS',
-			'See <a href=http://www7b.boulder.ibm.com/dmdd/library/techarticle/anshum/0107anshum.html#bufferpoolsize>tuning reference</a>.' ),
-		'cache blocksize' => array('DATAC',
+			'See <a href=http://www7b.boulder.ibm.com/dmdd/library/techarticle/anshum/0107anshum.html#bufferpoolsize>tuning reference</a>.' ],
+		'cache blocksize' => ['DATAC',
 		'select avg(pagesize) from SYSCAT.BUFFERPOOLS',
-			'' ),
-		'data cache size' => array('DATAC',
+			'' ],
+		'data cache size' => ['DATAC',
 		'select sum(npages*pagesize) from SYSCAT.BUFFERPOOLS',
-			'' ),
+			'' ],
 	'Connections',
-		'current connections' => array('SESS',
+		'current connections' => ['SESS',
 			"SELECT count(*) FROM TABLE(SNAPSHOT_APPL_INFO('',-2)) as t",
-			''),
+			''],
 
 		false
-	);
+	];
 
 
 	function __construct(&$conn)

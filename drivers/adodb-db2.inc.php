@@ -200,7 +200,7 @@ class ADODB_db2 extends ADOConnection {
         * We need to flatten out the connectionParameters
         */
 
-        $db2Options = array();
+        $db2Options = [];
         if ($this->connectionParameters)
         {
             foreach($this->connectionParameters as $p)
@@ -249,13 +249,13 @@ class ADODB_db2 extends ADOConnection {
     {
 
 
-        $connectionParameters = array(
+        $connectionParameters = [
             'dsn'=>'',
             'uid'=>'',
             'pwd'=>'',
             'database'=>'',
             'catalogue'=>true
-        );
+        ];
 
         /*
         * Shortcut for *LOCAL
@@ -406,12 +406,12 @@ class ADODB_db2 extends ADOConnection {
             $this->database = $this->getDatabasenameFromDsn($argDSN);
 
 
-        $connectionParameters = array('dsn'=>$argDSN,
+        $connectionParameters = ['dsn'=>$argDSN,
                                       'uid'=>$argUsername,
                                       'pwd'=>$argPassword,
                                       'database'=>$argDatabasename,
                                       'catalogue'=>$useCataloguedConnection
-                                      );
+                                      ];
 
         return $connectionParameters;
 
@@ -801,7 +801,7 @@ class ADODB_db2 extends ADOConnection {
     public function metaPrimaryKeys($table,$owner=false)
     {
 
-        $primaryKeys = array();
+        $primaryKeys = [];
 
         global $ADODB_FETCH_MODE;
 
@@ -909,7 +909,7 @@ class ADODB_db2 extends ADOConnection {
         
             return false;
         }
-        $foreignKeys = array();
+        $foreignKeys = [];
 
         foreach ($results as $r)
         {
@@ -948,7 +948,7 @@ class ADODB_db2 extends ADOConnection {
             }
             
             if (!array_key_exists($referenceTable, $foreignKeys)) {
-                $foreignKeys[$referenceTable] = array();
+                $foreignKeys[$referenceTable] = [];
             }
 
             $pkColnames = array_filter(preg_split('/ +/', $r['PK_COLNAMES']) );
@@ -1020,7 +1020,7 @@ class ADODB_db2 extends ADOConnection {
         * if $ttype passed as 'V' it is assumed to be 'VIEW'
         */
 
-        $sqlFilters = array();
+        $sqlFilters = [];
         $sqlFilter = '';
         $returnedColumn = 'TRIM(TABNAME)';
 
@@ -1058,7 +1058,7 @@ class ADODB_db2 extends ADOConnection {
             * exactly
             */
 
-            if (in_array(substr($mask,0,1),array('"','[')))
+            if (in_array(substr($mask,0,1),['"','[']))
             {
                 if (strpos($mask,'%') !== false)
                 {
@@ -1122,7 +1122,7 @@ class ADODB_db2 extends ADOConnection {
          *   )
          * )
          */
-        $indices 		= array();
+        $indices 		= [];
         $primaryKeyName = '';
 
         $table = $this->metaTables('T','',$table);
@@ -1169,10 +1169,10 @@ class ADODB_db2 extends ADOConnection {
             $indexName = $this->getMetaCasedValue($r[1]);
             if (!isset($indices[$indexName])) {
                 $unique = ($r[7] == 'U')?1:0;
-                $indices[$indexName] = array('unique'=>$unique,
+                $indices[$indexName] = ['unique'=>$unique,
                                              'primary'=>$primaryIndex,
-                                             'columns'=>array()
-                                        );
+                                             'columns'=>[]
+                                        ];
             }
             $cols = explode('+',$r[6]);
             foreach ($cols as $colIndex => $col) {
@@ -1209,7 +1209,7 @@ class ADODB_db2 extends ADOConnection {
 
         global $ADODB_FETCH_MODE;
 
-        $metaProcedures = array();
+        $metaProcedures = [];
         $procedureSQL   = '';
         $catalogSQL     = '';
         $schemaSQL      = '';
@@ -1263,12 +1263,12 @@ class ADODB_db2 extends ADOConnection {
 
             $procedureName = $this->getMetaCasedValue($r[0]);
             $schemaName    = $this->getMetaCasedValue($r[2]);
-            $metaProcedures[$procedureName] = array(
+            $metaProcedures[$procedureName] = [
                 'type'=> $r[1],
                 'catalog' => '',
                 'schema'  => $schemaName,
                 'remarks' => $r[3]
-            );
+            ];
         }
 
         $ADODB_FETCH_MODE = $saveModes[0];
@@ -1429,7 +1429,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         }
         $rs->_fetch();
 
-        $retarr = array();
+        $retarr = [];
 
         /*
         $rs->fields indices
@@ -1601,13 +1601,13 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
         //global $ADODB_FETCH_MODE;
 
-        $this->storedProcedureParameters = array('name'=>'',
+        $this->storedProcedureParameters = ['name'=>'',
                                                  'resource'=>false,
-                                                 'in'=>array(),
-                                                 'out'=>array(),
-                                                 'index'=>array(),
-                                                 'parameters'=>array(),
-                                                 'keyvalue' => array());
+                                                 'in'=>[],
+                                                 'out'=>[],
+                                                 'index'=>[],
+                                                 'parameters'=>[],
+                                                 'keyvalue' => []];
 
         $qid = db2_procedures($this->_connectionID, '' , '%' , $procedureName );
 
@@ -1635,7 +1635,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         }
         
         $preparedStatement = 'CALL %s(%s)';
-        $parameterMarkers = array();
+        $parameterMarkers = [];
         
         while ($rs = db2_fetch_assoc($qid)) {
 
@@ -1702,7 +1702,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
          * will be handled by the storedProcedureParameters
          * array
          */
-        return array($sql,$spResource);
+        return [$sql,$spResource];
 
     }
 
@@ -1919,7 +1919,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
             // we don't know whether db2 driver is parsing prepared stmts, so just return sql
             return $sql;
         }
-        return array($sql,$stmt,false);
+        return [$sql,$stmt,false];
     }
 
     /**
@@ -1932,29 +1932,29 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
      */
     function _query($sql, $inputarr = false)
     {
-        $db2Options = array();
+        $db2Options = [];
         /*
          * Use DB2 Internal case handling for best speed
          */
         switch(ADODB_ASSOC_CASE)
         {
         case ADODB_ASSOC_CASE_UPPER:
-            $db2Options = array('db2_attr_case'=>DB2_CASE_UPPER);
+            $db2Options = ['db2_attr_case'=>DB2_CASE_UPPER];
             $setOption = @db2_set_option($this->_connectionID,$db2Options,1);
             break;
 
          case ADODB_ASSOC_CASE_LOWER:
-            $db2Options = array('db2_attr_case'=>DB2_CASE_LOWER);
+            $db2Options = ['db2_attr_case'=>DB2_CASE_LOWER];
             $setOption = @db2_set_option($this->_connectionID,$db2Options,1);
             break;
 
         default:
-            $db2Options = array('db2_attr_case'=>DB2_CASE_NATURAL);
+            $db2Options = ['db2_attr_case'=>DB2_CASE_NATURAL];
             $setOption = @db2_set_option($this->_connectionID,$db2Options,1);
         }
 
         if (!$this->useLegacyRecordCounting) {
-            $db2Options = array('rowcount'=>DB2_ROWCOUNT_PREFETCH_ON);
+            $db2Options = ['rowcount'=>DB2_ROWCOUNT_PREFETCH_ON];
             $setOption = @db2_set_option($this->_connectionID,$db2Options,1);
         }
 
@@ -2226,7 +2226,7 @@ class ADORecordSet_db2 extends ADORecordSet {
         }
 
         if (!$this->bind) {
-            $this->bind = array();
+            $this->bind = [];
             for ($i=0; $i < $this->_numOfFields; $i++) {
                 $o = $this->FetchField($i);
                 $this->bind[strtoupper($o->name)] = $i;
@@ -2266,7 +2266,7 @@ class ADORecordSet_db2 extends ADORecordSet {
         $this->Move($offset);
 
 
-        $results = array();
+        $results = [];
         $cnt = 0;
         while (!$this->EOF && $nrows != $cnt) {
             $results[$cnt++] = $this->fields;

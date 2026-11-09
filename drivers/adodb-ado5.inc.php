@@ -55,7 +55,7 @@ class ADODB_ado extends ADOConnection {
 	function ServerInfo()
 	{
 		if (!empty($this->_connectionID)) $desc = $this->_connectionID->provider;
-		return array('description' => $desc, 'version' => '');
+		return ['description' => $desc, 'version' => ''];
 	}
 
 	function _affectedrows()
@@ -182,7 +182,7 @@ class ADODB_ado extends ADOConnection {
 
 	function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
-		$arr= array();
+		$arr= [];
 		$dbc = $this->_connectionID;
 
 		$adors=@$dbc->OpenSchema(20);//tables
@@ -205,7 +205,7 @@ class ADODB_ado extends ADOConnection {
 	function MetaColumns($table, $normalize=true)
 	{
 		$table = strtoupper($table);
-		$arr= array();
+		$arr= [];
 		$dbc = $this->_connectionID;
 
 		$adors=@$dbc->OpenSchema(4);//tables
@@ -408,7 +408,7 @@ class ADORecordSet_ado extends ADORecordSet {
 	{
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) return $this->fields[$colname];
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;
@@ -592,11 +592,11 @@ class ADORecordSet_ado extends ADORecordSet {
 			$this->fields = false;
 			return false;
 		}
-		$this->fields = array();
+		$this->fields = [];
 
 		if (!$this->_tarr) {
-			$tarr = array();
-			$flds = array();
+			$tarr = [];
+			$flds = [];
 			for ($i=0,$max = $this->_numOfFields; $i < $max; $i++) {
 				$f = $rs->Fields($i);
 				$flds[] = $f;

@@ -46,7 +46,7 @@ class ADORecordset_sqlitepo extends ADORecordset_sqlite {
    // Modified to strip table names from returned fields
    function _fetch($ignore_fields=false)
    {
-      $this->fields = array();
+      $this->fields = [];
       $fields = @sqlite_fetch_array($this->_queryID,$this->fetchMode);
       if(is_array($fields))
          foreach($fields as $n => $v)

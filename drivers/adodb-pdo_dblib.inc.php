@@ -71,7 +71,7 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 			return $false;
 		}
 
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
