@@ -1471,10 +1471,6 @@ class adoSchema {
 			}
 		}
 
-		if( PHP_VERSION_ID < 80000 ) {
-			xml_parser_free( $xmlParser );
-		}
-
 		return $this->sqlArray;
 	}
 
@@ -1514,10 +1510,6 @@ class adoSchema {
 				xml_error_string( xml_get_error_code( $xmlParser) ),
 				xml_get_current_line_number( $xmlParser)
 			) );
-		}
-
-		if( PHP_VERSION_ID < 80000 ) {
-			xml_parser_free( $xmlParser );
 		}
 
 		return $this->sqlArray;
