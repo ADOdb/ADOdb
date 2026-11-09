@@ -144,7 +144,7 @@ class dbObject {
 	}
 
 	function create(&$xmls) {
-		return array();
+		return [];
 	}
 
 	/**
@@ -206,17 +206,17 @@ class dbTable extends dbObject {
 	/**
 	 * @var array Field specifier: Meta-information about each field
 	 */
-	var $fields = array();
+	var $fields = [];
 
 	/**
 	 * @var array List of table indexes.
 	 */
-	var $indexes = array();
+	var $indexes = [];
 
 	/**
 	 * @var array Table options: Table-level options
 	 */
-	var $opts = array();
+	var $opts = [];
 
 	/**
 	 * @var string Field index: Keeps track of which field is currently being processed
@@ -233,7 +233,7 @@ class dbTable extends dbObject {
 	 * @var boolean Mark field for destruction (not yet implemented)
 	 * @access private
 	 */
-	var $drop_field = array();
+	var $drop_field = [];
 
 	/**
 	 * @var array Platform-specific options
@@ -453,7 +453,7 @@ class dbTable extends dbObject {
 			$this->fields[$this->FieldID( $field )]['OPTS'][] = $opt;
 		// Add the option and value
 		} else {
-			$this->fields[$this->FieldID( $field )]['OPTS'][] = array( $opt => $value );
+			$this->fields[$this->FieldID( $field )]['OPTS'][] = [ $opt => $value ];
 		}
 	}
 
@@ -481,7 +481,7 @@ class dbTable extends dbObject {
 	 * @return array Array containing table creation SQL
 	 */
 	function create( &$xmls ) {
-		$sql = array();
+		$sql = [];
 
 		// drop any existing indexes
 		if( is_array( $legacy_indexes = $xmls->dict->MetaIndexes( $this->name ) ) ) {
@@ -516,11 +516,11 @@ class dbTable extends dbObject {
 				return $sql;
 			}
 
-			$legacy_fields = array();
+			$legacy_fields = [];
 		}
 
 		// Loop through the field specifier array, building the associative array for the field options
-		$fldarray = array();
+		$fldarray = [];
 
 		foreach( $this->fields as $field_id => $finfo ) {
 			// Set an empty size if it isn't supplied
@@ -529,11 +529,11 @@ class dbTable extends dbObject {
 			}
 
 			// Initialize the field array with the type and size
-			$fldarray[$field_id] = array(
+			$fldarray[$field_id] = [
 				'NAME' => $finfo['NAME'],
 				'TYPE' => $finfo['TYPE'],
 				'SIZE' => $finfo['SIZE']
-			);
+			];
 
 			// Loop through the options array and add the field options.
 			if( isset( $finfo['OPTS'] ) ) {
@@ -571,7 +571,7 @@ class dbTable extends dbObject {
 					break;
 				// ignore table
 				default:
-					return array();
+					return [];
 			}
 		}
 
@@ -625,12 +625,12 @@ class dbIndex extends dbObject {
 	/**
 	 * @var array	Index options: Index-level options
 	 */
-	var $opts = array();
+	var $opts = [];
 
 	/**
 	 * @var array	Indexed fields: Table columns included in this index
 	 */
-	var $columns = array();
+	var $columns = [];
 
 	/**
 	 * @var boolean Mark index for destruction
@@ -778,7 +778,7 @@ class dbIndex extends dbObject {
  */
 class dbData extends dbObject {
 
-	var $data = array();
+	var $data = [];
 
 	var $row;
 
@@ -811,7 +811,7 @@ class dbData extends dbObject {
 		switch( $this->currentElement ) {
 			case 'ROW':
 				$this->row = count( $this->data );
-				$this->data[$this->row] = array();
+				$this->data[$this->row] = [];
 				break;
 			case 'F':
 				$this->addField($attributes);
@@ -878,7 +878,7 @@ class dbData extends dbObject {
 	 */
 	function addData( $cdata ) {
 		if( !isset( $this->data[$this->row] ) ) {
-			$this->data[$this->row] = array();
+			$this->data[$this->row] = [];
 		}
 
 		if( !isset( $this->data[$this->row][$this->current_field] ) ) {
@@ -897,12 +897,12 @@ class dbData extends dbObject {
 	function create( &$xmls ) {
 		$table = $xmls->dict->TableName($this->parent->name);
 		$table_field_count = count($this->parent->fields);
-		$sql = array();
+		$sql = [];
 
 		// eliminate any columns that aren't in the table
 		foreach( $this->data as $row ) {
 			$table_fields = $this->parent->fields;
-			$fields = array();
+			$fields = [];
 
 			foreach( $row as $field_id => $field_data ) {
 				if( !array_key_exists( $field_id, $table_fields ) ) {
@@ -970,7 +970,7 @@ class dbQuerySet extends dbObject {
 	/**
 	 * @var array	List of SQL queries
 	 */
-	var $queries = array();
+	var $queries = [];
 
 	/**
 	 * @var string	String used to build of a query line by line
@@ -1310,7 +1310,7 @@ class adoSchema {
 		$this->db = $db;
 		$this->debug = $this->db->debug;
 		$this->dict = newDataDictionary( $this->db );
-		$this->sqlArray = array();
+		$this->sqlArray = [];
 		$this->schemaVersion = XMLS_SCHEMA_VERSION;
 		$this->executeInline( XMLS_EXECUTE_INLINE );
 		$this->continueOnError( XMLS_CONTINUE_ON_ERROR );
@@ -1809,16 +1809,16 @@ class adoSchema {
 				}
 		}
 
-		$arguments = array (
+		$arguments =  [
 			'/_xml' => $schema,
 			'/_xsl' => file_get_contents( $xsl_file )
-		);
+		];
 
 		// create an XSLT processor
 		$xh = xslt_create ();
 
 		// set error handler
-		xslt_set_error_handler ($xh, array ($this, 'xslt_error_handler'));
+		xslt_set_error_handler ($xh,  [$this, 'xslt_error_handler']);
 
 		// process the schema
 		$result = xslt_process ($xh, 'arg:/_xml', 'arg:/_xsl', NULL, $arguments);
@@ -1840,13 +1840,13 @@ class adoSchema {
 	 */
 	function xslt_error_handler( $parser, $errno, $level, $fields ) {
 		if( is_array( $fields ) ) {
-			$msg = array(
+			$msg = [
 				'Message Type' => ucfirst( $fields['msgtype'] ),
 				'Message Code' => $fields['code'],
 				'Message' => $fields['msg'],
 				'Error Number' => $errno,
 				'Level' => $level
-			);
+			];
 
 			switch( $fields['URI'] ) {
 				case 'arg:/_xml':
@@ -1861,12 +1861,12 @@ class adoSchema {
 
 			$msg['Line'] = $fields['line'];
 		} else {
-			$msg = array(
+			$msg = [
 				'Message Type' => 'Error',
 				'Error Number' => $errno,
 				'Level' => $level,
 				'Fields' => var_export( $fields, TRUE )
-			);
+			];
 		}
 
 		$error_details = $msg['Message Type'] . ' in XSLT Transformation' . "\n"
@@ -1956,7 +1956,7 @@ class adoSchema {
 				if( is_array( $fields ) ) {
 					foreach( $fields as $details ) {
 						$extra = '';
-						$content = array();
+						$content = [];
 
 						if( $details->max_length > 0 ) {
 							$extra .= ' size="' . $details->max_length . '"';
@@ -2116,7 +2116,7 @@ class adoSchema {
 	 * @access private
 	 */
 	function clearSQL() {
-		$this->sqlArray = array();
+		$this->sqlArray = [];
 	}
 
 	/**

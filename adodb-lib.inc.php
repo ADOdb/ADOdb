@@ -53,7 +53,7 @@ function adodb_strip_order_by($sql)
 function adodb_probetypes($array,&$types,$probe=8)
 {
 // probe and guess the type
-	$types = array();
+	$types = [];
 	if ($probe > sizeof($array)) $max = sizeof($array);
 	else $max = $probe;
 
@@ -100,7 +100,7 @@ function adodb_transpose(&$arr, &$newarr, &$hdr, $fobjs)
 
 	if ($hdr) {
 		$startx = 1;
-		$hdr = array('Fields');
+		$hdr = ['Fields'];
 		for ($y = 0; $y < $oldY; $y++) {
 			$hdr[] = $arr[$y][0];
 		}
@@ -110,9 +110,9 @@ function adodb_transpose(&$arr, &$newarr, &$hdr, $fobjs)
 	for ($x = $startx; $x < $oldX; $x++) {
 		if ($fobjs) {
 			$o = $fobjs[$x];
-			$newarr[] = array($o->name);
+			$newarr[] = [$o->name];
 		} else
-			$newarr[] = array();
+			$newarr[] = [];
 
 		for ($y = 0; $y < $oldY; $y++) {
 			$newarr[$x-$startx][] = $arr[$y][$x];
@@ -129,7 +129,7 @@ function _adodb_replace($zthis, $table, $fieldArray, $keyCol, $autoQuote, $has_a
 	if (count($fieldArray) == 0) return 0;
 
 	if (!is_array($keyCol)) {
-		$keyCol = array($keyCol);
+		$keyCol = [$keyCol];
 	}
 	$uSet = '';
 	foreach($fieldArray as $k => $v) {
@@ -402,7 +402,7 @@ function _adodb_getcount($zthis, $sql,$inputarr=false,$secs2cache=0)
 	* statement to have an alias for the result
 	*/
 	$requiresAlias = '';
-	$requiresAliasArray = array('postgres9','postgres','mysql','mysqli','mssql','mssqlnative','sqlsrv');
+	$requiresAliasArray = ['postgres9','postgres','mysql','mysqli','mssql','mssqlnative','sqlsrv'];
 	if (in_array($zthis->databaseType,$requiresAliasArray)
 		|| in_array($zthis->dsnType,$requiresAliasArray)
 	) {
@@ -855,7 +855,7 @@ function _adodb_getupdatesql(&$zthis, $rs, $arrFields, $forceUpdate=false, $forc
 			else if (preg_match('/\s(FOR UPDATE.*)/is', $whereClause[1], $discard));
 			else preg_match('/\s.*(\) WHERE .*)/is', $whereClause[1], $discard); # see https://sourceforge.net/p/adodb/bugs/37/
 		} else {
-			$whereClause = array(false, false);
+			$whereClause = [false, false];
 		}
 
 		if ($discard) {
@@ -1162,7 +1162,7 @@ function _adodb_column_sql(&$zthis, $action, $type, $fname, $fnameq, $arrFields,
 			break;
 
 		default:
-			$val = str_replace(array("'"," ","("),"",$arrFields[$fname]); // basic sql injection defence
+			$val = str_replace(["'"," ","("],"",$arrFields[$fname]); // basic sql injection defence
 			if (empty($val)) $val = '0';
 			break;
 	}
@@ -1341,7 +1341,7 @@ function _adodb_backtrace($printOrArr=true, $maximumDepth=0, $elementsToIgnore=0
 		}
 
 		// Function arguments
-		$args = array();
+		$args = [];
 		if (isset($element['args'])) {
 			foreach ($element['args'] as $v) {
 				if (is_null($v)) {

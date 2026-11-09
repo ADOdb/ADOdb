@@ -103,7 +103,7 @@ function TestSQLDate()
     . "null from (select convert(datetime,'2016-12-17 18:55:30.590' ,121) testdate,
         convert(datetime,'2016-01-01 18:55:30.590' ,121) testdatesmall,null nulldate) q "
   );
-  $TestRes=array(
+  $TestRes=[
     "fr4"=>"17/12/2016",
     "fr4b"=>"17/12/2016",
     "nullfr4"=>null,
@@ -119,7 +119,7 @@ function TestSQLDate()
     "space4"=>"17 12 2016",
     "nullspace4"=>null,
     "timeonly"=>"18:55:30",
-  );
+  ];
   var_dump($res);
   foreach($TestRes as $k=>$v)
     if($v!==$res[$k])

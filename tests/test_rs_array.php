@@ -22,14 +22,14 @@
 include_once('../adodb.inc.php');
 $rs = new ADORecordSet_array();
 
-$array = array(
-array ('Name', 'Age'),
-array ('John', '12'),
-array ('Jill', '8'),
-array ('Bill', '49')
-);
+$array = [
+ ['Name', 'Age'],
+ ['John', '12'],
+ ['Jill', '8'],
+ ['Bill', '49']
+];
 
-$typearr = array('C','I');
+$typearr = ['C','I'];
 
 
 $rs->InitArray($array,$typearr);

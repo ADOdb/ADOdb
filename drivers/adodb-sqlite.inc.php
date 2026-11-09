@@ -103,7 +103,7 @@ class ADODB_sqlite extends ADOConnection {
 			$ADODB_FETCH_MODE = $save;
 			return $false;
 		}
-		$arr = array();
+		$arr = [];
 		while ($r = $rs->FetchRow()) {
 			$type = explode('(',$r['type']);
 			$size = '';
@@ -338,16 +338,16 @@ class ADODB_sqlite extends ADOConnection {
 			return $false;
 		}
 
-		$indexes = array ();
+		$indexes =  [];
 		while ($row = $rs->FetchRow()) {
 			if ($primary && preg_match("/primary/i",$row[1]) == 0) {
 				continue;
 			}
 			if (!isset($indexes[$row[0]])) {
-				$indexes[$row[0]] = array(
+				$indexes[$row[0]] = [
 					'unique' => preg_match("/unique/i",$row[1]),
-					'columns' => array()
-				);
+					'columns' => []
+				];
 			}
 			/**
 			 * There must be a more elegant way of doing this,
@@ -452,7 +452,7 @@ class ADORecordset_sqlite extends ADORecordSet {
 		}
 
 		$this->_inited = true;
-		$this->fields = array();
+		$this->fields = [];
 		if ($queryID) {
 			$this->_currentRow = 0;
 			$this->EOF = !$this->_fetch();
@@ -487,7 +487,7 @@ class ADORecordset_sqlite extends ADORecordSet {
 			return $this->fields[$colname];
 		}
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;

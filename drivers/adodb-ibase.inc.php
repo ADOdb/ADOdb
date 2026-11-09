@@ -108,7 +108,7 @@ class ADODB_ibase extends ADOConnection {
 	function MetaPrimaryKeys($table,$owner_notused=false,$internalKey=false)
 	{
 		if ($internalKey) {
-			return array('RDB$DB_KEY');
+			return ['RDB$DB_KEY'];
 		}
 
 		$table = strtoupper($table);
@@ -227,17 +227,17 @@ class ADODB_ibase extends ADOConnection {
 			return $false;
 		}
 
-		$indexes = array();
+		$indexes = [];
 		while ($row = $rs->FetchRow()) {
 			$index = $row[0];
 			if (!isset($indexes[$index])) {
 				if (is_null($row[3])) {
 					$row[3] = 0;
 				}
-				$indexes[$index] = array(
+				$indexes[$index] = [
 					'unique' => ($row[3] == 1),
-					'columns' => array()
-				);
+					'columns' => []
+				];
 			}
 			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '".$index."' ORDER BY RDB\$FIELD_POSITION ASC";
 			$rs1 = $this->Execute($sql);
@@ -327,7 +327,7 @@ class ADODB_ibase extends ADOConnection {
 	{
 		$stmt = ibase_prepare($this->_connectionID,$sql);
 		if (!$stmt) return false;
-		return array($sql,$stmt);
+		return [$sql,$stmt];
 	}
 
 	// returns query ID if successful, otherwise false
@@ -348,7 +348,7 @@ class ADODB_ibase extends ADOConnection {
 				if (!isset($inputarr[0])) {
 					$inputarr[0] = '';  // PHP5 compat hack
 				}
-				$fnarr = array_merge(array($sql), $inputarr);
+				$fnarr = array_merge([$sql], $inputarr);
 				$ret = call_user_func_array($fn, $fnarr);
 			} else {
 				$ret = $fn($sql);
@@ -360,7 +360,7 @@ class ADODB_ibase extends ADOConnection {
 				if (sizeof($inputarr) == 0) {
 					$inputarr[0] = ''; // PHP5 compat hack
 				}
-				$fnarr = array_merge(array($conn, $sql), $inputarr);
+				$fnarr = array_merge([$conn, $sql], $inputarr);
 				$ret = call_user_func_array($fn, $fnarr);
 			} else {
 				$ret = $fn($conn, $sql);
@@ -504,7 +504,7 @@ class ADODB_ibase extends ADOConnection {
 			return $false;
 		}
 
-		$retarr = array();
+		$retarr = [];
 		//OPN STUFF start
 		$dialect3 = ($this->dialect==3 ? true : false);
 		//OPN STUFF end
@@ -621,7 +621,7 @@ class ADODB_ibase extends ADOConnection {
 		$blob_id_str = ibase_blob_close($blob_id);
 
 		fclose($fd);
-		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blob_id_str)) != false;
+		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",[$blob_id_str]) != false;
 	}
 
 	/*
@@ -662,7 +662,7 @@ class ADODB_ibase extends ADOConnection {
 
 		$blob_id_str = ibase_blob_close($blob_id);
 
-		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where", array($blob_id_str)) != false;
+		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where", [$blob_id_str]) != false;
 
 	}
 
@@ -672,7 +672,7 @@ class ADODB_ibase extends ADOConnection {
 		$blob_id = ibase_blob_create($this->_connectionID);
 		ibase_blob_add($blob_id, $val);
 		$blob_id_str = ibase_blob_close($blob_id);
-		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blob_id_str)) != false;
+		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",[$blob_id_str]) != false;
 	}
 
 	// Format date column in sql string given an input format that understands Y M D
@@ -839,7 +839,7 @@ class ADORecordSet_ibase extends ADORecordSet
 	{
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) return $this->fields[$colname];
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;

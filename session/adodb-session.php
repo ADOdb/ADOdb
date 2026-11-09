@@ -55,7 +55,7 @@ define('ADODB_SESSION', dirname(__FILE__));
 */
 function adodb_unserialize( $serialized_string )
 {
-	$variables = array( );
+	$variables = [ ];
 	$a = preg_split( "/(\w+)\|/", $serialized_string, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE );
 	for( $i = 0; $i < count( $a ); $i = $i+2 ) {
 		$variables[$a[$i]] = unserialize( $a[$i+1] );
@@ -401,11 +401,11 @@ class ADODB_Session {
 	/*!
 	*/
 	function filter($filter = null) {
-		static $_filter = array();
+		static $_filter = [];
 
 		if (!is_null($filter)) {
 			if (!is_array($filter)) {
-				$filter = array($filter);
+				$filter = [$filter];
 			}
 			$_filter = $filter;
 		}
@@ -451,12 +451,12 @@ class ADODB_Session {
 	*/
 	function _init() {
 		session_set_save_handler(
-			array('ADODB_Session', 'open'),
-			array('ADODB_Session', 'close'),
-			array('ADODB_Session', 'read'),
-			array('ADODB_Session', 'write'),
-			array('ADODB_Session', 'destroy'),
-			array('ADODB_Session', 'gc')
+			['ADODB_Session', 'open'],
+			['ADODB_Session', 'close'],
+			['ADODB_Session', 'read'],
+			['ADODB_Session', 'write'],
+			['ADODB_Session', 'destroy'],
+			['ADODB_Session', 'gc']
 		);
 	}
 
@@ -689,7 +689,7 @@ class ADODB_Session {
 
 
 			$sql = "UPDATE $table SET expiry = ".$conn->Param('0').",expireref=".$conn->Param('1')." WHERE $binary sesskey = ".$conn->Param('2')." AND expiry >= ".$conn->Param('3');
-			$rs = $conn->Execute($sql,array($expiry,$expirevar,$key,time()));
+			$rs = $conn->Execute($sql,[$expiry,$expirevar,$key,time()]);
 			return true;
 		}
 		$val = rawurlencode($val);
@@ -699,7 +699,7 @@ class ADODB_Session {
 			}
 		}
 
-		$arr = array('sesskey' => $key, 'expiry' => $expiry, $data => $val, 'expireref' => '');
+		$arr = ['sesskey' => $key, 'expiry' => $expiry, $data => $val, 'expireref' => ''];
 		if ($expire_notify) {
 			$var = reset($expire_notify);
 			global $$var;
@@ -846,12 +846,12 @@ class ADODB_Session {
 			$conn->SetFetchMode($savem);
 			if ($rs) {
 				$conn->StartTrans();
-				$keys = array();
+				$keys = [];
 				while (!$rs->EOF) {
 					$ref = $rs->fields[0];
 					$key = $rs->fields[1];
 					$fn($ref, $key);
-					$del = $conn->Execute("DELETE FROM $table WHERE sesskey=".$conn->Param('0'),array($key));
+					$del = $conn->Execute("DELETE FROM $table WHERE sesskey=".$conn->Param('0'),[$key]);
 					$rs->MoveNext();
 				}
 				$rs->Close();
@@ -865,7 +865,7 @@ class ADODB_Session {
 				$arr = $conn->GetAll($sql);
 				foreach ($arr as $row) {
 					$sql2 = "DELETE FROM $table WHERE sesskey=".$conn->Param('0');
-					$conn->Execute($sql2,array(reset($row)));
+					$conn->Execute($sql2,[reset($row)]);
 				}
 			} else {
 				$sql = "DELETE FROM $table WHERE expiry < $time";

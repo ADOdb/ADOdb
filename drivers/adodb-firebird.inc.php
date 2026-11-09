@@ -188,7 +188,7 @@ class ADODB_firebird extends ADOConnection {
 	public function metaPrimaryKeys($table,$owner_notused=false,$internalKey=false)
 	{
 		if ($internalKey) {
-			return array('RDB$DB_KEY');
+			return ['RDB$DB_KEY'];
 		}
 
 		$table = strtoupper($table);
@@ -341,7 +341,7 @@ class ADODB_firebird extends ADOConnection {
 			$ADODB_FETCH_MODE = $save;
 			return false;
 		}
-		$indexes = array();
+		$indexes = [];
 		while ($row = $rs->FetchRow()) {
 
 			$index = trim($row[0]);
@@ -349,10 +349,10 @@ class ADODB_firebird extends ADOConnection {
 				if (is_null($row[3])) {
 					$row[3] = 0;
 				}
-				$indexes[$index] = array(
+				$indexes[$index] = [
 					'unique' => ($row[3] == 1),
-					'columns' => array()
-				);
+					'columns' => []
+				];
 			}
 			$sql = sprintf("SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '%s' ORDER BY RDB\$FIELD_POSITION ASC",$index);
 			$rs1 = $this->execute($sql);
@@ -479,7 +479,7 @@ class ADODB_firebird extends ADOConnection {
 		$stmt = fbird_prepare($this->_connectionID,$sql);
 		if (!$stmt)
 			return false;
-		return array($sql,$stmt);
+		return [$sql,$stmt];
 	}
 
 	/**
@@ -663,7 +663,7 @@ class ADODB_firebird extends ADOConnection {
 			return false;
 		}
 
-		$retarr = array();
+		$retarr = [];
 		//OPN STUFF start
 		$dialect3 = $this->dialect == 3;
 		//OPN STUFF end
@@ -835,7 +835,7 @@ class ADODB_firebird extends ADOConnection {
 		$blob_id_str = fbird_blob_close($blob_id);
 
 		fclose($fd);
-		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blob_id_str)) != false;
+		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",[$blob_id_str]) != false;
 	}
 
 	/**
@@ -878,7 +878,7 @@ class ADODB_firebird extends ADOConnection {
 
 		$blob_id_str = fbird_blob_close($blob_id);
 
-		return $this->execute("UPDATE $table SET $column=(?) WHERE $where",array($blob_id_str)) != false;
+		return $this->execute("UPDATE $table SET $column=(?) WHERE $where",[$blob_id_str]) != false;
 
 	}
 

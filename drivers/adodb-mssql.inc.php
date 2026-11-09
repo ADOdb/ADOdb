@@ -359,7 +359,7 @@ class ADODB_mssql extends ADOConnection {
 			return $false;
 		}
 
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF){
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
@@ -419,7 +419,7 @@ class ADODB_mssql extends ADOConnection {
 			return FALSE;
 		}
 
-		$indexes = array();
+		$indexes = [];
 		while ($row = $rs->FetchRow()) {
 			if ($primary && !$row[5]) continue;
 
@@ -478,7 +478,7 @@ order by constraint_name, referenced_table_name, keyno";
 		if(@mssql_select_db("master")) {
 			$qry = $this->metaDatabasesSQL;
 			if($rs = @mssql_query($qry,$this->_connectionID)) {
-				$tmpAr = $ar = array();
+				$tmpAr = $ar = [];
 				while($tmpAr = @mssql_fetch_row($rs)) {
 					$ar[]=$tmpAr[0];
 				}
@@ -614,14 +614,14 @@ order by constraint_name, referenced_table_name, keyno";
 		for ($i = 1, $max = sizeof($sqlarr); $i < $max; $i++) {
 			$sql2 .=  '@P'.($i-1) . $sqlarr[$i];
 		}
-		return array($sql,$this->qstr($sql2),$max,$sql2);
+		return [$sql,$this->qstr($sql2),$max,$sql2];
 	}
 
 	function PrepareSP($sql,$param=true)
 	{
 		$stmt = mssql_init($sql,$this->_connectionID);
 		if (!$stmt)  return $sql;
-		return array($sql,$stmt);
+		return [$sql,$stmt];
 	}
 
 	// returns concatenated string
@@ -891,7 +891,7 @@ class ADORecordset_mssql extends ADORecordSet {
 	{
 		if ($this->fetchMode != ADODB_FETCH_NUM) return $this->fields[$colname];
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;
@@ -942,7 +942,7 @@ class ADORecordset_mssql extends ADORecordSet {
 				} else {
 					$flds = @mssql_fetch_array($this->_queryID);
 					if (is_array($flds)) {
-						$fassoc = array();
+						$fassoc = [];
 						foreach($flds as $k => $v) {
 							if (is_numeric($k)) continue;
 							$fassoc[$k] = $v;
@@ -996,7 +996,7 @@ class ADORecordset_mssql extends ADORecordSet {
 				else {
 					$this->fields = @mssql_fetch_array($this->_queryID);
 					if (@is_array($this->fields)) {
-						$fassoc = array();
+						$fassoc = [];
 						foreach($this->fields as $k => $v) {
 							if (is_int($k)) continue;
 							$fassoc[$k] = $v;

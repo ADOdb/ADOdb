@@ -38,7 +38,7 @@ class Auth_Container_ADOdb extends Auth_Container
      * Additional options for the storage container
      * @var array
      */
-    var $options = array();
+    var $options = [];
 
     /**
      * DB object
@@ -287,7 +287,7 @@ class Auth_Container_ADOdb extends Auth_Container
             return PEAR::raiseError($err->getMessage(), $err->getCode());
         }
 
-        $retVal = array();
+        $retVal = [];
 
         // Find if db_fields contains a *, i so assume all col are selected
         if(strstr($this->options['db_fields'], '*')){

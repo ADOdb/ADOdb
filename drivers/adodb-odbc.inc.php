@@ -279,7 +279,7 @@ class ADODB_odbc extends ADOConnection {
 		$arr = $rs->GetArray();
 		$rs->Close();
 		//print_r($arr);
-		$arr2 = array();
+		$arr2 = [];
 		for ($i=0; $i < sizeof($arr); $i++) {
 			if ($arr[$i][3]) $arr2[] = $arr[$i][3];
 		}
@@ -308,7 +308,7 @@ class ADODB_odbc extends ADOConnection {
 		//print_r($arr);
 
 		$rs->Close();
-		$arr2 = array();
+		$arr2 = [];
 
 		if ($ttype) {
 			$isview = strncmp($ttype,'V',1) === 0;
@@ -450,7 +450,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 		if (!$rs) return $false;
 		$rs->_fetch();
 
-		$retarr = array();
+		$retarr = [];
 
 		/*
 		$rs->fields indices
@@ -515,7 +515,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 			// we don't know whether odbc driver is parsing prepared stmts, so just return sql
 			return $sql;
 		}
-		return array($sql,$stmt,false);
+		return [$sql,$stmt,false];
 	}
 
 	function _query($sql,$inputarr=false)
@@ -584,7 +584,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/odbc/htm/od
 	*/
 	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
-		return $this->Execute("UPDATE $table SET $column=? WHERE $where",array($val)) != false;
+		return $this->Execute("UPDATE $table SET $column=? WHERE $where",[$val]) != false;
 	}
 
 	// returns true or false
@@ -643,7 +643,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 	{
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) return $this->fields[$colname];
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;
@@ -685,7 +685,7 @@ class ADORecordSet_odbc extends ADORecordSet {
 			$this->fields = $this->GetRowAssoc();
 		}
 
-		$results = array();
+		$results = [];
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
 			$results[$cnt++] = $this->fields;

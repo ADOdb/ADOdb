@@ -109,7 +109,7 @@ function adodb_error_pg($errormsg)
 {
 	if (is_numeric($errormsg)) return (int) $errormsg;
 	// Postgres has no lock-wait timeout.  The best we could do would be to set a statement timeout.
-	static $error_regexps = array(
+	static $error_regexps = [
 			'(Table does not exist\.|Relation [\"\'].*[\"\'] does not exist|sequence does not exist|class ".+" not found)$' => DB_ERROR_NOSUCHTABLE,
 			'Relation [\"\'].*[\"\'] already exists|Cannot insert a duplicate key into (a )?unique index.*|duplicate key.*violates unique constraint'     => DB_ERROR_ALREADY_EXISTS,
 			'database ".+" does not exist$'       => DB_ERROR_NOSUCHDB,
@@ -121,7 +121,7 @@ function adodb_error_pg($errormsg)
 			'deadlock detected$'                  => DB_ERROR_DEADLOCK,
 			'canceling statement due to statement timeout$' => DB_ERROR_STATEMENT_TIMEOUT,
 			'could not serialize access due to'   => DB_ERROR_SERIALIZATION_FAILURE
-		);
+		];
 	reset($error_regexps);
 	foreach ($error_regexps as $regexp => $code) {
 		if (preg_match("/$regexp/mi", $errormsg)) {
@@ -134,7 +134,7 @@ function adodb_error_pg($errormsg)
 
 function adodb_error_odbc()
 {
-static $MAP = array(
+static $MAP = [
             '01004' => DB_ERROR_TRUNCATED,
             '07001' => DB_ERROR_MISMATCH,
             '21S01' => DB_ERROR_MISMATCH,
@@ -159,13 +159,13 @@ static $MAP = array(
             'S1009' => DB_ERROR_INVALID,
             'S1090' => DB_ERROR_INVALID,
             'S1C00' => DB_ERROR_NOT_CAPABLE
-        );
+        ];
 		return $MAP;
 }
 
 function adodb_error_ibase()
 {
-static $MAP = array(
+static $MAP = [
             -104 => DB_ERROR_SYNTAX,
             -150 => DB_ERROR_ACCESS_VIOLATION,
             -151 => DB_ERROR_ACCESS_VIOLATION,
@@ -188,14 +188,14 @@ static $MAP = array(
             -922 => DB_ERROR_NOSUCHDB,
             -923 => DB_ERROR_CONNECT_FAILED,
             -924 => DB_ERROR_CONNECT_FAILED
-        );
+        ];
 
 		return $MAP;
 }
 
 function adodb_error_ifx()
 {
-static $MAP = array(
+static $MAP = [
             '-201'    => DB_ERROR_SYNTAX,
             '-206'    => DB_ERROR_NOSUCHTABLE,
             '-217'    => DB_ERROR_NOSUCHFIELD,
@@ -206,14 +206,14 @@ static $MAP = array(
             '-1209'   => DB_ERROR_INVALID_DATE,
             '-1210'   => DB_ERROR_INVALID_DATE,
             '-1212'   => DB_ERROR_INVALID_DATE
-       );
+       ];
 
 	   return $MAP;
 }
 
 function adodb_error_oci8()
 {
-static $MAP = array(
+static $MAP = [
 			 1 => DB_ERROR_ALREADY_EXISTS,
             900 => DB_ERROR_SYNTAX,
             904 => DB_ERROR_NOSUCHFIELD,
@@ -225,33 +225,33 @@ static $MAP = array(
             2289 => DB_ERROR_NOSUCHTABLE,
             2291 => DB_ERROR_CONSTRAINT,
             2449 => DB_ERROR_CONSTRAINT
-        );
+        ];
 
 	return $MAP;
 }
 
 function adodb_error_mssql()
 {
-static $MAP = array(
+static $MAP = [
 		  208 => DB_ERROR_NOSUCHTABLE,
           2601 => DB_ERROR_ALREADY_EXISTS
-       );
+       ];
 
 	return $MAP;
 }
 
 function adodb_error_sqlite()
 {
-static $MAP = array(
+static $MAP = [
 		  1 => DB_ERROR_SYNTAX
-       );
+       ];
 
 	return $MAP;
 }
 
 function adodb_error_mysql()
 {
-static $MAP = array(
+static $MAP = [
            1004 => DB_ERROR_CANNOT_CREATE,
            1005 => DB_ERROR_CANNOT_CREATE,
            1006 => DB_ERROR_CANNOT_CREATE,
@@ -271,7 +271,7 @@ static $MAP = array(
            1048 => DB_ERROR_CONSTRAINT,
 	   2002 => DB_ERROR_CONNECT_FAILED,
            2005 => DB_ERROR_CONNECT_FAILED
-       );
+       ];
 
 	return $MAP;
 }

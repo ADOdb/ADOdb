@@ -41,7 +41,7 @@ global $db,$MAX;
 		$x = (rand() % 10) + 1;
 		$db->debug= ($i==1);
 		$id = $db->GetOne($sql,
-			array('Z%','Z%',$x));
+			['Z%','Z%',$x]);
 		if($id != $offset+$x) {
 			print "<p>Error at $x";
 			break;

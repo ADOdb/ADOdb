@@ -50,7 +50,7 @@ class ADODB_sybase_ase extends ADODB_sybase {
 			}
 			$arr = $rs->GetArray();
 
-			$arr2 = array();
+			$arr2 = [];
 			foreach($arr as $key=>$value){
 					$arr2[] = trim($value['name']);
 			}
@@ -61,7 +61,7 @@ class ADODB_sybase_ase extends ADODB_sybase {
 
 	function MetaDatabases()
 	{
-			$arr = array();
+			$arr = [];
 			if ($this->metaDatabasesSQL!='') {
 				$rs = $this->Execute($this->metaDatabasesSQL);
 				if ($rs && !$rs->EOF){
@@ -84,7 +84,7 @@ class ADODB_sybase_ase extends ADODB_sybase {
 			$rs = $this->Execute(sprintf($this->metaColumnsSQL,$table));
 			if ($rs === false) return $false;
 
-			$retarr = array();
+			$retarr = [];
 			while (!$rs->EOF) {
 				$fld = new ADOFieldObject();
 				$fld->name = $rs->Fields('field_name');

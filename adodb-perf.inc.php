@@ -38,7 +38,7 @@ function adodb_getmem()
 	$pid = getmypid();
 
 	if ( strncmp(strtoupper(PHP_OS),'WIN',3)==0) {
-		$output = array();
+		$output = [];
 
 		exec('tasklist /FI "PID eq ' . $pid. '" /FO LIST', $output);
 		return substr($output[5], strpos($output[5], ':') + 1);
@@ -138,8 +138,8 @@ function adodb_log_sql(&$connx,$sql,$inputarr)
 
 		if (is_array($sql)) $sql = $sql[0];
 		if ($prefix) $sql = $prefix.$sql;
-		$arr = array('b'=>strlen($sql).'.'.crc32($sql),
-					'c'=>substr($sql,0,3900), 'd'=>$params,'e'=>$tracer,'f'=>adodb_round($time,6));
+		$arr = ['b'=>strlen($sql).'.'.crc32($sql),
+					'c'=>substr($sql,0,3900), 'd'=>$params,'e'=>$tracer,'f'=>adodb_round($time,6)];
 		//var_dump($arr);
 		$saved = $conn->debug;
 		$conn->debug = 0;
@@ -956,7 +956,7 @@ Committed_AS:   348732 kB
 			$sqla = $this->SplitSQL($sql);
 		} else  {
 			$print = false;
-			$sqla = array($sql);
+			$sqla = [$sql];
 		}
 		foreach($sqla as $sqls) {
 

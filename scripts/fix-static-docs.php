@@ -41,7 +41,7 @@ function delTree($dir)
 	if ($files === false) {
 		return false;
 	}
-	$files = array_diff($files, array('.', '..'));
+	$files = array_diff($files, ['.', '..']);
 
 	foreach ($files as $file) {
 		$result = (is_dir("$dir/$file") ? delTree("$dir/$file") : unlink("$dir/$file"));
@@ -65,7 +65,7 @@ function listdir($dir='.')
 	if (!is_dir($dir)) {
 		return false;
 	}
-	$files = array();
+	$files = [];
 	listdiraux($dir, $files);
 
 	return $files;

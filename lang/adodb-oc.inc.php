@@ -19,7 +19,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
 	'LANG'                      => 'oc',
 	DB_ERROR                    => 'error desconeguda',
 	DB_ERROR_ALREADY_EXISTS     => 'existís ja',
@@ -48,4 +48,4 @@ $ADODB_LANG_ARRAY = array (
 	DB_ERROR_EXTENSION_NOT_FOUND=> 'extension pas trobada',
 	DB_ERROR_NOSUCHDB           => 'basa de donadas desconeguda',
 	DB_ERROR_ACCESS_VIOLATION   => 'dreits insufisents'
-);
+];

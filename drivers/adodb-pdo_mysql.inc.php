@@ -100,7 +100,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 			return $false;
 		}
 
-		$indexes = array ();
+		$indexes =  [];
 
 		// parse index data into array
 		while ($row = $rs->fetchRow()) {
@@ -109,10 +109,10 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 			}
 
 			if (!isset($indexes[$row[2]])) {
-				$indexes[$row[2]] = array(
+				$indexes[$row[2]] = [
 					'unique' => ($row[1] == 0),
-					'columns' => array()
-				);
+					'columns' => []
+				];
 			}
 
 			$indexes[$row[2]]['columns'][$row[3] - 1] = $row[4];
@@ -217,7 +217,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 			return $false;
 		}
 
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF){
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];

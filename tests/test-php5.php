@@ -57,10 +57,10 @@ case 'mysqli':
 
 $db->debug=1;
 
-$cnt = $db->GetOne("select count(*) from adoxyz where ?<id and id<?",array(10,20));
+$cnt = $db->GetOne("select count(*) from adoxyz where ?<id and id<?",[10,20]);
 $stmt = $db->Prepare("select * from adoxyz where ?<id and id<?");
 if (!$stmt) echo $db->ErrorMsg(),"\n";
-$rs = $db->Execute($stmt,array(10,20));
+$rs = $db->Execute($stmt,[10,20]);
 
 echo  "<hr /> Foreach Iterator Test (rand=".rand().")<hr />";
 $i = 0;

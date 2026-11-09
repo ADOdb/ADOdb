@@ -75,16 +75,16 @@ class ADODB_Cache_MemCache
 	/**
 	 * @var array New server feature controller lists available servers
 	 */
-	private $serverControllers = array();
+	private $serverControllers = [];
 
 	/**
 	 * @var array New server feature template uses granular server controller
 	 */
-	private $serverControllerTemplate = array(
+	private $serverControllerTemplate = [
 		'host' => '',
 		'port' => 11211,
 		'weight' => 0,
-	);
+	];
 
 	/**
 	 * An integer index into the libraries
@@ -96,10 +96,10 @@ class ADODB_Cache_MemCache
 	/**
 	 * @var array Xrefs the library flag to the actual class name
 	 */
-	private $libraries = array(
+	private $libraries = [
 		self::MCLIB => 'Memcache',
 		self::MCLIBD => 'Memcached'
-	);
+	];
 
 	/**
 	 * @var int An indicator of which library we are using
@@ -174,7 +174,7 @@ class ADODB_Cache_MemCache
 
 		// Have we passed a controller array
 		if (!is_array($this->hosts)) {
-			$this->hosts = array($this->hosts);
+			$this->hosts = [$this->hosts];
 		}
 
 		if (!is_array($this->hosts[0])) {

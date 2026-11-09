@@ -99,7 +99,7 @@
 	$person2 = new Person();
 	$person2->Load('id=2');
 
-	$activeArr = $db->GetActiveRecordsClass($class = "Person",$table = "Persons","id=".$db->Param(0),array(2));
+	$activeArr = $db->GetActiveRecordsClass($class = "Person",$table = "Persons","id=".$db->Param(0),[2]);
 	$person2 = $activeArr[0];
 	echo "<p>Name (should be John): ",$person->name_first, " <br> Class (should be Person): ",get_class($person2),"<br>";
 
@@ -122,7 +122,7 @@
 	}
 
 	class Child extends ADOdb_Active_Record{};
-	$ch = new Child('children',array('id'));
+	$ch = new Child('children',['id']);
 	$ch->BelongsTo('person','person_id','id');
 	$ch->Load('id=1');
 	if ($ch->name_first !== 'Jill') echo "error in Loading Child<br>";

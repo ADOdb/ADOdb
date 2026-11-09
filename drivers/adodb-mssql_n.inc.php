@@ -125,7 +125,7 @@ class ADODB_mssql_n extends ADODB_mssql {
             /*
             * Remove pairs of single-quotes
             */
-            $pairs = array();
+            $pairs = [];
             $regexp = '/(' . SINGLEQUOTE . SINGLEQUOTE . ')/';
             preg_match_all($regexp, $inboundValue, $list_of_pairs);
 
@@ -143,7 +143,7 @@ class ADODB_mssql_n extends ADODB_mssql {
             /*
             * Remove the rest of literals present in the query
             */
-            $literals = array();
+            $literals = [];
             $regexp = '/(N?' . SINGLEQUOTE . '.*?' . SINGLEQUOTE . ')/is';
             preg_match_all($regexp, $inboundValue, $list_of_literals);
 

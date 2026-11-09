@@ -61,7 +61,7 @@ $conn->debug=1;
 $conn->Execute("delete from adoxyz where lastname like 'Smi%'");
 
 $rs = $conn->Execute($sql); // Execute the query and get the empty recordset
-$record = array(); // Initialize an array to hold the record data to insert
+$record = []; // Initialize an array to hold the record data to insert
 
 if (strpos($conn->databaseType,'mysql')===false) $record['id'] = 751;
 $record["firstname"] = 'Jann';
@@ -99,11 +99,11 @@ SELECT *
 FROM ADOXYZ WHERE lastname=".$conn->Param('var'). " ORDER BY 1";
 // Select a record to update
 
-$varr = array('var'=>$record['lastname'].'');
+$varr = ['var'=>$record['lastname'].''];
 $rs = $conn->Execute($sql,$varr); // Execute the query and get the existing record to update
 if (!$rs || $rs->EOF) print "<p><b>No record found!</b></p>";
 
-$record = array(); // Initialize an array to hold the record data to update
+$record = []; // Initialize an array to hold the record data to update
 
 
 // Set the values for the fields in the record

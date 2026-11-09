@@ -20,7 +20,7 @@
  * @author Josep Lladonosa <jlladono@pie.xtec.es>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
 			'LANG'                      => 'ca',
             DB_ERROR                    => 'error desconegut',
             DB_ERROR_ALREADY_EXISTS     => 'ja existeix',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_EXTENSION_NOT_FOUND=> 'extensió no trobada',
             DB_ERROR_NOSUCHDB           => 'base de dades inexistent',
             DB_ERROR_ACCESS_VIOLATION   => 'permisos insuficients'
-);
+];

@@ -89,7 +89,7 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 			return false;
 		}
 
-		$retarr = array();
+		$retarr = [];
 		$dialect3 = $this->dialect == 3;
 		while (!$rs->EOF) { //print_r($rs->fields);
 			$fld = new ADOFieldObject();
@@ -172,17 +172,17 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 			return false;
 		}
 
-		$indexes = array();
+		$indexes = [];
 		while ($row = $rs->FetchRow()) {
 			$index = $row[0];
 			if (!isset($indexes[$index])) {
 				if (is_null($row[3])) {
 					$row[3] = 0;
 				}
-				$indexes[$index] = array(
+				$indexes[$index] = [
 					'unique' => ($row[3] == 1),
-					'columns' => array()
-				);
+					'columns' => []
+				];
 			}
 			$sql = "SELECT * FROM RDB\$INDEX_SEGMENTS WHERE RDB\$INDEX_NAME = '" . $index . "' ORDER BY RDB\$FIELD_POSITION";
 			$rs1 = $this->Execute($sql);
@@ -202,7 +202,7 @@ class ADODB_pdo_firebird extends ADODB_pdo_base
 	public function metaPrimaryKeys($table, $owner_notused = false, $internalKey = false)
 	{
 		if ($internalKey) {
-			return array('RDB$DB_KEY');
+			return ['RDB$DB_KEY'];
 		}
 
 		$table = strtoupper($table);

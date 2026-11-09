@@ -20,7 +20,7 @@
  * @author Arne Eckmann <bananstat@users.sourceforge.net>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
   	    'LANG'                      => 'da',
             DB_ERROR                    => 'ukendt fejl',
             DB_ERROR_ALREADY_EXISTS     => 'eksisterer allerede',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_EXTENSION_NOT_FOUND=> 'udvidelse ikke fundet',
             DB_ERROR_NOSUCHDB           => 'database ikke fundet',
             DB_ERROR_ACCESS_VIOLATION   => 'utilstrækkelige rettigheder'
-);
+];

@@ -74,10 +74,10 @@ class  ADODB_ado_mssql extends ADODB_ado {
 	function MetaColumns($table, $normalize=true)
 	{
 		$table = strtoupper($table);
-		$arr= array();
+		$arr= [];
 		$dbc = $this->_connectionID;
 
-		$osoptions = array();
+		$osoptions = [];
 		$osoptions[0] = null;
 		$osoptions[1] = null;
 		$osoptions[2] = $table;

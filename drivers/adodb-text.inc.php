@@ -89,7 +89,7 @@ class ADODB_text extends ADOConnection {
 		}
 		if (!$types) {
 		// probe and guess the type
-			$types = array();
+			$types = [];
 			$firstrow = true;
 			if ($this->_proberows > sizeof($array)) $max = sizeof($array);
 			else $max = $this->_proberows;
@@ -166,7 +166,7 @@ class ADODB_text extends ADOConnection {
 			$i = 0;
 			$eval = "\$rez=($eval);";
 			//print "<p>Eval string = $eval </p>";
-			$where_arr = array();
+			$where_arr = [];
 
 			reset($this->_origarray);
 			foreach ($this->_origarray as $arr) {
@@ -200,7 +200,7 @@ class ADODB_text extends ADOConnection {
 			// currently we only project if one column is involved
 			// this is to support popups in PHPLens
 			if (strpos(',',$sel)===false) {
-				$colarr = array();
+				$colarr = [];
 
 				preg_match("/$eregword/",$sel,$colarr);
 				$col = $colarr[1];
@@ -214,25 +214,25 @@ class ADODB_text extends ADOConnection {
 				}
 
 				if ($n && $col) {
-					$distarr = array();
-					$projarray = array();
-					$projtypes = array($this->_types[$i]);
-					$projnames = array($n);
+					$distarr = [];
+					$projarray = [];
+					$projtypes = [$this->_types[$i]];
+					$projnames = [$n];
 
 					foreach ($where_arr as $a) {
 						if ($i == 0 && $this->_skiprow1) {
-							$projarray[] = array($n);
+							$projarray[] = [$n];
 							continue;
 						}
 
 						if ($distinct) {
 							$v = strtoupper($a[$i]);
 							if (! $distarr[$v]) {
-								$projarray[] = array($a[$i]);
+								$projarray[] = [$a[$i]];
 								$distarr[$v] = 1;
 							}
 						} else
-							$projarray[] = array($a[$i]);
+							$projarray[] = [$a[$i]];
 
 					} //foreach
 					//print_r($projarray);
@@ -274,18 +274,18 @@ class ADODB_text extends ADOConnection {
 		$at -= 1;
 
 		// generate sort array consisting of (sortval1, row index1) (sortval2, row index2)...
-		$sorta = array();
+		$sorta = [];
 		$t = $projtypes[$at];
 		$num = ($t == 'I' || $t == 'N');
 		for ($i=($this->_skiprow1)?1:0, $max = sizeof($projarray); $i < $max; $i++) {
 			$row = $projarray[$i];
 			$val = ($num)?(float)$row[$at]:$row[$at];
-			$sorta[]=array($val,$i);
+			$sorta[]=[$val,$i];
 		}
 
 		// check for desc sort
 		$orderby = substr($orderby,strlen($col)+1);
-		$arr = array();
+		$arr = [];
 		preg_match('/([A-Z_0-9]*)/i',$orderby,$arr);
 
 		if (trim($arr[1]) == 'DESC') $sortf = 'adodb_cmpr';
@@ -295,7 +295,7 @@ class ADODB_text extends ADOConnection {
 		usort($sorta, $sortf);
 
 		// rearrange original array
-		$arr2 = array();
+		$arr2 = [];
 		if ($this->_skiprow1) $arr2[] = $projarray[0];
 		foreach($sorta as $v) {
 			$arr2[] = $projarray[$v[1]];

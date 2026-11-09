@@ -83,7 +83,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		if (!$rs) {
 			return false;
 		}
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];

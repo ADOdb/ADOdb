@@ -41,32 +41,32 @@ class perf_informix extends adodb_perf{
 
 	var $tablesSQL = "select a.tabname tablename, ti_nptotal*2 size_in_k, ti_nextns extents, ti_nrows records from systables c, sysmaster:systabnames a, sysmaster:systabinfo b where c.tabname not matches 'sys*' and c.partnum = a.partnum and c.partnum = b.ti_partnum";
 
-	var $settings = array(
+	var $settings = [
 	'Ratios',
-		'data cache hit ratio' => array('RATIOH',
+		'data cache hit ratio' => ['RATIOH',
 		"select round((1-(wt.value / (rd.value + wr.value)))*100,2)
 		from sysmaster:sysprofile wr, sysmaster:sysprofile rd, sysmaster:sysprofile wt
 		where rd.name = 'pagreads' and
 		wr.name = 'pagwrites' and
 		wt.name = 'buffwts'",
-		'=WarnCacheRatio'),
+		'=WarnCacheRatio'],
 	'IO',
-		'data reads' => array('IO',
+		'data reads' => ['IO',
 		"select value from sysmaster:sysprofile where name='pagreads'",
-		'Page reads'),
+		'Page reads'],
 
-		'data writes' => array('IO',
+		'data writes' => ['IO',
 		"select value from sysmaster:sysprofile where name='pagwrites'",
-		'Page writes'),
+		'Page writes'],
 
 	'Connections',
-		'current connections' => array('SESS',
+		'current connections' => ['SESS',
 		'select count(*) from sysmaster:syssessions',
-		'Number of sessions'),
+		'Number of sessions'],
 
 	false
 
-	);
+	];
 
 	function __construct(&$conn)
 	{

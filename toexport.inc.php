@@ -84,7 +84,7 @@ function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = 
 		$fieldTypes = $rs->FieldTypesArray();
 		reset($fieldTypes);
 		$i = 0;
-		$elements = array();
+		$elements = [];
 		foreach ($fieldTypes as $o) {
 
 			$v = ($o) ? $o->name : 'Field'.($i++);
@@ -101,7 +101,7 @@ function _adodb_export(&$rs,$sep,$sepreplace,$fp=false,$addtitles=true,$quote = 
 	$max = $rs->FieldCount();
 
 	while (!$rs->EOF) {
-		$elements = array();
+		$elements = [];
 		$i = 0;
 
 		if ($hasNumIndex) {

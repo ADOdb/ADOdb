@@ -195,7 +195,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		if ($this->fetchMode & OCI_ASSOC) return $this->fields[$colname];
 
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;
@@ -256,17 +256,17 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		}
 		for ($i=1; $i < $offset; $i++)
 			if (!@oci_fetch($this->_queryID)) {
-				$arr = array();
+				$arr = [];
 				return $arr;
 			}
 		$ret = @oci_fetch_array($this->_queryID,$this->fetchMode);
 		if ($ret === false) {
-			$arr = array();
+			$arr = [];
 			return $arr;
 		}
 		$this->fields = $ret;
 		$this->_updatefields();
-		$results = array();
+		$results = [];
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
 			$results[$cnt++] = $this->fields;

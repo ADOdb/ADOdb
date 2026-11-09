@@ -513,7 +513,7 @@ class ADODB_mysqli extends ADOConnection {
 		}
 
 		if ($this->replaceQuote[0] == '\\') {
-			$s = str_replace(array('\\', "\0"), array('\\\\', "\\\0") ,$s);
+			$s = str_replace(['\\', "\0"], ['\\\\', "\\\0"] ,$s);
 		}
 		return "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
@@ -669,7 +669,7 @@ class ADODB_mysqli extends ADOConnection {
 			return false;
 		}
 
-		$indexes = array ();
+		$indexes =  [];
 
 		// parse index data into array
 		while ($row = $rs->fetchRow()) {
@@ -678,10 +678,10 @@ class ADODB_mysqli extends ADOConnection {
 			}
 
 			if (!isset($indexes[$row[2]])) {
-				$indexes[$row[2]] = array(
+				$indexes[$row[2]] = [
 					'unique' => ($row[1] == 0),
-					'columns' => array()
-				);
+					'columns' => []
+				];
 			}
 
 			$indexes[$row[2]]['columns'][$row[3] - 1] = $row[4];
@@ -839,7 +839,7 @@ class ADODB_mysqli extends ADOConnection {
 			$savem = $this->setFetchMode(FALSE);
 		}
 
-		$procedures = array ();
+		$procedures =  [];
 
 		// get index details
 
@@ -852,12 +852,12 @@ class ADODB_mysqli extends ADOConnection {
 
 			// parse index data into array
 			while ($row = $rs->fetchRow()) {
-				$procedures[$row[1]] = array(
+				$procedures[$row[1]] = [
 					'type' => 'PROCEDURE',
 					'catalog' => '',
 					'schema' => '',
 					'remarks' => $row[7],
-				);
+				];
 			}
 		}
 
@@ -865,12 +865,12 @@ class ADODB_mysqli extends ADOConnection {
 		if (is_object($rs)) {
 			// parse index data into array
 			while ($row = $rs->fetchRow()) {
-				$procedures[$row[1]] = array(
+				$procedures[$row[1]] = [
 					'type' => 'FUNCTION',
 					'catalog' => '',
 					'schema' => '',
 					'remarks' => $row[7]
-				);
+				];
 			}
 		}
 
@@ -1077,7 +1077,7 @@ SELECT *
 		if (!is_object($rs))
 			return false;
 
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
@@ -1232,7 +1232,7 @@ SELECT *
 		}
 
 		if (!is_array($inputarr)) {
-			$inputarr = array($inputarr);
+			$inputarr = [$inputarr];
 		}
 		else {
 			//remove alphanumeric placeholders
@@ -1332,7 +1332,7 @@ SELECT *
 			$this->usePreparedStatement = true;
 			$this->usingBoundVariables = true;
 
-			$bulkBindArray = array();
+			$bulkBindArray = [];
 			if (is_array($inputarr[0])) {
 				$bulkBindArray = $inputarr;
 				$inputArrayCount = count($inputarr[0]) - 1;
@@ -1369,14 +1369,14 @@ SELECT *
 
 			foreach ($bulkBindArray as $inputarr) {
 				// Must pass references into call_user_func_array
-				$paramsByReference = array();
+				$paramsByReference = [];
 				foreach ($inputarr as $key => $value) {
 					/** @noinspection PhpArrayAccessCanBeReplacedWithForeachValueInspection */
 					$paramsByReference[$key] = &$inputarr[$key];
 				}
 
 				// Bind the params
-				call_user_func_array(array($stmt, 'bind_param'), $paramsByReference);
+				call_user_func_array([$stmt, 'bind_param'], $paramsByReference);
 
 				// Execute
 				$ret = mysqli_stmt_execute($stmt);
@@ -1675,7 +1675,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		}
 
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i = 0; $i < $this->_numOfFields; $i++) {
 				$o = $this->fetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;

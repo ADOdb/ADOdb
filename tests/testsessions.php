@@ -61,7 +61,7 @@ default:
 
 #### SETUP NOTIFICATION
 	$USER = 'JLIM'.rand();
-	$ADODB_SESSION_EXPIRE_NOTIFY = array('USER','NotifyExpire');
+	$ADODB_SESSION_EXPIRE_NOTIFY = ['USER','NotifyExpire'];
 
 	adodb_session_create_table();
 	session_start();
@@ -69,7 +69,7 @@ default:
 	adodb_session_regenerate_id();
 
 ### SETUP SESSION VARIABLES
-	if (empty($_SESSION['MONKEY'])) $_SESSION['MONKEY'] = array(1,'abc',44.41);
+	if (empty($_SESSION['MONKEY'])) $_SESSION['MONKEY'] = [1,'abc',44.41];
 	else $_SESSION['MONKEY'][0] += 1;
 	if (!isset($_GET['nochange'])) @$_SESSION['AVAR'] += 1;
 

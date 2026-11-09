@@ -103,7 +103,7 @@ class ADODB2_sqlite extends ADODB_DataDict {
 		if ($this->debug) {
 			ADOConnection::outp("AlterColumnSQL not supported natively by SQLite");
 		}
-		return array();
+		return [];
 	}
 
 	function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
@@ -112,7 +112,7 @@ class ADODB2_sqlite extends ADODB_DataDict {
 			if ($this->debug) {
 				ADOConnection::outp("DropColumnSQL is only supported since SQLite 3.35.0");
 			}
-			return array();
+			return [];
 		}
 		return parent::dropColumnSQL($tabname, $flds, $tableflds, $tableoptions);
 	}
@@ -123,7 +123,7 @@ class ADODB2_sqlite extends ADODB_DataDict {
 			if ($this->debug) {
 				ADOConnection::outp("renameColumnSQL is only supported since SQLite 3.25.0");
 			}
-			return array();
+			return [];
 		}
 		return parent::renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds);
 	}

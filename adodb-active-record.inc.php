@@ -27,7 +27,7 @@ include_once(ADODB_DIR.'/adodb-lib.inc.php');
  *
  * @global ADODB_Active_DB[] $_ADODB_ACTIVE_DBS
  */
-$_ADODB_ACTIVE_DBS = array();
+$_ADODB_ACTIVE_DBS = [];
 
 /**
  * Set to true to enable caching of metadata such as field info.
@@ -65,8 +65,8 @@ class ADODB_Active_Table
 	var $flds; // assoc array of adofieldobjs, indexed by fieldname
 	var $keys; // assoc array of primary keys, indexed by fieldname
 	var $_created; // only used when stored as a cached file
-	var $_belongsTo = array();
-	var $_hasMany = array();
+	var $_belongsTo = [];
+	var $_hasMany = [];
 }
 
 /**
@@ -81,7 +81,7 @@ function ADODB_SetDatabaseAdapter($db, $index=false)
 	global $_ADODB_ACTIVE_DBS;
 
 	if (!$_ADODB_ACTIVE_DBS) {
-		$_ADODB_ACTIVE_DBS = array();
+		$_ADODB_ACTIVE_DBS = [];
 	}
 
 	foreach ($_ADODB_ACTIVE_DBS as $k => $d) {
@@ -92,7 +92,7 @@ function ADODB_SetDatabaseAdapter($db, $index=false)
 
 	$obj = new ADODB_Active_DB();
 	$obj->db = $db;
-	$obj->tables = array();
+	$obj->tables = [];
 
 	if (!$index) {
 		$index = sizeof($_ADODB_ACTIVE_DBS);
@@ -271,7 +271,7 @@ class ADODB_Active_Record
 	static function TableKeyHasMany($table, $tablePKey, $foreignRef, $foreignKey = false, $foreignClass = 'ADODB_Active_Record')
 	{
 		if (!is_array($tablePKey)) {
-			$tablePKey = array($tablePKey);
+			$tablePKey = [$tablePKey];
 		}
 		$ar = new ADODB_Active_Record($table, $tablePKey);
 		$ar->hasMany($foreignRef, $foreignKey, $foreignClass);
@@ -315,7 +315,7 @@ class ADODB_Active_Record
 	static function TableKeyBelongsTo($table, $tablePKey, $foreignRef, $foreignKey = false, $parentKey = '', $parentClass = 'ADODB_Active_Record')
 	{
 		if (!is_array($tablePKey)) {
-			$tablePKey = array($tablePKey);
+			$tablePKey = [$tablePKey];
 		}
 		$ar = new ADODB_Active_Record($table, $tablePKey);
 		$ar->belongsTo($foreignRef, $foreignKey, $parentKey, $parentClass);
@@ -344,7 +344,7 @@ class ADODB_Active_Record
 	 */
 	function LoadRelations($name, $whereOrderBy = '', $offset = -1, $limit = -1)
 	{
-		$extras = array();
+		$extras = [];
 		$table = $this->TableInfo();
 		if ($limit >= 0) {
 			$extras['limit'] = $limit;
@@ -390,13 +390,13 @@ class ADODB_Active_Record
 			}
 			$objs = $obj->Find($obj->foreignKey . '=' . $id . ' ' . $whereOrderBy, false, false, $extras);
 			if (!$objs) {
-				$objs = array();
+				$objs = [];
 			}
 			$this->$name = $objs;
 			return $objs;
 		}
 
-		return array();
+		return [];
 	}
 
 	/**
@@ -478,7 +478,7 @@ class ADODB_Active_Record
 		$fld = reset($cols);
 		if (!$pkeys) {
 			if (isset($fld->primary_key)) {
-				$pkeys = array();
+				$pkeys = [];
 				foreach ($cols as $name => $fld) {
 					if (!empty($fld->primary_key)) {
 						$pkeys[] = $name;
@@ -492,8 +492,8 @@ class ADODB_Active_Record
 			return false;
 		}
 
-		$attr = array();
-		$keys = array();
+		$attr = [];
+		$keys = [];
 
 		switch (ADODB_ASSOC_CASE) {
 			case ADODB_ASSOC_CASE_LOWER:
@@ -706,7 +706,7 @@ class ADODB_Active_Record
 
 		# <AP>
 		reset($keys);
-		$this->_original = array();
+		$this->_original = [];
 		foreach ($table->flds as $name => $fld) {
 			$value = $row[current($keys)];
 			$this->$name = $value;
@@ -784,7 +784,7 @@ class ADODB_Active_Record
 	function GenWhere($db, $table)
 	{
 		$keys = $table->keys;
-		$parr = array();
+		$parr = [];
 
 		foreach ($keys as $k) {
 			$f = $table->flds[$k];
@@ -881,9 +881,9 @@ class ADODB_Active_Record
 		$cnt = 0;
 		$table = $this->TableInfo();
 
-		$valarr = array();
-		$names = array();
-		$valstr = array();
+		$valarr = [];
+		$names = [];
+		$valstr = [];
 
 		foreach ($table->flds as $name => $fld) {
 			$val = $this->$name;
@@ -958,7 +958,7 @@ class ADODB_Active_Record
 	}
 
 	// returns an array of active record objects
-	function Find($whereOrderBy, $bindarr = false, $pkeysArr = false, $extra = array())
+	function Find($whereOrderBy, $bindarr = false, $pkeysArr = false, $extra = [])
 	{
 		$db = $this->DB();
 		if (!$db || empty($this->_table)) {
@@ -1008,7 +1008,7 @@ class ADODB_Active_Record
 		}
 
 		if (!is_array($pkey)) {
-			$pkey = array($pkey);
+			$pkey = [$pkey];
 		}
 
 		switch (ADODB_ASSOC_CASE) {
@@ -1024,12 +1024,12 @@ class ADODB_Active_Record
 				break;
 		}
 
-		$newArr = array();
+		$newArr = [];
 		foreach ($arr as $k => $v)
 			$newArr[$this->nameQuoter($db, $k)] = $v;
 		$arr = $newArr;
 
-		$newPkey = array();
+		$newPkey = [];
 		foreach ($pkey as $k => $v)
 			$newPkey[$k] = $this->nameQuoter($db, $v);
 		$pkey = $newPkey;
@@ -1075,9 +1075,9 @@ class ADODB_Active_Record
 			$this->error("Where missing for table $table->name", "Update");
 			return false;
 		}
-		$valarr = array();
-		$neworig = array();
-		$pairs = array();
+		$valarr = [];
+		$neworig = [];
+		$pairs = [];
 		$i = 0;
 		$cnt = 0;
 		foreach ($table->flds as $name => $fld) {
@@ -1209,7 +1209,7 @@ function adodb_GetActiveRecordsClass($db, $class, $table, $whereOrderBy, $bindar
 		$db->outp_throw("Unknown class $class in GetActiveRecordsClass()",'GetActiveRecordsClass');
 		return false;
 	}
-	$arr = array();
+	$arr = [];
 	// arrRef will be the structure that knows about our objects.
 	// It is an associative array.
 	// We will, however, return arr, preserving regular 0.. order so that

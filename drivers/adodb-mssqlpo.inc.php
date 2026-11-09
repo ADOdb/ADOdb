@@ -33,7 +33,7 @@ class ADODB_mssqlpo extends ADODB_mssql {
 		if (is_string($sql)) $sql = str_replace('||','+',$sql);
 		$stmt = mssql_init($sql,$this->_connectionID);
 		if (!$stmt)  return $sql;
-		return array($sql,$stmt);
+		return [$sql,$stmt];
 	}
 
 	function _query($sql,$inputarr=false)

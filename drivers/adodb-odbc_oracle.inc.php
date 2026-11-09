@@ -54,7 +54,7 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 		$rs = $this->Execute($this->metaTablesSQL);
 		if ($rs === false) return false;
 		$arr = $rs->GetArray();
-		$arr2 = array();
+		$arr2 = [];
 		for ($i=0; $i < sizeof($arr); $i++) {
 			$arr2[] = $arr[$i][0];
 		}
@@ -70,7 +70,7 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 		if ($rs === false) {
 			return false;
 		}
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];

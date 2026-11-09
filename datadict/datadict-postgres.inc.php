@@ -157,7 +157,7 @@ class ADODB2_postgres extends ADODB_DataDict
 	function addColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->tableName($tabname);
-		$sql = array();
+		$sql = [];
 		$not_null = false;
 		list($lines,$pkey) = $this->_genFields($flds);
 		$alter = 'ALTER TABLE ' . $tabname . $this->addCol;
@@ -185,7 +185,7 @@ class ADODB2_postgres extends ADODB_DataDict
 
 	function dropIndexSQL($idxname, $tabname = NULL)
 	{
-		return array(sprintf($this->dropIndex, $this->tableName($idxname), $this->tableName($tabname)));
+		return [sprintf($this->dropIndex, $this->tableName($idxname), $this->tableName($tabname))];
 	}
 
 	/**
@@ -209,7 +209,7 @@ class ADODB2_postgres extends ADODB_DataDict
 
 		if ($has_alter_column) {
 			$tabname = $this->tableName($tabname);
-			$sql = array();
+			$sql = [];
 			list($lines,$pkey) = $this->_genFields($flds);
 			$set_null = false;
 			foreach($lines as $v) {
@@ -286,7 +286,7 @@ class ADODB2_postgres extends ADODB_DataDict
 		// does not have alter column
 		if (!$tableflds) {
 			if ($this->debug) ADOConnection::outp("AlterColumnSQL needs a complete table-definition for PostgreSQL");
-			return array();
+			return [];
 		}
 		return $this->_recreate_copy_table($tabname, false, $tableflds,$tableoptions);
 	}
@@ -309,7 +309,7 @@ class ADODB2_postgres extends ADODB_DataDict
 			if ($this->debug) {
 				ADOConnection::outp("dropColumnSQL needs complete table-definition for PostgreSQL < 7.3");
 			}
-			return array();
+			return [];
 		}
 		if ($has_drop_column) {
 			return ADODB_DataDict::dropColumnSQL($tabname, $flds);
@@ -332,13 +332,13 @@ class ADODB2_postgres extends ADODB_DataDict
 	function _recreate_copy_table($tabname, $dropflds, $tableflds, $tableoptions='')
 	{
 		if ($dropflds && !is_array($dropflds)) $dropflds = explode(',',$dropflds);
-		$copyflds = array();
+		$copyflds = [];
 		foreach($this->metaColumns($tabname) as $fld) {
 			if (preg_match('/'.$fld->name.' (\w+)/i', $tableflds, $matches)) {
 				$new_type = strtoupper($matches[1]);
 				// AlterColumn of a char column to a numeric one needs an explicit conversation
-				if (in_array($new_type, array('I', 'I2', 'I4', 'I8', 'N', 'F')) &&
-					in_array($fld->type, array('varchar','char','text','bytea'))
+				if (in_array($new_type, ['I', 'I2', 'I4', 'I8', 'N', 'F']) &&
+					in_array($fld->type, ['varchar','char','text','bytea'])
 				) {
 					$copyflds[] = "to_number($fld->name,'S9999999999999D99')";
 				} else {
@@ -381,7 +381,7 @@ class ADODB2_postgres extends ADODB_DataDict
 		foreach($this->metaIndexes($tabname) as $idx_name => $idx_data) {
 			if (substr($idx_name,-5) != '_pkey' && (!$dropflds || !count(array_intersect($dropflds,$idx_data['columns'])))) {
 				$aSql = array_merge($aSql,$this->createIndexSQL($idx_name, $tabname, $idx_data['columns'],
-					$idx_data['unique'] ? array('UNIQUE') : false));
+					$idx_data['unique'] ? ['UNIQUE'] : false));
 			}
 		}
 		$aSql[] = 'COMMIT';
@@ -437,10 +437,10 @@ class ADODB2_postgres extends ADODB_DataDict
 			$this->schema = false;
 			$rename_to = $this->tableName($newname);
 			$this->schema = $schema_save;
-			return array (sprintf($this->renameTable, $rename_from, $rename_to));
+			return  [sprintf($this->renameTable, $rename_from, $rename_to)];
 		}
 
-		return array (sprintf($this->renameTable, $this->tableName($tabname), $this->tableName($newname)));
+		return  [sprintf($this->renameTable, $this->tableName($tabname), $this->tableName($newname))];
 	}
 
 	/*
@@ -478,7 +478,7 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 	*/
 	function _indexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
-		$sql = array();
+		$sql = [];
 
 		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
 			$sql[] = sprintf ($this->dropIndex, $idxname, $tabname);
@@ -557,7 +557,7 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 		}
 		$ADODB_FETCH_MODE = $save;
 
-		$sqlResult=array();
+		$sqlResult=[];
 		if ( empty($cols)) {
 			$sqlResult=$this->createTableSQL($tablename, $flds, $tableoptions);
 		} else {
@@ -570,7 +570,7 @@ CREATE [ UNIQUE ] INDEX index_name ON table
 				list($lines,$pkey,$idxs) = $this->_genFields($flds);
 				// genfields can return FALSE at times
 				if ($lines == null) {
-					$lines = array();
+					$lines = [];
 				}
 				$alter = 'ALTER TABLE ' . $this->tableName($tablename);
 				foreach ( $cols as $id => $v ) {

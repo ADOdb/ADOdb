@@ -35,58 +35,58 @@ class perf_mysql extends adodb_perf{
 		  timer decimal(16,6) NOT NULL
 		)";
 
-	var $settings = array(
+	var $settings = [
 	'Ratios',
-		'MyISAM cache hit ratio' => array('RATIO',
+		'MyISAM cache hit ratio' => ['RATIO',
 			'=GetKeyHitRatio',
-			'=WarnCacheRatio'),
-		'InnoDB cache hit ratio' => array('RATIO',
+			'=WarnCacheRatio'],
+		'InnoDB cache hit ratio' => ['RATIO',
 			'=GetInnoDBHitRatio',
-			'=WarnCacheRatio'),
-		'data cache hit ratio' => array('HIDE', # only if called
+			'=WarnCacheRatio'],
+		'data cache hit ratio' => ['HIDE', # only if called
 			'=FindDBHitRatio',
-			'=WarnCacheRatio'),
-		'sql cache hit ratio' => array('RATIO',
+			'=WarnCacheRatio'],
+		'sql cache hit ratio' => ['RATIO',
 			'=GetQHitRatio',
-			''),
+			''],
 	'IO',
-		'data reads' => array('IO',
+		'data reads' => ['IO',
 			'=GetReads',
-			'Number of selects (Key_reads is not accurate)'),
-		'data writes' => array('IO',
+			'Number of selects (Key_reads is not accurate)'],
+		'data writes' => ['IO',
 			'=GetWrites',
-			'Number of inserts/updates/deletes * coef (Key_writes is not accurate)'),
+			'Number of inserts/updates/deletes * coef (Key_writes is not accurate)'],
 
 	'Data Cache',
-		'MyISAM data cache size' => array('DATAC',
-			array("show variables", 'key_buffer_size'),
-			'' ),
-		'BDB data cache size' => array('DATAC',
-			array("show variables", 'bdb_cache_size'),
-			'' ),
-		'InnoDB data cache size' => array('DATAC',
-			array("show variables", 'innodb_buffer_pool_size'),
-			'' ),
+		'MyISAM data cache size' => ['DATAC',
+			["show variables", 'key_buffer_size'],
+			'' ],
+		'BDB data cache size' => ['DATAC',
+			["show variables", 'bdb_cache_size'],
+			'' ],
+		'InnoDB data cache size' => ['DATAC',
+			["show variables", 'innodb_buffer_pool_size'],
+			'' ],
 	'Memory Usage',
-		'read buffer size' => array('CACHE',
-			array("show variables", 'read_buffer_size'),
-			'(per session)'),
-		'sort buffer size' => array('CACHE',
-			array("show variables", 'sort_buffer_size'),
-			'Size of sort buffer (per session)' ),
-		'table cache' => array('CACHE',
-			array("show variables", 'table_cache'),
-			'Number of tables to keep open'),
+		'read buffer size' => ['CACHE',
+			["show variables", 'read_buffer_size'],
+			'(per session)'],
+		'sort buffer size' => ['CACHE',
+			["show variables", 'sort_buffer_size'],
+			'Size of sort buffer (per session)' ],
+		'table cache' => ['CACHE',
+			["show variables", 'table_cache'],
+			'Number of tables to keep open'],
 	'Connections',
-		'current connections' => array('SESS',
-			array('show status','Threads_connected'),
-			''),
-		'max connections' => array( 'SESS',
-			array("show variables",'max_connections'),
-			''),
+		'current connections' => ['SESS',
+			['show status','Threads_connected'],
+			''],
+		'max connections' => [ 'SESS',
+			["show variables",'max_connections'],
+			''],
 
 		false
-	);
+	];
 
 	function __construct(&$conn)
 	{
@@ -235,9 +235,9 @@ class perf_mysql extends adodb_perf{
 	function GetQHitRatio()
 	{
 		//Total number of queries = Qcache_inserts + Qcache_hits + Qcache_not_cached
-		$hits = $this->_DBParameter(array("show status","Qcache_hits"));
-		$total = $this->_DBParameter(array("show status","Qcache_inserts"));
-		$total += $this->_DBParameter(array("show status","Qcache_not_cached"));
+		$hits = $this->_DBParameter(["show status","Qcache_hits"]);
+		$total = $this->_DBParameter(["show status","Qcache_inserts"]);
+		$total += $this->_DBParameter(["show status","Qcache_not_cached"]);
 
 		$total += $hits;
 		if ($total) return round(($hits*100)/$total,2);
@@ -287,8 +287,8 @@ class perf_mysql extends adodb_perf{
 
 	function GetKeyHitRatio()
 	{
-		$hits = $this->_DBParameter(array("show status","Key_read_requests"));
-		$reqs = $this->_DBParameter(array("show status","Key_reads"));
+		$hits = $this->_DBParameter(["show status","Key_read_requests"]);
+		$reqs = $this->_DBParameter(["show status","Key_reads"]);
 		if ($reqs == 0) return 0;
 
 		return round(($hits/($reqs+$hits))*100,2);

@@ -121,11 +121,11 @@ class ADODB_postgres64 extends ADOConnection{
 			// server_version is not set so we use pg_parameter_status() instead.
 			$version_server = $version['server'] ?? pg_parameter_status($this->_connectionID, 'server_version');
 
-			$this->version = array(
+			$this->version = [
 				'version' => $this->_findvers($version_server),
 				'client' => $version['client'],
 				'description' => null,
-			);
+			];
 		}
 		if ($detailed && $this->version['description'] === null) {
 			$this->version['description'] = $this->GetOne('select version()');
@@ -561,7 +561,7 @@ class ADODB_postgres64 extends ADOConnection{
 			$keys = [];
 		}
 
-		$rsdefa = array();
+		$rsdefa = [];
 		if (!empty($this->metaDefaultsSQL)) {
 			$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 			if (isset($savem)) {
@@ -596,7 +596,7 @@ class ADODB_postgres64 extends ADOConnection{
 			unset($rsdef);
 		}
 
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
@@ -751,9 +751,9 @@ class ADODB_postgres64 extends ADOConnection{
 
 		// Get column names indexed by attnum so we can lookup the index key
 		$col_names = $this->MetaColumnNames($table,true,true);
-		$indexes = array();
+		$indexes = [];
 		while ($row = $rs->FetchRow()) {
-			$columns = array();
+			$columns = [];
 			foreach (explode(' ', $row[2]) as $col) {
 				// When index attribute (pg_index.indkey) is an expression, $col == 0
 				// @see https://www.postgresql.org/docs/current/catalog-pg-index.html
@@ -761,10 +761,10 @@ class ADODB_postgres64 extends ADOConnection{
 				$columns[] = $col_names[$col] ?? null;
 			}
 
-			$indexes[$row[0]] = array(
+			$indexes[$row[0]] = [
 				'unique' => ($row[1] == 't'),
 				'columns' => $columns
-			);
+			];
 		}
 		return $indexes;
 	}
@@ -1061,7 +1061,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		}
 
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;

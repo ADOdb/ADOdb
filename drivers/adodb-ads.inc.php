@@ -474,7 +474,7 @@ class ADODB_ads extends ADOConnection
 		}
 		$rs->_fetch();
 
-		$retarr = array();
+		$retarr = [];
 
 		/*
 		$rs->fields indices
@@ -561,7 +561,7 @@ class ADODB_ads extends ADOConnection
 			// we don't know whether odbc driver is parsing prepared stmts, so just return sql
 			return $sql;
 		}
-		return array($sql, $stmt, false);
+		return [$sql, $stmt, false];
 	}
 
 	function _query($sql, $inputarr = false)
@@ -649,7 +649,7 @@ class ADODB_ads extends ADOConnection
 			$this->_errorMsg = $this->getChangedErrorMsg($last_php_error);
 			return false;
 		}
-		if (!ads_execute($stmtid, array($val), array(SQL_BINARY))) {
+		if (!ads_execute($stmtid, [$val], [SQL_BINARY])) {
 			$this->_errorMsg = ads_errormsg();
 			$this->_errorCode = ads_error();
 			return false;
@@ -721,7 +721,7 @@ class ADORecordSet_ads extends ADORecordSet
 			return $this->fields[$colname];
 		}
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i = 0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;
@@ -765,7 +765,7 @@ class ADORecordSet_ads extends ADORecordSet
 			$this->fields = $this->GetRowAssoc();
 		}
 
-		$results = array();
+		$results = [];
 		$cnt = 0;
 		while (!$this->EOF && $nrows != $cnt) {
 			$results[$cnt++] = $this->fields;

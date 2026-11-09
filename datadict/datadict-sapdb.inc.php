@@ -80,7 +80,7 @@ class ADODB2_sapdb extends ADODB_DataDict {
 		if (array_key_exists($t,$this->connection->customActualTypes))
 			return  $this->connection->customActualTypes[$t];
 
-		static $maxdb_type2adodb = array(
+		static $maxdb_type2adodb = [
 			'VARCHAR'	=> 'C',
 			'CHARACTER'	=> 'C',
 			'LONG'		=> 'X',		// no way to differ between 'X' and 'B' :-(
@@ -91,7 +91,7 @@ class ADODB2_sapdb extends ADODB_DataDict {
 			'SMALLINT'	=> 'I2',
 			'FLOAT'		=> 'F',
 			'FIXED'		=> 'N',
-		);
+		];
 		$type = isset($maxdb_type2adodb[$t]) ? $maxdb_type2adodb[$t] : ADODB_DEFAULT_METATYPE;
 
 		// convert integer-types simulated with fixed back to integer
@@ -118,17 +118,17 @@ class ADODB2_sapdb extends ADODB_DataDict {
 	function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName ($tabname);
-		$sql = array();
+		$sql = [];
 		list($lines,$pkey) = $this->_GenFields($flds);
-		return array( 'ALTER TABLE ' . $tabname . ' ADD (' . implode(', ',$lines) . ')' );
+		return [ 'ALTER TABLE ' . $tabname . ' ADD (' . implode(', ',$lines) . ')' ];
 	}
 
 	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
-		$sql = array();
+		$sql = [];
 		list($lines,$pkey) = $this->_GenFields($flds);
-		return array( 'ALTER TABLE ' . $tabname . ' MODIFY (' . implode(', ',$lines) . ')' );
+		return [ 'ALTER TABLE ' . $tabname . ' MODIFY (' . implode(', ',$lines) . ')' ];
 	}
 
 	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
@@ -138,6 +138,6 @@ class ADODB2_sapdb extends ADODB_DataDict {
 		foreach($flds as $k => $v) {
 			$flds[$k] = $this->NameQuote($v);
 		}
-		return array( 'ALTER TABLE ' . $tabname . ' DROP (' . implode(', ',$flds) . ')' );
+		return [ 'ALTER TABLE ' . $tabname . ' DROP (' . implode(', ',$flds) . ')' ];
 	}
 }

@@ -61,7 +61,7 @@ $ADODB_INCLUDED_CSV = 1;
 		if ($rs->databaseType == 'array') {
 			$rows = $rs->_array;
 		} else {
-			$rows = array();
+			$rows = [];
 			while (!$rs->EOF) {
 				$rows[] = $rs->fields;
 				$rs->MoveNext();
@@ -105,7 +105,7 @@ $ADODB_INCLUDED_CSV = 1;
 			return false;
 		}
 		@flock($fp, LOCK_SH);
-		$arr = array();
+		$arr = [];
 		$ttl = 0;
 
 		if ($meta = fgetcsv($fp, 32000, ",", '"', "\\")) {
@@ -135,7 +135,7 @@ $ADODB_INCLUDED_CSV = 1;
 					}
 
 					$rs = new $rsclass($val=true);
-					$rs->fields = array();
+					$rs->fields = [];
 					$rs->timeCreated = $meta[1];
 					$rs->EOF = true;
 					$rs->_numOfFields = 0;
@@ -220,7 +220,7 @@ $ADODB_INCLUDED_CSV = 1;
 			}
 
 			// Get Column definitions
-			$flds = array();
+			$flds = [];
 			foreach($meta as $o) {
 				$o2 = explode(':',$o);
 				if (sizeof($o2)!=3) {

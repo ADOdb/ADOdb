@@ -151,7 +151,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName($tabname);
-		$f = array();
+		$f = [];
 		list($lines,$pkey) = $this->_GenFields($flds);
 		$s = "ALTER TABLE $tabname ADD (";
 		foreach($lines as $v) {
@@ -166,7 +166,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->TableName($tabname);
-		$f = array();
+		$f = [];
 		list($lines,$pkey) = $this->_GenFields($flds);
 		$s = "ALTER TABLE $tabname MODIFY(";
 		foreach($lines as $v) {
@@ -182,7 +182,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		if (!is_array($flds)) $flds = explode(',',$flds);
 		foreach ($flds as $k => $v) $flds[$k] = $this->NameQuote($v);
 
-		$sql = array();
+		$sql = [];
 		$s = "ALTER TABLE $tabname DROP(";
 		$s .= implode(', ',$flds).') CASCADE CONSTRAINTS';
 		$sql[] = $s;
@@ -229,7 +229,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	function _Triggers($tabname,$tableoptions)
 	{
 		
-		if (!$this->seqField) return array();
+		if (!$this->seqField) return [];
 
 		if ($this->schema) 
 		{
@@ -301,7 +301,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 
 	function _IndexSQL($idxname, $tabname, $flds,$idxoptions)
 	{
-		$sql = array();
+		$sql = [];
 
 		if ( isset($idxoptions['REPLACE']) || isset($idxoptions['DROP']) ) {
 			$sql[] = sprintf ($this->dropIndex, $idxname, $tabname);

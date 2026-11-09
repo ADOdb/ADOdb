@@ -35,8 +35,8 @@ function loginFunction() {
 
 $dsn = 'mysql://username:password@hostname/database';
 // To use encrypted passwords, change cryptType to 'md5'
-$params = array('dsn' => $dsn, 'table' => 'auth', 'cryptType' => 'none',
-                'usernamecol' => 'username', 'passwordcol' => 'password');
+$params = ['dsn' => $dsn, 'table' => 'auth', 'cryptType' => 'none',
+                'usernamecol' => 'username', 'passwordcol' => 'password'];
 $a = new Auth("ADOdb", $params, "loginFunction");
 $a->start();
 

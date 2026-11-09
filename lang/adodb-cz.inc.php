@@ -20,7 +20,7 @@
  * @author Kamil Jakubovic <jake@host.sk>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
             'LANG'                      => 'cz',
             DB_ERROR                    => 'neznámá chyba',
             DB_ERROR_ALREADY_EXISTS     => 'ji? existuje',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
             DB_ERROR_EXTENSION_NOT_FOUND=> 'roz?í?ení nenalezeno',
             DB_ERROR_NOSUCHDB           => 'databáze neexistuje',
             DB_ERROR_ACCESS_VIOLATION   => 'nedostate?ná práva'
-);
+];

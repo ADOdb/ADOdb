@@ -228,7 +228,7 @@ class ADORecordset_oracle extends ADORecordSet {
 		parent::__construct($queryID, $mode);
 
 		$this->_inited = true;
-		$this->fields = array();
+		$this->fields = [];
 		if ($queryID) {
 			$this->_currentRow = 0;
 			$this->EOF = !$this->_fetch();
@@ -260,7 +260,7 @@ class ADORecordset_oracle extends ADORecordSet {
 	function Fields($colname)
 	{
 		if (!$this->bind) {
-			$this->bind = array();
+			$this->bind = [];
 			for ($i=0; $i < $this->_numOfFields; $i++) {
 				$o = $this->FetchField($i);
 				$this->bind[strtoupper($o->name)] = $i;

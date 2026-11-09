@@ -20,7 +20,7 @@
  * @author El-Shamaa, Khaled <k.el-shamaa@cgiar.org>
  */
 
-$ADODB_LANG_ARRAY = array (
+$ADODB_LANG_ARRAY =  [
 			'LANG'			    => 'ar',
 	    DB_ERROR			=> 'خطأ غير محدد',
 	    DB_ERROR_ALREADY_EXISTS	=> 'موجود مسبقا',
@@ -49,4 +49,4 @@ $ADODB_LANG_ARRAY = array (
 	    DB_ERROR_EXTENSION_NOT_FOUND=> 'لم يتم إيجاد الإضافة المتعلقة',
 	    DB_ERROR_NOSUCHDB		=> 'ليس هنالك قاعدة بيانات بهذا الاسم',
 	    DB_ERROR_ACCESS_VIOLATION	=> 'سماحيات غير كافية'
-);
+];

@@ -171,7 +171,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 			unset($rskey);
 		}
 
-		$rsdefa = array();
+		$rsdefa = [];
 		if (!empty($this->metaDefaultsSQL)) {
 			$ADODB_FETCH_MODE = ADODB_FETCH_ASSOC;
 			$sql = sprintf($this->metaDefaultsSQL, ($table));
@@ -198,7 +198,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 			unset($rsdef);
 		}
 
-		$retarr = array();
+		$retarr = [];
 		while (!$rs->EOF) {
 			$fld = new ADOFieldObject();
 			$fld->name = $rs->fields[0];
