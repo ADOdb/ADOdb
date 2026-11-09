@@ -36,12 +36,12 @@
 */
 
 if (!defined('_ADODB_LAYER')) {
-	require realpath(dirname(__FILE__) . '/../adodb.inc.php');
+	require realpath(__DIR__ . '/../adodb.inc.php');
 }
 
 if (defined('ADODB_SESSION')) return 1;
 
-define('ADODB_SESSION', dirname(__FILE__));
+define('ADODB_SESSION', __DIR__);
 
 
 /*

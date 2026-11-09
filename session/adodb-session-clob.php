@@ -22,6 +22,6 @@
  */
 
 if (!defined('ADODB_SESSION')) {
-	require_once dirname(__FILE__) . '/adodb-session.php';
+	require_once __DIR__ . '/adodb-session.php';
 }
 ADODB_Session::clob('CLOB');

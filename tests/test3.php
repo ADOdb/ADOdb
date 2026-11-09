@@ -21,7 +21,7 @@
 
 error_reporting(E_ALL);
 
-$path = dirname(__FILE__);
+$path = __DIR__;
 
 include("$path/../adodb-exceptions.inc.php");
 include("$path/../adodb.inc.php");
