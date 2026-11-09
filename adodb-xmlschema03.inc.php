@@ -256,7 +256,7 @@ class dbTable extends dbObject {
 	/**
 	 * Does the current platform match the db type of
 	 * platform-specific options
-	 * 
+	 *
 	 * @var    bool Platform-specific options
 	 * @access private
 	 */
@@ -333,7 +333,7 @@ class dbTable extends dbObject {
 			case 'CONSTRAINT':
 				// Accept platform-specific options
 				$this->currentPlatform = ( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) );
-				
+
 				break;
 			default:
 				// print_r( array( $tag, $attributes ) );
@@ -510,20 +510,20 @@ class dbTable extends dbObject {
 	 * and appends them to the table object.
 	 *
 	 * @param string $opt Table option
-	 * 
+	 *
 	 * @return array Options
 	 */
 	function addTableOpt( $opt ) {
-		
+
 		if($this->currentPlatform) {
-			
+
 			$this->parent->logMsg(
-				$opt, 
+				$opt,
 				'Adding current platform or global table opt',
 				false,
-				$this 
+				$this
 			);
-			
+
 			$this->opts[$this->parent->db->dataProvider] = $opt;
 		}
 		return $this->opts;
@@ -628,13 +628,13 @@ class dbTable extends dbObject {
 			switch( $xmls->upgrade ) {
 				// Use ChangeTableSQL
 				case 'ALTER':
-					
+
 					$sql[] = $xmls->dict->changeTableSQL( $this->name, $fldarray, $this->opts );
-	
+
 					$xmls->logMsg($sql, 'Generated changeTableSQL (ALTERing table)', false, $this );
 					break;
 				case 'REPLACE':
-					
+
 					$sql[] = $xmls->dict->dropTableSQL( $this->name );
 					$sql[] = $xmls->dict->createTableSQL( $this->name, $fldarray, $this->opts );
 					$xmls->logMsg($sql, 'Doing upgrade REPLACE (testing)', false, $this );
@@ -1070,7 +1070,7 @@ class dbData extends dbObject {
 			switch( $records->recordCount() ) {
 				case 0:
 					// No matching record, so safe to insert.
-					
+
 					$sql[] = $xmls->db->getInsertSQL( $records, $mfields );
 					$xmls->logMsg($sql, "No matching records. Inserting new row with unique data", false, $this );
 					break;
@@ -1078,7 +1078,7 @@ class dbData extends dbObject {
 					// Exactly one matching record, so we can update if the mode permits.
 					$xmls->logMsg( "One matching record...", '', false, $this );
 					if( $mode == XMLS_MODE_UPDATE ) {
-						
+
 						$sql[] = $xmls->db->getUpdateSQL( $records, $mfields );
 						$xmls->logMsg($sql, "...Updating existing row from unique data", false, $this );
 					}
@@ -1661,10 +1661,6 @@ class adoSchema {
 			}
 		}
 
-		if( PHP_VERSION_ID < 80000 ) {
-			xml_parser_free( $xmlParser );
-		}
-
 		return $this->sqlArray;
 	}
 
@@ -1705,10 +1701,6 @@ class adoSchema {
 				xml_error_string( xml_get_error_code( $xmlParser) ),
 				xml_get_current_line_number( $xmlParser)
 			) );
-		}
-
-		if( PHP_VERSION_ID < 80000 ) {
-			xml_parser_free( $xmlParser );
 		}
 
 		return $this->sqlArray;
@@ -2421,7 +2413,7 @@ class adoSchema {
 	 * @param string $title 	  The logging Title
 	 * @param bool   $force 	  Force a message
 	 * @param object $childObject The object generating the message
-	 * 
+	 *
 	 * @return  void
 	 */
 	public function logMsg( $msg, $title = NULL, $force = false, $childObject=null) {
@@ -2439,7 +2431,7 @@ $title
 ==============================================
 ";
 			}
-			
+
 			if ( is_object( $childObject ) ) {
 				printf("\nClass [%s]", get_class( $childObject ));
 			}
@@ -2499,6 +2491,6 @@ $title
 		print_r( $msg );
 
 		echo '</pre>';
-	
-	}	
+
+	}
 }
