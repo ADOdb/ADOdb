@@ -29,35 +29,35 @@
 if (!defined('ADODB_DIR')) die();
 
 class ADODB_firebird extends ADOConnection {
-	var $databaseType = "firebird";
-	var $dataProvider = "firebird";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $fbird_datefmt = '%Y-%m-%d'; // For hours,mins,secs change to '%Y-%m-%d %H:%M:%S';
-	var $fmtDate = "'Y-m-d'";
-	var $fbird_timestampfmt = "%Y-%m-%d %H:%M:%S";
-	var $fbird_timefmt = "%H:%M:%S";
-	var $fmtTimeStamp = "'Y-m-d, H:i:s'";
-	var $concat_operator='||';
-	var $_transactionID;
+	public $databaseType = "firebird";
+	public $dataProvider = "firebird";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $fbird_datefmt = '%Y-%m-%d'; // For hours,mins,secs change to '%Y-%m-%d %H:%M:%S';
+	public $fmtDate = "'Y-m-d'";
+	public $fbird_timestampfmt = "%Y-%m-%d %H:%M:%S";
+	public $fbird_timefmt = "%H:%M:%S";
+	public $fmtTimeStamp = "'Y-m-d, H:i:s'";
+	public $concat_operator='||';
+	public $_transactionID;
 
 	public $metaTablesSQL = "SELECT LOWER(rdb\$relation_name) FROM rdb\$relations";
 	//OPN STUFF start
 
-	var $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
+	public $metaColumnsSQL = "select lower(a.rdb\$field_name), a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
 	//OPN STUFF end
 
 	public $_genSeqSQL = "CREATE SEQUENCE %s START WITH %s";
 
 	public $_dropSeqSQL = "DROP SEQUENCE %s";
 
-	var $hasGenID = true;
-	var $_bindInputArray = true;
-	var $sysDate = "cast('TODAY' as timestamp)";
-	var $sysTimeStamp = "CURRENT_TIMESTAMP"; //"cast('NOW' as timestamp)";
-	var $ansiOuter = true;
-	var $hasAffectedRows = true;
-	var $poorAffectedRows = false;
-	var $blobEncodeType = 'C';
+	public $hasGenID = true;
+	public $_bindInputArray = true;
+	public $sysDate = "cast('TODAY' as timestamp)";
+	public $sysTimeStamp = "CURRENT_TIMESTAMP"; //"cast('NOW' as timestamp)";
+	public $ansiOuter = true;
+	public $hasAffectedRows = true;
+	public $poorAffectedRows = false;
+	public $blobEncodeType = 'C';
 	/*
 	* firebird custom optionally specifies the user role
 	*/
@@ -72,9 +72,9 @@ class ADODB_firebird extends ADOConnection {
 	*/
 	public $dialect = 3;
 
-	var $nameQuote = '';		/// string to use to quote identifiers and names
+	public $nameQuote = '';		/// string to use to quote identifiers and names
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$this->setTransactionMode('');
@@ -179,7 +179,7 @@ class ADODB_firebird extends ADOConnection {
 	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
 	 * isn't currently loaded.
 	 */
-	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename,true);
 	}
@@ -274,7 +274,7 @@ class ADODB_firebird extends ADOConnection {
 		return $ret;
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 		return fbird_affected_rows($this->_transactionID ?: $this->_connectionID);
 	}
@@ -440,12 +440,12 @@ class ADODB_firebird extends ADOConnection {
 		return $this->genID;
 	}
 
-	function selectDB($dbName)
+	public function selectDB($dbName)
 	{
 		return false;
 	}
 
-	function _handleError()
+	public function _handleError()
 	{
 		$this->_errorCode = fbird_errcode();
 		$this->_errorMsg  = fbird_errmsg();
@@ -457,7 +457,7 @@ class ADODB_firebird extends ADOConnection {
 		return (int) $this->_errorCode;
 	}
 
-	function errorMsg()
+	public function errorMsg()
 	{
 			return $this->_errorMsg;
 	}
@@ -490,7 +490,7 @@ class ADODB_firebird extends ADOConnection {
 	 *
 	 * @return object|bool Query identifier or true if execution successful, false if failed.
 	 */
-	function _query($sql, $inputarr = false)
+	public function _query($sql, $inputarr = false)
 	{
 		if (!$this->isConnected()) {
 			return false;
@@ -532,7 +532,7 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 		if (!$this->autoCommit) {
 			@fbird_rollback($this->_connectionID);
@@ -541,7 +541,7 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 	//OPN STUFF start
-	function _ConvertFieldType(&$fld, $ftype, $flen, $fscale, $fsubtype, $fprecision, $dialect3)
+	public function _ConvertFieldType(&$fld, $ftype, $flen, $fscale, $fsubtype, $fprecision, $dialect3)
 	{
 		$fscale = abs($fscale);
 		$fld->max_length = $flen;
@@ -1024,8 +1024,8 @@ class ADODB_firebird extends ADOConnection {
  */
 class ADORecordset_firebird extends ADORecordSet
 {
-	var $databaseType = "firebird";
-	var $bind = false;
+	public $databaseType = "firebird";
+	public $bind = false;
 
 	/**
 	 * @var ADOFieldObject[] Holds a cached version of the metadata
@@ -1130,7 +1130,7 @@ class ADORecordset_firebird extends ADORecordSet
 		return $this->fieldObjects[$fieldOffset];
 	}
 
-	function _initrs()
+	public function _initrs()
 	{
 		$this->_numOfRows = -1;
 
@@ -1142,7 +1142,7 @@ class ADORecordset_firebird extends ADORecordSet
 
 	}
 
-	function _seek($row)
+	public function _seek($row)
 	{
 		return false;
 	}
@@ -1263,7 +1263,7 @@ class ADORecordset_firebird extends ADORecordSet
 	}
 
 
-	function _close()
+	public function _close()
 	{
 		return @fbird_free_result($this->_queryID);
 	}

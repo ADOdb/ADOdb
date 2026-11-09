@@ -30,29 +30,29 @@ if (!defined('_ADODB_ODBC_LAYER')) {
 if (!defined('ADODB_VFP')){
 define('ADODB_VFP',1);
 class ADODB_vfp extends ADODB_odbc {
-	var $databaseType = "vfp";
-	var $fmtDate = "{^Y-m-d}";
-	var $fmtTimeStamp = "{^Y-m-d, h:i:sA}";
-	var $replaceQuote = "'+chr(39)+'" ;
-	var $true = '.T.';
-	var $false = '.F.';
-	var $hasTop = 'top';		// support mssql SELECT TOP 10 * FROM TABLE
-	var $_bindInputArray = false; // strangely enough, setting to true does not work reliably
-	var $sysTimeStamp = 'datetime()';
-	var $sysDate = 'date()';
-	var $ansiOuter = true;
-	var $hasTransactions = false;
-	var $curmode = false ; // See sqlext.h, SQL_CUR_DEFAULT == SQL_CUR_USE_DRIVER == 2L
+	public $databaseType = "vfp";
+	public $fmtDate = "{^Y-m-d}";
+	public $fmtTimeStamp = "{^Y-m-d, h:i:sA}";
+	public $replaceQuote = "'+chr(39)+'" ;
+	public $true = '.T.';
+	public $false = '.F.';
+	public $hasTop = 'top';		// support mssql SELECT TOP 10 * FROM TABLE
+	public $_bindInputArray = false; // strangely enough, setting to true does not work reliably
+	public $sysTimeStamp = 'datetime()';
+	public $sysDate = 'date()';
+	public $ansiOuter = true;
+	public $hasTransactions = false;
+	public $curmode = false ; // See sqlext.h, SQL_CUR_DEFAULT == SQL_CUR_USE_DRIVER == 2L
 
-	function Time()
+	public function Time()
 	{
 		return time();
 	}
 
-	function BeginTrans() { return false;}
+	public function BeginTrans() { return false;}
 
 	// quote string to be sent back to database
-	function qstr($s,$nofixquotes=false)
+	public function qstr($s,$nofixquotes=false)
 	{
 		if (!$nofixquotes) return  "'".str_replace("\r\n","'+chr(13)+'",str_replace("'",$this->replaceQuote,$s))."'";
 		return "'".$s."'";
@@ -60,7 +60,7 @@ class ADODB_vfp extends ADODB_odbc {
 
 
 	// TOP requires ORDER BY for VFP
-	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
+	public function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		$this->hasTop = preg_match('/ORDER[ \t\r\n]+BY/is',$sql) ? 'top' : false;
 		$ret = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
@@ -74,10 +74,10 @@ class ADODB_vfp extends ADODB_odbc {
 
 class  ADORecordSet_vfp extends ADORecordSet_odbc {
 
-	var $databaseType = "vfp";
+	public $databaseType = "vfp";
 
 
-	function MetaType($t, $len = -1, $fieldobj = false)
+	public function MetaType($t, $len = -1, $fieldobj = false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;

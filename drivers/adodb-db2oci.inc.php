@@ -135,18 +135,18 @@ function _colonparser($sql,$arr)
 }
 
 class ADODB_db2oci extends ADODB_db2 {
-	var $databaseType = "db2oci";
-	var $sysTimeStamp = 'sysdate';
-	var $sysDate = 'trunc(sysdate)';
-	var $_bindInputArray = true;
+	public $databaseType = "db2oci";
+	public $sysTimeStamp = 'sysdate';
+	public $sysDate = 'trunc(sysdate)';
+	public $_bindInputArray = true;
 
-	function Param($name,$type='C')
+	public function Param($name,$type='C')
 	{
 		return ':'.$name;
 	}
 
 
-	function MetaTables($ttype = false, $schema = false, $mask = false)
+	public function MetaTables($ttype = false, $schema = false, $mask = false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -185,7 +185,7 @@ class ADODB_db2oci extends ADODB_db2 {
 		return $arr2;
 	}
 
-	function _Execute($sql, $inputarr=false	)
+	public function _Execute($sql, $inputarr=false	)
 	{
 		if ($inputarr) list($sql,$inputarr) = _colonparser($sql, $inputarr);
 		return parent::_Execute($sql, $inputarr);
@@ -195,7 +195,7 @@ class ADODB_db2oci extends ADODB_db2 {
 
 class  ADORecordSet_db2oci extends ADORecordSet_db2 {
 
-	var $databaseType = "db2oci";
+	public $databaseType = "db2oci";
 
 }
 

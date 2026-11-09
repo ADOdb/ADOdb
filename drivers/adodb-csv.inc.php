@@ -35,36 +35,36 @@ if (! defined("_ADODB_CSV_LAYER")) {
 include_once(ADODB_DIR.'/adodb-csvlib.inc.php');
 
 class ADODB_csv extends ADOConnection {
-	var $databaseType = 'csv';
-	var $databaseProvider = 'csv';
-	var $hasInsertID = true;
-	var $hasAffectedRows = true;
-	var $fmtTimeStamp = "'Y-m-d H:i:s'";
-	var $_affectedrows=0;
-	var $_insertid=0;
-	var $_url;
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $hasTransactions = false;
-	var $_errorNo = false;
+	public $databaseType = 'csv';
+	public $databaseProvider = 'csv';
+	public $hasInsertID = true;
+	public $hasAffectedRows = true;
+	public $fmtTimeStamp = "'Y-m-d H:i:s'";
+	public $_affectedrows=0;
+	public $_insertid=0;
+	public $_url;
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $hasTransactions = false;
+	public $_errorNo = false;
 
 	protected function _insertID($table = '', $column = '')
 	{
 		return $this->_insertid;
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 		return $this->_affectedrows;
 	}
 
-  	function MetaDatabases()
+  	public function MetaDatabases()
 	{
 		return false;
 	}
 
 
 	// returns true or false
-	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (strtolower(substr($argHostname,0,7)) !== 'http://') return false;
 		$this->_url = $argHostname;
@@ -72,21 +72,21 @@ class ADODB_csv extends ADOConnection {
 	}
 
 	// returns true or false
-	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (strtolower(substr($argHostname,0,7)) !== 'http://') return false;
 		$this->_url = $argHostname;
 		return true;
 	}
 
- 	function MetaColumns($table, $normalize=true)
+ 	public function MetaColumns($table, $normalize=true)
 	{
 		return false;
 	}
 
 
 	// parameters use PostgreSQL convention, not MySQL
-	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
+	public function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -123,7 +123,7 @@ class ADODB_csv extends ADOConnection {
 	}
 
 	// returns queryID or false
-	function _Execute($sql,$inputarr=false)
+	public function _Execute($sql,$inputarr=false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -181,19 +181,19 @@ class ADODB_csv extends ADOConnection {
 	}
 
 	/*	Returns: the last error message from previous database operation	*/
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 		return $this->_errorMsg;
 	}
 
 	/*	Returns: the last error number from previous database operation	*/
-	function ErrorNo()
+	public function ErrorNo()
 	{
 		return $this->_errorNo;
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 		return true;
 	}
@@ -201,7 +201,7 @@ class ADODB_csv extends ADOConnection {
 
 class ADORecordset_csv extends ADORecordSet {
 
-	function _close()
+	public function _close()
 	{
 		return true;
 	}

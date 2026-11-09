@@ -51,17 +51,17 @@ In ADOdb, named quotes for MS SQL Server use ". From the MSSQL Docs:
 if (!defined('ADODB_DIR')) die();
 
 class ADODB2_mssql extends ADODB_DataDict {
-	var $databaseType = 'mssql';
-	var $dropIndex = 'DROP INDEX %2$s.%1$s';
-	var $renameTable = "EXEC sp_rename '%s','%s'";
-	var $renameColumn = "EXEC sp_rename '%s.%s','%s'";
+	public $databaseType = 'mssql';
+	public $dropIndex = 'DROP INDEX %2$s.%1$s';
+	public $renameTable = "EXEC sp_rename '%s','%s'";
+	public $renameColumn = "EXEC sp_rename '%s.%s','%s'";
 
-	var $typeX = 'TEXT';  ## Alternatively, set it to VARCHAR(4000)
-	var $typeXL = 'TEXT';
+	public $typeX = 'TEXT';  ## Alternatively, set it to VARCHAR(4000)
+	public $typeXL = 'TEXT';
 
 	//var $alterCol = ' ALTER COLUMN ';
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+	public function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -90,7 +90,7 @@ class ADODB2_mssql extends ADODB_DataDict {
 		}
 	}
 
-	function ActualType($meta)
+	public function ActualType($meta)
 	{
 		
 		$meta = strtoupper($meta);
@@ -133,7 +133,7 @@ class ADODB2_mssql extends ADODB_DataDict {
 	}
 
 
-	function AddColumnSQL($tabname, $flds)
+	public function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName ($tabname);
 		$f = array();
@@ -161,7 +161,7 @@ class ADODB2_mssql extends ADODB_DataDict {
 	}
 	*/
 
-	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	public function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
 		if (!is_array($flds))
@@ -177,7 +177,7 @@ class ADODB2_mssql extends ADODB_DataDict {
 	}
 
 	// return string must begin with space
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
@@ -260,7 +260,7 @@ CREATE TABLE
 		    SORT_IN_TEMPDB
 		}
 */
-	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
+	public function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
 
@@ -291,7 +291,7 @@ CREATE TABLE
 	}
 
 
-	function _GetSize($ftype, $ty, $fsize, $fprec, $options=false)
+	public function _GetSize($ftype, $ty, $fsize, $fprec, $options=false)
 	{
 		switch ($ftype) {
 		case 'INT':

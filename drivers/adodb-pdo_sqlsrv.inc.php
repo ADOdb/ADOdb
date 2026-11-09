@@ -22,13 +22,13 @@
 
 class ADODB_pdo_sqlsrv extends ADODB_pdo_base
 {
-	var $hasTop = 'top';
-	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
-	var $sysTimeStamp = 'GetDate()';
-	var $arrayClass = 'ADORecordSet_array_pdo_sqlsrv';
+	public $hasTop = 'top';
+	public $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
+	public $sysTimeStamp = 'GetDate()';
+	public $arrayClass = 'ADORecordSet_array_pdo_sqlsrv';
 
-	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d H:i:s'";
+	public $fmtDate = "'Y-m-d'";
+	public $fmtTimeStamp = "'Y-m-d H:i:s'";
 
 	protected function _init(ADODB_pdo $parentDriver)
 	{
@@ -38,7 +38,7 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo_base
 		$parentDriver->hasInsertID = true;
 	}
 
-	function setTransactionMode( $transaction_mode )
+	public function setTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -49,22 +49,22 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo_base
 		$this->_connectionID->query("SET TRANSACTION ".$transaction_mode);
 	}
 
-	function MetaColumns($table, $normalize = true)
+	public function MetaColumns($table, $normalize = true)
 	{
 		return false;
 	}
 
-	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	public function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		return false;
 	}
 
-	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
+	public function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
 	{
 		return ADOConnection::SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		return ADOConnection::ServerInfo();
 	}

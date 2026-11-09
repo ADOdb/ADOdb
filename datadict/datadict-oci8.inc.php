@@ -24,14 +24,14 @@ if (!defined('ADODB_DIR')) die();
 
 class ADODB2_oci8 extends ADODB_DataDict {
 
-	var $databaseType = 'oci8';
-	var $seqField = false;
-	var $seqPrefix = 'SEQ_';
-	var $dropTable = "DROP TABLE %s CASCADE CONSTRAINTS";
-	var $trigPrefix = 'TRIG_';
-	var $alterCol = ' MODIFY ';
-	var $typeX = 'VARCHAR(4000)';
-	var $typeXL = 'CLOB';
+	public $databaseType = 'oci8';
+	public $seqField = false;
+	public $seqPrefix = 'SEQ_';
+	public $dropTable = "DROP TABLE %s CASCADE CONSTRAINTS";
+	public $trigPrefix = 'TRIG_';
+	public $alterCol = ' MODIFY ';
+	public $typeX = 'VARCHAR(4000)';
+	public $typeXL = 'CLOB';
 	
 	/**
 	 * Legacy compatibility for sequence names for emulated auto-increments.
@@ -43,7 +43,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	 */
 	public $useCompactAutoIncrements = false;
 
-	function metaType($t, $len=-1, $fieldobj=false)
+	public function metaType($t, $len=-1, $fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -96,7 +96,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		}
 	}
 
- 	function ActualType($meta)
+ 	public function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
 		
@@ -137,7 +137,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		}
 	}
 
-	function CreateDatabase($dbname, $options=false)
+	public function CreateDatabase($dbname, $options=false)
 	{
 		$options = $this->_Options($options);
 		$password = isset($options['PASSWORD']) ? $options['PASSWORD'] : 'tiger';
@@ -148,7 +148,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		return $sql;
 	}
 
-	function AddColumnSQL($tabname, $flds)
+	public function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName($tabname);
 		$f = array();
@@ -163,7 +163,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		return $sql;
 	}
 
-	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	public function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->TableName($tabname);
 		$f = array();
@@ -177,7 +177,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		return $sql;
 	}
 
-	function DropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	public function DropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		if (!is_array($flds)) $flds = explode(',',$flds);
 		foreach ($flds as $k => $v) $flds[$k] = $this->NameQuote($v);
@@ -189,7 +189,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		return $sql;
 	}
 
-	function _DropAutoIncrement($t)
+	public function _DropAutoIncrement($t)
 	{
 		if (strpos($t,'.') !== false) {
 			$tarr = explode('.',$t);
@@ -199,7 +199,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	}
 
 	// return string must begin with space
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 
@@ -226,7 +226,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 	 *
 	 * @return string[] The SQL statements to create the trigger
 	 */
-	function _Triggers($tabname,$tableoptions)
+	public function _Triggers($tabname,$tableoptions)
 	{
 		
 		if (!$this->seqField) return array();
@@ -299,7 +299,7 @@ class ADODB2_oci8 extends ADODB_DataDict {
 
 
 
-	function _IndexSQL($idxname, $tabname, $flds,$idxoptions)
+	public function _IndexSQL($idxname, $tabname, $flds,$idxoptions)
 	{
 		$sql = array();
 
@@ -337,14 +337,14 @@ class ADODB2_oci8 extends ADODB_DataDict {
 		return $sql;
 	}
 
-	function GetCommentSQL($table,$col)
+	public function GetCommentSQL($table,$col)
 	{
 		$table = $this->connection->qstr($table);
 		$col = $this->connection->qstr($col);
 		return "select comments from USER_COL_COMMENTS where TABLE_NAME=$table and COLUMN_NAME=$col";
 	}
 
-	function SetCommentSQL($table,$col,$cmt)
+	public function SetCommentSQL($table,$col,$cmt)
 	{
 		$cmt = $this->connection->qstr($cmt);
 		return  "COMMENT ON COLUMN $table.$col IS $cmt";

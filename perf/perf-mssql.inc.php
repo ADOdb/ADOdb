@@ -26,8 +26,8 @@ if (!defined('ADODB_DIR')) die();
 	MSSQL has moved most performance info to Performance Monitor
 */
 class perf_mssql extends adodb_perf{
-	var $sql1 = 'cast(sql1 as text)';
-	var $createTableSQL = "CREATE TABLE adodb_logsql (
+	public $sql1 = 'cast(sql1 as text)';
+	public $createTableSQL = "CREATE TABLE adodb_logsql (
 		  created datetime NOT NULL,
 		  sql0 varchar(250) NOT NULL,
 		  sql1 varchar(4000) NOT NULL,
@@ -36,7 +36,7 @@ class perf_mssql extends adodb_perf{
 		  timer decimal(16,6) NOT NULL
 		)";
 
-	var $settings = array(
+	public $settings = array(
 	'Ratios',
 		'data cache hit ratio' => array('RATIO',
 			"select round((a.cntr_value*100.0)/b.cntr_value,2) from master.dbo.sysperfinfo a, master.dbo.sysperfinfo b where a.counter_name = 'Buffer cache hit ratio' and b.counter_name='Buffer cache hit ratio base'",
@@ -71,7 +71,7 @@ class perf_mssql extends adodb_perf{
 	);
 
 
-	function __construct(&$conn)
+	public function __construct(&$conn)
 	{
 		if ($conn->dataProvider == 'odbc') {
 			$this->sql1 = 'sql1';
@@ -80,7 +80,7 @@ class perf_mssql extends adodb_perf{
 		$this->conn = $conn;
 	}
 
-	function Explain($sql,$partial=false)
+	public function Explain($sql,$partial=false)
 	{
 
 		$save = $this->conn->LogSQL(false);
@@ -123,7 +123,7 @@ class perf_mssql extends adodb_perf{
 		return $s;
 	}
 
-	function Tables()
+	public function Tables()
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -149,13 +149,13 @@ class perf_mssql extends adodb_perf{
 		return $s.'</table>';
 	}
 
-	function sp_who()
+	public function sp_who()
 	{
 		$arr = $this->conn->GetArray('sp_who');
 		return sizeof($arr);
 	}
 
-	function HealthCheck($cli=false)
+	public function HealthCheck($cli=false)
 	{
 
 		$this->conn->Execute('dbcc traceon(3604)');

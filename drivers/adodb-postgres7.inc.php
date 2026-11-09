@@ -25,13 +25,13 @@ if (!defined('ADODB_DIR')) die();
 include_once(ADODB_DIR."/drivers/adodb-postgres64.inc.php");
 
 class ADODB_postgres7 extends ADODB_postgres64 {
-	var $databaseType = 'postgres7';
-	var $hasLimit = true;	// set to true for pgsql 6.5+ only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
-	var $ansiOuter = true;
-	var $charSet = true; //set to true for Postgres 7 and above - PG client supports encodings
+	public $databaseType = 'postgres7';
+	public $hasLimit = true;	// set to true for pgsql 6.5+ only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
+	public $ansiOuter = true;
+	public $charSet = true; //set to true for Postgres 7 and above - PG client supports encodings
 
 	// Richard 3/18/2012 - Modified SQL to return SERIAL type correctly AS old driver no longer return SERIAL as data type.
-	var $metaColumnsSQL = "
+	public $metaColumnsSQL = "
 		SELECT
 			a.attname,
 			CASE
@@ -65,7 +65,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			a.attnum";
 
 	// used when schema defined
-	var $metaColumnsSQL1 = "
+	public $metaColumnsSQL1 = "
 		SELECT
 			a.attname,
 			CASE
@@ -101,7 +101,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		ORDER BY a.attnum";
 
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		if (ADODB_ASSOC_CASE !== ADODB_ASSOC_CASE_NATIVE) {
@@ -113,7 +113,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 
 	// the following should be compat with postgresql 7.2,
 	// which makes obsolete the LIMIT limit,offset syntax
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	public function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
@@ -281,7 +281,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
         return $foreignKeys;
 	}
 
-	function _query($sql,$inputarr=false)
+	public function _query($sql,$inputarr=false)
 	{
 		if (! $this->_bindInputArray) {
 			// We don't have native support for parameterized queries, so let's emulate it at the parent
@@ -326,7 +326,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	 *
 	 * @return string|false The character set, or false if it can't be determined.
 	 */
-	function getCharSet()
+	public function getCharSet()
 	{
 		if (!$this->_connectionID) {
 			return false;
@@ -349,7 +349,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	 *
 	 * @return bool True if the character set was changed successfully, false otherwise.
 	 */
-	function setCharSet($charset)
+	public function setCharSet($charset)
 	{
 		if ($this->charSet !== $charset) {
 			if (!$this->_connectionID || pg_set_client_encoding($this->_connectionID, $charset) != 0) {
@@ -368,10 +368,10 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 
 class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 
-	var $databaseType = "postgres7";
+	public $databaseType = "postgres7";
 
 	// 10% speedup to move MoveNext to child class
-	function MoveNext()
+	public function MoveNext()
 	{
 		if (!$this->EOF) {
 			$this->_currentRow++;
@@ -391,10 +391,10 @@ class ADORecordSet_postgres7 extends ADORecordSet_postgres64{
 
 class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 
-	var $databaseType = "postgres7";
+	public $databaseType = "postgres7";
 
 
-	function _fetch()
+	public function _fetch()
 	{
 		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0) {
 			return false;
@@ -409,7 +409,7 @@ class ADORecordSet_assoc_postgres7 extends ADORecordSet_postgres64{
 		return false;
 	}
 
-	function MoveNext()
+	public function MoveNext()
 	{
 		if (!$this->EOF) {
 			$this->_currentRow++;

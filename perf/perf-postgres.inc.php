@@ -27,13 +27,13 @@ if (!defined('ADODB_DIR')) die();
 */
 class perf_postgres extends adodb_perf{
 
-	var $tablesSQL =
+	public $tablesSQL =
 	"select a.relname as tablename,(a.relpages+CASE WHEN b.relpages is null THEN 0 ELSE b.relpages END+CASE WHEN c.relpages is null THEN 0 ELSE c.relpages END)*8 as size_in_K,a.relfilenode as \"OID\"  from pg_class a left join pg_class b
 		on b.relname = 'pg_toast_'||trim(a.relfilenode)
 		left join pg_class c on c.relname = 'pg_toast_'||trim(a.relfilenode)||'_index'
 		where a.relname in (select tablename from pg_tables where tablename not like 'pg_%')";
 
-	var $createTableSQL = "CREATE TABLE adodb_logsql (
+	public $createTableSQL = "CREATE TABLE adodb_logsql (
 		  created timestamp NOT NULL,
 		  sql0 varchar(250) NOT NULL,
 		  sql1 text NOT NULL,
@@ -42,7 +42,7 @@ class perf_postgres extends adodb_perf{
 		  timer decimal(16,6) NOT NULL
 		)";
 
-	var $settings = array(
+	public $settings = array(
 	'Ratios',
 		'statistics collector' => array('RATIO',
 			"select case when count(*)=3 then 'TRUE' else 'FALSE' end from pg_settings where (name='stats_block_level' or name='stats_row_level' or name='stats_start_collector') and setting='on' ",
@@ -93,19 +93,19 @@ class perf_postgres extends adodb_perf{
 		false
 	);
 
-	function __construct(&$conn)
+	public function __construct(&$conn)
 	{
 		$this->conn = $conn;
 	}
 
-	var $optimizeTableLow  = 'VACUUM %s';
-	var $optimizeTableHigh = 'VACUUM ANALYZE %s';
+	public $optimizeTableLow  = 'VACUUM %s';
+	public $optimizeTableHigh = 'VACUUM ANALYZE %s';
 
 /**
  * @see adodb_perf::optimizeTable()
  */
 
-	function optimizeTable($table, $mode = ADODB_OPT_LOW)
+	public function optimizeTable($table, $mode = ADODB_OPT_LOW)
 	{
 	    if(! is_string($table)) return false;
 
@@ -125,7 +125,7 @@ class perf_postgres extends adodb_perf{
 	    return $conn->Execute($sql) !== false;
 	}
 
-	function Explain($sql,$partial=false)
+	public function Explain($sql,$partial=false)
 	{
 		$save = $this->conn->LogSQL(false);
 

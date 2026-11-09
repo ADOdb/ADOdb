@@ -38,39 +38,39 @@ function adodb_cmpr($a, $b) {
 	return ($a[0] > $b[0]) ? -1 : 1;
 }
 class ADODB_text extends ADOConnection {
-	var $databaseType = 'text';
+	public $databaseType = 'text';
 
-	var $_origarray; // original data
-	var $_types;
-	var $_proberows = 8;
-	var $_colnames;
-	var $_skiprow1=false;
-	var $readOnly = true;
-	var $hasTransactions = false;
+	public $_origarray; // original data
+	public $_types;
+	public $_proberows = 8;
+	public $_colnames;
+	public $_skiprow1=false;
+	public $readOnly = true;
+	public $hasTransactions = false;
 
-	var $_rezarray;
-	var $_reznames;
-	var $_reztypes;
+	public $_rezarray;
+	public $_reznames;
+	public $_reztypes;
 
-	function RSRecordCount()
+	public function RSRecordCount()
 	{
 		if (!empty($this->_rezarray)) return sizeof($this->_rezarray);
 
 		return sizeof($this->_origarray);
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 			return false;
 	}
 
 		// returns true or false
-	function PConnect(&$array, $types = false, $colnames = false)
+	public function PConnect(&$array, $types = false, $colnames = false)
 	{
 		return $this->Connect($array, $types, $colnames);
 	}
 		// returns true or false
-	function Connect(&$array, $types = false, $colnames = false)
+	public function Connect(&$array, $types = false, $colnames = false)
 	{
 		if (is_string($array) and $array === 'iluvphplens') return 'me2';
 
@@ -143,7 +143,7 @@ class ADODB_text extends ADOConnection {
 	 *
 	 * @return mixed|bool Query identifier or true if execution successful, false if failed.
 	 */
-	function _query($sql, $inputarr=false, $eval=false)
+	public function _query($sql, $inputarr=false, $eval=false)
 	{
 		if ($this->_origarray === false) return false;
 
@@ -306,19 +306,19 @@ class ADODB_text extends ADOConnection {
 	}
 
 	/*	Returns: the last error message from previous database operation	*/
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 			return '';
 	}
 
 	/*	Returns: the last error number from previous database operation	*/
-	function ErrorNo()
+	public function ErrorNo()
 	{
 		return 0;
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 	}
 
@@ -333,9 +333,9 @@ class ADODB_text extends ADOConnection {
 class ADORecordSet_text extends ADORecordSet_array
 {
 
-	var $databaseType = "text";
+	public $databaseType = "text";
 
-	function __construct( $conn,$mode=false)
+	public function __construct( $conn,$mode=false)
 	{
 		parent::__construct();
 		$this->InitArray($conn->_rezarray,$conn->_reztypes,$conn->_reznames);

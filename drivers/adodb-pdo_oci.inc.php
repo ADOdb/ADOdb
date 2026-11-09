@@ -23,25 +23,25 @@
 
 class ADODB_pdo_oci extends ADODB_pdo_base {
 
-	var $concat_operator='||';
-	var $sysDate = "TRUNC(SYSDATE)";
-	var $sysTimeStamp = 'SYSDATE';
-	var $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'
-	var $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
-	var $metaTablesSQL = /** @lang text */ <<<ENDSQL
+	public $concat_operator='||';
+	public $sysDate = "TRUNC(SYSDATE)";
+	public $sysTimeStamp = 'SYSDATE';
+	public $NLS_DATE_FORMAT = 'YYYY-MM-DD';  // To include time, use 'RRRR-MM-DD HH24:MI:SS'
+	public $random = "abs(mod(DBMS_RANDOM.RANDOM,10000001)/10000000)";
+	public $metaTablesSQL = /** @lang text */ <<<ENDSQL
 		SELECT table_name, table_type
 		FROM user_catalog
 		WHERE table_type IN ('TABLE', 'VIEW') AND table_name NOT LIKE 'BIN\$%'
 		ENDSQL; // bin$ tables are recycle bin tables
-	var $metaColumnsSQL = /** @lang text */ <<<ENDSQL
+	public $metaColumnsSQL = /** @lang text */ <<<ENDSQL
 		SELECT column_name, data_type, data_length, data_scale, data_precision, nullable, data_default
 		FROM user_tab_columns
 		WHERE table_name = '%s'
 		ORDER BY column_id
 		ENDSQL;
 
- 	var $_initdate = true;
-	var $_hasdual = true;
+ 	public $_initdate = true;
+	public $_hasdual = true;
 
 	protected function _init(ADODB_pdo $parentDriver)
 	{
@@ -53,7 +53,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		}
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;
@@ -68,7 +68,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		return $ret;
 	}
 
-	function MetaColumns($table,$normalize=true)
+	public function MetaColumns($table,$normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -115,7 +115,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 	 * @param bool $auto_commit
 	 * @return void
 	 */
-	function SetAutoCommit($auto_commit)
+	public function SetAutoCommit($auto_commit)
 	{
 		$this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
 	}

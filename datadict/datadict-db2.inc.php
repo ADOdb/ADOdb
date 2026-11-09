@@ -24,15 +24,15 @@ if (!defined('ADODB_DIR')) die();
 
 class ADODB2_db2 extends ADODB_DataDict {
 
-	var $databaseType = 'db2';
-	var $seqField = false;
-	var $dropCol = 'ALTER TABLE %s DROP COLUMN %s';
+	public $databaseType = 'db2';
+	public $seqField = false;
+	public $dropCol = 'ALTER TABLE %s DROP COLUMN %s';
 
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;
 
 	
- 	function ActualType($meta)
+ 	public function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
 		
@@ -72,7 +72,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 	}
 
 	// return string must begin with space
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 		if ($fautoinc) return ' GENERATED ALWAYS AS IDENTITY'; # as identity start with
@@ -82,7 +82,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 		return $suffix;
 	}
 
-	function alterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	public function alterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
@@ -120,7 +120,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 
 
 	
-	function dropColumnSql($tabname, $flds, $tableflds='',$tableoptions='')
+	public function dropColumnSql($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		
 		
@@ -153,7 +153,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 	 * 
 	 * @return array
 	 */
-	function renameTableSQL($tabname, $newname)
+	public function renameTableSQL($tabname, $newname)
 	{
 		
 		$ttype = 'T';
@@ -174,7 +174,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 	}
     
 
-	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFields=false)
+	public function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFields=false)
 	{
 
 		/**

@@ -31,33 +31,33 @@ if (!defined('ADODB_DIR')) die();
  * Class ADODB_sqlite3
  */
 class ADODB_sqlite3 extends ADOConnection {
-	var $databaseType = "sqlite3";
-	var $dataProvider = "sqlite";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $concat_operator='||';
-	var $hasLimit = true;
-	var $hasInsertID = true; 		/// supports autoincrement ID?
-	var $hasAffectedRows = true; 	/// supports affected rows for update/delete?
-	var $metaTablesSQL = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
-	var $sysDate = "DATE('now','localtime')";
-	var $sysTimeStamp = "DATETIME('now','localtime')";
-	var $fmtTimeStamp = "'Y-m-d H:i:s'";
-	var $_genSeqSQL = "create table %s (id integer)";
-	var $_dropSeqSQL = 'drop table %s';
+	public $databaseType = "sqlite3";
+	public $dataProvider = "sqlite";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $concat_operator='||';
+	public $hasLimit = true;
+	public $hasInsertID = true; 		/// supports autoincrement ID?
+	public $hasAffectedRows = true; 	/// supports affected rows for update/delete?
+	public $metaTablesSQL = "SELECT name FROM sqlite_master WHERE type='table' ORDER BY name";
+	public $sysDate = "DATE('now','localtime')";
+	public $sysTimeStamp = "DATETIME('now','localtime')";
+	public $fmtTimeStamp = "'Y-m-d H:i:s'";
+	public $_genSeqSQL = "create table %s (id integer)";
+	public $_dropSeqSQL = 'drop table %s';
 
 	/**
 	 * The SQLite3 connection object
 	 *
 	 * @var SQLite3
 	 */
-	var $_connectionID;
+	public $_connectionID;
 
 	/**
 	 * Returns an array with the server information
 	 *
 	 * @return array
 	 */
-	function serverInfo()
+	public function serverInfo()
 	{
 		$version = SQLite3::version();
 		$arr['version'] = $version['versionString'];
@@ -73,7 +73,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return string
 	 */
-	function ifNull( $field, $ifNull ) {
+	public function ifNull( $field, $ifNull ) {
 		return " IFNULL($field, $ifNull) "; // if SQLite 3.X
 	}
 
@@ -82,7 +82,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return bool
 	 */
-	function beginTrans()
+	public function beginTrans()
 	{
 		if ($this->transOff) {
 			return true;
@@ -99,7 +99,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return bool
 	 */
-	function commitTrans($ok=true)
+	public function commitTrans($ok=true)
 	{
 		if ($this->transOff) {
 			return true;
@@ -119,7 +119,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return bool
 	 */
-	function rollbackTrans()
+	public function rollbackTrans()
 	{
 		if ($this->transOff) {
 			return true;
@@ -140,7 +140,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return string The ADOdb metatype
 	 */
-	function metaType($t,$len=-1,$fieldobj=false)
+	public function metaType($t,$len=-1,$fieldobj=false)
 	{
 
 		if (is_object($t)) {
@@ -217,7 +217,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return array|false An array of ADOFieldObject objects or false on failure
 	 */
-	function metaColumns($table, $normalize=true)
+	public function metaColumns($table, $normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
@@ -325,7 +325,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return void
 	 */
-	function _init($parentDriver)
+	public function _init($parentDriver)
 	{
 		$parentDriver->hasTransactions = false;
 		$parentDriver->hasInsertID = true;
@@ -349,7 +349,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return int The number of affected rows
 	 */
-	function _affectedrows()
+	public function _affectedrows()
 	{
 		return $this->_connectionID->changes();
 	}
@@ -372,7 +372,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return string The last error message
 	 */
-	function errorMsg()
+	public function errorMsg()
 	 {
 		return $this->_errorMsg;
 	}
@@ -382,7 +382,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return int The last error code
 	 */
-	function errorNo()
+	public function errorNo()
 	{
 		return $this->_errorCode;
 	}
@@ -398,7 +398,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return string The formatted date string
 	 */
-	function sqlDate($fmt, $col=false)
+	public function sqlDate($fmt, $col=false)
 	{
 		// In order to map the values correctly, we must ensure the proper
 		// casing for certain fields:
@@ -426,7 +426,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return bool True on success, false on failure
 	 */
-	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (empty($argHostname) && $argDatabasename) {
 			$argHostname = $argDatabasename;
@@ -461,7 +461,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return bool True on success, false on failure
 	 */
-	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		// There's no permanent connect in SQLite3
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename);
@@ -475,7 +475,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return SQLite3Result|bool The result set or true on success, false on failure
 	 */
-	function _query($sql,$inputarr=false)
+	public function _query($sql,$inputarr=false)
 	{
 		$rez = $this->_connectionID->query($sql);
 		if ($rez === false) {
@@ -503,7 +503,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return SQLite3Result|bool The result set or true on success, false on failure
 	 */
-	function selectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	public function selectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
@@ -530,7 +530,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return int|false The generated unique ID or false on failure
 	*/
-	function genID($seqname='adodbseq', $startID=1)
+	public function genID($seqname='adodbseq', $startID=1)
 	{
 		// if you have to modify the parameter below, your database is overloaded,
 		// or you need to implement generation of id's yourself!
@@ -573,7 +573,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return bool True on success, false on failure
 	 */
-	function createSequence($seqname='adodbseq', $startID=1)
+	public function createSequence($seqname='adodbseq', $startID=1)
 	{
 		if (empty($this->_genSeqSQL)) {
 			return false;
@@ -596,7 +596,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return bool True on success, false on failure
 	 */
-	function dropSequence($seqname = 'adodbseq')
+	public function dropSequence($seqname = 'adodbseq')
 	{
 		if (empty($this->_dropSeqSQL)) {
 			return false;
@@ -611,7 +611,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return bool True on success, false on failure
 	 */
-	function _close()
+	public function _close()
 	{
 		return $this->_connectionID->close();
 	}
@@ -628,7 +628,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return array|false An array of indexes or false on failure
 	 */
-	function metaIndexes($table, $primary = false, $owner = false)
+	public function metaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -703,7 +703,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	*
 	* @return int
 	*/
-	function charMax()
+	public function charMax()
 	{
 		return ADODB_STRINGMAX_NOLIMIT;
 	}
@@ -714,7 +714,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	*
 	* @return int
 	*/
-	function textMax()
+	public function textMax()
 	{
 		return ADODB_STRINGMAX_NOLIMIT;
 	}
@@ -728,7 +728,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return string The SQL Statement
 	 */
-	function month($fld)
+	public function month($fld)
 	{
 		return "strftime('%m',$fld)";
 	}
@@ -742,7 +742,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return string The SQL Statement
 	 */
-	function day($fld) {
+	public function day($fld) {
 		return "strftime('%d',$fld)";
 	}
 
@@ -755,7 +755,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return string The SQL Statement
 	 */
-	function year($fld)
+	public function year($fld)
 	{
 		return "strftime('%Y',$fld)";
 	}
@@ -776,7 +776,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return bool success
 	 */
-	function updateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
+	public function updateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
 	{
 		if (is_array($where)) {
 			// We were passed a set of key=>value pairs
@@ -852,7 +852,7 @@ class ADODB_sqlite3 extends ADOConnection {
 	 *
 	 * @return bool success
 	 */
-	function updateBlobFile($table, $column, $path, $where, $blobtype = 'BLOB')
+	public function updateBlobFile($table, $column, $path, $where, $blobtype = 'BLOB')
 	{
 		if (!file_exists($path)) {
 			return false;
@@ -881,15 +881,15 @@ class ADODB_sqlite3 extends ADOConnection {
  */
 class ADORecordset_sqlite3 extends ADORecordSet {
 
-	var $databaseType = "sqlite3";
-	var $bind = false;
+	public $databaseType = "sqlite3";
+	public $bind = false;
 
 	/**
 	 * The SQLite3Result object
 	 *
 	 * @var SQLite3Result
 	 */
-	var $_queryID;
+	public $_queryID;
 
 
 	/**
@@ -900,7 +900,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	 *
 	 * @noinspection PhpMissingParentConstructorInspection
 	 */
-	function __construct($queryID, $mode=false)
+	public function __construct($queryID, $mode=false)
 	{
 		parent::__construct($queryID, $mode);
 		switch($this->adodbFetchMode) {
@@ -940,7 +940,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	 *
 	 * @return ADOFieldObject The field object
 	 */
-	function fetchField($fieldOffset = -1)
+	public function fetchField($fieldOffset = -1)
 	{
 		$fld = new ADOFieldObject;
 		$fld->name = $this->_queryID->columnName($fieldOffset);
@@ -957,7 +957,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	 *
 	 * @return void
 	 */
-	function _initrs()
+	public function _initrs()
 	{
 		$this->_numOfFields = $this->_queryID->numColumns();
 
@@ -974,7 +974,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	 *
 	 * @return mixed The value of the field
 	 */
-	function fields($colname)
+	public function fields($colname)
 	{
 		if ($this->fetchMode != SQLITE3_NUM) {
 			return $this->fields[$colname];
@@ -1000,7 +1000,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	 *
 	 * @return int The number of rows in the recordset
 	 */
-	function _seek($row)
+	public function _seek($row)
 	{
 		// sqlite3 does not implement seek
 		if ($this->debug) {
@@ -1016,7 +1016,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	 *
 	 * @return bool
 	 */
-	function _fetch($ignore_fields=false)
+	public function _fetch($ignore_fields=false)
 	{
 		$this->fields = $this->_queryID->fetchArray($this->fetchMode);
 		if (!empty($this->fields) && ADODB_ASSOC_CASE != ADODB_ASSOC_CASE_NATIVE) {
@@ -1034,7 +1034,7 @@ class ADORecordset_sqlite3 extends ADORecordSet {
 	 *
 	 * @return void
 	 */
-	function _close()
+	public function _close()
 	{
 	}
 

@@ -30,26 +30,26 @@ if (!defined('ADODB_DIR')) die();
 include_once(ADODB_DIR.'/drivers/adodb-oci8.inc.php');
 
 class ADODB_oci8po extends ADODB_oci8 {
-	var $databaseType = 'oci8po';
-	var $dataProvider = 'oci8';
-	var $metaTablesSQL = <<<ENDSQL
+	public $databaseType = 'oci8po';
+	public $dataProvider = 'oci8';
+	public $metaTablesSQL = <<<ENDSQL
 		SELECT lower(table_name), table_type
 		FROM user_catalog
 		WHERE table_type IN ('TABLE', 'VIEW') AND table_name NOT LIKE 'BIN\$%'
 		ENDSQL; // bin$ tables are recycle bin tables
-	var $metaColumnsSQL = <<<ENDSQL
+	public $metaColumnsSQL = <<<ENDSQL
 		SELECT lower(column_name), data_type, data_length, data_scale, data_precision, nullable, data_default
 		FROM user_tab_columns
 		WHERE table_name = '%s'
 		ORDER BY column_id
 		ENDSQL;
 
-	function Param($name,$type='C')
+	public function Param($name,$type='C')
 	{
 		return '?';
 	}
 
-	function Prepare($sql,$cursor=false)
+	public function Prepare($sql,$cursor=false)
 	{
 		$sqlarr = explode('?',$sql);
 		$sql = $sqlarr[0];
@@ -59,7 +59,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 		return ADODB_oci8::Prepare($sql,$cursor);
 	}
 
-	function Execute($sql,$inputarr=false)
+	public function Execute($sql,$inputarr=false)
 	{
 		return ADOConnection::Execute($sql,$inputarr);
 	}
@@ -71,7 +71,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 	 * We can't properly handle prepared statements either due to preprocessing
 	 * of query parameters, so we treat them as regular SQL statements.
 	 */
-	function SelectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs2cache=0)
+	public function SelectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs2cache=0)
 	{
 		if(is_array($sql)) {
 //			$sql = $sql[0];
@@ -89,7 +89,7 @@ class ADODB_oci8po extends ADODB_oci8 {
 	 *
 	 * @return mixed|bool Query identifier or true if execution successful, false if failed.
 	 */
-	function _query($sql,$inputarr=false)
+	public function _query($sql,$inputarr=false)
 	{
 		if (is_array($inputarr)) {
 			$i = 0;
@@ -188,9 +188,9 @@ class ADODB_oci8po extends ADODB_oci8 {
 
 class ADORecordset_oci8po extends ADORecordset_oci8 {
 
-	var $databaseType = 'oci8po';
+	public $databaseType = 'oci8po';
 
-	function Fields($colname)
+	public function Fields($colname)
 	{
 		if ($this->fetchMode & OCI_ASSOC) return $this->fields[$colname];
 
@@ -205,7 +205,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	}
 
 	// lowercase field names...
-	function _FetchField($fieldOffset = -1)
+	public function _FetchField($fieldOffset = -1)
 	{
 		$fld = new ADOFieldObject;
 		$fieldOffset += 1;
@@ -225,7 +225,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 	}
 
 	// 10% speedup to move MoveNext to child class
-	function MoveNext()
+	public function MoveNext()
 	{
 		$ret = @oci_fetch_array($this->_queryID,$this->fetchMode);
 		if($ret !== false) {
@@ -248,7 +248,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		return false;
 	}
 
-	function GetArrayLimit($nrows,$offset=-1)
+	public function GetArrayLimit($nrows,$offset=-1)
 	{
 		if ($offset <= 0) {
 			$arr = $this->GetArray($nrows);
@@ -276,7 +276,7 @@ class ADORecordset_oci8po extends ADORecordset_oci8 {
 		return $results;
 	}
 
-	function _fetch()
+	public function _fetch()
 	{
 		global $ADODB_ANSI_PADDING_OFF;
 

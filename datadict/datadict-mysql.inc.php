@@ -23,17 +23,17 @@
 if (!defined('ADODB_DIR')) die();
 
 class ADODB2_mysql extends ADODB_DataDict {
-	var $databaseType = 'mysql';
-	var $alterCol = ' MODIFY COLUMN';
-	var $alterTableAddIndex = true;
-	var $dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
+	public $databaseType = 'mysql';
+	public $alterCol = ' MODIFY COLUMN';
+	public $alterTableAddIndex = true;
+	public $dropTable = 'DROP TABLE IF EXISTS %s'; // requires mysql 3.22 or later
 
-	var $dropIndex = 'DROP INDEX %s ON %s';
+	public $dropIndex = 'DROP INDEX %s ON %s';
 
 	public $blobAllowsNotNull = true;
 
 
-	function metaType($t, $len=-1, $fieldobj=false)
+	public function metaType($t, $len=-1, $fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -107,7 +107,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 		}
 	}
 
-	function actualType($meta)
+	public function actualType($meta)
 	{
 		$meta = parent::actualType($meta);
 
@@ -154,7 +154,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 		}
 	}
 
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 		if ($funsigned) {
@@ -196,7 +196,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 		ON tbl_name (col_name[(length)],... )
 	*/
 
-	function _indexSQL($idxname, $tabname, $flds, $idxoptions)
+	public function _indexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
 
@@ -259,7 +259,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 	 *
 	 * @return array SQL statements.
 	 */
-	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
+	public function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
 	{
 		$version = $this->connection->ServerInfo();
 

@@ -21,9 +21,9 @@
 
 class ADODB_pdo_mssql extends ADODB_pdo_base {
 
-	var $hasTop = 'top';
-	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
-	var $sysTimeStamp = 'GetDate()';
+	public $hasTop = 'top';
+	public $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
+	public $sysTimeStamp = 'GetDate()';
 
 
 	protected function _init(ADODB_pdo $parentDriver)
@@ -33,18 +33,18 @@ class ADODB_pdo_mssql extends ADODB_pdo_base {
 		$parentDriver->hasInsertID = true;
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		return ADOConnection::ServerInfo();
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	public function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$ret = ADOConnection::SelectLimit($sql,$nrows,$offset,$inputarr,$secs2cache);
 		return $ret;
 	}
 
-	function SetTransactionMode( $transaction_mode )
+	public function SetTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -55,12 +55,12 @@ class ADODB_pdo_mssql extends ADODB_pdo_base {
 		$this->Execute("SET TRANSACTION ".$transaction_mode);
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		return false;
 	}
 
-	function MetaColumns($table,$normalize=true)
+	public function MetaColumns($table,$normalize=true)
 	{
 		return false;
 	}

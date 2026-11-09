@@ -5,9 +5,9 @@ if (!defined('ADODB_DIR')) die();
 
 class perf_sqlite3 extends adodb_perf{
 
-	var $tablesSQL = "SELECT * FROM sqlite_master WHERE type='table'";
+	public $tablesSQL = "SELECT * FROM sqlite_master WHERE type='table'";
 
-	var $createTableSQL = "CREATE TABLE adodb_logsql (
+	public $createTableSQL = "CREATE TABLE adodb_logsql (
 		created datetime NOT NULL,
 		sql0 varchar(250) NOT NULL,
 		sql1 text NOT NULL,
@@ -16,14 +16,14 @@ class perf_sqlite3 extends adodb_perf{
 		timer decimal(16,6) NOT NULL
 		)";
 
-	var $settings = array();
+	public $settings = array();
 
-	function __construct(&$conn)
+	public function __construct(&$conn)
 	{
 		$this->conn = $conn;
 	}
 
-	function tables($orderby='1')
+	public function tables($orderby='1')
 	{
 		if (!$this->tablesSQL){
 			return false;

@@ -27,9 +27,9 @@ if (!defined('ADODB_DIR')) die();
 include_once(ADODB_DIR."/drivers/adodb-ibase.inc.php");
 
 class ADODB_borland_ibase extends ADODB_ibase {
-	var $databaseType = "borland_ibase";
+	public $databaseType = "borland_ibase";
 
-	function BeginTrans()
+	public function BeginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
@@ -38,7 +38,7 @@ class ADODB_borland_ibase extends ADODB_ibase {
 		return $this->_transactionID;
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		$arr['dialect'] = $this->dialect;
 		switch($arr['dialect']) {
@@ -58,7 +58,7 @@ class ADODB_borland_ibase extends ADODB_ibase {
 	//		SELECT col1, col2 FROM TABLE ORDER BY col1 ROWS 3 TO 7 -- first 5 skip 2
 	// Firebird uses
 	//		SELECT FIRST 5 SKIP 2 col1, col2 FROM TABLE
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	public function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
@@ -87,6 +87,6 @@ class ADODB_borland_ibase extends ADODB_ibase {
 
 class  ADORecordSet_borland_ibase extends ADORecordSet_ibase {
 
-	var $databaseType = "borland_ibase";
+	public $databaseType = "borland_ibase";
 
 }

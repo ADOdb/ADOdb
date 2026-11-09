@@ -23,34 +23,34 @@
 if (!defined('ADODB_DIR')) die();
 
 class ADODB_postgres64 extends ADOConnection{
-	var $databaseType = 'postgres64';
-	var $dataProvider = 'postgres';
-	var $hasInsertID = true;
+	public $databaseType = 'postgres64';
+	public $dataProvider = 'postgres';
+	public $hasInsertID = true;
 	/** @var PgSql\Connection|resource|false Identifier for the native database connection */
-	var $_connectionID = false;
+	public $_connectionID = false;
 	/** @var PgSql\Connection|resource|false */
-	var $_queryID;
+	public $_queryID;
 	/** @var PgSql\Connection|resource|false */
-	var $_resultid = false;
-	var $concat_operator='||';
-	var $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
-	var $metaTablesSQL = "select tablename,'T' from pg_tables where tablename not like 'pg\_%'
+	public $_resultid = false;
+	public $concat_operator='||';
+	public $metaDatabasesSQL = "select datname from pg_database where datname not in ('template0','template1') order by 1";
+	public $metaTablesSQL = "select tablename,'T' from pg_tables where tablename not like 'pg\_%'
 		and tablename not in ('sql_features', 'sql_implementation_info', 'sql_languages',
 			'sql_packages', 'sql_sizing', 'sql_sizing_profiles')
 	union
 		select viewname,'V' from pg_views where viewname not like 'pg\_%'";
 	//"select tablename from pg_tables where tablename not like 'pg_%' order by 1";
-	var $isoDates = true; // accepts dates in ISO format
-	var $sysDate = "CURRENT_DATE";
-	var $sysTimeStamp = "CURRENT_TIMESTAMP";
-	var $blobEncodeType = 'C';
-	var $metaColumnsSQL = "SELECT a.attname,t.typname,a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum
+	public $isoDates = true; // accepts dates in ISO format
+	public $sysDate = "CURRENT_DATE";
+	public $sysTimeStamp = "CURRENT_TIMESTAMP";
+	public $blobEncodeType = 'C';
+	public $metaColumnsSQL = "SELECT a.attname,t.typname,a.attlen,a.atttypmod,a.attnotnull,a.atthasdef,a.attnum
 		FROM pg_class c, pg_attribute a,pg_type t
 		WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s')) and a.attname not like '....%%'
 		AND a.attnum > 0 AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
 
 	// used when schema defined
-	var $metaColumnsSQL1 = "SELECT a.attname, t.typname, a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
+	public $metaColumnsSQL1 = "SELECT a.attname, t.typname, a.attlen, a.atttypmod, a.attnotnull, a.atthasdef, a.attnum
 		FROM pg_class c, pg_attribute a, pg_type t, pg_namespace n
 		WHERE relkind in ('r','v') AND (c.relname='%s' or c.relname = lower('%s'))
 		and c.relnamespace=n.oid and n.nspname='%s'
@@ -58,38 +58,38 @@ class ADODB_postgres64 extends ADOConnection{
 		AND a.atttypid = t.oid AND a.attrelid = c.oid ORDER BY a.attnum";
 
 	// get primary key etc -- from Freek Dijkstra
-	var $metaKeySQL = "SELECT ic.relname AS index_name, a.attname AS column_name,i.indisunique AS unique_key, i.indisprimary AS primary_key
+	public $metaKeySQL = "SELECT ic.relname AS index_name, a.attname AS column_name,i.indisunique AS unique_key, i.indisprimary AS primary_key
 		FROM pg_class bc, pg_class ic, pg_index i, pg_attribute a
 		WHERE bc.oid = i.indrelid AND ic.oid = i.indexrelid
 		AND (i.indkey[0] = a.attnum OR i.indkey[1] = a.attnum OR i.indkey[2] = a.attnum OR i.indkey[3] = a.attnum OR i.indkey[4] = a.attnum OR i.indkey[5] = a.attnum OR i.indkey[6] = a.attnum OR i.indkey[7] = a.attnum)
 		AND a.attrelid = bc.oid AND bc.relname = '%s'";
 
-	var $hasAffectedRows = true;
-	var $hasLimit = false;	// set to true for pgsql 7 only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
+	public $hasAffectedRows = true;
+	public $hasLimit = false;	// set to true for pgsql 7 only. support pgsql/mysql SELECT * FROM TABLE LIMIT 10
 	// below suggested by Freek Dijkstra
-	var $true = 'TRUE';		// string that represents TRUE for a database
-	var $false = 'FALSE';		// string that represents FALSE for a database
-	var $fmtDate = "'Y-m-d'";	// used by DBDate() as the default date format used by the database
-	var $fmtTimeStamp = "'Y-m-d H:i:s'"; // used by DBTimeStamp as the default timestamp fmt.
-	var $hasMoveFirst = true;
-	var $hasGenID = true;
-	var $_genIDSQL = "SELECT NEXTVAL('%s')";
-	var $_genSeqSQL = "CREATE SEQUENCE %s START %s";
-	var $_dropSeqSQL = "DROP SEQUENCE %s";
-	var $metaDefaultsSQL = "SELECT d.adnum as num, d.adsrc as def from pg_attrdef d, pg_class c where d.adrelid=c.oid and c.relname='%s' order by d.adnum";
-	var $random = 'random()';		/// random function
-	var $autoRollback = true; // apparently pgsql does not autorollback properly before php 4.3.4
+	public $true = 'TRUE';		// string that represents TRUE for a database
+	public $false = 'FALSE';		// string that represents FALSE for a database
+	public $fmtDate = "'Y-m-d'";	// used by DBDate() as the default date format used by the database
+	public $fmtTimeStamp = "'Y-m-d H:i:s'"; // used by DBTimeStamp as the default timestamp fmt.
+	public $hasMoveFirst = true;
+	public $hasGenID = true;
+	public $_genIDSQL = "SELECT NEXTVAL('%s')";
+	public $_genSeqSQL = "CREATE SEQUENCE %s START %s";
+	public $_dropSeqSQL = "DROP SEQUENCE %s";
+	public $metaDefaultsSQL = "SELECT d.adnum as num, d.adsrc as def from pg_attrdef d, pg_class c where d.adrelid=c.oid and c.relname='%s' order by d.adnum";
+	public $random = 'random()';		/// random function
+	public $autoRollback = true; // apparently pgsql does not autorollback properly before php 4.3.4
 							// http://bugs.php.net/bug.php?id=25404
 
-	var $uniqueIisR = true;
-	var $_bindInputArray = false; // requires PostgreSQL 7.3+ and ability to modify database
-	var $disableBlobs = false; // set to true to disable blob checking, resulting in 2-5% improvement in performance.
+	public $uniqueIisR = true;
+	public $_bindInputArray = false; // requires PostgreSQL 7.3+ and ability to modify database
+	public $disableBlobs = false; // set to true to disable blob checking, resulting in 2-5% improvement in performance.
 
 	/** @var int $_pnum Number of the last assigned query parameter {@see param()} */
-	var $_pnum = 0;
+	public $_pnum = 0;
 
-	var $version;
-	var $_nestedSQL = true;
+	public $version;
+	public $_nestedSQL = true;
 
 	// The last (fmtTimeStamp is not entirely correct:
 	// PostgreSQL also has support for time zones,
@@ -108,7 +108,7 @@ class ADODB_postgres64 extends ADOConnection{
 	 * @return array|bool Server info or false if version could not be retrieved
 	 *                    e.g. if there is no active connection
 	 */
-	function ServerInfo($detailed = true)
+	public function ServerInfo($detailed = true)
 	{
 		if (empty($this->version['version'])) {
 			// We don't have a connection, so we can't retrieve server info
@@ -134,7 +134,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return $this->version;
 	}
 
-	function IfNull( $field, $ifNull )
+	public function IfNull( $field, $ifNull )
 	{
 		return " coalesce($field, $ifNull) ";
 	}
@@ -149,7 +149,7 @@ class ADODB_postgres64 extends ADOConnection{
 	 * @noinspection PhpUnused
 	 * @deprecated 5.22.9 Use {@see insert_ID()} method instead.
 	 */
-	function pg_insert_id($tablename, $fieldname)
+	public function pg_insert_id($tablename, $fieldname)
 	{
 		$sequence = pg_escape_identifier($this->_connectionID, $tablename .'_'. $fieldname .'_seq');
 		$result = pg_query($this->_connectionID, 'SELECT last_value FROM '. $sequence);
@@ -179,7 +179,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return empty($table) || empty($column) ? $oid : $this->GetOne("SELECT $column FROM $table WHERE oid=".(int)$oid);
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 		if ($this->_resultid === false) {
 			return false;
@@ -191,14 +191,14 @@ class ADODB_postgres64 extends ADOConnection{
 	/**
 	 * @return bool
 	 */
-	function BeginTrans()
+	public function BeginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
 		return pg_query($this->_connectionID, 'begin '.$this->_transmode);
 	}
 
-	function RowLock($table, $where, $col='1 as adodbignore')
+	public function RowLock($table, $where, $col='1 as adodbignore')
 	{
 		if (!$this->transCnt) {
 			$this->BeginTrans();
@@ -206,7 +206,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return $this->GetOne("select $col from $table where $where for update");
 	}
 
-	function CommitTrans($ok=true)
+	public function CommitTrans($ok=true)
 	{
 		if ($this->transOff) return true;
 		if (!$ok) return $this->RollbackTrans();
@@ -215,14 +215,14 @@ class ADODB_postgres64 extends ADOConnection{
 		return pg_query($this->_connectionID, 'commit');
 	}
 
-	function RollbackTrans()
+	public function RollbackTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt -= 1;
 		return pg_query($this->_connectionID, 'rollback');
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$info = $this->ServerInfo();
 		if ($info['version'] >= 7.3) {
@@ -266,7 +266,7 @@ class ADODB_postgres64 extends ADOConnection{
 	 *
 	 * @return string Quoted string
 	 */
-	function qStr($s, $magic_quotes=false)
+	public function qStr($s, $magic_quotes=false)
 	{
 		if (is_bool($s)) {
 			return $s ? 'true' : 'false';
@@ -281,7 +281,7 @@ class ADODB_postgres64 extends ADOConnection{
 		}
 	}
 
-	function SQLDate($fmt, $col=false)
+	public function SQLDate($fmt, $col=false)
 	{
 		if (!$col) $col = $this->sysTimeStamp;
 		$s = 'TO_CHAR('.$col.",'";
@@ -377,7 +377,7 @@ class ADODB_postgres64 extends ADOConnection{
 	 *
 	 * @return bool success
 	 */
-	function updateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
+	public function updateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
 	{
 		pg_query($this->_connectionID, 'begin');
 
@@ -406,7 +406,7 @@ class ADODB_postgres64 extends ADOConnection{
 	 *
 	 * @noinspection PhpUnused
 	 */
-	function BlobDelete($blob)
+	public function BlobDelete($blob)
 	{
 		pg_query($this->_connectionID, 'begin');
 		$result = @pg_lo_unlink($this->_connectionID, $blob);
@@ -417,7 +417,7 @@ class ADODB_postgres64 extends ADOConnection{
 	/*
 		Heuristic - not guaranteed to work.
 	*/
-	function GuessOID($oid)
+	public function GuessOID($oid)
 	{
 		if (strlen($oid)>16) return false;
 		return is_numeric($oid);
@@ -437,7 +437,7 @@ class ADODB_postgres64 extends ADOConnection{
 	 * @param bool $hastrans
 	 * @return string|false The blob
 	 */
-	function BlobDecode($blob, $maxsize=false, $hastrans=true)
+	public function BlobDecode($blob, $maxsize=false, $hastrans=true)
 	{
 		if (!$this->GuessOID($blob)) return $blob;
 
@@ -465,13 +465,13 @@ class ADODB_postgres64 extends ADOConnection{
 	 *
 	 * @param string $blob
 	 */
-	function BlobEncode($blob)
+	public function BlobEncode($blob)
 	{
 		return pg_escape_bytea($this->_connectionID, $blob);
 	}
 
 	// assumes bytea for blob, and varchar for clob
-	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
+	public function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
 		if ($blobtype == 'CLOB') {
 			return $this->Execute("UPDATE $table SET $column=" . $this->qstr($val) . " WHERE $where");
@@ -480,7 +480,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return $this->Execute("UPDATE $table SET $column='".$this->BlobEncode($val)."'::bytea WHERE $where");
 	}
 
-	function OffsetDate($dayFraction,$date=false)
+	public function OffsetDate($dayFraction,$date=false)
 	{
 		if (!$date) $date = $this->sysDate;
 		else if (strncmp($date,"'",1) == 0) {
@@ -513,7 +513,7 @@ class ADODB_postgres64 extends ADOConnection{
 	// for schema support, pass in the $table param "$schema.$tabname".
 	// converts field names to lowercase, $upper is ignored
 	// see PHPLens Issue No: 14018 for more info
-	function MetaColumns($table,$normalize=true)
+	public function MetaColumns($table,$normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -688,7 +688,7 @@ class ADODB_postgres64 extends ADOConnection{
 
 	}
 
-	function param($name, $type='C')
+	public function param($name, $type='C')
 	{
 		if (!$name) {
 			// Reset parameter number if $name is falsy
@@ -702,7 +702,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return '$' . ++$this->_pnum;
 	}
 
-	function MetaIndexes ($table, $primary = FALSE, $owner = false)
+	public function MetaIndexes ($table, $primary = FALSE, $owner = false)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -784,7 +784,7 @@ class ADODB_postgres64 extends ADOConnection{
 	 * @return bool|null   True if connected successfully, false if connection failed, or
 	 *                     null if the PostgreSQL extension is not loaded.
 	 */
-	function _connect($str, $user='', $pwd='', $db='', $ctype=0)
+	public function _connect($str, $user='', $pwd='', $db='', $ctype=0)
 	{
 		if (!function_exists('pg_connect')) {
 			return null;
@@ -840,7 +840,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return true;
 	}
 
-	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName)
+	public function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName)
 	{
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName,-1);
 	}
@@ -850,13 +850,13 @@ class ADODB_postgres64 extends ADOConnection{
 	// examples:
 	// 	$db->PConnect("host=host1 user=user1 password=secret port=4341");
 	// 	$db->PConnect('host1','user1','secret');
-	function _pconnect($str,$user='',$pwd='',$db='')
+	public function _pconnect($str,$user='',$pwd='',$db='')
 	{
 		return $this->_connect($str,$user,$pwd,$db,1);
 	}
 
 
-	function _query($sql,$inputarr=false)
+	public function _query($sql,$inputarr=false)
 	{
 		$this->_pnum = 0;
 		$this->_errorMsg = false;
@@ -931,14 +931,14 @@ class ADODB_postgres64 extends ADOConnection{
 		return $rez;
 	}
 
-	function _errconnect()
+	public function _errconnect()
 	{
 		if (defined('DB_ERROR_CONNECT_FAILED')) return DB_ERROR_CONNECT_FAILED;
 		else return 'Database connection failed';
 	}
 
 	/*	Returns: the last error message from previous database operation	*/
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 		if ($this->_errorMsg !== false) {
 			return $this->_errorMsg;
@@ -960,7 +960,7 @@ class ADODB_postgres64 extends ADOConnection{
 		return $this->_errorMsg;
 	}
 
-	function ErrorNo()
+	public function ErrorNo()
 	{
 		$e = $this->ErrorMsg();
 		if (strlen($e)) {
@@ -970,7 +970,7 @@ class ADODB_postgres64 extends ADOConnection{
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 		if ($this->transCnt) $this->RollbackTrans();
 		if ($this->_resultid) {
@@ -986,7 +986,7 @@ class ADODB_postgres64 extends ADOConnection{
 	/**
 	 * @return int Maximum size of C field
 	 */
-	function CharMax()
+	public function CharMax()
 	{
 		return 1000000000;  // should be 1 Gb?
 	}
@@ -994,7 +994,7 @@ class ADODB_postgres64 extends ADOConnection{
 	/**
 	 * @return int Maximum size of X field
 	 */
-	function TextMax()
+	public function TextMax()
 	{
 		return 1000000000; // should be 1 Gb?
 	}
@@ -1007,11 +1007,11 @@ class ADODB_postgres64 extends ADOConnection{
 --------------------------------------------------------------------------------------*/
 
 class ADORecordSet_postgres64 extends ADORecordSet{
-	var $_blobArr;
-	var $databaseType = "postgres64";
-	var $canSeek = true;
+	public $_blobArr;
+	public $databaseType = "postgres64";
+	public $canSeek = true;
 
-	function __construct($queryID, $mode=false)
+	public function __construct($queryID, $mode=false)
 	{
 		parent::__construct($queryID, $mode);
 
@@ -1030,7 +1030,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		}
 	}
 
-	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
+	public function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
 		if ($this->fetchMode == PGSQL_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
 			return $this->fields;
@@ -1038,7 +1038,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return ADORecordSet::GetRowAssoc($upper);
 	}
 
-	function _initRS()
+	public function _initRS()
 	{
 		global $ADODB_COUNTRECS;
 		$qid = $this->_queryID;
@@ -1054,7 +1054,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		}
 	}
 
-	function fields($colname)
+	public function fields($colname)
 	{
 		if ($this->fetchMode != PGSQL_NUM) {
 			return @$this->fields[$colname];
@@ -1070,7 +1070,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $this->fields[$this->bind[strtoupper($colname)]];
 	}
 
-	function fetchField($fieldOffset = 0)
+	public function fetchField($fieldOffset = 0)
 	{
 		// offsets begin at 0
 
@@ -1081,12 +1081,12 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $o;
 	}
 
-	function _seek($row)
+	public function _seek($row)
 	{
 		return @pg_fetch_row($this->_queryID,$row);
 	}
 
-	function _decode($blob)
+	public function _decode($blob)
 	{
 		if ($blob === NULL) return NULL;
 //		eval('$realblob="'.str_replace(array('"','$'),array('\"','\$'),$blob).'";');
@@ -1120,7 +1120,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 	}
 
 	// 10% speedup to move MoveNext to child class
-	function MoveNext()
+	public function MoveNext()
 	{
 		if (!$this->EOF) {
 			$this->_currentRow++;
@@ -1136,7 +1136,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return false;
 	}
 
-	function _fetch()
+	public function _fetch()
 	{
 		if ($this->_currentRow >= $this->_numOfRows && $this->_numOfRows >= 0) {
 			return false;
@@ -1146,7 +1146,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return $this->fields !== false;
 	}
 
-	function _close()
+	public function _close()
 	{
 		if ($this->_queryID === false || $this->_queryID == self::DUMMY_QUERY_ID) {
 			return true;
@@ -1154,7 +1154,7 @@ class ADORecordSet_postgres64 extends ADORecordSet{
 		return pg_free_result($this->_queryID);
 	}
 
-	function MetaType($t,$len=-1, $fieldObj=false)
+	public function MetaType($t,$len=-1, $fieldObj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;

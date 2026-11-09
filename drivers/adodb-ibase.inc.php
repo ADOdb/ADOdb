@@ -25,41 +25,41 @@
 if (!defined('ADODB_DIR')) die();
 
 class ADODB_ibase extends ADOConnection {
-	var $databaseType = "ibase";
-	var $dataProvider = "ibase";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $ibase_datefmt = '%Y-%m-%d'; // For hours,mins,secs change to '%Y-%m-%d %H:%M:%S';
-	var $fmtDate = "'Y-m-d'";
-	var $ibase_timestampfmt = "%Y-%m-%d %H:%M:%S";
-	var $ibase_timefmt = "%H:%M:%S";
-	var $fmtTimeStamp = "'Y-m-d, H:i:s'";
-	var $concat_operator='||';
-	var $_transactionID;
-	var $metaTablesSQL = "select rdb\$relation_name from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
+	public $databaseType = "ibase";
+	public $dataProvider = "ibase";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $ibase_datefmt = '%Y-%m-%d'; // For hours,mins,secs change to '%Y-%m-%d %H:%M:%S';
+	public $fmtDate = "'Y-m-d'";
+	public $ibase_timestampfmt = "%Y-%m-%d %H:%M:%S";
+	public $ibase_timefmt = "%H:%M:%S";
+	public $fmtTimeStamp = "'Y-m-d, H:i:s'";
+	public $concat_operator='||';
+	public $_transactionID;
+	public $metaTablesSQL = "select rdb\$relation_name from rdb\$relations where rdb\$relation_name not like 'RDB\$%'";
 	//OPN STUFF start
-	var $metaColumnsSQL = "select a.rdb\$field_name, a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
+	public $metaColumnsSQL = "select a.rdb\$field_name, a.rdb\$null_flag, a.rdb\$default_source, b.rdb\$field_length, b.rdb\$field_scale, b.rdb\$field_sub_type, b.rdb\$field_precision, b.rdb\$field_type from rdb\$relation_fields a, rdb\$fields b where a.rdb\$field_source = b.rdb\$field_name and a.rdb\$relation_name = '%s' order by a.rdb\$field_position asc";
 	//OPN STUFF end
-	var $ibasetrans;
-	var $hasGenID = true;
-	var $_bindInputArray = true;
-	var $buffers = 0;
-	var $dialect = 1;
-	var $sysDate = "cast('TODAY' as timestamp)";
-	var $sysTimeStamp = "CURRENT_TIMESTAMP"; //"cast('NOW' as timestamp)";
-	var $ansiOuter = true;
-	var $hasAffectedRows = false;
-	var $poorAffectedRows = true;
-	var $blobEncodeType = 'C';
-	var $role = false;
+	public $ibasetrans;
+	public $hasGenID = true;
+	public $_bindInputArray = true;
+	public $buffers = 0;
+	public $dialect = 1;
+	public $sysDate = "cast('TODAY' as timestamp)";
+	public $sysTimeStamp = "CURRENT_TIMESTAMP"; //"cast('NOW' as timestamp)";
+	public $ansiOuter = true;
+	public $hasAffectedRows = false;
+	public $poorAffectedRows = true;
+	public $blobEncodeType = 'C';
+	public $role = false;
 
-	function __construct()
+	public function __construct()
 	{
 		if (defined('IBASE_DEFAULT')) $this->ibasetrans = IBASE_DEFAULT;
 	}
 
 
 	// returns true or false
-	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$persist=false)
+	public function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$persist=false)
 	{
 		if (!function_exists('ibase_pconnect')) return null;
 		if ($argDatabasename) $argHostname .= ':'.$argDatabasename;
@@ -99,13 +99,13 @@ class ADODB_ibase extends ADOConnection {
 	}
 
 	// returns true or false
-	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename,true);
 	}
 
 
-	function MetaPrimaryKeys($table,$owner_notused=false,$internalKey=false)
+	public function MetaPrimaryKeys($table,$owner_notused=false,$internalKey=false)
 	{
 		if ($internalKey) {
 			return array('RDB$DB_KEY');
@@ -123,7 +123,7 @@ class ADODB_ibase extends ADOConnection {
 		return false;
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		$arr['dialect'] = $this->dialect;
 		switch($arr['dialect']) {
@@ -138,7 +138,7 @@ class ADODB_ibase extends ADOConnection {
 		return $arr;
 	}
 
-	function BeginTrans()
+	public function BeginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
@@ -147,7 +147,7 @@ class ADODB_ibase extends ADOConnection {
 		return $this->_transactionID;
 	}
 
-	function CommitTrans($ok=true)
+	public function CommitTrans($ok=true)
 	{
 		if (!$ok) {
 			return $this->RollbackTrans();
@@ -170,7 +170,7 @@ class ADODB_ibase extends ADOConnection {
 
 	// there are some compat problems with ADODB_COUNTRECS=false and $this->_logsql currently.
 	// it appears that ibase extension cannot support multiple concurrent queryid's
-	function _Execute($sql,$inputarr=false)
+	public function _Execute($sql,$inputarr=false)
 	{
 	global $ADODB_COUNTRECS;
 
@@ -185,7 +185,7 @@ class ADODB_ibase extends ADOConnection {
 		return $ret;
 	}
 
-	function RollbackTrans()
+	public function RollbackTrans()
 	{
 		if ($this->transOff) return true;
 		if ($this->transCnt) $this->transCnt -= 1;
@@ -199,7 +199,7 @@ class ADODB_ibase extends ADOConnection {
 		return $ret;
 	}
 
-	function MetaIndexes ($table, $primary = FALSE, $owner=false)
+	public function MetaIndexes ($table, $primary = FALSE, $owner=false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -256,7 +256,7 @@ class ADODB_ibase extends ADOConnection {
 
 
 	// See http://community.borland.com/article/0,1410,25844,00.html
-	function rowLock($table, $where, $col = false)
+	public function rowLock($table, $where, $col = false)
 	{
 		if ($this->autoCommit) {
 			$this->BeginTrans();
@@ -266,20 +266,20 @@ class ADODB_ibase extends ADOConnection {
 	}
 
 
-	function CreateSequence($seqname = 'adodbseq', $startID = 1)
+	public function CreateSequence($seqname = 'adodbseq', $startID = 1)
 	{
 		$ok = $this->Execute(("INSERT INTO RDB\$GENERATORS (RDB\$GENERATOR_NAME) VALUES (UPPER('$seqname'))" ));
 		if (!$ok) return false;
 		return $this->Execute("SET GENERATOR $seqname TO ".($startID-1).';');
 	}
 
-	function DropSequence($seqname = 'adodbseq')
+	public function DropSequence($seqname = 'adodbseq')
 	{
 		$seqname = strtoupper($seqname);
 		$this->Execute("delete from RDB\$GENERATORS where RDB\$GENERATOR_NAME='$seqname'");
 	}
 
-	function GenID($seqname='adodbseq',$startID=1)
+	public function GenID($seqname='adodbseq',$startID=1)
 	{
 		$getnext = ("SELECT Gen_ID($seqname,1) FROM RDB\$DATABASE");
 		$rs = @$this->Execute($getnext);
@@ -302,28 +302,28 @@ class ADODB_ibase extends ADOConnection {
 		return $this->genID;
 	}
 
-	function SelectDB($dbName)
+	public function SelectDB($dbName)
 	{
 		return false;
 	}
 
-	function _handleerror()
+	public function _handleerror()
 	{
 		$this->_errorMsg = ibase_errmsg();
 	}
 
-	function ErrorNo()
+	public function ErrorNo()
 	{
 		if (preg_match('/error code = ([\-0-9]*)/i', $this->_errorMsg,$arr)) return (int) $arr[1];
 		else return 0;
 	}
 
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 		return $this->_errorMsg;
 	}
 
-	function Prepare($sql)
+	public function Prepare($sql)
 	{
 		$stmt = ibase_prepare($this->_connectionID,$sql);
 		if (!$stmt) return false;
@@ -332,7 +332,7 @@ class ADODB_ibase extends ADOConnection {
 
 	// returns query ID if successful, otherwise false
 	// there have been reports of problems with nested queries - the code is probably not re-entrant?
-	function _query($sql, $inputarr = false)
+	public function _query($sql, $inputarr = false)
 	{
 		if (!$this->autoCommit && $this->_transactionID) {
 			$conn = $this->_transactionID;
@@ -382,7 +382,7 @@ class ADODB_ibase extends ADOConnection {
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 		if (!$this->autoCommit) {
 			@ibase_rollback($this->_connectionID);
@@ -391,7 +391,7 @@ class ADODB_ibase extends ADOConnection {
 	}
 
 	//OPN STUFF start
-	function _ConvertFieldType(&$fld, $ftype, $flen, $fscale, $fsubtype, $fprecision, $dialect3)
+	public function _ConvertFieldType(&$fld, $ftype, $flen, $fscale, $fsubtype, $fprecision, $dialect3)
 	{
 		$fscale = abs($fscale);
 		$fld->max_length = $flen;
@@ -489,7 +489,7 @@ class ADODB_ibase extends ADOConnection {
 	//OPN STUFF end
 
 	// returns array of ADOFieldObjects for current table
-	function MetaColumns($table, $normalize=true)
+	public function MetaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -557,7 +557,7 @@ class ADODB_ibase extends ADOConnection {
 		else return $retarr;
 	}
 
-	function BlobEncode( $blob )
+	public function BlobEncode( $blob )
 	{
 		$blobid = ibase_blob_create( $this->_connectionID);
 		ibase_blob_add( $blobid, $blob );
@@ -566,14 +566,14 @@ class ADODB_ibase extends ADOConnection {
 
 	// since we auto-decode all blob's since 2.42,
 	// BlobDecode should not do any transforms
-	function BlobDecode($blob)
+	public function BlobDecode($blob)
 	{
 		return $blob;
 	}
 
 	// old blobdecode function
 	// still used to auto-decode all blob's
-	function _BlobDecode_old( $blob )
+	public function _BlobDecode_old( $blob )
 	{
 		$blobid = ibase_blob_open($this->_connectionID, $blob );
 		$realblob = ibase_blob_get( $blobid,$this->maxblobsize); // 2nd param is max size of blob -- Kevin Boillet <kevinboillet@yahoo.fr>
@@ -585,7 +585,7 @@ class ADODB_ibase extends ADOConnection {
 		return( $realblob );
 	}
 
-	function _BlobDecode( $blob )
+	public function _BlobDecode( $blob )
 	{
 		$blob_data = ibase_blob_info($this->_connectionID, $blob );
 		$blobid    = ibase_blob_open($this->_connectionID, $blob );
@@ -605,7 +605,7 @@ class ADODB_ibase extends ADOConnection {
 		return( $realblob );
 	}
 
-	function UpdateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
+	public function UpdateBlobFile($table,$column,$path,$where,$blobtype='BLOB')
 	{
 		$fd = fopen($path,'rb');
 		if ($fd === false) return false;
@@ -633,7 +633,7 @@ class ADODB_ibase extends ADOConnection {
 		$conn->Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');
 		$conn->UpdateBlob('blobtable','blobcol',$blob,'id=1');
 	*/
-	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
+	public function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
 		$blob_id = ibase_blob_create($this->_connectionID);
 
@@ -667,7 +667,7 @@ class ADODB_ibase extends ADOConnection {
 	}
 
 
-	function OldUpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
+	public function OldUpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
 		$blob_id = ibase_blob_create($this->_connectionID);
 		ibase_blob_add($blob_id, $val);
@@ -678,7 +678,7 @@ class ADODB_ibase extends ADOConnection {
 	// Format date column in sql string given an input format that understands Y M D
 	// Only since Interbase 6.0 - uses EXTRACT
 	// problem - does not zero-fill the day and month yet
-	function SQLDate($fmt, $col=false)
+	public function SQLDate($fmt, $col=false)
 	{
 		if (!$col) $col = $this->sysDate;
 		$s = '';
@@ -737,9 +737,9 @@ class ADODB_ibase extends ADOConnection {
 class ADORecordSet_ibase extends ADORecordSet
 {
 
-	var $databaseType = "ibase";
-	var $bind=false;
-	var $_cacheType;
+	public $databaseType = "ibase";
+	public $bind=false;
+	public $_cacheType;
 
 
 	/*		Returns: an object containing field information.
@@ -747,7 +747,7 @@ class ADORecordSet_ibase extends ADORecordSet
 			fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
 			fetchField() is retrieved.		*/
 
-	function FetchField($fieldOffset = -1)
+	public function FetchField($fieldOffset = -1)
 	{
 			$fld = new ADOFieldObject;
 			$ibf = ibase_field_info($this->_queryID,$fieldOffset);
@@ -777,7 +777,7 @@ class ADORecordSet_ibase extends ADORecordSet
 			return $fld;
 	}
 
-	function _initrs()
+	public function _initrs()
 	{
 		$this->_numOfRows = -1;
 		$this->_numOfFields = @ibase_num_fields($this->_queryID);
@@ -789,12 +789,12 @@ class ADORecordSet_ibase extends ADORecordSet
 		}
 	}
 
-	function _seek($row)
+	public function _seek($row)
 	{
 		return false;
 	}
 
-	function _fetch()
+	public function _fetch()
 	{
 		$f = @ibase_fetch_row($this->_queryID);
 		if ($f === false) {
@@ -835,7 +835,7 @@ class ADORecordSet_ibase extends ADORecordSet
 	}
 
 	/* Use associative array to get fields array */
-	function Fields($colname)
+	public function Fields($colname)
 	{
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) return $this->fields[$colname];
 		if (!$this->bind) {
@@ -850,12 +850,12 @@ class ADORecordSet_ibase extends ADORecordSet
 	}
 
 
-	function _close()
+	public function _close()
 	{
 		return @ibase_free_result($this->_queryID);
 	}
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+	public function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;

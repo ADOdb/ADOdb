@@ -24,15 +24,15 @@ if (!defined('ADODB_DIR')) die();
 
 class ADODB2_firebird extends ADODB_DataDict
 {
-	var $databaseType = 'firebird';
-	var $seqField = false;
-	var $seqPrefix = 's_';
-	var $blobSize = 40000;
-	var $renameColumn = 'ALTER TABLE %s ALTER %s TO %s';
-	var $alterCol = ' ALTER';
-	var $dropCol = ' DROP';
+	public $databaseType = 'firebird';
+	public $seqField = false;
+	public $seqPrefix = 's_';
+	public $blobSize = 40000;
+	public $renameColumn = 'ALTER TABLE %s ALTER %s TO %s';
+	public $alterCol = ' ALTER';
+	public $dropCol = ' DROP';
 
-	function actualType($meta)
+	public function actualType($meta)
 	{
 
 		$meta = strtoupper($meta);
@@ -89,7 +89,7 @@ class ADODB2_firebird extends ADODB_DataDict
 		}
 	}
 
-	function nameQuote($name = null, $allowBrackets = false)
+	public function nameQuote($name = null, $allowBrackets = false)
 	{
 		if (!is_string($name)) {
 			return false;
@@ -116,7 +116,7 @@ class ADODB2_firebird extends ADODB_DataDict
 		return $quote . $name . $quote;
 	}
 
-	function createDatabase($dbname, $options = false)
+	public function createDatabase($dbname, $options = false)
 	{
 		$sql = array();
 
@@ -125,7 +125,7 @@ class ADODB2_firebird extends ADODB_DataDict
 		return $sql;
 	}
 
-	function _dropAutoIncrement($tabname)
+	public function _dropAutoIncrement($tabname)
 	{
 		if (strpos($tabname, '.') !== false) {
 			$tarr = explode('.', $tabname);
@@ -135,7 +135,7 @@ class ADODB2_firebird extends ADODB_DataDict
 	}
 
 
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 
@@ -159,7 +159,7 @@ class ADODB2_firebird extends ADODB_DataDict
 	/**
 	 * Generate the SQL to create table. Returns an array of sql strings.
 	 */
-	function createTableSQL($tabname, $flds, $tableoptions = array())
+	public function createTableSQL($tabname, $flds, $tableoptions = array())
 	{
 		list($lines, $pkey, $idxs) = $this->_GenFields($flds, true);
 		// genfields can return FALSE at times
@@ -198,7 +198,7 @@ class ADODB2_firebird extends ADODB_DataDict
 	  NEW."seqField" = GEN_ID("GEN_tabname", 1);
 	end;
 	*/
-	function _triggers($tabname, $taboptions)
+	public function _triggers($tabname, $taboptions)
 	{
 		if (!$this->seqField) {
 			return array();

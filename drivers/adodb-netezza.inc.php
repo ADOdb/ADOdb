@@ -36,35 +36,35 @@ if (!defined('ADODB_DIR')) die();
 include_once(ADODB_DIR.'/drivers/adodb-postgres64.inc.php');
 
 class ADODB_netezza extends ADODB_postgres64 {
-    var $databaseType = 'netezza';
-	var $dataProvider = 'netezza';
-	var $hasInsertID = false;
-	var $_resultid = false;
-  	var $concat_operator='||';
-  	var $random = 'random';
-	var $metaDatabasesSQL = "select objname from _v_object_data where objtype='database' order by 1";
-    var $metaTablesSQL = "select objname from _v_object_data where objtype='table' order by 1";
-	var $isoDates = true; // accepts dates in ISO format
-	var $sysDate = "CURRENT_DATE";
-	var $sysTimeStamp = "CURRENT_TIMESTAMP";
-	var $blobEncodeType = 'C';
-	var $metaColumnsSQL = "SELECT attname, atttype FROM _v_relation_column_def WHERE name = '%s' AND attnum > 0 ORDER BY attnum";
-	var $metaColumnsSQL1 = "SELECT attname, atttype FROM _v_relation_column_def WHERE name = '%s' AND attnum > 0 ORDER BY attnum";
+    public $databaseType = 'netezza';
+	public $dataProvider = 'netezza';
+	public $hasInsertID = false;
+	public $_resultid = false;
+  	public $concat_operator='||';
+  	public $random = 'random';
+	public $metaDatabasesSQL = "select objname from _v_object_data where objtype='database' order by 1";
+    public $metaTablesSQL = "select objname from _v_object_data where objtype='table' order by 1";
+	public $isoDates = true; // accepts dates in ISO format
+	public $sysDate = "CURRENT_DATE";
+	public $sysTimeStamp = "CURRENT_TIMESTAMP";
+	public $blobEncodeType = 'C';
+	public $metaColumnsSQL = "SELECT attname, atttype FROM _v_relation_column_def WHERE name = '%s' AND attnum > 0 ORDER BY attnum";
+	public $metaColumnsSQL1 = "SELECT attname, atttype FROM _v_relation_column_def WHERE name = '%s' AND attnum > 0 ORDER BY attnum";
 	// netezza doesn't have keys. it does have distributions, so maybe this is
 	// something that can be pulled from the system tables
-	var $metaKeySQL = "";
-	var $hasAffectedRows = true;
-	var $hasLimit = true;
-	var $true = 't';		// string that represents TRUE for a database
-	var $false = 'f';		// string that represents FALSE for a database
-	var $fmtDate = "'Y-m-d'";	// used by DBDate() as the default date format used by the database
-	var $fmtTimeStamp = "'Y-m-d G:i:s'"; // used by DBTimeStamp as the default timestamp fmt.
-	var $ansiOuter = true;
-	var $autoRollback = true; // apparently pgsql does not autorollback properly before 4.3.4
+	public $metaKeySQL = "";
+	public $hasAffectedRows = true;
+	public $hasLimit = true;
+	public $true = 't';		// string that represents TRUE for a database
+	public $false = 'f';		// string that represents FALSE for a database
+	public $fmtDate = "'Y-m-d'";	// used by DBDate() as the default date format used by the database
+	public $fmtTimeStamp = "'Y-m-d G:i:s'"; // used by DBTimeStamp as the default timestamp fmt.
+	public $ansiOuter = true;
+	public $autoRollback = true; // apparently pgsql does not autorollback properly before 4.3.4
 							// https://bugs.php.net/bug.php?id=25404
 
 
-	function MetaColumns($table,$upper=true)
+	public function MetaColumns($table,$upper=true)
 	{
 
 	// Changed this function to support Netezza which has no concept of keys
@@ -147,11 +147,11 @@ class ADODB_netezza extends ADODB_postgres64 {
 
 class ADORecordSet_netezza extends ADORecordSet_postgres64
 {
-	var $databaseType = "netezza";
-	var $canSeek = true;
+	public $databaseType = "netezza";
+	public $canSeek = true;
 
 	// _initrs modified to disable blob handling
-	function _initrs()
+	public function _initrs()
 	{
 	global $ADODB_COUNTRECS;
 		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($this->_queryID):-1;

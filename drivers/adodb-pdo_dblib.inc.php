@@ -23,14 +23,14 @@
 
 class ADODB_pdo_dblib extends ADODB_pdo_base
 {
-	var $hasTop = 'top';
-	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
-	var $sysTimeStamp = 'GetDate()';
-	var $metaDatabasesSQL =  /** @lang text */ "select name from sysdatabases where name <> 'master'";
-	var $metaTablesSQL= /** @lang text */ "select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
-	var $metaColumnsSQL = /** @lang text */ "SELECT c.NAME, OBJECT_NAME(c.id) as tbl_name, c.length, c.isnullable, c.status, ( CASE WHEN c.xusertype=61 THEN 0 ELSE c.xprec END), ( CASE WHEN c.xusertype=61 THEN 0 ELSE c.xscale END), ISNULL(i.is_primary_key, 0) as primary_key FROM   syscolumns c INNER JOIN systypes t ON t.xusertype=c.xusertype INNER JOIN sysobjects o ON o.id=c.id LEFT JOIN sys.index_columns ic ON ic.object_id = c.id AND c.colid = ic.column_id LEFT JOIN sys.indexes i ON i.object_id = ic.object_id AND i.index_id = ic.index_id WHERE c.id = OBJECT_ID('%s') ORDER by c.colid";
-	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d H:i:s'";
+	public $hasTop = 'top';
+	public $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
+	public $sysTimeStamp = 'GetDate()';
+	public $metaDatabasesSQL =  /** @lang text */ "select name from sysdatabases where name <> 'master'";
+	public $metaTablesSQL= /** @lang text */ "select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
+	public $metaColumnsSQL = /** @lang text */ "SELECT c.NAME, OBJECT_NAME(c.id) as tbl_name, c.length, c.isnullable, c.status, ( CASE WHEN c.xusertype=61 THEN 0 ELSE c.xprec END), ( CASE WHEN c.xusertype=61 THEN 0 ELSE c.xscale END), ISNULL(i.is_primary_key, 0) as primary_key FROM   syscolumns c INNER JOIN systypes t ON t.xusertype=c.xusertype INNER JOIN sysobjects o ON o.id=c.id LEFT JOIN sys.index_columns ic ON ic.object_id = c.id AND c.colid = ic.column_id LEFT JOIN sys.indexes i ON i.object_id = ic.object_id AND i.index_id = ic.index_id WHERE c.id = OBJECT_ID('%s') ORDER by c.colid";
+	public $fmtDate = "'Y-m-d'";
+	public $fmtTimeStamp = "'Y-m-d H:i:s'";
 
 	protected function _init(ADODB_pdo $parentDriver)
 	{
@@ -40,13 +40,13 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		$parentDriver->hasInsertID = true;
 	}
 
-	function BeginTrans()
+	public function BeginTrans()
 	{
 		$returnval = parent::BeginTrans();
 		return $returnval;
 	}
 
-	function MetaColumns($table, $normalize=true)
+	public function MetaColumns($table, $normalize=true)
 	{
 		$this->_findschema($table,$schema);
 		if ($schema) {
@@ -100,7 +100,7 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		return $retarr;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;
@@ -115,7 +115,7 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		return $ret;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
+	public function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
@@ -131,7 +131,7 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		return $rs;
 	}
 
-	function _query($sql,$inputarr=false)
+	public function _query($sql,$inputarr=false)
 	{
 		$this->_connectionID->setAttribute(\PDO::ATTR_EMULATE_PREPARES , true);
 		if (is_array($sql)) {
@@ -185,7 +185,7 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		return PDO::PARAM_STR;
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		return ADOConnection::ServerInfo();
 	}

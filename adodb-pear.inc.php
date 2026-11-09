@@ -114,7 +114,7 @@ class DB
 	 * error
 	 */
 
-	function factory($type)
+	public function factory($type)
 	{
 		include_once(ADODB_DIR."/drivers/adodb-$type.inc.php");
 		$obj = NewADOConnection($type);
@@ -141,7 +141,7 @@ class DB
 	 * @see DB::parseDSN
 	 * @see DB::isError
 	 */
-	function connect($dsn, $options = false)
+	public function connect($dsn, $options = false)
 	{
 		if (is_array($dsn)) {
 			$dsninfo = $dsn;
@@ -201,7 +201,7 @@ class DB
 	 *
 	 * @return int the DB API version number
 	 */
-	function apiVersion()
+	public function apiVersion()
 	{
 		return 2;
 	}
@@ -213,7 +213,7 @@ class DB
 	 *
 	 * @return bool whether $value is an error
 	 */
-	function isError($value)
+	public function isError($value)
 	{
 		if (!is_object($value)) return false;
 		$class = strtolower(get_class($value));
@@ -231,7 +231,7 @@ class DB
 	 *
 	 * @return bool whether $value is a warning
 	 */
-	function isWarning($value)
+	public function isWarning($value)
 	{
 		return false;
 		/*
@@ -272,7 +272,7 @@ class DB
 	 *
 	 * @author Tomas V.V.Cox <cox@idecnet.com>
 	 */
-	function parseDSN($dsn)
+	public function parseDSN($dsn)
 	{
 		if (is_array($dsn)) {
 			return $dsn;
@@ -363,7 +363,7 @@ class DB
 	 * @return bool true if the extension was already or successfully
 	 * loaded, false if it could not be loaded
 	 */
-	function assertExtension($name)
+	public function assertExtension($name)
 	{
 		if (function_exists('dl') && !extension_loaded($name)) {
 			$dlext = (strncmp(PHP_OS,'WIN',3) === 0) ? '.dll' : '.so';

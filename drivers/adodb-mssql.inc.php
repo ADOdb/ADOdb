@@ -46,39 +46,39 @@ if (!defined('ADODB_DIR')) die();
 ini_set('mssql.datetimeconvert',0);
 
 class ADODB_mssql extends ADOConnection {
-	var $databaseType = "mssql";
-	var $dataProvider = "mssql";
-	var $replaceQuote = "''"; // string to use to replace quotes
-	var $fmtDate = "'Y-m-d'";
-	var $fmtTimeStamp = "'Y-m-d\TH:i:s'";
-	var $hasInsertID = true;
-	var $substr = "substring";
-	var $length = 'len';
-	var $hasAffectedRows = true;
-	var $metaDatabasesSQL = "select name from sysdatabases where name <> 'master'";
-	var $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
-	var $metaColumnsSQL = # xtype==61 is datetime
+	public $databaseType = "mssql";
+	public $dataProvider = "mssql";
+	public $replaceQuote = "''"; // string to use to replace quotes
+	public $fmtDate = "'Y-m-d'";
+	public $fmtTimeStamp = "'Y-m-d\TH:i:s'";
+	public $hasInsertID = true;
+	public $substr = "substring";
+	public $length = 'len';
+	public $hasAffectedRows = true;
+	public $metaDatabasesSQL = "select name from sysdatabases where name <> 'master'";
+	public $metaTablesSQL="select name,case when type='U' then 'T' else 'V' end from sysobjects where (type='U' or type='V') and (name not in ('sysallocations','syscolumns','syscomments','sysdepends','sysfilegroups','sysfiles','sysfiles1','sysforeignkeys','sysfulltextcatalogs','sysindexes','sysindexkeys','sysmembers','sysobjects','syspermissions','sysprotects','sysreferences','systypes','sysusers','sysalternates','sysconstraints','syssegments','REFERENTIAL_CONSTRAINTS','CHECK_CONSTRAINTS','CONSTRAINT_TABLE_USAGE','CONSTRAINT_COLUMN_USAGE','VIEWS','VIEW_TABLE_USAGE','VIEW_COLUMN_USAGE','SCHEMATA','TABLES','TABLE_CONSTRAINTS','TABLE_PRIVILEGES','COLUMNS','COLUMN_DOMAIN_USAGE','COLUMN_PRIVILEGES','DOMAINS','DOMAIN_CONSTRAINTS','KEY_COLUMN_USAGE','dtproperties'))";
+	public $metaColumnsSQL = # xtype==61 is datetime
 	"select c.name,t.name,c.length,c.isnullable, c.status,
 		(case when c.xusertype=61 then 0 else c.xprec end),
 		(case when c.xusertype=61 then 0 else c.xscale end)
 	from syscolumns c join systypes t on t.xusertype=c.xusertype join sysobjects o on o.id=c.id where o.name='%s'";
-	var $hasTop = 'top';		// support mssql SELECT TOP 10 * FROM TABLE
-	var $hasGenID = true;
-	var $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
-	var $sysTimeStamp = 'GetDate()';
-	var $maxParameterLen = 4000;
-	var $arrayClass = 'ADORecordSet_array_mssql';
-	var $uniqueSort = true;
-	var $leftOuter = '*=';
-	var $rightOuter = '=*';
-	var $ansiOuter = true; // for mssql7 or later
-	var $poorAffectedRows = true;
-	var $identitySQL = 'select SCOPE_IDENTITY()'; // 'select SCOPE_IDENTITY'; # for mssql 2000
-	var $uniqueOrderBy = true;
-	var $_bindInputArray = true;
-	var $forceNewConnect = false;
+	public $hasTop = 'top';		// support mssql SELECT TOP 10 * FROM TABLE
+	public $hasGenID = true;
+	public $sysDate = 'convert(datetime,convert(char,GetDate(),102),102)';
+	public $sysTimeStamp = 'GetDate()';
+	public $maxParameterLen = 4000;
+	public $arrayClass = 'ADORecordSet_array_mssql';
+	public $uniqueSort = true;
+	public $leftOuter = '*=';
+	public $rightOuter = '=*';
+	public $ansiOuter = true; // for mssql7 or later
+	public $poorAffectedRows = true;
+	public $identitySQL = 'select SCOPE_IDENTITY()'; // 'select SCOPE_IDENTITY'; # for mssql 2000
+	public $uniqueOrderBy = true;
+	public $_bindInputArray = true;
+	public $forceNewConnect = false;
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -109,7 +109,7 @@ class ADODB_mssql extends ADOConnection {
 		return $arr;
 	}
 
-	function IfNull( $field, $ifNull )
+	public function IfNull( $field, $ifNull )
 	{
 		return " ISNULL($field, $ifNull) "; // if MS SQL Server
 	}
@@ -143,19 +143,19 @@ class ADODB_mssql extends ADOConnection {
 	 *
 	 * @noinspection PhpUnusedParameterInspection
 	 */
-	function qStr($s, $magic_quotes=false)
+	public function qStr($s, $magic_quotes=false)
 	{
 		return  "'" . str_replace("'", $this->replaceQuote, $s) . "'";
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 		return $this->GetOne('select @@rowcount');
 	}
 
-	var $_dropSeqSQL = "drop table %s";
+	public $_dropSeqSQL = "drop table %s";
 
-	function CreateSequence($seq='adodbseq',$start=1)
+	public function CreateSequence($seq='adodbseq',$start=1)
 	{
 
 		$this->Execute('BEGIN TRANSACTION adodbseq');
@@ -170,7 +170,7 @@ class ADODB_mssql extends ADOConnection {
 		return true;
 	}
 
-	function GenID($seq='adodbseq',$start=1)
+	public function GenID($seq='adodbseq',$start=1)
 	{
 		//$this->debug=1;
 		$this->Execute('BEGIN TRANSACTION adodbseq');
@@ -194,7 +194,7 @@ class ADODB_mssql extends ADOConnection {
 	}
 
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
+	public function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
@@ -214,7 +214,7 @@ class ADODB_mssql extends ADOConnection {
 
 
 	// Format date column in sql string given an input format that understands Y M D
-	function SQLDate($fmt, $col=false)
+	public function SQLDate($fmt, $col=false)
 	{
 		if (!$col) $col = $this->sysTimeStamp;
 		$s = '';
@@ -276,7 +276,7 @@ class ADODB_mssql extends ADOConnection {
 	}
 
 
-	function BeginTrans()
+	public function BeginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
@@ -284,7 +284,7 @@ class ADODB_mssql extends ADOConnection {
 		return $ok;
 	}
 
-	function CommitTrans($ok=true)
+	public function CommitTrans($ok=true)
 	{
 		if ($this->transOff) return true;
 		if (!$ok) return $this->RollbackTrans();
@@ -292,7 +292,7 @@ class ADODB_mssql extends ADOConnection {
 		$ok = $this->Execute('COMMIT TRAN');
 		return $ok;
 	}
-	function RollbackTrans()
+	public function RollbackTrans()
 	{
 		if ($this->transOff) return true;
 		if ($this->transCnt) $this->transCnt -= 1;
@@ -300,7 +300,7 @@ class ADODB_mssql extends ADOConnection {
 		return $ok;
 	}
 
-	function SetTransactionMode( $transaction_mode )
+	public function SetTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -323,7 +323,7 @@ class ADODB_mssql extends ADOConnection {
 
 		See http://www.swynk.com/friends/achigrik/SQL70Locks.asp
 	*/
-	function RowLock($tables,$where,$col='1 as adodbignore')
+	public function RowLock($tables,$where,$col='1 as adodbignore')
 	{
 		if ($col == '1 as adodbignore') $col = 'top 1 null as ignore';
 		if (!$this->transCnt) $this->BeginTrans();
@@ -331,7 +331,7 @@ class ADODB_mssql extends ADOConnection {
 	}
 
 
-	function MetaColumns($table, $normalize=true)
+	public function MetaColumns($table, $normalize=true)
 	{
 //		$arr = ADOConnection::MetaColumns($table);
 //		return $arr;
@@ -389,7 +389,7 @@ class ADODB_mssql extends ADOConnection {
 	}
 
 
-	function MetaIndexes($table,$primary=false, $owner=false)
+	public function MetaIndexes($table,$primary=false, $owner=false)
 	{
 		$table = $this->qstr($table);
 
@@ -473,7 +473,7 @@ order by constraint_name, referenced_table_name, keyno";
 	}
 
 	//From: Fernando Moreira <FMoreira@imediata.pt>
-	function MetaDatabases()
+	public function MetaDatabases()
 	{
 		if(@mssql_select_db("master")) {
 			$qry = $this->metaDatabasesSQL;
@@ -498,7 +498,7 @@ order by constraint_name, referenced_table_name, keyno";
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
-	function MetaPrimaryKeys($table, $owner=false)
+	public function MetaPrimaryKeys($table, $owner=false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -523,7 +523,7 @@ order by constraint_name, referenced_table_name, keyno";
 	}
 
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;
@@ -538,7 +538,7 @@ order by constraint_name, referenced_table_name, keyno";
 		return $ret;
 	}
 
-	function SelectDB($dbName)
+	public function SelectDB($dbName)
 	{
 		$this->database = $dbName;
 		if ($this->_connectionID) {
@@ -547,7 +547,7 @@ order by constraint_name, referenced_table_name, keyno";
 		else return false;
 	}
 
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 		if (empty($this->_errorMsg)){
 			$this->_errorMsg = mssql_get_last_message();
@@ -555,7 +555,7 @@ order by constraint_name, referenced_table_name, keyno";
 		return $this->_errorMsg;
 	}
 
-	function ErrorNo()
+	public function ErrorNo()
 	{
 		if ($this->_logsql && $this->_errorCode !== false) return $this->_errorCode;
 		if (empty($this->_errorMsg)) {
@@ -573,7 +573,7 @@ order by constraint_name, referenced_table_name, keyno";
 	}
 
 	// returns true or false, newconnect supported since php 5.1.0.
-	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$newconnect=false)
+	public function _connect($argHostname, $argUsername, $argPassword, $argDatabasename,$newconnect=false)
 	{
 		if (!function_exists('mssql_pconnect')) return null;
 		if (!empty($this->port)) $argHostname .= ":".$this->port;
@@ -585,7 +585,7 @@ order by constraint_name, referenced_table_name, keyno";
 
 
 	// returns true or false
-	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (!function_exists('mssql_pconnect')) return null;
 		if (!empty($this->port)) $argHostname .= ":".$this->port;
@@ -601,12 +601,12 @@ order by constraint_name, referenced_table_name, keyno";
 		return true;
 	}
 
-	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _nconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename, true);
 	}
 
-	function Prepare($sql)
+	public function Prepare($sql)
 	{
 		$sqlarr = explode('?',$sql);
 		if (sizeof($sqlarr) <= 1) return $sql;
@@ -617,7 +617,7 @@ order by constraint_name, referenced_table_name, keyno";
 		return array($sql,$this->qstr($sql2),$max,$sql2);
 	}
 
-	function PrepareSP($sql,$param=true)
+	public function PrepareSP($sql,$param=true)
 	{
 		$stmt = mssql_init($sql,$this->_connectionID);
 		if (!$stmt)  return $sql;
@@ -628,7 +628,7 @@ order by constraint_name, referenced_table_name, keyno";
 	// MSSQL requires integers to be cast as strings
 	// automatically cast every datatype to VARCHAR(255)
 	// @author David Rogers (introspectshun)
-	function Concat()
+	public function Concat()
 	{
 			$s = "";
 			$arr = func_get_args();
@@ -671,7 +671,7 @@ order by constraint_name, referenced_table_name, keyno";
 
 		See mssql_bind documentation at php.net.
 	*/
-	function Parameter(&$stmt, &$var, $name, $isOutput=false, $maxLen=4000, $type=false)
+	public function Parameter(&$stmt, &$var, $name, $isOutput=false, $maxLen=4000, $type=false)
 	{
 		$isNull = is_null($var); // php 4.0.4 and above...
 
@@ -714,7 +714,7 @@ order by constraint_name, referenced_table_name, keyno";
 		; Valid range 0 - 2147483647. Default = 4096.
 		mssql.textsize = 0 ; zero to pass through
 	*/
-	function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
+	public function UpdateBlob($table,$column,$val,$where,$blobtype='BLOB')
 	{
 
 		if (strtoupper($blobtype) == 'CLOB') {
@@ -725,7 +725,7 @@ order by constraint_name, referenced_table_name, keyno";
 		return $this->Execute($sql) != false;
 	}
 
-	function _query($sql,$inputarr=false)
+	public function _query($sql,$inputarr=false)
 	{
 		$this->_errorMsg = false;
 		if (is_array($inputarr)) {
@@ -805,7 +805,7 @@ order by constraint_name, referenced_table_name, keyno";
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 		if ($this->transCnt) {
 			$this->RollbackTrans();
@@ -831,7 +831,7 @@ order by constraint_name, referenced_table_name, keyno";
 	*
 	* @return	The SQL text
 	*/
-	function substr($fld,$start,$length=0)
+	public function substr($fld,$start,$length=0)
 	{
 		if ($length == 0)
 			/*
@@ -852,12 +852,12 @@ order by constraint_name, referenced_table_name, keyno";
 
 class ADORecordset_mssql extends ADORecordSet {
 
-	var $databaseType = "mssql";
-	var $canSeek = true;
-	var $hasFetchAssoc; // see PHPLens Issue No: 6083
+	public $databaseType = "mssql";
+	public $canSeek = true;
+	public $hasFetchAssoc; // see PHPLens Issue No: 6083
 	// _mths works only in non-localised system
 
-	function __construct($queryID, $mode=false)
+	public function __construct($queryID, $mode=false)
 	{
 		parent::__construct($queryID, $mode);
 
@@ -866,7 +866,7 @@ class ADORecordset_mssql extends ADORecordSet {
 	}
 
 
-	function _initrs()
+	public function _initrs()
 	{
 	GLOBAL $ADODB_COUNTRECS;
 		$this->_numOfRows = ($ADODB_COUNTRECS)? @mssql_num_rows($this->_queryID):-1;
@@ -876,7 +876,7 @@ class ADORecordset_mssql extends ADORecordSet {
 
 	//Contributed by "Sven Axelsson" <sven.axelsson@bokochwebb.se>
 	// get next resultset - requires PHP 4.0.5 or later
-	function NextRecordSet()
+	public function NextRecordSet()
 	{
 		if (!mssql_next_result($this->_queryID)) return false;
 		$this->_inited = false;
@@ -887,7 +887,7 @@ class ADORecordset_mssql extends ADORecordSet {
 	}
 
 	/* Use associative array to get fields array */
-	function Fields($colname)
+	public function Fields($colname)
 	{
 		if ($this->fetchMode != ADODB_FETCH_NUM) return $this->fields[$colname];
 		if (!$this->bind) {
@@ -906,7 +906,7 @@ class ADORecordset_mssql extends ADORecordSet {
 		fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
 		fetchField() is retrieved.	*/
 
-	function FetchField($fieldOffset = -1)
+	public function FetchField($fieldOffset = -1)
 	{
 		if ($fieldOffset != -1) {
 			$f = @mssql_fetch_field($this->_queryID, $fieldOffset);
@@ -919,13 +919,13 @@ class ADORecordset_mssql extends ADORecordSet {
 		return $f;
 	}
 
-	function _seek($row)
+	public function _seek($row)
 	{
 		return @mssql_data_seek($this->_queryID, $row);
 	}
 
 	// speedup
-	function MoveNext()
+	public function MoveNext()
 	{
 		if ($this->EOF) return false;
 
@@ -984,7 +984,7 @@ class ADORecordset_mssql extends ADORecordSet {
 
 	// INSERT UPDATE DELETE returns false even if no error occurs in 4.0.4
 	// also the date format has been changed from YYYY-mm-dd to dd MMM YYYY in 4.0.4. Idiot!
-	function _fetch($ignore_fields=false)
+	public function _fetch($ignore_fields=false)
 	{
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) {
 			if ($this->fetchMode & ADODB_FETCH_NUM) {
@@ -1033,7 +1033,7 @@ class ADORecordset_mssql extends ADORecordSet {
 	/*	close() only needs to be called if you are worried about using too much memory while your script
 		is running. All associated result memory for the specified result identifier will automatically be freed.	*/
 
-	function _close()
+	public function _close()
 	{
 		if($this->_queryID) {
 			$rez = mssql_free_result($this->_queryID);
@@ -1050,7 +1050,7 @@ class ADORecordset_mssql extends ADORecordSet {
 	*
 	* @return int
 	*/
-	function charMax()
+	public function charMax()
 	{
 		return ADODB_STRINGMAX_NOLIMIT;
 	}
@@ -1062,7 +1062,7 @@ class ADORecordset_mssql extends ADORecordSet {
 	*
 	* @return int
 	*/
-	function textMax()
+	public function textMax()
 	{
 		return ADODB_STRINGMAX_NOLIMIT;
 	}

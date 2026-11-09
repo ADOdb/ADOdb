@@ -127,7 +127,7 @@ class ADODB_Session {
 	 * @param string $driver
 	 * @return string
 	 */
-	static function driver($driver = null)
+	public static function driver($driver = null)
 	{
 		static $_driver = 'mysqli';
 		static $set = false;
@@ -151,7 +151,7 @@ class ADODB_Session {
 	 * @param string $host
 	 * @return string
 	 */
-	static function host($host = null) {
+	public static function host($host = null) {
 		static $_host = 'localhost';
 		static $set = false;
 
@@ -174,7 +174,7 @@ class ADODB_Session {
 	 * @param string $user
 	 * @return string
 	 */
-	static function user($user = null)
+	public static function user($user = null)
 	{
 		static $_user = 'root';
 		static $set = false;
@@ -198,7 +198,7 @@ class ADODB_Session {
 	 * @param null $password
 	 * @return string
 	 */
-	static function password($password = null)
+	public static function password($password = null)
 	{
 		static $_password = '';
 		static $set = false;
@@ -222,7 +222,7 @@ class ADODB_Session {
 	 * @param null $database
 	 * @return string
 	 */
-	static function database($database = null)
+	public static function database($database = null)
 	{
 		static $_database = '';
 		static $set = false;
@@ -245,7 +245,7 @@ class ADODB_Session {
 	 * @param $persist
 	 * @return string|true
 	 */
-	static function persist($persist = null)
+	public static function persist($persist = null)
 	{
 		static $_persist = true;
 
@@ -262,7 +262,7 @@ class ADODB_Session {
 	 * @param int $lifetime
 	 * @return int
 	 */
-	static function lifetime($lifetime = null)
+	public static function lifetime($lifetime = null)
 	{
 		static $_lifetime;
 		static $set = false;
@@ -294,7 +294,7 @@ class ADODB_Session {
 	 * @param bool $debug
 	 * @return bool
 	 */
-	static function debug($debug = null)
+	public static function debug($debug = null)
 	{
 		static $_debug = false;
 		static $set = false;
@@ -319,7 +319,7 @@ class ADODB_Session {
 	 *
 	 * @return array|false
 	 */
-	static function expireNotify($expire_notify = null)
+	public static function expireNotify($expire_notify = null)
 	{
 		static $_expire_notify;
 		static $set = false;
@@ -343,7 +343,7 @@ class ADODB_Session {
 	 * @param string $table Session table name (defaults to 'sessions2')
 	 * @return string
 	 */
-	static function table($table = null)
+	public static function table($table = null)
 	{
 		static $_table = 'sessions2';
 		static $set = false;
@@ -370,7 +370,7 @@ class ADODB_Session {
 	 * @param bool $optimize
 	 * @return bool
 	 */
-	static function optimize($optimize = null)
+	public static function optimize($optimize = null)
 	{
 		static $_optimize = false;
 		static $set = false;
@@ -396,14 +396,14 @@ class ADODB_Session {
 	 *
 	 * @deprecated
 	 */
-	static function syncSeconds($sync_seconds = null) {
+	public static function syncSeconds($sync_seconds = null) {
 		return 0;
 	}
 
 	/**
 	 * Get/Set if CLOBs are available to store session data.
 	 */
-	static function clob($clob = null) {
+	public static function clob($clob = null) {
 		static $_clob = false;
 		static $set = false;
 
@@ -428,7 +428,7 @@ class ADODB_Session {
 	 *
 	 * @deprecated
 	 */
-	static function dataFieldName($data_field_name = null) {
+	public static function dataFieldName($data_field_name = null) {
 		return '';
 	}
 
@@ -438,7 +438,7 @@ class ADODB_Session {
 	 * @param array $filter
 	 * @return array
 	 */
-	static function filter($filter = null) {
+	public static function filter($filter = null) {
 		static $_filter = array();
 
 		if (!is_null($filter)) {
@@ -457,7 +457,7 @@ class ADODB_Session {
 	 * @param string $encryption_key
 	 * @return string
 	 */
-	static function encryptionKey($encryption_key = null) {
+	public static function encryptionKey($encryption_key = null) {
 		static $_encryption_key = 'CRYPTED ADODB SESSIONS ROCK!';
 
 		if (!is_null($encryption_key)) {
@@ -476,7 +476,7 @@ class ADODB_Session {
 	 *
 	 * @return ADOConnection|false
 	 */
-	static function _conn($conn=null) {
+	public static function _conn($conn=null) {
 		return isset($GLOBALS['ADODB_SESS_CONN']) ? $GLOBALS['ADODB_SESS_CONN'] : false;
 	}
 
@@ -484,7 +484,7 @@ class ADODB_Session {
 	 * @param $crc
 	 * @return false|mixed
 	 */
-	static function _crc($crc = null) {
+	public static function _crc($crc = null) {
 		static $_crc = false;
 
 		if (!is_null($crc)) {
@@ -497,7 +497,7 @@ class ADODB_Session {
 	/**
 	 * Initialize session handler.
 	 */
-	static function _init() {
+	public static function _init() {
 		session_set_save_handler(
 			array('ADODB_Session', 'open'),
 			array('ADODB_Session', 'close'),
@@ -515,14 +515,14 @@ class ADODB_Session {
 	 * Crypt the used key, ADODB_Session::encryptionKey() as key and
 	 * session_id() as salt.
 	 */
-	static function _sessionKey() {
+	public static function _sessionKey() {
 		return crypt(ADODB_Session::encryptionKey(), session_id());
 	}
 
 	/**
 	 * Dump recordset.
 	 */
-	static function _dumprs(&$rs) {
+	public static function _dumprs(&$rs) {
 		$conn	= ADODB_Session::_conn();
 		$debug	= ADODB_Session::debug();
 
@@ -600,7 +600,7 @@ class ADODB_Session {
 	 * @param array $options
 	 * @return void
 	 */
-	static function config($driver, $host, $user, $password, $database=false,$options=false)
+	public static function config($driver, $host, $user, $password, $database=false,$options=false)
 	{
 		ADODB_Session::driver($driver);
 		ADODB_Session::host($host);
@@ -626,7 +626,7 @@ class ADODB_Session {
 	 *
 	 * @return bool
 	 */
-	static function open($save_path, $session_name, $persist = null)
+	public static function open($save_path, $session_name, $persist = null)
 	{
 		$conn = ADODB_Session::_conn();
 
@@ -703,7 +703,7 @@ class ADODB_Session {
 	/**
 	 * Close the connection
 	 */
-	static function close()
+	public static function close()
 	{
 /*
 		$conn = ADODB_Session::_conn();
@@ -718,7 +718,7 @@ class ADODB_Session {
 	 * @param string $key
 	 * @return string
 	 */
-	static function read($key)
+	public static function read($key)
 	{
 		$conn	= ADODB_Session::_conn();
 		$filter	= ADODB_Session::filter();
@@ -775,7 +775,7 @@ class ADODB_Session {
 	 *
 	 * @return bool
 	 */
-	static function write($key, $oval)
+	public static function write($key, $oval)
 	{
 		global $ADODB_SESSION_READONLY;
 		if (!empty($ADODB_SESSION_READONLY)) {
@@ -894,7 +894,7 @@ class ADODB_Session {
 	 * @param string $key
 	 * @return bool
 	 */
-	static function destroy($key) {
+	public static function destroy($key) {
 		$conn			= ADODB_Session::_conn();
 		$table			= ADODB_Session::table();
 		$expire_notify	= ADODB_Session::expireNotify();
@@ -940,7 +940,7 @@ class ADODB_Session {
 	 * @param int $maxlifetime
 	 * @return bool
 	 */
-	static function gc($maxlifetime)
+	public static function gc($maxlifetime)
 	{
 		$conn			= ADODB_Session::_conn();
 		$debug			= ADODB_Session::debug();
