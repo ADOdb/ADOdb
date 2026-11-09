@@ -21,8 +21,8 @@
 
 use PHPUnit\Framework\TestCase;
 
-require_once dirname(__FILE__) . '/../adodb.inc.php';
-require_once dirname(__FILE__) . '/../adodb-lib.inc.php';
+require_once __DIR__ . '/../adodb.inc.php';
+require_once __DIR__ . '/../adodb-lib.inc.php';
 
 /**
  * Class LibTest.

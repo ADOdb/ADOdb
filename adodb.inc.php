@@ -47,7 +47,7 @@ if (!defined('_ADODB_LAYER')) {
 	 * This constant was formerly called $ADODB_RootPath
 	 */
 	if (!defined('ADODB_DIR')) {
-		define('ADODB_DIR',dirname(__FILE__));
+		define('ADODB_DIR',__DIR__);
 	}
 
 	//==============================================================================================
@@ -3676,7 +3676,7 @@ http://www.stanford.edu/dept/itss/docs/oracle/10g/server.101/b10759/statements_1
 	 * @noinspection PhpUnusedParameterInspection
 	 */
 	function addQ($s, $magic_quotes=false) {
-		
+
 		if (!$s) {
 			return $s;
 		}

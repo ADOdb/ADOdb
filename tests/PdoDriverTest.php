@@ -21,7 +21,7 @@
 
 use PHPUnit\Framework\TestCase;
 
-require_once dirname(__FILE__) . '/../drivers/adodb-pdo.inc.php';
+require_once __DIR__ . '/../drivers/adodb-pdo.inc.php';
 
 /**
  * Class PdoDriverTest.

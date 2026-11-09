@@ -19,7 +19,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-if (!defined('ADODB_DIR')) include_once(dirname(__FILE__).'/adodb.inc.php');
+if (!defined('ADODB_DIR')) include_once(__DIR__.'/adodb.inc.php');
 include_once(ADODB_DIR.'/tohtml.inc.php');
 
 define( 'ADODB_OPT_HIGH', 2);

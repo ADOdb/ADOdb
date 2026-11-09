@@ -52,7 +52,7 @@
 	free
  */
 
-define('ADODB_PEAR',dirname(__FILE__));
+define('ADODB_PEAR',__DIR__);
 include_once "PEAR.php";
 include_once ADODB_PEAR."/adodb-errorpear.inc.php";
 include_once ADODB_PEAR."/adodb.inc.php";
