@@ -31,18 +31,18 @@ class ADODB2_db2 extends ADODB_DataDict {
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;
 
-	
+
  	function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
-		
+
 		/*
 		* Add support for custom meta types. We do this
 		* first, that allows us to override existing types
 		*/
 		if (isset($this->connection->customMetaTypes[$meta]))
 			return $this->connection->customMetaTypes[$meta]['actual'];
-		
+
 		switch($meta) {
 		case 'C': return 'VARCHAR';
 		case 'XL': return 'CLOB';
@@ -92,22 +92,22 @@ class ADODB2_db2 extends ADODB_DataDict {
 		$alter = 'ALTER TABLE ' . $tabname . $this->alterCol . ' ';
 
 		$dataTypeWords = array('SET','DATA','TYPE');
-		
-		foreach($lines as $v) 
+
+		foreach($lines as $v)
 		{
 			/*
 			 * We must now post-process the line to insert the 'SET DATA TYPE'
 			 * text into the alter statement
 			 */
 			$e = explode(' ',$v);
-			
+
 			array_splice($e,1,0,$dataTypeWords);
-			
+
 			$v = implode(' ',$e);
-			
+
 			$sql[] = $alter . $v;
 		}
-		if (is_array($idxs)) 
+		if (is_array($idxs))
 		{
 			foreach($idxs as $idx => $idxdef) {
 				$sql_idxs = $this->CreateIndexSql($idx, $tabname, $idxdef['cols'], $idxdef['opts']);
@@ -119,11 +119,11 @@ class ADODB2_db2 extends ADODB_DataDict {
 	}
 
 
-	
+
 	function dropColumnSql($tabname, $flds, $tableflds='',$tableoptions='')
 	{
-		
-		
+
+
 		$metaTables = $this->metaTables('T','',$tabname);
 		if ( $metaTables === false ) {
 			return false;
@@ -131,7 +131,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 		$tabname = $metaTables[0];
 		//$tabname = $this->connection->getMetaCasedValue($tabname);
 		//$flds    = $this->connection->getMetaCasedValue($flds);
-		
+
 		if (ADODB_ASSOC_CASE  == ADODB_ASSOC_CASE_NATIVE )
 		{
 			/*
@@ -147,15 +147,15 @@ class ADODB2_db2 extends ADODB_DataDict {
 
 	/**
 	 * Renames a table
-	 * 
+	 *
 	 * @param string $tabname Current table name
 	 * @param string $newname New table name
-	 * 
+	 *
 	 * @return array
 	 */
 	function renameTableSQL($tabname, $newname)
 	{
-		
+
 		$ttype = 'T';
 		$schema = '';
 		$mask = $tabname;
@@ -168,11 +168,11 @@ class ADODB2_db2 extends ADODB_DataDict {
 			return false;
 		}
 
-		
+
 		return parent::renameTableSQL($tabname[0], $newname);
-		
+
 	}
-    
+
 
 	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFields=false)
 	{
@@ -186,8 +186,8 @@ class ADODB2_db2 extends ADODB_DataDict {
 		$validTypes = array("CHAR","VARC");
 		$invalidTypes = array("BIGI","BLOB","CLOB","DATE", "DECI","DOUB", "INTE", "REAL","SMAL", "TIME");
 		// check table exists
-		
-		
+
+
 		$cols = $this->metaColumns($tablename);
 		if ( empty($cols)) {
 			return $this->createTableSQL($tablename, $flds, $tableoptions);
@@ -217,7 +217,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 				// assume that $vargs[0] is the field name.
 				$i=0;
 				// Find the next non-blank value;
-				for ($i=1;$i<sizeof($vargs);$i++)
+				for ($i=1;$i<count($vargs);$i++)
 					if ($vargs[$i] != '')
 						break;
 
@@ -233,7 +233,7 @@ class ADODB2_db2 extends ADODB_DataDict {
 				// Now Look for the NOT NULL statement as this is not allowed in
 				// the ALTER table statement. If it is in there, remove it
 				if (in_array('NOT',$vargs) && in_array('NULL',$vargs)) {
-					for ($i=1;$i<sizeof($vargs);$i++)
+					for ($i=1;$i<count($vargs);$i++)
 					if ($vargs[$i] == 'NOT')
 						break;
 					array_splice($vargs,$i,2,'');

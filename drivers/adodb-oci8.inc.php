@@ -66,7 +66,7 @@ class ADODB_oci8 extends ADOConnection {
 	var $sysDate = "TRUNC(SYSDATE)";
 	var $sysTimeStamp = 'SYSDATE'; // requires oracle 9 or later, otherwise use SYSDATE
 	var $metaDatabasesSQL = "
-SELECT LOWER(USERNAME) FROM ALL_USERS 
+SELECT LOWER(USERNAME) FROM ALL_USERS
  WHERE USERNAME NOT IN ('SYS','SYSTEM','OUTLN','DBSNMP',
 'APPQOSSYS','AUDSYS','CTXSYS','DVSYS','GSMADMIN_INTERNAL',
 'LBACSYS','MDSYS','OJVMSYS','ORDDATA','ORDPLUGINS','ORDSYS',
@@ -184,8 +184,8 @@ END;
 			}
 			$fld->not_null = $rs->fields[5] == 'N';
 			$fld->binary = (strpos($fld->type,'BLOB') !== false);
-			
-			
+
+
 
 			if ($ADODB_FETCH_MODE == ADODB_FETCH_NUM) {
 				$retarr[] = $fld;
@@ -525,7 +525,7 @@ END;
 		if ($tableName == false) {
 			return false;
 		}
-		
+
 		$saveModes = [
 			$ADODB_FETCH_MODE,
 			$this->fetchMode
@@ -538,22 +538,22 @@ END;
 
 		// get Primary index
 		$primary_key = '';
-		
+
 		$p1 = $this->param('p1');
 		$bind = ['p1' => $table];
 
-		$sql = "SELECT CONSTRAINT_NAME FROM ALL_CONSTRAINTS 
-				WHERE UPPER(TABLE_NAME) = $p1  
+		$sql = "SELECT CONSTRAINT_NAME FROM ALL_CONSTRAINTS
+				WHERE UPPER(TABLE_NAME) = $p1
 				AND CONSTRAINT_TYPE='P'";
-		
+
 		$primary_key = $this->getOne($sql,$bind);
 
-		$sql = "SELECT ALL_INDEXES.INDEX_NAME, ALL_INDEXES.UNIQUENESS, 
-			        ALL_IND_COLUMNS.COLUMN_POSITION, ALL_IND_COLUMNS.COLUMN_NAME 
-			   FROM ALL_INDEXES,ALL_IND_COLUMNS 
-			   WHERE UPPER(ALL_INDEXES.TABLE_NAME)=$p1 
+		$sql = "SELECT ALL_INDEXES.INDEX_NAME, ALL_INDEXES.UNIQUENESS,
+			        ALL_IND_COLUMNS.COLUMN_POSITION, ALL_IND_COLUMNS.COLUMN_NAME
+			   FROM ALL_INDEXES,ALL_IND_COLUMNS
+			   WHERE UPPER(ALL_INDEXES.TABLE_NAME)=$p1
 			     AND ALL_IND_COLUMNS.INDEX_NAME=ALL_INDEXES.INDEX_NAME";
-		
+
 		$rs = $this->Execute($sql, $bind);
 
 		if (!is_object($rs)) {
@@ -586,7 +586,7 @@ END;
 
 		$ADODB_FETCH_MODE = $saveModes[0];
 		$this->fetchMode  = $saveModes[1];
-		
+
 		return $indexes;
 	}
 
@@ -878,7 +878,7 @@ END;
 				}
 				if (is_array($v)) {
 					// suggested by g.giunta@libero.
-					if (sizeof($v) == 2) {
+					if (count($v) == 2) {
 						oci_bind_by_name($stmt, $bv_name, $inputarr[$k][0], $v[1]);
 					} else {
 						oci_bind_by_name($stmt, $bv_name, $inputarr[$k][0], $v[1], $v[2]);
@@ -1084,7 +1084,7 @@ END;
 						} else {
 							$at = $arr[1];
 							if (isset($inputarr[$at]) || is_null($inputarr[$at])) {
-								if ((strlen($at) == strlen($str) && $k < sizeof($arr)-1)) {
+								if ((strlen($at) == strlen($str) && $k < count($arr)-1)) {
 									$sql .= ':'.$str;
 									$lastnomatch = $k;
 								} else if ($lastnomatch == $k-1) {
@@ -1184,7 +1184,7 @@ END;
 		}
 		else $stmt = ADODB_oci8::Prepare($sql,true); # true to allocate oci_new_cursor
 
-		if (is_array($stmt) && sizeof($stmt) >= 5) {
+		if (is_array($stmt) && count($stmt) >= 5) {
 			$hasref = true;
 			$ignoreCur = false;
 			$this->Parameter($stmt, $ignoreCur, $cursorName, false, -1, OCI_B_CURSOR);
@@ -1245,7 +1245,7 @@ END;
 			return false;
 		}
 
-		if (($type == OCI_B_CURSOR) && sizeof($stmt) >= 5) {
+		if (($type == OCI_B_CURSOR) && count($stmt) >= 5) {
 			return oci_bind_by_name($stmt[1],":".$name,$stmt[4],$size,$type);
 		}
 
@@ -1390,7 +1390,7 @@ END;
 			foreach($inputarr as $k => $v) {
 				if (is_array($v)) {
 					// suggested by g.giunta@libero.
-					if (sizeof($v) == 2) {
+					if (count($v) == 2) {
 						oci_bind_by_name($stmt,":$k",$inputarr[$k][0],$v[1]);
 					}
 					else {
@@ -1571,7 +1571,7 @@ SELECT /*+ RULE */ distinct b.column_name
 	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
 		global $ADODB_FETCH_MODE;
-		
+
 		$tableName = $this->metaTables('T', $owner, $table);
 		if ($tableName == false) {
 			return false;
@@ -1603,7 +1603,7 @@ SELECT /*+ RULE */ distinct b.column_name
 		$sql =
 "SELECT constraint_name,r_owner,r_constraint_name
    FROM {$tabp}constraints
-  WHERE constraint_type = 'R' 
+  WHERE constraint_type = 'R'
 	AND table_name = $table $owner";
 
 		$constraints = $this->GetArray($sql);
@@ -1613,29 +1613,29 @@ SELECT /*+ RULE */ distinct b.column_name
 			$rowner = $this->qstr($constr[1]);
 			$rcons  = $this->qstr($constr[2]);
 
-			$sql = "SELECT column_name 
-					  FROM {$tabp}cons_columns 
-					 WHERE constraint_name=$cons $owner 
+			$sql = "SELECT column_name
+					  FROM {$tabp}cons_columns
+					 WHERE constraint_name=$cons $owner
 					 ORDER BY position";
 			$sourceData = $this->GetCol($sql);
-			
-			$sql = "SELECT table_name,column_name 
-			          FROM {$tabp}cons_columns 
-					  WHERE owner=$rowner 
-					  AND constraint_name=$rcons 
+
+			$sql = "SELECT table_name,column_name
+			          FROM {$tabp}cons_columns
+					  WHERE owner=$rowner
+					  AND constraint_name=$rcons
 					  ORDER BY position";
 			$targetData = $this->GetArray($sql);
 
 			if ($sourceData && $targetData) {
 
-				$max = sizeof($sourceData);
+				$max = count($sourceData);
 				foreach ($targetData as $k => $v) {
 					if ($upper) {
 						$tableName = strtoupper($v[0]);
 					} else {
 						$tableName = strtolower($v[0]);
 					}
-					
+
 					if (!array_key_exists($tableName, $arr)) {
 						$arr[$tableName] = [];
 					}
@@ -1654,29 +1654,29 @@ SELECT /*+ RULE */ distinct b.column_name
 						*/
 						if ($upper) {
 						$arr[$tableName][] = sprintf(
-							'%s=%s', 		
+							'%s=%s',
 							strtoupper($sourceData[$k]),
 							strtoupper($v[1])
 						);
 						} else {
 							$arr[$tableName][] = sprintf(
-							'%s=%s', 
+							'%s=%s',
 							strtolower($sourceData[$k]),
 							strtolower($v[1])
 						);
 						}
-					} 
+					}
 				}
 			}
 		}
-		
+
 		$ADODB_FETCH_MODE = $saveModes[0];
 		$this->fetchMode  = $saveModes[1];
-		
-		if (!$arr || count($arr) == 0) { 
+
+		if (!$arr || count($arr) == 0) {
 			return false;
 		}
-		
+
 		return $arr;
 	}
 
@@ -1930,7 +1930,7 @@ class ADORecordset_oci8 extends ADORecordSet {
 			$this->connection->_stmt = false;
 		}
 		if (!empty($this->_refcursor)) {
-			oci_free_cursor($this->_refcursor);
+			oci_free_statement($this->_refcursor);
 			$this->_refcursor = false;
 		}
 		if (is_resource($this->_queryID))

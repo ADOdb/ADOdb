@@ -624,7 +624,7 @@ class ADODB_db2 extends ADOConnection {
     public function serverInfo()
     {
         global $ADODB_FETCH_MODE;
-        
+
         $saveModes = [
             $ADODB_FETCH_MODE,
             $this->fetchMode
@@ -895,18 +895,18 @@ class ADODB_db2 extends ADOConnection {
         }
 
         $this->setFetchMode(ADODB_FETCH_ASSOC);
-        
+
         $sql = "SELECT *
                  FROM syscat.references
                 WHERE tabname = '$table'";
 
         $results = $this->getAll($sql);
 
-        
+
         if (empty($results)) {
             $ADODB_FETCH_MODE = $saveModes[0];
             $this->fetchMode  = $saveModes[1];
-        
+
             return false;
         }
         $foreignKeys = array();
@@ -915,8 +915,8 @@ class ADODB_db2 extends ADOConnection {
         {
 
             $r = array_change_key_case($r, CASE_UPPER);
-           
-            
+
+
             /*
 
             [CONSTNAME] => SQL250829011849680
@@ -938,15 +938,15 @@ class ADODB_db2 extends ADOConnection {
             */
 
             $casing = $upper ? CASE_UPPER : CASE_LOWER;
-            
+
             $referenceTable = trim($r['REFTABNAME']);
-            
+
             if ($casing == CASE_UPPER) {
                 $referenceTable = strtoupper($referenceTable);
-            } else {  
+            } else {
                 $referenceTable = strtolower($referenceTable);
             }
-            
+
             if (!array_key_exists($referenceTable, $foreignKeys)) {
                 $foreignKeys[$referenceTable] = array();
             }
@@ -958,15 +958,15 @@ class ADODB_db2 extends ADOConnection {
 
                 $pkColname = trim($pkColname);
                 $fkColname = trim($fkColnames[$i]);
-                
+
                 if ($casing == CASE_UPPER) {
                     $pkColname      = strtoupper($pkColname);
-                    $fkColname      = strtoupper($fkColname);           
+                    $fkColname      = strtoupper($fkColname);
                 } else {
                     $pkColname      = strtolower($pkColname);
                     $fkColname      = strtolower($fkColname);
                 }
-                
+
                 if ($associative) {
                     $foreignKeys[$referenceTable][$fkColname] = $pkColname;
                 } else {
@@ -983,7 +983,7 @@ class ADODB_db2 extends ADOConnection {
 
         $ADODB_FETCH_MODE = $saveModes[0];
         $this->fetchMode  = $saveModes[1];
-        
+
         return $foreignKeys;
     }
 
@@ -1087,7 +1087,7 @@ class ADODB_db2 extends ADOConnection {
 
         $ADODB_FETCH_MODE = $saveModes[0];
         $this->fetchMode  = $saveModes[1];
-  
+
 
         if (count($metaTables) == 0)
             return false;
@@ -1126,13 +1126,13 @@ class ADODB_db2 extends ADOConnection {
         $primaryKeyName = '';
 
         $table = $this->metaTables('T','',$table);
-        
+
         if ($table == false) {
             return false;
         }
 
         $table = $table[0];
-        
+
         $saveModes = [
             $ADODB_FETCH_MODE,
             $this->fetchMode
@@ -1153,7 +1153,7 @@ class ADODB_db2 extends ADOConnection {
             $this->fetchMode  = $saveModes[1];
             return false;
         }
-        
+
 
         foreach ($rows as $r) {
 
@@ -1255,10 +1255,10 @@ class ADODB_db2 extends ADOConnection {
 
         if (!$result){
             $ADODB_FETCH_MODE = $saveModes[0];
-            $this->fetchMode  = $saveModes[1]; 
+            $this->fetchMode  = $saveModes[1];
             return false;
         }
-        
+
         while ($r = $result->fetchRow()){
 
             $procedureName = $this->getMetaCasedValue($r[0]);
@@ -1272,7 +1272,7 @@ class ADODB_db2 extends ADOConnection {
         }
 
         $ADODB_FETCH_MODE = $saveModes[0];
-        $this->fetchMode  = $saveModes[1]; 
+        $this->fetchMode  = $saveModes[1];
         return $metaProcedures;
 
     }
@@ -1375,7 +1375,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
             return "I4";
 
         default:
-            
+
             return ADODB_DEFAULT_METATYPE;
         }
     }
@@ -1425,7 +1425,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
             print "NO RECORDSET\n";
             $this->setFetchMode($savem);
             return false;
-        
+
         }
         $rs->_fetch();
 
@@ -1455,7 +1455,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
         while (!$rs->EOF)
         {
 
-           
+
             if ($rs->fields[2] == $table)
             {
 
@@ -1486,7 +1486,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
                 $retarr[$columnName] = $fld;
 
             }
-            else if (sizeof($retarr)>0)
+            else if (count($retarr)>0)
                 break;
 
             $rs->MoveNext();
@@ -1497,7 +1497,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
                   FROM SYSCAT.COLUMNS
                  WHERE TABNAME='$table'
                    AND IDENTITY = 'Y'";
-    
+
         $identityColumns = $this->getCol($sql);
 
         foreach ($identityColumns as $identityColumn) {
@@ -1566,7 +1566,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
             {
                 $retarr[strtoupper($rs->fields[3])]->primary_key = true;
             }
-            else if (sizeof($retarr)>0)
+            else if (count($retarr)>0)
                 break;
 
             $rs->MoveNext();
@@ -1626,17 +1626,17 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
 
         $procedureName = strtoupper($procedureName);
 
-        $qid = db2_procedure_columns($this->_connectionID, '', '%' , $procedureName , '' );    
+        $qid = db2_procedure_columns($this->_connectionID, '', '%' , $procedureName , '' );
         if (!$qid)
         {
             if ($this->debug)
                 ADOConnection::outp(sprintf('No columns of name %s available',$procedureName));
             return false;
         }
-        
+
         $preparedStatement = 'CALL %s(%s)';
         $parameterMarkers = array();
-        
+
         while ($rs = db2_fetch_assoc($qid)) {
 
             $parameterName = $rs['column_name'];
@@ -1662,7 +1662,7 @@ See http://msdn.microsoft.com/library/default.asp?url=/library/en-us/db2/htm/db2
             }
             $this->storedProcedureParameters['index'][$parameterName] = $ordinalPosition;
             $this->storedProcedureParameters['parameters'][$ordinalPosition] = array_values($rs);
-           
+
         }
         $parameterCount = count($this->storedProcedureParameters['index']);
         $parameterMarkers = array_fill(0,$parameterCount,'?');

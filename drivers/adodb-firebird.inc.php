@@ -199,7 +199,7 @@ class ADODB_firebird extends ADOConnection {
 	ORDER BY I.RDB$INDEX_NAME,S.RDB$FIELD_POSITION';
 
 		$a = $this->GetCol($sql,false,true);
-		if ($a && sizeof($a)>0) return $a;
+		if ($a && count($a)>0) return $a;
 		return false;
 	}
 
@@ -1009,7 +1009,7 @@ class ADODB_firebird extends ADOConnection {
 	 * CHAR fields
 	 *
 	 * @param string $fieldName The field length to measure
- 	 * 
+ 	 *
 	 * @return string
 	 */
 	public function length(string $fieldName): string

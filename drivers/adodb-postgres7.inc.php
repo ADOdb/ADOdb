@@ -166,7 +166,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 	 */
 	public function metaForeignKeys($table, $owner = '', $upper = false, $associative = false)
 	{
-		
+
 		global $ADODB_FETCH_MODE;
 
 		$tableName = $this->MetaTables('T', $owner, $table);
@@ -231,9 +231,9 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 		$id = 1;
 
 		while (!$rs->EOF) {
-			
+
 			$lookup_table = $rs->fields('lookup_table');
-	
+
             if (!array_key_exists($id, $sortKeys)) {
 
 				$sourceColumns = array_map('trim', explode(',', $rs->fields('dep_field')));
@@ -241,11 +241,11 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 
 				if ($upper) {
 					$lookup_table = strtoupper($lookup_table);
-					$sourceColumns = array_map('strtoupper', $sourceColumns); 
-					$targetColumns = array_map('strtoupper', $targetColumns); 
+					$sourceColumns = array_map('strtoupper', $sourceColumns);
+					$targetColumns = array_map('strtoupper', $targetColumns);
 				}
-                
-				
+
+
 				$sortKeys[$id] = new \stdClass();
                 $sortKeys[$id]->tableName = $lookup_table;
                 $sortKeys[$id]->assocKeys = [];
@@ -295,7 +295,7 @@ class ADODB_postgres7 extends ADODB_postgres64 {
 			$sqlarr = explode('?',trim($sql));
 			$sql = '';
 			$i = 1;
-			$last = sizeof($sqlarr)-1;
+			$last = count($sqlarr)-1;
 			foreach($sqlarr as $v) {
 				if ($last < $i) $sql .= $v;
 				else $sql .= $v.' $'.$i;

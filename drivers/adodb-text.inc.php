@@ -54,9 +54,9 @@ class ADODB_text extends ADOConnection {
 
 	function RSRecordCount()
 	{
-		if (!empty($this->_rezarray)) return sizeof($this->_rezarray);
+		if (!empty($this->_rezarray)) return count($this->_rezarray);
 
-		return sizeof($this->_origarray);
+		return count($this->_origarray);
 	}
 
 	function _affectedrows()
@@ -79,7 +79,7 @@ class ADODB_text extends ADOConnection {
 			return true;
 		}
 		$row = $array[0];
-		$cols = sizeof($row);
+		$cols = count($row);
 
 
 		if ($colnames) $this->_colnames = $colnames;
@@ -91,7 +91,7 @@ class ADODB_text extends ADOConnection {
 		// probe and guess the type
 			$types = array();
 			$firstrow = true;
-			if ($this->_proberows > sizeof($array)) $max = sizeof($array);
+			if ($this->_proberows > count($array)) $max = count($array);
 			else $max = $this->_proberows;
 			for ($j=($this->_skiprow1)?1:0;$j < $max; $j++) {
 				$row = $array[$j];
@@ -255,7 +255,7 @@ class ADODB_text extends ADOConnection {
 		$orderby = trim(substr($usql,$pos+10));
 
 		preg_match("/$eregword/",$orderby,$arr);
-		if (sizeof($arr) < 2) return $this; // actually invalid sql
+		if (count($arr) < 2) return $this; // actually invalid sql
 		$col = $arr[1];
 		$at = (int) $col;
 		if ($at == 0) {
@@ -270,14 +270,14 @@ class ADODB_text extends ADOConnection {
 			}
 		}
 
-		if ($at <= 0 || $at > sizeof($projarray[0])) return $this; // cannot find sort column
+		if ($at <= 0 || $at > count($projarray[0])) return $this; // cannot find sort column
 		$at -= 1;
 
 		// generate sort array consisting of (sortval1, row index1) (sortval2, row index2)...
 		$sorta = array();
 		$t = $projtypes[$at];
 		$num = ($t == 'I' || $t == 'N');
-		for ($i=($this->_skiprow1)?1:0, $max = sizeof($projarray); $i < $max; $i++) {
+		for ($i=($this->_skiprow1)?1:0, $max = count($projarray); $i < $max; $i++) {
 			$row = $projarray[$i];
 			$val = ($num)?(float)$row[$at]:$row[$at];
 			$sorta[]=array($val,$i);

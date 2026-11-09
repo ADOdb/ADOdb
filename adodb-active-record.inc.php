@@ -95,12 +95,12 @@ function ADODB_SetDatabaseAdapter($db, $index=false)
 	$obj->tables = array();
 
 	if (!$index) {
-		$index = sizeof($_ADODB_ACTIVE_DBS);
+		$index = count($_ADODB_ACTIVE_DBS);
 	}
 
 	$_ADODB_ACTIVE_DBS[$index] = $obj;
 
-	return sizeof($_ADODB_ACTIVE_DBS) - 1;
+	return count($_ADODB_ACTIVE_DBS) - 1;
 }
 
 
@@ -169,7 +169,7 @@ class ADODB_Active_Record
 		if ($db) {
 			$this->_dbat = ADODB_Active_Record::SetDatabaseAdapter($db);
 		} else if (!isset($this->_dbat)) {
-			if (sizeof($_ADODB_ACTIVE_DBS) == 0) {
+			if (count($_ADODB_ACTIVE_DBS) == 0) {
 				$this->Error(
 					"No database connection set; use ADOdb_Active_Record::SetDatabaseAdapter(\$db)",
 					'ADODB_Active_Record::__constructor'
@@ -686,13 +686,13 @@ class ADODB_Active_Record
 		$this->_saved = true;
 
 		$table = $this->TableInfo();
-		if ($ACTIVE_RECORD_SAFETY && sizeof($table->flds) != sizeof($row)) {
+		if ($ACTIVE_RECORD_SAFETY && count($table->flds) != count($row)) {
 			# <AP>
 			$bad_size = TRUE;
-			if (sizeof($row) == 2 * sizeof($table->flds)) {
+			if (count($row) == 2 * count($table->flds)) {
 				// Only keep string keys
 				$keys = array_filter(array_keys($row), 'is_string');
-				if (sizeof($keys) == sizeof($table->flds)) {
+				if (count($keys) == count($table->flds)) {
 					$bad_size = FALSE;
 				}
 			}
@@ -921,7 +921,7 @@ class ADODB_Active_Record
 					break;
 				}
 			}
-			if ($autoinc && sizeof($table->keys) == 1) {
+			if ($autoinc && count($table->keys) == 1) {
 				$k = reset($table->keys);
 				$this->$k = $this->LastInsertID($db, $k);
 			}
@@ -1047,7 +1047,7 @@ class ADODB_Active_Record
 						break;
 					}
 				}
-				if ($autoinc && sizeof($table->keys) == 1) {
+				if ($autoinc && count($table->keys) == 1) {
 					$k = reset($table->keys);
 					$this->$k = $this->LastInsertID($db, $k);
 				}

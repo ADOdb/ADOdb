@@ -235,7 +235,7 @@ class ADODB_ldap extends ADOConnection
 	function _close()
 	{
 		if (is_resource($this->_connectionID)) {
-			@ldap_close($this->_connectionID);
+			@ldap_unbind($this->_connectionID);
 		}
 
 		$this->_connectionID = false;

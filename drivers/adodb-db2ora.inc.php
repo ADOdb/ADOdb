@@ -58,7 +58,7 @@ function _colonscope($sql,$arr)
 global $_COLONARR,$_COLONSZ;
 
 	$_COLONARR = array();
-	$_COLONSZ = sizeof($arr);
+	$_COLONSZ = count($arr);
 
 	$sql2 = preg_replace_callback('/(:[0-9]+)/', '_colontrack', $sql);
 

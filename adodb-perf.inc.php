@@ -46,10 +46,10 @@ function adodb_getmem()
 
 	/* Hopefully UNIX */
 	exec("ps --pid $pid --no-headers -o%mem,size", $output);
-	if (sizeof($output) == 0) return 0;
+	if (count($output) == 0) return 0;
 
 	$memarr = explode(' ',$output[0]);
-	if (sizeof($memarr)>=2) return (int) $memarr[1];
+	if (count($memarr)>=2) return (int) $memarr[1];
 
 	return 0;
 }
@@ -120,7 +120,7 @@ function adodb_log_sql(&$connx,$sql,$inputarr)
 		$tracer = (string) substr($tracer,0,500);
 
 		if (is_array($inputarr)) {
-			if (is_array(reset($inputarr))) $params = 'Array sizeof='.sizeof($inputarr);
+			if (is_array(reset($inputarr))) $params = 'Array sizeof='.count($inputarr);
 			else {
 				// Quote string parameters so we can see them in the
 				// performance stats. This helps spot disabled indexes.
@@ -616,9 +616,9 @@ Committed_AS:   348732 kB
 
 			$sql1 = $sql[0];
 			$key = $sql[1];
-			if (sizeof($sql)>2) $pos = $sql[2];
+			if (count($sql)>2) $pos = $sql[2];
 			else $pos = 1;
-			if (sizeof($sql)>3) $coef = $sql[3];
+			if (count($sql)>3) $coef = $sql[3];
 			else $coef = false;
 			$ret = false;
 			$save = $ADODB_FETCH_MODE;
@@ -839,7 +839,7 @@ Committed_AS:   348732 kB
 			if (!is_array($arr)) break;
 			$category = $arr[0];
 			$how = $arr[1];
-			if (sizeof($arr)>2) $desc = $arr[2];
+			if (count($arr)>2) $desc = $arr[2];
 			else $desc = ' &nbsp; ';
 
 

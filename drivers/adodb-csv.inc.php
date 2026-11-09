@@ -144,7 +144,7 @@ class ADODB_csv extends ADOConnection {
 
 			}
 			$sql .= $sqlarr[$i];
-			if ($i+1 != sizeof($sqlarr))
+			if ($i+1 != count($sqlarr))
 				print "Input Array does not match ?: ".htmlspecialchars($sql);
 			$inputarr = false;
 		}

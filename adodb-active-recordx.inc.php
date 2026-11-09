@@ -55,11 +55,11 @@ class ADODB_Active_Table
 
 	function updateColsCount()
 	{
-		$this->_colsCount = sizeof($this->flds);
+		$this->_colsCount = count($this->flds);
 		foreach ($this->_belongsTo as $foreignTable)
-			$this->_colsCount += sizeof($foreignTable->TableInfo()->flds);
+			$this->_colsCount += count($foreignTable->TableInfo()->flds);
 		foreach ($this->_hasMany as $foreignTable)
-			$this->_colsCount += sizeof($foreignTable->TableInfo()->flds);
+			$this->_colsCount += count($foreignTable->TableInfo()->flds);
 	}
 }
 
@@ -80,7 +80,7 @@ function ADODB_SetDatabaseAdapter(&$db)
 
 	$_ADODB_ACTIVE_DBS[] = $obj;
 
-	return sizeof($_ADODB_ACTIVE_DBS) - 1;
+	return count($_ADODB_ACTIVE_DBS) - 1;
 }
 
 
@@ -163,7 +163,7 @@ class ADODB_Active_Record
 		if ($db) {
 			$this->_dbat = ADODB_Active_Record::SetDatabaseAdapter($db);
 		} else
-			$this->_dbat = sizeof($_ADODB_ACTIVE_DBS) - 1;
+			$this->_dbat = count($_ADODB_ACTIVE_DBS) - 1;
 
 
 		if ($this->_dbat < 0) {
@@ -677,15 +677,15 @@ class ADODB_Active_Record
 		$this->_saved = true;
 
 		$table = $this->TableInfo();
-		$sizeofFlds = sizeof($table->flds);
-		$sizeofRow = sizeof($row);
+		$sizeofFlds = count($table->flds);
+		$sizeofRow = count($row);
 		if ($ACTIVE_RECORD_SAFETY && $table->_colsCount != $sizeofRow && $sizeofFlds != $sizeofRow) {
 			# <AP>
 			$bad_size = TRUE;
 			if ($sizeofRow == 2 * $table->_colsCount || $sizeofRow == 2 * $sizeofFlds) {
 				// Only keep string keys
 				$keys = array_filter(array_keys($row), 'is_string');
-				if (sizeof($keys) == sizeof($table->flds)) {
+				if (count($keys) == count($table->flds)) {
 					$bad_size = FALSE;
 				}
 			}
@@ -994,7 +994,7 @@ class ADODB_Active_Record
 					break;
 				}
 			}
-			if ($autoinc && sizeof($table->keys) == 1) {
+			if ($autoinc && count($table->keys) == 1) {
 				$k = reset($table->keys);
 				$this->$k = $this->LastInsertID($db, $k);
 			}
@@ -1110,7 +1110,7 @@ class ADODB_Active_Record
 						break;
 					}
 				}
-				if ($autoinc && sizeof($table->keys) == 1) {
+				if ($autoinc && count($table->keys) == 1) {
 					$k = reset($table->keys);
 					$this->$k = $this->LastInsertID($db, $k);
 				}

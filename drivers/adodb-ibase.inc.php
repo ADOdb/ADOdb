@@ -119,7 +119,7 @@ class ADODB_ibase extends ADOConnection {
 	ORDER BY I.RDB$INDEX_NAME,S.RDB$FIELD_POSITION';
 
 		$a = $this->GetCol($sql,false,true);
-		if ($a && sizeof($a)>0) return $a;
+		if ($a && count($a)>0) return $a;
 		return false;
 	}
 
@@ -357,7 +357,7 @@ class ADODB_ibase extends ADOConnection {
 			$fn = 'ibase_query';
 
 			if (is_array($inputarr)) {
-				if (sizeof($inputarr) == 0) {
+				if (count($inputarr) == 0) {
 					$inputarr[0] = ''; // PHP5 compat hack
 				}
 				$fnarr = array_merge(array($conn, $sql), $inputarr);

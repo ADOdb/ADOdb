@@ -275,7 +275,7 @@ order by constraint_name, referenced_table_name, keyno";
 		$a = $this->GetCol($sql);
 		$ADODB_FETCH_MODE = $savem;
 
-		if ($a && sizeof($a)>0) return $a;
+		if ($a && count($a)>0) return $a;
 		$false = false;
 		return $false;
 	}
@@ -414,7 +414,7 @@ order by constraint_name, referenced_table_name, keyno";
 		$arr = func_get_args();
 
 		// Split single record on commas, if possible
-		if (sizeof($arr) == 1) {
+		if (count($arr) == 1) {
 			foreach ($arr as $arg) {
 				$args = explode(',', $arg);
 			}
@@ -428,7 +428,7 @@ order by constraint_name, referenced_table_name, keyno";
 			}
 		);
 		$s = implode('+',$arr);
-		if (sizeof($arr) > 0) return "$s";
+		if (count($arr) > 0) return "$s";
 
 		return '';
 	}

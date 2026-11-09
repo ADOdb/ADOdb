@@ -41,7 +41,7 @@ define('ADODB_DB2OCI',1);
 function _colonparser($sql,$arr)
 {
 	$lensql = strlen($sql);
-	$arrsize = sizeof($arr);
+	$arrsize = count($arr);
 	$state = 'NORM';
 	$at = 1;
 	$ch = $sql[0];
@@ -169,7 +169,7 @@ class ADODB_db2oci extends ADODB_db2 {
 		if ($ttype) {
 			$isview = strncmp($ttype,'V',1) === 0;
 		}
-		for ($i=0; $i < sizeof($arr); $i++) {
+		for ($i=0; $i < count($arr); $i++) {
 			if (!$arr[$i][2]) continue;
 			$type = $arr[$i][3];
 			$schemaval = ($schema) ? $arr[$i][1].'.' : '';

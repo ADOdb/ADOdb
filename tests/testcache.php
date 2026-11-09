@@ -35,4 +35,4 @@ if (isset($cache)) $rs = $db->CacheExecute(120,'select * from products');
 else $rs = $db->Execute('select * from products');
 
 $arr = $rs->GetArray();
-print sizeof($arr);
+print count($arr);

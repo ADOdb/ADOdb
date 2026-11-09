@@ -518,7 +518,7 @@ class ADODB_ads extends ADOConnection
 				$fld->scale = $rs->fields[8];
 				$retarr[strtoupper($fld->name)] = $fld;
 			} else {
-				if (sizeof($retarr) > 0) {
+				if (count($retarr) > 0) {
 					break;
 				}
 			}
