@@ -207,7 +207,7 @@ class ADODB_ldap extends ADOConnection
 	 * @return resource|false
 	 * @noinspection PhpParameterNameChangedDuringInheritanceInspection
 	 */
-	function _query($ldapQuery, $inputarr = false)
+	public function _query($ldapQuery, $inputarr = false)
 	{
 		$rs = ldap_search($this->_connectionID, $this->database, $ldapQuery);
 
@@ -222,7 +222,7 @@ class ADODB_ldap extends ADOConnection
 	 *
 	 * @return int The last error number.
 	 */
-	function errorNo()
+	public function errorNo()
 	{
 		return @ldap_errno($this->_connectionID);
 	}
@@ -232,7 +232,7 @@ class ADODB_ldap extends ADOConnection
 	 *
 	 * @return void
 	 */
-	function _close()
+	public function _close()
 	{
 		if (is_resource($this->_connectionID)) {
 			@ldap_close($this->_connectionID);

@@ -57,7 +57,7 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 	public $connectStmt = 'SET CONCAT_NULL_YIELDS_NULL OFF'; #
 
 	// crashes php...
-	function ServerInfo()
+	public function ServerInfo()
 	{
 	global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
@@ -70,7 +70,7 @@ class  ADODB_odbc_mssql extends ADODB_odbc {
 		return $arr;
 	}
 
-	function IfNull( $field, $ifNull )
+	public function IfNull( $field, $ifNull )
 	{
 		return " ISNULL($field, $ifNull) "; // if MS SQL Server
 	}
@@ -124,7 +124,7 @@ order by constraint_name, referenced_table_name, keyno";
 		return $arr2;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {//$this->debug=1;
 			$save = $this->metaTablesSQL;
@@ -139,7 +139,7 @@ order by constraint_name, referenced_table_name, keyno";
 		return $ret;
 	}
 
-	function MetaColumns($table, $normalize=true)
+	public function MetaColumns($table, $normalize=true)
 	{
 
 		$this->_findschema($table,$schema);
@@ -197,7 +197,7 @@ order by constraint_name, referenced_table_name, keyno";
 	}
 
 
-	function MetaIndexes($table,$primary=false, $owner=false)
+	public function MetaIndexes($table,$primary=false, $owner=false)
 	{
 		$table = $this->qstr($table);
 
@@ -237,13 +237,13 @@ order by constraint_name, referenced_table_name, keyno";
         return $indexes;
 	}
 
-	function _query($sql,$inputarr=false)
+	public function _query($sql,$inputarr=false)
 	{
 		if (is_string($sql)) $sql = str_replace('||','+',$sql);
 		return ADODB_odbc::_query($sql,$inputarr);
 	}
 
-	function SetTransactionMode( $transaction_mode )
+	public function SetTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -256,7 +256,7 @@ order by constraint_name, referenced_table_name, keyno";
 
 	// "Stein-Aksel Basma" <basma@accelero.no>
 	// tested with MSSQL 2000
-	function MetaPrimaryKeys($table, $owner = false)
+	public function MetaPrimaryKeys($table, $owner = false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -280,7 +280,7 @@ order by constraint_name, referenced_table_name, keyno";
 		return $false;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
+	public function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
@@ -295,7 +295,7 @@ order by constraint_name, referenced_table_name, keyno";
 	}
 
 	// Format date column in sql string given an input format that understands Y M D
-	function SQLDate($fmt, $col=false)
+	public function SQLDate($fmt, $col=false)
 	{
 		if (!$col) $col = $this->sysTimeStamp;
 		$s = '';
@@ -366,7 +366,7 @@ order by constraint_name, referenced_table_name, keyno";
 	*
 	* @return	The SQL text
 	*/
-	function substr($fld,$start,$length=0)
+	public function substr($fld,$start,$length=0)
 	{
 		if ($length == 0)
 			/*
@@ -387,7 +387,7 @@ order by constraint_name, referenced_table_name, keyno";
 	*
 	* @return int
 	*/
-	function charMax()
+	public function charMax()
 	{
 		return ADODB_STRINGMAX_NOLIMIT;
 	}
@@ -399,7 +399,7 @@ order by constraint_name, referenced_table_name, keyno";
 	*
 	* @return int
 	*/
-	function textMax()
+	public function textMax()
 	{
 		return ADODB_STRINGMAX_NOLIMIT;
 	}
@@ -408,7 +408,7 @@ order by constraint_name, referenced_table_name, keyno";
 	// MSSQL requires integers to be cast as strings
 	// automatically cast every datatype to VARCHAR(255)
 	// @author David Rogers (introspectshun)
-	function Concat()
+	public function Concat()
 	{
 		$s = "";
 		$arr = func_get_args();

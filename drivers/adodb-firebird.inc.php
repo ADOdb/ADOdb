@@ -74,7 +74,7 @@ class ADODB_firebird extends ADOConnection {
 
 	var $nameQuote = '';		/// string to use to quote identifiers and names
 
-	function __construct()
+	public function __construct()
 	{
 		parent::__construct();
 		$this->setTransactionMode('');
@@ -179,7 +179,7 @@ class ADODB_firebird extends ADOConnection {
 	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
 	 * isn't currently loaded.
 	 */
-	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabasename,true);
 	}
@@ -274,7 +274,7 @@ class ADODB_firebird extends ADOConnection {
 		return $ret;
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 		return fbird_affected_rows($this->_transactionID ?: $this->_connectionID);
 	}
@@ -440,12 +440,12 @@ class ADODB_firebird extends ADOConnection {
 		return $this->genID;
 	}
 
-	function selectDB($dbName)
+	public function selectDB($dbName)
 	{
 		return false;
 	}
 
-	function _handleError()
+	public function _handleError()
 	{
 		$this->_errorCode = fbird_errcode();
 		$this->_errorMsg  = fbird_errmsg();
@@ -457,7 +457,7 @@ class ADODB_firebird extends ADOConnection {
 		return (int) $this->_errorCode;
 	}
 
-	function errorMsg()
+	public function errorMsg()
 	{
 			return $this->_errorMsg;
 	}
@@ -490,7 +490,7 @@ class ADODB_firebird extends ADOConnection {
 	 *
 	 * @return object|bool Query identifier or true if execution successful, false if failed.
 	 */
-	function _query($sql, $inputarr = false)
+	public function _query($sql, $inputarr = false)
 	{
 		if (!$this->isConnected()) {
 			return false;
@@ -532,7 +532,7 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 		if (!$this->autoCommit) {
 			@fbird_rollback($this->_connectionID);
@@ -541,7 +541,7 @@ class ADODB_firebird extends ADOConnection {
 	}
 
 	//OPN STUFF start
-	function _ConvertFieldType(&$fld, $ftype, $flen, $fscale, $fsubtype, $fprecision, $dialect3)
+	public function _ConvertFieldType(&$fld, $ftype, $flen, $fscale, $fsubtype, $fprecision, $dialect3)
 	{
 		$fscale = abs($fscale);
 		$fld->max_length = $flen;
@@ -1130,7 +1130,7 @@ class ADORecordset_firebird extends ADORecordSet
 		return $this->fieldObjects[$fieldOffset];
 	}
 
-	function _initrs()
+	public function _initrs()
 	{
 		$this->_numOfRows = -1;
 
@@ -1142,7 +1142,7 @@ class ADORecordset_firebird extends ADORecordSet
 
 	}
 
-	function _seek($row)
+	public function _seek($row)
 	{
 		return false;
 	}
@@ -1263,7 +1263,7 @@ class ADORecordset_firebird extends ADORecordSet
 	}
 
 
-	function _close()
+	public function _close()
 	{
 		return @fbird_free_result($this->_queryID);
 	}

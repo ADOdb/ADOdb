@@ -28,7 +28,7 @@ class ADODB2_informix extends ADODB_DataDict {
 	var $seqField = false;
 
 
-	function ActualType($meta)
+	public function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
 		
@@ -67,21 +67,21 @@ class ADODB2_informix extends ADODB_DataDict {
 		}
 	}
 
-	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	public function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		if ($this->debug) ADOConnection::outp("AlterColumnSQL not supported");
 		return array();
 	}
 
 
-	function DropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	public function DropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		if ($this->debug) ADOConnection::outp("DropColumnSQL not supported");
 		return array();
 	}
 
 	// return string must begin with space
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		if ($fautoinc) {
 			$ftype = 'SERIAL';

@@ -33,7 +33,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 	public $blobAllowsNotNull = true;
 
 
-	function metaType($t, $len=-1, $fieldobj=false)
+	public function metaType($t, $len=-1, $fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -107,7 +107,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 		}
 	}
 
-	function actualType($meta)
+	public function actualType($meta)
 	{
 		$meta = parent::actualType($meta);
 
@@ -154,7 +154,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 		}
 	}
 
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 		if ($funsigned) {
@@ -196,7 +196,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 		ON tbl_name (col_name[(length)],... )
 	*/
 
-	function _indexSQL($idxname, $tabname, $flds, $idxoptions)
+	public function _indexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
 
@@ -259,7 +259,7 @@ class ADODB2_mysql extends ADODB_DataDict {
 	 *
 	 * @return array SQL statements.
 	 */
-	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
+	public function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
 	{
 		$version = $this->connection->ServerInfo();
 

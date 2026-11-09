@@ -68,7 +68,7 @@ class perf_informix extends adodb_perf{
 
 	);
 
-	function __construct(&$conn)
+	public function __construct(&$conn)
 	{
 		$this->conn = $conn;
 	}

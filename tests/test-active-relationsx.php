@@ -109,7 +109,7 @@ $err_count = 0;
 	// This class _implicitly_ relies on the 'people' table (pluralized form of 'person')
 	class Person extends ADOdb_Active_Record
 	{
-		function __construct()
+		public function __construct()
 		{
 			parent::__construct();
 			$this->hasMany('children');
@@ -118,7 +118,7 @@ $err_count = 0;
 	// This class _implicitly_ relies on the 'children' table
 	class Child extends ADOdb_Active_Record
 	{
-		function __construct()
+		public function __construct()
 		{
 			parent::__construct();
 			$this->belongsTo('person');
@@ -127,7 +127,7 @@ $err_count = 0;
 	// This class _explicitly_ relies on the 'children' table and shares its metadata with Child
 	class Kid extends ADOdb_Active_Record
 	{
-		function __construct()
+		public function __construct()
 		{
 			parent::__construct('children');
 			$this->belongsTo('person');
@@ -136,7 +136,7 @@ $err_count = 0;
 	// This class _explicitly_ relies on the 'children' table but does not share its metadata
 	class Rugrat extends ADOdb_Active_Record
 	{
-		function __construct()
+		public function __construct()
 		{
 			parent::__construct('children', false, false, array('new' => true));
 		}
@@ -144,7 +144,7 @@ $err_count = 0;
 
 	class Artist extends ADOdb_Active_Record
 	{
-		function __construct()
+		public function __construct()
 		{
 			parent::__construct('artists', array('artistuniqueid'));
 			$this->hasMany('songs', 'artistid');
@@ -152,7 +152,7 @@ $err_count = 0;
 	}
 	class Song extends ADOdb_Active_Record
 	{
-		function __construct()
+		public function __construct()
 		{
 			parent::__construct('songs', array('recordid'));
 			$this->belongsTo('artist', 'artistid');

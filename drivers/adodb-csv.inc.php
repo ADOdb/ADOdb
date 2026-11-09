@@ -52,19 +52,19 @@ class ADODB_csv extends ADOConnection {
 		return $this->_insertid;
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 		return $this->_affectedrows;
 	}
 
-  	function MetaDatabases()
+  	public function MetaDatabases()
 	{
 		return false;
 	}
 
 
 	// returns true or false
-	function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (strtolower(substr($argHostname,0,7)) !== 'http://') return false;
 		$this->_url = $argHostname;
@@ -72,21 +72,21 @@ class ADODB_csv extends ADOConnection {
 	}
 
 	// returns true or false
-	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+	public function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (strtolower(substr($argHostname,0,7)) !== 'http://') return false;
 		$this->_url = $argHostname;
 		return true;
 	}
 
- 	function MetaColumns($table, $normalize=true)
+ 	public function MetaColumns($table, $normalize=true)
 	{
 		return false;
 	}
 
 
 	// parameters use PostgreSQL convention, not MySQL
-	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
+	public function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -123,7 +123,7 @@ class ADODB_csv extends ADOConnection {
 	}
 
 	// returns queryID or false
-	function _Execute($sql,$inputarr=false)
+	public function _Execute($sql,$inputarr=false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -181,19 +181,19 @@ class ADODB_csv extends ADOConnection {
 	}
 
 	/*	Returns: the last error message from previous database operation	*/
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 		return $this->_errorMsg;
 	}
 
 	/*	Returns: the last error number from previous database operation	*/
-	function ErrorNo()
+	public function ErrorNo()
 	{
 		return $this->_errorNo;
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 		return true;
 	}
@@ -201,7 +201,7 @@ class ADODB_csv extends ADOConnection {
 
 class ADORecordset_csv extends ADORecordSet {
 
-	function _close()
+	public function _close()
 	{
 		return true;
 	}

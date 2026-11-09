@@ -41,14 +41,14 @@ class  ADODB_access extends ADODB_odbc {
 	var $hasTransactions = false;
 	var $upperCase = 'ucase';
 
-	function Time()
+	public function Time()
 	{
 		return time();
 	}
 
-	function BeginTrans() { return false;}
+	public function BeginTrans() { return false;}
 
-	function IfNull( $field, $ifNull )
+	public function IfNull( $field, $ifNull )
 	{
 		return " IIF(IsNull($field), $ifNull, $field) "; // if Access
 	}

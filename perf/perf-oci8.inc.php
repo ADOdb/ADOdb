@@ -205,7 +205,7 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 	);
 
 
-	function __construct(&$conn)
+	public function __construct(&$conn)
 	{
 	global $gSQLBlockRows;
 
@@ -216,7 +216,7 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 		$this->conn = $conn;
 	}
 
-	function LogMode()
+	public function LogMode()
 	{
 		$mode = $this->conn->GetOne("select log_mode from v\$database");
 
@@ -242,7 +242,7 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 </font></pre>';
 	}
 
-	function TopRecentWaits()
+	public function TopRecentWaits()
 	{
 
 		$rs = $this->conn->Execute("select * from (
@@ -255,7 +255,7 @@ FROM v\$parameter v1, v\$parameter v2 WHERE v1.name='log_archive_dest' AND v2.na
 
 	}
 
-	function TopHistoricalWaits()
+	public function TopHistoricalWaits()
 	{
 		$days = 2;
 
@@ -277,7 +277,7 @@ order by 3 desc) where rownum <=10");
 
 	}
 
-	function TableSpace()
+	public function TableSpace()
 	{
 
 		$rs = $this->conn->Execute(
@@ -293,7 +293,7 @@ order by 3 desc) where rownum <=10");
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
 	}
 
-	function RMAN()
+	public function RMAN()
 	{
 		$rs = $this->conn->Execute("select * from (select start_time, end_time, operation, status, mbytes_processed, output_device_type
 			from V\$RMAN_STATUS order by start_time desc) where rownum <=10");
@@ -303,7 +303,7 @@ order by 3 desc) where rownum <=10");
 
 	}
 
-	function DynMemoryUsage()
+	public function DynMemoryUsage()
 	{
 		if (@$this->version['version'] >= 11) {
 			$rs = $this->conn->Execute("select component, current_size/1024./1024 as \"CurrSize (M)\" from  V\$MEMORY_DYNAMIC_COMPONENTS");
@@ -316,14 +316,14 @@ order by 3 desc) where rownum <=10");
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
 	}
 
-	function FlashUsage()
+	public function FlashUsage()
 	{
         $rs = $this->conn->Execute("select * from  V\$FLASH_RECOVERY_AREA_USAGE");
 		$ret = rs2html($rs,false,false,false,false);
 		return "&nbsp;<p>".$ret."&nbsp;</p>";
 	}
 
-	function WarnPageCost($val)
+	public function WarnPageCost($val)
 	{
 		if ($val == 100 && $this->version['version'] < 10) $s = '<font color=red><b>Too High</b>. </font>';
 		else $s = '';
@@ -331,7 +331,7 @@ order by 3 desc) where rownum <=10");
 		return $s.'Recommended is 20-50 for TP, and 50 for data warehouses. Default is 100. See <a href=http://www.dba-oracle.com/oracle_tips_cost_adj.htm>optimizer_index_cost_adj</a>. ';
 	}
 
-	function WarnIndexCost($val)
+	public function WarnIndexCost($val)
 	{
 		if ($val == 0 && $this->version['version'] < 10) $s = '<font color=red><b>Too Low</b>. </font>';
 		else $s = '';
@@ -341,13 +341,13 @@ order by 3 desc) where rownum <=10");
 			 See <a href=http://www.dba-oracle.com/oracle_tips_cbo_part1.htm>optimizer_index_caching</a>.';
 		}
 
-	function PGA()
+	public function PGA()
 	{
 
 		//if ($this->version['version'] < 9) return 'Oracle 9i or later required';
 	}
 
-	function PGA_Advice()
+	public function PGA_Advice()
 	{
 		$t = "<h3>PGA Advice Estimate</h3>";
 		if ($this->version['version'] < 9) return $t.'Oracle 9i or later required';
@@ -374,7 +374,7 @@ order by 3 desc) where rownum <=10");
 		return $t.rs2html($rs,false,false,true,false);
 	}
 
-	function Explain($sql,$partial=false)
+	public function Explain($sql,$partial=false)
 	{
 		$savelog = $this->conn->LogSQL(false);
 		$rs = $this->conn->SelectLimit("select ID FROM PLAN_TABLE");
@@ -453,7 +453,7 @@ CONNECT BY prior id=parent_id and statement_id='$id'");
 		return $s;
 	}
 
-	function CheckMemory()
+	public function CheckMemory()
 	{
 		if ($this->version['version'] < 9) return 'Oracle 9i or later required';
 
@@ -488,7 +488,7 @@ select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
 	/*
 		Generate html for suspicious/expensive sql
 	*/
-	function tohtml(&$rs,$type)
+	public function tohtml(&$rs,$type)
 	{
 		$o1 = $rs->FetchField(0);
 		$o2 = $rs->FetchField(1);
@@ -534,7 +534,7 @@ select  a.name Buffer_Pool, b.size_for_estimate as cache_mb_estimate,
 	// code thanks to Ixora.
 	// http://www.ixora.com.au/scripts/query_opt.htm
 	// requires oracle 8.1.7 or later
-	function SuspiciousSQL($numsql=10)
+	public function SuspiciousSQL($numsql=10)
 	{
 		$sql = "
 select
@@ -608,7 +608,7 @@ order by
 	// code thanks to Ixora.
 	// http://www.ixora.com.au/scripts/query_opt.htm
 	// requires oracle 8.1.7 or later
-	function ExpensiveSQL($numsql = 10)
+	public function ExpensiveSQL($numsql = 10)
 	{
 		$sql = "
 select
@@ -681,7 +681,7 @@ order by
 		return $s;
 	}
 
-	function clearsql()
+	public function clearsql()
 	{
 		$perf_table = adodb_perf::table();
 	// using the naive "delete from $perf_table where created<".$this->conn->sysTimeStamp will cause the table to lock, possibly

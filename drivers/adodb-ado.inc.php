@@ -47,18 +47,18 @@ class ADODB_ado extends ADOConnection {
 	var $poorAffectedRows = true;
 	var $charPage;
 
-	function __construct()
+	public function __construct()
 	{
 		$this->_affectedRows = new VARIANT;
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		if (!empty($this->_connectionID)) $desc = $this->_connectionID->provider;
 		return array('description' => $desc, 'version' => '');
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 		return $this->_affectedRows;
 	}
@@ -66,7 +66,7 @@ class ADODB_ado extends ADOConnection {
 	// you can also pass a connection string like this:
 	//
 	// $DB->Connect('USER ID=sa;PASSWORD=pwd;SERVER=mangrove;DATABASE=ai',false,false,'SQLOLEDB');
-	function _connect($argHostname, $argUsername, $argPassword, $argProvider= 'MSDASQL')
+	public function _connect($argHostname, $argUsername, $argPassword, $argProvider= 'MSDASQL')
 	{
 		$u = 'UID';
 		$p = 'PWD';
@@ -108,7 +108,7 @@ class ADODB_ado extends ADOConnection {
 	}
 
 	// returns true or false
-	function _pconnect($argHostname, $argUsername, $argPassword, $argProvider='MSDASQL')
+	public function _pconnect($argHostname, $argUsername, $argPassword, $argProvider='MSDASQL')
 	{
 		return $this->_connect($argHostname,$argUsername,$argPassword,$argProvider);
 	}
@@ -155,7 +155,7 @@ class ADODB_ado extends ADOConnection {
 
 */
 
-	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	public function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$arr= array();
 		$dbc = $this->_connectionID;
@@ -177,7 +177,7 @@ class ADODB_ado extends ADOConnection {
 		return $arr;
 	}
 
-	function MetaColumns($table, $normalize=true)
+	public function MetaColumns($table, $normalize=true)
 	{
 		$table = strtoupper($table);
 		$arr = array();
@@ -208,7 +208,7 @@ class ADODB_ado extends ADOConnection {
 		return empty($arr) ? $false : $arr;
 	}
 
-	function _query($sql,$inputarr=false)
+	public function _query($sql,$inputarr=false)
 	{
 
 		$dbc = $this->_connectionID;
@@ -268,7 +268,7 @@ class ADODB_ado extends ADOConnection {
 	}
 
 
-	function BeginTrans()
+	public function BeginTrans()
 	{
 		if ($this->transOff) return true;
 
@@ -284,7 +284,7 @@ class ADODB_ado extends ADOConnection {
 		return true;
 	}
 
-	function CommitTrans($ok=true)
+	public function CommitTrans($ok=true)
 	{
 		if (!$ok) return $this->RollbackTrans();
 		if ($this->transOff) return true;
@@ -293,7 +293,7 @@ class ADODB_ado extends ADOConnection {
 		if ($this->transCnt) @$this->transCnt -= 1;
 		return true;
 	}
-	function RollbackTrans() {
+	public function RollbackTrans() {
 		if ($this->transOff) return true;
 		@$this->_connectionID->RollbackTrans();
 		if ($this->transCnt) @$this->transCnt -= 1;
@@ -302,7 +302,7 @@ class ADODB_ado extends ADOConnection {
 
 	/*	Returns: the last error message from previous database operation	*/
 
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 		if (!$this->_connectionID) return "No connection established";
 		$errc = $this->_connectionID->Errors;
@@ -312,7 +312,7 @@ class ADODB_ado extends ADOConnection {
 		return $err->Description;
 	}
 
-	function ErrorNo()
+	public function ErrorNo()
 	{
 		$errc = $this->_connectionID->Errors;
 		if ($errc->Count == 0) return 0;
@@ -321,7 +321,7 @@ class ADODB_ado extends ADOConnection {
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 		if ($this->_connectionID) $this->_connectionID->Close();
 		$this->_connectionID = false;
@@ -347,7 +347,7 @@ class ADORecordSet_ado extends ADORecordSet {
 
 
 	// returns the field object
-	function FetchField($fieldOffset = -1) {
+	public function FetchField($fieldOffset = -1) {
 		$off=$fieldOffset+1; // offsets begin at 1
 
 		$o= new ADOFieldObject();
@@ -364,7 +364,7 @@ class ADORecordSet_ado extends ADORecordSet {
 	}
 
 	/* Use associative array to get fields array */
-	function Fields($colname)
+	public function Fields($colname)
 	{
 		if ($this->fetchMode & ADODB_FETCH_ASSOC) return $this->fields[$colname];
 		if (!$this->bind) {
@@ -379,7 +379,7 @@ class ADORecordSet_ado extends ADORecordSet {
 	}
 
 
-	function _initrs()
+	public function _initrs()
 	{
 		$rs = $this->_queryID;
 		$this->_numOfRows = $rs->RecordCount;
@@ -390,7 +390,7 @@ class ADORecordSet_ado extends ADORecordSet {
 
 
 	 // should only be used to move forward as we normally use forward-only cursors
-	function _seek($row)
+	public function _seek($row)
 	{
 	   $rs = $this->_queryID;
 		// absoluteposition doesn't work -- my maths is wrong ?
@@ -483,7 +483,7 @@ class ADORecordSet_ado extends ADORecordSet {
 	adPropVariant	= 138,
 	adVarNumeric	= 139
 */
-	function MetaType($t,$len=-1,$fieldobj=false)
+	public function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -538,7 +538,7 @@ class ADORecordSet_ado extends ADORecordSet {
 	}
 
 	// time stamp not supported yet
-	function _fetch()
+	public function _fetch()
 	{
 		$rs = $this->_queryID;
 		if (!$rs or $rs->EOF) {
@@ -627,7 +627,7 @@ class ADORecordSet_ado extends ADORecordSet {
 		return true;
 	}
 
-		function NextRecordSet()
+		public function NextRecordSet()
 		{
 			$rs = $this->_queryID;
 			$this->_queryID = $rs->NextRecordSet();
@@ -646,7 +646,7 @@ class ADORecordSet_ado extends ADORecordSet {
 			return true;
 		}
 
-	function _close() {
+	public function _close() {
 		$this->_flds = false;
 		@$this->_queryID->Close();// by Pete Dishman (peterd@telephonetics.co.uk)
 		$this->_queryID = false;

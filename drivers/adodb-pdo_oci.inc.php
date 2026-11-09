@@ -53,7 +53,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		}
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;
@@ -68,7 +68,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 		return $ret;
 	}
 
-	function MetaColumns($table,$normalize=true)
+	public function MetaColumns($table,$normalize=true)
 	{
 		global $ADODB_FETCH_MODE;
 
@@ -115,7 +115,7 @@ class ADODB_pdo_oci extends ADODB_pdo_base {
 	 * @param bool $auto_commit
 	 * @return void
 	 */
-	function SetAutoCommit($auto_commit)
+	public function SetAutoCommit($auto_commit)
 	{
 		$this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
 	}

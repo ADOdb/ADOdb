@@ -76,14 +76,14 @@ class ADODB_pdo_pgsql extends ADODB_pdo_base {
 		$parentDriver->_nestedSQL = true;
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		$arr['description'] = ADOConnection::GetOne("select version()");
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
+	public function SelectLimit($sql,$nrows=-1,$offset=-1,$inputarr=false,$secs2cache=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
@@ -97,7 +97,7 @@ class ADODB_pdo_pgsql extends ADODB_pdo_base {
 		return $rs;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$info = $this->ServerInfo();
 		if ($info['version'] >= 7.3) {
@@ -132,7 +132,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 		return $ret;
 	}
 
-	function MetaColumns($table,$normalize=true)
+	public function MetaColumns($table,$normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -244,7 +244,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 
 	}
 
-	function BeginTrans()
+	public function BeginTrans()
 	{
 		if (!$this->hasTransactions) {
 			return false;
@@ -257,7 +257,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 		return $this->_connectionID->beginTransaction();
 	}
 
-	function CommitTrans($ok = true)
+	public function CommitTrans($ok = true)
 	{
 		if (!$this->hasTransactions) {
 			return false;
@@ -277,7 +277,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 		return $ret;
 	}
 
-	function RollbackTrans()
+	public function RollbackTrans()
 	{
 		if (!$this->hasTransactions) {
 			return false;
@@ -294,7 +294,7 @@ select viewname,'V' from pg_views where viewname like $mask";
 		return $ret;
 	}
 
-	function SetTransactionMode( $transaction_mode )
+	public function SetTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {

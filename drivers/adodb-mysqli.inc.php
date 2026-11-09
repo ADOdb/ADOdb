@@ -142,7 +142,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return void
 	 */
-	function SetTransactionMode($transaction_mode)
+	public function SetTransactionMode($transaction_mode)
 	{
 		$this->_transmode = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -238,7 +238,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *@todo add: parameter int $port, parameter string $socket
 	 *
 	 */
-	function _connect(
+	public function _connect(
         $argHostname = null,
         $argUsername = null,
         $argPassword = null,
@@ -336,7 +336,7 @@ class ADODB_mysqli extends ADOConnection {
 	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
 	 * isn't currently loaded.
 	 */
-	function _pconnect($argHostname, $argUsername, $argPassword, $argDatabaseName)
+	public function _pconnect($argHostname, $argUsername, $argPassword, $argDatabaseName)
 	{
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName, true);
 	}
@@ -355,7 +355,7 @@ class ADODB_mysqli extends ADOConnection {
 	 * @return bool|null True if connected successfully, false if connection failed, or null if the mysqli extension
 	 * isn't currently loaded.
 	 */
-	function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName)
+	public function _nconnect($argHostname, $argUsername, $argPassword, $argDatabaseName)
 	{
 		$this->forceNewConnect = true;
 		return $this->_connect($argHostname, $argUsername, $argPassword, $argDatabaseName);
@@ -371,7 +371,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return string
 	 */
-	function IfNull($field, $ifNull)
+	public function IfNull($field, $ifNull)
 	{
 		return " IFNULL($field, $ifNull) ";
 	}
@@ -386,7 +386,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return bool|array|null
 	 */
-	function GetOne($sql, $inputarr = false)
+	public function GetOne($sql, $inputarr = false)
 	{
 		global $ADODB_GETONE_EOF;
 
@@ -405,7 +405,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return array
 	 */
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		$arr['description'] = $this->getOne("select version()");
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
@@ -419,7 +419,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return bool Always returns true.
 	 */
-	function BeginTrans()
+	public function BeginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
@@ -439,7 +439,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return bool Always returns true.
 	 */
-	function CommitTrans($ok = true)
+	public function CommitTrans($ok = true)
 	{
 		if ($this->transOff) return true;
 		if (!$ok) return $this->rollbackTrans();
@@ -459,7 +459,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return bool Always returns true.
 	 */
-	function RollbackTrans()
+	public function RollbackTrans()
 	{
 		if ($this->transOff) return true;
 		if ($this->transCnt) $this->transCnt -= 1;
@@ -480,7 +480,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return bool True if the locking SQL statement executed successfully, otherwise false.
 	 */
-	function RowLock($table, $where = '', $col = '1 as adodbignore')
+	public function RowLock($table, $where = '', $col = '1 as adodbignore')
 	{
 		if ($this->transCnt==0) $this->beginTrans();
 		if ($where) $where = ' where '.$where;
@@ -500,7 +500,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return string Quoted string
 	 */
-	function qStr($s, $magic_quotes=false)
+	public function qStr($s, $magic_quotes=false)
 	{
 		if (is_null($s)) {
 			return 'NULL';
@@ -548,7 +548,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return int The number of rows affected.
 	 */
-	function _affectedrows()
+	public function _affectedrows()
 	{
 		if ($this->isSelectStatement) {
 			// Affected rows works fine against selects, returning
@@ -587,7 +587,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return ADORecordSet|bool A record set if executed successfully, otherwise false.
 	 */
-	function CreateSequence($seqname = 'adodbseq', $startID = 1)
+	public function CreateSequence($seqname = 'adodbseq', $startID = 1)
 	{
 		if (empty($this->_genSeqSQL)) return false;
 
@@ -606,7 +606,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return bool|int|string
 	 */
-	function GenID($seqname = 'adodbseq', $startID = 1)
+	public function GenID($seqname = 'adodbseq', $startID = 1)
 	{
 		// post-nuke sets hasGenID to false
 		if (!$this->hasGenID) return false;
@@ -645,7 +645,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return array|bool An array of the indexes, or false if the query to get the indexes failed.
 	 */
-	function MetaIndexes($table, $primary = false, $owner = false)
+	public function MetaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -706,7 +706,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return string The SQL DATE_FORMAT() string, or false if the provided date format was empty.
 	 */
-	function SQLDate($fmt, $col = false)
+	public function SQLDate($fmt, $col = false)
 	{
 		if (!$col) $col = $this->sysTimeStamp;
 		$s = 'DATE_FORMAT('.$col.",'";
@@ -790,7 +790,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return string
 	 */
-	function Concat()
+	public function Concat()
 	{
 		$arr = func_get_args();
 
@@ -810,7 +810,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return string
 	 */
-	function OffsetDate($dayFraction, $date = false)
+	public function OffsetDate($dayFraction, $date = false)
 	{
 		if (!$date) $date = $this->sysDate;
 
@@ -827,7 +827,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return array
 	 */
-	function MetaProcedures($procedureNamePattern = false, $catalog  = null, $schemaPattern  = null)
+	public function MetaProcedures($procedureNamePattern = false, $catalog  = null, $schemaPattern  = null)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -892,7 +892,7 @@ class ADODB_mysqli extends ADOConnection {
 	 *
 	 * @return array list of tables
 	 */
-	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	public function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
@@ -1044,7 +1044,7 @@ SELECT *
 	 *
 	 * @return ADOFieldObject[]|bool An array of info for each column, or false if it could not determine the info.
 	 */
-	function MetaColumns($table, $normalize = true)
+	public function MetaColumns($table, $normalize = true)
 	{
 		if (!$this->metaColumnsSQL)
 			return false;
@@ -1146,7 +1146,7 @@ SELECT *
 	 *
 	 * @return bool True if the database was selected successfully, otherwise false.
 	 */
-	function SelectDB($dbName)
+	public function SelectDB($dbName)
 	{
 		$this->database = $dbName;
 
@@ -1174,7 +1174,7 @@ SELECT *
 	 *
 	 * @return ADORecordSet|false The query results, or false if the query failed to execute.
 	 */
-	function SelectLimit($sql,
+	public function SelectLimit($sql,
 						 $nrows = -1,
 						 $offset = -1,
 						 $inputarr = false,
@@ -1204,7 +1204,7 @@ SELECT *
 	 *
 	 * @return string The original SQL that was provided.
 	 */
-	function Prepare($sql)
+	public function Prepare($sql)
 	{
 		// Flag the insert_id method to use the correct retrieval method
 		$this->usePreparedStatement = true;
@@ -1314,7 +1314,7 @@ SELECT *
 	 *
 	 * @return mysqli_result|bool
 	*/
-	function _query($sql, $inputarr = false)
+	public function _query($sql, $inputarr = false)
 	{
 		global $ADODB_COUNTRECS;
 
@@ -1439,7 +1439,7 @@ SELECT *
 	 *
 	 * @return string The last error message.
 	 */
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 		if (!$this->_errorMsg) {
 			if (empty($this->_connectionID)) {
@@ -1456,7 +1456,7 @@ SELECT *
 	 *
 	 * @return int The last error number.
 	 */
-	function ErrorNo()
+	public function ErrorNo()
 	{
 		if (!$this->_errorCode) {
 			if (empty($this->_connectionID)) {
@@ -1473,7 +1473,7 @@ SELECT *
 	 *
 	 * @return void
 	 */
-	function _close()
+	public function _close()
 	{
 		if($this->_connectionID) {
 			mysqli_close($this->_connectionID);
@@ -1488,7 +1488,7 @@ SELECT *
 	 *
 	 * @return int
 	 */
-	function CharMax()
+	public function CharMax()
 	{
 		return 255;
 	}
@@ -1500,12 +1500,12 @@ SELECT *
 	 *
 	 * @return int
 	 */
-	function TextMax()
+	public function TextMax()
 	{
 		return 4294967295;
 	}
 
-	function getCharSet()
+	public function getCharSet()
 	{
 		if (!$this->_connectionID || !method_exists($this->_connectionID,'character_set_name')) {
 			return false;
@@ -1518,7 +1518,7 @@ SELECT *
 	/**
 	 * @deprecated 5.21.0 Use {@see setConnectionParameter()} instead
 	 */
-	function setCharSet($charset)
+	public function setCharSet($charset)
 	{
 		if (!$this->_connectionID || !method_exists($this->_connectionID,'set_charset')) {
 			return false;
@@ -1549,7 +1549,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	/** @var mysqli_result result link identifier */
 	var $_queryID;
 
-	function __construct($queryID, $mode = false)
+	public function __construct($queryID, $mode = false)
 	{
 		parent::__construct($queryID, $mode);
 
@@ -1568,7 +1568,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 		}
 	}
 
-	function _initrs()
+	public function _initrs()
 	{
 	global $ADODB_COUNTRECS;
 
@@ -1605,7 +1605,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return ADOFieldObject|bool
 	 */
-	function FetchField($fieldOffset = -1)
+	public function FetchField($fieldOffset = -1)
 	{
 		if ($fieldOffset < -1 || $fieldOffset >= $this->_numOfFields) {
 			if ($this->connection->debug) {
@@ -1651,7 +1651,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return array|bool
 	 */
-	function GetRowAssoc($upper = ADODB_ASSOC_CASE)
+	public function GetRowAssoc($upper = ADODB_ASSOC_CASE)
 	{
 		if ($this->fetchMode == MYSQLI_ASSOC && $upper == ADODB_ASSOC_CASE_LOWER) {
 			return $this->fields;
@@ -1668,7 +1668,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return mixed
 	 */
-	function Fields($colname)
+	public function Fields($colname)
 	{
 		if ($this->fetchMode != MYSQLI_NUM) {
 			return @$this->fields[$colname];
@@ -1691,7 +1691,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return bool False if the recordset contains no rows, otherwise true.
 	 */
-	function _seek($row)
+	public function _seek($row)
 	{
 		if ($this->_numOfRows == 0 || $row < 0) {
 			return false;
@@ -1709,7 +1709,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return bool
 	 */
-	function NextRecordSet()
+	public function NextRecordSet()
 	{
 		global $ADODB_COUNTRECS;
 
@@ -1745,7 +1745,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return bool False if there are no more records to move on to, otherwise true.
 	 */
-	function MoveNext()
+	public function MoveNext()
 	{
 		if ($this->EOF) return false;
 		$this->_currentRow++;
@@ -1764,7 +1764,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return bool True if row was fetched successfully, otherwise false.
 	 */
-	function _fetch()
+	public function _fetch()
 	{
 		$this->fields = mysqli_fetch_array($this->_queryID,$this->fetchMode);
 		$this->_updatefields();
@@ -1776,7 +1776,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return void
 	 */
-	function _close()
+	public function _close()
 	{
 		//if results are attached to this pointer from Stored Procedure calls, the next standard query will die 2014
 		//only a problem with persistent connections
@@ -1832,7 +1832,7 @@ class ADORecordSet_mysqli extends ADORecordSet{
 	 *
 	 * @return string The MetaType
 	 */
-	function metaType($t, $len = -1, $fieldObj = false)
+	public function metaType($t, $len = -1, $fieldObj = false)
 	{
 		if (is_object($t)) {
 			$fieldObj = $t;
@@ -1952,7 +1952,7 @@ class ADORecordSet_array_mysqli extends ADORecordSet_array
 	 *
 	 * @return string The MetaType
 	 */
-	function MetaType($t, $len = -1, $fieldObj = false)
+	public function MetaType($t, $len = -1, $fieldObj = false)
 	{
 		if (is_object($t)) {
 			$fieldObj = $t;

@@ -33,7 +33,7 @@ class ADODB_informix extends ADODB_informix72 {
 	var $hasTop = 'FIRST';
 	var $ansiOuter = true;
 
-	function IfNull( $field, $ifNull )
+	public function IfNull( $field, $ifNull )
 	{
 		return " NVL($field, $ifNull) "; // if Informix 9.X or 10.X
 	}

@@ -208,12 +208,12 @@ class ADODB_DataDict {
 	 */
 	public $quote;
 
-	function getCommentSQL($table,$col)
+	public function getCommentSQL($table,$col)
 	{
 		return false;
 	}
 
-	function setCommentSQL($table,$col,$cmt)
+	public function setCommentSQL($table,$col,$cmt)
 	{
 		return false;
 	}
@@ -237,19 +237,19 @@ class ADODB_DataDict {
 		return $this->connection->metaTables($ttype, $showSchema, $mask);
 	}
 
-	function metaColumns($tab, $upper=true, $schema=false)
+	public function metaColumns($tab, $upper=true, $schema=false)
 	{
 		if (!$this->connection->isConnected()) return array();
 		return $this->connection->metaColumns($this->tableName($tab), $upper, $schema);
 	}
 
-	function metaPrimaryKeys($tab,$owner=false,$intkey=false)
+	public function metaPrimaryKeys($tab,$owner=false,$intkey=false)
 	{
 		if (!$this->connection->isConnected()) return array();
 		return $this->connection->metaPrimaryKeys($this->tableName($tab), $owner, $intkey);
 	}
 
-	function metaIndexes($table, $primary = false, $owner = false)
+	public function metaIndexes($table, $primary = false, $owner = false)
 	{
 		if (!$this->connection->isConnected()) return array();
 		return $this->connection->metaIndexes($this->tableName($table), $primary, $owner);
@@ -264,7 +264,7 @@ class ADODB_DataDict {
 	 *
 	 * @return string
 	 */
-	function metaType($t, $len=-1, $fieldobj=false)
+	public function metaType($t, $len=-1, $fieldobj=false)
 	{
 		static $typeMap = array(
 		'VARCHAR' => 'C',
@@ -378,7 +378,7 @@ class ADODB_DataDict {
 		return $this->connection->metaType($t,$len,$fieldobj);
 	}
 
-	function nameQuote($name = NULL,$allowBrackets=false)
+	public function nameQuote($name = NULL,$allowBrackets=false)
 	{
 		if (!is_string($name)) {
 			return false;
@@ -407,7 +407,7 @@ class ADODB_DataDict {
 		return $name;
 	}
 
-	function tableName($name)
+	public function tableName($name)
 	{
 		if ( $this->schema ) {
 			return $this->nameQuote($this->schema) .'.'. $this->nameQuote($name);
@@ -416,7 +416,7 @@ class ADODB_DataDict {
 	}
 
 	// Executes the sql array returned by getTableSQL and getIndexSQL
-	function executeSQLArray($sql, $continueOnError = true)
+	public function executeSQLArray($sql, $continueOnError = true)
 	{
 		$rez = 2;
 		$conn = $this->connection;
@@ -454,7 +454,7 @@ class ADODB_DataDict {
 	 *
 	 * @return string The actual type corresponding to the meta type.
 	 */
-	function actualType($meta)
+	public function actualType($meta)
 	{
 		$meta = strtoupper($meta);
 
@@ -467,7 +467,7 @@ class ADODB_DataDict {
 		return $meta;
 	}
 
-	function createDatabase($dbname,$options=false)
+	public function createDatabase($dbname,$options=false)
 	{
 		$options = $this->_options($options);
 		$sql = array();
@@ -483,7 +483,7 @@ class ADODB_DataDict {
 	/*
 	 Generates the SQL to create index. Returns an array of sql strings.
 	*/
-	function createIndexSQL($idxname, $tabname, $flds, $idxoptions = false)
+	public function createIndexSQL($idxname, $tabname, $flds, $idxoptions = false)
 	{
 		if (!is_array($flds)) {
 			$flds = explode(',',$flds);
@@ -497,17 +497,17 @@ class ADODB_DataDict {
 		return $this->_indexSQL($this->nameQuote($idxname), $this->tableName($tabname), $flds, $this->_options($idxoptions));
 	}
 
-	function dropIndexSQL ($idxname, $tabname = NULL)
+	public function dropIndexSQL ($idxname, $tabname = NULL)
 	{
 		return array(sprintf($this->dropIndex, $this->nameQuote($idxname), $this->tableName($tabname)));
 	}
 
-	function setSchema($schema)
+	public function setSchema($schema)
 	{
 		$this->schema = $schema;
 	}
 
-	function addColumnSQL($tabname, $flds)
+	public function addColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->tableName($tabname);
 		$sql = array();
@@ -540,7 +540,7 @@ class ADODB_DataDict {
 	 *
 	 * @return array with SQL strings
 	 */
-	function alterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	public function alterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->tableName($tabname);
 		$sql = array();
@@ -575,7 +575,7 @@ class ADODB_DataDict {
 	 *
 	 * @return array SQL statements.
 	 */
-	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
+	public function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
 	{
 		$tabname = $this->tableName($tabname);
 		$column_def = '';
@@ -604,7 +604,7 @@ class ADODB_DataDict {
 	 *
 	 * @return array SQL statements.
 	 */
-	function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	public function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->tableName($tabname);
 		if (!is_array($flds)) $flds = explode(',',$flds);
@@ -616,12 +616,12 @@ class ADODB_DataDict {
 		return $sql;
 	}
 
-	function dropTableSQL($tabname)
+	public function dropTableSQL($tabname)
 	{
 		return array (sprintf($this->dropTable, $this->tableName($tabname)));
 	}
 
-	function renameTableSQL($tabname,$newname)
+	public function renameTableSQL($tabname,$newname)
 	{
 		return array (sprintf($this->renameTable, $this->tableName($tabname),$this->tableName($newname)));
 	}
@@ -629,7 +629,7 @@ class ADODB_DataDict {
 	/**
 	 Generate the SQL to create table. Returns an array of sql strings.
 	*/
-	function createTableSQL($tabname, $flds, $tableoptions=array())
+	public function createTableSQL($tabname, $flds, $tableoptions=array())
 	{
 		list($lines,$pkey,$idxs) = $this->_genFields($flds, true);
 		// genfields can return FALSE at times
@@ -661,7 +661,7 @@ class ADODB_DataDict {
 
 
 
-	function _genFields($flds,$widespacing=false)
+	public function _genFields($flds,$widespacing=false)
 	{
 		if (is_string($flds)) {
 			$padding = '     ';
@@ -892,7 +892,7 @@ class ADODB_DataDict {
 			$ftype is the actual type
 			$ty is the type defined originally in the DDL
 	*/
-	function _getSize($ftype, $ty, $fsize, $fprec, $options=false)
+	public function _getSize($ftype, $ty, $fsize, $fprec, $options=false)
 	{
 		if (strlen($fsize) && $ty != 'X' && $ty != 'B' && strpos($ftype,'(') === false) {
 			$ftype .= "(".$fsize;
@@ -937,7 +937,7 @@ class ADODB_DataDict {
 	 *
 	 * @return string Combined constraint string, must start with a space.
 	 */
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
@@ -956,7 +956,7 @@ class ADODB_DataDict {
 	 *
 	 * @return array SQL statements to create or replace the index.
 	 */
-	function _indexSQL($idxname, $tabname, $flds, $idxoptions)
+	public function _indexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
 
@@ -985,12 +985,12 @@ class ADODB_DataDict {
 		return $sql;
 	}
 
-	function _dropAutoIncrement($tabname)
+	public function _dropAutoIncrement($tabname)
 	{
 		return false;
 	}
 
-	function _tableSQL($tabname,$lines,$pkey,$tableoptions)
+	public function _tableSQL($tabname,$lines,$pkey,$tableoptions)
 	{
 		$sql = array();
 
@@ -1028,7 +1028,7 @@ class ADODB_DataDict {
 		GENERATE TRIGGERS IF NEEDED
 		used when table has auto-incrementing field that is emulated using triggers
 	*/
-	function _triggers($tabname,$taboptions)
+	public function _triggers($tabname,$taboptions)
 	{
 		return array();
 	}
@@ -1036,7 +1036,7 @@ class ADODB_DataDict {
 	/**
 		Sanitize options, so that array elements with no keys are promoted to keys
 	*/
-	function _options($opts)
+	public function _options($opts)
 	{
 		if (!is_array($opts)) return array();
 		$newopts = array();
@@ -1048,7 +1048,7 @@ class ADODB_DataDict {
 	}
 
 
-	function _getSizePrec($size)
+	public function _getSizePrec($size)
 	{
 		$fsize = false;
 		$fprec = false;
@@ -1074,7 +1074,7 @@ class ADODB_DataDict {
 	 *
 	 * @return string[] Array of SQL Commands
 	 */
-	function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
+	public function changeTableSQL($tablename, $flds, $tableoptions = false, $dropOldFlds=false)
 	{
 	global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;

@@ -38,7 +38,7 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo_base
 		$parentDriver->hasInsertID = true;
 	}
 
-	function setTransactionMode( $transaction_mode )
+	public function setTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -49,22 +49,22 @@ class ADODB_pdo_sqlsrv extends ADODB_pdo_base
 		$this->_connectionID->query("SET TRANSACTION ".$transaction_mode);
 	}
 
-	function MetaColumns($table, $normalize = true)
+	public function MetaColumns($table, $normalize = true)
 	{
 		return false;
 	}
 
-	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	public function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		return false;
 	}
 
-	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
+	public function SelectLimit($sql, $nrows = -1, $offset = -1, $inputarr = false, $secs2cache = 0)
 	{
 		return ADOConnection::SelectLimit($sql, $nrows, $offset, $inputarr, $secs2cache);
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		return ADOConnection::ServerInfo();
 	}

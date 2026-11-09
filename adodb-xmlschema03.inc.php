@@ -130,7 +130,7 @@ class dbObject {
 	/**
 	 * NOP
 	 */
-	function __construct( $parent, $attributes = NULL ) {
+	public function __construct( $parent, $attributes = NULL ) {
 		$this->parent = $parent;
 	}
 
@@ -139,7 +139,7 @@ class dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_open( $parser, $tag, $attributes ) {
+	public function _tag_open( $parser, $tag, $attributes ) {
 
 	}
 
@@ -148,7 +148,7 @@ class dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_cdata( $parser, $cdata ) {
+	public function _tag_cdata( $parser, $cdata ) {
 
 	}
 
@@ -157,18 +157,18 @@ class dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_close( $parser, $tag ) {
+	public function _tag_close( $parser, $tag ) {
 
 	}
 
-	function create(&$xmls) {
+	public function create(&$xmls) {
 		return array();
 	}
 
 	/**
 	 * Destroys the object
 	 */
-	function destroy() {
+	public function destroy() {
 	}
 
 	/**
@@ -178,7 +178,7 @@ class dbObject {
 	 * @param string $platform RDBMS platform name (from ADODB platform list).
 	 * @return boolean TRUE if RDBMS is supported; otherwise returns FALSE.
 	 */
-	function supportedPlatform( $platform = NULL ) {
+	public function supportedPlatform( $platform = NULL ) {
 		return is_object( $this->parent ) ? $this->parent->supportedPlatform( $platform ) : TRUE;
 	}
 
@@ -188,7 +188,7 @@ class dbObject {
 	 * @param string $name Prefix string.
 	 * @return string Prefix.
 	 */
-	function prefix( $name = '' ) {
+	public function prefix( $name = '' ) {
 		return is_object( $this->parent ) ? $this->parent->prefix( $name ) : $name;
 	}
 
@@ -198,7 +198,7 @@ class dbObject {
 	 * @param string $field Field.
 	 * @return string Field ID.
 	 */
-	function fieldID( $field ) {
+	public function fieldID( $field ) {
 		return strtoupper( preg_replace( '/^`(.+)`$/', '$1', $field ) );
 	}
 }
@@ -271,7 +271,7 @@ class dbTable extends dbObject {
 	 * @param string $prefix DB Object prefix
 	 * @param array $attributes Array of table attributes.
 	 */
-	function __construct( $parent, $attributes = NULL ) {
+	public function __construct( $parent, $attributes = NULL ) {
 		$this->parent = $parent;
 		$this->name = $this->prefix($attributes['NAME']);
 	}
@@ -282,7 +282,7 @@ class dbTable extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_open( $parser, $tag, $attributes ) {
+	public function _tag_open( $parser, $tag, $attributes ) {
 		$this->currentElement = strtoupper( $tag );
 
 		switch( $this->currentElement ) {
@@ -345,7 +345,7 @@ class dbTable extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_cdata( $parser, $cdata ) {
+	public function _tag_cdata( $parser, $cdata ) {
 		switch( $this->currentElement ) {
 			// Table or field comment
 			case 'DESCR':
@@ -381,7 +381,7 @@ class dbTable extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_close( $parser, $tag ) {
+	public function _tag_close( $parser, $tag ) {
 		$this->currentElement = '';
 
 		switch( strtoupper( $tag ) ) {
@@ -408,7 +408,7 @@ class dbTable extends dbObject {
 	 * @param array $attributes Index attributes
 	 * @return object dbIndex object
 	 */
-	function addIndex( $attributes ) {
+	public function addIndex( $attributes ) {
 		$name = strtoupper( $attributes['NAME'] );
 		$this->indexes[$name] = new dbIndex( $this, $attributes );
 		return $this->indexes[$name];
@@ -420,7 +420,7 @@ class dbTable extends dbObject {
 	 * @param array $attributes Data attributes
 	 * @return object dbData object
 	 */
-	function addData( $attributes ) {
+	public function addData( $attributes ) {
 		if( !isset( $this->data ) ) {
 			$this->data = new dbData( $this, $attributes );
 		}
@@ -456,7 +456,7 @@ class dbTable extends dbObject {
 	 * @param array $opts	Field options array
 	 * @return void
 	 */
-	function addField( $name, $type, $size = NULL, $opts = NULL ) {
+	public function addField( $name, $type, $size = NULL, $opts = NULL ) {
 		$field_id = $this->fieldID( $name );
 
 		// Set the field index so we know where we are
@@ -492,7 +492,7 @@ class dbTable extends dbObject {
 	 * @param mixed $value Field option value
 	 * @return void
 	 */
-	function addFieldOpt( $field, $opt, $value = NULL ) {
+	public function addFieldOpt( $field, $opt, $value = NULL ) {
 		if( $this->currentPlatform ) {
 		if( !isset( $value ) ) {
 			$this->fields[$this->FieldID( $field )]['OPTS'][] = $opt;
@@ -513,7 +513,7 @@ class dbTable extends dbObject {
 	 * 
 	 * @return array Options
 	 */
-	function addTableOpt( $opt ) {
+	public function addTableOpt( $opt ) {
 		
 		if($this->currentPlatform) {
 			
@@ -529,7 +529,7 @@ class dbTable extends dbObject {
 		return $this->opts;
 	}
 
-	function addTableComment( $opt ) {
+	public function addTableComment( $opt ) {
 		$this->opts['comment'] = $opt;
 		return $this->opts;
 	}
@@ -540,7 +540,7 @@ class dbTable extends dbObject {
 	 * @param object $xmls adoSchema object
 	 * @return array Array containing table creation SQL
 	 */
-	function create( &$xmls ) {
+	public function create( &$xmls ) {
 		$sql 		   = array();
 		$legacy_fields = array();
 		// drop any existing indexes
@@ -659,7 +659,7 @@ class dbTable extends dbObject {
 	/**
 	 * Marks a field or table for destruction
 	 */
-	function drop() {
+	public function drop() {
 		if( isset( $this->current_field ) ) {
 			// Drop the current field
 			logMsg( "Dropping field '{$this->current_field}' from table '{$this->name}'",);
@@ -716,7 +716,7 @@ class dbIndex extends dbObject {
 	 *
 	 * @internal
 	 */
-	function __construct( $parent, $attributes = NULL ) {
+	public function __construct( $parent, $attributes = NULL ) {
 		$this->parent = $parent;
 
 		$this->name = $this->prefix ($attributes['NAME']);
@@ -730,7 +730,7 @@ class dbIndex extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_open( $parser, $tag, $attributes ) {
+	public function _tag_open( $parser, $tag, $attributes ) {
 		$this->currentElement = strtoupper( $tag );
 
 		switch( $this->currentElement ) {
@@ -757,7 +757,7 @@ class dbIndex extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_cdata( $parser, $cdata ) {
+	public function _tag_cdata( $parser, $cdata ) {
 		switch( $this->currentElement ) {
 			// Index field name
 			case 'COL':
@@ -773,7 +773,7 @@ class dbIndex extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_close( $parser, $tag ) {
+	public function _tag_close( $parser, $tag ) {
 		$this->currentElement = '';
 
 		switch( strtoupper( $tag ) ) {
@@ -789,7 +789,7 @@ class dbIndex extends dbObject {
 	 * @param string $name Field name
 	 * @return string[] Field list
 	 */
-	function addField( $name ) {
+	public function addField( $name ) {
 		$this->columns[$this->fieldID( $name )] = $name;
 
 		// Return the field list
@@ -802,7 +802,7 @@ class dbIndex extends dbObject {
 	 * @param string $opt Comma-separated list of index options.
 	 * @return string[] Option list
 	 */
-	function addIndexOpt( $opt ) {
+	public function addIndexOpt( $opt ) {
 		$this->opts[] = $opt;
 
 		// Return the options list
@@ -815,7 +815,7 @@ class dbIndex extends dbObject {
 	 * @param object $xmls adoSchema object
 	 * @return array Array containing index creation SQL
 	 */
-	function create( &$xmls ) {
+	public function create( &$xmls ) {
 		if( $this->drop ) {
 			return NULL;
 		}
@@ -836,7 +836,7 @@ class dbIndex extends dbObject {
 	/**
 	 * Marks an index for destruction
 	 */
-	function drop() {
+	public function drop() {
 		$this->drop = TRUE;
 	}
 }
@@ -867,7 +867,7 @@ class dbData extends dbObject {
 	 *
 	 * @internal
 	 */
-	function __construct( $parent, $attributes = NULL ) {
+	public function __construct( $parent, $attributes = NULL ) {
 		$this->parent = $parent;
 	}
 
@@ -879,7 +879,7 @@ class dbData extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_open( $parser, $tag, $attributes ) {
+	public function _tag_open( $parser, $tag, $attributes ) {
 		$this->currentElement = strtoupper( $tag );
 
 		switch( $this->currentElement ) {
@@ -901,7 +901,7 @@ class dbData extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_cdata( $parser, $cdata ) {
+	public function _tag_cdata( $parser, $cdata ) {
 		switch( $this->currentElement ) {
 			// Index field name
 			case 'F':
@@ -917,7 +917,7 @@ class dbData extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_close( $parser, $tag ) {
+	public function _tag_close( $parser, $tag ) {
 		$this->currentElement = '';
 
 		switch( strtoupper( $tag ) ) {
@@ -933,7 +933,7 @@ class dbData extends dbObject {
 	 * @param string $name Field name
 	 * @return string Field list
 	 */
-	function addField( $attributes ) {
+	public function addField( $attributes ) {
 		// check we're in a valid row
 		if( !isset( $this->row ) || !isset( $this->data[$this->row] ) ) {
 			return;
@@ -958,7 +958,7 @@ class dbData extends dbObject {
 	 * @param string $cdata Data to add
 	 * @return void
 	 */
-	function addData( $cdata ) {
+	public function addData( $cdata ) {
 		// check we're in a valid field
 		if ( isset( $this->data[$this->row][$this->current_field] ) ) {
 			// add data to field
@@ -972,7 +972,7 @@ class dbData extends dbObject {
 	 * @param object $xmls adoSchema object
 	 * @return array Array containing index creation SQL
 	 */
-	function create( &$xmls ) {
+	public function create( &$xmls ) {
 		$table = $xmls->dict->tableName($this->parent->name);
 		$table_field_count = count($this->parent->fields);
 		$tables = $xmls->db->metaTables();
@@ -1126,7 +1126,7 @@ class dbQuerySet extends dbObject {
 	 * @param object $parent Parent object
 	 * @param array $attributes Attributes
 	 */
-	function __construct( $parent, $attributes = NULL ) {
+	public function __construct( $parent, $attributes = NULL ) {
 		$this->parent = $parent;
 
 		// Overrides the manual prefix key
@@ -1156,7 +1156,7 @@ class dbQuerySet extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_open( $parser, $tag, $attributes ) {
+	public function _tag_open( $parser, $tag, $attributes ) {
 		$this->currentElement = strtoupper( $tag );
 
 		switch( $this->currentElement ) {
@@ -1178,7 +1178,7 @@ class dbQuerySet extends dbObject {
 	/**
 	 * XML Callback to process CDATA elements
 	 */
-	function _tag_cdata( $parser, $cdata ) {
+	public function _tag_cdata( $parser, $cdata ) {
 		switch( $this->currentElement ) {
 			// Line of queryset SQL data
 			case 'QUERY':
@@ -1194,7 +1194,7 @@ class dbQuerySet extends dbObject {
 	 *
 	 * @access private
 	 */
-	function _tag_close( $parser, $tag ) {
+	public function _tag_close( $parser, $tag ) {
 		$this->currentElement = '';
 
 		switch( strtoupper( $tag ) ) {
@@ -1217,7 +1217,7 @@ class dbQuerySet extends dbObject {
 	 *
 	 * @return boolean TRUE
 	 */
-	function newQuery() {
+	public function newQuery() {
 		$this->query = '';
 
 		return TRUE;
@@ -1228,7 +1228,7 @@ class dbQuerySet extends dbObject {
 	 *
 	 * @return boolean TRUE
 	 */
-	function discardQuery() {
+	public function discardQuery() {
 		unset( $this->query );
 
 		return TRUE;
@@ -1240,7 +1240,7 @@ class dbQuerySet extends dbObject {
 	 * @param string $data Line of SQL data or NULL to initialize a new query
 	 * @return string SQL query string.
 	 */
-	function buildQuery( $sql = NULL ) {
+	public function buildQuery( $sql = NULL ) {
 		if( !isset( $this->query ) OR empty( $sql ) ) {
 			return FALSE;
 		}
@@ -1255,7 +1255,7 @@ class dbQuerySet extends dbObject {
 	 *
 	 * @return string	SQL of added query
 	 */
-	function addQuery() {
+	public function addQuery() {
 		if( !isset( $this->query ) ) {
 			return FALSE;
 		}
@@ -1273,7 +1273,7 @@ class dbQuerySet extends dbObject {
 	 * @param object $xmls adoSchema object
 	 * @return array Query set
 	 */
-	function create( &$xmls ) {
+	public function create( &$xmls ) {
 		foreach( $this->queries as $id => $query ) {
 			switch( $this->prefixMethod ) {
 				case 'AUTO':
@@ -1315,7 +1315,7 @@ class dbQuerySet extends dbObject {
 	 * @param string $prefix Prefix to be appended to tables, indices, etc.
 	 * @return string Prefixed SQL query string.
 	 */
-	function prefixQuery( $regex, $query, $prefix = NULL ) {
+	public function prefixQuery( $regex, $query, $prefix = NULL ) {
 		if( !isset( $prefix ) ) {
 			return $query;
 		}
@@ -1444,7 +1444,7 @@ class adoSchema {
 	 *
 	 * @param object $db ADOdb database connection object.
 	 */
-	function __construct( $db ) {
+	public function __construct( $db ) {
 		$this->db = $db;
 		$this->debug = $this->db->debug;
 		$this->dict = newDataDictionary( $this->db );
@@ -1472,7 +1472,7 @@ class adoSchema {
 	 * @param string $method Upgrade method (ALTER|REPLACE|BEST|NONE)
 	 * @returns string Upgrade method used
 	 */
-	function setUpgradeMethod( $method = '' ) {
+	public function setUpgradeMethod( $method = '' ) {
 		if( !is_string( $method ) ) {
 			return FALSE;
 		}
@@ -1520,7 +1520,7 @@ class adoSchema {
 	 * @param int $mode XMLS_MODE_INSERT, XMLS_MODE_UPDATE, or XMLS_MODE_IGNORE
 	 * @return int current mode
 	 */
-	function existingData( $mode = NULL ) {
+	public function existingData( $mode = NULL ) {
 		if( is_int( $mode ) ) {
 			switch( $mode ) {
 				case XMLS_MODE_UPDATE:
@@ -1556,7 +1556,7 @@ class adoSchema {
 	 * @see ParseSchema()
 	 * @see ExecuteSchema()
 	 */
-	function executeInline( $mode = NULL ) {
+	public function executeInline( $mode = NULL ) {
 		if( is_bool( $mode ) ) {
 			$this->executeInline = $mode;
 		}
@@ -1578,7 +1578,7 @@ class adoSchema {
 	 * @see addSQL()
 	 * @see ExecuteSchema()
 	 */
-	function continueOnError( $mode = NULL ) {
+	public function continueOnError( $mode = NULL ) {
 		if( is_bool( $mode ) ) {
 			$this->continueOnError = $mode;
 		}
@@ -1599,7 +1599,7 @@ class adoSchema {
 	 * @param bool $returnSchema Return schema rather than parsing.
 	 * @return array Array of SQL queries, ready to execute
 	 */
-	function parseSchema( $filename, $returnSchema = FALSE ) {
+	public function parseSchema( $filename, $returnSchema = FALSE ) {
 		return $this->parseSchemaString( $this->convertSchemaFile( $filename ), $returnSchema );
 	}
 
@@ -1625,7 +1625,7 @@ class adoSchema {
 	 * @see parseSchema()
 	 * @see parseSchemaString()
 	 */
-	function parseSchemaFile( $filename, $returnSchema = FALSE ) {
+	public function parseSchemaFile( $filename, $returnSchema = FALSE ) {
 		// Open the file
 		if( !($fp = fopen( $filename, 'r' )) ) {
 			logMsg( 'Unable to open file: '. $filename, 'Filesystem Error');
@@ -1679,7 +1679,7 @@ class adoSchema {
 	 * @param bool $returnSchema Return schema rather than parsing.
 	 * @return array Array of SQL queries, ready to execute.
 	 */
-	function parseSchemaString( $xmlstring, $returnSchema = FALSE ) {
+	public function parseSchemaString( $xmlstring, $returnSchema = FALSE ) {
 		if( !is_string( $xmlstring ) OR empty( $xmlstring ) ) {
 			logMsg( 'Empty or Invalid Schema' );
 			return FALSE;
@@ -1725,7 +1725,7 @@ class adoSchema {
 	 * @param bool $returnSchema Return schema rather than parsing.
 	 * @return array Array of SQL queries, ready to execute
 	 */
-	function removeSchema( $filename, $returnSchema = FALSE ) {
+	public function removeSchema( $filename, $returnSchema = FALSE ) {
 		return $this->removeSchemaString( $this->convertSchemaFile( $filename ), $returnSchema );
 	}
 
@@ -1740,7 +1740,7 @@ class adoSchema {
 	 * @param bool $returnSchema Return schema rather than parsing.
 	 * @return array Array of SQL queries, ready to execute.
 	 */
-	function removeSchemaString( $schema, $returnSchema = FALSE ) {
+	public function removeSchemaString( $schema, $returnSchema = FALSE ) {
 
 		// grab current version
 		if( !( $version = $this->schemaStringVersion( $schema ) ) ) {
@@ -1765,7 +1765,7 @@ class adoSchema {
 	 * @param boolean $continueOnErr Continue to apply the schema even if an error occurs.
 	 * @returns integer 0 if failure, 1 if errors, 2 if successful.
 	 */
-	function executeSchema( $sqlArray = NULL, $continueOnErr =  NULL ) {
+	public function executeSchema( $sqlArray = NULL, $continueOnErr =  NULL ) {
 		if( !is_bool( $continueOnErr ) ) {
 			$continueOnErr = $this->continueOnError();
 		}
@@ -1793,7 +1793,7 @@ class adoSchema {
 	 * @param string $format Format: HTML, TEXT, or NONE (PHP array)
 	 * @return array Array of SQL statements or FALSE if an error occurs
 	 */
-	function printSQL( $format = 'NONE' ) {
+	public function printSQL( $format = 'NONE' ) {
 		$sqlArray = null;
 		return $this->getSQL( $format, $sqlArray );
 	}
@@ -1807,7 +1807,7 @@ class adoSchema {
 	 * @param string $filename Path and name where the file should be saved.
 	 * @return boolean TRUE if save is successful, else FALSE.
 	 */
-	function saveSQL( $filename = './schema.sql' ) {
+	public function saveSQL( $filename = './schema.sql' ) {
 
 		if( !isset( $sqlArray ) ) {
 			$sqlArray = $this->sqlArray;
@@ -1831,7 +1831,7 @@ class adoSchema {
 	 *
 	 * @access private
 	 */
-	function create_parser() {
+	public function create_parser() {
 		// Create the parser
 		$xmlParser = xml_parser_create();
 		xml_set_object( $xmlParser, $this );
@@ -1848,7 +1848,7 @@ class adoSchema {
 	 *
 	 * @access private
 	 */
-	function _tag_open( $parser, $tag, $attributes ) {
+	public function _tag_open( $parser, $tag, $attributes ) {
 		switch( strtoupper( $tag ) ) {
 			case 'TABLE':
 				if( !isset( $attributes['PLATFORM'] ) OR $this->supportedPlatform( $attributes['PLATFORM'] ) ) {
@@ -1873,7 +1873,7 @@ class adoSchema {
 	 *
 	 * @access private
 	 */
-	function _tag_cdata( $parser, $cdata ) {
+	public function _tag_cdata( $parser, $cdata ) {
 	}
 
 	/**
@@ -1882,7 +1882,7 @@ class adoSchema {
 	 * @access private
 	 * @internal
 	 */
-	function _tag_close( $parser, $tag ) {
+	public function _tag_close( $parser, $tag ) {
 
 	}
 
@@ -1902,7 +1902,7 @@ class adoSchema {
 	 * @param string $newFile File name of (converted) output file.
 	 * @return string Converted XML schema or FALSE if an error occurs.
 	 */
-	function convertSchemaString( $schema, $newVersion = NULL, $newFile = NULL ) {
+	public function convertSchemaString( $schema, $newVersion = NULL, $newFile = NULL ) {
 
 		// grab current version
 		if( !( $version = $this->schemaStringVersion( $schema ) ) ) {
@@ -1943,7 +1943,7 @@ class adoSchema {
 	 * @param string $newFile File name of (converted) output file.
 	 * @return string Converted XML schema or FALSE if an error occurs.
 	 */
-	function convertSchemaFile( $filename, $newVersion = NULL, $newFile = NULL ) {
+	public function convertSchemaFile( $filename, $newVersion = NULL, $newFile = NULL ) {
 
 		// grab current version
 		if( !( $version = $this->schemaFileVersion( $filename ) ) ) {
@@ -1973,7 +1973,7 @@ class adoSchema {
 		return $result;
 	}
 
-	function transformSchema( $schema, $xsl, $schematype='string' )
+	public function transformSchema( $schema, $xsl, $schematype='string' )
 	{
 		// Fail if XSLT extension is not available
 		if( ! function_exists( 'xslt_create' ) ) {
@@ -2032,7 +2032,7 @@ class adoSchema {
 	 *
 	 * @access private
 	 */
-	function xslt_error_handler( $parser, $errno, $level, $fields ) {
+	public function xslt_error_handler( $parser, $errno, $level, $fields ) {
 		if( is_array( $fields ) ) {
 			$msg = array(
 				'Message Type' => ucfirst( $fields['msgtype'] ),
@@ -2084,7 +2084,7 @@ class adoSchema {
 	 * @param string $filename AXMLS schema file
 	 * @return string Schema version number or FALSE on error
 	 */
-	function schemaFileVersion( $filename ) {
+	public function schemaFileVersion( $filename ) {
 		// Open the file
 		if( !($fp = fopen( $filename, 'r' )) ) {
 			// die( 'Unable to open file' );
@@ -2110,7 +2110,7 @@ class adoSchema {
 	 * @param string $xmlstring XML schema string
 	 * @return string Schema version number or FALSE on error
 	 */
-	function schemaStringVersion( $xmlstring ) {
+	public function schemaStringVersion( $xmlstring ) {
 		if( !is_string( $xmlstring ) OR empty( $xmlstring ) ) {
 			return FALSE;
 		}
@@ -2135,7 +2135,7 @@ class adoSchema {
 	 * @param boolean $stripprefix strip prefix string when storing in XML schema
 	 * @return string Generated XML schema
 	 */
-	function extractSchema( $data = FALSE, $indent = '  ', $prefix = '' , $stripprefix=false) {
+	public function extractSchema( $data = FALSE, $indent = '  ', $prefix = '' , $stripprefix=false) {
 		$old_mode = $this->db->setFetchMode( ADODB_FETCH_NUM );
 
 		$schema = '<?xml version="1.0"?>' . "\n"
@@ -2252,7 +2252,7 @@ class adoSchema {
 	 * @param boolean $underscore If TRUE, automatically append an underscore character to the prefix.
 	 * @return boolean TRUE if successful, else FALSE
 	 */
-	function setPrefix( $prefix = '', $underscore = TRUE ) {
+	public function setPrefix( $prefix = '', $underscore = TRUE ) {
 		switch( TRUE ) {
 			// clear prefix
 			case empty( $prefix ):
@@ -2285,7 +2285,7 @@ class adoSchema {
 	 *
 	 * @access private
 	 */
-	function prefix( $name = '' ) {
+	public function prefix( $name = '' ) {
 		// if prefix is set
 		if( !empty( $this->objectPrefix ) ) {
 			// Prepend the object prefix to the table name
@@ -2305,7 +2305,7 @@ class adoSchema {
 	 *
 	 * @access private
 	 */
-	function supportedPlatform( $platform = NULL ) {
+	public function supportedPlatform( $platform = NULL ) {
 		if( !empty( $platform ) ) {
 			$regex = '/(^|\|)' . $this->db->databaseType . '(\||$)/i';
 
@@ -2331,7 +2331,7 @@ class adoSchema {
 	 *
 	 * @access private
 	 */
-	function clearSQL() {
+	public function clearSQL() {
 		$this->sqlArray = array();
 	}
 
@@ -2343,7 +2343,7 @@ class adoSchema {
 	 *
 	 * @access private
 	 */
-	function addSQL( $sql = NULL ) {
+	public function addSQL( $sql = NULL ) {
 		if( is_array( $sql ) ) {
 			foreach( $sql as $line ) {
 				$this->addSQL( $line );
@@ -2385,7 +2385,7 @@ class adoSchema {
 	 *
 	 * @access private
 	 */
-	function getSQL( $format = NULL, $sqlArray = NULL ) {
+	public function getSQL( $format = NULL, $sqlArray = NULL ) {
 		if( !is_array( $sqlArray ) ) {
 			$sqlArray = $this->sqlArray;
 		}
@@ -2411,7 +2411,7 @@ class adoSchema {
 	 * Call this method to clean up after an adoSchema object that is no longer in use.
 	 * @deprecated adoSchema now cleans up automatically.
 	 */
-	function destroy() {
+	public function destroy() {
 	}
 
 	/**

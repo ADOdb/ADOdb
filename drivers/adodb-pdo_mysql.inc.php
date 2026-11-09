@@ -55,7 +55,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 	}
 
 	// dayFraction is a day in floating point
-	function OffsetDate($dayFraction, $date=false)
+	public function OffsetDate($dayFraction, $date=false)
 	{
 		if (!$date) {
 			$date = $this->sysDate;
@@ -75,7 +75,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 	 *
 	 * @return array|bool An array of the indexes, or false if the query to get the indexes failed.
 	 */
-	function metaIndexes($table, $primary = false, $owner = false)
+	public function metaIndexes($table, $primary = false, $owner = false)
 	{
 		// save old fetch mode
 		global $ADODB_FETCH_MODE;
@@ -127,7 +127,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 		return $indexes;
 	}
 
-	function Concat()
+	public function Concat()
 	{
 		$s = '';
 		$arr = func_get_args();
@@ -140,14 +140,14 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 		return '';
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		$arr['description'] = ADOConnection::GetOne('select version()');
 		$arr['version'] = ADOConnection::_findvers($arr['description']);
 		return $arr;
 	}
 
-	function MetaTables($ttype=false, $showSchema=false, $mask=false)
+	public function MetaTables($ttype=false, $showSchema=false, $mask=false)
 	{
 		$save = $this->metaTablesSQL;
 		if ($showSchema && is_string($showSchema)) {
@@ -170,12 +170,12 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 	 * @param bool $auto_commit
 	 * @return void
 	 */
-	function SetAutoCommit($auto_commit)
+	public function SetAutoCommit($auto_commit)
 	{
 		$this->_connectionID->setAttribute(PDO::ATTR_AUTOCOMMIT, $auto_commit);
 	}
 
-	function SetTransactionMode($transaction_mode)
+	public function SetTransactionMode($transaction_mode)
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -188,7 +188,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 		$this->Execute('SET SESSION TRANSACTION ' . $transaction_mode);
 	}
 
-	function MetaColumns($table, $normalize=true)
+	public function MetaColumns($table, $normalize=true)
 	{
 		$this->_findschema($table, $schema);
 		if ($schema) {
@@ -271,7 +271,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 	}
 
 	// returns true or false
-	function SelectDB($dbName)
+	public function SelectDB($dbName)
 	{
 		$this->database = $dbName;
 		$try = $this->Execute('use ' . $dbName);
@@ -279,7 +279,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 	}
 
 	// parameters use PostgreSQL convention, not MySQL
-	function SelectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs=0)
+	public function SelectLimit($sql, $nrows=-1, $offset=-1, $inputarr=false, $secs=0)
 	{
 		$nrows = (int) $nrows;
 		$offset = (int) $offset;
@@ -297,7 +297,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 		return $rs;
 	}
 
-	function SQLDate($fmt, $col=false)
+	public function SQLDate($fmt, $col=false)
 	{
 		if (!$col) {
 			$col = $this->sysTimeStamp;
@@ -391,7 +391,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 		return $s;
 	}
 
-	function GenID($seqname='adodbseq',$startID=1)
+	public function GenID($seqname='adodbseq',$startID=1)
 	{
 		$getnext = sprintf($this->_genIDSQL,$seqname);
 		$holdtransOK = $this->_transOK; // save the current status
@@ -415,7 +415,7 @@ class ADODB_pdo_mysql extends ADODB_pdo_base {
 	}
 
 
-	function createSequence($seqname='adodbseq',$startID=1)
+	public function createSequence($seqname='adodbseq',$startID=1)
 	{
 		if (empty($this->_genSeqSQL)) {
 			return false;

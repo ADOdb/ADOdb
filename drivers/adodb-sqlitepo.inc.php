@@ -44,7 +44,7 @@ class ADORecordset_sqlitepo extends ADORecordset_sqlite {
    var $databaseType = 'sqlitepo';
 
    // Modified to strip table names from returned fields
-   function _fetch($ignore_fields=false)
+   public function _fetch($ignore_fields=false)
    {
       $this->fields = array();
       $fields = @sqlite_fetch_array($this->_queryID,$this->fetchMode);

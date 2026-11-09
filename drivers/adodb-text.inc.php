@@ -52,25 +52,25 @@ class ADODB_text extends ADOConnection {
 	var $_reznames;
 	var $_reztypes;
 
-	function RSRecordCount()
+	public function RSRecordCount()
 	{
 		if (!empty($this->_rezarray)) return sizeof($this->_rezarray);
 
 		return sizeof($this->_origarray);
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 			return false;
 	}
 
 		// returns true or false
-	function PConnect(&$array, $types = false, $colnames = false)
+	public function PConnect(&$array, $types = false, $colnames = false)
 	{
 		return $this->Connect($array, $types, $colnames);
 	}
 		// returns true or false
-	function Connect(&$array, $types = false, $colnames = false)
+	public function Connect(&$array, $types = false, $colnames = false)
 	{
 		if (is_string($array) and $array === 'iluvphplens') return 'me2';
 
@@ -143,7 +143,7 @@ class ADODB_text extends ADOConnection {
 	 *
 	 * @return mixed|bool Query identifier or true if execution successful, false if failed.
 	 */
-	function _query($sql, $inputarr=false, $eval=false)
+	public function _query($sql, $inputarr=false, $eval=false)
 	{
 		if ($this->_origarray === false) return false;
 
@@ -306,19 +306,19 @@ class ADODB_text extends ADOConnection {
 	}
 
 	/*	Returns: the last error message from previous database operation	*/
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 			return '';
 	}
 
 	/*	Returns: the last error number from previous database operation	*/
-	function ErrorNo()
+	public function ErrorNo()
 	{
 		return 0;
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 	}
 
@@ -335,7 +335,7 @@ class ADORecordSet_text extends ADORecordSet_array
 
 	var $databaseType = "text";
 
-	function __construct( $conn,$mode=false)
+	public function __construct( $conn,$mode=false)
 	{
 		parent::__construct();
 		$this->InitArray($conn->_rezarray,$conn->_reztypes,$conn->_reznames);

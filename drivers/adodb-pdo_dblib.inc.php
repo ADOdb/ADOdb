@@ -40,13 +40,13 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		$parentDriver->hasInsertID = true;
 	}
 
-	function BeginTrans()
+	public function BeginTrans()
 	{
 		$returnval = parent::BeginTrans();
 		return $returnval;
 	}
 
-	function MetaColumns($table, $normalize=true)
+	public function MetaColumns($table, $normalize=true)
 	{
 		$this->_findschema($table,$schema);
 		if ($schema) {
@@ -100,7 +100,7 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		return $retarr;
 	}
 
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		if ($mask) {
 			$save = $this->metaTablesSQL;
@@ -115,7 +115,7 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		return $ret;
 	}
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
+	public function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		if ($nrows > 0 && $offset <= 0) {
 			$sql = preg_replace(
@@ -131,7 +131,7 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		return $rs;
 	}
 
-	function _query($sql,$inputarr=false)
+	public function _query($sql,$inputarr=false)
 	{
 		$this->_connectionID->setAttribute(\PDO::ATTR_EMULATE_PREPARES , true);
 		if (is_array($sql)) {
@@ -185,7 +185,7 @@ class ADODB_pdo_dblib extends ADODB_pdo_base
 		return PDO::PARAM_STR;
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		return ADOConnection::ServerInfo();
 	}

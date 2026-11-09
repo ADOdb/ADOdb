@@ -65,7 +65,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+	public function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -118,7 +118,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		return ADODB_DEFAULT_METATYPE;
 	}
 
-	function ActualType($meta)
+	public function ActualType($meta)
 	{
 		$DATE_TYPE = 'DATETIME';
 		$meta = strtoupper($meta);
@@ -159,7 +159,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	}
 
 
-	function AddColumnSQL($tabname, $flds)
+	public function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName ($tabname);
 		$f = array();
@@ -180,7 +180,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	 * @param string $colname
 	 * @return string|null The Constraint's name, or null if there is none.
 	 */
-	function defaultConstraintName($tabname, $colname)
+	public function defaultConstraintName($tabname, $colname)
 	{
 		$sql = "SELECT name FROM sys.default_constraints
 			WHERE object_name(parent_object_id) = ?
@@ -188,7 +188,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 		return $this->connection->getOne($sql, [$tabname, $colname]);
 	}
 
-	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	public function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
@@ -246,7 +246,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	 *
 	 * @return string[]  The SQL necessary to drop the column
 	 */
-	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	public function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
 		if (!is_array($flds)) {
@@ -269,7 +269,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	// return string must begin with space
 
 	/** @noinspection DuplicatedCode */
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
@@ -281,7 +281,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	}
 
 	/** @noinspection DuplicatedCode */
-	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
+	public function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
 
@@ -312,7 +312,7 @@ class ADODB2_mssqlnative extends ADODB_DataDict {
 	}
 
 
-	function _GetSize($ftype, $ty, $fsize, $fprec, $options=false)
+	public function _GetSize($ftype, $ty, $fsize, $fprec, $options=false)
 	{
 		switch ($ftype) {
 			case 'INT':

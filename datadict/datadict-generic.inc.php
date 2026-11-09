@@ -29,18 +29,18 @@ class ADODB2_generic extends ADODB_DataDict {
 
 
 
- 	function ActualType($meta)
+ 	public function ActualType($meta)
 	{
-		
+
 		$meta = strtoupper($meta);
-		
+
 		/*
 		* Add support for custom meta types. We do this
 		* first, that allows us to override existing types
 		*/
 		if (isset($this->connection->customMetaTypes[$meta]))
 			return $this->connection->customMetaTypes[$meta]['actual'];
-		
+
 		switch($meta) {
 		case 'C': return 'VARCHAR';
 		case 'XL':
@@ -69,14 +69,14 @@ class ADODB2_generic extends ADODB_DataDict {
 		}
 	}
 
-	function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	public function AlterColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		if ($this->debug) ADOConnection::outp("AlterColumnSQL not supported");
 		return array();
 	}
 
 
-	function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
+	public function DropColumnSQL($tabname, $flds, $tableflds='',$tableoptions='')
 	{
 		if ($this->debug) ADOConnection::outp("DropColumnSQL not supported");
 		return array();

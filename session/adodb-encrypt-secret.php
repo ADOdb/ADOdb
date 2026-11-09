@@ -32,13 +32,13 @@ include_once HORDE_BASE . '/lib/Secret.php';
 class ADODB_Encrypt_Secret {
 	/**
 	 */
-	function write($data, $key) {
+	public function write($data, $key) {
 		return Secret::write($key, $data);
 	}
 
 	/**
 	 */
-	function read($data, $key) {
+	public function read($data, $key) {
 		return Secret::read($key, $data);
 	}
 

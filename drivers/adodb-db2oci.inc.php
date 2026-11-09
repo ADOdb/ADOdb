@@ -140,13 +140,13 @@ class ADODB_db2oci extends ADODB_db2 {
 	var $sysDate = 'trunc(sysdate)';
 	var $_bindInputArray = true;
 
-	function Param($name,$type='C')
+	public function Param($name,$type='C')
 	{
 		return ':'.$name;
 	}
 
 
-	function MetaTables($ttype = false, $schema = false, $mask = false)
+	public function MetaTables($ttype = false, $schema = false, $mask = false)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -185,7 +185,7 @@ class ADODB_db2oci extends ADODB_db2 {
 		return $arr2;
 	}
 
-	function _Execute($sql, $inputarr=false	)
+	public function _Execute($sql, $inputarr=false	)
 	{
 		if ($inputarr) list($sql,$inputarr) = _colonparser($sql, $inputarr);
 		return parent::_Execute($sql, $inputarr);

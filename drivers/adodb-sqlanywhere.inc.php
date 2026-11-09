@@ -40,17 +40,17 @@ if (!defined('ADODB_SYBASE_SQLANYWHERE')){
 		 return $this->GetOne('select @@identity');
 	}
 
-  function create_blobvar($blobVarName) {
+  public function create_blobvar($blobVarName) {
    $this->Execute("create variable $blobVarName long binary");
    return;
   }
 
-  function drop_blobvar($blobVarName) {
+  public function drop_blobvar($blobVarName) {
    $this->Execute("drop variable $blobVarName");
    return;
   }
 
-  function load_blobvar_from_file($blobVarName, $filename) {
+  public function load_blobvar_from_file($blobVarName, $filename) {
    $chunk_size = 1000;
 
    $fd = fopen ($filename, "rb");
@@ -80,7 +80,7 @@ if (!defined('ADODB_SYBASE_SQLANYWHERE')){
    return;
   }
 
-  function load_blobvar_from_var($blobVarName, &$varName) {
+  public function load_blobvar_from_var($blobVarName, &$varName) {
    $chunk_size = 1000;
 
    $integer_chunks = (int)strlen($varName) / $chunk_size;
@@ -116,7 +116,7 @@ if (!defined('ADODB_SYBASE_SQLANYWHERE')){
   $conn->Execute('INSERT INTO blobtable (id, blobcol) VALUES (1, null)');
   $conn->UpdateBlob('blobtable','blobcol',$blob,'id=1');
  */
-  function updateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
+  public function updateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
   {
    $blobVarName = 'hold_blob';
    $this->create_blobvar($blobVarName);

@@ -88,12 +88,12 @@ class perf_mysql extends adodb_perf{
 		false
 	);
 
-	function __construct(&$conn)
+	public function __construct(&$conn)
 	{
 		$this->conn = $conn;
 	}
 
-	function Explain($sql,$partial=false)
+	public function Explain($sql,$partial=false)
 	{
 
 		if (strtoupper(substr(trim($sql),0,6)) !== 'SELECT') return '<p>Unable to EXPLAIN non-select statement</p>';
@@ -129,7 +129,7 @@ class perf_mysql extends adodb_perf{
 	 * @param  string  $orderby  Unused (compatibility with parent method)
 	 * @return string A formatted set of recordsets
 	 */
-	function tables($orderby='1')
+	public function tables($orderby='1')
 	{
 		if (!$this->tablesSQL) return false;
 
@@ -140,7 +140,7 @@ class perf_mysql extends adodb_perf{
 		return $html;
 	}
 
-	function GetReads()
+	public function GetReads()
 	{
 	global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
@@ -169,7 +169,7 @@ class perf_mysql extends adodb_perf{
 		return $val;
 	}
 
-	function GetWrites()
+	public function GetWrites()
 	{
 	global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
@@ -202,7 +202,7 @@ class perf_mysql extends adodb_perf{
 		return $val;
 	}
 
-	function FindDBHitRatio()
+	public function FindDBHitRatio()
 	{
 		// first find out type of table
 		//$this->conn->debug=1;
@@ -232,7 +232,7 @@ class perf_mysql extends adodb_perf{
 
 	}
 
-	function GetQHitRatio()
+	public function GetQHitRatio()
 	{
 		//Total number of queries = Qcache_inserts + Qcache_hits + Qcache_not_cached
 		$hits = $this->_DBParameter(array("show status","Qcache_hits"));
@@ -256,7 +256,7 @@ class perf_mysql extends adodb_perf{
 		0.00 reads/s, 0.00 creates/s, 0.00 writes/s
 		No buffer pool activity since the last printout
 	*/
-	function GetInnoDBHitRatio()
+	public function GetInnoDBHitRatio()
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -285,7 +285,7 @@ class perf_mysql extends adodb_perf{
 		return 0;
 	}
 
-	function GetKeyHitRatio()
+	public function GetKeyHitRatio()
 	{
 		$hits = $this->_DBParameter(array("show status","Key_read_requests"));
 		$reqs = $this->_DBParameter(array("show status","Key_reads"));
@@ -301,7 +301,7 @@ class perf_mysql extends adodb_perf{
     /**
      * @see adodb_perf::optimizeTable()
      */
-     function optimizeTable( $table, $mode = ADODB_OPT_LOW)
+     public function optimizeTable( $table, $mode = ADODB_OPT_LOW)
      {
         if ( !is_string( $table)) return false;
 

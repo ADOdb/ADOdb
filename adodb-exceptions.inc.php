@@ -33,7 +33,7 @@ var $database = '';
 	/** @var string A message text. */
 	var $msg = '';
 
-	function __construct($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
+	public function __construct($dbms, $fn, $errno, $errmsg, $p1, $p2, $thisConnection)
 	{
 		switch($fn) {
 		case 'EXECUTE':

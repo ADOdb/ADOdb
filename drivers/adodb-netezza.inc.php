@@ -64,7 +64,7 @@ class ADODB_netezza extends ADODB_postgres64 {
 							// https://bugs.php.net/bug.php?id=25404
 
 
-	function MetaColumns($table,$upper=true)
+	public function MetaColumns($table,$upper=true)
 	{
 
 	// Changed this function to support Netezza which has no concept of keys
@@ -151,7 +151,7 @@ class ADORecordSet_netezza extends ADORecordSet_postgres64
 	var $canSeek = true;
 
 	// _initrs modified to disable blob handling
-	function _initrs()
+	public function _initrs()
 	{
 	global $ADODB_COUNTRECS;
 		$this->_numOfRows = ($ADODB_COUNTRECS)? @pg_num_rows($this->_queryID):-1;

@@ -18,12 +18,12 @@ class perf_sqlite3 extends adodb_perf{
 
 	var $settings = array();
 
-	function __construct(&$conn)
+	public function __construct(&$conn)
 	{
 		$this->conn = $conn;
 	}
 
-	function tables($orderby='1')
+	public function tables($orderby='1')
 	{
 		if (!$this->tablesSQL){
 			return false;

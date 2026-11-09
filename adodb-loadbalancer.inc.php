@@ -790,14 +790,14 @@ class ADOdbLoadBalancerConnection
      * @param callable $callback
      * @return void
      */
-    function setConnectionTestCallback($callback) {
+    public function setConnectionTestCallback($callback) {
         $this->connection_test_callback = $callback;
     }
 
     /**
      * @return callable|null
      */
-    function getConnectionTestCallback() {
+    public function getConnectionTestCallback() {
         return $this->connection_test_callback;
     }
 

@@ -63,7 +63,7 @@ class ADODB_informix72 extends ADOConnection {
 	var $sysTimeStamp = 'CURRENT';
 	var $cursorType = IFX_SCROLL; // IFX_SCROLL or IFX_HOLD or 0
 
-	function __construct()
+	public function __construct()
 	{
 		// alternatively, use older method:
 		//putenv("DBDATE=Y4MD-");
@@ -78,7 +78,7 @@ class ADODB_informix72 extends ADOConnection {
 		}
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		$arr['description'] = $this->GetOne("select DBINFO('version','full') from systables where tabid = 1");
 		$arr['version'] = $this->GetOne("select DBINFO('version','major') || DBINFO('version','minor') from systables where tabid = 1");
@@ -93,7 +93,7 @@ class ADODB_informix72 extends ADOConnection {
 		return @$sqlca["sqlerrd1"];
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 		if ($this->lastQuery) {
 		   return @ifx_affected_rows ($this->lastQuery);
@@ -101,7 +101,7 @@ class ADODB_informix72 extends ADOConnection {
 		return 0;
 	}
 
-	function BeginTrans()
+	public function BeginTrans()
 	{
 		if ($this->transOff) return true;
 		$this->transCnt += 1;
@@ -110,7 +110,7 @@ class ADODB_informix72 extends ADOConnection {
 		return true;
 	}
 
-	function CommitTrans($ok=true)
+	public function CommitTrans($ok=true)
 	{
 		if (!$ok) return $this->RollbackTrans();
 		if ($this->transOff) return true;
@@ -120,7 +120,7 @@ class ADODB_informix72 extends ADOConnection {
 		return true;
 	}
 
-	function RollbackTrans()
+	public function RollbackTrans()
 	{
 		if ($this->transOff) return true;
 		if ($this->transCnt) $this->transCnt -= 1;
@@ -129,7 +129,7 @@ class ADODB_informix72 extends ADOConnection {
 		return true;
 	}
 
-	function RowLock($tables,$where,$col='1 as adodbignore')
+	public function RowLock($tables,$where,$col='1 as adodbignore')
 	{
 		if ($this->_autocommit) $this->BeginTrans();
 		return $this->GetOne("select $col from $tables where $where for update");
@@ -138,14 +138,14 @@ class ADODB_informix72 extends ADOConnection {
 	/*	Returns: the last error message from previous database operation
 		Note: This function is NOT available for Microsoft SQL Server.	*/
 
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 		if (!empty($this->_logsql)) return $this->_errorMsg;
 		$this->_errorMsg = ifx_errormsg();
 		return $this->_errorMsg;
 	}
 
-	function ErrorNo()
+	public function ErrorNo()
 	{
 		preg_match("/.*SQLCODE=([^\]]*)/",ifx_error(),$parse);
 		if (is_array($parse) && isset($parse[1])) return (int)$parse[1];
@@ -153,7 +153,7 @@ class ADODB_informix72 extends ADOConnection {
 	}
 
 
-	function MetaProcedures($NamePattern = false, $catalog  = null, $schemaPattern  = null)
+	public function MetaProcedures($NamePattern = false, $catalog  = null, $schemaPattern  = null)
     {
         // save old fetch mode
         global $ADODB_FETCH_MODE;
@@ -198,7 +198,7 @@ class ADODB_informix72 extends ADOConnection {
         return $procedures;
     }
 
-    function MetaColumns($table, $normalize=true)
+    public function MetaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -250,7 +250,7 @@ class ADODB_informix72 extends ADOConnection {
 		return $false;
 	}
 
-	function xMetaColumns($table)
+	public function xMetaColumns($table)
 	{
 		return ADOConnection::MetaColumns($table,false);
 	}
@@ -287,20 +287,20 @@ class ADODB_informix72 extends ADOConnection {
 		return $a;
 	 }
 
-   function UpdateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
+   public function UpdateBlob($table, $column, $val, $where, $blobtype = 'BLOB')
    {
    		$type = ($blobtype == 'TEXT') ? 1 : 0;
 		$blobid = ifx_create_blob($type,0,$val);
 		return $this->Execute("UPDATE $table SET $column=(?) WHERE $where",array($blobid));
    }
 
-   function BlobDecode($blobid)
+   public function BlobDecode($blobid)
    {
    		return function_exists('ifx_byteasvarchar') ? $blobid : @ifx_get_blob($blobid);
    }
 
 	// returns true or false
-   function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
+   public function _connect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (!function_exists('ifx_connect')) return null;
 
@@ -314,7 +314,7 @@ class ADODB_informix72 extends ADOConnection {
 	}
 
 	// returns true or false
-   function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
+   public function _pconnect($argHostname, $argUsername, $argPassword, $argDatabasename)
 	{
 		if (!function_exists('ifx_connect')) return null;
 
@@ -334,7 +334,7 @@ class ADODB_informix72 extends ADOConnection {
 		else return array($sql,$stmt);
 	}
 */
-	function _query($sql,$inputarr=false)
+	public function _query($sql,$inputarr=false)
 	{
 	global $ADODB_COUNTRECS;
 
@@ -378,7 +378,7 @@ class ADODB_informix72 extends ADOConnection {
 	}
 
 	// returns true or false
-	function _close()
+	public function _close()
 	{
 		$this->lastQuery = false;
 		if($this->_connectionID) {
@@ -404,7 +404,7 @@ class ADORecordset_informix72 extends ADORecordSet {
 		Get column information in the Recordset object. fetchField() can be used in order to obtain information about
 		fields in a certain query result. If the field offset isn't specified, the next field that wasn't yet retrieved by
 		fetchField() is retrieved.	*/
-	function FetchField($fieldOffset = -1)
+	public function FetchField($fieldOffset = -1)
 	{
 		if (empty($this->_fieldprops)) {
 			$fp = ifx_fieldproperties($this->_queryID);
@@ -422,18 +422,18 @@ class ADORecordset_informix72 extends ADORecordSet {
 		return $ret;
 	}
 
-	function _initrs()
+	public function _initrs()
 	{
 		$this->_numOfRows = -1; // ifx_affected_rows not reliable, only returns estimate -- ($ADODB_COUNTRECS)? ifx_affected_rows($this->_queryID):-1;
 		$this->_numOfFields = ifx_num_fields($this->_queryID);
 	}
 
-	function _seek($row)
+	public function _seek($row)
 	{
 		return @ifx_fetch_row($this->_queryID, (int) $row);
 	}
 
-   function MoveLast()
+   public function MoveLast()
    {
 	  $this->fields = @ifx_fetch_row($this->_queryID, "LAST");
 	  if ($this->fields) $this->EOF = false;
@@ -449,7 +449,7 @@ class ADORecordset_informix72 extends ADORecordSet {
 	  return true;
    }
 
-   function MoveFirst()
+   public function MoveFirst()
 	{
 	  $this->fields = @ifx_fetch_row($this->_queryID, "FIRST");
 	  if ($this->fields) $this->EOF = false;
@@ -465,7 +465,7 @@ class ADORecordset_informix72 extends ADORecordSet {
 	  return true;
    }
 
-   function _fetch($ignore_fields=false)
+   public function _fetch($ignore_fields=false)
    {
 
 		$this->fields = @ifx_fetch_row($this->_queryID);
@@ -483,7 +483,7 @@ class ADORecordset_informix72 extends ADORecordSet {
 
 	/*	close() only needs to be called if you are worried about using too much memory while your script
 		is running. All associated result memory for the specified result identifier will automatically be freed.	*/
-	function _close()
+	public function _close()
 	{
 		if($this->_queryID) {
 			return ifx_free_result($this->_queryID);

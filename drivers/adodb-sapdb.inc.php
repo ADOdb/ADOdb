@@ -38,7 +38,7 @@ class ADODB_SAPDB extends ADODB_odbc {
 	var $hasInsertId = true;
 	var $_bindInputArray = true;
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		$info = ADODB_odbc::ServerInfo();
 		if (!$info['version'] && preg_match('/([0-9.]+)/',$info['description'],$matches)) {
@@ -47,14 +47,14 @@ class ADODB_SAPDB extends ADODB_odbc {
 		return $info;
 	}
 
-	function MetaPrimaryKeys($table, $owner = false)
+	public function MetaPrimaryKeys($table, $owner = false)
 	{
 		$table = $this->Quote(strtoupper($table));
 
 		return $this->GetCol("SELECT columnname FROM COLUMNS WHERE tablename=$table AND mode='KEY' ORDER BY pos");
 	}
 
-	function MetaIndexes ($table, $primary = FALSE, $owner = false)
+	public function MetaIndexes ($table, $primary = FALSE, $owner = false)
 	{
 		$table = $this->Quote(strtoupper($table));
 
@@ -93,7 +93,7 @@ class ADODB_SAPDB extends ADODB_odbc {
 		return $indexes;
 	}
 
-	function MetaColumns ($table, $normalize = true)
+	public function MetaColumns ($table, $normalize = true)
 	{
 		global $ADODB_FETCH_MODE;
 		$save = $ADODB_FETCH_MODE;
@@ -141,7 +141,7 @@ class ADODB_SAPDB extends ADODB_odbc {
 		return $retarr;
 	}
 
-	function MetaColumnNames($table, $numIndexes = false, $useattnum = false)
+	public function MetaColumnNames($table, $numIndexes = false, $useattnum = false)
 	{
 		$table = $this->Quote(strtoupper($table));
 

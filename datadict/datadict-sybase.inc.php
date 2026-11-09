@@ -27,7 +27,7 @@ class ADODB2_sybase extends ADODB_DataDict {
 
 	var $dropIndex = 'DROP INDEX %2$s.%1$s';
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+	public function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;
@@ -58,7 +58,7 @@ class ADODB2_sybase extends ADODB_DataDict {
 		}
 	}
 
-	function ActualType($meta)
+	public function ActualType($meta)
 	{
 		$meta = strtoupper($meta);
 		
@@ -98,7 +98,7 @@ class ADODB2_sybase extends ADODB_DataDict {
 	}
 
 
-	function AddColumnSQL($tabname, $flds)
+	public function AddColumnSQL($tabname, $flds)
 	{
 		$tabname = $this->TableName ($tabname);
 		$f = array();
@@ -112,7 +112,7 @@ class ADODB2_sybase extends ADODB_DataDict {
 		return $sql;
 	}
 
-	function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	public function AlterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->TableName ($tabname);
 		$sql = array();
@@ -124,7 +124,7 @@ class ADODB2_sybase extends ADODB_DataDict {
 		return $sql;
 	}
 
-	function DropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	public function DropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		$tabname = $this->TableName($tabname);
 		if (!is_array($flds)) $flds = explode(',',$flds);
@@ -139,7 +139,7 @@ class ADODB2_sybase extends ADODB_DataDict {
 	}
 
 	// return string must begin with space
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 		if (strlen($fdefault)) $suffix .= " DEFAULT $fdefault";
@@ -222,7 +222,7 @@ CREATE TABLE
 		    SORT_IN_TEMPDB
 		}
 */
-	function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
+	public function _IndexSQL($idxname, $tabname, $flds, $idxoptions)
 	{
 		$sql = array();
 

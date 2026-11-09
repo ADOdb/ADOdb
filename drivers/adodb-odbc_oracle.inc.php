@@ -49,7 +49,7 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 
 	//var $_bindInputArray = false;
 
-	function MetaTables($ttype = false, $showSchema = false, $mask = false)
+	public function MetaTables($ttype = false, $showSchema = false, $mask = false)
 	{
 		$rs = $this->Execute($this->metaTablesSQL);
 		if ($rs === false) return false;
@@ -62,7 +62,7 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 		return $arr2;
 	}
 
-	function MetaColumns($table, $normalize=true)
+	public function MetaColumns($table, $normalize=true)
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -90,7 +90,7 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 	}
 
 	// returns true or false
-	function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
+	public function _connect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
 		$last_php_error = $this->resetLastError();
 		$this->_connectionID = odbc_connect($argDSN,$argUsername,$argPassword,SQL_CUR_USE_ODBC );
@@ -101,7 +101,7 @@ class  ADODB_odbc_oracle extends ADODB_odbc {
 		return $this->_connectionID != false;
 	}
 	// returns true or false
-	function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
+	public function _pconnect($argDSN, $argUsername, $argPassword, $argDatabasename)
 	{
 		$last_php_error = $this->resetLastError();
 		$this->_connectionID = odbc_pconnect($argDSN,$argUsername,$argPassword,SQL_CUR_USE_ODBC );

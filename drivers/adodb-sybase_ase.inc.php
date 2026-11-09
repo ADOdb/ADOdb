@@ -30,7 +30,7 @@ class ADODB_sybase_ase extends ADODB_sybase {
 	 var $metaDatabasesSQL ="SELECT a.name FROM master.dbo.sysdatabases a, master.dbo.syslogins b WHERE a.suid = b.suid and a.name like '%' and a.name != 'tempdb' and a.status3 != 256  order by 1";
 
 	// split the Views, Tables and procedures.
-	function MetaTables($ttype=false,$showSchema=false,$mask=false)
+	public function MetaTables($ttype=false,$showSchema=false,$mask=false)
 	{
 		$false = false;
 		if ($this->metaTablesSQL) {
@@ -59,7 +59,7 @@ class ADODB_sybase_ase extends ADODB_sybase {
 		return $false;
 	}
 
-	function MetaDatabases()
+	public function MetaDatabases()
 	{
 			$arr = array();
 			if ($this->metaDatabasesSQL!='') {
@@ -76,7 +76,7 @@ class ADODB_sybase_ase extends ADODB_sybase {
 	}
 
 	// fix a bug which prevent the metaColumns query to be executed for Sybase ASE
-	function MetaColumns($table,$upper=false)
+	public function MetaColumns($table,$upper=false)
 	{
 		$false = false;
 		if (!empty($this->metaColumnsSQL)) {
@@ -99,12 +99,12 @@ class ADODB_sybase_ase extends ADODB_sybase {
 		return $false;
 	}
 
-	function getProcedureList($schema)
+	public function getProcedureList($schema)
 	{
 			return false;
 	}
 
-	function ErrorMsg()
+	public function ErrorMsg()
 	{
 		if (!function_exists('sybase_connect')){
 				return 'Your PHP doesn\'t contain the Sybase connection module!';

@@ -43,18 +43,18 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 	 var $hasInsertID = true;
 	var $rsPrefix = 'ADORecordset_odbc_';
 
-	function __construct()
+	public function __construct()
 	{
 		if (strncmp(PHP_OS,'WIN',3) === 0) $this->curmode = SQL_CUR_USE_ODBC;
 		parent::__construct();
 	}
 
-	function IfNull( $field, $ifNull )
+	public function IfNull( $field, $ifNull )
 	{
 		return " COALESCE($field, $ifNull) "; // if DB2 UDB
 	}
 
-	function ServerInfo()
+	public function ServerInfo()
 	{
 		//odbc_setoption($this->_connectionID,1,101 /*SQL_ATTR_ACCESS_MODE*/, 1 /*SQL_MODE_READ_ONLY*/);
 		$vers = $this->GetOne('select versionnumber from sysibm.sysversions');
@@ -67,13 +67,13 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 		return $this->GetOne($this->identitySQL);
 	}
 
-	function RowLock($tables,$where,$col='1 as adodbignore')
+	public function RowLock($tables,$where,$col='1 as adodbignore')
 	{
 		if ($this->_autocommit) $this->BeginTrans();
 		return $this->GetOne("select $col from $tables where $where for update");
 	}
 
-	function MetaTables($ttype=false,$showSchema=false, $qtable="%", $qschema="%")
+	public function MetaTables($ttype=false,$showSchema=false, $qtable="%", $qschema="%")
 	{
 	global $ADODB_FETCH_MODE;
 
@@ -116,7 +116,7 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 		return $arr2;
 	}
 
-	function MetaIndexes ($table, $primary = FALSE, $owner=false)
+	public function MetaIndexes ($table, $primary = FALSE, $owner=false)
 	{
         // save old fetch mode
         global $ADODB_FETCH_MODE;
@@ -156,7 +156,7 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 	}
 
 	// Format date column in sql string given an input format that understands Y M D
-	function SQLDate($fmt, $col=false)
+	public function SQLDate($fmt, $col=false)
 	{
 	// use right() and replace() ?
 		if (!$col) $col = $this->sysDate;
@@ -210,7 +210,7 @@ class ADODB_ODBC_DB2 extends ADODB_odbc {
 	}
 
 
-	function SelectLimit($sql, $nrows = -1, $offset = -1, $inputArr = false, $secs2cache = 0)
+	public function SelectLimit($sql, $nrows = -1, $offset = -1, $inputArr = false, $secs2cache = 0)
 	{
 		$nrows = (int) $nrows;
 		if ($offset <= 0) {
@@ -236,7 +236,7 @@ class  ADORecordSet_odbc_db2 extends ADORecordSet_odbc {
 
 	var $databaseType = "db2";
 
-	function MetaType($t,$len=-1,$fieldobj=false)
+	public function MetaType($t,$len=-1,$fieldobj=false)
 	{
 		if (is_object($t)) {
 			$fieldobj = $t;

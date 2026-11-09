@@ -63,12 +63,12 @@ class perf_db2 extends adodb_perf{
 	);
 
 
-	function __construct(&$conn)
+	public function __construct(&$conn)
 	{
 		$this->conn = $conn;
 	}
 
-	function Explain($sql,$partial=false)
+	public function Explain($sql,$partial=false)
 	{
 		$save = $this->conn->LogSQL(false);
 		if ($partial) {
@@ -103,7 +103,7 @@ class perf_db2 extends adodb_perf{
 	 * @param int $throwaway discarded variable to match the parent method
 	 * @return string The formatted table list
 	 */
-	function Tables($throwaway=0)
+	public function Tables($throwaway=0)
 	{
 		$rs = $this->conn->Execute("select tabschema,tabname,card as rows,
 			npages pages_used,fpages pages_allocated, tbspace tablespace

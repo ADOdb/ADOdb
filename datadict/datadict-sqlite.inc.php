@@ -33,7 +33,7 @@ class ADODB2_sqlite extends ADODB_DataDict {
 	public $blobAllowsDefaultValue = true;
 	public $blobAllowsNotNull      = true;
 
-	function actualType($meta)
+	public function actualType($meta)
 	{
 		$meta = strtoupper($meta);
 
@@ -84,7 +84,7 @@ class ADODB2_sqlite extends ADODB_DataDict {
 	}
 
 	// return string must begin with space
-	function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
+	public function _createSuffix($fname, &$ftype, $fnotnull, $fdefault, $fautoinc, $fconstraint, $funsigned, $fprimary, &$pkey)
 	{
 		$suffix = '';
 		if ($funsigned && !($fprimary && $fautoinc)) $suffix .= ' UNSIGNED';
@@ -98,7 +98,7 @@ class ADODB2_sqlite extends ADODB_DataDict {
 		return $suffix;
 	}
 
-	function alterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	public function alterColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		if ($this->debug) {
 			ADOConnection::outp("AlterColumnSQL not supported natively by SQLite");
@@ -106,7 +106,7 @@ class ADODB2_sqlite extends ADODB_DataDict {
 		return array();
 	}
 
-	function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
+	public function dropColumnSQL($tabname, $flds, $tableflds='', $tableoptions='')
 	{
 		if (SQLite3::version()['versionNumber'] < 3035000) {
 			if ($this->debug) {
@@ -117,7 +117,7 @@ class ADODB2_sqlite extends ADODB_DataDict {
 		return parent::dropColumnSQL($tabname, $flds, $tableflds, $tableoptions);
 	}
 
-	function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
+	public function renameColumnSQL($tabname, $oldcolumn, $newcolumn, $flds='')
 	{
 		if (SQLite3::version()['versionNumber'] < 3025000) {
 			if ($this->debug) {

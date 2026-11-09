@@ -32,7 +32,7 @@ class ADODB_oci805 extends ADODB_oci8 {
 	var $databaseType = "oci805";
 	var $connectSID = true;
 
-	function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
+	public function SelectLimit($sql,$nrows=-1,$offset=-1, $inputarr=false,$secs2cache=0)
 	{
 		// seems that oracle only supports 1 hint comment in 8i
 		if (strpos($sql,'/*+') !== false)

@@ -49,12 +49,12 @@ class  ADODB_ado_mssql extends ADODB_ado {
 			return $this->GetOne('select SCOPE_IDENTITY()');
 	}
 
-	function _affectedrows()
+	public function _affectedrows()
 	{
 			return $this->GetOne('select @@rowcount');
 	}
 
-	function SetTransactionMode( $transaction_mode )
+	public function SetTransactionMode( $transaction_mode )
 	{
 		$this->_transmode  = $transaction_mode;
 		if (empty($transaction_mode)) {
@@ -65,13 +65,13 @@ class  ADODB_ado_mssql extends ADODB_ado {
 		$this->Execute("SET TRANSACTION ".$transaction_mode);
 	}
 
-	function qStr($s, $magic_quotes=false)
+	public function qStr($s, $magic_quotes=false)
 	{
 		$s = ADOConnection::qStr($s);
 		return str_replace("\0", "\\\\000", $s);
 	}
 
-	function MetaColumns($table, $normalize=true)
+	public function MetaColumns($table, $normalize=true)
 	{
 		$table = strtoupper($table);
 		$arr= array();
@@ -102,7 +102,7 @@ class  ADODB_ado_mssql extends ADODB_ado {
 		return empty($arr) ? $false : $arr;
 	}
 
-	function CreateSequence($seq='adodbseq',$start=1)
+	public function CreateSequence($seq='adodbseq',$start=1)
 	{
 
 		$this->Execute('BEGIN TRANSACTION adodbseq');
@@ -117,7 +117,7 @@ class  ADODB_ado_mssql extends ADODB_ado {
 		return true;
 	}
 
-	function GenID($seq='adodbseq',$start=1)
+	public function GenID($seq='adodbseq',$start=1)
 	{
 		//$this->debug=1;
 		$this->Execute('BEGIN TRANSACTION adodbseq');

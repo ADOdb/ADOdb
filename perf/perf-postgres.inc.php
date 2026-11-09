@@ -93,7 +93,7 @@ class perf_postgres extends adodb_perf{
 		false
 	);
 
-	function __construct(&$conn)
+	public function __construct(&$conn)
 	{
 		$this->conn = $conn;
 	}
@@ -105,7 +105,7 @@ class perf_postgres extends adodb_perf{
  * @see adodb_perf::optimizeTable()
  */
 
-	function optimizeTable($table, $mode = ADODB_OPT_LOW)
+	public function optimizeTable($table, $mode = ADODB_OPT_LOW)
 	{
 	    if(! is_string($table)) return false;
 
@@ -125,7 +125,7 @@ class perf_postgres extends adodb_perf{
 	    return $conn->Execute($sql) !== false;
 	}
 
-	function Explain($sql,$partial=false)
+	public function Explain($sql,$partial=false)
 	{
 		$save = $this->conn->LogSQL(false);
 
