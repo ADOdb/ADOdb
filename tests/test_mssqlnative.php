@@ -19,7 +19,7 @@
  * @copyright 2014 Damien Regad, Mark Newnham and the ADOdb community
  */
 
-error_reporting(E_ALL|E_STRICT);
+error_reporting(E_ALL);
 
 include('../adodb.inc.php');
 // -------- Internal Trace functions
