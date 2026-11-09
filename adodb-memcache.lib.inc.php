@@ -319,7 +319,7 @@ class ADODB_Cache_MemCache
 		// hack, should actually use _csv2rs
 		$rs = explode("\n", $rs);
 		unset($rs[0]);
-		$rs = join("\n", $rs);
+		$rs = implode("\n", $rs);
 		$rs = unserialize($rs);
 		if (!is_object($rs)) {
 			$err = 'Unable to unserialize $rs';
